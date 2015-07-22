@@ -25,11 +25,14 @@
     <Filter Include="N3D_NoiseScene">
       <UniqueIdentifier>{f84a9eaa-b39b-4a45-aaad-c93b72948637}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NUT_NoiseTimer">
-      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N3D_NoiseFileManager">
       <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NUT_NoiseUtLayerGenerator">
+      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NUT_NoiseUtTimer">
+      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -70,7 +73,7 @@
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="NUT_NoiseTimer.h">
-      <Filter>NUT_NoiseTimer</Filter>
+      <Filter>NUT_NoiseUtTimer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,7 +113,7 @@
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="NUT_NoiseTimer.cpp">
-      <Filter>NUT_NoiseTimer</Filter>
+      <Filter>NUT_NoiseUtTimer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

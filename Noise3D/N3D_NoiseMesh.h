@@ -51,7 +51,11 @@ public:
 
 	void	SetScaleZ(float scaleZ);
 
+	int	GetVertexCount();
 
+	void GetVertex(UINT iIndex,N_DefaultVertex& outVertex);
+
+	void GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
 
 private:
 
@@ -61,7 +65,8 @@ private:
 	void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex);
 
 	void		mFunction_UpdateWorldMatrix();
-
+	
+	//this function use the vertex list of vector<N_DefaultVertex>
 	void		mFunction_ComputeBoundingBox();
 
 	void		mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer);

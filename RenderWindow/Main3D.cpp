@@ -9,7 +9,7 @@ NoiseMesh Mesh2;
 NoiseMesh Mesh3;
 NoiseCamera Camera;
 NoiseLightManager LightMgr;
-NoiseTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
+NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 
 float Angle;
 

@@ -9,7 +9,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseRenderer
+public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 {
 	//scene要跟它管的类都互粉=v=
 	friend class NoiseScene;
@@ -33,9 +33,9 @@ public:
 private:
 	BOOL			m_Function_Init();
 
-	BOOL			m_Function_Init_CreateEffectFromFile();
+	BOOL			m_Function_Init_CreateEffectFromFile(LPCWSTR fxPath);
 
-	BOOL			m_Function_Init_CreateEffectFromMemory();
+	BOOL			m_Function_Init_CreateEffectFromMemory(char* compiledShaderPath);
 
 	void				m_Function_SetRasterState(NOISE_FILLMODE iMode);
 

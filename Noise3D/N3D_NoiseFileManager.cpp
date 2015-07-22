@@ -36,12 +36,11 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	//指针指着文件尾，当前位置就是大小
 	int fileSize = (int)fileIn.tellg();
 
+
 	//指针移到文件头
 	fileIn.seekg(0, std::ios_base::beg);
 
-	//读入,要求参数是char* 坑爹呢
-	//fileIn.read(tmp_pCharBuffer, fileSize);
-
+	//...........
 	int i = 0;char tmpC =0;
 	while (!fileIn.eof())
 	{
@@ -49,6 +48,8 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 		fileIn.get(tmpC);
 		pFileBuffer->push_back(tmpC);
 	}
+
+
 
 	//关闭文件
 	fileIn.close();

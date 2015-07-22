@@ -8,7 +8,7 @@
 ***********************************************************************/
 #include "Noise3D.h"
 
-NoiseTimer::NoiseTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
+NoiseUtTimer::NoiseTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 {
 	//ƒ¨»œ”√∫¡√Î÷∆
 	mTimeUnit				= timeUnit;
@@ -25,7 +25,7 @@ NoiseTimer::NoiseTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILL
 	QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 };
 
-void NoiseTimer::Next()
+void NoiseUtTimer::Next()
 {
 	if(mIsPaused)
 	{
@@ -55,7 +55,7 @@ void NoiseTimer::Next()
 	};
 };
 
-double NoiseTimer::GetTotalTime()const
+double NoiseUtTimer::GetTotalTime()const
 {
 	switch(mTimeUnit)
 	{
@@ -69,7 +69,7 @@ double NoiseTimer::GetTotalTime()const
 	return 0;
 };
 
-double NoiseTimer::GetInterval()const
+double NoiseUtTimer::GetInterval()const
 {
 	switch(mTimeUnit)
 	{
@@ -83,30 +83,30 @@ double NoiseTimer::GetInterval()const
 	return 0;
 };
 
-void NoiseTimer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
+void NoiseUtTimer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
 {
 	if (timeUnit ==NOISE_TIMER_TIMEUNIT_SECOND||timeUnit==NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	{mTimeUnit = timeUnit;};
 };
 
-void NoiseTimer::Pause()
+void NoiseUtTimer::Pause()
 {
 	mIsPaused = TRUE;
 };
 
-void NoiseTimer::Continue()
+void NoiseUtTimer::Continue()
 {
 	mIsPaused = FALSE;
 };
 
-void NoiseTimer::ResetAll()
+void NoiseUtTimer::ResetAll()
 {
 	mTotalTime	= 0.0;
 	mDeltaTime	= 0.0;
 	mIsPaused	= FALSE;
 };
 
-void NoiseTimer::ResetTotalTime()
+void NoiseUtTimer::ResetTotalTime()
 {
 	mTotalTime = 0;
 };

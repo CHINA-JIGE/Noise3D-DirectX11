@@ -677,6 +677,29 @@ void NoiseMesh::SetScaleZ(float scaleZ)
 	m_ScaleZ = scaleZ;
 }
 
+int NoiseMesh::GetVertexCount()
+{
+	m_VertexCount = m_pVertexInMem->size();
+	return m_VertexCount;
+}
+
+void NoiseMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
+{
+	if (iIndex < m_pVertexInMem->size())
+	{
+		outVertex = m_pVertexInMem->at(iIndex);
+	}
+}
+
+void NoiseMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
+{
+	std::vector<N_DefaultVertex>::iterator iterBegin, iterLast;
+	iterBegin = m_pVertexInMem->begin();
+	iterLast = m_pVertexInMem->end();
+	outBuff.assign(iterBegin,iterLast);
+}
+
+
 
 
 

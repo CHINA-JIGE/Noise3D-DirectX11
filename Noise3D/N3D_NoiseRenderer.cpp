@@ -99,7 +99,10 @@ BOOL	NoiseRenderer::m_Function_Init()
 {
 	HRESULT hr = S_OK;
 
-	m_Function_Init_CreateEffectFromFile();
+	m_Function_Init_CreateEffectFromMemory("Main.fxo");
+
+	//创建Technique
+	m_pFX_Tech_Basic = m_pFX->GetTechniqueByName("BasicTech");
 
 	//创建Cbuffer
 	m_pFX_CbPerFrame=m_pFX->GetConstantBufferByName("cbPerFrame");
@@ -129,7 +132,7 @@ BOOL	NoiseRenderer::m_Function_Init()
 	return TRUE;
 };
 
-BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile()
+BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile(LPCWSTR fxPath)
 {
 	HRESULT hr = S_OK;
 
@@ -140,10 +143,10 @@ BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile()
 #endif
 	ID3D10Blob*	compiledFX;
 	ID3D10Blob*	compilationMsg;
-
+	
 	//编译fx文件
 	hr = D3DX11CompileFromFile(
-		L"Main.fx",0,0,0,"fx_5_0",
+		fxPath,0,0,0,"fx_5_0",
 		shaderFlags,0,0,&compiledFX,
 		&compilationMsg,0);
 
@@ -181,9 +184,34 @@ BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile()
 	return TRUE;
 };
 
-
-BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromMemory()
+BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromMemory(char* compiledShaderPath)
 {
+	std::vector<char> compiledShader;
+
+	//加载fxo文件
+	if (!NoiseFileManager::ImportFile_PURE(compiledShaderPath, &compiledShader))
+	{
+		return FALSE; 
+	}
+
+	//创建fx特效框架
+	HRESULT hr = S_OK;
+	hr = D3DX11CreateEffectFromMemory(&compiledShader[0], compiledShader.size(), 0, g_pd3dDevice, &m_pFX);
+	HR_DEBUG(hr,"load compiled shader failed");
+
+	//创建Technique
+	m_pFX_Tech_Basic = m_pFX->GetTechniqueByName("BasicTech");
+
+	//然后要创建InputLayout
+	D3DX11_PASS_DESC passDesc;
+	m_pFX_Tech_Basic->GetPassByIndex(0)->GetDesc(&passDesc);
+	hr = g_pd3dDevice->CreateInputLayout(
+		&g_VertexDesc_Default[0],
+		g_VertexDesc_ElementNum,
+		passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize,
+		&g_pVertexLayout);
+	HR_DEBUG(hr, "创建input Layout失败！");
 
 	return TRUE;
 };

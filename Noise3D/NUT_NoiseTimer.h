@@ -8,12 +8,12 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseTimer
+public class _declspec(dllexport) NoiseUtTimer
 {
 public:
 
 	//构造函数
-	NoiseTimer(NOISE_TIMER_TIMEUNIT timeUnit);
+	NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit);
 
 	//在函数名后加const表示此函数不会修改类成员
 	//暂停后不再加
