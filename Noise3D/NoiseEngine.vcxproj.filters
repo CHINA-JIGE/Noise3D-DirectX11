@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{29298e88-d5b9-4fef-a5dd-3b53351ce1d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Global">
+      <UniqueIdentifier>{f521ad5a-76f7-4ffe-926f-69b265c34501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseCamera">
+      <UniqueIdentifier>{1cdc6592-cae8-449f-ba8b-73a46043aab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseEngine">
+      <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseLightManager">
+      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseMesh">
+      <UniqueIdentifier>{66319d1c-340d-4bf9-887d-e02737f05f6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseRenderer">
+      <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseScene">
+      <UniqueIdentifier>{f84a9eaa-b39b-4a45-aaad-c93b72948637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NUT_NoiseTimer">
+      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseFileManager">
+      <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="N3D_NoiseEngine.h">
+      <Filter>N3D_NoiseEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseCamera.h">
+      <Filter>N3D_NoiseCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseScene.h">
+      <Filter>N3D_NoiseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseLightManager.h">
+      <Filter>N3D_NoiseLightManager</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseMesh.h">
+      <Filter>N3D_NoiseMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseRenderer.h">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseFileManager.h">
+      <Filter>N3D_NoiseFileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseFlag.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseGlobal.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseMacro.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseTypes.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise3D.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="NUT_NoiseTimer.h">
+      <Filter>NUT_NoiseTimer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\RenderWindow\Main.fx">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\RenderWindow\Lighting.fx">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="N3D_NoiseEngine.cpp">
+      <Filter>N3D_NoiseEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseCamera.cpp">
+      <Filter>N3D_NoiseCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseScene.cpp">
+      <Filter>N3D_NoiseScene</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseLightManager.cpp">
+      <Filter>N3D_NoiseLightManager</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseMesh.cpp">
+      <Filter>N3D_NoiseMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseFileManager.cpp">
+      <Filter>N3D_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseGlobal.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="NUT_NoiseTimer.cpp">
+      <Filter>NUT_NoiseTimer</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
