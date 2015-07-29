@@ -28,11 +28,11 @@
     <Filter Include="N3D_NoiseFileManager">
       <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NUT_NoiseUtLayerGenerator">
-      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NUT_NoiseUtTimer">
       <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NUT_NoiseUtLayerGenerator">
+      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,8 +72,11 @@
     <ClInclude Include="Noise3D.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="NUT_NoiseTimer.h">
+    <ClInclude Include="NUT_NoiseUtTimer.h">
       <Filter>NUT_NoiseUtTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="NUT_NoiseUtLayerGenerator.h">
+      <Filter>NUT_NoiseUtLayerGenerator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +84,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="..\RenderWindow\Lighting.fx">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\RenderWindow\CBuffer.fx">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\RenderWindow\Input Struct.fx">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -112,8 +121,11 @@
     <ClCompile Include="NoiseGlobal.cpp">
       <Filter>Global</Filter>
     </ClCompile>
-    <ClCompile Include="NUT_NoiseTimer.cpp">
+    <ClCompile Include="NUT_NoiseUtTimer.cpp">
       <Filter>NUT_NoiseUtTimer</Filter>
+    </ClCompile>
+    <ClCompile Include="NUT_NoiseUtLayerGenerator.cpp">
+      <Filter>NUT_NoiseUtLayerGenerator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

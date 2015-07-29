@@ -26,7 +26,8 @@ std::ostringstream	g_Debug_MsgString;
 //SemanticName,Index,Format,InputSlot,ByteOffset,InputSlotClass,InstanceDataStepRate
 D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[]=
 {	
-	{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
+	{"POSITION",0,	DXGI_FORMAT_R32G32B32_FLOAT,		0,0,	D3D11_INPUT_PER_VERTEX_DATA,0},
+	{  "COLOR",	0,	DXGI_FORMAT_R32G32B32A32_FLOAT,	0,12,	D3D11_INPUT_PER_VERTEX_DATA,0},
 };
 
 D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[]=
@@ -52,7 +53,8 @@ ID3D11RenderTargetView* g_pRenderTargetView		= NULL;
 //深度&模版 只能有一个
 ID3D11DepthStencilView*	g_pDepthStencilView		= NULL;
 //顶点布局
-ID3D11InputLayout*      g_pVertexLayout			= NULL;
+ID3D11InputLayout*      g_pVertexLayout_Default			= NULL;
+ID3D11InputLayout*	     g_pVertexLayout_Simple			=	NULL;
 
 ID3D11RasterizerState*		g_pRasterState_FillMode_Solid = NULL;
 ID3D11RasterizerState*		g_pRasterState_FillMode_WireFrame= NULL;

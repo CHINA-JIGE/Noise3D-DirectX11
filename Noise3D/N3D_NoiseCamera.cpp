@@ -33,6 +33,7 @@ NoiseCamera::NoiseCamera()
 	D3DXMatrixPerspectiveFovLH(m_pMatrixProjection,mViewAngleY,mAspectRatio,mNearPlane,mFarPlane);
 	D3DXMatrixIdentity(m_pMatrixView);
 };
+
 NoiseCamera::~NoiseCamera()
 {
 	delete m_pMatrixView;
@@ -48,12 +49,14 @@ void	NoiseCamera::SetLookAt(NVECTOR3* vLookat)
 	*m_pLookat=*vLookat;
 	mFunction_UpdateRotation();
 };
+
 void	NoiseCamera::SetLookAt(float x,float y,float z)
 {
 	NVECTOR3 tmpLookat(x,y,z);
 	*m_pLookat=tmpLookat;
 	mFunction_UpdateRotation();
 };
+
 void	NoiseCamera::GetLookAt(NVECTOR3& out_vLookat)
 {
 	out_vLookat = *m_pLookat;
@@ -65,21 +68,25 @@ void	NoiseCamera::SetPosition(NVECTOR3* vPos)
 		*m_pPosition=*vPos;
 		mFunction_UpdateRotation();
 }
+
 void	NoiseCamera::SetPosition(float x,float y,float z)
 {
 	NVECTOR3 tmpPos(x,y,z);
 	*m_pPosition=tmpPos;
 	mFunction_UpdateRotation();
 };
+
 void NoiseCamera::GetPosition(NVECTOR3& out_vPos)
 {
 	out_vPos=*m_pPosition;
 };
+
 void	NoiseCamera::Move(NVECTOR3* vRelativePos)
 {
 	D3DXVec3Add(m_pPosition,m_pPosition,vRelativePos);
 	SetPosition(m_pPosition);
 };
+
 void	NoiseCamera::Move(float relativeX,float relativeY,float relativeZ)
 {
 	NVECTOR3 tmpRelativePos(relativeX,relativeY,relativeZ);
@@ -94,16 +101,19 @@ void	NoiseCamera::SetRotation(float RX_Pitch,float RY_Yaw,float RZ_Roll)//要更新
 	mRotateZ_Roll = RZ_Roll;
 	mFunction_UpdateDirection();
 };
+
 void	NoiseCamera::SetRotationY_Yaw(float angleY)
 {
 	mRotateY_Yaw = angleY;
 	mFunction_UpdateDirection();
 };
+
 void	NoiseCamera::SetRotationX_Pitch(float AngleX)
 {
 		mRotateX_Pitch = AngleX;
 		mFunction_UpdateDirection();
 };
+
 void	NoiseCamera::SetRotationZ_Roll(float AngleZ)
 {
 	//roll翻滚不需要更新lookat
@@ -120,6 +130,7 @@ void	NoiseCamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 	}
 
 };
+
 void NoiseCamera::SetViewAngle(float iViewAngleY,float iAspectRatio)
 {
 	if(iViewAngleY>0 && (mViewAngleY <(MATH_PI/2))){mViewAngleY	=	iViewAngleY;	}
@@ -144,6 +155,7 @@ void	NoiseCamera::mFunction_UpdateProjMatrix()
 	//要更新到GPU，TM居然要先转置
 	D3DXMatrixTranspose(m_pMatrixProjection,m_pMatrixProjection);
 };
+
 void	NoiseCamera::mFunction_UpdateViewMatrix()
 {
 
@@ -171,11 +183,19 @@ void	NoiseCamera::mFunction_UpdateRotation()
 	//检查新direction是否为0
 	D3DXVec3Subtract(&tmpDirection,m_pLookat,m_pPosition);
 	float mLength = D3DXVec3Length(&tmpDirection);
-	//注意浮点数误差
-	if (mLength<0.01)
-	{DEBUG_MSG("位置与视点重合！",0,0) ;}
+	//注意浮点数误差，视点和位置不能重合
+	if (mLength<0.001)
+	{
+		//重置摄像机啊 尼玛 这样都set得出来不如去死啊
+		mRotateX_Pitch = 0;
+		mRotateY_Yaw = 0;
+		mRotateZ_Roll = 0;
+		*m_pDirection = NVECTOR3(1.0f, 0, 0);
+		*m_pLookat = *m_pPosition + *m_pDirection;
+		return;
+	}
 	else
-	//视点和位置不重合再赋值
+	//视点和位置不重合 ，再赋值
 	{ *m_pDirection = tmpDirection; }
 	;
 
@@ -206,6 +226,7 @@ void	NoiseCamera::mFunction_UpdateRotation()
 	//roll角：更新direction不会改变roll角 
 	//roll逆时针转是正角
 };
+
 void	NoiseCamera::mFunction_UpdateDirection()
 {
 	//主要功能：这个函数主要是为了处理姿态角改变带来的视线Direction变化

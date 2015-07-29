@@ -65,7 +65,7 @@ BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 	return TRUE;
 }
 
-void NoiseUtLayerGenerator::Step2_Intersection(int iLayerCount)
+void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 {
 
 	//Objective of this function is GENERALLY  to generate Line segments ,sometimes directly add triangles
@@ -123,7 +123,7 @@ void NoiseUtLayerGenerator::Step2_Intersection(int iLayerCount)
 			 v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
 
 			// tmpResult:"N_IntersectionResult" 
-			tmpResult = mFunction_HowManyVertexOnThisLayer(currentTriangleID,currentLayerID,v1,v2,v3);
+			tmpResult = mFunction_HowManyVertexOnThisLayer(currentTriangleID,currentLayerY,v1,v2,v3);
 
 			//Category Discussion	(?·ÖÀàÌÖÂÛ?)
 			switch (tmpResult.mVertexCount)
@@ -333,7 +333,7 @@ BOOL NoiseUtLayerGenerator::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECT
 	float lambda = (v1.y - v2.y) / (layerY - v2.y);
 
 	//actually not an essential check,but of no harm = =
-	if (lambda > -1.0f or lambda < 1.0f)
+	if (lambda > -1.0f || lambda < 1.0f)
 	{
 		//interpolate
 		*outIntersectPoint = v2 + lambda * (v1 - v2);

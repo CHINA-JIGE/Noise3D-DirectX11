@@ -1,79 +1,21 @@
 /**********************************************************************
 
-	File: BasicShader.fx
+	File: Main.fx
 	Author: Jige
 
 **************************************************************************/
 
 
 #include "Lighting.fx"
-
-cbuffer cbPerObject
-{
-	float4x4	gWorldMatrix;
-	float4x4	gWorldInvTransposeMatrix;
-};
-
-cbuffer cbPerFrame
-{
-	float4x4				gViewMatrix;
-	//————Dynamic Light————
-	N_DirectionalLight gDirectionalLight_Dynamic[10];
-	N_PointLight	 gPointLight_Dynamic[10];
-	N_SpotLight	gSpotLight_Dynamic[10];
-	int		gDirectionalLightCount_Dynamic;
-	int		gPointLightCount_Dynamic;
-	int		gSpotLightCount_Dynamic;
-	int		gIsLightingEnabled_Dynamic;
-	float3	gCamPos;	float mPad1;
-};
-
-cbuffer cbPerSubset
-{
-	//Material
-	N_Material	gMaterial;
-};
-
-cbuffer	cbRarely
-{
-	float4x4	gProjMatrix;
-
-	//————Static Light————
-	N_DirectionalLight gDirectionalLight_Static[50];
-	N_PointLight	 gPointLight_Static[50];
-	N_SpotLight	gSpotLight_Static[50];
-	int		gDirectionalLightCount_Static;
-	int		gPointLightCount_Static;
-	int		gSpotLightCount_Static;
-	int		gIsLightingEnabled_Static;
-};
-
-struct VS_INPUT
-{
-    float3 posL : POSITION;
-    float4 color : COLOR;
-	float3 normalL :NORMAL;
-	float2 texcoord: TEXCOORD;
-};
-
-struct VS_OUTPUT
-{
-    float4 posH : SV_POSITION;
-    float4 color : COLOR;
-	float3 posW: POSITION;
-	float3 normalW :NORMAL;
-	float2 texcoord:TEXCOORD;
-};
+#include "CBuffer.fx"
+#include "Input Struct.fx"
 
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-
-VS_OUTPUT VS0( VS_INPUT input )
+//----------Default Draw---------------
+VS_OUTPUT_DEFAULT VS0(VS_INPUT_DEFAULT input )
 {
 		//initialize
-    	VS_OUTPUT output = (VS_OUTPUT)0;
+    	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 		//the W transformation
 		output.posW 	= mul(float4(input.posL,1.0f),gWorldMatrix).xyz;
 		//the VP transformation
@@ -86,12 +28,7 @@ VS_OUTPUT VS0( VS_INPUT input )
     	return output;
 }
 
-
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-float4 PS0( VS_OUTPUT input ) : SV_Target
+float4 PS0(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就是 back buffer ，所以叫SV_Target
 {
 	//the output
 	float4 finalColor = float4(0,0,0,0);
@@ -161,12 +98,40 @@ float4 PS0( VS_OUTPUT input ) : SV_Target
 }
 
 
+
+//----------Draw 3D Lines---------------
+VS_OUTPUT_SIMPLE VS_Line3D(VS_INPUT_SIMPLE input)
+{
+	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
+	output.posH = mul(mul(float4(input.posL, 1.0f),gViewMatrix_Line3D), gProjMatrix_Line3D);
+	output.color = input.color;
+
+	return output;
+}
+
+float4 PS_Line3D(VS_OUTPUT_SIMPLE input) : SV_Target
+{
+	return input.color;
+}
+
+
+
 //---------------------------------------------------------------------------------------
-technique11 BasicTech
+
+technique11 DefaultDraw
 {
 	pass Pass0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS0()));
 		SetPixelShader(CompileShader(ps_5_0,PS0()));
+	}
+}
+
+technique11 DrawLine3D
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_Line3D()));
+		SetPixelShader(CompileShader(ps_5_0, PS_Line3D()));
 	}
 }

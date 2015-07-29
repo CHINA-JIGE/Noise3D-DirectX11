@@ -96,7 +96,8 @@
     <ClInclude Include="NoiseGlobal.h" />
     <ClInclude Include="NoiseMacro.h" />
     <ClInclude Include="NoiseTypes.h" />
-    <ClInclude Include="NUT_NoiseTimer.h" />
+    <ClInclude Include="NUT_NoiseUtLayerGenerator.h" />
+    <ClInclude Include="NUT_NoiseUtTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RenderWindow\Lighting.fx" />
@@ -120,7 +121,16 @@
     <ClCompile Include="N3D_NoiseRenderer.cpp" />
     <ClCompile Include="N3D_NoiseScene.cpp" />
     <ClCompile Include="NoiseGlobal.cpp" />
-    <ClCompile Include="NUT_NoiseTimer.cpp" />
+    <ClCompile Include="NUT_NoiseUtLayerGenerator.cpp" />
+    <ClCompile Include="NUT_NoiseUtTimer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\RenderWindow\CBuffer.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\RenderWindow\Input Struct.fx">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

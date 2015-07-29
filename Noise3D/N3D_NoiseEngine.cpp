@@ -23,7 +23,8 @@ void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 
 	ReleaseCOM(g_pRenderTargetView);
 	ReleaseCOM(g_pSwapChain);
-	ReleaseCOM(g_pVertexLayout);
+	ReleaseCOM(g_pVertexLayout_Default);
+	ReleaseCOM(g_pVertexLayout_Simple);
 	ReleaseCOM(g_pRenderTargetView);
 	ReleaseCOM(g_pDepthStencilView);
 	ReleaseCOM(g_pImmediateContext);

@@ -9,10 +9,9 @@
 
 public class _declspec(dllexport) NoiseScene
 {
-	//scene要跟它管的类都互粉=v=
-	friend class NoiseCamera;
 	friend class NoiseMesh;
 	friend class NoiseRenderer;
+	friend class NoiseCamera;
 
 public:
 	//构造函数
@@ -29,18 +28,23 @@ public:
 
 	void				SetCamera(NoiseCamera* pSceneCam);
 
+	NoiseMesh*					GetMesh(UINT iMeshIndex);
 
+	NoiseRenderer*				GetRenderer();
+
+	NoiseCamera*				GetCamera();
+
+	NoiseLightManager*		GetLightManager();
 
 private:
 
 	NoiseCamera*						m_pChildCamera;
+
 	NoiseRenderer*						m_pChildRenderer;
+
 	NoiseLightManager*				m_pChildLightMgr;
 
 	std::vector<NoiseMesh*> *	m_pChildMeshList;
-
-	std::vector <NoiseMesh*>*	m_pRenderList_Mesh;
-
 
 };
 

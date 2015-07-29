@@ -9,69 +9,134 @@
 
 #include "Noise3D.h"
 
-static UINT VBstride = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+static UINT VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+static UINT VBstride_Simple = sizeof(N_SimpleVertex);
 static UINT VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 static NoiseMesh*							tmp_pMesh;
 static NoiseCamera*						tmp_pCamera;
 static D3DX11_TECHNIQUE_DESC	tmp_pTechDesc;
 
+
+
 NoiseRenderer::NoiseRenderer()
 {
 	m_pFatherScene				= NULL;
+	m_pRenderList_Mesh = new std::vector <NoiseMesh*>;
+	m_pFX = NULL;
+	m_pFX_Tech_Default = NULL;
+	m_pFX_Tech_DrawLine3D = NULL;
 };
+
 
 NoiseRenderer::~NoiseRenderer()
 {
 	ReleaseCOM(m_pFX);
 };
 
+
 void	NoiseRenderer::RenderMeshInList()
 {
 	UINT i=0;UINT j =0;
-	 tmp_pCamera = m_pFatherScene->m_pChildCamera;
+	 tmp_pCamera = m_pFatherScene->GetCamera();
 
 	//更新ConstantBuffer:修改过就更新(cbRarely)
-	 m_Function_RenderMeshInList_UpdateCbRarely();
+	 mFunction_RenderMeshInList_UpdateCbRarely();
 
 
 	//更新ConstantBuffer:每帧更新一次 (cbPerFrame)
-	 m_Function_RenderMeshInList_UpdateCbPerFrame();
+	 mFunction_RenderMeshInList_UpdateCbPerFrame();
 
 
 #pragma region Render Mesh
-	for(i = 0;	i<(m_pFatherScene->m_pRenderList_Mesh->size());	i++)
+	for(i = 0;	i<(m_pRenderList_Mesh->size());	i++)
 	{
 		//取出渲染列表中的mesh指针
-		tmp_pMesh = m_pFatherScene->m_pRenderList_Mesh->at(i);
+		tmp_pMesh = m_pRenderList_Mesh->at(i);
 
 
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
-		m_Function_RenderMeshInList_UpdateCbPerObject();
+		mFunction_RenderMeshInList_UpdateCbPerObject();
 
 		//更新ConstantBuffer:每Subset,在一个mesh里面有不同Mat或Tex的都算一个subset
-		m_Function_RenderMeshInList_UpdateCbPerSubset();
+		mFunction_RenderMeshInList_UpdateCbPerSubset();
 
 		//更新完cb就可以开始draw了
-		g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVertexBuffer,&VBstride,&VBoffset);
+		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
+		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVertexBuffer,&VBstride_Default,&VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_Function_SetRasterState(m_FillMode);
 
-		//遍历所用tech的所有pass
-		m_pFX_Tech_Basic->GetDesc(&tmp_pTechDesc);
-		for(j=0;j<tmp_pTechDesc.Passes;j++)
+		//设置fillMode
+		if (m_FillMode == NOISE_FILLMODE_POINT)
 		{
-			m_pFX_Tech_Basic->GetPassByIndex(j)->Apply(0,g_pImmediateContext);
+			//point
+			g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+		}
+		else
+		{
+			//wireframe or Solid
+			g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			mFunction_SetRasterState(m_FillMode);
+		}
+
+
+		//遍历所用tech的所有pass ---- index starts from 1
+		m_pFX_Tech_Default->GetDesc(&tmp_pTechDesc);
+		for(j=0;j<tmp_pTechDesc.Passes; ++j)
+		{
+			m_pFX_Tech_Default->GetPassByIndex(j)->Apply(0,g_pImmediateContext);
 			g_pImmediateContext->DrawIndexed(tmp_pMesh->m_IndexCount,0,0);
 		}
 
 }
 #pragma endregion Render Mesh
 
-	m_pFatherScene->m_pRenderList_Mesh->clear();
-};
+	m_pRenderList_Mesh->clear();
+}
+
+
+void NoiseRenderer::Draw_Line3D(NVECTOR3 v1,NVECTOR3 v2,NVECTOR4 color1, NVECTOR4 color2)
+{
+	tmp_pCamera = m_pFatherScene->GetCamera();
+
+	//更新ConstantBuffer:专门给draw Line 3D开了一个cbuffer用于优化
+	mFunction_RenderLine3D_UpdateCbDrawLine3D();
+
+	//.....................
+	N_SimpleVertex tmpVertex[2];
+	tmpVertex[0].Pos = v1;
+	tmpVertex[0].Color = color1;
+	tmpVertex[1].Pos = v2;
+	tmpVertex[1].Color = color2;
+
+	//更新顶点
+	g_pImmediateContext->UpdateSubresource(m_pVertexBuffer_Line3D,0,0, &tmpVertex[0], 0, 0);
+
+	//更新完cb就可以开始draw了
+	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer_Line3D, &VBstride_Simple, &VBoffset);
+	g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	mFunction_SetRasterState(NOISE_FILLMODE_SOLID);
+
+
+	//draw line 一个pass就够了
+		m_pFX_Tech_DrawLine3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+		g_pImmediateContext->Draw(2, 0);
+
+}
+
+
+void NoiseRenderer::Draw_CoordinateFrame(float fAxisLength)
+{
+	//X axis
+	Draw_Line3D(NVECTOR3(0, 0, 0), NVECTOR3(fAxisLength, 0, 0), NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 0, 0, 1.0f));
+	//Y axis
+	Draw_Line3D(NVECTOR3(0, 0, 0), NVECTOR3(0, fAxisLength, 0), NVECTOR4(0, 0, 0, 0), NVECTOR4(0, 1.0f, 0, 1.0f));
+	//Z axis
+	Draw_Line3D(NVECTOR3(0, 0, 0), NVECTOR3(0, 0, fAxisLength), NVECTOR4(0, 0, 0, 0), NVECTOR4(0, 0, 1.0f, 1.0f));
+}
+
 
 void	NoiseRenderer::ClearViews()
 {
@@ -82,39 +147,92 @@ void	NoiseRenderer::ClearViews()
 		D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL,1.0f,0);
 };
 
+
 void	NoiseRenderer::RenderToScreen()
 {
 		g_pSwapChain->Present( 0, 0 );
 };
+
 
 void NoiseRenderer::SetFillMode(NOISE_FILLMODE iMode)
 {
 	m_FillMode = iMode;
 };
 
+
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-BOOL	NoiseRenderer::m_Function_Init()
+BOOL	NoiseRenderer::mFunction_Init()
 {
 	HRESULT hr = S_OK;
 
-	m_Function_Init_CreateEffectFromMemory("Main.fxo");
+	//mFunction_Init_CreateEffectFromMemory("Main.fxo");
+	mFunction_Init_CreateEffectFromFile(L"Main.fx");
 
 	//创建Technique
-	m_pFX_Tech_Basic = m_pFX->GetTechniqueByName("BasicTech");
+	m_pFX_Tech_Default = m_pFX->GetTechniqueByName("DefaultDraw");
+	m_pFX_Tech_DrawLine3D = m_pFX->GetTechniqueByName("DrawLine3D");
+
+	//然后要创建InputLayout
+	//默认顶点
+	D3DX11_PASS_DESC passDesc;
+	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
+	hr = g_pd3dDevice->CreateInputLayout(
+		&g_VertexDesc_Default[0],
+		g_VertexDesc_Default_ElementNum,
+		passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize,
+		&g_pVertexLayout_Default);
+	HR_DEBUG(hr, "创建input Layout失败！");
+
+	//simple顶点的
+	m_pFX_Tech_DrawLine3D->GetPassByIndex(0)->GetDesc(&passDesc);
+	hr = g_pd3dDevice->CreateInputLayout(
+		&g_VertexDesc_Simple[0],
+		g_VertexDesc_Simple_ElementNum,
+		passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize,
+		&g_pVertexLayout_Simple);
+	HR_DEBUG(hr, "创建input Layout失败！");
+
+
+
 
 	//创建Cbuffer
 	m_pFX_CbPerFrame=m_pFX->GetConstantBufferByName("cbPerFrame");
 	m_pFX_CbPerObject=m_pFX->GetConstantBufferByName("cbPerObject");
 	m_pFX_CbPerSubset = m_pFX->GetConstantBufferByName("cbPerSubset");
 	m_pFX_CbRarely=m_pFX->GetConstantBufferByName("cbRarely");
+	m_pFX_CbDrawLine3D = m_pFX->GetConstantBufferByName("cbDrawLine3D");
+
+
+	#pragma region CreateVertexBuffer_Line3D
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;// D3D11_CPU_ACCESS_WRITE;
+	vbd.ByteWidth = sizeof(N_SimpleVertex) * 2;
+	vbd.MiscFlags = 0;
+	vbd.Usage = D3D11_USAGE_DEFAULT;
+	vbd.StructureByteStride = 0;
+
+	N_SimpleVertex initV[2];
+	ZeroMemory(&initV[0], 2 * sizeof(N_SimpleVertex));
+
+	D3D11_SUBRESOURCE_DATA tmp_initData;
+	ZeroMemory(&tmp_initData, sizeof(tmp_initData));
+	tmp_initData.pSysMem = &initV[0];
+
+	hr = g_pd3dDevice->CreateBuffer(&vbd, &tmp_initData, &m_pVertexBuffer_Line3D);
+	HR_DEBUG(hr, "创建Vertex Buffer_Line3D失败");
+
+	#pragma endregion CreateVertexBuffer_Line3D
+
 
 	#pragma region CreateRasterState
-
 	//创建预设的光栅化state
 	//Create Raster State;If you want various Raster State,you should pre-Create all of them in the beginning
-
 	D3D11_RASTERIZER_DESC tmpRasterStateDesc;//光栅化设置
 	ZeroMemory(&tmpRasterStateDesc,sizeof(D3D11_RASTERIZER_DESC));
 	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
@@ -132,7 +250,8 @@ BOOL	NoiseRenderer::m_Function_Init()
 	return TRUE;
 };
 
-BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile(LPCWSTR fxPath)
+
+BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 {
 	HRESULT hr = S_OK;
 
@@ -154,7 +273,7 @@ BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		DEBUG_MSG("Compile Basic Shader Fail!",0,0);
+		assert(FALSE:"Shader Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 
@@ -166,25 +285,11 @@ BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	HR_DEBUG(hr,"Create Basic Effect Fail!");
 	ReleaseCOM(compiledFX);
 
-	//创建Technique
-	m_pFX_Tech_Basic =m_pFX->GetTechniqueByName("BasicTech");
-
-	//然后要创建InputLayout
-	D3DX11_PASS_DESC passDesc;
-	m_pFX_Tech_Basic->GetPassByIndex(0)->GetDesc(&passDesc);
-	hr = g_pd3dDevice->CreateInputLayout(
-		&g_VertexDesc_Default[0],
-		g_VertexDesc_ElementNum,
-		passDesc.pIAInputSignature,
-		passDesc.IAInputSignatureSize,
-		&g_pVertexLayout);
-	HR_DEBUG(hr,"创建input Layout失败！");
-
-
 	return TRUE;
 };
 
-BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromMemory(char* compiledShaderPath)
+
+BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath)
 {
 	std::vector<char> compiledShader;
 
@@ -200,37 +305,33 @@ BOOL	NoiseRenderer::m_Function_Init_CreateEffectFromMemory(char* compiledShaderP
 	HR_DEBUG(hr,"load compiled shader failed");
 
 	//创建Technique
-	m_pFX_Tech_Basic = m_pFX->GetTechniqueByName("BasicTech");
+	m_pFX_Tech_Default = m_pFX->GetTechniqueByName("DefaultDraw");
+	m_pFX_Tech_DrawLine3D = m_pFX->GetTechniqueByName("DrawLine3D");
 
-	//然后要创建InputLayout
-	D3DX11_PASS_DESC passDesc;
-	m_pFX_Tech_Basic->GetPassByIndex(0)->GetDesc(&passDesc);
-	hr = g_pd3dDevice->CreateInputLayout(
-		&g_VertexDesc_Default[0],
-		g_VertexDesc_ElementNum,
-		passDesc.pIAInputSignature,
-		passDesc.IAInputSignatureSize,
-		&g_pVertexLayout);
-	HR_DEBUG(hr, "创建input Layout失败！");
 
 	return TRUE;
 };
 
 
-void		NoiseRenderer::m_Function_SetRasterState(NOISE_FILLMODE iMode)
+void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iMode)
 {
 	switch(iMode)
 	{
 	case NOISE_FILLMODE_SOLID:
 		g_pImmediateContext->RSSetState(g_pRasterState_FillMode_Solid);
 		break;
+	
 	case NOISE_FILLMODE_WIREFRAME:
 		g_pImmediateContext->RSSetState(g_pRasterState_FillMode_WireFrame);
+		break;
+
+	default:
 		break;
 	}
 };
 
-void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbRarely()
+
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
 	
 	BOOL tmpCanUpdateCbRarely = FALSE;
@@ -268,7 +369,7 @@ void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbRarely()
 		for(i=0; i<(tmpLight_Spot_Count); i++)
 		{m_CbRarely.mSpotLight_Static[i]			=	(tmpLightMgr->m_pLightList_Spot_Static->at(i));}
 
-		//更新 “可更新”状态
+		//更新 “可更新”状态，保证static light 只进行初始化
 		tmpLightMgr->mCanUpdateStaticLights = FALSE;
 	}
 
@@ -280,14 +381,15 @@ void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbRarely()
 	};
 };
 
-void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbPerFrame()
+
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 {
 	//————更新View Matrix————
 	tmp_pCamera->mFunction_UpdateViewMatrix();
 	m_CbPerFrame.mViewMatrix = *(tmp_pCamera->m_pMatrixView);
 
 
-	//————更新Dynamic灯光————
+	//————更新Dynamic Light————
 	NoiseLightManager* tmpLightMgr = m_pFatherScene->m_pChildLightMgr;
 	if(tmpLightMgr != NULL)
 	{
@@ -314,18 +416,20 @@ void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbPerFrame()
 
 	}
 
-	//————更新到GPU——————
 
+	//————更新到GPU——————
 	m_pFX_CbPerFrame->SetRawValue(&m_CbPerFrame,0,sizeof(m_CbPerFrame));
 };
 
-void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbPerSubset()
+
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset()
 {
 	m_CbPerSubset.mMaterial = tmp_pMesh->m_pMaterialInMem->at(0);
 	m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset,0,sizeof(m_CbPerSubset));
 };
 
-void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbPerObject()
+
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
 {
 	//————更新World Matrix————
 	tmp_pMesh->mFunction_UpdateWorldMatrix();
@@ -334,4 +438,13 @@ void		NoiseRenderer::m_Function_RenderMeshInList_UpdateCbPerObject()
 
 	//——————更新到GPU——————
 	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject,0,sizeof(m_CbPerObject));
+};
+
+
+void		NoiseRenderer::mFunction_RenderLine3D_UpdateCbDrawLine3D() 
+{
+	m_CbDrawLine3D.mProjMatrix		= *(tmp_pCamera->m_pMatrixProjection);
+	m_CbDrawLine3D.mViewMatrix	= *(tmp_pCamera->m_pMatrixView);
+	//——————更新到GPU——————
+	m_pFX_CbDrawLine3D->SetRawValue(&m_CbDrawLine3D, 0, sizeof(m_CbDrawLine3D));
 };

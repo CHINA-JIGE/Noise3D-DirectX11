@@ -10,7 +10,7 @@
 
 #include "Noise3D.h"
 
-static UINT VBstride = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+static UINT VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
 static UINT VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 NoiseMesh::NoiseMesh()
@@ -617,11 +617,11 @@ BOOL NoiseMesh::AddToRenderList()
 {
 	if(m_pFatherScene == NULL)
 	{
-		DEBUG_MSG("Mesh未创建！",0,0); 
+		assert (FALSE:"NoiseScene Has Not Been Created!");
 		return FALSE;
 	}
 	//scene是它的友元类；往Scene里管理的RenderList加上自己的指针
-	m_pFatherScene->m_pRenderList_Mesh->push_back(this);
+	m_pFatherScene->m_pChildRenderer->m_pRenderList_Mesh->push_back(this);
 	return TRUE;
 };
 
@@ -698,6 +698,7 @@ void NoiseMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
 	iterLast = m_pVertexInMem->end();
 	outBuff.assign(iterBegin,iterLast);
 }
+
 
 
 
@@ -846,6 +847,7 @@ void NoiseMesh::mFunction_ComputeBoundingBox()
 	}
 
 }
+
 
 void NoiseMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 {

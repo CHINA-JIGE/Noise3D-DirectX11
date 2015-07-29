@@ -4,7 +4,7 @@
                            类：NOISE SceneManger
 
 			简述：主要负责管理3D场景元素（MESH,LIGHT,MATERIAL,TEXTURE）
-					并且主要管理各种对象
+					
 
 ************************************************************************/
 
@@ -14,7 +14,6 @@
 NoiseScene::NoiseScene()
 {
 	m_pChildMeshList = new std::vector<NoiseMesh*>;
-	m_pRenderList_Mesh = new std::vector<NoiseMesh*>;
 };
 
 NoiseScene::~NoiseScene()
@@ -40,7 +39,7 @@ BOOL NoiseScene::CreateRenderer(NoiseRenderer* pRenderer)
 		pRenderer->m_pFatherScene =this;
 	}
 	BOOL isSucceeded;
-	isSucceeded=pRenderer->m_Function_Init();
+	isSucceeded=pRenderer->mFunction_Init();
 
 	return isSucceeded;
 };
@@ -82,7 +81,29 @@ void	NoiseScene::SetCamera(NoiseCamera* pSceneCam)
 		m_pChildCamera = pSceneCam;
 	}
 
-};
+}
+
+NoiseMesh * NoiseScene::GetMesh(UINT iMeshIndex)
+{
+	if(iMeshIndex < m_pChildMeshList->size())  return m_pChildMeshList->at(iMeshIndex);
+	return nullptr;
+}
+
+NoiseRenderer * NoiseScene::GetRenderer()
+{
+	return m_pChildRenderer;
+}
+
+NoiseCamera * NoiseScene::GetCamera()
+{
+	return m_pChildCamera;
+}
+
+NoiseLightManager * NoiseScene::GetLightManager()
+{
+	return m_pChildLightMgr;
+}
+;
 
 /************************************************************************
                                           P R I V A T E                       

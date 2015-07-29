@@ -100,6 +100,8 @@ void MainLoop()
 	//Mesh2.AddToRenderList();
 	Mesh3.AddToRenderList();
 
+	Renderer.Draw_CoordinateFrame(5.0f);
+
 	Renderer.RenderMeshInList();
 
 	Renderer.RenderToScreen();

@@ -8,6 +8,7 @@
 #pragma once
 
 #pragma warning (disable : 4005)//宏重定义 WIN8 SDK和DXSDK
+#define NDEBUG //禁止调用assert
 #include <d3d11.h>
 #include <D3DX11.h>
 #include <d3dx11effect.h>
@@ -17,6 +18,7 @@
 #include <D3D11SDKLayers.h>
 #include <assert.h>
 #include <vector>
+#include <list>
 #include <sstream>
 #include <fstream>
 
@@ -32,4 +34,8 @@
 #include "N3D_NoiseRenderer.h"
 #include "N3D_NoiseLightManager.h"
 #include "N3D_NoiseScene.h"
-#include "NUT_NoiseTimer.h"
+#include "NUT_NoiseUtTimer.h"
+#include "NUT_NoiseUtLayerGenerator.h"
+
+
+;

@@ -27,6 +27,7 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	//文件不存在就return
 	if (!fileIn)
 	{
+		assert(FALSE : "File Path Not Exist !!");
 		return FALSE;
 	}
 
@@ -50,7 +51,6 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	}
 
 
-
 	//关闭文件
 	fileIn.close();
 
@@ -67,7 +67,7 @@ BOOL NoiseFileManager::ImportFile_STL(char* pFilePath,std::vector<NVECTOR3>* pVe
 	//导入文件
 	if (!ImportFile_PURE(pFilePath, &tmpFileBuffer))
 	{
-		DEBUG_MSG("load file failed...", ".", ".");
+		assert (FALSE : "Load Pure File Failed !! ");
 		return FALSE;
 	}
 

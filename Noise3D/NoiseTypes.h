@@ -23,6 +23,13 @@ struct N_DefaultVertex
 	NVECTOR2 TexCoord;
 };
 
+struct N_SimpleVertex
+{
+	N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
+	NVECTOR3 Pos;
+	NVECTOR4 Color;
+};
+
 struct N_Material
 {
 	N_Material(){ZeroMemory(this,sizeof(*this));}
@@ -151,3 +158,15 @@ struct N_CbRarely
 	int		mIsLightingEnabled_Static;
 };
 
+struct N_CbDrawLine3D
+{
+	NMATRIX mProjMatrix;
+	NMATRIX	mViewMatrix;
+};
+
+struct N_Line3D
+{
+	N_Line3D() { ZeroMemory(this, sizeof(*this)); }
+	NVECTOR3 v1;
+	NVECTOR3 v2;
+}

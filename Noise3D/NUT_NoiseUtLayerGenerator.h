@@ -45,7 +45,7 @@ public:
 
 	BOOL	Step1_LoadPrimitiveMeshFromSTLFile(char* pFilePath);
 
-	void		Step2_Intersection(int iLayerCount);
+	void		Step2_Intersection(UINT iLayerCount);
 
 
 

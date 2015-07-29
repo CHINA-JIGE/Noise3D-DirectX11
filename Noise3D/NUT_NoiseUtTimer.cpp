@@ -8,7 +8,7 @@
 ***********************************************************************/
 #include "Noise3D.h"
 
-NoiseUtTimer::NoiseTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
+NoiseUtTimer::NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 {
 	//ƒ¨»œ”√∫¡√Î÷∆
 	mTimeUnit				= timeUnit;
