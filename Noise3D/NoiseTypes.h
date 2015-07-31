@@ -121,7 +121,8 @@ struct N_SpotLight
 
 struct N_CbPerFrame
 {
-	NMATRIX	mViewMatrix;
+	NMATRIX			mProjMatrix;
+	NMATRIX			mViewMatrix;
 	N_DirectionalLight mDirectionalLight_Dynamic[10];//放心 已经对齐了
 	N_PointLight	 mPointLight_Dynamic[10];
 	N_SpotLight	mSpotLight_Dynamic[10];
@@ -146,8 +147,6 @@ struct N_CbPerSubset
 
 struct N_CbRarely
 {
-	NMATRIX	mProjMatrix;
-
 	//———————static light————————
 	N_DirectionalLight mDirectionalLight_Static[50];
 	N_PointLight	 mPointLight_Static[50];

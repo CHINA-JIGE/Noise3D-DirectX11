@@ -26,7 +26,6 @@ NoiseCamera::NoiseCamera()
 	m_pDirection = new D3DXVECTOR3(1,0,0);
 	mNearPlane=1;
 	mFarPlane= 1000;
-	mCanUpdateProjMatrix = TRUE;
 
 	m_pMatrixProjection = new D3DXMATRIX();
 	m_pMatrixView = new D3DXMATRIX();
@@ -126,7 +125,6 @@ void	NoiseCamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 	{
 		mNearPlane	= iNearPlaneZ;
 		mFarPlane	=	iFarPlaneZ;
-		mCanUpdateProjMatrix =TRUE;
 	}
 
 };
@@ -135,7 +133,6 @@ void NoiseCamera::SetViewAngle(float iViewAngleY,float iAspectRatio)
 {
 	if(iViewAngleY>0 && (mViewAngleY <(MATH_PI/2))){mViewAngleY	=	iViewAngleY;	}
 	if(iAspectRatio>0){mAspectRatio	= iAspectRatio;}
-	mCanUpdateProjMatrix =TRUE;
 };
 
 
@@ -151,7 +148,7 @@ void	NoiseCamera::mFunction_UpdateProjMatrix()
 		mAspectRatio,
 		mNearPlane,
 		mFarPlane);
-	mCanUpdateProjMatrix = FALSE;
+
 	//要更新到GPU，TM居然要先转置
 	D3DXMatrixTranspose(m_pMatrixProjection,m_pMatrixProjection);
 };

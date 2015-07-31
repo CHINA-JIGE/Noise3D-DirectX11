@@ -9,7 +9,7 @@
 #include "Noise3D.h"
 
 
-NoiseUtLayerGenerator::NoiseUtLayerGenerator()
+NoiseUtSlicer::NoiseUtSlicer()
 {
 	m_pPrimitiveVertexBuffer = new std::vector<NVECTOR3>;
 	m_pTriangleNormalBuffer = new std::vector<NVECTOR3>	;
@@ -19,7 +19,8 @@ NoiseUtLayerGenerator::NoiseUtLayerGenerator()
 	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
 }
 
-BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
+
+BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
 {
 	UINT i = 0;
 
@@ -39,7 +40,8 @@ BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_Defa
 	return TRUE;
 }
 
-BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
+
+BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 {
 	// this function is used to load STL file , and Primitive Vertex Data has 3x more elements
 	//than Triangle Normal Buffer , this is because 1 triangle consists of 3 vertices.
@@ -57,7 +59,11 @@ BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 		&tmpInfoBuffer);
 
 	//assert
-	assert(isLoadSTLsucceeded: "NoiseUtSliceGenerator: Load STL file failed!!");
+	if (!isLoadSTLsucceeded)
+	{
+		DEBUG_MSG("", "", "NoiseUtSliceGenerator: Load STL file failed!!");
+		return FALSE;
+	}
 
 	//do it right after loading the file
 	mFunction_ComputeBoundingBox();
@@ -65,7 +71,8 @@ BOOL NoiseUtLayerGenerator::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 	return TRUE;
 }
 
-void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
+
+void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 {
 
 	//Objective of this function is GENERALLY  to generate Line segments ,sometimes directly add triangles
@@ -130,7 +137,7 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 			{
 			//-------------------------------
 			case 0:
-				#pragma region VertexOnLayer : 0
+#pragma region VertexOnLayer : 0
 
 				if (tmpResult.isPossibleToIntersectEdges)
 				{
@@ -159,21 +166,21 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 						tmpLineSegment.Dirty = FALSE;
 						m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
 					}
-					else
-					{
-						DEBUG_MSG("","","case 0 : intersect point not equal to 2 !!!");
-					}
+					//else
+					//{
+					//	DEBUG_MSG("","","case 0 : intersect point not equal to 2 !!!");
+					//}
 
 					// clear the tmpIntersectPoint Buffer
-					tmpIntersectPointList.erase(tmpIntersectPointList.begin(), tmpIntersectPointList.end());
+					tmpIntersectPointList.clear();
 				}
 
-				#pragma endregion 
+#pragma endregion 
 				break;
 
 			//-------------------------------
 			case 1:
-				#pragma region VertexOnLayer : 1
+#pragma region VertexOnLayer : 1
 
 				//if one point is on the layer ,then the line segment composed of other 2 points -
 				//will try to intersect the layer
@@ -201,7 +208,7 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 					break;
 				}
 
-				//theoretically , intersectPoint will only got 2 members , but maybe shit happens ??
+				//2 intersect point will make up a line segment
 				if (tmpIntersectPointList.size() == 2)
 				{
 					N_LineSegment tmpLineSegment;
@@ -211,32 +218,48 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 					tmpLineSegment.Dirty = FALSE;
 					m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
 				}
-				else
-				{
-					DEBUG_MSG("", "", "case 1: intersect point not equal to 2 !!!");
-				}
+				//else
+				//{
+				//	DEBUG_MSG("", "", "case 1: intersect point not equal to 2 !!!");
+				//}
 
 				// clear the tmpIntersectPoint Buffer
-				tmpIntersectPointList.erase(tmpIntersectPointList.begin(), tmpIntersectPointList.end());
+				tmpIntersectPointList.clear();
 
-			#pragma endregion 
+
+#pragma endregion 
 				break;
 
 			//-------------------------------
 			case 2:
-				#pragma region VertexOnLayer : 2
+#pragma region VertexOnLayer : 2
 				//v1,v2 are on this layer ,so just directly add to line segment buffer
-				if (tmpResult.mIndexList->at(0) == 0)
+				//....the first vertex
+				switch (tmpResult.mIndexList->at(0))
 				{
+				case 0:
 					tmpIntersectPointList.push_back(v1);
-				}
-				if (tmpResult.mIndexList->at(1) == 1)
-				{
+					break;
+				case 1:
 					tmpIntersectPointList.push_back(v2);
-				}
-				if (tmpResult.mIndexList->at(2) ==2)
-				{
+					break;
+				case 2:
 					tmpIntersectPointList.push_back(v3);
+					break;
+				}
+
+				//...the second vertex (use  index to determine which vertex should we add)
+				switch (tmpResult.mIndexList->at(1))
+				{
+				case 0:
+					tmpIntersectPointList.push_back(v1);
+					break;
+				case 1:
+					tmpIntersectPointList.push_back(v2);
+					break;
+				case 2:
+					tmpIntersectPointList.push_back(v3);
+					break;
 				}
 
 				//theoretically , intersectPoint will only got 2 members , but maybe shit happens ??
@@ -251,18 +274,18 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 				}
 				else
 				{
-					DEBUG_MSG("", "", "case 2 : intersect point not equal to 2 !!!");
+					DEBUG_MSG(".", ".", "case 2 : intersect point not equal to 2 !!!");
 				}
 
 				// clear the tmpIntersectPoint Buffer
-				tmpIntersectPointList.erase(tmpIntersectPointList.begin(), tmpIntersectPointList.end());
+				//tmpIntersectPointList.erase(tmpIntersectPointList.begin(), tmpIntersectPointList.end());
+				tmpIntersectPointList.clear();
 
-
-				#pragma endregion 
+#pragma endregion 
 				break;
 
 			case 3:
-				#pragma region VertexOnLayer : 3
+#pragma region VertexOnLayer : 3
 				//bloody hell....the whole triangle is on this layer..directly  add to line strip buffer
 				N_LineStrip tmpLineStrip;
 				tmpLineStrip.LayerID = currentLayerID;
@@ -273,7 +296,7 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 				//line strip buffer
 				m_pLineStripBuffer->push_back(tmpLineStrip);
 
-				#pragma endregion
+#pragma endregion
 				break;
 
 			}
@@ -284,11 +307,22 @@ void NoiseUtLayerGenerator::Step2_Intersection(UINT iLayerCount)
 }
 
 
+void NoiseUtSlicer::GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer)
+{
+	UINT i = 0;
+	for (i = 0;i < m_pLineSegmentBuffer->size();i++)
+	{
+		outBuffer.push_back(m_pLineSegmentBuffer->at(i).v1);
+		outBuffer.push_back(m_pLineSegmentBuffer->at(i).v2);
+	}
+}
+
+
 
 /************************************************************************
 											P R I V A T E
 ************************************************************************/
-void	NoiseUtLayerGenerator::mFunction_ComputeBoundingBox()
+void	NoiseUtSlicer::mFunction_ComputeBoundingBox()
 {
 	//compute Bounding box : override 1
 
@@ -310,7 +344,7 @@ void	NoiseUtLayerGenerator::mFunction_ComputeBoundingBox()
 
 }
 
-BOOL NoiseUtLayerGenerator::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
+BOOL NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
 {
 
 	//some obvious wrong input check
@@ -330,7 +364,7 @@ BOOL NoiseUtLayerGenerator::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECT
 
 	//an interpolating ratio between these 2 points ,valued [-1,1]
 	//vector start point is v2
-	float lambda = (v1.y - v2.y) / (layerY - v2.y);
+	float lambda = (layerY - v2.y) / (v1.y - v2.y);
 
 	//actually not an essential check,but of no harm = =
 	if (lambda > -1.0f || lambda < 1.0f)
@@ -348,7 +382,7 @@ BOOL NoiseUtLayerGenerator::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECT
 	return FALSE;
 }
 
-N_IntersectionResult	NoiseUtLayerGenerator::mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
+N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
 
 {
 	N_IntersectionResult outResult;

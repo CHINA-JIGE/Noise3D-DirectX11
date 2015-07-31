@@ -14,6 +14,7 @@ public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 
 	friend class NoiseScene;
 	friend class NoiseMesh;
+	friend class NoiseLineBuffer;
 
 public:
 	//构造函数
@@ -22,9 +23,7 @@ public:
 
 	void			RenderMeshInList();
 
-	void			Draw_Line3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2);
-
-	void			Draw_CoordinateFrame(float fAxisLength);
+	void			RenderLine3DInList();
 
 	void			ClearViews();
 
@@ -56,10 +55,10 @@ private:
 
 
 
-	std::vector <NoiseMesh*>*		m_pRenderList_Mesh;
-	ID3D11Buffer*							m_pVertexBuffer_Line3D;//储存两个顶点,用于即时画线
-	NoiseScene*								m_pFatherScene ;
-	NOISE_FILLMODE						m_FillMode;//填充模式
+	std::vector <NoiseMesh*>*			m_pRenderList_Mesh;
+	std::vector<NoiseLineBuffer*>* 	m_pRenderList_Line;
+	NoiseScene*									m_pFatherScene ;
+	NOISE_FILLMODE							m_FillMode;//填充模式
 
 
 	//在App中先定义好所有Struct再一次更新

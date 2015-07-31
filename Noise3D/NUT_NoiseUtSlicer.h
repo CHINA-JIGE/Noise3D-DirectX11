@@ -8,7 +8,7 @@
 
 struct N_LineStrip
 {
-	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }
+	N_LineStrip() { ZeroMemory(this, sizeof(*this));pointList = new std::vector<NVECTOR3>; }
 
 	std::vector<NVECTOR3>*	pointList;
 	UINT		LayerID;
@@ -34,12 +34,12 @@ struct N_IntersectionResult
 
 
 
-public class _declspec(dllexport) NoiseUtLayerGenerator : private NoiseFileManager
+public class _declspec(dllexport) NoiseUtSlicer : private NoiseFileManager
 {
 
 public:
 
-	NoiseUtLayerGenerator();
+	NoiseUtSlicer();
 
 	BOOL	Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer);
 
@@ -47,7 +47,7 @@ public:
 
 	void		Step2_Intersection(UINT iLayerCount);
 
-
+	void		GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer);
 
 
 private:

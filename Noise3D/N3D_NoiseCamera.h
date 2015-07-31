@@ -62,7 +62,6 @@ private:
 
 	NMATRIX*			m_pMatrixView;
 	NMATRIX*			m_pMatrixProjection;
-	BOOL					mCanUpdateProjMatrix;
 
 	float						mRotateX_Pitch;
 	float						mRotateY_Yaw;

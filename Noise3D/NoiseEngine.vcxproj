@@ -88,6 +88,7 @@
     <ClInclude Include="N3D_NoiseEngine.h" />
     <ClInclude Include="N3D_NoiseFileManager.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
+    <ClInclude Include="N3D_NoiseLineBuffer.h" />
     <ClInclude Include="N3D_NoiseMesh.h" />
     <ClInclude Include="N3D_NoiseRenderer.h" />
     <ClInclude Include="N3D_NoiseScene.h" />
@@ -96,7 +97,7 @@
     <ClInclude Include="NoiseGlobal.h" />
     <ClInclude Include="NoiseMacro.h" />
     <ClInclude Include="NoiseTypes.h" />
-    <ClInclude Include="NUT_NoiseUtLayerGenerator.h" />
+    <ClInclude Include="NUT_NoiseUtSlicer.h" />
     <ClInclude Include="NUT_NoiseUtTimer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -117,11 +118,12 @@
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="N3D_NoiseFileManager.cpp" />
     <ClCompile Include="N3D_NoiseLightManager.cpp" />
+    <ClCompile Include="N3D_NoiseLineBuffer.cpp" />
     <ClCompile Include="N3D_NoiseMesh.cpp" />
     <ClCompile Include="N3D_NoiseRenderer.cpp" />
     <ClCompile Include="N3D_NoiseScene.cpp" />
     <ClCompile Include="NoiseGlobal.cpp" />
-    <ClCompile Include="NUT_NoiseUtLayerGenerator.cpp" />
+    <ClCompile Include="NUT_NoiseUtSlicer.cpp" />
     <ClCompile Include="NUT_NoiseUtTimer.cpp" />
   </ItemGroup>
   <ItemGroup>

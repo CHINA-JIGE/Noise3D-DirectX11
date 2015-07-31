@@ -12,6 +12,7 @@ public class _declspec(dllexport) NoiseScene
 	friend class NoiseMesh;
 	friend class NoiseRenderer;
 	friend class NoiseCamera;
+	friend class NoiseLineBuffer;
 
 public:
 	//¹¹Ôìº¯Êý
@@ -26,6 +27,8 @@ public:
 
 	BOOL			CreateLightManager(NoiseLightManager* pLightMgr);
 
+	BOOL			CreateLineBuffer(NoiseLineBuffer* pLineBuffer);
+
 	void				SetCamera(NoiseCamera* pSceneCam);
 
 	NoiseMesh*					GetMesh(UINT iMeshIndex);
@@ -38,13 +41,15 @@ public:
 
 private:
 
-	NoiseCamera*						m_pChildCamera;
+	NoiseCamera*							m_pChildCamera;
 
-	NoiseRenderer*						m_pChildRenderer;
+	NoiseRenderer*							m_pChildRenderer;
 
-	NoiseLightManager*				m_pChildLightMgr;
+	NoiseLightManager*					m_pChildLightMgr;
 
-	std::vector<NoiseMesh*> *	m_pChildMeshList;
+	std::vector<NoiseMesh*> *		m_pChildMeshList;
+
+	std::vector<NoiseLineBuffer*>* m_pChildLineBufferList;
 
 };
 
