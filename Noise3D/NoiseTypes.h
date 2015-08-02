@@ -163,9 +163,10 @@ struct N_CbDrawLine3D
 	NMATRIX	mViewMatrix;
 };
 
-struct N_Line3D
+struct N_LineStrip
 {
-	N_Line3D() { ZeroMemory(this, sizeof(*this)); }
-	NVECTOR3 v1;
-	NVECTOR3 v2;
-}
+	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }
+
+	std::vector<NVECTOR3>	pointList;
+	UINT		LayerID;
+};

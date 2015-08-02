@@ -6,13 +6,6 @@
 
 #pragma once
 
-struct N_LineStrip
-{
-	N_LineStrip() { ZeroMemory(this, sizeof(*this));pointList = new std::vector<NVECTOR3>; }
-
-	std::vector<NVECTOR3>*	pointList;
-	UINT		LayerID;
-};
 
 struct N_LineSegment
 {
@@ -33,7 +26,6 @@ struct N_IntersectionResult
 };
 
 
-
 public class _declspec(dllexport) NoiseUtSlicer : private NoiseFileManager
 {
 
@@ -47,8 +39,15 @@ public:
 
 	void		Step2_Intersection(UINT iLayerCount);
 
+	void		Step3_GenerateLineStrip();
+
+	UINT		GetLineSegmentCount();
+
 	void		GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer);
 
+	UINT		GetLineStripCount();
+
+	void		GetLineStrip(std::vector<NVECTOR3>& outPointList, UINT index);
 
 private:
 
@@ -58,7 +57,7 @@ private:
 
 	N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY,NVECTOR3& v1,NVECTOR3& v2,NVECTOR3& v3);
 
-
+	BOOL	mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint,UINT currentLayerID,N_LineStrip* currLineStrip);
 
 	std::vector<NVECTOR3>*			m_pPrimitiveVertexBuffer;
 

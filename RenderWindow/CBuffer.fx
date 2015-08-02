@@ -14,6 +14,7 @@ cbuffer cbPerObject
 
 cbuffer cbPerFrame
 {
+	float4x4				gProjMatrix;
 	float4x4				gViewMatrix;
 	//！！！！Dynamic Light！！！！
 	N_DirectionalLight gDirectionalLight_Dynamic[10];
@@ -34,8 +35,6 @@ cbuffer cbPerSubset
 
 cbuffer	cbRarely
 {
-	float4x4	gProjMatrix;
-
 	//！！！！Static Light！！！！
 	N_DirectionalLight gDirectionalLight_Static[50];
 	N_PointLight	 gPointLight_Static[50];

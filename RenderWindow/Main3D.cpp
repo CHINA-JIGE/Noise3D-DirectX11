@@ -1,5 +1,5 @@
 #include "RenderWindow.h"
-
+#include <sstream>
 
 NoiseEngine Engine;
 NoiseRenderer Renderer;
@@ -17,8 +17,8 @@ N_PointLight	 PointLight1;
 N_SpotLight	SpotLight1;
 
 float Angle;
-std::vector<NVECTOR3> lineSegmentBuffer;
-
+std::vector<NVECTOR3>	 lineSegmentBuffer;
+std::vector<NVECTOR3>	lineStrip;
 
 
 BOOL Init3D(HWND hwnd)
@@ -66,10 +66,26 @@ BOOL Init3D(HWND hwnd)
 	//Noise Slicer
 	Slicer.Step1_LoadPrimitiveMeshFromSTLFile("teapot7.STL");
 	Slicer.Step2_Intersection(50);
-	Slicer.GetLineSegmentBuffer(lineSegmentBuffer);
-	for (UINT i = 0;i < lineSegmentBuffer.size();i += 2)
+	//Slicer.GetLineSegmentBuffer(lineSegmentBuffer);
+	Slicer.Step3_GenerateLineStrip();
+	Slicer.GetLineStrip(lineStrip,0);
+
+	/*for (UINT i = 0;i < lineSegmentBuffer.size();i += 2)
 	{
 		lineBuffer.AddLine3D(lineSegmentBuffer.at(i), lineSegmentBuffer.at(i+1));
+	}
+	std::ostringstream s;
+	s << Slicer.GetLineStripCount();
+	::MessageBoxA(0,s.str().c_str(),0,0);*/
+
+	for (UINT i = 0;i < Slicer.GetLineStripCount();i++)
+	{
+		
+		Slicer.GetLineStrip(lineStrip, i);
+		for (UINT j = 0;j < lineStrip.size() - 1;j++)
+		{
+			lineBuffer.AddLine3D(lineStrip.at(j), lineStrip.at(j + 1));
+		}
 	}
 
 	return TRUE;
@@ -79,7 +95,7 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	Angle += 0.0005f;
-	Camera.SetPosition(7*cos(Angle),6.0f,7*sin(Angle));
+	Camera.SetPosition(6*cos(Angle),7.0f,6*sin(Angle));
 	Camera.SetLookAt(0,0,0);
 
 	Renderer.ClearViews();
@@ -87,11 +103,12 @@ void MainLoop()
 	Mesh1.AddToRenderList();
 	lineBuffer.AddToRenderList();
 
-	Renderer.RenderMeshInList();
+	//Renderer.RenderMeshInList();
 	Renderer.RenderLine3DInList();
 
 	Renderer.RenderToScreen();
 };
+
 
 void Cleanup()
 {

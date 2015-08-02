@@ -282,7 +282,7 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 #pragma endregion 
 				break;
 
-			/*case 3:
+			case 3:
 #pragma region VertexOnLayer : 3
 				//bloody hell....the whole triangle is on this layer..directly  add to line strip buffer
 				//and note that the head should be the same point with the tail
@@ -297,9 +297,8 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 				m_pLineStripBuffer->push_back(tmpLineStrip);
 
 #pragma endregion
-				break;*/
-			default:
 				break;
+
 			}
 		}
 
@@ -308,7 +307,7 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 }
 
 
-void	NoiseUtSlicer::Step3_GenerateLineStrip()
+void	NoiseUtSlicer::Step3_GenerateLineStrip() 
 {
 	//link numerous line segments into line strip
 	//(and at the present  ignore the problem of  'multiple branches'
@@ -316,44 +315,104 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 	N_LineStrip			tmpLineStrip;
 	N_LineSegment		tmpLineSegment;
 	NVECTOR3			tmpLineStripTailPoint;
+	BOOL	canCreateNewLineStrip = TRUE;
+
+	//qualified line segment will link to current line strip , and this UINT determine the line strip;
+
+
+	//........used to judge if two point can be weld together
+	float tmpPointDist = 0;
+	const float SAME_POINT_DIST_THRESHOLD = 0.1f;
+	NVECTOR3 tmpV;
 
 	//............
 	UINT i = 0, j = 0;
 
-	BOOL canFindNextPoint = FALSE;
+
 
 
 	for (i = 0;i < m_pLineSegmentBuffer->size(); i++)
 	{
-
-		tmpLineSegment = m_pLineSegmentBuffer->at(i);
-		//find the first line segment valid to be the head of line strip
-		if (tmpLineSegment.Dirty == FALSE)
+		//if it's time to Create a new branch of line strip, then do it
+		if (canCreateNewLineStrip==TRUE)
 		{
-				//we have found a "clean" line segment , then add 2 vertices to the current line strip
-				//v2 is the tail of the strip
-				tmpLineStrip.LayerID = tmpLineSegment.LayerID;
-				tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
-				tmpLineStrip.pointList.push_back(tmpLineSegment.v2);
-				tmpLineStripTailPoint = tmpLineSegment.v2;
-		}
-		else
-		{
-			goto nextLineSegment;
+			//find the first line segment valid to be the head of line strip
+			while ( (i < m_pLineSegmentBuffer->size()-1 ) && (tmpLineSegment.Dirty == TRUE))
+			{
+				i++;
+				tmpLineSegment = m_pLineSegmentBuffer->at(i);
+			//i++;
+			}
+
+			/*if (tmpLineSegment.Dirty == FALSE)
+			{
+				tmpLineSegment = m_pLineSegmentBuffer->at(i);
+			}
+			else
+			{
+				goto nextLineSegment;//located at the end of the "for"
+			}*/
+
+			//we have found a "clean" line segment , then add 2 vertices to the current line strip
+			//v2 is the tail of the strip
+			tmpLineStrip.LayerID = tmpLineSegment.LayerID;
+			tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
+			tmpLineStrip.pointList.push_back(tmpLineSegment.v2);
+			tmpLineStripTailPoint = tmpLineSegment.v2;
+
+			canCreateNewLineStrip = FALSE;
 		}
 
-		canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
-		while (canFindNextPoint)
+
+		//now it's time to deal with common situation ,
+		//which means we  should add new point to the tail of current "tmpLineStrip"
+		
+		//and now , traverse all unchecked line segment , and try to link new line segment to it
+		for (j = 0;	j < m_pLineSegmentBuffer->size();j++)
 		{
-			canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
+			tmpLineSegment = m_pLineSegmentBuffer->at( j );
+
+			//if this line segment has not been checked &&
+			//the line segment is on the same layer as the stretching line strip
+			if ((tmpLineSegment.Dirty == FALSE) && (tmpLineSegment.LayerID == tmpLineStrip.LayerID))
+			{
+
+				//if we can weld v1 and line strip tail 
+				tmpV = tmpLineStripTailPoint - tmpLineSegment.v1;
+				if(D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD )
+				{
+					tmpLineStrip.pointList.push_back(tmpLineSegment.v2);
+					tmpLineStripTailPoint = tmpLineSegment.v2;
+					//this line segment has been checked , so light up the DIRTY mark.
+					m_pLineSegmentBuffer->at(j).Dirty = TRUE;
+
+				}
+				//else
+				
+					//if we can weld v2 and line strip tail 
+				tmpV = tmpLineStripTailPoint - tmpLineSegment.v2;
+				if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
+				{
+					tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
+					tmpLineStripTailPoint = tmpLineSegment.v1;
+					//this line segment has been checked , so light up the DIRTY mark.
+					m_pLineSegmentBuffer->at(j).Dirty = TRUE;
+			
+				}
+
+			}
+		
 		}
 
-		//we have link a line strip;
+		//we have extended one line strip buffer
+		
 		m_pLineStripBuffer->push_back(tmpLineStrip);
+		canCreateNewLineStrip = TRUE;
 		tmpLineStrip.pointList.clear();
 
-	nextLineSegment:;
-	}//for i
+
+	}
+
 }
 
 
@@ -515,54 +574,3 @@ N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer(UINT iTri
 	return outResult;
 }
 
-
-BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
-{
-	//........used to judge if two point can be weld together
-	float						tmpPointDist = 0;
-	const float			SAME_POINT_DIST_THRESHOLD = 0.001f;
-	NVECTOR3			tmpV;
-
-	N_LineSegment		tmpLineSegment;
-	UINT						j = 0;
-
-
-
-	for (j = 0; j < m_pLineSegmentBuffer->size();j++)
-	{
-		tmpLineSegment = m_pLineSegmentBuffer->at(j);
-
-		//if this line segment has not been checked &&
-		//the line segment is on the same layer as the stretching line strip
-		if ((tmpLineSegment.Dirty == FALSE) && (tmpLineSegment.LayerID == currentLayerID))
-		{
-
-			//if we can weld v1 and line strip tail 
-			tmpV = *tailPoint - tmpLineSegment.v1;
-			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
-			{
-				currLineStrip->pointList.push_back(tmpLineSegment.v2);
-				*tailPoint = tmpLineSegment.v2;
-				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
-				return TRUE;
-			}
-			//else
-
-			//if we can weld v2 and line strip tail 
-			tmpV = *tailPoint - tmpLineSegment.v2;
-			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
-			{
-				currLineStrip->pointList.push_back(tmpLineSegment.v1);
-				*tailPoint = tmpLineSegment.v1;
-				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
-				return TRUE;
-			}
-		}
-
-	}//for j
-
-	//didn't find qualified line segment to link
-	return FALSE;
-}

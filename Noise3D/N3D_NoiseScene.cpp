@@ -19,7 +19,7 @@ NoiseScene::NoiseScene()
 
 NoiseScene::~NoiseScene()
 {
-	
+
 };
 
 BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
