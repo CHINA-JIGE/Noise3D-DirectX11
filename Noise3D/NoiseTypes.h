@@ -168,5 +168,6 @@ struct N_LineStrip
 	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }
 
 	std::vector<NVECTOR3>	pointList;
+	std::vector<NVECTOR3>	normalList;
 	UINT		LayerID;
 };

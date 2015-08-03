@@ -13,6 +13,7 @@ struct N_LineSegment
 	NVECTOR3 v1;
 	NVECTOR3 v2;
 	UINT		LayerID;
+	NVECTOR3 normal;
 	BOOL	Dirty;//check if this line segment has been reviewed,this flag can be reused
 };
 
@@ -41,13 +42,20 @@ public:
 
 	void		Step3_GenerateLineStrip();
 
+	BOOL	Step3_LoadLineStripsFrom_NOISELAYER_File(char* filePath);
+
+	BOOL	Step4_SaveLayerDataToFile(char* filePath);
+
 	UINT		GetLineSegmentCount();
 
 	void		GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer);
 
 	UINT		GetLineStripCount();
 
-	void		GetLineStrip(std::vector<NVECTOR3>& outPointList, UINT index);
+	void		GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index);
+
+
+
 
 private:
 
@@ -55,9 +63,14 @@ private:
 	
 	BOOL	mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY,NVECTOR3* outIntersectPoint);
 
+	BOOL	mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip);
+
+	NVECTOR3 mFunction_Compute_Normal2D(NVECTOR3 triangleNormal);
+	
 	N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY,NVECTOR3& v1,NVECTOR3& v2,NVECTOR3& v3);
 
-	BOOL	mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint,UINT currentLayerID,N_LineStrip* currLineStrip);
+
+
 
 	std::vector<NVECTOR3>*			m_pPrimitiveVertexBuffer;
 

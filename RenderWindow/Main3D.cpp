@@ -18,7 +18,7 @@ N_SpotLight	SpotLight1;
 
 float Angle;
 std::vector<NVECTOR3>	 lineSegmentBuffer;
-std::vector<NVECTOR3>	lineStrip;
+std::vector<N_LineStrip>	lineStrip;
 
 
 BOOL Init3D(HWND hwnd)
@@ -63,28 +63,27 @@ BOOL Init3D(HWND hwnd)
 	Mesh1.SetMaterial(Mat1);
 
 
-	//Noise Slicer
-	Slicer.Step1_LoadPrimitiveMeshFromSTLFile("teapot7.STL");
-	Slicer.Step2_Intersection(50);
-	//Slicer.GetLineSegmentBuffer(lineSegmentBuffer);
-	Slicer.Step3_GenerateLineStrip();
-	Slicer.GetLineStrip(lineStrip,0);
+	//Slicer.Step1_LoadPrimitiveMeshFromSTLFile("teapot7.STL");
+	//Slicer.Step2_Intersection(10);
+	//Slicer.Step3_GenerateLineStrip();
+	//Slicer.Step4_SaveLayerDataToFile("teapot7.NOISELAYER");
+	Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("teapot7.NOISELAYER");
 
-	/*for (UINT i = 0;i < lineSegmentBuffer.size();i += 2)
-	{
-		lineBuffer.AddLine3D(lineSegmentBuffer.at(i), lineSegmentBuffer.at(i+1));
-	}
-	std::ostringstream s;
-	s << Slicer.GetLineStripCount();
-	::MessageBoxA(0,s.str().c_str(),0,0);*/
 
+	NVECTOR3 v1, v2,n;
 	for (UINT i = 0;i < Slicer.GetLineStripCount();i++)
 	{
 		
 		Slicer.GetLineStrip(lineStrip, i);
-		for (UINT j = 0;j < lineStrip.size() - 1;j++)
+		for (UINT j = 0;j < lineStrip.at(i).pointList.size() - 1;j++)
 		{
-			lineBuffer.AddLine3D(lineStrip.at(j), lineStrip.at(j + 1));
+			v1 =	lineStrip.at(i).pointList.at(j);
+			v2 =	lineStrip.at(i).pointList.at(j + 1);
+			n =	lineStrip.at(i).normalList.at(j);
+			//vertex
+			lineBuffer.AddLine3D(v1, v2);
+			//normal
+			lineBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n/5,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
 		}
 	}
 

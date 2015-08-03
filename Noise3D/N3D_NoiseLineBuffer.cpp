@@ -21,7 +21,7 @@ NoiseLineBuffer::NoiseLineBuffer()
 
 NoiseLineBuffer::~NoiseLineBuffer()
 {
-	m_pVertexBuffer->Release();
+	ReleaseCOM(m_pVertexBuffer);
 }
 
 

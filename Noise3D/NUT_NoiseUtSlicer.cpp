@@ -168,6 +168,8 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 						tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 						tmpLineSegment.LayerID = currentLayerID;
 						tmpLineSegment.Dirty = FALSE;
+						//triangle normal projection , look for tech doc for more detail
+						tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 						m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
 					}
 
@@ -217,6 +219,8 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 					tmpLineSegment.LayerID = currentLayerID;
 					tmpLineSegment.Dirty = FALSE;
+					//triangle normal projection , look for tech doc for more detail
+					tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 					m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
 				}
 
@@ -268,11 +272,9 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 					tmpLineSegment.LayerID = currentLayerID;
 					tmpLineSegment.Dirty = FALSE;
+					//triangle normal projection , look for tech doc for more detail
+					tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 					m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
-				}
-				else
-				{
-					DEBUG_MSG(".", ".", "case 2 : intersect point not equal to 2 !!!");
 				}
 
 				// clear the tmpIntersectPoint Buffer
@@ -282,22 +284,7 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 #pragma endregion 
 				break;
 
-			/*case 3:
-#pragma region VertexOnLayer : 3
-				//bloody hell....the whole triangle is on this layer..directly  add to line strip buffer
-				//and note that the head should be the same point with the tail
-				N_LineStrip tmpLineStrip;
-				tmpLineStrip.LayerID = currentLayerID;
-				tmpLineStrip.pointList.push_back(v1);
-				tmpLineStrip.pointList.push_back(v2);
-				tmpLineStrip.pointList.push_back(v3);
-				tmpLineStrip.pointList.push_back(v1);
-
-				//line strip buffer
-				m_pLineStripBuffer->push_back(tmpLineStrip);
-
-#pragma endregion
-				break;*/
+			//-------------------------------
 			default:
 				break;
 			}
@@ -335,6 +322,7 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 				tmpLineStrip.LayerID = tmpLineSegment.LayerID;
 				tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
 				tmpLineStrip.pointList.push_back(tmpLineSegment.v2);
+				tmpLineStrip.normalList.push_back(tmpLineSegment.normal);
 				tmpLineStripTailPoint = tmpLineSegment.v2;
 		}
 		else
@@ -342,19 +330,43 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 			goto nextLineSegment;
 		}
 
+		//make a line strip grow longer until no more line segment can be added to the tail
 		canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
 		while (canFindNextPoint)
 		{
 			canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
 		}
 
-		//we have link a line strip;
+		//we have finished growing a line strip, so add it to line Strip Buffer;
 		m_pLineStripBuffer->push_back(tmpLineStrip);
+
+		//clear the tmp buffer so that we can continue processing new line strip
 		tmpLineStrip.pointList.clear();
+		tmpLineStrip.normalList.clear();
 
 	nextLineSegment:;
 	}//for i
 }
+
+
+BOOL NoiseUtSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
+{
+	BOOL isSucceeded;
+	isSucceeded = NoiseFileManager::ImportFile_NOISELAYER(filePath, m_pLineStripBuffer);
+	return isSucceeded;
+}
+
+
+BOOL NoiseUtSlicer::Step4_SaveLayerDataToFile(char * filePath)
+{
+
+	BOOL isSucceeded;  
+	isSucceeded = NoiseFileManager::ExportFile_NOISELAYER(filePath, m_pLineStripBuffer, TRUE);
+	return isSucceeded;
+}
+
+
+
 
 
 UINT NoiseUtSlicer::GetLineSegmentCount()
@@ -390,12 +402,12 @@ UINT NoiseUtSlicer::GetLineStripCount()
 }
 
 
-void NoiseUtSlicer::GetLineStrip(std::vector<NVECTOR3>& outPointList, UINT index)
+void NoiseUtSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index)
 {
 	if (index < m_pLineStripBuffer->size())
 	{
-		outPointList.assign(	m_pLineStripBuffer->at(index).pointList.begin(),
-										m_pLineStripBuffer->at(index).pointList.end());
+		outPointList.assign(	m_pLineStripBuffer->begin(),
+										m_pLineStripBuffer->end());
 	}
 }
 
@@ -542,6 +554,7 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
 			{
 				currLineStrip->pointList.push_back(tmpLineSegment.v2);
+				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v2;
 				//this line segment has been checked , so light up the DIRTY mark.
 				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
@@ -554,6 +567,7 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
 			{
 				currLineStrip->pointList.push_back(tmpLineSegment.v1);
+				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v1;
 				//this line segment has been checked , so light up the DIRTY mark.
 				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
@@ -566,3 +580,13 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 	//didn't find qualified line segment to link
 	return FALSE;
 }
+
+
+NVECTOR3 NoiseUtSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
+{
+	//and you want to know why the projection is the normal , refer to the tech doc
+	NVECTOR3 outNormal(triangleNormal.x,0, triangleNormal.z);
+	D3DXVec3Normalize(&outNormal,&outNormal);
+	return outNormal;
+}
+
