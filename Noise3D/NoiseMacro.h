@@ -30,11 +30,17 @@
 
 
 //调试：弹出消息
-#define DEBUG_MSG(msg1,msg2,msg3)\
-				g_Debug_MsgString<<msg1<<msg2<<msg3;\
+#define DEBUG_MSG3(msg1,msg2,msg3)\
+				g_Debug_MsgString<<msg1<<msg2<<msg3<<std::endl;\
+				g_Debug_MsgString<<"第"<<__LINE__<<"行"<<std::endl;\
 				MessageBoxA(0,g_Debug_MsgString.str().c_str(),0,0);\
 				g_Debug_MsgString.clear()\
 
+#define DEBUG_MSG1(msg)\
+				g_Debug_MsgString<<msg<<std::endl;\
+				g_Debug_MsgString<<"第"<<__LINE__<<"行"<<std::endl;\
+				MessageBoxA(0,g_Debug_MsgString.str().c_str(),0,0);\
+				g_Debug_MsgString.clear()\
 
 ;//文件尾
 

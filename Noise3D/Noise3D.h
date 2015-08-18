@@ -9,6 +9,7 @@
 
 #pragma warning (disable : 4005)//宏重定义 WIN8 SDK和DXSDK
 #define NDEBUG //禁止调用assert
+//#include <Windows.h>
 #include <d3d11.h>
 #include <D3DX11.h>
 #include <d3dx11effect.h>

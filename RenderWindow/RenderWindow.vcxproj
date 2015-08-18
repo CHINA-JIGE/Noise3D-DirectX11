@@ -72,18 +72,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main3D.cpp" />
-    <ClCompile Include="RenderWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RenderWindow.h" />
+    <ClInclude Include="Main3D.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Noise3D\NoiseEngine.vcxproj">
       <Project>{989dec98-69c7-4f44-aefc-d5d4bbf57b90}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="teapot.STL" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

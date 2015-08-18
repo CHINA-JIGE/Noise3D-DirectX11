@@ -1,4 +1,6 @@
-#include "RenderWindow.h"
+
+
+#include "Main3D.h"
 #include <sstream>
 
 NoiseEngine Engine;
@@ -21,6 +23,19 @@ std::vector<NVECTOR3>	 lineSegmentBuffer;
 std::vector<N_LineStrip>	lineStrip;
 
 
+//Main Entry
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
+{
+	HWND windowHWND;
+	windowHWND = Engine.CreateRenderWindow(640, 480, L"Hahaha Render Window", hInstance);
+	Init3D(windowHWND);
+	Engine.SetMainLoopFunction(MainLoop);
+	Engine.Mainloop();
+	return 0;
+}
+
+
+
 BOOL Init3D(HWND hwnd)
 {
 	
@@ -34,7 +49,7 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateLineBuffer(&lineBuffer);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Mesh1.LoadFile_STL("teapot7.STL");
+	Mesh1.LoadFile_STL("table.STL");
 	Mesh1.SetPosition(0.0f,0,0);
 	//Mesh1.SetScale(0.4f, 0.4f, 0.4f);
 	Camera.SetPosition(2.0f,0,0);
@@ -63,11 +78,11 @@ BOOL Init3D(HWND hwnd)
 	Mesh1.SetMaterial(Mat1);
 
 
-	//Slicer.Step1_LoadPrimitiveMeshFromSTLFile("teapot7.STL");
-	//Slicer.Step2_Intersection(10);
+	//Slicer.Step1_LoadPrimitiveMeshFromSTLFile("table.STL");
+	//Slicer.Step2_Intersection(50);
 	//Slicer.Step3_GenerateLineStrip();
-	//Slicer.Step4_SaveLayerDataToFile("teapot7.NOISELAYER");
-	Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("teapot7.NOISELAYER");
+	//Slicer.Step4_SaveLayerDataToFile("table.NOISELAYER");
+	Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("table.NOISELAYER");
 
 
 	NVECTOR3 v1, v2,n;
@@ -83,7 +98,7 @@ BOOL Init3D(HWND hwnd)
 			//vertex
 			lineBuffer.AddLine3D(v1, v2);
 			//normal
-			lineBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n/5,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
+			lineBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
 		}
 	}
 
@@ -94,8 +109,8 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	Angle += 0.0005f;
-	Camera.SetPosition(6*cos(Angle),7.0f,6*sin(Angle));
-	Camera.SetLookAt(0,0,0);
+	Camera.SetPosition(40*cos(Angle),40.0f,40*sin(Angle));
+	Camera.SetLookAt(0,25.0f,0);
 
 	Renderer.ClearViews();
 

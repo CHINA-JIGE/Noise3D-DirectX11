@@ -57,7 +57,7 @@ BOOL NoiseLineBuffer::AddToRenderList()
 {
 	if (m_pFatherScene == NULL)
 	{
-		DEBUG_MSG("NoiseLineBuffer: NoiseScene Has Not been created!", "", "");
+		DEBUG_MSG3("NoiseLineBuffer: NoiseScene Has Not been created!", "", "");
 		return FALSE;
 	}
 	m_pFatherScene->m_pChildRenderer->m_pRenderList_Line->push_back(this);
