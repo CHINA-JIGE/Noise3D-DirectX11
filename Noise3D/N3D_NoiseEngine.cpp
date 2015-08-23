@@ -8,17 +8,19 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+static NoiseEngine* static_pEngine;
 
 //构造函数
 NoiseEngine::NoiseEngine()
 {
 	mRenderWindowTitle = L"Noise 3D - Render Window";
 	m_pMainLoopFunction = nullptr;
+	static_pEngine = this;
 }
 
 NoiseEngine::~NoiseEngine()
 {
-	ReleaseAll();
+	
 }
 
 HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
@@ -52,8 +54,8 @@ HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR 
 BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
 {
 
-	mRenderBufferPixelWidth = BufferWidth;
-	mRenderBufferPixelHeight = BufferHeight;
+	g_MainBufferPixelWidth = BufferWidth;
+	g_MainBufferPixelHeight = BufferHeight;
 
 	HRESULT hr = S_OK;
 #pragma region InitDevice
@@ -130,15 +132,14 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	DXGI_SWAP_CHAIN_DESC SwapChainParam;
 	ZeroMemory(&SwapChainParam, sizeof(SwapChainParam));
 	SwapChainParam.BufferCount = 1;
-	SwapChainParam.BufferDesc.Width = mRenderBufferPixelWidth;
-	SwapChainParam.BufferDesc.Height = mRenderBufferPixelHeight;
+	SwapChainParam.BufferDesc.Width = g_MainBufferPixelWidth;
+	SwapChainParam.BufferDesc.Height = g_MainBufferPixelHeight;
 	SwapChainParam.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	SwapChainParam.BufferDesc.RefreshRate.Numerator = 60;//	分子= =？
 	SwapChainParam.BufferDesc.RefreshRate.Denominator = 1;//分母
 	SwapChainParam.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//BACKBUFFER怎么被使用
 	SwapChainParam.OutputWindow = RenderHWND;
 	SwapChainParam.Windowed = IsWindowed;
-
 	SwapChainParam.SampleDesc.Count = (g_Device_MSAA4xEnabled = TRUE ? 4 : 1);//多重采样倍数
 	SwapChainParam.SampleDesc.Quality = (g_Device_MSAA4xEnabled = TRUE ? g_Device_MSAA4xQuality - 1 : 0);//quality之前获取了
 
@@ -156,7 +157,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 		&SwapChainParam,	//交换链的描述
 		&g_pSwapChain);		//返回的交换链指针
 	HR_DEBUG(hr, "SwapChain创建失败！");
-
+	
 	dxgiFactory->Release();
 	dxgiDevice->Release();
 	dxgiAdapter->Release();
@@ -236,26 +237,6 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 #pragma endregion CreateViewPort
 
-
-	//创建预设的光栅化state
-	//Create Raster State;If you want various Raster State,you should pre-Create all of them in the beginning
-#pragma region CreateRasterState
-
-	D3D11_RASTERIZER_DESC tmpRasterStateDesc;//光栅化设置
-	ZeroMemory(&tmpRasterStateDesc, sizeof(D3D11_RASTERIZER_DESC));
-	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
-	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &g_pRasterState_FillMode_Solid);
-	HR_DEBUG(hr, "创建RASTERIZER STATE_solid失败");
-
-	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &g_pRasterState_FillMode_WireFrame);
-	HR_DEBUG(hr, "创建RASTERIZER STATE_wireframe失败");
-
-#pragma endregion CreateRasterState
-
-
 	return TRUE;
 
 };
@@ -263,18 +244,15 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 {
 	g_Debug_MsgString.clear();
-	g_pImmediateContext->Flush();
-	g_pImmediateContext->ClearState();
+	//g_pImmediateContext->Flush();
+	//g_pImmediateContext->ClearState();
 
 	ReleaseCOM(g_pRenderTargetView);
 	ReleaseCOM(g_pSwapChain);
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);
-	ReleaseCOM(g_pRenderTargetView);
 	ReleaseCOM(g_pDepthStencilView);
 	ReleaseCOM(g_pImmediateContext);
-	ReleaseCOM(g_pRasterState_FillMode_Solid);
-	ReleaseCOM(g_pRasterState_FillMode_WireFrame);
 	//g_pd3dDevice->Release();
 	ReleaseCOM(g_pd3dDevice);
 
@@ -322,7 +300,8 @@ void NoiseEngine::Mainloop()
 			}//switch
 		}
 	};
-	
+
+	ReleaseAll();
 	UnregisterClass(mRenderWindowClassName, mRenderWindowHINSTANCE);
 }
 
@@ -341,7 +320,7 @@ void NoiseEngine::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)
 										 PRIVATE                               
 ************************************************************************/
 
-//windows message handler
+//windows message handle
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//消息的处理程序
 {
 	/*HDC			hdc ;

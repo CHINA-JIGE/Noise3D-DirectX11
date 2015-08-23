@@ -23,7 +23,6 @@ NoiseFileManager::NoiseFileManager()
 
 }
 
-
 BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFileBuffer)
 {
 	if (!pFileBuffer)
@@ -72,7 +71,6 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 
 	return TRUE;
 }
-
 
 BOOL NoiseFileManager::ImportFile_STL(char* pFilePath,std::vector<NVECTOR3>* pVertexBuffer,std::vector<UINT>* pIndexBuffer,std::vector<NVECTOR3>* pNormalBuffer, std::vector<char>* pFileInfo )
 {
@@ -184,7 +182,6 @@ BOOL NoiseFileManager::ImportFile_STL(char* pFilePath,std::vector<NVECTOR3>* pVe
 
 	return TRUE;
 }
-
 
 BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
 {
@@ -303,7 +300,6 @@ BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 	return TRUE;
 }
 
-
 BOOL NoiseFileManager::ExportFile_PURE(char * pFilePath, std::vector<char>* pFileBuffer, BOOL canOverlapOld)
 {
 
@@ -338,7 +334,6 @@ BOOL NoiseFileManager::ExportFile_PURE(char * pFilePath, std::vector<char>* pFil
 
 	return TRUE;
 }
-
 
 BOOL NoiseFileManager::ExportFile_NOISELAYER(char * pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld)
 {
@@ -465,11 +460,9 @@ BOOL NoiseFileManager::ExportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 
 
 
-
 /***********************************************************************
 											PRIVATE
 ***********************************************************************/
-
 
 float NoiseFileManager::mFunction_Combine4CharIntoFloat(unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4)
 {
@@ -485,7 +478,6 @@ float NoiseFileManager::mFunction_Combine4CharIntoFloat(unsigned char c1, unsign
 	return tmpFloat;
 }
 
-
 int NoiseFileManager::mFunction_Combine4CharIntoInt(unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4)
 {
 
@@ -496,7 +488,6 @@ int NoiseFileManager::mFunction_Combine4CharIntoInt(unsigned char c1, unsigned c
 	return tmpInt;
 }
 
-
 void NoiseFileManager::mFunction_SplitFloatInto4Char(float fValue, unsigned char & c1, unsigned char & c2, unsigned char & c3, unsigned char & c4)
 {
 	int tmpI = 0;
@@ -506,7 +497,6 @@ void NoiseFileManager::mFunction_SplitFloatInto4Char(float fValue, unsigned char
 	c3 = (char)	((tmpI & 0x00FF0000) >> 16);
 	c4 = (char)	((tmpI & 0xFF000000)>>24);
 }
-
 
 void NoiseFileManager::mFunction_SplitIntInto4Char(int iValue, unsigned char & c1, unsigned char & c2, unsigned char & c3, unsigned char & c4)
 {

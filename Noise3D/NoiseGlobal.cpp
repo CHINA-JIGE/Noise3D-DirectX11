@@ -12,6 +12,11 @@
 
 /*--------------------------全局变量----------------------------*/
 
+//主缓存的像素宽度
+UINT					g_MainBufferPixelWidth = 640;
+//主缓存的像素高度
+UINT					g_MainBufferPixelHeight = 480;
+
 //抗锯齿品质
 UINT				g_Device_MSAA4xQuality	= 1  ;
 //抗锯齿是否开启
@@ -56,8 +61,8 @@ ID3D11DepthStencilView*	g_pDepthStencilView		= NULL;
 ID3D11InputLayout*      g_pVertexLayout_Default			= NULL;
 ID3D11InputLayout*	     g_pVertexLayout_Simple			=	NULL;
 
-ID3D11RasterizerState*		g_pRasterState_FillMode_Solid = NULL;
-ID3D11RasterizerState*		g_pRasterState_FillMode_WireFrame= NULL;
+ID3D11RasterizerState*		g_pRasterState_Solid_CullNone = NULL;
+ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 
 /*------------------------------全局函数--------------------------*/
 

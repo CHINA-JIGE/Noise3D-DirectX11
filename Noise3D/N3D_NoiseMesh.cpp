@@ -17,6 +17,7 @@ NoiseMesh::NoiseMesh()
 {
 	m_VertexCount	= 0;
 	m_IndexCount	= 0;
+	m_MaterialID_for_SetMaterial = NOISE_MACRO_DEFAULT_MATERIAL_ID;
 	m_RotationX_Pitch = 0.0f;
 	m_RotationY_Yaw = 0.0f;
 	m_RotationZ_Roll = 0.0f;
@@ -24,26 +25,18 @@ NoiseMesh::NoiseMesh()
 	m_ScaleY = 1.0f;
 	m_ScaleZ = 1.0f;
 
-	m_pVertexInMem = new std::vector<N_DefaultVertex>;
-	m_pIndexInMem	= new std::vector<UINT>;
-	m_pMaterialInMem=new std::vector<N_Material>;
+	m_pVertexInMem		= new std::vector<N_DefaultVertex>;
+	m_pIndexInMem		= new std::vector<UINT>;
+	m_pPrimitiveInfoList	= new std::vector<N_PrimitiveInfo>;//store tex/mat ID of a triangle
+	m_pSubsetInfoList		= new std::vector<N_SubsetInfo>;//store [a,b] of a subset
 
-
-	m_pMatrixWorld	= new NMATRIX;
-	m_pMatrixWorldInvTranspose = new NMATRIX;
+	m_pMatrixWorld		= new NMATRIX;
+	m_pMatrixWorldInvTranspose	= new NMATRIX;
 	m_pPosition					= new NVECTOR3(0 ,0, 0);
 	m_pBoundingBox_Min	= new NVECTOR3(0, 0, 0);
 	m_pBoundingBox_Max	= new NVECTOR3(0, 0, 0);
 	D3DXMatrixIdentity(m_pMatrixWorld);
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
-
-	//初始化一个材质
-	N_Material tmpMat;
-	tmpMat.mAmbientColor	= NVECTOR3(0,0,0.0f);
-	tmpMat.mDiffuseColor		= NVECTOR3(1.0f,1.0f,1.0f);
-	tmpMat.mSpecularColor	=	NVECTOR3(1.0f,1.0f,1.0f);
-	tmpMat.mSpecularSmoothLevel	= 5;
-	m_pMaterialInMem->push_back(tmpMat);
 };
 
 NoiseMesh::~NoiseMesh()
@@ -87,6 +80,9 @@ void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColu
 
 	//最后
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
 };
 
 void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthStep,UINT iWidthStep,UINT iHeightStep)
@@ -194,7 +190,11 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
 	m_IndexCount = m_pIndexInMem->size();
 
+	//transmit to gpu
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
 }
 
 void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
@@ -349,6 +349,8 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 
 	//最后
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
 
 };
 
@@ -542,13 +544,50 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 
 	//最后
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
-
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
 };
 
-void	NoiseMesh::SetMaterial(N_Material Mat)
+void	NoiseMesh::SetMaterial(UINT matID)
 {
-	m_pMaterialInMem->clear();
-	m_pMaterialInMem->push_back(Mat);
+	//if mat ID is valid
+	if (matID < m_pFatherScene->m_pChildMaterialMgr->GetMaterialCount())
+	{
+
+		//this is just for user-set ;;;  In File-Loading method,we will use material settings in file
+		m_MaterialID_for_SetMaterial = matID;
+		
+		//actually in this function filling m_pPrimitiveInfoList is optional .(I dont want it to be empty= =)
+		//but when loading mesh from file, this primitive info  list should be filled to be sorted.
+		for (UINT i = 0;	i < m_pIndexInMem->size()/3	;i ++)
+		{
+			N_PrimitiveInfo tmpInfo;
+			m_pPrimitiveInfoList->push_back(tmpInfo);
+			m_pPrimitiveInfoList->at(i).index1 = m_pIndexInMem->at(3 * i);
+			m_pPrimitiveInfoList->at(i).index2 = m_pIndexInMem->at(3 * i + 1);
+			m_pPrimitiveInfoList->at(i).index3 = m_pIndexInMem->at(3 * i + 2);
+			m_pPrimitiveInfoList->at(i).mMatID = matID;
+		}
+
+		//but set the "SUBSET" list to a correct state is crucial.
+		N_SubsetInfo tmpSubset;
+		tmpSubset.startPrimitiveID = 0;
+		tmpSubset.endPrimitiveID = m_pPrimitiveInfoList->size()-1;//count of triangles
+		tmpSubset.matID = matID;
+
+		//because this SetMaterial aim to the entire mesh (all primitives) ,s
+		//o previously-defined material will be wiped out,and set to this material
+		m_pSubsetInfoList->clear();
+		m_pSubsetInfoList->push_back(tmpSubset);
+	}
+}
+
+void NoiseMesh::SetMaterial(std::string matName)
+{
+	UINT matID = 0;
+	matID = m_pFatherScene->m_pChildMaterialMgr->GetIndexByName(&matName);
+	//if matName is valid , matID will not equal to 0
+	SetMaterial(matID);
 }
 
 BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
@@ -632,7 +671,6 @@ void NoiseMesh::SetPosition(float x,float y,float z)
 	m_pPosition->z =z;
 }
 
-
 void NoiseMesh::SetRotation(float angleX, float angleY, float angleZ)
 {
 	m_RotationX_Pitch	= angleX;
@@ -677,10 +715,9 @@ void NoiseMesh::SetScaleZ(float scaleZ)
 	m_ScaleZ = scaleZ;
 }
 
-int NoiseMesh::GetVertexCount()
+UINT NoiseMesh::GetVertexCount()
 {
-	m_VertexCount = m_pVertexInMem->size();
-	return m_VertexCount;
+	return m_pVertexInMem->size();
 }
 
 void NoiseMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
@@ -698,9 +735,6 @@ void NoiseMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
 	iterLast = m_pVertexInMem->end();
 	outBuff.assign(iterBegin,iterLast);
 }
-
-
-
 
 
 
@@ -743,7 +777,6 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 	return TRUE;
 }
 	
-
 void	NoiseMesh::mFunction_Build_A_Quad
 	(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex)
 {
@@ -787,7 +820,6 @@ void	NoiseMesh::mFunction_Build_A_Quad
 
 };
 
-
 void	NoiseMesh::mFunction_UpdateWorldMatrix()
 {
 
@@ -826,7 +858,6 @@ void	NoiseMesh::mFunction_UpdateWorldMatrix()
 
 }
 
-
 void NoiseMesh::mFunction_ComputeBoundingBox()
 {
 	//计算包围盒.......重载1
@@ -848,7 +879,6 @@ void NoiseMesh::mFunction_ComputeBoundingBox()
 
 }
 
-
 void NoiseMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 {
 	//计算包围盒.......重载2
@@ -869,7 +899,6 @@ void NoiseMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffe
 	}
 
 }
-
 
 NVECTOR2 NoiseMesh::mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint)
 {

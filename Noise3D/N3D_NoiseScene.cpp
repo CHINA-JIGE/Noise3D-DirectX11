@@ -90,6 +90,35 @@ BOOL NoiseScene::CreateLineBuffer(NoiseLineBuffer * pLineBuffer)
 	return TRUE;
 }
 
+BOOL NoiseScene::CreateTextureManager(NoiseTextureManager* pTexMgr)
+{
+	if (pTexMgr != NULL)
+	{
+		m_pChildTextureMgr = pTexMgr;
+		pTexMgr->m_pFatherScene = this;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL NoiseScene::CreateMaterialManager(NoiseMaterialManager * pMatMgr)
+{
+	if (pMatMgr != NULL)
+	{
+		m_pChildMaterialMgr = pMatMgr;
+		pMatMgr->m_pFatherScene = this;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 void	NoiseScene::SetCamera(NoiseCamera* pSceneCam)
 {

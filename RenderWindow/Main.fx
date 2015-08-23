@@ -24,19 +24,22 @@ VS_OUTPUT_DEFAULT VS0(VS_INPUT_DEFAULT input )
     	output.color 	= input.color;
 		//we need an normal vector in W space
 		output.normalW 	= mul(float4(input.normalL,1.0f),gWorldInvTransposeMatrix).xyz;
-		
+		//texture coordinate
+		output.texcoord = input.texcoord;
+
     	return output;
 }
 
 float4 PS0(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就是 back buffer ，所以叫SV_Target
 {
 	//the output
-	float4 finalColor = float4(0,0,0,0);
+	float4 	finalColor4 	= float4(0,0,0,0);
+	float4	tmpColor4	= float4(0,0,0,0);
 	
-	//if the lighting system is off,then use vertex color
-	if( (!gIsLightingEnabled_Dynamic)&& (!gIsLightingEnabled_Static) )
+	//if the lighting system and material are invalid ,then use vertex color
+	if( (!gIsLightingEnabled_Dynamic)&& (!gIsLightingEnabled_Static))
 	{
-		return input.color;
+			return input.color;//vertex color
 	}
 
 	//interpolation can  'unnormalized' the unit  vector
@@ -45,10 +48,6 @@ float4 PS0(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就
 	//vector ---- this point to Camera
 	float3 Vec_ToCam = gCamPos - input.posW;
 	
-	//colors
-	float4	outAmbient	= float4(0,0,0,0);		float4 tmpA= float4(0,0,0,0);
-	float4	outDiffuse	= float4(0,0,0,0);		float4 tmpD= float4(0,0,0,0);
-	float4	outSpecular	= float4(0,0,0,0);		float4 tmpS= float4(0,0,0,0);
 	
 	//compute DYNAMIC LIGHT
 	int i = 0;
@@ -56,18 +55,28 @@ float4 PS0(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就
 	{
 		for(i=0;i<gDirectionalLightCount_Dynamic;i++)
 		{
-			ComputeDirLightColor(gMaterial,gDirectionalLight_Dynamic[i],input.normalW,Vec_ToCam,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputeDirLightColor(gMaterial,gDirectionalLight_Dynamic[i],input.normalW,Vec_ToCam,
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid,
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gPointLightCount_Dynamic;i++)
 		{
-			ComputePointLightColor(gMaterial,gPointLight_Dynamic[i],input.normalW,Vec_ToCam,input.posW,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputePointLightColor(gMaterial,gPointLight_Dynamic[i],input.normalW,Vec_ToCam,input.posW,
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid, 
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			
+			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gSpotLightCount_Dynamic;i++)
 		{
-			ComputeSpotLightColor(gMaterial,gSpotLight_Dynamic[i],input.normalW,Vec_ToCam,input.posW,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputeSpotLightColor(gMaterial,gSpotLight_Dynamic[i],input.normalW,Vec_ToCam,input.posW,
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid, 
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			finalColor4 += tmpColor4;
 		} 
 	}
 
@@ -76,25 +85,34 @@ float4 PS0(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就
 	{
 		for(i=0;i<gDirectionalLightCount_Static;i++)
 		{
-			ComputeDirLightColor(gMaterial,gDirectionalLight_Static[i],input.normalW,Vec_ToCam,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputeDirLightColor(gMaterial,gDirectionalLight_Static[i],input.normalW,Vec_ToCam,
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid, 
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gPointLightCount_Static;i++)
 		{
-			ComputePointLightColor(gMaterial,gPointLight_Static[i],input.normalW,Vec_ToCam,input.posW,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputePointLightColor(gMaterial,gPointLight_Static[i],input.normalW,Vec_ToCam,input.posW, 
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid, 
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gSpotLightCount_Static;i++)
 		{
-			ComputeSpotLightColor(gMaterial,gSpotLight_Static[i],input.normalW,Vec_ToCam,input.posW,tmpA,tmpD,tmpS);
-			outAmbient+= tmpA;		outDiffuse+= tmpD;		outSpecular+= tmpS;
+			ComputeSpotLightColor(gMaterial,gSpotLight_Static[i],input.normalW,Vec_ToCam,input.posW,
+								gIsDiffuseMapValid,gIsNormalMapValid,gIsSpecularMapValid, 
+								gDiffuseMap,gNormalMap,gSpecularMap,
+								input.texcoord,tmpColor4);
+			finalColor4 += tmpColor4;
 		} 
 	}
 
-	finalColor = outAmbient + outDiffuse + outSpecular;
+
 	//clamp to [0,1]
-	finalColor = saturate(finalColor);
-    return finalColor;
+	finalColor4 = saturate(finalColor4);
+    return finalColor4;
 }
 
 

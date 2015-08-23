@@ -18,7 +18,7 @@ struct N_PointLight
 {
 	float3 mAmbientColor;			float mSpecularIntensity;
 	float3 mDiffuseColor;			float mLightingRange;
-	float3 mSpecularColor;		float mAttenuationFactor;
+	float3 mSpecularColor;			float mAttenuationFactor;
 	float3 mPosition;				float mDiffuseIntensity;//memory alignment
 };
 
@@ -26,27 +26,45 @@ struct N_SpotLight
 {
 	float3 mAmbientColor;			float mSpecularIntensity;
 	float3 mDiffuseColor;			float mLightingRange;
-	float3 mSpecularColor;		float mAttenuationFactor;
+	float3 mSpecularColor;			float mAttenuationFactor;
 	float3 mLitAt;					float mLightingAngle;
 	float3 mPosition;				float mDiffuseIntensity;//memory alignment
 };
 
-struct N_Material
+struct N_Material_Basic
 {
 	float3	mAmbientColor;		int		mSpecularSmoothLevel;
 	float3	mDiffuseColor;		float		mPad1;
 	float3	mSpecularColor;		float		mPad2;
 };
 
-void	ComputeDirLightColor(N_Material Mat,N_DirectionalLight Light,float3 Normal,float3 Vec_toEye,
-							 out float4 outAmbient, out float4 outDiffuse, out float4 outSpec)
-{
-	outAmbient	= float4(0.0f,0.0f,0.0f,0.0f);
-	outDiffuse	= float4(0.0f,0.0f,0.0f,0.0f);
-	outSpec		= float4(0.0f,0.0f,0.0f,0.0f);
 
-	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
-	outAmbient	= float4(Mat.mAmbientColor*Light.mAmbientColor,1.0f);
+Texture2D gDiffuseMap;
+Texture2D gNormalMap;
+Texture2D gSpecularMap;
+
+SamplerState sampler_ANISOTROPIC
+{
+	Filter = ANISOTROPIC;
+	MaxAnisotropy = 4;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	AddressW = Wrap;
+};
+
+
+
+
+void	ComputeDirLightColor(N_Material_Basic Mat,N_DirectionalLight Light,float3 Normal,float3 Vec_toEye,
+							bool DiffuseMapEnabled,bool NormalMapEnabled,bool SpecularMapEnabled,
+							Texture2D diffuseMap, Texture2D normalMap, Texture2D specularMap,
+							float2 TexCoord, out float4 outColor4)
+{
+	outColor4 = float4(0,0,0,1.0f);
+	float4 outAmbient4	= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outDiffuse4	= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outSpec4		= float4(0.0f,0.0f,0.0f,0.0f);
+
 
 	//direction of the incoming light
 	float3	LightVec = normalize(Light.mDirection);
@@ -54,12 +72,29 @@ void	ComputeDirLightColor(N_Material Mat,N_DirectionalLight Light,float3 Normal,
 	//Diffuse factor :: the Cos(theta)
 	float 	diffuseCosFactor = Light.mDiffuseIntensity *dot(-LightVec,Normal);
 	
+	//let's see if diffuse map is valid, and determine whether to use diffuse map
+	float3 diffuseColor3 = float3(0, 0, 0);
+	if (DiffuseMapEnabled)
+	{
+		diffuseColor3 = diffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+	}
+	else
+	{
+		//invalid diffuse map, we should use pure color of basic material
+		diffuseColor3 = Mat.mDiffuseColor;
+	}
+
+
+	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
+	outAmbient4 = float4(Mat.mAmbientColor*Light.mAmbientColor*diffuseColor3, 1.0f);
+
+
 	[flatten]
 	//if this pixel can be lit .... and this judgement is some sort of optimization
 	if(diffuseCosFactor > 0.0f)
 	{
-		//final Diffuse
-		outDiffuse = diffuseCosFactor* float4(Mat.mDiffuseColor * Light.mDiffuseColor,1.0f);
+
+		outDiffuse4 = diffuseCosFactor* float4(diffuseColor3 * Light.mDiffuseColor,1.0f);
 		
 		//now specular	----reflect () : input an incoming light,and output an outgoing light
 		float3 tmpV = reflect(LightVec,Normal);
@@ -71,21 +106,24 @@ void	ComputeDirLightColor(N_Material Mat,N_DirectionalLight Light,float3 Normal,
 		float  SpecFactor = Light.mSpecularIntensity * pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
 		
 		//final SpecularColor
-		outSpec = SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
+		outSpec4 = SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
 	}
 	
+	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
 };
 
 
-void	ComputePointLightColor(N_Material Mat,N_PointLight Light,float3 Normal,float3 Vec_toEye,float3 thisPoint,
-							 out float4 outAmbient, out float4 outDiffuse, out float4 outSpec)
-{
-	outAmbient	= float4(0.0f,0.0f,0.0f,0.0f);
-	outDiffuse	= float4(0.0f,0.0f,0.0f,0.0f);
-	outSpec		= float4(0.0f,0.0f,0.0f,0.0f);
 
-	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
-	outAmbient	= float4(Mat.mAmbientColor*Light.mAmbientColor,1.0f);
+void	ComputePointLightColor(N_Material_Basic Mat,N_PointLight Light,float3 Normal,float3 Vec_toEye,float3 thisPoint,
+								bool DiffuseMapEnabled,bool NormalMapEnabled,bool SpecularMapEnabled,
+								Texture2D diffuseMap,Texture2D normalMap,Texture2D specularMap,
+								float2 TexCoord, out float4 outColor4)
+{
+	outColor4 = float4(0,0,0,1.0f);
+	float4 outAmbient4	= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outDiffuse4	= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outSpec4		= float4(0.0f,0.0f,0.0f,0.0f);
+
 
 	// direction of the incoming light
 	float3	LightVec = thisPoint - Light.mPosition;
@@ -99,19 +137,37 @@ void	ComputePointLightColor(N_Material Mat,N_PointLight Light,float3 Normal,floa
 	//to check if this point is out of lighting range :: DISTANCE /ANGLE RANGE
 	if(disFromLight > Light.mLightingRange)
 	{
+		outColor4 = float4(0,0,0,1.0f);
 		return;
 	}
 
 	//Diffuse factor ::  Cos(theta)
 	float diffuseCosFactor =Light.mDiffuseIntensity * dot(-Unit_LightVec,Normal);
 	
+	//let's see if diffuse map is valid, and determine whether to use diffuse map
+	float3 diffuseColor3 = float3(0, 0, 0);
+	if (DiffuseMapEnabled)
+	{
+		diffuseColor3 = diffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+	}
+	else
+	{
+		//invalid diffuse map, we should use pure color of basic material
+		diffuseColor3 = Mat.mDiffuseColor;
+	}
+
+	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
+	outAmbient4 = float4(Mat.mAmbientColor*Light.mAmbientColor*diffuseColor3, 1.0f);
+
+
 	[flatten]
 	//if this pixel can be lit .... and this judgement is some sort of optimization
 	if(diffuseCosFactor > 0.0f)
 	{
+
 		//final Diffuse
-		outDiffuse = Attenuation * diffuseCosFactor* float4(Mat.mDiffuseColor * Light.mDiffuseColor,1.0f);
-		
+		outDiffuse4 = Attenuation * diffuseCosFactor* float4(diffuseColor3 * Light.mDiffuseColor,1.0f);
+
 		//now specular	----reflect () : input an incoming light,and output an outgoing light
 		float3 tmpV = reflect(Unit_LightVec,Normal);
 		
@@ -123,20 +179,23 @@ void	ComputePointLightColor(N_Material Mat,N_PointLight Light,float3 Normal,floa
 		float  SpecFactor = Light.mSpecularIntensity * pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
 		
 		//final SpecularColor
-		outSpec = Attenuation * SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
+		outSpec4 = Attenuation * SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
 	}
+
+	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
 };
 
 
-void	ComputeSpotLightColor(N_Material Mat,N_SpotLight Light,float3 Normal,float3 Vec_toEye,float3 thisPoint,
-							 out float4 outAmbient, out float4 outDiffuse, out float4 outSpec)
-{
-	outAmbient	= float4(0.0f,0.0f,0.0f,0.0f);
-	outDiffuse	= float4(0.0f,0.0f,0.0f,0.0f);
-	outSpec		= float4(0.0f,0.0f,0.0f,0.0f);
 
-	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
-	outAmbient	= float4(Mat.mAmbientColor*Light.mAmbientColor,1.0f);
+void	ComputeSpotLightColor(N_Material_Basic Mat,N_SpotLight Light,float3 Normal,float3 Vec_toEye,float3 thisPoint,
+								bool DiffuseMapEnabled,bool NormalMapEnabled,bool SpecularMapEnabled,
+								Texture2D diffuseMap,Texture2D normalMap,Texture2D specularMap,
+								float2 TexCoord, out float4 outColor4)
+{
+	outColor4 = float4(0,0,0,1.0f);
+	float4 outAmbient4	= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outDiffuse4		= float4(0.0f,0.0f,0.0f,0.0f);
+	float4 outSpec4			= float4(0.0f,0.0f,0.0f,0.0f);
 
 	// direction of the incoming light
 	float3	LightVec = thisPoint - Light.mPosition;
@@ -153,19 +212,39 @@ void	ComputeSpotLightColor(N_Material Mat,N_SpotLight Light,float3 Normal,float3
 	//to check if this point is out of lighting range
 	if((disFromLight > Light.mLightingRange)||(Cos_Theta < cos(Light.mLightingAngle)))
 	{
+		outColor4 = float4(0,0,0,1.0f);
 		return;
 	}
 
 	//Diffuse factor ::  Cos(theta)
 	float diffuseCosFactor = Light.mDiffuseIntensity *dot(-Unit_LightVec,Normal);
 	
+	//let's see if diffuse map is valid, and determine whether to use diffuse map
+	float3 diffuseColor3 = float3(0, 0, 0);
+	if (DiffuseMapEnabled)
+	{
+		diffuseColor3 = diffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+	}
+	else
+	{
+		//invalid diffuse map, we should use pure color of basic material
+		diffuseColor3 = Mat.mDiffuseColor;
+	}
+
+	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
+	outAmbient4 = float4(Mat.mAmbientColor*Light.mAmbientColor*diffuseColor3, 1.0f);
+
+
+
+
 	[flatten]
 	//if this pixel can be lit .... and this judgement is some sort of optimization
 	if(diffuseCosFactor > 0.0f)
 	{
+
 		//final Diffuse
-		outDiffuse = Attenuation * diffuseCosFactor* float4(Mat.mDiffuseColor * Light.mDiffuseColor,1.0f);
-		
+		outDiffuse4 = Attenuation * diffuseCosFactor* float4(diffuseColor3 * Light.mDiffuseColor,1.0f);
+
 		//now specular	----reflect () : input an incoming light,and output an outgoing light
 		float3 tmpV = reflect(Unit_LightVec,Normal);
 		
@@ -176,6 +255,8 @@ void	ComputeSpotLightColor(N_Material Mat,N_SpotLight Light,float3 Normal,float3
 		float  SpecFactor = Light.mSpecularIntensity * pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
 		
 		//final SpecularColor
-		outSpec = Attenuation * SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
+		outSpec4 = Attenuation * SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
 	}
+
+	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
 };

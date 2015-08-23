@@ -29,6 +29,10 @@ public:
 
 	BOOL			CreateLineBuffer(NoiseLineBuffer* pLineBuffer);
 
+	BOOL			CreateTextureManager(NoiseTextureManager* pTexMgr);
+
+	BOOL			CreateMaterialManager(NoiseMaterialManager* pMatMgr);
+
 	void				SetCamera(NoiseCamera* pSceneCam);
 
 	NoiseMesh*					GetMesh(UINT iMeshIndex);
@@ -46,6 +50,10 @@ private:
 	NoiseRenderer*							m_pChildRenderer;
 
 	NoiseLightManager*					m_pChildLightMgr;
+
+	NoiseTextureManager*				m_pChildTextureMgr;
+
+	NoiseMaterialManager*			m_pChildMaterialMgr;
 
 	std::vector<NoiseMesh*> *		m_pChildMeshList;
 

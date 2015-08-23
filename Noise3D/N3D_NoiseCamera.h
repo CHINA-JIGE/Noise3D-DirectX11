@@ -11,7 +11,7 @@ public class _declspec(dllexport) NoiseCamera
 {
 public:
 
-	friend class NoiseScene;//scene是他的友元类
+	friend class NoiseScene;
 	friend class NoiseRenderer;
 
 	NoiseCamera();

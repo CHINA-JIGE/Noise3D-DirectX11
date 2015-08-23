@@ -7,10 +7,11 @@ NoiseEngine Engine;
 NoiseRenderer Renderer;
 NoiseScene Scene;
 NoiseMesh Mesh1;
-NoiseMesh Mesh2;
-NoiseMesh Mesh3;
 NoiseCamera Camera;
 NoiseLightManager LightMgr;
+NoiseMaterialManager	MatMgr;
+NoiseTextureManager	TexMgr;
+
 NoiseLineBuffer	lineBuffer;
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 NoiseUtSlicer Slicer;
@@ -47,45 +48,54 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateCamera(&Camera);
 	Scene.CreateLightManager(&LightMgr);
 	Scene.CreateLineBuffer(&lineBuffer);
+	Scene.CreateMaterialManager(&MatMgr);
+	Scene.CreateTextureManager(&TexMgr);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Mesh1.LoadFile_STL("table.STL");
-	Mesh1.SetPosition(0.0f,0,0);
-	//Mesh1.SetScale(0.4f, 0.4f, 0.4f);
+	Renderer.SetCullMode(NOISE_CULLMODE_NONE);
+	//Mesh1.LoadFile_STL("table.STL");
+	//Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
+	Mesh1.CreateSphere(6.0, 30, 30);
+	Mesh1.SetPosition(0,0,0);
+	Mesh1.SetScale(0.6f, 0.6f, 0.6f);
 	Camera.SetPosition(2.0f,0,0);
 	Camera.SetLookAt(0,0,0);
 
-
-	PointLight1.mAmbientColor = NVECTOR3(0.1f,0.1f,0.1f);
-	PointLight1.mDiffuseColor	=	NVECTOR3(0.3f,1.0f,0.3f);
+	//！！！！！！菊高！！！！！！！！
+	PointLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,01.0f);
+	PointLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mPosition			=NVECTOR3(-3.0f,5.0f,-3.0f);
-	PointLight1.mSpecularIntensity	=1.1f;
+	PointLight1.mSpecularIntensity	=0.9f;
 	PointLight1.mDiffuseIntensity = 1.0f;
 	PointLight1.mAttenuationFactor = 0.0f;
 	PointLight1.mLightingRange = 100.0f;
-
-
 	LightMgr.AddDynamicPointLight(&PointLight1);
 
 
-	N_Material Mat1;
-	Mat1.mAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
-	Mat1.mDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
-	Mat1.mSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
-	Mat1.mSpecularSmoothLevel	=	10;
+	//只郡符薮夕
+	UINT diffuseTexID=TexMgr.CreateTextureFromFile(L"texture.jpg","wood", TRUE, 0, 0);
 
-	Mesh1.SetMaterial(Mat1);
+	N_Material Mat1;
+	Mat1.baseColor.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
+	Mat1.baseColor.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
+	Mat1.baseColor.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
+	Mat1.baseColor.mSpecularSmoothLevel	=	10;
+	Mat1.diffuseMapID = diffuseTexID;
+	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
+
+	//set material
+	Mesh1.SetMaterial(Mat1_ID);
 
 
 	//Slicer.Step1_LoadPrimitiveMeshFromSTLFile("table.STL");
 	//Slicer.Step2_Intersection(50);
 	//Slicer.Step3_GenerateLineStrip();
 	//Slicer.Step4_SaveLayerDataToFile("table.NOISELAYER");
-	Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("table.NOISELAYER");
+	//Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("table.NOISELAYER");
 
 
-	NVECTOR3 v1, v2,n;
+	/*NVECTOR3 v1, v2,n;
 	for (UINT i = 0;i < Slicer.GetLineStripCount();i++)
 	{
 		
@@ -100,7 +110,7 @@ BOOL Init3D(HWND hwnd)
 			//normal
 			lineBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
 		}
-	}
+	}*/
 
 	return TRUE;
 };
@@ -109,16 +119,16 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	Angle += 0.0005f;
-	Camera.SetPosition(40*cos(Angle),40.0f,40*sin(Angle));
-	Camera.SetLookAt(0,25.0f,0);
+	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
+	Camera.SetLookAt(0,0,0);
 
 	Renderer.ClearViews();
 
 	Mesh1.AddToRenderList();
-	lineBuffer.AddToRenderList();
+	//lineBuffer.AddToRenderList();
 
-	//Renderer.RenderMeshInList();
-	Renderer.RenderLine3DInList();
+	Renderer.RenderMeshInList();
+	//Renderer.RenderLine3DInList();
 
 	Renderer.RenderToScreen();
 };

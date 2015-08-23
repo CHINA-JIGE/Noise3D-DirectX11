@@ -38,8 +38,6 @@ private:
 	
 	UINT					mRenderWindowPixelWidth;
 	UINT					mRenderWindowPixelHeight;
-	UINT					mRenderBufferPixelWidth;
-	UINT					mRenderBufferPixelHeight;
 
 	//用于储存主循环的函数指针 因为要封装消息循环 所以只能这样了
 	 void					(*m_pMainLoopFunction)(void);

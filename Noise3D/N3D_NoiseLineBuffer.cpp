@@ -18,12 +18,10 @@ NoiseLineBuffer::NoiseLineBuffer()
 	m_pVertexInMem = new std::vector<N_SimpleVertex>;
 }
 
-
 NoiseLineBuffer::~NoiseLineBuffer()
 {
 	ReleaseCOM(m_pVertexBuffer);
 }
-
 
 void NoiseLineBuffer::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
@@ -40,7 +38,6 @@ void NoiseLineBuffer::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECT
 	mCanUpdateToGpu = TRUE;
 }
 
-
 void NoiseLineBuffer::DeleteLine3D(UINT index)
 {
 	std::vector<N_SimpleVertex>::iterator tmp_iter;
@@ -51,7 +48,6 @@ void NoiseLineBuffer::DeleteLine3D(UINT index)
 	}
 	mCanUpdateToGpu = TRUE;
 }
-
 
 BOOL NoiseLineBuffer::AddToRenderList()
 {
@@ -71,12 +67,10 @@ BOOL NoiseLineBuffer::AddToRenderList()
 	return TRUE;
 }
 
-
 UINT NoiseLineBuffer::GetLineCount()
 {
 	return (UINT)(m_pVertexInMem->size()/2);
 }
-
 
 
 

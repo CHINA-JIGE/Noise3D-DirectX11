@@ -30,16 +30,6 @@ struct N_SimpleVertex
 	NVECTOR4 Color;
 };
 
-struct N_Material
-{
-	N_Material(){ZeroMemory(this,sizeof(*this));}
-
-	NVECTOR3	mAmbientColor;	INT32 mSpecularSmoothLevel;
-	NVECTOR3	mDiffuseColor;		float		mPad1;
-	NVECTOR3	mSpecularColor;	float		mPad2;
-
-};
-
 struct N_DirectionalLight
 {
 	N_DirectionalLight()  
@@ -61,7 +51,6 @@ struct N_DirectionalLight
 	NVECTOR3 mDiffuseColor;	float			mDiffuseIntensity;
 	NVECTOR3 mSpecularColor;	 float		mPad2;//用于内存对齐
 	NVECTOR3 mDirection;			 float		mPad3;//用于内存对齐
-
 };
 
 struct N_PointLight
@@ -118,7 +107,54 @@ struct N_SpotLight
 	NVECTOR3 mPosition;				float mDiffuseIntensity;
 };
 
+//--------------------NOISE MESH------------------
+struct N_Material_Basic
+{
+	N_Material_Basic() { ZeroMemory(this, sizeof(*this)); }
 
+	NVECTOR3	mBaseAmbientColor;	INT32	mSpecularSmoothLevel;
+	NVECTOR3	mBaseDiffuseColor;		float		mPad1;
+	NVECTOR3	mBaseSpecularColor;	float		mPad2;
+
+};
+
+struct N_Material
+{
+	N_Material() 
+	{ 
+		ZeroMemory(this, sizeof(*this)); 
+		diffuseMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
+		normalMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
+		specularMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
+	}
+
+	std::string	 mMatName;
+	N_Material_Basic baseColor;
+	int	diffuseMapID;
+	int	normalMapID;
+	int	specularMapID;
+};
+
+struct N_PrimitiveInfo
+{
+	N_PrimitiveInfo() { ZeroMemory(this, sizeof(*this)); }
+	UINT		index1;
+	UINT		index2;
+	UINT		index3;
+	int		mMatID;
+};
+
+struct N_SubsetInfo
+{
+	N_SubsetInfo() { ZeroMemory(this, sizeof(*this)); }
+	UINT		startPrimitiveID;
+	UINT		endPrimitiveID;
+	UINT		matID;
+};
+
+
+//-------------CONSTANT BUFFER STRUCTURE----------------
+//GPU Memory : 128 byte alignment
 struct N_CbPerFrame
 {
 	NMATRIX			mProjMatrix;
@@ -142,7 +178,11 @@ struct N_CbPerObject
 
 struct N_CbPerSubset
 {
-	N_Material	mMaterial;
+	N_Material_Basic	basicMaterial;
+	BOOL			IsDiffuseMapValid;
+	BOOL			IsNormalMapValid;
+	BOOL			IsSpecularMapValid;
+	float				mPad1;
 };
 
 struct N_CbRarely
@@ -171,3 +211,4 @@ struct N_LineStrip
 	std::vector<NVECTOR3>	normalList;
 	UINT		LayerID;
 };
+

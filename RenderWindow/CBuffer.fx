@@ -4,7 +4,8 @@
 	Father:Main.fx
 
 **************************************************************************/
-
+#ifndef CBUFFER_H
+#define CBUFFER_H
 
 cbuffer cbPerObject
 {
@@ -30,7 +31,11 @@ cbuffer cbPerFrame
 cbuffer cbPerSubset
 {
 	//Material
-	N_Material	gMaterial;
+	N_Material_Basic	gMaterial;
+	int					gIsDiffuseMapValid;
+	float				gIsNormalMapValid;
+	float				gIsSpecularMapValid;
+	float				mPad2;
 };
 
 cbuffer	cbRarely
@@ -51,3 +56,5 @@ cbuffer cbDrawLine3D
 	float4x4	gProjMatrix_Line3D;
 	float4x4	gViewMatrix_Line3D;
 };
+#endif
+;

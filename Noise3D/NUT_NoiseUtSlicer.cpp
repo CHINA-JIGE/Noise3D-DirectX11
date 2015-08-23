@@ -19,7 +19,6 @@ NoiseUtSlicer::NoiseUtSlicer()
 	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
 }
 
-
 BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
 {
 	UINT i = 0;
@@ -39,7 +38,6 @@ BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVerte
 
 	return TRUE;
 }
-
 
 BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 {
@@ -70,7 +68,6 @@ BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 
 	return TRUE;
 }
-
 
 void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 {
@@ -294,7 +291,6 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 
 }
 
-
 void	NoiseUtSlicer::Step3_GenerateLineStrip()
 {
 	//link numerous line segments into line strip
@@ -348,14 +344,12 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 	}//for i
 }
 
-
 BOOL NoiseUtSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
 {
 	BOOL isSucceeded;
 	isSucceeded = NoiseFileManager::ImportFile_NOISELAYER(filePath, m_pLineStripBuffer);
 	return isSucceeded;
 }
-
 
 BOOL NoiseUtSlicer::Step4_SaveLayerDataToFile(char * filePath)
 {
@@ -365,15 +359,10 @@ BOOL NoiseUtSlicer::Step4_SaveLayerDataToFile(char * filePath)
 	return isSucceeded;
 }
 
-
-
-
-
 UINT NoiseUtSlicer::GetLineSegmentCount()
 {
 	return m_pLineSegmentBuffer->size();
 }
-
 
 void NoiseUtSlicer::GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer)
 {
@@ -395,12 +384,10 @@ void NoiseUtSlicer::GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer)
 
 }
 
-
 UINT NoiseUtSlicer::GetLineStripCount()
 {
 	return m_pLineStripBuffer->size();
 }
-
 
 void NoiseUtSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index)
 {
@@ -437,7 +424,6 @@ void	NoiseUtSlicer::mFunction_ComputeBoundingBox()
 	}
 
 }
-
 
 BOOL NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
 {
@@ -476,7 +462,6 @@ BOOL NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, 
 
 	return FALSE;
 }
-
 
 N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
 
@@ -526,7 +511,6 @@ N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer(UINT iTri
 
 	return outResult;
 }
-
 
 BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
 {
@@ -580,7 +564,6 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 	//didn't find qualified line segment to link
 	return FALSE;
 }
-
 
 NVECTOR3 NoiseUtSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 {

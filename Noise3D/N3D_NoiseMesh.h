@@ -7,7 +7,6 @@
 
 #pragma once
 
-
 public class _declspec(dllexport) NoiseMesh : private NoiseFileManager
 {
 	friend class NoiseScene;
@@ -27,43 +26,48 @@ public:
 
 	void CreateCylinder(float fRadius,float fHeight,UINT iColumnCount =40,UINT iRingCount =8);
 
-	void	SetMaterial(N_Material Mat);
+	void	SetMaterial(UINT matID);
 
-	BOOL LoadFile_STL(char* pFilePath);
+	void	SetMaterial(std::string matName);
 
-	BOOL  AddToRenderList();
+	BOOL	LoadFile_STL(char* pFilePath);
 
-	void SetPosition(float x,float y,float z);
+	BOOL	AddToRenderList();
 
-	void SetRotation(float angleX, float angleY, float angleZ);
+	void		SetPosition(float x,float y,float z);
 
-	void SetRotationX_Pitch(float angleX);
+	void		SetRotation(float angleX, float angleY, float angleZ);
 
-	void SetRotationY_Yaw(float angleY);
+	void		SetRotationX_Pitch(float angleX);
 
-	void SetRotationZ_Roll(float angleZ);
+	void		SetRotationY_Yaw(float angleY);
 
-	void	SetScale(float scaleX, float scaleY, float scaleZ);
+	void		SetRotationZ_Roll(float angleZ);
 
-	void	SetScaleX(float scaleX);
+	void		SetScale(float scaleX, float scaleY, float scaleZ);
 
-	void	SetScaleY(float scaleY);
+	void		SetScaleX(float scaleX);
 
-	void	SetScaleZ(float scaleZ);
+	void		SetScaleY(float scaleY);
 
-	int	GetVertexCount();
+	void		SetScaleZ(float scaleZ);
 
-	void GetVertex(UINT iIndex,N_DefaultVertex& outVertex);
+	UINT		GetVertexCount();
 
-	void GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
+	void		GetVertex(UINT iIndex,N_DefaultVertex& outVertex);
+
+	void		GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
+
 
 private:
 
 	//the Parameter "iVertexCount" remind me to update the VertexCount in different Creating Method
 	BOOL	mFunction_CreateGpuBuffers(D3D11_SUBRESOURCE_DATA* pVertexDataInMem,int iVertexCount,D3D11_SUBRESOURCE_DATA* pIndexDataInMem,int iIndexCount);
 
+	//help creating a box or plane
 	void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex);
 
+	//invoked by NoiseRenderer
 	void		mFunction_UpdateWorldMatrix();
 	
 	//this function use the vertex list of vector<N_DefaultVertex>
@@ -73,12 +77,13 @@ private:
 
 	NVECTOR2	mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter,NVECTOR3 vPoint);
 
+
 private:
 	NoiseScene* m_pFatherScene;
 
 	UINT										m_VertexCount;
 	UINT										m_IndexCount;
-	UINT										m_TriangleCount;
+	UINT										m_MaterialID_for_SetMaterial;
 	ID3D11Buffer*						m_pVertexBuffer;
 	ID3D11Buffer*						m_pIndexBuffer;
 
@@ -94,9 +99,10 @@ private:
 	NVECTOR3*							m_pBoundingBox_Max;
 	NMATRIX*										m_pMatrixWorld;
 	NMATRIX*										m_pMatrixWorldInvTranspose;
-	std::vector<N_DefaultVertex>*			m_pVertexInMem;//储存在内存的vertex
-	std::vector<UINT>*							m_pIndexInMem;//储存在内存的index
-	std::vector<N_Material>*					m_pMaterialInMem;
+	std::vector<N_DefaultVertex>*			m_pVertexInMem;//vertex in CPU memory
+	std::vector<UINT>*							m_pIndexInMem;//index in CPU memory
+	std::vector<N_PrimitiveInfo>*			m_pPrimitiveInfoList;//store mat ID of a triangle
+	std::vector<N_SubsetInfo>*				m_pSubsetInfoList;//store [a,b] of a subset
 
 
 };

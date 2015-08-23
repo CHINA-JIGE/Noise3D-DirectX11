@@ -37,6 +37,12 @@
     <Filter Include="N3D_NoiseLineBuffer">
       <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="N3D_NoiseTextureManager">
+      <UniqueIdentifier>{ecd2bea3-4811-48d5-ab48-e1370b027679}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3D_NoiseMaterialManger">
+      <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N3D_NoiseEngine.h">
@@ -83,6 +89,12 @@
     </ClInclude>
     <ClInclude Include="N3D_NoiseLineBuffer.h">
       <Filter>N3D_NoiseLineBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseTextureManager.h">
+      <Filter>N3D_NoiseTextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseMaterialManager.h">
+      <Filter>N3D_NoiseMaterialManger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +147,12 @@
     </ClCompile>
     <ClCompile Include="N3D_NoiseLineBuffer.cpp">
       <Filter>N3D_NoiseLineBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseTextureManager.cpp">
+      <Filter>N3D_NoiseTextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseMaterialManager.cpp">
+      <Filter>N3D_NoiseMaterialManger</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

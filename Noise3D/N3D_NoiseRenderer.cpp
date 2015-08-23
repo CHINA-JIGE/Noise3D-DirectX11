@@ -27,18 +27,24 @@ NoiseRenderer::NoiseRenderer()
 	m_pFX = NULL;
 	m_pFX_Tech_Default = NULL;
 	m_pFX_Tech_DrawLine3D = NULL;
+	m_FillMode = NOISE_FILLMODE_SOLID;
+	m_CullMode = NOISE_CULLMODE_NONE;
 };
-
 
 NoiseRenderer::~NoiseRenderer()
 {
 	ReleaseCOM(m_pFX);
+	ReleaseCOM(m_pRasterState_Solid_CullNone);
+	ReleaseCOM(m_pRasterState_Solid_CullBack);
+	ReleaseCOM(m_pRasterState_Solid_CullFront);
+	ReleaseCOM(m_pRasterState_WireFrame_CullFront);
+	ReleaseCOM(m_pRasterState_WireFrame_CullNone);
+	ReleaseCOM(m_pRasterState_WireFrame_CullBack);
 };
-
 
 void	NoiseRenderer::RenderMeshInList()
 {
-	UINT i=0;UINT j =0;
+	UINT i = 0, j = 0, k = 0;
 	 tmp_pCamera = m_pFatherScene->GetCamera();
 
 	//更新ConstantBuffer:修改过就更新(cbRarely)
@@ -50,51 +56,44 @@ void	NoiseRenderer::RenderMeshInList()
 
 
 #pragma region Render Mesh
+	 //for every mesh
 	for(i = 0;	i<(m_pRenderList_Mesh->size());	i++)
 	{
 		//取出渲染列表中的mesh指针
 		tmp_pMesh = m_pRenderList_Mesh->at(i);
 
-
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
 		mFunction_RenderMeshInList_UpdateCbPerObject();
 
-		//更新ConstantBuffer:每Subset,在一个mesh里面有不同Mat或Tex的都算一个subset
-		mFunction_RenderMeshInList_UpdateCbPerSubset();
-
-		//更新完cb就可以开始draw了
+		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
 		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVertexBuffer,&VBstride_Default,&VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
 
-		//设置fillMode
-		if (m_FillMode == NOISE_FILLMODE_POINT)
-		{
-			//point
-			g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-		}
-		else
-		{
-			//wireframe or Solid
-			g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			mFunction_SetRasterState(m_FillMode);
-		}
+		//设置fillmode和cullmode
+		mFunction_SetRasterStateAndTopology(m_FillMode,m_CullMode);
 
 
-		//遍历所用tech的所有pass ---- index starts from 1
-		m_pFX_Tech_Default->GetDesc(&tmp_pTechDesc);
-		for(j=0;j<tmp_pTechDesc.Passes; j++)
+		//for every subset
+		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
+		for (j = 0;j < meshSubsetCount;j++)
 		{
-			m_pFX_Tech_Default->GetPassByIndex( j )->Apply(0,g_pImmediateContext);
-			g_pImmediateContext->DrawIndexed(tmp_pMesh->m_IndexCount,0,0);
-		}
+			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
+			mFunction_RenderMeshInList_UpdateCbPerSubset(j);
 
+			//遍历所用tech的所有pass ---- index starts from 1
+			m_pFX_Tech_Default->GetDesc(&tmp_pTechDesc);
+			for (k = 0;k < tmp_pTechDesc.Passes; k++)
+			{
+				m_pFX_Tech_Default->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
+				g_pImmediateContext->DrawIndexed(tmp_pMesh->m_IndexCount, 0, 0);
+			}
+		}
 }
 #pragma endregion Render Mesh
 
 	m_pRenderList_Mesh->clear();
 }
-
 
 void NoiseRenderer::RenderLine3DInList()
 {
@@ -114,8 +113,8 @@ void NoiseRenderer::RenderLine3DInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-		mFunction_SetRasterState(NOISE_FILLMODE_SOLID);
+		//设置fillmode和cullmode
+		mFunction_SetRasterStateAndTopology(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_DrawLine3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -128,7 +127,6 @@ void NoiseRenderer::RenderLine3DInList()
 
 }
 
-
 void	NoiseRenderer::ClearViews()
 {
 	float ClearColor[4] = { 0.0f, 0.3f, 0.3f, 1.0f };
@@ -138,17 +136,21 @@ void	NoiseRenderer::ClearViews()
 		D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL,1.0f,0);
 };
 
-
 void	NoiseRenderer::RenderToScreen()
 {
 		g_pSwapChain->Present( 0, 0 );
 };
 
-
 void NoiseRenderer::SetFillMode(NOISE_FILLMODE iMode)
 {
 	m_FillMode = iMode;
+}
+
+void NoiseRenderer::SetCullMode(NOISE_CULLMODE iMode)
+{
+	m_CullMode = iMode;
 };
+
 
 
 /************************************************************************
@@ -195,6 +197,10 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_CbRarely=m_pFX->GetConstantBufferByName("cbRarely");
 	m_pFX_CbDrawLine3D = m_pFX->GetConstantBufferByName("cbDrawLine3D");
 
+	//纹理
+	m_pFX_Texture_Diffuse = m_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	m_pFX_Texture_Normal = m_pFX->GetVariableByName("gNormalMap")->AsShaderResource();
+	m_pFX_Texture_Specular = m_pFX->GetVariableByName("gSpecularMap")->AsShaderResource();
 
 	#pragma region CreateRasterState
 	//创建预设的光栅化state
@@ -204,18 +210,38 @@ BOOL	NoiseRenderer::mFunction_Init()
 	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&g_pRasterState_FillMode_Solid);
-	HR_DEBUG(hr,"创建RASTERIZER STATE_solid失败");
-
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&m_pRasterState_Solid_CullNone);
+	HR_DEBUG(hr,"创建m_pRasterState_Solid_CullNone失败");
+	
+	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&g_pRasterState_FillMode_WireFrame);
-	HR_DEBUG(hr,"创建RASTERIZER STATE_wireframe失败");
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&m_pRasterState_WireFrame_CullNone);
+	HR_DEBUG(hr,"创建m_pRasterState_WireFrame_CullNone失败");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
+	HR_DEBUG(hr, "创建m_pRasterState_Solid_CullBack失败");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
+	HR_DEBUG(hr, "创建m_pRasterState_WireFrame_CullBack失败");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
+	HR_DEBUG(hr, "创建m_pRasterState_Solid_CullFront失败");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
+	HR_DEBUG(hr, "创建m_pRasterState_WireFrame_CullFront失败");
 
 	#pragma endregion CreateRasterState
 
 	return TRUE;
 };
-
 
 BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 {
@@ -254,7 +280,6 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	return TRUE;
 };
 
-
 BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath)
 {
 	std::vector<char> compiledShader;
@@ -278,24 +303,66 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPa
 	return TRUE;
 };
 
-
-void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iMode)
+void		NoiseRenderer::mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMode, NOISE_CULLMODE iCullMode)
 {
-	switch(iMode)
+	switch(iFillMode)
 	{
+	//Solid Mode
 	case NOISE_FILLMODE_SOLID:
-		g_pImmediateContext->RSSetState(g_pRasterState_FillMode_Solid);
+		switch (iCullMode)
+		{
+		case NOISE_CULLMODE_NONE:
+			g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullNone);
+			break;
+
+		case NOISE_CULLMODE_FRONT:
+			g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullFront);
+			break;
+
+		case NOISE_CULLMODE_BACK:
+			g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullBack);
+			break;
+
+		default:
+			break;
+		}
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		break;
 	
+
+	//WireFrame
 	case NOISE_FILLMODE_WIREFRAME:
-		g_pImmediateContext->RSSetState(g_pRasterState_FillMode_WireFrame);
+		switch (iCullMode)
+		{
+		case NOISE_CULLMODE_NONE:
+			g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullNone);
+			break;
+
+		case NOISE_CULLMODE_FRONT:
+			g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullFront);
+			break;
+
+		case NOISE_CULLMODE_BACK:
+			g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullBack);
+			break;
+
+		default:
+			break;
+		}
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		break;
+
+
+
+	//render points
+	case 	NOISE_FILLMODE_POINT:
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		break;
 
 	default:
 		break;
 	}
 };
-
 
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
@@ -338,7 +405,6 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 		m_pFX_CbRarely->SetRawValue(&m_CbRarely,0,sizeof(m_CbRarely));
 	};
 };
-
 
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 {
@@ -384,13 +450,46 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 	m_pFX_CbPerFrame->SetRawValue(&m_CbPerFrame,0,sizeof(m_CbPerFrame));
 };
 
-
-void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset()
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 {
-	m_CbPerSubset.mMaterial = tmp_pMesh->m_pMaterialInMem->at(0);
-	m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset,0,sizeof(m_CbPerSubset));
-};
+		//we dont accept invalid material ,but accept invalid texture
+		UINT	 currSubsetMatID = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matID;
 
+		//otherwise if the material is valid
+		//then we should check if its child textureS are valid too 
+		N_Material tmpMat = m_pFatherScene->m_pChildMaterialMgr->m_pMaterialList->at(currSubsetMatID);
+		ID3D11ShaderResourceView* tmp_pSRV = NULL;
+		m_CbPerSubset.basicMaterial = tmpMat.baseColor;
+		m_CbPerSubset.IsDiffuseMapValid	= (tmpMat.diffuseMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsNormalMapValid	= (tmpMat.normalMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsSpecularMapValid	= (tmpMat.specularMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+
+		//update textures, bound corresponding ShaderResourceView to the pipeline
+		//if tetxure is  valid ,then set diffuse map
+		if (m_CbPerSubset.IsDiffuseMapValid)
+		{
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.diffuseMapID).m_pSRV;
+			m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
+		}
+
+		//if tetxure is  valid ,then set normal map
+		if (m_CbPerSubset.IsNormalMapValid)
+		{
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.normalMapID).m_pSRV;
+			m_pFX_Texture_Normal->SetResource(tmp_pSRV);
+		}
+
+		//if tetxure is  valid ,then set specular map
+		if (m_CbPerSubset.IsSpecularMapValid)
+		{
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.specularMapID).m_pSRV;
+			m_pFX_Texture_Specular->SetResource(tmp_pSRV);
+		}
+
+		//transmit all data to gpu
+		m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset, 0, sizeof(m_CbPerSubset));
+	
+};
 
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
 {
@@ -402,7 +501,6 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
 	//——————更新到GPU——————
 	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject,0,sizeof(m_CbPerObject));
 };
-
 
 void		NoiseRenderer::mFunction_RenderLine3D_UpdateCbDrawLine3D() 
 {
