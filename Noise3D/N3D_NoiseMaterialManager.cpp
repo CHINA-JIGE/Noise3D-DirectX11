@@ -23,7 +23,7 @@ NoiseMaterialManager::NoiseMaterialManager()
 	m_pDefaultMaterial->diffuseMapID		= NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pDefaultMaterial->normalMapID		= NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pDefaultMaterial->specularMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
-	m_pDefaultMaterial->mMatName			= std::string("DEFAULT_MATERIAL");
+	m_pDefaultMaterial->mMatName		= std::string("DEFAULT_MATERIAL");
 	m_pMaterialList->push_back(*m_pDefaultMaterial);
 
 };
@@ -47,7 +47,31 @@ UINT NoiseMaterialManager::CreateMaterial(N_Material newMat)
 			return NOISE_MACRO_DEFAULT_MATERIAL_ID;
 		}
 	}
+	
 
+	//before we push_back a material,we must validate the texture inside
+	//if all texture are set to invalid , then we dont need to check "out of range" problem
+	if ((newMat.diffuseMapID		== NOISE_MACRO_INVALID_TEXTURE_ID) &&
+		(newMat.normalMapID		== NOISE_MACRO_INVALID_TEXTURE_ID) &&
+		(newMat.specularMapID	== NOISE_MACRO_INVALID_TEXTURE_ID))
+	{
+		return newMatID;
+	}
+
+	//some tex id not equal to NOISE_MACRO_INVALID_TEXTURE_ID ,we must validate Legality
+	if (!m_pFatherScene->m_pChildTextureMgr)
+	{
+		DEBUG_MSG1("Material Manager: Texture Manager has not been created!!");
+		return NOISE_MACRO_DEFAULT_MATERIAL_ID;
+	}
+
+	//check the boundary
+	UINT		texCount = m_pFatherScene->m_pChildTextureMgr->GetTextureCount();
+	if (newMat.diffuseMapID >= texCount)		newMat.diffuseMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
+	if (newMat.normalMapID >= texCount)		newMat.normalMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
+	if (newMat.specularMapID >= texCount)		newMat.specularMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
+
+	//we can finally add a new material
 	m_pMaterialList->push_back(newMat);
 	return newMatID;
 }

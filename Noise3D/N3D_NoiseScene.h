@@ -13,6 +13,8 @@ public class _declspec(dllexport) NoiseScene
 	friend class NoiseRenderer;
 	friend class NoiseCamera;
 	friend class NoiseLineBuffer;
+	friend class NoiseMaterialManager;
+	friend class NoiseTextureManager;
 
 public:
 	//¹¹Ôìº¯Êý

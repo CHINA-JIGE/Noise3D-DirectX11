@@ -236,8 +236,8 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 
 
 	//Calculate the Step length (步长)
-	float	StepLength_Y =			2 * fRadius / (iRingCount +1); // distances between each level (ring)
-	float StepLength_Angle =		2*MATH_PI / iColumnCount;
+	float	StepLength_AngleY =		MATH_PI / (iRingCount +1); // distances between each level (ring)
+	float StepLength_AngleXZ =		2*MATH_PI / iColumnCount;
 
 
 	//start to iterate
@@ -248,16 +248,16 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 		for( j = 0; j <	iColumnCount+1 ; j++)
 		{
 			//the Y coord of  current ring 
-			tmpY = fRadius - (i+1) *StepLength_Y;	
+			tmpY = fRadius *sin( MATH_PI/2 - (i+1) *StepLength_AngleY);
 
 			////Pythagoras theorem(勾股定理)
 			tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY); 
 
 			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos( j*StepLength_Angle);
+			tmpX = tmpRingRadius * cos( j*StepLength_AngleXZ);
 
 			//...
-			tmpZ = tmpRingRadius * sin( j*StepLength_Angle);
+			tmpZ = tmpRingRadius * sin( j*StepLength_AngleXZ);
 
 			//...
 			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);

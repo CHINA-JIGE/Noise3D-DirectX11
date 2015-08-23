@@ -6,19 +6,14 @@
 
 #pragma once
 
-struct N_Material_Object
-{
-	N_Material_Object() { ZeroMemory(this, sizeof(*this)); }
-	std::string		mMatName;
-	N_Material_Basic	mMat;
-};
 
 public class _declspec(dllexport) NoiseMaterialManager
 {
 public:
-	friend NoiseScene;
-	friend NoiseRenderer;
-	friend NoiseMesh;
+	friend class NoiseScene;
+	friend class NoiseRenderer;
+	friend class NoiseMesh;
+	friend class NoiseMaterialManager;
 
 	//¹¹Ôìº¯Êý
 	NoiseMaterialManager();

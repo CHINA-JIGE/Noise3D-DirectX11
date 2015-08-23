@@ -130,9 +130,9 @@ struct N_Material
 
 	std::string	 mMatName;
 	N_Material_Basic baseColor;
-	int	diffuseMapID;
-	int	normalMapID;
-	int	specularMapID;
+	UINT		diffuseMapID;
+	UINT		normalMapID;
+	UINT		specularMapID;
 };
 
 struct N_PrimitiveInfo

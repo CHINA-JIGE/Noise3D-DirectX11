@@ -622,7 +622,7 @@ fxgroup
                       rsq r2.w, r2.w
                       mul r9.xyz, r2.wwww, r13.xyzx  // Vec_toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 179
+                #line 178
                       dp3 r2.w, r6.xyzx, r9.xyzx
                       max r2.w, r2.w, l(0.000000)
                       itof r1.w, r1.w
@@ -631,7 +631,7 @@ fxgroup
                       exp r1.w, r1.w
                       mul r1.w, r1.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 182
+                #line 181
                       mul r1.w, r1.w, r6.w
                       mul r6.xyz, r7.xyzx, r10.xyzx
                       mul r6.xyz, r1.wwww, r6.xyzx  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -641,7 +641,7 @@ fxgroup
                       movc r8.xyzw, r7.wwww, r8.xyzw, l(0,0,0,0)  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       movc r6.xyzw, r7.wwww, r6.xyzw, l(0,0,0,0)  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 0f>
                 
-                #line 185
+                #line 184
                       add r5.xyzw, r5.xyzw, r8.xyzw
                       add r5.xyzw, r6.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -687,77 +687,77 @@ fxgroup
                     mov r15.xyz, v2.xyzx  // thisPoint<0,1,2>
                     ine r8.w, l(0, 0, 0, 0), cb1[3].x  // DiffuseMapEnabled<0>
                 
-                #line 201 "Lighting.fx"
+                #line 200 "Lighting.fx"
                     mov r12.xyz, -r12.xyzx
                     add r15.xyz, r12.xyzx, r15.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
                     dp3 r9.w, r15.xyzx, r15.xyzx
                     rsq r10.w, r9.w
                     mul r15.xyz, r10.wwww, r15.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 205
+                #line 204
                     sqrt r9.w, r9.w  // disFromLight<0:NaN:Inf>
                     mul r6.w, r6.w, r9.w
                     mul r6.w, r9.w, r6.w
                     add r6.w, r6.w, l(1.000000)
                     div r6.w, l(1.000000), r6.w  // Attenuation<0:NaN:Inf>
                 
-                #line 210
+                #line 209
                     add r11.xyz, r11.xyzx, r12.xyzx
                     dp3 r10.w, r11.xyzx, r11.xyzx
                     rsq r10.w, r10.w
                     mul r11.xyz, r10.wwww, r11.xyzx
                     dp3 r10.w, r15.xyzx, r11.xyzx  // Cos_Theta<0:NaN:Inf>
                 
-                #line 213
+                #line 212
                     lt r5.w, r5.w, r9.w
                     sincos null, r7.w, r7.w
                     lt r7.w, r10.w, r7.w
                     or r5.w, r5.w, r7.w
                 
-                #line 220
+                #line 219
                     if_z r5.w
                       mov r11.xyz, -r15.xyzx
                       dp3 r5.w, r11.xyzx, r13.xyzx
                       mul r2.w, r2.w, r5.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 224
+                #line 223
                       if_nz r8.w
                         sample_indexable(texture2d)(float,float,float,float) r6.xyz, v4.xyxx, t0.xyzw, s0  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 231
+                #line 230
                         mov r6.xyz, r6.xyzx  // diffuseColor3<0,1,2>
                 
-                #line 224
+                #line 223
                       endif 
                 
-                #line 235
+                #line 234
                       mul r5.xyz, r5.xyzx, r8.xyzx
                       mul r5.xyz, r6.xyzx, r5.xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r5.w, l(1.000000)  // outAmbient4<3: 1f>
                 
-                #line 242
+                #line 241
                       lt r7.w, l(0.000000), r2.w
                 
-                #line 246
+                #line 245
                       mul r2.w, r2.w, r6.w
                       mul r8.xyz, r9.xyzx, r6.xyzx
                       mov r8.w, l(1.000000)
                       mul r8.xyzw, r2.wwww, r8.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 249
+                #line 248
                       dp3 r2.w, r15.xyzx, r13.xyzx
                       add r2.w, r2.w, r2.w
                       mov r2.w, -r2.w
                       mul r6.xyz, r2.wwww, r13.xyzx
                       add r6.xyz, r15.xyzx, r6.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 252
+                #line 251
                       dp3 r2.w, r14.xyzx, r14.xyzx
                       rsq r2.w, r2.w
                       mul r9.xyz, r2.wwww, r14.xyzx  // Vec_toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 255
+                #line 254
                       dp3 r2.w, r6.xyzx, r9.xyzx
                       max r2.w, r2.w, l(0.000000)
                       itof r1.w, r1.w
@@ -766,21 +766,21 @@ fxgroup
                       exp r1.w, r1.w
                       mul r1.w, r1.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 258
+                #line 257
                       mul r1.w, r1.w, r6.w
                       mul r6.xyz, r7.xyzx, r10.xyzx
                       mul r6.xyz, r1.wwww, r6.xyzx  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r6.w, l(0)  // outSpec4<3: 0f>
                 
-                #line 242
+                #line 241
                       movc r8.xyzw, r7.wwww, r8.xyzw, l(0,0,0,0)  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       movc r6.xyzw, r7.wwww, r6.xyzw, l(0,0,0,0)  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 0f>
                 
-                #line 261
+                #line 260
                       add r5.xyzw, r5.xyzw, r8.xyzw
                       add r5.xyzw, r6.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 220
+                #line 219
                     else 
                       mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
@@ -987,7 +987,7 @@ fxgroup
                       rsq r0.w, r0.w
                       mul r10.xyz, r0.wwww, r14.xyzx  // Vec_toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 179
+                #line 178
                       dp3 r0.w, r6.xyzx, r10.xyzx
                       max r0.w, r0.w, l(0.000000)
                       itof r0.z, r0.z
@@ -996,7 +996,7 @@ fxgroup
                       exp r0.z, r0.z
                       mul r0.z, r0.z, r2.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 182
+                #line 181
                       mul r0.z, r0.z, r6.w
                       mul r6.xyz, r8.xyzx, r11.xyzx
                       mul r6.xyz, r0.zzzz, r6.xyzx  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -1006,7 +1006,7 @@ fxgroup
                       movc r7.xyzw, r3.wwww, r7.xyzw, l(0,0,0,0)  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       movc r6.xyzw, r3.wwww, r6.xyzw, l(0,0,0,0)  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 0f>
                 
-                #line 185
+                #line 184
                       add r7.xyzw, r7.xyzw, r9.xyzw
                       add r6.xyzw, r6.xyzw, r7.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1052,77 +1052,77 @@ fxgroup
                     mov r15.xyz, v2.xyzx  // thisPoint<0,1,2>
                     ine r7.w, l(0, 0, 0, 0), cb1[3].x  // DiffuseMapEnabled<0>
                 
-                #line 201 "Lighting.fx"
+                #line 200 "Lighting.fx"
                     mov r12.xyz, -r12.xyzx
                     add r15.xyz, r12.xyzx, r15.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
                     dp3 r8.w, r15.xyzx, r15.xyzx
                     rsq r9.w, r8.w
                     mul r15.xyz, r9.wwww, r15.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 205
+                #line 204
                     sqrt r8.w, r8.w  // disFromLight<0:NaN:Inf>
                     mul r3.w, r3.w, r8.w
                     mul r3.w, r8.w, r3.w
                     add r3.w, r3.w, l(1.000000)
                     div r3.w, l(1.000000), r3.w  // Attenuation<0:NaN:Inf>
                 
-                #line 210
+                #line 209
                     add r11.xyz, r11.xyzx, r12.xyzx
                     dp3 r9.w, r11.xyzx, r11.xyzx
                     rsq r9.w, r9.w
                     mul r11.xyz, r9.wwww, r11.xyzx
                     dp3 r9.w, r15.xyzx, r11.xyzx  // Cos_Theta<0:NaN:Inf>
                 
-                #line 213
+                #line 212
                     lt r2.w, r2.w, r8.w
                     sincos null, r6.w, r6.w
                     lt r6.w, r9.w, r6.w
                     or r2.w, r2.w, r6.w
                 
-                #line 220
+                #line 219
                     if_z r2.w
                       mov r11.xyz, -r15.xyzx
                       dp3 r2.w, r11.xyzx, r13.xyzx
                       mul r0.w, r0.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 224
+                #line 223
                       if_nz r7.w
                         sample_indexable(texture2d)(float,float,float,float) r6.xyz, v4.xyxx, t0.xyzw, s0  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 231
+                #line 230
                         mov r6.xyz, r6.xyzx  // diffuseColor3<0,1,2>
                 
-                #line 224
+                #line 223
                       endif 
                 
-                #line 235
+                #line 234
                       mul r1.xyz, r1.xyzx, r8.xyzx
                       mul r8.xyz, r6.xyzx, r1.xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r8.w, l(1.000000)  // outAmbient4<3: 1f>
                 
-                #line 242
+                #line 241
                       lt r1.x, l(0.000000), r0.w
                 
-                #line 246
+                #line 245
                       mul r0.w, r0.w, r3.w
                       mul r6.xyz, r9.xyzx, r6.xyzx
                       mov r6.w, l(1.000000)
                       mul r6.xyzw, r0.wwww, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 249
+                #line 248
                       dp3 r0.w, r15.xyzx, r13.xyzx
                       add r0.w, r0.w, r0.w
                       mov r0.w, -r0.w
                       mul r9.xyz, r0.wwww, r13.xyzx
                       add r9.xyz, r15.xyzx, r9.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 252
+                #line 251
                       dp3 r0.w, r14.xyzx, r14.xyzx
                       rsq r0.w, r0.w
                       mul r11.xyz, r0.wwww, r14.xyzx  // Vec_toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 255
+                #line 254
                       dp3 r0.w, r9.xyzx, r11.xyzx
                       max r0.w, r0.w, l(0.000000)
                       itof r0.z, r0.z
@@ -1131,21 +1131,21 @@ fxgroup
                       exp r0.z, r0.z
                       mul r0.z, r0.z, r1.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 258
+                #line 257
                       mul r0.z, r0.z, r3.w
                       mul r1.yzw, r7.xxyz, r10.xxyz
                       mul r7.xyz, r0.zzzz, r1.yzwy  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r7.w, l(0)  // outSpec4<3: 0f>
                 
-                #line 242
+                #line 241
                       movc r6.xyzw, r1.xxxx, r6.xyzw, l(0,0,0,0)  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       movc r1.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,0)  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 0f>
                 
-                #line 261
+                #line 260
                       add r6.xyzw, r6.xyzw, r8.xyzw
                       add r1.xyzw, r1.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 220
+                #line 219
                     else 
                       mov r1.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 

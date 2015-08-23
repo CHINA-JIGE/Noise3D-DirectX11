@@ -66,22 +66,22 @@ BOOL Init3D(HWND hwnd)
 	PointLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mPosition			=NVECTOR3(-3.0f,5.0f,-3.0f);
-	PointLight1.mSpecularIntensity	=0.9f;
-	PointLight1.mDiffuseIntensity = 1.0f;
+	PointLight1.mSpecularIntensity	=1.1f;
+	PointLight1.mDiffuseIntensity = 1.2f;
 	PointLight1.mAttenuationFactor = 0.0f;
 	PointLight1.mLightingRange = 100.0f;
 	LightMgr.AddDynamicPointLight(&PointLight1);
 
 
 	//Âþ·´ÉäÌùÍ¼
-	UINT diffuseTexID=TexMgr.CreateTextureFromFile(L"texture.jpg","wood", TRUE, 0, 0);
+	UINT diffuseTexID=TexMgr.CreateTextureFromFile(L"texture.jpg","MyTexture", TRUE, 0, 0);
 
 	N_Material Mat1;
 	Mat1.baseColor.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
 	Mat1.baseColor.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
 	Mat1.baseColor.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
-	Mat1.baseColor.mSpecularSmoothLevel	=	10;
-	Mat1.diffuseMapID = diffuseTexID;
+	Mat1.baseColor.mSpecularSmoothLevel	=	20;
+	Mat1.diffuseMapID =  diffuseTexID;
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material

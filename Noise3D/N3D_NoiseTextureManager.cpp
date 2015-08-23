@@ -22,6 +22,8 @@ NoiseTextureManager::~NoiseTextureManager()
 
 int NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
+	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
+
 	//check if the file existed
 	std::fstream tmpFile(filePath, std::ios::binary | std::ios::in);
 	if (tmpFile.bad())

@@ -36,5 +36,4 @@ public:
 private:
 	NoiseScene*									m_pFatherScene;
 	std::vector<N_Texture_Object>*	m_pTextureObjectList;
-
 };

@@ -174,9 +174,8 @@ void	ComputePointLightColor(N_Material_Basic Mat,N_PointLight Light,float3 Norma
 		//remember to normalize vectors to be "dotted"
 		Vec_toEye = normalize(Vec_toEye);
 
-
 		//to see if the specular light can be seen ... the SpecIntensity is the power of the cos factor
-		float  SpecFactor = Light.mSpecularIntensity * pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
+		float  SpecFactor = Light.mSpecularIntensity*pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
 		
 		//final SpecularColor
 		outSpec4 = Attenuation * SpecFactor * float4(Mat.mSpecularColor * Light.mSpecularColor,0.0f);
@@ -251,7 +250,7 @@ void	ComputeSpotLightColor(N_Material_Basic Mat,N_SpotLight Light,float3 Normal,
 		//remember to normalize vectors to be "dotted"
 		Vec_toEye = normalize(Vec_toEye);
 		
-		//to see if the specular light can be seen ... the SpecIntensity is the power of the cos factor
+		//to see if the specular light can be seen ... the SpecIntensity is the power of light
 		float  SpecFactor = Light.mSpecularIntensity * pow(max(dot(tmpV,Vec_toEye),0.0f),Mat.mSpecularSmoothLevel);
 		
 		//final SpecularColor

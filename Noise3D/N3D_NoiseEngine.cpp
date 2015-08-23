@@ -150,14 +150,14 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	IDXGIFactory *dxgiFactory = 0;
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
-
+	
 	//终于创建了一个交换链
 	hr = dxgiFactory->CreateSwapChain(
 		g_pd3dDevice,		//设备的指针
 		&SwapChainParam,	//交换链的描述
 		&g_pSwapChain);		//返回的交换链指针
 	HR_DEBUG(hr, "SwapChain创建失败！");
-	
+
 	dxgiFactory->Release();
 	dxgiDevice->Release();
 	dxgiAdapter->Release();

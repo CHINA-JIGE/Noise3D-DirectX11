@@ -13,7 +13,7 @@
 #define MATH_PI 3.1415926f
 //the first element in Mat Mgr is default value (means we dont accept invalid material)
 //but texture can be invalid
-#define	 NOISE_MACRO_INVALID_TEXTURE_ID -1
+#define	 NOISE_MACRO_INVALID_TEXTURE_ID UINT_MAX
 #define NOISE_MACRO_DEFAULT_MATERIAL_ID 0U
 
 
