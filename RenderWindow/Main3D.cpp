@@ -12,7 +12,7 @@ NoiseLightManager LightMgr;
 NoiseMaterialManager	MatMgr;
 NoiseTextureManager	TexMgr;
 
-NoiseLineBuffer	lineBuffer;
+NoiseGraphicObject	GraphicObjBuffer;
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 NoiseUtSlicer Slicer;
 N_DirectionalLight DirLight1;
@@ -47,12 +47,12 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateRenderer(&Renderer);
 	Scene.CreateCamera(&Camera);
 	Scene.CreateLightManager(&LightMgr);
-	Scene.CreateLineBuffer(&lineBuffer);
+	Scene.CreateGraphicObject(&GraphicObjBuffer);
 	Scene.CreateMaterialManager(&MatMgr);
 	Scene.CreateTextureManager(&TexMgr);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Renderer.SetCullMode(NOISE_CULLMODE_NONE);
+	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
 	//Mesh1.LoadFile_STL("table.STL");
 	//Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
 	Mesh1.CreateSphere(6.0, 30, 30);
@@ -62,7 +62,7 @@ BOOL Init3D(HWND hwnd)
 	Camera.SetLookAt(0,0,0);
 
 	//！！！！！！菊高！！！！！！！！
-	PointLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,01.0f);
+	PointLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
 	PointLight1.mPosition			=NVECTOR3(-3.0f,5.0f,-3.0f);
@@ -88,9 +88,9 @@ BOOL Init3D(HWND hwnd)
 	Mesh1.SetMaterial(Mat1_ID);
 
 
-	//Slicer.Step1_LoadPrimitiveMeshFromSTLFile("table.STL");
-	//Slicer.Step2_Intersection(50);
-	//Slicer.Step3_GenerateLineStrip();
+	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("table.STL");
+	Slicer.Step2_Intersection(50);
+	Slicer.Step3_GenerateLineStrip();*/
 	//Slicer.Step4_SaveLayerDataToFile("table.NOISELAYER");
 	//Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("table.NOISELAYER");
 
@@ -106,11 +106,13 @@ BOOL Init3D(HWND hwnd)
 			v2 =	lineStrip.at(i).pointList.at(j + 1);
 			n =	lineStrip.at(i).normalList.at(j);
 			//vertex
-			lineBuffer.AddLine3D(v1, v2);
+			GraphicObjBuffer.AddLine3D(v1, v2);
 			//normal
-			lineBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
+			GraphicObjBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
 		}
 	}*/
+	GraphicObjBuffer.AddLine2D(NVECTOR2(-1.0f, 0), NVECTOR2(1.0f, 0));
+	GraphicObjBuffer.AddLine2D(NVECTOR2(0, 1.0f), NVECTOR2(0,-1.0f));
 
 	return TRUE;
 };
@@ -125,10 +127,12 @@ void MainLoop()
 	Renderer.ClearViews();
 
 	Mesh1.AddToRenderList();
-	//lineBuffer.AddToRenderList();
+	GraphicObjBuffer.AddToRenderList();
 
+	Renderer.RenderLine2DInList();
 	Renderer.RenderMeshInList();
 	//Renderer.RenderLine3DInList();
+
 
 	Renderer.RenderToScreen();
 };

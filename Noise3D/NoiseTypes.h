@@ -1,4 +1,3 @@
-
 /***********************************************************************
 
                            h£ºNoiseType
@@ -28,6 +27,7 @@ struct N_SimpleVertex
 	N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
 	NVECTOR3 Pos;
 	NVECTOR4 Color;
+	NVECTOR2 TexCoord;
 };
 
 struct N_DirectionalLight
@@ -197,7 +197,7 @@ struct N_CbRarely
 	int		mIsLightingEnabled_Static;
 };
 
-struct N_CbDrawLine3D
+struct N_CbSolid3D
 {
 	NMATRIX mProjMatrix;
 	NMATRIX	mViewMatrix;

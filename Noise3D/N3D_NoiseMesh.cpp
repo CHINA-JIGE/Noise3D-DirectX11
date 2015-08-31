@@ -263,7 +263,7 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
 
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount-1),(float)i /(iRingCount-1));
+			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount),(float)i /(iRingCount-1));
 
 			k++;
 		}
@@ -328,12 +328,12 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	
 	for(j =0;j<iColumnCount;j++)
 	{
-		m_pIndexInMem->push_back(j);
-		m_pIndexInMem->push_back(j+1) ;
+		m_pIndexInMem->push_back(j+1);
+		m_pIndexInMem->push_back(j) ;
 		m_pIndexInMem->push_back(tmpVertexCount-2);	//index of top vertex
 
 		m_pIndexInMem->push_back((iColumnCount+1)* (iRingCount-1) + j);
-		m_pIndexInMem->push_back((iColumnCount+1) * (iRingCount-1) + j +1);
+		m_pIndexInMem->push_back((iColumnCount+1) * (iRingCount-1) + j+1);
 		m_pIndexInMem->push_back(tmpVertexCount -1); //index of bottom vertex
 	}
 	

@@ -88,7 +88,7 @@
     <ClInclude Include="N3D_NoiseEngine.h" />
     <ClInclude Include="N3D_NoiseFileManager.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
-    <ClInclude Include="N3D_NoiseLineBuffer.h" />
+    <ClInclude Include="N3D_NoiseGraphicObject.h" />
     <ClInclude Include="N3D_NoiseMaterialManager.h" />
     <ClInclude Include="N3D_NoiseMesh.h" />
     <ClInclude Include="N3D_NoiseRenderer.h" />
@@ -103,7 +103,6 @@
     <ClInclude Include="NUT_NoiseUtTimer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\RenderWindow\Lighting.fx" />
     <None Include="..\RenderWindow\Main.fx">
       <FileType>Document</FileType>
     </None>
@@ -120,7 +119,7 @@
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="N3D_NoiseFileManager.cpp" />
     <ClCompile Include="N3D_NoiseLightManager.cpp" />
-    <ClCompile Include="N3D_NoiseLineBuffer.cpp" />
+    <ClCompile Include="N3D_NoiseGraphicObject.cpp" />
     <ClCompile Include="N3D_NoiseMaterialManager.cpp" />
     <ClCompile Include="N3D_NoiseMesh.cpp" />
     <ClCompile Include="N3D_NoiseRenderer.cpp" />
@@ -131,10 +130,7 @@
     <ClCompile Include="NUT_NoiseUtTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\RenderWindow\CBuffer.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\RenderWindow\Input Struct.fx">
+    <None Include="..\RenderWindow\shading3D.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

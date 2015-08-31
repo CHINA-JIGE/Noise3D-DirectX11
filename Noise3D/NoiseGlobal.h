@@ -10,7 +10,7 @@
 #include "Noise3D.h"
 
 ;
-CONST UINT					g_VertexDesc_Simple_ElementNum = 2;
+CONST UINT					g_VertexDesc_Simple_ElementNum = 3;
 
 CONST UINT					g_VertexDesc_Default_ElementNum = 4;
 
@@ -30,9 +30,9 @@ extern D3D_FEATURE_LEVEL		g_Device_featureLevel;
 //用于弹出调试信息的ostringstream
 extern std::ostringstream			g_Debug_MsgString;
 //顶点描述
-extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[g_VertexDesc_Default_ElementNum];
+extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[];
 
-extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[g_VertexDesc_Simple_ElementNum];
+extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[];
 
 //——————————全局接口——————————
 

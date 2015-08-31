@@ -1,0 +1,15 @@
+﻿生成启动时间为 2015/8/31 23:35:40。
+     1>项目“F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\RenderWindow\RenderWindow.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         E:\VS2015\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D _MBCS /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\mscorlib.dll" /FU"F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\Noise3d.dll" /analyze- /errorReport:prompt /clr:nostdlib Main3D.cpp
+         Main3D.cpp
+       Link:
+         E:\VS2015\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\RenderWindow.exe" /INCREMENTAL /NOLOGO d3d11.lib winmm.lib Noise3D.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\RenderWindow.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 Debug\Main3D.obj
+         "Debug\.NETFramework,Version=v4.0.AssemblyAttributes.obj"
+           正在创建库 F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\RenderWindow.lib 和对象 F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\RenderWindow.exp
+         RenderWindow.vcxproj -> F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\Debug\RenderWindow.exe
+     1>已完成生成项目“F:\1VS PROJECT\3D\Noise3D -(12)(1)fx 2D\RenderWindow\RenderWindow.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:02.19

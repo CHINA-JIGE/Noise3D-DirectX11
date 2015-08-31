@@ -13,8 +13,11 @@
 
 NoiseScene::NoiseScene()
 {
-	m_pChildMeshList = new std::vector<NoiseMesh*>;
-	m_pChildLineBufferList = new std::vector<NoiseLineBuffer*>;
+	m_pChildCamera			= nullptr;
+	m_pChildRenderer		= nullptr;
+	m_pChildLightMgr		= nullptr;
+	m_pChildTextureMgr	= nullptr;
+	m_pChildMaterialMgr	= nullptr;
 };
 
 NoiseScene::~NoiseScene()
@@ -26,9 +29,14 @@ BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
 {
 	if(pMesh != NULL)
 	{
-		m_pChildMeshList->push_back(pMesh);
+		//m_pChildMeshList->push_back(pMesh);
 		pMesh->m_pFatherScene =this;
-	};
+	}
+	else
+	{
+		return FALSE;
+	}
+	;
 	return TRUE;
 };
 
@@ -75,11 +83,11 @@ BOOL NoiseScene::CreateLightManager(NoiseLightManager* pLightMgr)
 	}
 }
 
-BOOL NoiseScene::CreateLineBuffer(NoiseLineBuffer * pLineBuffer)
+BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pLineBuffer)
 {
 	if (pLineBuffer != NULL)
 	{
-		m_pChildLineBufferList->push_back(pLineBuffer);
+		//m_pChildLineBufferList->push_back(pLineBuffer);
 		pLineBuffer->m_pFatherScene = this;
 	}
 	else
@@ -129,12 +137,6 @@ void	NoiseScene::SetCamera(NoiseCamera* pSceneCam)
 
 }
 
-NoiseMesh * NoiseScene::GetMesh(UINT iMeshIndex)
-{
-	if(iMeshIndex < m_pChildMeshList->size())  return m_pChildMeshList->at(iMeshIndex);
-	return nullptr;
-}
-
 NoiseRenderer * NoiseScene::GetRenderer()
 {
 	return m_pChildRenderer;
@@ -148,6 +150,16 @@ NoiseCamera * NoiseScene::GetCamera()
 NoiseLightManager * NoiseScene::GetLightManager()
 {
 	return m_pChildLightMgr;
+}
+
+NoiseTextureManager * NoiseScene::GetTextureMgr()
+{
+	return m_pChildTextureMgr;
+}
+
+NoiseMaterialManager * NoiseScene::GetMaterialMgr()
+{
+	return m_pChildMaterialMgr;
 }
 
 

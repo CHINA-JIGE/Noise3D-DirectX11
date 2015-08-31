@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h：NoiseRenderer
+                           h：NoiseRenderer3D
 					主要功能 ：负责渲染
 
 ************************************************************************/
@@ -14,7 +14,7 @@ public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 
 	friend class NoiseScene;
 	friend class NoiseMesh;
-	friend class NoiseLineBuffer;
+	friend class NoiseGraphicObject;
 
 public:
 	//构造函数
@@ -25,6 +25,12 @@ public:
 
 	void			RenderLine3DInList();
 
+	void			RenderPoint3DInList();
+
+	void			RenderLine2DInList();
+
+	void			RenderPoint2DInList();
+
 	void			ClearViews();
 
 	void			RenderToScreen();
@@ -32,6 +38,7 @@ public:
 	void			SetFillMode(NOISE_FILLMODE iMode);
 
 	void			SetCullMode(NOISE_CULLMODE iMode);
+
 
 
 
@@ -44,19 +51,21 @@ private:
 
 	void				mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
 
-	void				mFunction_RenderMeshInList_UpdateCbPerObject();
+	void				mFunction_RenderMeshInList_UpdatePerObject();
 
-	void				mFunction_RenderMeshInList_UpdateCbPerFrame();
+	void				mFunction_RenderMeshInList_UpdatePerFrame();
 
-	void				mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID);
+	void				mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID);
 
-	void				mFunction_RenderMeshInList_UpdateCbRarely();
+	void				mFunction_RenderMeshInList_UpdateRarely();
 
-	void				mFunction_RenderLine3D_UpdateCbDrawLine3D();
+	void				mFunction_RenderSolid3D_Update();
+
+	void				mFunction_RenderTextured2D_Update(UINT TexID);
 
 private:
-	std::vector <NoiseMesh*>*			m_pRenderList_Mesh;
-	std::vector<NoiseLineBuffer*>* 	m_pRenderList_Line;
+	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
+	std::vector<NoiseGraphicObject*>* 	m_pRenderList_GraphicObject;
 	//光栅化设置
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullBack;
@@ -74,18 +83,25 @@ private:
 	N_CbPerObject							m_CbPerObject;
 	N_CbPerSubset							m_CbPerSubset;
 	N_CbRarely								m_CbRarely;
-	N_CbDrawLine3D						m_CbDrawLine3D;
+	N_CbSolid3D								m_CbSolid3D;
 
 	//用于从app更新到Gpu的接口
 	ID3DX11Effect*							m_pFX;
+
 	ID3DX11EffectTechnique*			m_pFX_Tech_Default;
-	ID3DX11EffectTechnique*			m_pFX_Tech_DrawLine3D;
+	ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
+	ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;
+	ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
+
 	ID3DX11EffectConstantBuffer* m_pFX_CbPerObject;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerFrame;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerSubset;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
-	ID3DX11EffectConstantBuffer*	m_pFX_CbDrawLine3D;
+	ID3DX11EffectConstantBuffer*	m_pFX_CbSolid3D;
+
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
+
+	ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
 };
