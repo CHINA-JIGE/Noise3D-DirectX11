@@ -17,7 +17,8 @@ public:
 
 	//¹¹Ôìº¯Êı
 	NoiseMaterialManager();
-	~NoiseMaterialManager();
+
+	void		SelfDestruction();
 
 	UINT		CreateMaterial(N_Material newMat);
 

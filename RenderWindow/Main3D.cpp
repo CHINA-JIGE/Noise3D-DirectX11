@@ -32,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 	Engine.SetMainLoopFunction(MainLoop);
 	Engine.Mainloop();
+	Cleanup();
 	return 0;
 }
 
@@ -113,7 +114,12 @@ BOOL Init3D(HWND hwnd)
 	}*/
 	GraphicObjBuffer.AddLine2D(NVECTOR2(-1.0f, 0), NVECTOR2(1.0f, 0));
 	GraphicObjBuffer.AddLine2D(NVECTOR2(0, 1.0f), NVECTOR2(0,-1.0f));
-
+	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.3f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.4f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.5f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	//UINT a = TexMgr.GetIndexByName("MyTexture");
+	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f));
+	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20,NOISE_MACRO_INVALID_TEXTURE_ID);
 	return TRUE;
 };
 
@@ -123,17 +129,20 @@ void MainLoop()
 	Angle += 0.0005f;
 	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
 	Camera.SetLookAt(0,0,0);
+	GraphicObjBuffer.SetRectangle(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(1.0f, 0, 0, 1.0f));
+	GraphicObjBuffer.SetEllipse(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0, 1.0f, 0, 1.0f), 0);
 
-	Renderer.ClearViews();
+	Renderer.ClearBackground();
 
+	//add to render list
 	Mesh1.AddToRenderList();
 	GraphicObjBuffer.AddToRenderList();
 
-	Renderer.RenderLine2DInList();
+	//render
 	Renderer.RenderMeshInList();
-	//Renderer.RenderLine3DInList();
+	Renderer.RenderGraphicObjectInList(TRUE);
 
-
+	//present
 	Renderer.RenderToScreen();
 };
 
@@ -141,4 +150,5 @@ void MainLoop()
 void Cleanup()
 {
 	Engine.ReleaseAll();
+	Scene.ReleaseAllChildObject();
 };

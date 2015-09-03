@@ -21,6 +21,8 @@ public:
 	NoiseScene();
 	~NoiseScene();
 
+	void				ReleaseAllChildObject();
+
 	BOOL			CreateMesh(NoiseMesh* pMesh);
 	
 	BOOL			CreateRenderer(NoiseRenderer* pRenderer);
@@ -29,7 +31,7 @@ public:
 
 	BOOL			CreateLightManager(NoiseLightManager* pLightMgr);
 
-	BOOL			CreateGraphicObject(NoiseGraphicObject* pLineBuffer);
+	BOOL			CreateGraphicObject(NoiseGraphicObject* pGraphicObj);
 
 	BOOL			CreateTextureManager(NoiseTextureManager* pTexMgr);
 
@@ -37,11 +39,11 @@ public:
 
 	void				SetCamera(NoiseCamera* pSceneCam);
 
-	NoiseRenderer*				GetRenderer();
+	NoiseRenderer*					GetRenderer();
 
-	NoiseCamera*				GetCamera();
+	NoiseCamera*					GetCamera();
 
-	NoiseLightManager*		GetLightManager();
+	NoiseLightManager*			GetLightManager();
 
 	NoiseTextureManager*		GetTextureMgr();
 
@@ -59,9 +61,9 @@ private:
 
 	NoiseMaterialManager*					m_pChildMaterialMgr;
 
-	//std::vector<NoiseMesh*> *				m_pChildMeshList;
+	std::vector<NoiseMesh*> *				m_pChildMeshList;
 
-	//std::vector<NoiseGraphicObject*>*	m_pChildLineBufferList;
+	std::vector<NoiseGraphicObject*>*	m_pChildGraphicObjectList;
 
 };
 

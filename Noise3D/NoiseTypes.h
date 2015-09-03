@@ -12,6 +12,7 @@ typedef		D3DXVECTOR3		NVECTOR3;
 typedef		D3DXVECTOR4		NVECTOR4;
 typedef		D3DXMATRIX		NMATRIX;
 
+
 struct N_DefaultVertex
 {
 	N_DefaultVertex(){ZeroMemory(this,sizeof(*this));};
@@ -203,6 +204,8 @@ struct N_CbSolid3D
 	NMATRIX	mViewMatrix;
 };
 
+
+//--------------------------------------------------------
 struct N_LineStrip
 {
 	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }
@@ -212,3 +215,10 @@ struct N_LineStrip
 	UINT		LayerID;
 };
 
+struct N_RegionInfo//区间...唔想个好点的词再改
+{
+	N_RegionInfo() { ZeroMemory(this, sizeof(*this)); }
+	UINT texID;
+	UINT startID;
+	UINT elememtCount;
+};

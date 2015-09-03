@@ -21,7 +21,11 @@ ios::ate		打开一个文件时，将位置移动到文件尾
 NoiseFileManager::NoiseFileManager()
 {
 
-}
+};
+
+ void NoiseFileManager::SelfDestruction()
+{
+ };
 
 BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFileBuffer)
 {

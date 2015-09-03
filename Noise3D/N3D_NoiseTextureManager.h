@@ -23,11 +23,12 @@ public:
 
 	//¹¹Ôìº¯Êý
 	NoiseTextureManager();
-	~NoiseTextureManager();
-	
-	int		CreateTextureFromFile(LPCWSTR filePath,char* textureName,BOOL useDefaultSize, UINT pixelWidth,UINT pixelHeight);
 
-	int		GetIndexByName(char* textureName);
+	void		SelfDestruction();
+
+	UINT		CreateTextureFromFile(LPCWSTR filePath,char* textureName,BOOL useDefaultSize, UINT pixelWidth,UINT pixelHeight);
+
+	UINT		GetIndexByName(char* textureName);
 
 	void		GetNameByIndex(UINT index, std::string* outTextureName);
 

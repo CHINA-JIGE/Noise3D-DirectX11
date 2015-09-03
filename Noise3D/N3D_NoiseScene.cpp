@@ -18,10 +18,42 @@ NoiseScene::NoiseScene()
 	m_pChildLightMgr		= nullptr;
 	m_pChildTextureMgr	= nullptr;
 	m_pChildMaterialMgr	= nullptr;
+	m_pChildMeshList					= new std::vector<NoiseMesh*>;
+	m_pChildGraphicObjectList	= new std::vector<NoiseGraphicObject*>;
 };
 
 NoiseScene::~NoiseScene()
 {
+}
+
+void NoiseScene::ReleaseAllChildObject()
+{
+	if (m_pChildCamera)			m_pChildCamera->SelfDestruction();
+
+	if (m_pChildRenderer)		m_pChildRenderer->SelfDestruction();
+
+	if (m_pChildLightMgr)		m_pChildLightMgr->SelfDestruction();
+
+	if (m_pChildTextureMgr)	m_pChildTextureMgr->SelfDestruction();
+
+	if (m_pChildMaterialMgr)	m_pChildMaterialMgr->SelfDestruction();
+
+	if (m_pChildMeshList)
+	{
+		for (auto pMesh : *m_pChildMeshList)
+		{
+			pMesh->SelfDestruction();
+		}
+	}
+
+	if (m_pChildGraphicObjectList)
+	{
+		for (auto pGraphicObj : *m_pChildGraphicObjectList)
+		{
+			pGraphicObj->SelfDestruction();
+		}
+	}
+
 
 };
 
@@ -29,7 +61,7 @@ BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
 {
 	if(pMesh != NULL)
 	{
-		//m_pChildMeshList->push_back(pMesh);
+		m_pChildMeshList->push_back(pMesh);
 		pMesh->m_pFatherScene =this;
 	}
 	else
@@ -83,12 +115,12 @@ BOOL NoiseScene::CreateLightManager(NoiseLightManager* pLightMgr)
 	}
 }
 
-BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pLineBuffer)
+BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
 {
-	if (pLineBuffer != NULL)
+	if (pGraphicObj != NULL)
 	{
-		//m_pChildLineBufferList->push_back(pLineBuffer);
-		pLineBuffer->m_pFatherScene = this;
+		m_pChildGraphicObjectList->push_back(pGraphicObj);
+		pGraphicObj->m_pFatherScene = this;
 	}
 	else
 	{

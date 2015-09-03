@@ -39,12 +39,11 @@ NoiseMesh::NoiseMesh()
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
 };
 
-NoiseMesh::~NoiseMesh()
+void NoiseMesh::SelfDestruction()
 {
 	ReleaseCOM(m_pVertexBuffer);
 	ReleaseCOM(m_pIndexBuffer);
 };
-
 
 void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColumnCount)
 {

@@ -134,6 +134,14 @@
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\RenderWindow\input_Struct.fx">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\RenderWindow\shading2D.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

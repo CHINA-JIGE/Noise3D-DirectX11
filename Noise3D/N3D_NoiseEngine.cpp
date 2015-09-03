@@ -18,11 +18,6 @@ NoiseEngine::NoiseEngine()
 	static_pEngine = this;
 }
 
-NoiseEngine::~NoiseEngine()
-{
-	
-}
-
 HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
 {
 
@@ -301,7 +296,7 @@ void NoiseEngine::Mainloop()
 		}
 	};
 
-	ReleaseAll();
+	//ReleaseAll();
 	UnregisterClass(mRenderWindowClassName, mRenderWindowHINSTANCE);
 }
 

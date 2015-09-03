@@ -24,9 +24,15 @@ NoiseGraphicObject::NoiseGraphicObject()
 
 		m_pVB_Mem[i]					= new std::vector<N_SimpleVertex>;
 	}
+
+	m_pRegionList_TriangleID_Rect		=new std::vector<N_RegionInfo>;	
+	m_pRegionList_TriangleID_Ellipse	=new std::vector<N_RegionInfo>;
+	m_pRegionList_LineID_Rect			=new std::vector<N_RegionInfo>;
+	m_pRegionList_LineID_Ellipse			=new std::vector<N_RegionInfo>;
 }
 
-NoiseGraphicObject::~NoiseGraphicObject()
+
+void NoiseGraphicObject::SelfDestruction()
 {
 	ReleaseCOM(m_pVB_GPU[0]);
 	ReleaseCOM(m_pVB_GPU[1]);
@@ -95,6 +101,123 @@ UINT NoiseGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 	return GetPoint2DCount() - 1;
 }
 
+UINT NoiseGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+{
+	//.....................
+	N_SimpleVertex tmpVertex;
+	tmpVertex.Pos = NVECTOR3(v1.x, v1.y, 0);
+	tmpVertex.Color = color1;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->push_back(tmpVertex);
+
+	tmpVertex.Pos = NVECTOR3(v2.x, v2.y, 0);
+	tmpVertex.Color = color2;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->push_back(tmpVertex);
+
+	tmpVertex.Pos = NVECTOR3(v3.x, v3.y, 0);
+	tmpVertex.Color = color3;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->push_back(tmpVertex);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+	return GetTriangle2DCount() - 1;
+}
+
+UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
+{
+	//information to be pushed into region info list
+	UINT startTriangleID = GetTriangle2DCount();
+
+		//we will use triangle to make up complex shapes
+		AddTriangle2D(
+			vTopLeft,
+			NVECTOR2(vBottomRight.x, vTopLeft.y),
+			NVECTOR2(vTopLeft.x, vBottomRight.y),
+			color,
+			color,
+			color);
+
+		AddTriangle2D(
+			NVECTOR2(vBottomRight.x, vTopLeft.y),
+			vBottomRight,
+			NVECTOR2(vTopLeft.x, vBottomRight.y),
+			color,
+			color,
+			color);
+
+	//information to be pushed into region info list
+	UINT endTriangleID = GetTriangle2DCount() - 1;
+
+	//write down region info (to show this block of triangles compose of a rectangle)
+	N_RegionInfo regionInfo;
+	regionInfo.texID = texID;
+	regionInfo.startID = startTriangleID;
+	regionInfo.elememtCount = endTriangleID - startTriangleID+1;
+	m_pRegionList_TriangleID_Rect->push_back(regionInfo);
+
+	//return ID of Rectangle
+	return GetRectCount()-1;
+}
+
+UINT NoiseGraphicObject::AddEllipse(float a, float b, NVECTOR2 vCenter, NVECTOR4 color, UINT stepCount , UINT texID)
+{
+	//well, step counts cannot too small
+	//stepCount =3 means 
+	if (stepCount < 3) stepCount = 3;
+
+	//check "a" (semi-major axis) ,"b" (semi-minor axis)
+	if (a < 0) a = 1;
+	if (b < 0) b = 1;
+
+	//information to be pushed into region info list
+	UINT startTriangleID = GetTriangle2DCount();
+
+	//use X coord to derive Y coord
+	float angleStep = MATH_PI / (stepCount-1);
+	float currAngle = 0.0f;
+	float nextAngle = currAngle + angleStep;
+
+	//define 2 temporary vertices which are right on the Ellipse (interpolation)
+	NVECTOR2 tmpV;
+	NVECTOR2 tmpNextV;
+
+	//loop to generate vertices
+	for (UINT i = 0;i < stepCount;i++)
+	{
+
+		//this euqation can be derived from ellipse standard equation
+		tmpV.x = a * cosf(currAngle);
+		tmpV.y = sqrtf((a*a*b*b - b*b *tmpV.x*tmpV.x) / (a*a));
+
+		tmpNextV.x = a * cosf(nextAngle);
+		tmpNextV.y = sqrtf((a*a*b*b - b*b *tmpNextV.x*tmpNextV.x) / (a*a));
+
+		//so we can generate triangles using "radial triangulation" (well , a word created by myself hhhhhh)
+		AddTriangle2D(vCenter, tmpV+ vCenter, tmpNextV+ vCenter, color, color, color);
+
+		//symmetric triangle about X AXIS
+		AddTriangle2D(vCenter, -tmpV+ vCenter, -tmpNextV+ vCenter, color, color, color);
+
+		//update slopes
+		currAngle += angleStep;
+		nextAngle += angleStep;
+
+	}
+
+	//information to be pushed into region info list
+	UINT endTriangleID = GetTriangle2DCount() - 1;
+
+	//write down region info (to show this block of vertices compose of a rectangle)
+	N_RegionInfo regionInfo;
+	regionInfo.startID = startTriangleID;
+	regionInfo.elememtCount = endTriangleID - startTriangleID+1;
+	m_pRegionList_TriangleID_Ellipse->push_back(regionInfo);
+
+	return GetEllipseCount()-1;
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+}
+
 void NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	//source vertex array
@@ -112,6 +235,9 @@ void NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR
 
 	//transmit an array ,the function do the error check
 	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D], simpleV, vertexStartID, vertexCount);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D] = TRUE;
 }
 
 void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
@@ -131,6 +257,9 @@ void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 
 	//transmit an array ,the function do the error check
 	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D], simpleV, vertexStartID, vertexCount);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D] = TRUE;
 }
 
 void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
@@ -148,6 +277,9 @@ void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 
 	//transmit an array ,the function do the error check
 	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D], simpleV, vertexStartID, vertexCount);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D] = TRUE;
 }
 
 void NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
@@ -165,7 +297,133 @@ void NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 
 	//transmit an array ,the function do the error check
 	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D], simpleV, vertexStartID, vertexCount);
+	
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D] = TRUE;
 }
+
+void NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+{
+	//source vertex array
+	N_SimpleVertex simpleV[3];
+	simpleV[0].Pos = NVECTOR3(v1.x, v1.y, 0);
+	simpleV[0].Color = color1;
+	simpleV[0].TexCoord = NVECTOR2(0, 0);
+	simpleV[1].Pos = NVECTOR3(v2.x, v2.y, 0);
+	simpleV[1].Color = color2;
+	simpleV[1].TexCoord = NVECTOR2(0, 0);
+	simpleV[2].Pos = NVECTOR3(v3.x, v3.y, 0);
+	simpleV[2].Color = color3;
+	simpleV[2].TexCoord = NVECTOR2(0, 0);
+
+
+	//a clearer index expression
+	UINT vertexStartID = index*3;
+	UINT	 vertexCount = 3;
+
+	//transmit an array ,the function do the error check
+	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D], simpleV, vertexStartID, vertexCount);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+}
+
+void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
+{
+	UINT triangleID1 = 0;
+	UINT triangleID2 = 0;
+
+	if (index < m_pRegionList_TriangleID_Rect->size())
+	{
+		//the index is used to identify triangles , so it's TRIANGLE INDEX
+		triangleID1 = m_pRegionList_TriangleID_Rect->at(index).startID;
+		triangleID2 = triangleID1 + 1;
+	}
+	else
+	{
+		DEBUG_MSG1("Rectangle Index Invalid !!");
+		return;
+	}
+
+	//2 triangles for 1 rect
+	SetTriangle2D(
+		triangleID1,
+		vTopLeft,
+		NVECTOR2(vBottomRight.x, vTopLeft.y),
+		NVECTOR2(vTopLeft.x, vBottomRight.y),
+		color,
+		color,
+		color);
+
+	SetTriangle2D(
+		triangleID2,
+		NVECTOR2(vBottomRight.x, vTopLeft.y),
+		vBottomRight,
+		NVECTOR2(vTopLeft.x, vBottomRight.y),
+		color,
+		color,
+		color);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+}
+
+void NoiseGraphicObject::SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color, UINT texID)
+{
+	if (index >= m_pRegionList_TriangleID_Ellipse->size())
+	{
+		DEBUG_MSG1("SetEllipse: index invalid");
+		return;
+	}
+
+
+	//define an array to use mFunction_SetVertices
+	UINT triangleCount = m_pRegionList_TriangleID_Ellipse->at(index).elememtCount;
+
+	//about why stepCount is divided by 2 ,see AddEllipse
+	UINT	 stepCount = triangleCount / 2;
+
+	UINT startTriangleID = m_pRegionList_TriangleID_Ellipse->at(index).startID;
+
+	//check "a" (semi-major axis) ,"b" (semi-minor axis)
+	if (a < 0) a = 1;
+	if (b < 0) b = 1;
+
+	//use X coord to derive Y coord
+	float angleStep = MATH_PI / (stepCount-1);
+	float currAngle = 0.0f;
+	float nextAngle = currAngle + angleStep;
+
+	//define 2 temporary vertices which are right on the Ellipse (interpolation)
+	NVECTOR2 tmpV;
+	NVECTOR2 tmpNextV;
+
+	//loop to generate vertices
+	for (UINT i = 0;i < stepCount;i++)
+	{
+
+		//this euqation can be derived from ellipse standard equation
+		tmpV.x = a * cosf(currAngle);
+		tmpV.y = sqrtf((a*a*b*b - b*b *tmpV.x*tmpV.x) / (a*a));
+
+		tmpNextV.x = a * cosf(nextAngle);
+		tmpNextV.y = sqrtf((a*a*b*b - b*b *tmpNextV.x*tmpNextV.x) / (a*a));
+
+		//so we can generate triangles using "radial triangulation" (well , a word created by myself hhhhhh)
+		SetTriangle2D(startTriangleID+i*2,vCenter, tmpV + vCenter, tmpNextV + vCenter, color, color, color);
+
+		//symmetric triangle about X AXIS
+		SetTriangle2D(startTriangleID+i*2+1,vCenter, -tmpV + vCenter, -tmpNextV + vCenter, color, color, color);
+
+		//update slopes
+		currAngle += angleStep;
+		nextAngle += angleStep;
+
+	}
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+};
 
 void NoiseGraphicObject::DeleteLine3D(UINT index)
 {
@@ -212,33 +470,89 @@ void NoiseGraphicObject::DeletePoint2D(UINT index)
 	UINT vertexStartIndex = index;
 	UINT vertexCount = 1;	//1 line consist of 2 vertices
 
-							//erase function
+	//erase function
 	mFunction_EraseVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D], vertexStartIndex, vertexCount);
 
 	//now it is allowed to update because of modification
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D] = TRUE;
 }
 
-BOOL NoiseGraphicObject::AddToRenderList()
+void NoiseGraphicObject::DeleteTriangle2D(UINT index)
 {
-	if (m_pFatherScene == NULL)
-	{
-		DEBUG_MSG3("NoiseLineBuffer: NoiseScene Has Not been created!", "", "");
-		return FALSE;
-	}
-	m_pFatherScene->m_pChildRenderer->m_pRenderList_GraphicObject->push_back(this);
+	UINT vertexStartIndex = index *3;
+	UINT	 vertexCount = 3;
 
-	//Update Data to GPU if data is not up to date , 5 object types for now
-	for (UINT i = 0;i < 5;i++)
-	{
-		if (mCanUpdateToGpu[i])
-		{
-			mFunction_UpdateToGpu(i);
-			mCanUpdateToGpu[i] = FALSE;
-		}
-	}
-	return TRUE;
+	//erase function
+	mFunction_EraseVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D], vertexStartIndex, vertexCount);
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+
 }
+
+void NoiseGraphicObject::DeleteRetangle(UINT index)
+{
+	//delete the index_th Rectangle
+
+	UINT vertexStartIndex = 0;
+	UINT	 vertexCount = 0;
+
+	if (index < m_pRegionList_TriangleID_Rect->size())
+	{
+		vertexStartIndex = m_pRegionList_TriangleID_Rect->at(index).startID * 3;
+		vertexCount = m_pRegionList_TriangleID_Rect->at(index).elememtCount*3;
+		//erase from vector
+		mFunction_EraseVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D], vertexStartIndex, vertexCount);
+		
+		//now it is allowed to update because of modification
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+
+		//also remember to delete corresponding region info
+		auto iter_thisRegionInfo = m_pRegionList_TriangleID_Rect->begin();
+		iter_thisRegionInfo += index;
+		m_pRegionList_TriangleID_Rect->erase(iter_thisRegionInfo);
+	
+	}
+	else
+	{
+		DEBUG_MSG1("Rectangle Index Invalid!!");
+		return;
+	}
+
+}
+
+void NoiseGraphicObject::DeleteEllipse(UINT index)
+{
+	//delete the index_th Ellipse
+
+	UINT vertexStartIndex = 0;
+	UINT	 vertexCount = 0;
+
+	if (index < m_pRegionList_TriangleID_Ellipse->size())
+	{
+		//sum up triangle counts , because the step count of Ellipse might not be the same
+		vertexStartIndex = m_pRegionList_TriangleID_Ellipse->at(index).startID * 3;
+		vertexCount = m_pRegionList_TriangleID_Ellipse->at(index).elememtCount * 3;
+
+		//erase from vector
+		mFunction_EraseVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D], vertexStartIndex, vertexCount);
+
+		//now it is allowed to update because of modification
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
+
+		//also remember to delete corresponding region info
+		auto iter_thisRegionInfo = m_pRegionList_TriangleID_Ellipse->begin();
+		iter_thisRegionInfo += index;
+		m_pRegionList_TriangleID_Rect->erase(iter_thisRegionInfo);
+
+	}
+	else
+	{
+		DEBUG_MSG1("Ellipse Index Invalid!!");
+		return;
+	}
+};
+
 
 UINT NoiseGraphicObject::GetLine3DCount()
 {
@@ -260,7 +574,41 @@ UINT NoiseGraphicObject::GetPoint2DCount()
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size();
 };
 
+UINT NoiseGraphicObject::GetTriangle2DCount()
+{
+	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->size()/3;
+}
 
+UINT NoiseGraphicObject::GetRectCount()
+{
+	return m_pRegionList_TriangleID_Rect->size();
+}
+
+UINT NoiseGraphicObject::GetEllipseCount()
+{
+	return m_pRegionList_TriangleID_Ellipse->size();
+};
+
+BOOL NoiseGraphicObject::AddToRenderList()
+{
+	if (m_pFatherScene == NULL)
+	{
+		DEBUG_MSG3("NoiseLineBuffer: NoiseScene Has Not been created!", "", "");
+		return FALSE;
+	}
+	m_pFatherScene->m_pChildRenderer->m_pRenderList_GraphicObject->push_back(this);
+
+	//Update Data to GPU if data is not up to date , 5 object types for now
+	for (UINT i = 0;i < 5;i++)
+	{
+		if (mCanUpdateToGpu[i])
+		{
+			mFunction_UpdateToGpu(i);
+			mCanUpdateToGpu[i] = FALSE;
+		}
+	}
+	return TRUE;
+}
 
 
 /***********************************************************************
@@ -317,8 +665,12 @@ void		NoiseGraphicObject::mFunction_UpdateToGpu(UINT objType_ID)
 		if (m_pVB_GPU[objType_ID])
 		{
 			m_pVB_GPU[objType_ID]->Release();
-
+			
 			//create a new VB
+			mFunction_InitVB(objType_ID);
+		}
+		else
+		{
 			mFunction_InitVB(objType_ID);
 		}
 	}
@@ -374,29 +726,17 @@ void		NoiseGraphicObject::mFunction_SetVertices(std::vector<N_SimpleVertex>* pLi
 	}
 
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
-	if (iVertexStartID + iVertexCount >= pList->size())
+	if (iVertexStartID + iVertexCount > pList->size())
 	{
 		DEBUG_MSG1("Noise Graphic Object : Vertex ID Out of boundary!");
 		return;
 	}
 	
-	//in case of MEMORY ACCESS VIOLATION
-	try
+	//value assignment
+	for (UINT i = 0;i < iVertexCount;i++)
 	{
-		//value assignment
-		for (UINT i = 0;i < iVertexCount;i++)
-		{
-			pList->at(iVertexStartID + i) = pSourceArray[i];
-		}
-
-		//if the index is out of range, then we will encounter ACCESS_VIOLATION error
-		throw EXCEPTION_ACCESS_VIOLATION;
+		pList->at(iVertexStartID + i) = pSourceArray[i];
 	}
-	catch(decltype(EXCEPTION_ACCESS_VIOLATION))
-	{
-		DEBUG_MSG1("NoiseGraphicObject.mFunction_SetVertices : Out Of Range");
-		return;
-	};
 
 }
 

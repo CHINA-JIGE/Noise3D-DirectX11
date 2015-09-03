@@ -16,24 +16,39 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseLightManager();
 
+	void		SelfDestruction();
+
 	void		AddDynamicDirLight(N_DirectionalLight* pLight);
+
 	void		AddDynamicPointLight(N_PointLight* pLight);
+
 	void		AddDynamicSpotLight(N_SpotLight* pLight);
+
 	void		RemoveDynamicDirLight(N_DirectionalLight* pLight);
+
 	void		RemoveDynamicPointLight(N_PointLight* pLight);
+
 	void		RemoveDynamicSpotLight(N_SpotLight* pLight);
+
 	void		SetDynamicLightingEnabled(BOOL isEnabled);
 
 
 	void		AddStaticDirLight(N_DirectionalLight iLight);
+
 	void		AddStaticPointLight(N_PointLight iLight);
+
 	void		AddStaticSpotLight(N_SpotLight iLight);
+
 	void		RemoveStaticDirLight(UINT iLight_Index);
+
 	void		RemoveStaticPointLight(UINT iLight_Index);
+
 	void		RemoveStaticSpotLight(UINT iLight_Index);
+
 	void		SetStaticLightingEnabled(BOOL isEnabled);
 
 	UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
+
 	UINT		GetTotalLightCount();
 
 

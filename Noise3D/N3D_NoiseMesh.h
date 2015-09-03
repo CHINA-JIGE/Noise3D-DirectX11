@@ -16,7 +16,7 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseMesh();
 
-	~NoiseMesh();
+	void	SelfDestruction();
 
 	void	CreatePlane(float fWidth,float fHeight,UINT iRowCount =5,UINT iColumnCount =5);
 

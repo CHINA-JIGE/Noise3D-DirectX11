@@ -30,7 +30,7 @@ NoiseRenderer::NoiseRenderer()
 	m_CullMode = NOISE_CULLMODE_NONE;
 };
 
-NoiseRenderer::~NoiseRenderer()
+void NoiseRenderer::SelfDestruction()
 {
 	ReleaseCOM(m_pFX);
 	ReleaseCOM(m_pRasterState_Solid_CullNone);
@@ -68,9 +68,10 @@ void	NoiseRenderer::RenderMeshInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
 		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVertexBuffer,&VBstride_Default,&VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//设置fillmode和cullmode
-		mFunction_SetRasterStateAndTopology(m_FillMode,m_CullMode);
+		mFunction_SetRasterState(m_FillMode,m_CullMode);
 
 
 		//for every subset
@@ -91,7 +92,6 @@ void	NoiseRenderer::RenderMeshInList()
 }
 #pragma endregion Render Mesh
 
-	m_pRenderList_Mesh->clear();
 }
 
 void NoiseRenderer::RenderLine3DInList()
@@ -111,8 +111,10 @@ void NoiseRenderer::RenderLine3DInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
 		//设置fillmode和cullmode
-		mFunction_SetRasterStateAndTopology(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+		mFunction_SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -120,8 +122,6 @@ void NoiseRenderer::RenderLine3DInList()
 		g_pImmediateContext->Draw(vCount, 0);
 	}
 
-	//清空渲染列表
-	m_pRenderList_GraphicObject->clear();
 
 }
 
@@ -142,17 +142,16 @@ void NoiseRenderer::RenderPoint3DInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
 		//设置fillmode和cullmode
-		mFunction_SetRasterStateAndTopology(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size();
 		g_pImmediateContext->Draw(vCount, 0);
 	}
-
-	//清空渲染列表
-	m_pRenderList_GraphicObject->clear();
 
 }
 
@@ -168,17 +167,16 @@ void NoiseRenderer::RenderLine2DInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
 		//设置fillmode和cullmode
-		mFunction_SetRasterStateAndTopology(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+		mFunction_SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D]->size();
 		g_pImmediateContext->Draw(vCount, 0);
 	}
-
-	//清空渲染列表
-	m_pRenderList_GraphicObject->clear();
 
 };
 
@@ -193,8 +191,10 @@ void NoiseRenderer::RenderPoint2DInList()
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
 		//设置fillmode和cullmode
-		mFunction_SetRasterStateAndTopology(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -202,14 +202,54 @@ void NoiseRenderer::RenderPoint2DInList()
 		g_pImmediateContext->Draw(vCount, 0);
 	}
 
-	//清空渲染列表
-	m_pRenderList_GraphicObject->clear();
 };
 
-
-void	NoiseRenderer::ClearViews()
+void NoiseRenderer::RenderShapes2DInList(BOOL isColorFilled)
 {
-	float ClearColor[4] = { 0.0f, 0.3f, 0.3f, 1.0f };
+	//prepare to draw , various settings.....
+	ID3D11Buffer* tmp_pVB = NULL;
+	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	{
+		//把RenderList的所有GraphicObject的line3D都渲染一次
+		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
+		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
+		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//设置fillmode和cullmode
+		if (isColorFilled)
+		{
+			mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+		}
+		else
+		{
+			mFunction_SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+
+		}
+
+		//draw line 一个pass就够了
+		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->size();
+		g_pImmediateContext->Draw(vCount, 0);
+	}
+
+	//清空渲染列表
+	m_pRenderList_GraphicObject->clear();
+}
+
+void NoiseRenderer::RenderGraphicObjectInList(BOOL isColorFilled)
+{
+	RenderLine2DInList();
+	RenderLine3DInList();
+	RenderPoint3DInList();
+	RenderPoint2DInList();
+	RenderShapes2DInList(isColorFilled);
+};
+
+void	NoiseRenderer::ClearBackground(NVECTOR4 color)
+{
+	float ClearColor[4] = { color.x,color.y,color.z,color.w };
 	g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, ClearColor );
 	//我擦！！！纠结这么久原来是要clearDepth!!!!!!
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
@@ -219,6 +259,10 @@ void	NoiseRenderer::ClearViews()
 void	NoiseRenderer::RenderToScreen()
 {
 		g_pSwapChain->Present( 0, 0 );
+
+		//clear render list
+		m_pRenderList_GraphicObject->clear();
+		m_pRenderList_Mesh->clear();
 };
 
 void NoiseRenderer::SetFillMode(NOISE_FILLMODE iMode)
@@ -387,7 +431,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPa
 	return TRUE;
 };
 
-void		NoiseRenderer::mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMode, NOISE_CULLMODE iCullMode)
+void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CULLMODE iCullMode)
 {
 	//fillMode , or "which primitive to draw, point?line?triangle?" , affect the decision of topology
 	//like if user chooses WIREFRAME mode , the topology will be LINELIST
@@ -413,7 +457,6 @@ void		NoiseRenderer::mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMod
 		default:
 			break;
 		}
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		break;
 	
 
@@ -436,14 +479,14 @@ void		NoiseRenderer::mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMod
 		default:
 			break;
 		}
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 		break;
 
 
 
 	//render points
 	case 	NOISE_FILLMODE_POINT:
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+		g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullNone);
+		//g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullNone);
 		break;
 
 	default:
@@ -545,7 +588,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID)
 		//otherwise if the material is valid
 		//then we should check if its child textureS are valid too 
 		N_Material tmpMat = m_pFatherScene->m_pChildMaterialMgr->m_pMaterialList->at(currSubsetMatID);
-		ID3D11ShaderResourceView* tmp_pSRV = NULL;
+		ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 		m_CbPerSubset.basicMaterial = tmpMat.baseColor;
 		m_CbPerSubset.IsDiffuseMapValid	= (tmpMat.diffuseMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 		m_CbPerSubset.IsNormalMapValid	= (tmpMat.normalMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
@@ -607,6 +650,9 @@ void		NoiseRenderer::mFunction_RenderTextured2D_Update(UINT TexID)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
-	tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(TexID).m_pSRV;
-	m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+	{
+		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(TexID).m_pSRV;
+		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+	}
 };

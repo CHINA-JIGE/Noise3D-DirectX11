@@ -21,6 +21,10 @@ NoiseLightManager::NoiseLightManager()
 	m_pLightList_Spot_Static	=	new std::vector<N_SpotLight>;
 	mIsStaticLightingEnabled = TRUE;
 	mCanUpdateStaticLights = FALSE;
+}
+
+void NoiseLightManager::SelfDestruction()
+{
 };
 
 //这些烂鬼add remove 就用macro吧

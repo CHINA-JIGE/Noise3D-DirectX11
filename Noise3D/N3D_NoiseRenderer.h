@@ -19,7 +19,8 @@ public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 public:
 	//¹¹Ôìº¯Êý
 	NoiseRenderer();
-	~NoiseRenderer();
+
+	void			SelfDestruction();
 
 	void			RenderMeshInList();
 
@@ -31,7 +32,11 @@ public:
 
 	void			RenderPoint2DInList();
 
-	void			ClearViews();
+	void			RenderShapes2DInList(BOOL isColorFilled);
+
+	void			RenderGraphicObjectInList(BOOL isColorFilled);
+
+	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0.3f,0.3f,1.0f));
 
 	void			RenderToScreen();
 
@@ -49,7 +54,7 @@ private:
 
 	BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
 
-	void				mFunction_SetRasterStateAndTopology(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
+	void				mFunction_SetRasterState(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
 
 	void				mFunction_RenderMeshInList_UpdatePerObject();
 

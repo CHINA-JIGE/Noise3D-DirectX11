@@ -16,11 +16,11 @@ NoiseTextureManager::NoiseTextureManager()
 	m_pTextureObjectList = new std::vector<N_Texture_Object>;
 };
 
-NoiseTextureManager::~NoiseTextureManager()
+void NoiseTextureManager::SelfDestruction()
 {
 };
 
-int NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -34,7 +34,7 @@ int NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureNa
 
 	//some settings about loading image
 	D3DX11_IMAGE_LOAD_INFO loadInfo;
-
+	
 	//we must check if user want to use default image size
 	if (useDefaultSize)
 	{
@@ -88,7 +88,7 @@ int NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureNa
 	return newTexIndex;//invalid file or sth else
 };
 
-int NoiseTextureManager::GetIndexByName(char* textureName)
+UINT NoiseTextureManager::GetIndexByName(char* textureName)
 {
 	N_Texture_Object tmpTexObj;
 	std::string tmpString(textureName);

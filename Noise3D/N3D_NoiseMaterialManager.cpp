@@ -26,13 +26,11 @@ NoiseMaterialManager::NoiseMaterialManager()
 	m_pDefaultMaterial->mMatName		= std::string("DEFAULT_MATERIAL");
 	m_pMaterialList->push_back(*m_pDefaultMaterial);
 
-};
-
-NoiseMaterialManager::~NoiseMaterialManager()
-{
-
 }
 
+void NoiseMaterialManager::SelfDestruction()
+{
+};
 
 UINT NoiseMaterialManager::CreateMaterial(N_Material newMat)
 {
@@ -92,7 +90,7 @@ UINT NoiseMaterialManager::GetIndexByName(std::string * matName)
 		}
 	}
 
-	return NOISE_MACRO_DEFAULT_MATERIAL_ID;//Invalid texture Name
+	return NOISE_MACRO_DEFAULT_MATERIAL_ID;//default vertex Name
 }
 
 void NoiseMaterialManager::GetNameByIndex(UINT index, std::string * outMatName)
@@ -104,6 +102,24 @@ void NoiseMaterialManager::GetNameByIndex(UINT index, std::string * outMatName)
 	}
 	
 }
+
+void NoiseMaterialManager::SetMaterial(UINT matIndex, N_Material newMat)
+{
+	if (matIndex < m_pMaterialList->size())
+	{
+		m_pMaterialList->at(matIndex) = newMat;
+	}
+};
+
+void NoiseMaterialManager::SetMaterial(std::string * matName, N_Material newMat)
+{
+	UINT matID = GetIndexByName(matName);
+	if (matID != NOISE_MACRO_DEFAULT_MATERIAL_ID)
+	{
+		SetMaterial(matID, newMat);
+	}
+
+};
 
 UINT NoiseMaterialManager::GetMaterialCount()
 {

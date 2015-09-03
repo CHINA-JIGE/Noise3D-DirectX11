@@ -104,6 +104,12 @@
     <None Include="..\RenderWindow\shading3D.fx">
       <Filter>Shader</Filter>
     </None>
+    <None Include="..\RenderWindow\shading2D.fx">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\RenderWindow\input_Struct.fx">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="N3D_NoiseScene.cpp">

@@ -14,8 +14,6 @@ public:
 
 	//¹¹Ôìº¯Êý
 	NoiseEngine();
-	~NoiseEngine();
-
 
 	HWND	CreateRenderWindow(UINT pixelWidth,UINT pixelHeight,LPCWSTR windowTitle, HINSTANCE hInstance);
 
