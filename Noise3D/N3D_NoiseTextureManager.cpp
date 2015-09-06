@@ -18,6 +18,10 @@ NoiseTextureManager::NoiseTextureManager()
 
 void NoiseTextureManager::SelfDestruction()
 {
+	for (auto texObj : *m_pTextureObjectList)
+	{
+		ReleaseCOM(texObj.m_pSRV);
+	}
 };
 
 UINT NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)

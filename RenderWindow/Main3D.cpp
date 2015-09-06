@@ -75,14 +75,16 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âþ·´ÉäÌùÍ¼
-	UINT diffuseTexID=TexMgr.CreateTextureFromFile(L"texture.jpg","MyTexture", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"texture.jpg", "Earth", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
+
 
 	N_Material Mat1;
 	Mat1.baseColor.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
 	Mat1.baseColor.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
 	Mat1.baseColor.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
 	Mat1.baseColor.mSpecularSmoothLevel	=	20;
-	Mat1.diffuseMapID =  diffuseTexID;
+	Mat1.diffuseMapID = TexMgr.GetIndexByName("Earth");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
@@ -117,9 +119,11 @@ BOOL Init3D(HWND hwnd)
 	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.3f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.4f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.5f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-	//UINT a = TexMgr.GetIndexByName("MyTexture");
-	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f));
-	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20,NOISE_MACRO_INVALID_TEXTURE_ID);
+	UINT myTexID = TexMgr.GetIndexByName("Earth");
+	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f), myTexID);
+	GraphicObjBuffer.AddRectangleOutline(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(0, 0, 0, 1.0f));
+	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20, myTexID);
+	GraphicObjBuffer.AddEllipseOutline(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 0, 0, 1.0f), 20);
 	return TRUE;
 };
 
@@ -129,8 +133,12 @@ void MainLoop()
 	Angle += 0.0005f;
 	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
 	Camera.SetLookAt(0,0,0);
-	GraphicObjBuffer.SetRectangle(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(1.0f, 0, 0, 1.0f));
-	GraphicObjBuffer.SetEllipse(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0, 1.0f, 0, 1.0f), 0);
+	UINT textureID = TexMgr.GetIndexByName("Wood");
+	GraphicObjBuffer.SetRectangle(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(0.3f, 0.3f, 0.9f, 0.5f), textureID);
+	GraphicObjBuffer.SetRectangleOutline(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(0, 0, 0, 1.0f));
+	GraphicObjBuffer.SetEllipse(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), textureID);
+	GraphicObjBuffer.SetEllipseOutline(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0,0, 0, 1.0f));
+
 
 	Renderer.ClearBackground();
 
@@ -140,7 +148,7 @@ void MainLoop()
 
 	//render
 	Renderer.RenderMeshInList();
-	Renderer.RenderGraphicObjectInList(TRUE);
+	Renderer.RenderGraphicObjectInList();
 
 	//present
 	Renderer.RenderToScreen();

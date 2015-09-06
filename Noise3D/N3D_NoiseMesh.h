@@ -58,6 +58,9 @@ public:
 
 	void		GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
 
+	NVECTOR3		GetBoundingBoxMax();
+
+	NVECTOR3		GetBoundingBoxMin();
 
 private:
 

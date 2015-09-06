@@ -9,7 +9,6 @@
 struct N_Texture_Object
 {
 	N_Texture_Object() { ZeroMemory(this,sizeof(*this)); }
-	~N_Texture_Object() { ReleaseCOM(m_pSRV); }
 	std::string	 mTexName;
 	ID3D11ShaderResourceView* m_pSRV;
 };

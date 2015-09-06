@@ -61,11 +61,16 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 
 	//...........
 	int i = 0;char tmpC =0;
+
+	//allocate new memory block , initialized with 0
+	pFileBuffer->resize(fileSize,0);
 	while (!fileIn.eof())
 	{
+		
+		fileIn.read(&pFileBuffer->at(0), fileSize);
 		//逐字节读取
-		fileIn.get(tmpC);
-		pFileBuffer->push_back(tmpC);
+		//fileIn.get(tmpC);
+		//pFileBuffer->push_back(tmpC);
 	}
 
 
@@ -189,6 +194,36 @@ BOOL NoiseFileManager::ImportFile_STL(char* pFilePath,std::vector<NVECTOR3>* pVe
 
 BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
 {
+	if (!pLineStripBuffer)
+	{
+		return FALSE;
+	}
+
+	//文件输入流
+	std::ifstream fileIn(pFilePath, std::ios::binary);
+
+	//文件不存在就return
+	if (!fileIn)
+	{
+		DEBUG_MSG3("", "", "NoiseFileManager : File Path Not Exist !!");
+		return FALSE;
+	}
+	if (!fileIn.good())
+	{
+		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
+		return FALSE;
+	}
+
+	//指针移到文件尾
+	fileIn.seekg(0, std::ios_base::end);
+
+	//指针指着文件尾，当前位置就是大小
+	int fileSize = (int)fileIn.tellg();
+
+
+	//指针移到文件头
+	fileIn.seekg(0, std::ios_base::beg);
+
 
 	//some  check before importing file
 	if (!pLineStripBuffer)
@@ -196,31 +231,28 @@ BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 		return FALSE;
 	}
 
-	std::vector<char> tmpCharBuffer;
-
-	if (!ImportFile_PURE(pFilePath, &tmpCharBuffer))
-	{
-		DEBUG_MSG3("", "", "Import Noise Layer File : Import file failed!");
-		return FALSE;
-	};
-
 
 	//first import the count data of line strip
+	UINT magicNum = 0;
+	UINT versionID = 0;
 	UINT lineStripCount=0;
 	UINT currLineStripPointCount = 0;
 	UINT currLIneStripNormalCount = 0;
+	UINT layerID = 0;
 	NVECTOR3 tmpV;
 	N_LineStrip  emptyLineStrip;
-	UINT i = 0, j = 0,charPointer = 0;
+	UINT i = 0, j = 0;
 	
 
+#define STREAM_READ(STREAM,OBJECT) STREAM.read((char*)&(OBJECT),sizeof(OBJECT));
+
+	//file head
+	STREAM_READ(fileIn, magicNum);
+
+	STREAM_READ(fileIn, versionID);
 	//.........how many line strips
-	lineStripCount = mFunction_Combine4CharIntoInt(
-		tmpCharBuffer.at(0),
-		tmpCharBuffer.at(1),
-		tmpCharBuffer.at(2),
-		tmpCharBuffer.at(3));
-	charPointer = 4;
+	STREAM_READ(fileIn, lineStripCount);
+
 
 	//start to read line strip
 	for (i = 0;i < lineStripCount;i++)
@@ -229,77 +261,29 @@ BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 		//because we no longer need (it's used for optimization)
 		pLineStripBuffer->push_back(emptyLineStrip);
 
-		//points count of current line strip
-		currLineStripPointCount = mFunction_Combine4CharIntoInt(
-			tmpCharBuffer.at(charPointer + 0),
-			tmpCharBuffer.at(charPointer + 1),
-			tmpCharBuffer.at(charPointer + 2),
-			tmpCharBuffer.at(charPointer + 3));
-		charPointer += 4;
+		STREAM_READ(fileIn, layerID);
+		pLineStripBuffer->at(i).LayerID = layerID;
 
-		//normal count of current line strip
-		currLIneStripNormalCount = mFunction_Combine4CharIntoInt(
-			tmpCharBuffer.at(charPointer + 0),
-			tmpCharBuffer.at(charPointer + 1),
-			tmpCharBuffer.at(charPointer + 2),
-			tmpCharBuffer.at(charPointer + 3));
-		charPointer += 4;
+		STREAM_READ(fileIn, currLineStripPointCount);
 
+		STREAM_READ(fileIn, currLIneStripNormalCount);
 
-		//input vertices
+	
+		//input Points of a line strip
 		for (j = 0;j < currLineStripPointCount;j++)
 		{
-			tmpV.x = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
-
-			tmpV.y = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
-
-			tmpV.z = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
+			STREAM_READ(fileIn, tmpV);
 			pLineStripBuffer->at(i).pointList.push_back(tmpV);
 		}
 
-		//input normals
+		//input normals of line segments
 		for (j = 0;j < currLIneStripNormalCount;j++)
 		{
-			tmpV.x = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
-
-			tmpV.y = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
-
-			tmpV.z = mFunction_Combine4CharIntoFloat(
-				tmpCharBuffer.at(charPointer + 0),
-				tmpCharBuffer.at(charPointer + 1),
-				tmpCharBuffer.at(charPointer + 2),
-				tmpCharBuffer.at(charPointer + 3));
-			charPointer += 4;
+			STREAM_READ(fileIn, tmpV)
 			pLineStripBuffer->at(i).normalList.push_back(tmpV);
 		}
 
 	}
-
 
 	return TRUE;
 }
@@ -362,98 +346,64 @@ BOOL NoiseFileManager::ExportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 
 	//prepare to output,tmp var to store number
 	UINT i = 0, j = 0;
-	int tmpI;
-	float tmpF;
-	unsigned char c1,c2,c3,c4;
 
 	/*
 	FORMAT: 
-	First 4 bit to store Line Strip Count
+	4 byte magicNum
+	4 byte versionID
+	4 byte to store Line Strip Count
 	and for every Line Strip :
-		first		4 bit for pointList.size()
-		then		4 bit for normalList.size(), but it's actually  normalList.size()-1 ,and this is a reminder that
+		first		4 byte for pointList.size()
+		then		4 byte for normalList.size(), but it's actually  normalList.size()-1 ,and this is a reminder that
 					there are normal data to be read 
-		then		4 (float) * 3 (vec3 component) *( n + n-1) bit for a whole line strip(vertex + normal)
+		then		4 (float) * 3 (vec3 component) *( n + n-1) byte for a whole line strip(vertex + normal)
 
 		keep writing data until all line strip are traversed
 	*/
 
-	//	first 4 bit for line strip count
-	tmpI = pLineStripBuffer->size();
-	mFunction_SplitIntInto4Char(tmpI, c1, c2, c3, c4);
-	fileOut.put(c1);
-	fileOut.put(c2);
-	fileOut.put(c3);
-	fileOut.put(c4);
-	
+	//convert variables into char* to directly write in a file
+#define STREAM_WRITE(STREAM,OBJECT)  {(STREAM).write((char *)&(OBJECT),sizeof(OBJECT));}
+
+	//	first 4 byte for magic number
+	char magicNum[] = { 'k','A','s','T' };
+	STREAM_WRITE(fileOut, magicNum);
+
+	//	4 byte for version
+	UINT32 version = 0xffffff01;
+	STREAM_WRITE(fileOut, version);
+
+	//	 4 byte for line strip count
+	UINT32 lineStripCount = pLineStripBuffer->size();
+	STREAM_WRITE(fileOut, lineStripCount);
+
+
+
 	//for every line strip
 	for (i = 0;i < pLineStripBuffer->size();i++)
 	{
+		UINT layerID = pLineStripBuffer->at(i).LayerID;
+		STREAM_WRITE(fileOut, layerID);
+
 		//first output points count of current line strip 
-		tmpI = pLineStripBuffer->at(i).pointList.size();
-		mFunction_SplitIntInto4Char(tmpI, c1, c2, c3, c4);
-		fileOut.put(c1);
-		fileOut.put(c2);
-		fileOut.put(c3);
-		fileOut.put(c4);
+		UINT pointListSize = pLineStripBuffer->at(i).pointList.size();
+		STREAM_WRITE(fileOut, pointListSize);
 
 		//then normals
-		tmpI = pLineStripBuffer->at(i).normalList.size();
-		mFunction_SplitIntInto4Char(tmpI, c1, c2, c3, c4);
-		fileOut.put(c1);
-		fileOut.put(c2);
-		fileOut.put(c3);
-		fileOut.put(c4);
+		UINT normalListSize = pLineStripBuffer->at(i).normalList.size();
+		STREAM_WRITE(fileOut, normalListSize);
 
 		//and traverse every vertices
 		for (j = 0;j < pLineStripBuffer->at(i).pointList.size(); j++)
 		{
-			tmpF = pLineStripBuffer->at(i).pointList.at(j).x;
-			mFunction_SplitFloatInto4Char(tmpF,c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
-
-			tmpF = pLineStripBuffer->at(i).pointList.at(j).y;
-			mFunction_SplitFloatInto4Char(tmpF, c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
-
-			tmpF = pLineStripBuffer->at(i).pointList.at(j).z;
-			mFunction_SplitFloatInto4Char(tmpF, c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
-
+			NVECTOR3 tmpVertex = pLineStripBuffer->at(i).pointList.at(j);
+			STREAM_WRITE(fileOut, tmpVertex);
 		}
 
 		//and traverse every normal
 		for (j = 0;j < pLineStripBuffer->at(i).normalList.size(); j++)
 		{
-			tmpF = pLineStripBuffer->at(i).normalList.at(j).x;
-			mFunction_SplitFloatInto4Char(tmpF, c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
-
-			tmpF = pLineStripBuffer->at(i).normalList.at(j).y;
-			mFunction_SplitFloatInto4Char(tmpF, c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
-
-			tmpF = pLineStripBuffer->at(i).normalList.at(j).z;
-			mFunction_SplitFloatInto4Char(tmpF, c1, c2, c3, c4);
-			fileOut.put(c1);
-			fileOut.put(c2);
-			fileOut.put(c3);
-			fileOut.put(c4);
+			NVECTOR3 tmpNormal = pLineStripBuffer->at(i).normalList.at(j);
+			STREAM_WRITE(fileOut, tmpNormal);
 		}
 	}
 

@@ -24,17 +24,7 @@ public:
 
 	void			RenderMeshInList();
 
-	void			RenderLine3DInList();
-
-	void			RenderPoint3DInList();
-
-	void			RenderLine2DInList();
-
-	void			RenderPoint2DInList();
-
-	void			RenderShapes2DInList(BOOL isColorFilled);
-
-	void			RenderGraphicObjectInList(BOOL isColorFilled);
+	void			RenderGraphicObjectInList();
 
 	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0.3f,0.3f,1.0f));
 
@@ -43,8 +33,6 @@ public:
 	void			SetFillMode(NOISE_FILLMODE iMode);
 
 	void			SetCullMode(NOISE_CULLMODE iMode);
-
-
 
 
 private:
@@ -64,9 +52,21 @@ private:
 
 	void				mFunction_RenderMeshInList_UpdateRarely();
 
-	void				mFunction_RenderSolid3D_Update();
+	//render graphic object
+	void				mFunction_GraphicObj_Update_RenderSolid3D();
 
-	void				mFunction_RenderTextured2D_Update(UINT TexID);
+	void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
+
+	void				mFunction_GraphicObj_RenderLine3DInList();
+
+	void				mFunction_GraphicObj_RenderPoint3DInList();
+
+	void				mFunction_GraphicObj_RenderLine2DInList();
+
+	void				mFunction_GraphicObj_RenderPoint2DInList();
+
+	void				mFunction_GraphicObj_RenderTriangle2DInList();
+
 
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;

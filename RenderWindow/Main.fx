@@ -144,7 +144,7 @@ VS_OUTPUT_SIMPLE VS_Textured2D(VS_INPUT_SIMPLE input)
 
 float4 PS_Textured2D(VS_OUTPUT_SIMPLE input) : SV_Target
 {
-	float4 outputColor = float4(g2D_DiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord));
+	float4 outputColor = g2D_DiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
 	return outputColor;
 }
 

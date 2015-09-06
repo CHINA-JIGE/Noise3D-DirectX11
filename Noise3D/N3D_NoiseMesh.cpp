@@ -547,6 +547,70 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	SetMaterial(m_MaterialID_for_SetMaterial);
 };
 
+BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
+{
+	//check if buffers have been created
+	if (m_pVertexBuffer != NULL) { ReleaseCOM(m_pVertexBuffer); }
+	m_pVertexInMem->clear();
+
+	if (m_pIndexBuffer != NULL) { ReleaseCOM(m_pIndexBuffer); }
+	m_pIndexInMem->clear();
+
+
+	std::vector<NVECTOR3> tmpVertexList;
+	std::vector<NVECTOR3> tmpNormalList;
+	std::vector<char>			   tmpInfo;
+	N_DefaultVertex	tmpCompleteV;
+	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
+
+	//加载STL
+	NoiseFileManager::ImportFile_STL(pFilePath, &tmpVertexList, m_pIndexInMem, &tmpNormalList, &tmpInfo);
+
+	//先计算包围盒，就能求出网格的中心点（不一定是Mesh Space的原点）
+	mFunction_ComputeBoundingBox(&tmpVertexList);
+
+	//计算包围盒中心点
+	tmpBoundingBoxCenter = NVECTOR3(
+		(m_pBoundingBox_Max->x + m_pBoundingBox_Min->x) / 2.0f,
+		(m_pBoundingBox_Max->y + m_pBoundingBox_Min->y) / 2.0f,
+		(m_pBoundingBox_Max->z + m_pBoundingBox_Min->z) / 2.0f);
+
+
+
+	UINT i = 0;UINT k = 0;
+	for (i = 0;i < tmpVertexList.size();i++)
+	{
+		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+		tmpCompleteV.Pos = tmpVertexList.at(i);
+		tmpCompleteV.Normal = tmpNormalList.at(k);
+		tmpCompleteV.TexCoord = mFunction_ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
+		m_pVertexInMem->push_back(tmpCompleteV);
+
+		//每新增了一个三角形3个顶点 就要轮到下个三角形的法线了
+		if (i % 3 == 2) { k++; }
+	}
+
+
+	//Prepare to update to GPU
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
+	m_VertexCount = m_pVertexInMem->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
+	m_IndexCount = m_pIndexInMem->size();
+
+	//最后
+	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
+
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
+
+	return FALSE;
+}
+
 void	NoiseMesh::SetMaterial(UINT matID)
 {
 	//if mat ID is valid
@@ -587,68 +651,6 @@ void NoiseMesh::SetMaterial(std::string matName)
 	matID = m_pFatherScene->m_pChildMaterialMgr->GetIndexByName(&matName);
 	//if matName is valid , matID will not equal to 0
 	SetMaterial(matID);
-}
-
-BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
-{
-	//check if buffers have been created
-	if (m_pVertexBuffer != NULL) { ReleaseCOM(m_pVertexBuffer); }
-	m_pVertexInMem->clear();
-
-	if (m_pIndexBuffer != NULL) { ReleaseCOM(m_pIndexBuffer); }
-	m_pIndexInMem->clear();
-
-
-	std::vector<NVECTOR3> tmpVertexList;
-	std::vector<NVECTOR3> tmpNormalList;
-	std::vector<char>			   tmpInfo;
-	N_DefaultVertex	tmpCompleteV;
-	NVECTOR3			tmpBoundingBoxCenter(0,0,0);
-
-	//加载STL
-	NoiseFileManager::ImportFile_STL(pFilePath, &tmpVertexList, m_pIndexInMem,&tmpNormalList,&tmpInfo);
-
-	//先计算包围盒，就能求出网格的中心点（不一定是Mesh Space的原点）
-	mFunction_ComputeBoundingBox(&tmpVertexList);
-
-	//计算包围盒中心点
-	tmpBoundingBoxCenter = NVECTOR3(
-		(m_pBoundingBox_Max->x + m_pBoundingBox_Min->x) / 2.0f,
-		(m_pBoundingBox_Max->y + m_pBoundingBox_Min->y) / 2.0f,
-		(m_pBoundingBox_Max->z + m_pBoundingBox_Min->z) / 2.0f);
-
-
-
-	UINT i = 0;UINT k=0;
-	for (i = 0;i < tmpVertexList.size();i++)
-	{
-		tmpCompleteV.Color		= NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
-		tmpCompleteV.Pos			= tmpVertexList.at(i);
-		tmpCompleteV.Normal		= tmpNormalList.at(k);
-		tmpCompleteV.TexCoord	= mFunction_ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter,tmpCompleteV.Pos);
-		m_pVertexInMem->push_back(tmpCompleteV);
-
-		//每新增了一个三角形3个顶点 就要轮到下个三角形的法线了
-		if (i % 3 == 2) {k++;}
-	}
-
-
-	//Prepare to update to GPU
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
-	m_VertexCount = m_pVertexInMem->size();
-	
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
-	m_IndexCount = m_pIndexInMem->size();
-
-	//最后
-	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
-
-
-	return FALSE;
 }
 
 BOOL NoiseMesh::AddToRenderList()
@@ -735,7 +737,25 @@ void NoiseMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
 	outBuff.assign(iterBegin,iterLast);
 }
 
+NVECTOR3 NoiseMesh::GetBoundingBoxMax()
+{
+	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
+	{
+		mFunction_ComputeBoundingBox();
+	}
 
+	return *m_pBoundingBox_Max;
+};
+
+NVECTOR3 NoiseMesh::GetBoundingBoxMin()
+{
+	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
+	{
+		mFunction_ComputeBoundingBox();
+	}
+
+	return *m_pBoundingBox_Min;
+}
 
 
 
@@ -866,6 +886,7 @@ void NoiseMesh::mFunction_ComputeBoundingBox()
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
 	for (i = 0;i < m_pVertexInMem->size();i++)
 	{
+		//N_DEFAULT_VERTEX
 		tmpV = m_pVertexInMem->at(i).Pos;
 		if (tmpV.x <( m_pBoundingBox_Min->x)) { m_pBoundingBox_Min->x = tmpV.x; }
 		if (tmpV.y <(m_pBoundingBox_Min->y)) { m_pBoundingBox_Min->y = tmpV.y; }
