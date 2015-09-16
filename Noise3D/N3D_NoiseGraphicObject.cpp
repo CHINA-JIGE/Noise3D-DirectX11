@@ -65,6 +65,10 @@ UINT NoiseGraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NV
 {
 	//only add COMMON LINES !!!!! 
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1,v1);
+	mFunction_ConvertPixelVec2FloatVec(v2,v2);
+
 	UINT newLineID = 0;
 	newLineID = mFunction_AddLine2D_GlobalVB(v1, v2, color1, color2);
 
@@ -88,6 +92,9 @@ UINT NoiseGraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 
 UINT NoiseGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v, v);
+
 	//.....................
 	N_SimpleVertex tmpVertex;
 	tmpVertex.Pos = NVECTOR3(v.x,v.y,0);
@@ -101,12 +108,22 @@ UINT NoiseGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 
 UINT NoiseGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1, v1);
+	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+	mFunction_ConvertPixelVec2FloatVec(v3, v3);
+
 	mFunction_AddSolidTriangle2D_GlobalVB(v1, v2, v3, color1, color2, color3, NVECTOR2(0,0), NVECTOR2(0, 0), NVECTOR2(0, 0),TRUE);
 	return GetTriangle2DCount() - 1;
 }
 
 UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
+
+
 	//information to be pushed into region info list
 	UINT startTriangleID = GetTriangle2DCount();
 
@@ -149,8 +166,21 @@ UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, 
 	return GetRectCount()-1;
 }
 
+UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
+{
+	//dont use coord conversion here , because in the other overload , conversion will be applied
+	UINT newRectID = 0;
+	newRectID = AddRectangle(vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color, texID);
+	return newRectID;
+}
+
 UINT NoiseGraphicObject::AddEllipse(float a, float b, NVECTOR2 vCenter, NVECTOR4 color, UINT stepCount , UINT texID)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vCenter, vCenter);
+	a = mFunction_ConvertPixelLength2FloatLength(a, TRUE);
+	b = mFunction_ConvertPixelLength2FloatLength(b, FALSE);
+
 	//information to be pushed into region info list
 	UINT startTriangleID = GetTriangle2DCount();
 
@@ -159,8 +189,8 @@ UINT NoiseGraphicObject::AddEllipse(float a, float b, NVECTOR2 vCenter, NVECTOR4
 	if (stepCount < 3) stepCount = 3;
 
 	//check "a" (semi-major axis) ,"b" (semi-minor axis)
-	if (a < 0) a = 1;
-	if (b < 0) b = 1;
+	if (a < 0) a = 0.5f;
+	if (b < 0) b = 0.5f;
 
 	//use X coord to derive Y coord
 	float angleStep = MATH_PI / (stepCount - 1);
@@ -198,8 +228,8 @@ UINT NoiseGraphicObject::AddEllipse(float a, float b, NVECTOR2 vCenter, NVECTOR4
 		//symmetric triangle about X AXIS
 		mFunction_AddSolidTriangle2D_GlobalVB(vCenter, -tmpV + vCenter, -tmpNextV + vCenter, color, color, color,
 			NVECTOR2(0.5, 0.5),
-			NVECTOR2(tmpTexcoord.x, 1 - tmpTexcoord.y),
-			NVECTOR2(tmpNextTexcoord.x, 1 - tmpNextTexcoord.y),
+			NVECTOR2(1-tmpTexcoord.x, 1 - tmpTexcoord.y),
+			NVECTOR2(1-tmpNextTexcoord.x, 1 - tmpNextTexcoord.y),
 			FALSE);
 
 		//update slopes
@@ -224,6 +254,10 @@ UINT NoiseGraphicObject::AddEllipse(float a, float b, NVECTOR2 vCenter, NVECTOR4
 
 UINT NoiseGraphicObject::AddTriangleOutline(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1, v1);
+	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+	mFunction_ConvertPixelVec2FloatVec(v3, v3);
 
 	//information to be pushed into region info list
 	UINT startLineID = GetLine2DCount();
@@ -252,6 +286,10 @@ UINT NoiseGraphicObject::AddTriangleOutline(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v
 
 UINT NoiseGraphicObject::AddRectangleOutline(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
+
 	//information to be pushed into region info list
 	UINT startLineID = GetLine2DCount();
 
@@ -293,6 +331,11 @@ UINT NoiseGraphicObject::AddRectangleOutline(NVECTOR2 vTopLeft, NVECTOR2 vBottom
 
 UINT NoiseGraphicObject::AddEllipseOutline(float a, float b, NVECTOR2 vCenter, NVECTOR4 color, UINT stepCount)
 {
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vCenter, vCenter);
+	a = mFunction_ConvertPixelLength2FloatLength(a, TRUE);
+	b = mFunction_ConvertPixelLength2FloatLength(b, FALSE);
+
 	//information to be pushed into region info list
 	UINT startLineID = GetLine2DCount();
 
@@ -360,6 +403,12 @@ UINT NoiseGraphicObject::AddEllipseOutline(float a, float b, NVECTOR2 vCenter, N
 
 void NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
+	if (index > m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D]->size())
+	{
+		DEBUG_MSG1("Line 3D index invalid!!");
+		return;
+	}
+
 	//source vertex array
 	N_SimpleVertex simpleV[2];
 	simpleV[0].Pos = v1;
@@ -388,6 +437,10 @@ void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 		return;
 	}
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1, v1);
+	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+
 	//vertex id in GLOBAL VB of line2d
 	UINT lineID = m_pRegionList_LineID_Common->at(index);
 
@@ -396,6 +449,12 @@ void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 
 void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 {
+	if (index > m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size())
+	{
+		DEBUG_MSG1("Point 3D index invalid!!");
+		return;
+	}
+
 	//source vertex array
 	N_SimpleVertex simpleV[1];
 	simpleV[0].Pos = v;
@@ -416,6 +475,15 @@ void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 
 void NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 {
+	if (index > m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size())
+	{
+		DEBUG_MSG1("Point 2D index invalid!!");
+		return;
+	}
+
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v, v);
+
 	//source vertex array
 	N_SimpleVertex simpleV[1];
 	simpleV[0].Pos = NVECTOR3(v.x, v.y, 0);
@@ -442,6 +510,11 @@ void NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVE
 		return;
 	}
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1, v1);
+	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+	mFunction_ConvertPixelVec2FloatVec(v3, v3);
+
 	mFunction_SetSolidTriangle2D_GlobalVB(m_pRegionList_TriangleID_Common->at(index), v1, v2, v3, color1, color2, color3,NVECTOR2(0,0),NVECTOR2(0,0), NVECTOR2(0, 0));
 }
 
@@ -453,6 +526,9 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 		return;
 	}
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
 
 	UINT triangleID1 = m_pRegionList_TriangleID_Rect->at(index).startID;
 	UINT triangleID2 = triangleID1 + 1;
@@ -491,6 +567,12 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
 }
 
+void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
+{
+	//dont use coord conversion here , because in the other overload , conversion will be applied
+	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texID);
+}
+
 void NoiseGraphicObject::SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color, UINT texID)
 {
 	if (index >= m_pRegionList_TriangleID_Ellipse->size())
@@ -500,17 +582,22 @@ void NoiseGraphicObject::SetEllipse(UINT index, float a, float b,NVECTOR2 vCente
 	}
 
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vCenter, vCenter);
+	a = mFunction_ConvertPixelLength2FloatLength(a, TRUE);
+	b = mFunction_ConvertPixelLength2FloatLength(b, FALSE);
+
 	//define an array to use mFunction_SetVertices
 	UINT triangleCount = m_pRegionList_TriangleID_Ellipse->at(index).elememtCount;
 
-	//about why stepCount is divided by 2 ,see AddEllipse
-	UINT	 stepCount = triangleCount / 2;
+	//......
+	UINT	 stepCount = triangleCount / 2 ;
 
 	UINT startTriangleID = m_pRegionList_TriangleID_Ellipse->at(index).startID;
 
 	//check "a" (semi-major axis) ,"b" (semi-minor axis)
-	if (a < 0) a = 1;
-	if (b < 0) b = 1;
+	if (a < 0) a = 0.5f;
+	if (b < 0) b = 0.5f;
 
 	//use X coord to derive Y coord
 	float angleStep = MATH_PI / (stepCount-1);
@@ -540,18 +627,20 @@ void NoiseGraphicObject::SetEllipse(UINT index, float a, float b,NVECTOR2 vCente
 		tmpNextTexcoord = NVECTOR2((tmpNextV.x / a + 1) / 2, (-tmpNextV.y / b + 1) / 2);
 
 		//so we can generate triangles using "radial triangulation" (well , a word created by myself hhhhhh)
-		mFunction_SetSolidTriangle2D_GlobalVB(startTriangleID+i*2,vCenter, tmpV + vCenter, tmpNextV + vCenter, 
-			color, color, color,
-			NVECTOR2(0.5, 0.5),
-			NVECTOR2(tmpTexcoord.x, 1 - tmpTexcoord.y),
-			NVECTOR2(tmpNextTexcoord.x, 1 - tmpNextTexcoord.y)
-			);
 
-		//symmetric triangle about X AXIS
-		mFunction_SetSolidTriangle2D_GlobalVB(startTriangleID+i*2+1,vCenter, -tmpV + vCenter, -tmpNextV + vCenter, color, color, color		,
+		mFunction_SetSolidTriangle2D_GlobalVB(startTriangleID + i * 2 + 1, vCenter, -tmpV + vCenter, -tmpNextV + vCenter, color, color, color,
 			NVECTOR2(0.5, 0.5),
 			tmpTexcoord,
 			tmpNextTexcoord
+			);
+
+
+		//SET TRIANGLES IN GLOBAL VERTEX BUFFER 
+		mFunction_SetSolidTriangle2D_GlobalVB(startTriangleID + i * 2, vCenter, tmpV + vCenter, tmpNextV + vCenter,
+			color, color, color,
+			NVECTOR2(0.5, 0.5),
+			NVECTOR2(1 - tmpTexcoord.x, 1 - tmpTexcoord.y),
+			NVECTOR2(1 - tmpNextTexcoord.x, 1 - tmpNextTexcoord.y)
 			);
 
 		//update slopes
@@ -575,6 +664,12 @@ void NoiseGraphicObject::SetTriangleOutline(UINT index, NVECTOR2 v1, NVECTOR2 v2
 		return;
 	}
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(v1, v1);
+	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+	mFunction_ConvertPixelVec2FloatVec(v3, v3);
+
+
 	UINT firstLineIndex = m_pRegionList_LineID_Triangle->at(index).startID;
 
 	//.....................
@@ -594,6 +689,11 @@ void NoiseGraphicObject::SetRectangleOutline(UINT index, NVECTOR2 vTopLeft, NVEC
 		return;
 	}
 
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
+
+	//............
 	UINT firstLineIndex = m_pRegionList_LineID_Rect->at(index).startID;
 
 	//.....................
@@ -616,6 +716,13 @@ void NoiseGraphicObject::SetRectangleOutline(UINT index, NVECTOR2 vTopLeft, NVEC
 	mFunction_SetLine2D_GlobalVB(firstLineIndex + 3, v1, v2, color, color);
 }
 
+void NoiseGraphicObject::SetRectangleOutline(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color)
+{
+	//no need for unit conversion
+	SetRectangleOutline(index, vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color);
+
+}
+
 void NoiseGraphicObject::SetEllipseOutline(UINT index, float a, float b, NVECTOR2 vCenter, NVECTOR4 color)
 {
 	if (index >= m_pRegionList_LineID_Ellipse->size())
@@ -623,6 +730,11 @@ void NoiseGraphicObject::SetEllipseOutline(UINT index, float a, float b, NVECTOR
 		DEBUG_MSG1("SetEllipseOutine : index invalid");
 		return;
 	}
+
+	//coord unit conversion
+	mFunction_ConvertPixelVec2FloatVec(vCenter, vCenter);
+	a = mFunction_ConvertPixelLength2FloatLength(a, TRUE);
+	b = mFunction_ConvertPixelLength2FloatLength(b, FALSE);
 
 
 	//define an array to use mFunction_SetVertices
@@ -1234,6 +1346,29 @@ void		NoiseGraphicObject::mFunction_SetLine2D_GlobalVB(UINT index, NVECTOR2 v1, 
 
 	//now it is allowed to update because of modification
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D] = TRUE;
+}
+
+void		NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
+{
+	//first ,  get the pixel size of main back buffer (global var)
+	float halfW= (float)g_MainBufferPixelWidth / 2.0f;
+	float halfH = (float)g_MainBufferPixelWidth / 2.0f;
+	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		(pxCoord.y / halfH)-1);
+}
+
+float		NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
+{
+	float outLength = 0;
+	//we need to know the pixel length is on X or Y direction
+	if (isWidth)
+	{
+		outLength = pxLen*2.0f / (float)g_MainBufferPixelWidth;
+	}
+	else
+	{
+		outLength = pxLen * 2.0f / (float)g_MainBufferPixelHeight;
+	}
+	return outLength;
 }
 
 void		NoiseGraphicObject::mFunction_GenerateTriangleDrawCallList()

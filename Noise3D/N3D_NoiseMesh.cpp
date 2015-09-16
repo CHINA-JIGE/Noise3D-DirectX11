@@ -799,13 +799,16 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 void	NoiseMesh::mFunction_Build_A_Quad
 	(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex)
 {
+	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
 
 	#pragma region GenerateVertex
+
 	UINT i=0,j=0;
 	NVECTOR3 tmpNormal;
 	N_DefaultVertex tmpCompleteV;
 	D3DXVec3Cross(&tmpNormal,&vBasisVector1,&vBasisVector2);
 	D3DXVec3Normalize(&tmpNormal,&tmpNormal);
+
 	for(i=0;i<StepCount1;i++ )
 		for(j=0;j<StepCount2;j++)
 		{
@@ -825,12 +828,14 @@ void	NoiseMesh::mFunction_Build_A_Quad
 	{
 		for(j=0;j<StepCount2-1;j++)
 		{
+			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
+			//thus inde offset is needed
 			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j		);
+			m_pIndexInMem->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
 			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j +1);
-			m_pIndexInMem->push_back(iBaseIndex+(i+1)* StepCount2 + j		);
 
 			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j +1);
-			m_pIndexInMem->push_back(iBaseIndex+(i+1) *StepCount2 + j		);
+			m_pIndexInMem->push_back(iBaseIndex+(i+1) *StepCount2 + j	);
 			m_pIndexInMem->push_back(iBaseIndex+(i+1)* StepCount2 + j+1	);
 		}
 	}

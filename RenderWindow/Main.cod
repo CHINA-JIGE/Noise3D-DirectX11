@@ -204,7 +204,7 @@ fxgroup
                 dcl_output o4.xy
                 dcl_temps 5
                 
-                #line 19 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 19 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // output<8:NaN:Inf>
@@ -421,7 +421,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 15
                 
-                #line 35 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 35 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov r0.xyzw, l(0,0,0,0)  // finalColor4<0: 0f,1: 0f,2: 0f,3: 0f>
                 
                 #line 39
@@ -540,24 +540,24 @@ fxgroup
                 
                 #line 169
                     mul r1.w, r1.w, l(1.000000)
-                    mul r6.xyz, r7.xyzx, r13.xyzx
-                    mul r7.xyz, r1.wwww, r6.xyzx  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                    mov r7.w, l(0)  // outSpecular<3: 0f>
+                    mul r7.xyz, r7.xyzx, r13.xyzx
+                    mov r7.w, l(1.000000)
+                    mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                     movc r8.xyzw, r6.wwww, r11.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    movc r6.xyzw, r6.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                    movc r6.xyzw, r6.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 213
                     mov r5.xyzw, r5.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                     mov r8.xyzw, r8.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    mov r6.xyzw, r6.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                    mov r6.xyzw, r6.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 221
                     add r5.xyzw, r5.xyzw, r8.xyzw
                     add r5.xyzw, r6.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 57 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 57 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r4.xyzw, r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -678,18 +678,18 @@ fxgroup
                 
                 #line 169
                       mul r1.w, r1.w, r5.w
-                      mul r5.yzw, r7.xxyz, r13.xxyz
-                      mul r7.xyz, r1.wwww, r5.yzwy  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                      mov r7.w, l(0)  // outSpecular<3: 0f>
+                      mul r7.xyz, r7.xyzx, r13.xyzx
+                      mov r7.w, l(1.000000)
+                      mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                       movc r6.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 264
                       mov r12.xyzw, r12.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                       mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 271
                       add r6.xyzw, r6.xyzw, r12.xyzw
@@ -700,7 +700,7 @@ fxgroup
                       mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 62 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 62 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r0.xyzw, r0.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -833,18 +833,18 @@ fxgroup
                 
                 #line 169
                       mul r1.w, r1.w, r5.w
-                      mul r5.yzw, r7.xxyz, r13.xxyz
-                      mul r7.xyz, r1.wwww, r5.yzwy  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                      mov r7.w, l(0)  // outSpecular<3: 0f>
+                      mul r7.xyz, r7.xyzx, r13.xyzx
+                      mov r7.w, l(1.000000)
+                      mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                       movc r6.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 313
                       mov r9.xyzw, r9.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                       mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 321
                       add r6.xyzw, r6.xyzw, r9.xyzw
@@ -855,7 +855,7 @@ fxgroup
                       mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 68 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 68 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r4.xyzw, r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -965,23 +965,23 @@ fxgroup
                 #line 169
                     mul r0.z, r0.z, l(1.000000)
                     mul r7.xyz, r7.xyzx, r13.xyzx
-                    mul r7.xyz, r0.zzzz, r7.xyzx  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                    mov r7.w, l(0)  // outSpecular<3: 0f>
+                    mov r7.w, l(1.000000)
+                    mul r7.xyzw, r0.zzzz, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                     movc r6.xyzw, r3.wwww, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    movc r7.xyzw, r3.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                    movc r7.xyzw, r3.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 213
                     mov r5.xyzw, r5.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                     mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                    mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 221
                     add r5.xyzw, r5.xyzw, r6.xyzw
                     add r5.xyzw, r7.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 78 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 78 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r1.xyzw, r1.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1102,18 +1102,18 @@ fxgroup
                 
                 #line 169
                       mul r0.z, r0.z, r3.w
-                      mul r7.xyz, r8.xyzx, r14.xyzx
-                      mul r8.xyz, r0.zzzz, r7.xyzx  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                      mov r8.w, l(0)  // outSpecular<3: 0f>
+                      mul r8.xyz, r8.xyzx, r14.xyzx
+                      mov r8.w, l(1.000000)
+                      mul r8.xyzw, r0.zzzz, r8.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                       movc r9.xyzw, r7.wwww, r12.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r7.xyzw, r7.wwww, r8.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      movc r7.xyzw, r7.wwww, r8.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 264
                       mov r6.xyzw, r6.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                       mov r9.xyzw, r9.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 271
                       add r6.xyzw, r6.xyzw, r9.xyzw
@@ -1124,7 +1124,7 @@ fxgroup
                       mov r6.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 83 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 83 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r5.xyzw, r5.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1255,18 +1255,18 @@ fxgroup
                 
                 #line 169
                       mul r0.z, r0.z, r2.w
-                      mul r1.yzw, r7.xxyz, r13.xxyz
-                      mul r7.xyz, r0.zzzz, r1.yzwy  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                      mov r7.w, l(0)  // outSpecular<3: 0f>
+                      mul r7.xyz, r7.xyzx, r13.xyzx
+                      mov r7.w, l(1.000000)
+                      mul r7.xyzw, r0.zzzz, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 154
                       movc r6.xyzw, r1.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r1.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      movc r1.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 313
                       mov r9.xyzw, r9.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                       mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r1.xyzw, r1.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN>
+                      mov r1.xyzw, r1.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 321
                       add r6.xyzw, r6.xyzw, r9.xyzw
@@ -1277,7 +1277,7 @@ fxgroup
                       mov r1.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 88 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 88 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                     mov r1.xyzw, r1.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r4.xyzw, r1.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1356,7 +1356,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 106 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 106 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw
@@ -1402,7 +1402,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 114 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 114 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid3D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -1448,7 +1448,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 2
                 
-                #line 123 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 123 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -1485,7 +1485,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 130 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 130 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid2D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -1532,7 +1532,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 139 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 139 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -1581,7 +1581,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 1
                 
-                #line 147 "F:\1VS PROJECT\3D\Noise3D -(12)(3)2D Shapes(Texture&WireFrame)\RenderWindow\Main.fx"
+                #line 147 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // outputColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 mov o0.xyzw, r0.xyzw  // PS_Textured2D<0:Inf,1:Inf,2:Inf,3:Inf>
                 ret 

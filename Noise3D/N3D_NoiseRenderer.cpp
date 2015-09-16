@@ -28,6 +28,7 @@ NoiseRenderer::NoiseRenderer()
 	m_pFX_Tech_Solid3D = NULL;
 	m_FillMode = NOISE_FILLMODE_SOLID;
 	m_CullMode = NOISE_CULLMODE_NONE;
+	m_BlendMode = NOISE_BLENDMODE_OPAQUE;
 };
 
 void NoiseRenderer::SelfDestruction()
@@ -73,6 +74,8 @@ void	NoiseRenderer::RenderMeshInList()
 		//设置fillmode和cullmode
 		mFunction_SetRasterState(m_FillMode,m_CullMode);
 
+		//设置blend state
+		mFunction_SetBlendState(m_BlendMode);
 
 		//for every subset
 		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
@@ -96,6 +99,9 @@ void	NoiseRenderer::RenderMeshInList()
 
 void NoiseRenderer::RenderGraphicObjectInList()
 {
+	//设置blend state
+	mFunction_SetBlendState(m_BlendMode);
+
 	mFunction_GraphicObj_RenderLine2DInList();
 	mFunction_GraphicObj_RenderLine3DInList();
 	mFunction_GraphicObj_RenderPoint3DInList();
@@ -129,6 +135,11 @@ void NoiseRenderer::SetFillMode(NOISE_FILLMODE iMode)
 void NoiseRenderer::SetCullMode(NOISE_CULLMODE iMode)
 {
 	m_CullMode = iMode;
+}
+
+void NoiseRenderer::SetBlendingMode(NOISE_BLENDMODE iMode)
+{
+	m_BlendMode = iMode;
 };
 
 
@@ -228,6 +239,66 @@ BOOL	NoiseRenderer::mFunction_Init()
 
 #pragma endregion CreateRasterState
 
+//source color : the first color in blending equation
+#pragma region CreateBlendState
+
+	D3D11_BLEND_DESC tmpBlendDesc;
+	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = FALSE;
+	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_Opaque);
+	HR_DEBUG(hr, "Create blend state(opaque) failed!!");
+
+
+	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorAdd);
+	HR_DEBUG(hr, "Create blend state(Color Add) failed!!");
+
+
+	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
+	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorMultiply);
+	HR_DEBUG(hr, "Create blend state(Color Filter) failed!!");
+
+	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;//what about D3D11_BLEND_SRC1_COLOR
+	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
+	HR_DEBUG(hr, "Create blend state(Transparency) failed!!");
+
+
+#pragma endregion CreateBlendState
 
 	return TRUE;
 };
@@ -347,6 +418,30 @@ void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CU
 
 	default:
 		break;
+	}
+}
+
+void NoiseRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
+{
+	float tmpBlendFactor[4] = { 0,0,0,0 };
+	switch (m_BlendMode)
+	{
+	case NOISE_BLENDMODE_OPAQUE:
+		g_pImmediateContext->OMSetBlendState(m_pBlendState_Opaque, tmpBlendFactor, 0xffffffff);
+		break;
+
+	case NOISE_BLENDMODE_ADDITIVE:
+		g_pImmediateContext->OMSetBlendState(m_pBlendState_ColorAdd, tmpBlendFactor, 0xffffffff);
+		break;
+
+	case NOISE_BLENDMODE_ALPHA:
+		g_pImmediateContext->OMSetBlendState(m_pBlendState_AlphaTransparency, tmpBlendFactor, 0xffffffff);
+		break;
+
+	case NOISE_BLENDMODE_COLORFILTER:
+		g_pImmediateContext->OMSetBlendState(m_pBlendState_ColorMultiply, tmpBlendFactor, 0xffffffff);
+		break;
+
 	}
 };
 

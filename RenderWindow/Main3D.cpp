@@ -55,8 +55,8 @@ BOOL Init3D(HWND hwnd)
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
 	//Mesh1.LoadFile_STL("table.STL");
-	//Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
-	Mesh1.CreateSphere(6.0, 30, 30);
+	Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
+	//Mesh1.CreateSphere(6.0, 30, 30);
 	Mesh1.SetPosition(0,0,0);
 	Mesh1.SetScale(0.6f, 0.6f, 0.6f);
 	Camera.SetPosition(2.0f,0,0);
@@ -77,14 +77,15 @@ BOOL Init3D(HWND hwnd)
 	//Âþ·´ÉäÌùÍ¼
 	TexMgr.CreateTextureFromFile(L"texture.jpg", "Earth", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
-
+	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
 
 	N_Material Mat1;
 	Mat1.baseColor.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
 	Mat1.baseColor.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
 	Mat1.baseColor.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
 	Mat1.baseColor.mSpecularSmoothLevel	=	20;
-	Mat1.diffuseMapID = TexMgr.GetIndexByName("Earth");
+	Mat1.diffuseMapID = TexMgr.GetIndexByName("Wood");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
@@ -116,14 +117,8 @@ BOOL Init3D(HWND hwnd)
 	}*/
 	GraphicObjBuffer.AddLine2D(NVECTOR2(-1.0f, 0), NVECTOR2(1.0f, 0));
 	GraphicObjBuffer.AddLine2D(NVECTOR2(0, 1.0f), NVECTOR2(0,-1.0f));
-	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.3f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.4f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-	GraphicObjBuffer.AddPoint2D(NVECTOR2(0.3f, 0.5f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-	UINT myTexID = TexMgr.GetIndexByName("Earth");
-	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f), myTexID);
-	GraphicObjBuffer.AddRectangleOutline(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(0, 0, 0, 1.0f));
-	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20, myTexID);
-	GraphicObjBuffer.AddEllipseOutline(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 0, 0, 1.0f), 20);
+	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f), TexMgr.GetIndexByName("Button"));
+	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20, TexMgr.GetIndexByName("Earth"));
 	return TRUE;
 };
 
@@ -133,11 +128,8 @@ void MainLoop()
 	Angle += 0.0005f;
 	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
 	Camera.SetLookAt(0,0,0);
-	UINT textureID = TexMgr.GetIndexByName("Wood");
-	GraphicObjBuffer.SetRectangle(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(0.3f, 0.3f, 0.9f, 0.5f), textureID);
-	GraphicObjBuffer.SetRectangleOutline(0, NVECTOR2(sin(Angle), cos(Angle)), NVECTOR2(-0.5f + sin(Angle), -0.5f + cos(Angle)), NVECTOR4(0, 0, 0, 1.0f));
-	GraphicObjBuffer.SetEllipse(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), textureID);
-	GraphicObjBuffer.SetEllipseOutline(0, 0.3f, 0.3f, NVECTOR2(sin(-Angle), cos(-Angle)), NVECTOR4(0,0, 0, 1.0f));
+	GraphicObjBuffer.SetRectangle(0, NVECTOR2(300+100*sin(Angle), 240+100*cos(Angle)), 100.0f,50.0f, NVECTOR4(0.3f, 0.3f, 0.9f, 0.2f), TexMgr.GetIndexByName("Button"));
+	GraphicObjBuffer.SetEllipse(0, 100.0f, 100.0f, NVECTOR2(300+100 * sin(-Angle), 240+100 * cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), TexMgr.GetIndexByName("Planet"));
 
 
 	Renderer.ClearBackground();
@@ -147,7 +139,9 @@ void MainLoop()
 	GraphicObjBuffer.AddToRenderList();
 
 	//render
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderMeshInList();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	Renderer.RenderGraphicObjectInList();
 
 	//present

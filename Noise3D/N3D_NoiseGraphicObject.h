@@ -30,6 +30,8 @@ public:
 
 	UINT		AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color,UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
+	UINT		AddRectangle(NVECTOR2 vCenter, float fWidth,float fHeight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+
 	UINT		AddEllipse( float a, float b,NVECTOR2 vCenter, NVECTOR4 color,UINT stepCount = 30, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
 	UINT		AddTriangleOutline(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -50,11 +52,15 @@ public:
 
 	void		SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
+	void		SetRectangle(UINT index, NVECTOR2 vCenter,float fWidth,float fHeight,NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+
 	void		SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color,UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
 	void		SetTriangleOutline(UINT index,NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void		SetRectangleOutline(UINT index,NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color);
+
+	void		SetRectangleOutline(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color);
 
 	void		SetEllipseOutline(UINT index,float a, float b, NVECTOR2 vCenter, NVECTOR4 color);
 
@@ -118,6 +124,10 @@ private:
 	UINT			mFunction_AddLine2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void			mFunction_SetLine2D_GlobalVB(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	void			mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2);
+
+	float			mFunction_ConvertPixelLength2FloatLength(float pxLen,BOOL isWidth);
 
 	void			mFunction_GenerateTriangleDrawCallList();//for optimization
 

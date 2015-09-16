@@ -34,6 +34,7 @@ public:
 
 	void			SetCullMode(NOISE_CULLMODE iMode);
 
+	void			SetBlendingMode(NOISE_BLENDMODE iMode);
 
 private:
 	BOOL			mFunction_Init();
@@ -43,6 +44,8 @@ private:
 	BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
 
 	void				mFunction_SetRasterState(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
+
+	void				mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode);
 
 	void				mFunction_RenderMeshInList_UpdatePerObject();
 
@@ -71,17 +74,23 @@ private:
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
 	std::vector<NoiseGraphicObject*>* 	m_pRenderList_GraphicObject;
-	//光栅化设置
+	//Raster State
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullBack;
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullFront;
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullFront;
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullNone;
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullBack;
+	//Blend State
+	ID3D11BlendState*						m_pBlendState_Opaque;
+	ID3D11BlendState*						m_pBlendState_AlphaTransparency;
+	ID3D11BlendState*						m_pBlendState_ColorAdd;
+	ID3D11BlendState*						m_pBlendState_ColorMultiply;
 
 	NoiseScene*									m_pFatherScene ;
 	NOISE_FILLMODE							m_FillMode;//填充模式
 	NOISE_CULLMODE						m_CullMode;//剔除模式
+	NOISE_BLENDMODE						m_BlendMode;
 
 	//在App中先定义好所有Struct再一次更新
 	N_CbPerFrame							m_CbPerFrame;

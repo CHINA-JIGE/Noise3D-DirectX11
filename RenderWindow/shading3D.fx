@@ -166,7 +166,7 @@ void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensit
 		float  SpecFactor = lightSpecIntensity * pow(max(dot(tmpV,Vec_toCam),0.0f),matSpecSmoothLevel);
 		
 		//final SpecularColor
-		outSpecular = Attenuation * SpecFactor * float4(matSpecColor3 *lightSpecColor3,0.0f);
+		outSpecular = Attenuation * SpecFactor * float4(matSpecColor3 *lightSpecColor3,1.0f);
 	}
 
 }
