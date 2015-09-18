@@ -15,14 +15,16 @@ static UINT VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是
 
 static NoiseMesh*							tmp_pMesh;
 static NoiseCamera*						tmp_pCamera;
+static NoiseAtmosphere*				tmp_pAtmo;
 static D3DX11_TECHNIQUE_DESC	tmp_pTechDesc;
 
 
 NoiseRenderer::NoiseRenderer()
 {
 	m_pFatherScene			= NULL;
-	m_pRenderList_Mesh	= new std::vector <NoiseMesh*>;
-	m_pRenderList_GraphicObject		= new std::vector<NoiseGraphicObject*>;
+	m_pRenderList_Mesh				= new std::vector <NoiseMesh*>;
+	m_pRenderList_GraphicObject	= new std::vector<NoiseGraphicObject*>;
+	m_pRenderList_Atmosphere		= new std::vector<NoiseAtmosphere*>;
 	m_pFX = NULL;
 	m_pFX_Tech_Default = NULL;
 	m_pFX_Tech_Solid3D = NULL;
@@ -44,6 +46,19 @@ void NoiseRenderer::SelfDestruction()
 
 void	NoiseRenderer::RenderMeshInList()
 {
+	//validation before rendering
+	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Material Mgr has not been created");
+		return;
+	};
+	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		return;
+	};
+
+
 	UINT i = 0, j = 0, k = 0;
 	 tmp_pCamera = m_pFatherScene->GetCamera();
 
@@ -99,6 +114,18 @@ void	NoiseRenderer::RenderMeshInList()
 
 void NoiseRenderer::RenderGraphicObjectInList()
 {
+	//validation before rendering
+	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Material Mgr has not been created");
+		return;
+	};
+	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		return;
+	};
+
 	//设置blend state
 	mFunction_SetBlendState(m_BlendMode);
 
@@ -107,7 +134,40 @@ void NoiseRenderer::RenderGraphicObjectInList()
 	mFunction_GraphicObj_RenderPoint3DInList();
 	mFunction_GraphicObj_RenderPoint2DInList();
 	mFunction_GraphicObj_RenderTriangle2DInList();
+}
+
+void NoiseRenderer::RenderAtmosphereInList()
+{
+	//validation before rendering
+	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Material Mgr has not been created");
+		return;
+	};
+	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		return;
+	};
+
+	//...................
+	UINT i = 0;
+	tmp_pCamera = m_pFatherScene->GetCamera();
+
+	//actually there is only 1 atmosphere because you dont need more 
+	for (i = 0;i < m_pRenderList_Atmosphere->size();i++)
+	{
+		tmp_pAtmo = m_pRenderList_Atmosphere->at(i);
+		
+		//update Vertices or atmo param to GPU
+		mFunction_Atmosphere_Update();
+
+	}
+
+	//allow atmosphere to "add to render list" again 
+	tmp_pAtmo->mFogHasBeenAddedToRenderList = FALSE;
 };
+
 
 void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 {
@@ -125,6 +185,7 @@ void	NoiseRenderer::RenderToScreen()
 		//clear render list
 		m_pRenderList_GraphicObject->clear();
 		m_pRenderList_Mesh->clear();
+		m_pRenderList_Atmosphere->clear();
 };
 
 void NoiseRenderer::SetFillMode(NOISE_FILLMODE iMode)
@@ -191,6 +252,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_CbPerSubset = m_pFX->GetConstantBufferByName("cbPerSubset");
 	m_pFX_CbRarely=m_pFX->GetConstantBufferByName("cbRarely");
 	m_pFX_CbSolid3D = m_pFX->GetConstantBufferByName("cbSolid3D");
+	m_pFX_CbAtmosphere = m_pFX->GetConstantBufferByName("cbAtmosphere");
 
 	//纹理
 	m_pFX_Texture_Diffuse = m_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
@@ -421,7 +483,7 @@ void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CU
 	}
 }
 
-void NoiseRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
+void		NoiseRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 {
 	float tmpBlendFactor[4] = { 0,0,0,0 };
 	switch (m_BlendMode)
@@ -535,15 +597,19 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID)
 {
 		//we dont accept invalid material ,but accept invalid texture
 		UINT	 currSubsetMatID = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matID;
+		currSubsetMatID = mFunction_ValidateMaterialID(currSubsetMatID);
 
 		//otherwise if the material is valid
 		//then we should check if its child textureS are valid too 
 		N_Material tmpMat = m_pFatherScene->m_pChildMaterialMgr->m_pMaterialList->at(currSubsetMatID);
 		ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 		m_CbPerSubset.basicMaterial = tmpMat.baseColor;
-		m_CbPerSubset.IsDiffuseMapValid	= (tmpMat.diffuseMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsNormalMapValid	= (tmpMat.normalMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsSpecularMapValid	= (tmpMat.specularMapID == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+
+		//first validate if ID is valid (within range / valid ID)
+		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID(tmpMat.diffuseMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID(tmpMat.normalMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID(tmpMat.specularMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+
 
 		//update textures, bound corresponding ShaderResourceView to the pipeline
 		//if tetxure is  valid ,then set diffuse map
@@ -601,6 +667,10 @@ void		NoiseRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
+
+	//......
+	TexID = mFunction_ValidateTextureID(TexID);
+
 	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(TexID).m_pSRV;
@@ -793,4 +863,50 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 
 	//清空渲染列表
 	m_pRenderList_GraphicObject->clear();
+}
+
+void		NoiseRenderer::mFunction_Atmosphere_Update()
+{
+	if (tmp_pAtmo->mCanUpdateAmtosphere)
+	{
+		//update fog param
+		m_CbAtmosphere.mFogColor =*( tmp_pAtmo->m_pFogColor);
+		m_CbAtmosphere.mFogFar = tmp_pAtmo->mFogFar;
+		m_CbAtmosphere.mFogNear = tmp_pAtmo->mFogNear;
+		m_CbAtmosphere.mIsFogEnabled =(BOOL)( tmp_pAtmo->mFogEnabled && tmp_pAtmo->mFogHasBeenAddedToRenderList);
+		
+		//udpate to GPU
+		m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
+		tmp_pAtmo->mCanUpdateAmtosphere = FALSE;
+	}
+}
+
+UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID)
+{
+	//tex mgr had been validated
+	NoiseTextureManager*		tmpTexMgr = m_pFatherScene->m_pChildTextureMgr;
+
+	//if texID is invalid , an invalid flag should be returned
+	if (texID == NOISE_MACRO_INVALID_TEXTURE_ID || texID >= tmpTexMgr->m_pTextureObjectList->size())
+	{
+		return NOISE_MACRO_INVALID_TEXTURE_ID;
+	}
+
+	//a no-problem texID
+	return texID;
+}
+
+UINT		NoiseRenderer::mFunction_ValidateMaterialID(UINT matID)
+{
+	//mat mgr had been validated
+	NoiseMaterialManager*	tmpMatMgr = m_pFatherScene->m_pChildMaterialMgr;
+
+	//if matID is out of range, a default mateial should be returned
+	if (matID >= tmpMatMgr->m_pMaterialList->size())
+	{
+		return NOISE_MACRO_DEFAULT_MATERIAL_ID;
+	}
+
+	//a no-problem texID
+	return matID;
 }

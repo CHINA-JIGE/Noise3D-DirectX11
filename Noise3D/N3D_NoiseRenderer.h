@@ -15,6 +15,7 @@ public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 	friend class NoiseScene;
 	friend class NoiseMesh;
 	friend class NoiseGraphicObject;
+	friend class NoiseAtmosphere;
 
 public:
 	//构造函数
@@ -25,6 +26,8 @@ public:
 	void			RenderMeshInList();
 
 	void			RenderGraphicObjectInList();
+
+	void			RenderAtmosphereInList();
 
 	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0.3f,0.3f,1.0f));
 
@@ -70,10 +73,18 @@ private:
 
 	void				mFunction_GraphicObj_RenderTriangle2DInList();
 
+	void				mFunction_Atmosphere_Update();
+
+	//validate Mat/Tex ID in case of 'out of range' error
+	UINT				mFunction_ValidateTextureID(UINT texID);
+
+	UINT				mFunction_ValidateMaterialID(UINT matID);
 
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
-	std::vector<NoiseGraphicObject*>* 	m_pRenderList_GraphicObject;
+	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_GraphicObject;
+	std::vector	<NoiseAtmosphere*>*		m_pRenderList_Atmosphere;
+
 	//Raster State
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
 	ID3D11RasterizerState*					m_pRasterState_Solid_CullBack;
@@ -98,6 +109,7 @@ private:
 	N_CbPerSubset							m_CbPerSubset;
 	N_CbRarely								m_CbRarely;
 	N_CbSolid3D								m_CbSolid3D;
+	N_CbAtmosphere						m_CbAtmosphere;
 
 	//用于从app更新到Gpu的接口
 	ID3DX11Effect*							m_pFX;
@@ -112,6 +124,7 @@ private:
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerSubset;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbSolid3D;
+	ID3DX11EffectConstantBuffer*	m_pFX_CbAtmosphere;
 
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;

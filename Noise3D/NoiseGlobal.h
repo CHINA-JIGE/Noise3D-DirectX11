@@ -52,5 +52,4 @@ extern ID3D11InputLayout*			g_pVertexLayout_Simple;
 
 
 //！！！！！！！！！！畠蕉痕方！！！！！！！！！！！！
-
 extern HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );

@@ -204,6 +204,17 @@ struct N_CbSolid3D
 	NMATRIX	mViewMatrix;
 };
 
+struct N_CbAtmosphere
+{
+	NVECTOR3	mFogColor;
+	int				mIsFogEnabled;
+	float				mFogNear;
+	float				mFogFar;
+	float				mPad1;
+	float				mPad2;
+};
+
+
 
 //--------------------------------------------------------
 struct N_LineStrip

@@ -657,7 +657,7 @@ BOOL NoiseMesh::AddToRenderList()
 {
 	if(m_pFatherScene == NULL)
 	{
-		assert (FALSE:"NoiseScene Has Not Been Created!");
+		DEBUG_MSG1("NoiseScene Has Not Been Created!");
 		return FALSE;
 	}
 	//scene是它的友元类；往Scene里管理的RenderList加上自己的指针

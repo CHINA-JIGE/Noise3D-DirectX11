@@ -111,7 +111,7 @@ public:
 private:
 	BOOL		mFunction_InitVB(UINT objType_ID);
 
-	void			mFunction_UpdateToGpu(UINT objType_ID);
+	void			mFunction_UpdateVerticesToGpu(UINT objType_ID);
 
 	void			mFunction_EraseVertices(std::vector<N_SimpleVertex>* pList,UINT iVertexStartID, UINT iVertexCount);
 
@@ -143,12 +143,12 @@ private:
 
 	std::vector<N_SimpleVertex>*	m_pVB_Mem[5];
 	
-	//used to locate vertices block in triangle 2D VB
+	//used to locate triangles block in triangle 2D VB
 	std::vector<UINT>*					m_pRegionList_TriangleID_Common;
 	std::vector<N_RegionInfo>*		m_pRegionList_TriangleID_Rect;
 	std::vector<N_RegionInfo>*		m_pRegionList_TriangleID_Ellipse;
 
-	//used to locate vertices block in line 2D VB
+	//used to locate lines block in line 2D VB
 	std::vector<UINT>*					m_pRegionList_LineID_Common;
 	std::vector<N_RegionInfo>*		m_pRegionList_LineID_Triangle;
 	std::vector<N_RegionInfo>*		m_pRegionList_LineID_Rect;

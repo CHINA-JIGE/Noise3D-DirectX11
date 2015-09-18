@@ -95,6 +95,7 @@
     <ClInclude Include="N3D_NoiseScene.h" />
     <ClInclude Include="N3D_NoiseTextureManager.h" />
     <ClInclude Include="Noise3D.h" />
+    <ClInclude Include="N3D_NoiseAtmosphere.h" />
     <ClInclude Include="NoiseFlag.h" />
     <ClInclude Include="NoiseGlobal.h" />
     <ClInclude Include="NoiseMacro.h" />
@@ -125,6 +126,7 @@
     <ClCompile Include="N3D_NoiseRenderer.cpp" />
     <ClCompile Include="N3D_NoiseScene.cpp" />
     <ClCompile Include="N3D_NoiseTextureManager.cpp" />
+    <ClCompile Include="N3D_NoiseAtmosphere.cpp" />
     <ClCompile Include="NoiseGlobal.cpp" />
     <ClCompile Include="NUT_NoiseUtSlicer.cpp" />
     <ClCompile Include="NUT_NoiseUtTimer.cpp" />

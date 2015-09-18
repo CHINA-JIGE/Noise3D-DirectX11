@@ -15,11 +15,12 @@ public class _declspec(dllexport) NoiseScene
 	friend class NoiseGraphicObject;
 	friend class NoiseMaterialManager;
 	friend class NoiseTextureManager;
+	friend class NoiseAtmosphere;
+
 
 public:
 	//¹¹Ôìº¯Êý
 	NoiseScene();
-	~NoiseScene();
 
 	void				ReleaseAllChildObject();
 
@@ -36,6 +37,8 @@ public:
 	BOOL			CreateTextureManager(NoiseTextureManager* pTexMgr);
 
 	BOOL			CreateMaterialManager(NoiseMaterialManager* pMatMgr);
+
+	BOOL			CreateAtmosphere(NoiseAtmosphere* pAtmosphere);
 
 	void				SetCamera(NoiseCamera* pSceneCam);
 
@@ -60,6 +63,8 @@ private:
 	NoiseTextureManager*				m_pChildTextureMgr;
 
 	NoiseMaterialManager*					m_pChildMaterialMgr;
+
+	NoiseAtmosphere*							m_pChildAtmosphere;
 
 	std::vector<NoiseMesh*> *				m_pChildMeshList;
 

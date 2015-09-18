@@ -1,7 +1,7 @@
 //
 // FX Version: fx_5_0
 //
-// 5 local buffer(s)
+// 6 local buffer(s)
 //
 cbuffer cbPerObject
 {
@@ -28,9 +28,9 @@ cbuffer cbPerSubset
 {
     N_Material_Basic gMaterial;         // Offset:    0, size:   48
     int     gIsDiffuseMapValid;         // Offset:   48, size:    4
-    float   gIsNormalMapValid;          // Offset:   52, size:    4
-    float   gIsSpecularMapValid;        // Offset:   56, size:    4
-    float   mPad2;                      // Offset:   60, size:    4
+    int     gIsNormalMapValid;          // Offset:   52, size:    4
+    int     gIsSpecularMapValid;        // Offset:   56, size:    4
+    int     mPad2;                      // Offset:   60, size:    4
 }
 
 cbuffer cbRarely
@@ -48,6 +48,16 @@ cbuffer cbSolid3D
 {
     float4x4 gProjMatrix_Line3D;        // Offset:    0, size:   64
     float4x4 gViewMatrix_Line3D;        // Offset:   64, size:   64
+}
+
+cbuffer cbAtmosphere
+{
+    float3  gFogColor3;                 // Offset:    0, size:   12
+    int     gFogEnabled;                // Offset:   12, size:    4
+    float   gFogNear;                   // Offset:   16, size:    4
+    float   gFogFar;                    // Offset:   20, size:    4
+    float   gPad1;                      // Offset:   24, size:    4
+    float   gPad2;                      // Offset:   28, size:    4
 }
 
 //
@@ -204,7 +214,7 @@ fxgroup
                 dcl_output o4.xy
                 dcl_temps 5
                 
-                #line 19 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 19 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // output<8:NaN:Inf>
@@ -318,9 +328,9 @@ fxgroup
                 //
                 //   } gMaterial;                       // Offset:    0 Size:    48
                 //   int gIsDiffuseMapValid;            // Offset:   48 Size:     4
-                //   float gIsNormalMapValid;           // Offset:   52 Size:     4 [unused]
-                //   float gIsSpecularMapValid;         // Offset:   56 Size:     4 [unused]
-                //   float mPad2;                       // Offset:   60 Size:     4 [unused]
+                //   int gIsNormalMapValid;             // Offset:   52 Size:     4 [unused]
+                //   int gIsSpecularMapValid;           // Offset:   56 Size:     4 [unused]
+                //   int mPad2;                         // Offset:   60 Size:     4 [unused]
                 //
                 // }
                 //
@@ -377,6 +387,18 @@ fxgroup
                 //
                 // }
                 //
+                // cbuffer cbAtmosphere
+                // {
+                //
+                //   float3 gFogColor3;                 // Offset:    0 Size:    12
+                //   int gFogEnabled;                   // Offset:   12 Size:     4
+                //   float gFogNear;                    // Offset:   16 Size:     4
+                //   float gFogFar;                     // Offset:   20 Size:     4
+                //   float gPad1;                       // Offset:   24 Size:     4 [unused]
+                //   float gPad2;                       // Offset:   28 Size:     4 [unused]
+                //
+                // }
+                //
                 //
                 // Resource Bindings:
                 //
@@ -387,6 +409,7 @@ fxgroup
                 // cbPerFrame                        cbuffer      NA          NA    0        1
                 // cbPerSubset                       cbuffer      NA          NA    1        1
                 // cbRarely                          cbuffer      NA          NA    2        1
+                // cbAtmosphere                      cbuffer      NA          NA    3        1
                 //
                 //
                 //
@@ -412,6 +435,7 @@ fxgroup
                 dcl_constantbuffer cb0[140], dynamicIndexed
                 dcl_constantbuffer cb1[4], immediateIndexed
                 dcl_constantbuffer cb2[651], dynamicIndexed
+                dcl_constantbuffer cb3[2], immediateIndexed
                 dcl_sampler s0, mode_default
                 dcl_resource_texture2d (float,float,float,float) t0
                 dcl_input_ps linear v1.xyzw
@@ -421,7 +445,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 15
                 
-                #line 35 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 35 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov r0.xyzw, l(0,0,0,0)  // finalColor4<0: 0f,1: 0f,2: 0f,3: 0f>
                 
                 #line 39
@@ -445,55 +469,67 @@ fxgroup
                 add r3.xyz, r3.xyzx, cb0[139].xyzx  // Vec_ToCam<0:Inf,1:Inf,2:Inf>
                 
                 #line 53
+                dp3 r1.y, r3.xyzx, r3.xyzx
+                sqrt r1.y, r1.y  // Dist_CurrPointToCam<0:NaN:Inf>
+                ieq r1.w, cb3[0].w, l(1)
+                lt r2.w, cb3[1].y, r1.y
+                and r1.w, r1.w, r2.w
+                if_nz r1.w
+                  mov o0.xyz, cb3[0].xyzx  // PS_DefaultDraw<0,1,2>
+                  mov o0.w, l(1.000000)  // PS_DefaultDraw<3: 1f>
+                  ret 
+                endif 
+                
+                #line 62
                 if_nz r1.x
                   mov r1.x, l(0)  // i<0: 0>
                   mov r4.xyzw, r0.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                  mov r1.y, r1.x  // i<0>
+                  mov r1.w, r1.x  // i<0>
                   loop 
-                    ilt r1.w, r1.y, cb0[138].x
-                    breakc_z r1.w
+                    ilt r2.w, r1.w, cb0[138].x
+                    breakc_z r2.w
                     nop 
-                    imul null, r1.w, r1.y, l(4)
-                    mov r5.xyz, cb0[r1.w + 8].xyzx  // Light<0,1,2>
-                    mov r6.xyz, cb0[r1.w + 9].xyzx  // Light<4,5,6>
-                    mov r7.xyz, cb0[r1.w + 10].xyzx  // Light<8,9,10>
-                    mov r8.xyz, cb0[r1.w + 11].xyzx  // Light<12,13,14>
-                    mov r2.w, cb0[r1.w + 8].w  // Light<3>
-                    mov r1.w, cb0[r1.w + 9].w  // Light<7>
+                    imul null, r2.w, r1.w, l(4)
+                    mov r5.xyz, cb0[r2.w + 8].xyzx  // Light<0,1,2>
+                    mov r6.xyz, cb0[r2.w + 9].xyzx  // Light<4,5,6>
+                    mov r7.xyz, cb0[r2.w + 10].xyzx  // Light<8,9,10>
+                    mov r8.xyz, cb0[r2.w + 11].xyzx  // Light<12,13,14>
+                    mov r3.w, cb0[r2.w + 8].w  // Light<3>
+                    mov r2.w, cb0[r2.w + 9].w  // Light<7>
                     mov r9.xyz, r2.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r10.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                 
-                #line 204 "shading3D.fx"
-                    dp3 r3.w, r8.xyzx, r8.xyzx
-                    rsq r3.w, r3.w
-                    mul r8.xyz, r3.wwww, r8.xyzx  // LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                #line 213 "shading3D.fx"
+                    dp3 r5.w, r8.xyzx, r8.xyzx
+                    rsq r5.w, r5.w
+                    mul r8.xyz, r5.wwww, r8.xyzx  // LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 207
+                #line 216
                     mov r11.xyz, -r8.xyzx
-                    dp3 r3.w, r11.xyzx, r9.xyzx
-                    mul r1.w, r1.w, r3.w  // diffuseCosFactor<0:NaN:Inf>
+                    dp3 r5.w, r11.xyzx, r9.xyzx
+                    mul r2.w, r2.w, r5.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 211
+                #line 220
                     nop 
                 
-                #line 179
-                    ine r3.w, l(0, 0, 0, 0), cb1[3].x
-                    if_nz r3.w
+                #line 188
+                    ine r5.w, l(0, 0, 0, 0), cb1[3].x
+                    if_nz r5.w
                       sample_indexable(texture2d)(float,float,float,float) r11.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
-                #line 186
+                #line 195
                       mov r11.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                     endif 
                 
-                #line 211
+                #line 220
                     mov r11.xyz, r11.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                     nop 
-                    mov r1.w, r1.w  // diffuseCosFactor<0:NaN:Inf>
-                    mov r2.w, r2.w  // lightSpecIntensity<0>
-                    itof r3.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
+                    mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
+                    mov r3.w, r3.w  // lightSpecIntensity<0>
+                    itof r5.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
                     mov r12.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
                     mov r5.xyz, r5.xyzx  // lightAmbientColor3<0,1,2>
                     mov r11.xyz, r11.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
@@ -504,134 +540,134 @@ fxgroup
                     mov r8.xyz, r8.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r9.xyz, r9.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
+                #line 158
                     mul r5.xyz, r5.xyzx, r12.xyzx
-                    mul r5.xyz, r11.xyzx, r5.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                    mov r5.w, l(1.000000)  // outAmbient<3: 1f>
-                
-                #line 154
-                    lt r6.w, l(0.000000), r1.w
-                
-                #line 157
-                    mul r1.w, r1.w, l(1.000000)
-                    mul r11.xyz, r6.xyzx, r11.xyzx
-                    mov r11.w, l(1.000000)
-                    mul r11.xyzw, r1.wwww, r11.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                
-                #line 160
-                    dp3 r1.w, r8.xyzx, r9.xyzx
-                    add r1.w, r1.w, r1.w
-                    mov r1.w, -r1.w
-                    mul r6.xyz, r1.wwww, r9.xyzx
-                    add r6.xyz, r8.xyzx, r6.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    mul r12.xyz, r11.xyzx, r5.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    mov r12.w, l(1.000000)  // outAmbient<3: 1f>
                 
                 #line 163
-                    dp3 r1.w, r10.xyzx, r10.xyzx
-                    rsq r1.w, r1.w
-                    mul r8.xyz, r1.wwww, r10.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    lt r5.x, l(0.000000), r2.w
                 
                 #line 166
-                    dp3 r1.w, r6.xyzx, r8.xyzx
-                    max r1.w, r1.w, l(0.000000)
-                    log r1.w, r1.w
-                    mul r1.w, r1.w, r3.w
-                    exp r1.w, r1.w
-                    mul r1.w, r1.w, r2.w  // SpecFactor<0:NaN:Inf>
+                    mul r2.w, r2.w, l(1.000000)
+                    mul r6.xyz, r6.xyzx, r11.xyzx
+                    mov r6.w, l(1.000000)
+                    mul r6.xyzw, r2.wwww, r6.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 169
-                    mul r1.w, r1.w, l(1.000000)
+                    dp3 r2.w, r8.xyzx, r9.xyzx
+                    add r2.w, r2.w, r2.w
+                    mov r2.w, -r2.w
+                    mul r9.xyz, r2.wwww, r9.xyzx
+                    add r8.xyz, r8.xyzx, r9.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 172
+                    dp3 r2.w, r10.xyzx, r10.xyzx
+                    rsq r2.w, r2.w
+                    mul r9.xyz, r2.wwww, r10.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 175
+                    dp3 r2.w, r8.xyzx, r9.xyzx
+                    max r2.w, r2.w, l(0.000000)
+                    log r2.w, r2.w
+                    mul r2.w, r2.w, r5.w
+                    exp r2.w, r2.w
+                    mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
+                
+                #line 178
+                    mul r2.w, r2.w, l(1.000000)
                     mul r7.xyz, r7.xyzx, r13.xyzx
                     mov r7.w, l(1.000000)
-                    mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    mul r7.xyzw, r2.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 154
-                    movc r8.xyzw, r6.wwww, r11.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    movc r6.xyzw, r6.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 163
+                    movc r6.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 213
-                    mov r5.xyzw, r5.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
-                    mov r8.xyzw, r8.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    mov r6.xyzw, r6.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 222
+                    mov r12.xyzw, r12.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
+                    mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 221
-                    add r5.xyzw, r5.xyzw, r8.xyzw
-                    add r5.xyzw, r6.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 230
+                    add r6.xyzw, r6.xyzw, r12.xyzw
+                    add r5.xyzw, r5.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 57 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 66 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r4.xyzw, r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 55
-                    iadd r1.y, r1.y, l(1)  // i<0>
+                #line 64
+                    iadd r1.w, r1.w, l(1)  // i<0>
                   endloop 
                 
-                #line 60
+                #line 69
                   mov r0.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                  mov r1.y, r1.x  // i<0>
+                  mov r1.w, r1.x  // i<0>
                   loop 
-                    ilt r1.w, r1.y, cb0[138].y
-                    breakc_z r1.w
+                    ilt r2.w, r1.w, cb0[138].y
+                    breakc_z r2.w
                     nop 
-                    imul null, r1.w, r1.y, l(4)
-                    mov r5.xyz, cb0[r1.w + 48].xyzx  // Light<0,1,2>
-                    mov r6.xyz, cb0[r1.w + 49].xyzx  // Light<4,5,6>
-                    mov r7.xyz, cb0[r1.w + 50].xyzx  // Light<8,9,10>
-                    mov r8.xyz, cb0[r1.w + 51].xyzx  // Light<12,13,14>
-                    mov r2.w, cb0[r1.w + 48].w  // Light<3>
-                    mov r3.w, cb0[r1.w + 49].w  // Light<7>
-                    mov r5.w, cb0[r1.w + 50].w  // Light<11>
-                    mov r1.w, cb0[r1.w + 51].w  // Light<15>
+                    imul null, r2.w, r1.w, l(4)
+                    mov r5.xyz, cb0[r2.w + 48].xyzx  // Light<0,1,2>
+                    mov r6.xyz, cb0[r2.w + 49].xyzx  // Light<4,5,6>
+                    mov r7.xyz, cb0[r2.w + 50].xyzx  // Light<8,9,10>
+                    mov r8.xyz, cb0[r2.w + 51].xyzx  // Light<12,13,14>
+                    mov r3.w, cb0[r2.w + 48].w  // Light<3>
+                    mov r5.w, cb0[r2.w + 49].w  // Light<7>
+                    mov r6.w, cb0[r2.w + 50].w  // Light<11>
+                    mov r2.w, cb0[r2.w + 51].w  // Light<15>
                     mov r9.xyz, r2.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r10.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                     mov r11.xyz, v2.xyzx  // thisPoint<0,1,2>
                 
-                #line 237 "shading3D.fx"
+                #line 246 "shading3D.fx"
                     mov r8.xyz, -r8.xyzx
                     add r8.xyz, r8.xyzx, r11.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
-                    dp3 r6.w, r8.xyzx, r8.xyzx
-                    rsq r7.w, r6.w
-                    mul r8.xyz, r7.wwww, r8.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r7.w, r8.xyzx, r8.xyzx
+                    rsq r8.w, r7.w
+                    mul r8.xyz, r8.wwww, r8.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 241
-                    sqrt r6.w, r6.w  // disFromLight<0:NaN:Inf>
-                    mul r5.w, r5.w, r6.w
-                    mul r5.w, r6.w, r5.w
-                    add r5.w, r5.w, l(1.000000)
-                    div r5.w, l(1.000000), r5.w  // Attenuation<0:NaN:Inf>
+                #line 250
+                    sqrt r7.w, r7.w  // disFromLight<0:NaN:Inf>
+                    mul r6.w, r6.w, r7.w
+                    mul r6.w, r7.w, r6.w
+                    add r6.w, r6.w, l(1.000000)
+                    div r6.w, l(1.000000), r6.w  // Attenuation<0:NaN:Inf>
                 
-                #line 246
-                    lt r3.w, r3.w, r6.w
+                #line 255
+                    lt r5.w, r5.w, r7.w
                 
-                #line 253
-                    if_z r3.w
+                #line 262
+                    if_z r5.w
                       mov r11.xyz, -r8.xyzx
-                      dp3 r3.w, r11.xyzx, r9.xyzx
-                      mul r1.w, r1.w, r3.w  // diffuseCosFactor<0:NaN:Inf>
+                      dp3 r5.w, r11.xyzx, r9.xyzx
+                      mul r2.w, r2.w, r5.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 258
+                #line 267
                       nop 
                 
-                #line 179
-                      ine r3.w, l(0, 0, 0, 0), cb1[3].x
-                      if_nz r3.w
+                #line 188
+                      ine r5.w, l(0, 0, 0, 0), cb1[3].x
+                      if_nz r5.w
                         sample_indexable(texture2d)(float,float,float,float) r11.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 186
+                #line 195
                         mov r11.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                       endif 
                 
-                #line 258
+                #line 267
                       mov r11.xyz, r11.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                 
-                #line 264
+                #line 273
                       nop 
-                      mov r1.w, r1.w  // diffuseCosFactor<0:NaN:Inf>
-                      mov r2.w, r2.w  // lightSpecIntensity<0>
-                      itof r3.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
-                      mov r5.w, r5.w  // Attenuation<0:NaN:Inf>
+                      mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
+                      mov r3.w, r3.w  // lightSpecIntensity<0>
+                      itof r5.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
+                      mov r6.w, r6.w  // Attenuation<0:NaN:Inf>
                       mov r12.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
                       mov r5.xyz, r5.xyzx  // lightAmbientColor3<0,1,2>
                       mov r11.xyz, r11.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
@@ -642,151 +678,151 @@ fxgroup
                       mov r8.xyz, r8.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r9.xyz, r9.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
+                #line 158
                       mul r5.xyz, r5.xyzx, r12.xyzx
                       mul r12.xyz, r11.xyzx, r5.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r12.w, l(1.000000)  // outAmbient<3: 1f>
                 
-                #line 154
-                      lt r5.x, l(0.000000), r1.w
-                
-                #line 157
-                      mul r1.w, r1.w, r5.w
-                      mul r6.xyz, r6.xyzx, r11.xyzx
-                      mov r6.w, l(1.000000)
-                      mul r6.xyzw, r1.wwww, r6.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                
-                #line 160
-                      dp3 r1.w, r8.xyzx, r9.xyzx
-                      add r1.w, r1.w, r1.w
-                      mov r1.w, -r1.w
-                      mul r9.xyz, r1.wwww, r9.xyzx
-                      add r8.xyz, r8.xyzx, r9.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                
                 #line 163
-                      dp3 r1.w, r10.xyzx, r10.xyzx
-                      rsq r1.w, r1.w
-                      mul r9.xyz, r1.wwww, r10.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                      lt r5.x, l(0.000000), r2.w
                 
                 #line 166
-                      dp3 r1.w, r8.xyzx, r9.xyzx
-                      max r1.w, r1.w, l(0.000000)
-                      log r1.w, r1.w
-                      mul r1.w, r1.w, r3.w
-                      exp r1.w, r1.w
-                      mul r1.w, r1.w, r2.w  // SpecFactor<0:NaN:Inf>
+                      mul r2.w, r2.w, r6.w
+                      mul r11.xyz, r6.xyzx, r11.xyzx
+                      mov r11.w, l(1.000000)
+                      mul r11.xyzw, r2.wwww, r11.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 169
-                      mul r1.w, r1.w, r5.w
-                      mul r7.xyz, r7.xyzx, r13.xyzx
-                      mov r7.w, l(1.000000)
-                      mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      dp3 r2.w, r8.xyzx, r9.xyzx
+                      add r2.w, r2.w, r2.w
+                      mov r2.w, -r2.w
+                      mul r6.xyz, r2.wwww, r9.xyzx
+                      add r6.xyz, r8.xyzx, r6.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 154
-                      movc r6.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 172
+                      dp3 r2.w, r10.xyzx, r10.xyzx
+                      rsq r2.w, r2.w
+                      mul r8.xyz, r2.wwww, r10.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 264
+                #line 175
+                      dp3 r2.w, r6.xyzx, r8.xyzx
+                      max r2.w, r2.w, l(0.000000)
+                      log r2.w, r2.w
+                      mul r2.w, r2.w, r5.w
+                      exp r2.w, r2.w
+                      mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
+                
+                #line 178
+                      mul r2.w, r2.w, r6.w
+                      mul r6.xyz, r7.xyzx, r13.xyzx
+                      mov r6.w, l(1.000000)
+                      mul r6.xyzw, r2.wwww, r6.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 163
+                      movc r7.xyzw, r5.xxxx, r11.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      movc r5.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 273
                       mov r12.xyzw, r12.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
-                      mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mov r7.xyzw, r7.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 271
-                      add r6.xyzw, r6.xyzw, r12.xyzw
+                #line 280
+                      add r6.xyzw, r7.xyzw, r12.xyzw
                       add r5.xyzw, r5.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 253
+                #line 262
                     else 
                       mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 62 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 71 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r0.xyzw, r0.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 60
-                    iadd r1.y, r1.y, l(1)  // i<0>
+                #line 69
+                    iadd r1.w, r1.w, l(1)  // i<0>
                   endloop 
                 
-                #line 65
+                #line 74
                   mov r4.xyzw, r0.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                  mov r1.y, r1.x  // i<0>
+                  mov r1.w, r1.x  // i<0>
                   loop 
-                    ilt r1.w, r1.y, cb0[138].z
-                    breakc_z r1.w
+                    ilt r2.w, r1.w, cb0[138].z
+                    breakc_z r2.w
                 
-                #line 68
+                #line 77
                     nop 
-                    imul null, r1.w, r1.y, l(5)
-                    mov r5.xyz, cb0[r1.w + 88].xyzx  // Light<0,1,2>
-                    mov r6.xyz, cb0[r1.w + 89].xyzx  // Light<4,5,6>
-                    mov r7.xyz, cb0[r1.w + 90].xyzx  // Light<8,9,10>
-                    mov r8.xyz, cb0[r1.w + 91].xyzx  // Light<12,13,14>
-                    mov r9.xyz, cb0[r1.w + 92].xyzx  // Light<16,17,18>
-                    mov r2.w, cb0[r1.w + 88].w  // Light<3>
-                    mov r3.w, cb0[r1.w + 89].w  // Light<7>
-                    mov r5.w, cb0[r1.w + 90].w  // Light<11>
-                    mov r6.w, cb0[r1.w + 91].w  // Light<15>
-                    mov r1.w, cb0[r1.w + 92].w  // Light<19>
+                    imul null, r2.w, r1.w, l(5)
+                    mov r5.xyz, cb0[r2.w + 88].xyzx  // Light<0,1,2>
+                    mov r6.xyz, cb0[r2.w + 89].xyzx  // Light<4,5,6>
+                    mov r7.xyz, cb0[r2.w + 90].xyzx  // Light<8,9,10>
+                    mov r8.xyz, cb0[r2.w + 91].xyzx  // Light<12,13,14>
+                    mov r9.xyz, cb0[r2.w + 92].xyzx  // Light<16,17,18>
+                    mov r3.w, cb0[r2.w + 88].w  // Light<3>
+                    mov r5.w, cb0[r2.w + 89].w  // Light<7>
+                    mov r6.w, cb0[r2.w + 90].w  // Light<11>
+                    mov r7.w, cb0[r2.w + 91].w  // Light<15>
+                    mov r2.w, cb0[r2.w + 92].w  // Light<19>
                     mov r10.xyz, r2.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r11.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                     mov r12.xyz, v2.xyzx  // thisPoint<0,1,2>
                 
-                #line 287 "shading3D.fx"
+                #line 296 "shading3D.fx"
                     mov r9.xyz, -r9.xyzx
                     add r12.xyz, r9.xyzx, r12.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
-                    dp3 r7.w, r12.xyzx, r12.xyzx
-                    rsq r8.w, r7.w
-                    mul r12.xyz, r8.wwww, r12.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r8.w, r12.xyzx, r12.xyzx
+                    rsq r9.w, r8.w
+                    mul r12.xyz, r9.wwww, r12.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 291
-                    sqrt r7.w, r7.w  // disFromLight<0:NaN:Inf>
-                    mul r5.w, r5.w, r7.w
-                    mul r5.w, r7.w, r5.w
-                    add r5.w, r5.w, l(1.000000)
-                    div r5.w, l(1.000000), r5.w  // Attenuation<0:NaN:Inf>
+                #line 300
+                    sqrt r8.w, r8.w  // disFromLight<0:NaN:Inf>
+                    mul r6.w, r6.w, r8.w
+                    mul r6.w, r8.w, r6.w
+                    add r6.w, r6.w, l(1.000000)
+                    div r6.w, l(1.000000), r6.w  // Attenuation<0:NaN:Inf>
                 
-                #line 296
+                #line 305
                     add r8.xyz, r8.xyzx, r9.xyzx
-                    dp3 r8.w, r8.xyzx, r8.xyzx
-                    rsq r8.w, r8.w
-                    mul r8.xyz, r8.wwww, r8.xyzx
+                    dp3 r9.x, r8.xyzx, r8.xyzx
+                    rsq r9.x, r9.x
+                    mul r8.xyz, r8.xyzx, r9.xxxx
                     dp3 r8.x, r12.xyzx, r8.xyzx  // Cos_Theta<0:NaN:Inf>
                 
-                #line 299
-                    lt r3.w, r3.w, r7.w
-                    sincos null, r6.w, r6.w
-                    lt r6.w, r8.x, r6.w
-                    or r3.w, r3.w, r6.w
+                #line 308
+                    lt r5.w, r5.w, r8.w
+                    sincos null, r7.w, r7.w
+                    lt r7.w, r8.x, r7.w
+                    or r5.w, r5.w, r7.w
                 
-                #line 306
-                    if_z r3.w
+                #line 315
+                    if_z r5.w
                       mov r8.xyz, -r12.xyzx
-                      dp3 r3.w, r8.xyzx, r10.xyzx
-                      mul r1.w, r1.w, r3.w  // diffuseCosFactor<0:NaN:Inf>
+                      dp3 r5.w, r8.xyzx, r10.xyzx
+                      mul r2.w, r2.w, r5.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 311
+                #line 320
                       nop 
                 
-                #line 179
-                      ine r3.w, l(0, 0, 0, 0), cb1[3].x
-                      if_nz r3.w
+                #line 188
+                      ine r5.w, l(0, 0, 0, 0), cb1[3].x
+                      if_nz r5.w
                         sample_indexable(texture2d)(float,float,float,float) r8.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 186
+                #line 195
                         mov r8.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                       endif 
                 
-                #line 311
+                #line 320
                       mov r8.xyz, r8.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                       nop 
-                      mov r1.w, r1.w  // diffuseCosFactor<0:NaN:Inf>
-                      mov r2.w, r2.w  // lightSpecIntensity<0>
-                      itof r3.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
-                      mov r5.w, r5.w  // Attenuation<0:NaN:Inf>
+                      mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
+                      mov r3.w, r3.w  // lightSpecIntensity<0>
+                      itof r5.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
+                      mov r6.w, r6.w  // Attenuation<0:NaN:Inf>
                       mov r9.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
                       mov r5.xyz, r5.xyzx  // lightAmbientColor3<0,1,2>
                       mov r8.xyz, r8.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
@@ -797,88 +833,88 @@ fxgroup
                       mov r12.xyz, r12.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r10.xyz, r10.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
+                #line 158
                       mul r5.xyz, r5.xyzx, r9.xyzx
                       mul r9.xyz, r8.xyzx, r5.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r9.w, l(1.000000)  // outAmbient<3: 1f>
                 
-                #line 154
-                      lt r5.x, l(0.000000), r1.w
-                
-                #line 157
-                      mul r1.w, r1.w, r5.w
-                      mul r6.xyz, r6.xyzx, r8.xyzx
-                      mov r6.w, l(1.000000)
-                      mul r6.xyzw, r1.wwww, r6.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                
-                #line 160
-                      dp3 r1.w, r12.xyzx, r10.xyzx
-                      add r1.w, r1.w, r1.w
-                      mov r1.w, -r1.w
-                      mul r8.xyz, r1.wwww, r10.xyzx
-                      add r8.xyz, r12.xyzx, r8.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                
                 #line 163
-                      dp3 r1.w, r11.xyzx, r11.xyzx
-                      rsq r1.w, r1.w
-                      mul r10.xyz, r1.wwww, r11.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                      lt r5.x, l(0.000000), r2.w
                 
                 #line 166
-                      dp3 r1.w, r8.xyzx, r10.xyzx
-                      max r1.w, r1.w, l(0.000000)
-                      log r1.w, r1.w
-                      mul r1.w, r1.w, r3.w
-                      exp r1.w, r1.w
-                      mul r1.w, r1.w, r2.w  // SpecFactor<0:NaN:Inf>
+                      mul r2.w, r2.w, r6.w
+                      mul r8.xyz, r6.xyzx, r8.xyzx
+                      mov r8.w, l(1.000000)
+                      mul r8.xyzw, r2.wwww, r8.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
                 #line 169
-                      mul r1.w, r1.w, r5.w
-                      mul r7.xyz, r7.xyzx, r13.xyzx
-                      mov r7.w, l(1.000000)
-                      mul r7.xyzw, r1.wwww, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      dp3 r2.w, r12.xyzx, r10.xyzx
+                      add r2.w, r2.w, r2.w
+                      mov r2.w, -r2.w
+                      mul r6.xyz, r2.wwww, r10.xyzx
+                      add r6.xyz, r12.xyzx, r6.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 154
-                      movc r6.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r5.xyzw, r5.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 172
+                      dp3 r2.w, r11.xyzx, r11.xyzx
+                      rsq r2.w, r2.w
+                      mul r10.xyz, r2.wwww, r11.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 313
+                #line 175
+                      dp3 r2.w, r6.xyzx, r10.xyzx
+                      max r2.w, r2.w, l(0.000000)
+                      log r2.w, r2.w
+                      mul r2.w, r2.w, r5.w
+                      exp r2.w, r2.w
+                      mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
+                
+                #line 178
+                      mul r2.w, r2.w, r6.w
+                      mul r6.xyz, r7.xyzx, r13.xyzx
+                      mov r6.w, l(1.000000)
+                      mul r6.xyzw, r2.wwww, r6.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 163
+                      movc r7.xyzw, r5.xxxx, r8.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      movc r5.xyzw, r5.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 322
                       mov r9.xyzw, r9.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
-                      mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mov r7.xyzw, r7.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                       mov r5.xyzw, r5.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 321
-                      add r6.xyzw, r6.xyzw, r9.xyzw
+                #line 330
+                      add r6.xyzw, r7.xyzw, r9.xyzw
                       add r5.xyzw, r5.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 306
+                #line 315
                     else 
                       mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 68 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 77 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                     mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     add r4.xyzw, r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 65
-                    iadd r1.y, r1.y, l(1)  // i<0>
+                #line 74
+                    iadd r1.w, r1.w, l(1)  // i<0>
                   endloop 
                 
-                #line 53
+                #line 62
                 else 
                   mov r4.xyzw, l(0,0,0,0)  // finalColor4<0: 0f,1: 0f,2: 0f,3: 0f>
                 endif 
                 
-                #line 74
+                #line 83
                 if_nz r1.z
                   mov r0.x, l(0)  // i<0: 0>
-                  mov r1.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                  mov r5.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   mov r0.y, r0.x  // i<0>
                   loop 
                     ilt r0.z, r0.y, cb2[650].x
                     breakc_z r0.z
                     nop 
                     imul null, r0.z, r0.y, l(4)
-                    mov r5.xyz, cb2[r0.z + 0].xyzx  // Light<0,1,2>
+                    mov r1.xzw, cb2[r0.z + 0].xxyz  // Light<0,1,2>
                     mov r6.xyz, cb2[r0.z + 1].xyzx  // Light<4,5,6>
                     mov r7.xyz, cb2[r0.z + 2].xyzx  // Light<8,9,10>
                     mov r8.xyz, cb2[r0.z + 3].xyzx  // Light<12,13,14>
@@ -887,39 +923,39 @@ fxgroup
                     mov r9.xyz, r2.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r10.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                 
-                #line 204 "shading3D.fx"
+                #line 213 "shading3D.fx"
                     dp3 r2.w, r8.xyzx, r8.xyzx
                     rsq r2.w, r2.w
                     mul r8.xyz, r2.wwww, r8.xyzx  // LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 207
+                #line 216
                     mov r11.xyz, -r8.xyzx
                     dp3 r2.w, r11.xyzx, r9.xyzx
                     mul r0.z, r0.z, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 211
+                #line 220
                     nop 
                 
-                #line 179
+                #line 188
                     ine r2.w, l(0, 0, 0, 0), cb1[3].x
                     if_nz r2.w
                       sample_indexable(texture2d)(float,float,float,float) r11.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
-                #line 186
+                #line 195
                       mov r11.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                     endif 
                 
-                #line 211
+                #line 220
                     mov r11.xyz, r11.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                     nop 
                     mov r0.z, r0.z  // diffuseCosFactor<0:NaN:Inf>
                     mov r0.w, r0.w  // lightSpecIntensity<0>
                     itof r2.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
                     mov r12.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
-                    mov r5.xyz, r5.xyzx  // lightAmbientColor3<0,1,2>
+                    mov r1.xzw, r1.xxzw  // lightAmbientColor3<0,1,2>
                     mov r11.xyz, r11.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
                     mov r6.xyz, r6.xyzx  // lightDiffuseColor3<0,1,2>
                     mov r13.xyz, cb1[2].xyzx  // matSpecColor3<0,1,2>
@@ -928,33 +964,33 @@ fxgroup
                     mov r8.xyz, r8.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r9.xyz, r9.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
-                    mul r5.xyz, r5.xyzx, r12.xyzx
-                    mul r5.xyz, r11.xyzx, r5.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                    mov r5.w, l(1.000000)  // outAmbient<3: 1f>
+                #line 158
+                    mul r1.xzw, r1.xxzw, r12.xxyz
+                    mul r12.xyz, r11.xyzx, r1.xzwx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    mov r12.w, l(1.000000)  // outAmbient<3: 1f>
                 
-                #line 154
-                    lt r3.w, l(0.000000), r0.z
+                #line 163
+                    lt r1.x, l(0.000000), r0.z
                 
-                #line 157
+                #line 166
                     mul r0.z, r0.z, l(1.000000)
                     mul r6.xyz, r6.xyzx, r11.xyzx
                     mov r6.w, l(1.000000)
                     mul r6.xyzw, r0.zzzz, r6.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 160
+                #line 169
                     dp3 r0.z, r8.xyzx, r9.xyzx
                     add r0.z, r0.z, r0.z
                     mov r0.z, -r0.z
                     mul r9.xyz, r0.zzzz, r9.xyzx
                     add r8.xyz, r8.xyzx, r9.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 163
+                #line 172
                     dp3 r0.z, r10.xyzx, r10.xyzx
                     rsq r0.z, r0.z
                     mul r9.xyz, r0.zzzz, r10.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 166
+                #line 175
                     dp3 r0.z, r8.xyzx, r9.xyzx
                     max r0.z, r0.z, l(0.000000)
                     log r0.z, r0.z
@@ -962,42 +998,42 @@ fxgroup
                     exp r0.z, r0.z
                     mul r0.z, r0.z, r0.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 169
+                #line 178
                     mul r0.z, r0.z, l(1.000000)
                     mul r7.xyz, r7.xyzx, r13.xyzx
                     mov r7.w, l(1.000000)
                     mul r7.xyzw, r0.zzzz, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 154
-                    movc r6.xyzw, r3.wwww, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    movc r7.xyzw, r3.wwww, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 163
+                    movc r6.xyzw, r1.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    movc r7.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 213
-                    mov r5.xyzw, r5.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
+                #line 222
+                    mov r12.xyzw, r12.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
                     mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                     mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 221
-                    add r5.xyzw, r5.xyzw, r6.xyzw
-                    add r5.xyzw, r7.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 230
+                    add r6.xyzw, r6.xyzw, r12.xyzw
+                    add r6.xyzw, r7.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 78 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
-                    mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    add r1.xyzw, r1.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 87 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
+                    mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    add r5.xyzw, r5.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 76
+                #line 85
                     iadd r0.y, r0.y, l(1)  // i<0>
                   endloop 
                 
-                #line 81
-                  mov r5.xyzw, r1.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 90
+                  mov r6.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   mov r0.y, r0.x  // i<0>
                   loop 
                     ilt r0.z, r0.y, cb2[650].y
                     breakc_z r0.z
                     nop 
                     imul null, r0.z, r0.y, l(4)
-                    mov r6.xyz, cb2[r0.z + 200].xyzx  // Light<0,1,2>
+                    mov r1.xzw, cb2[r0.z + 200].xxyz  // Light<0,1,2>
                     mov r7.xyz, cb2[r0.z + 201].xyzx  // Light<4,5,6>
                     mov r8.xyz, cb2[r0.z + 202].xyzx  // Light<8,9,10>
                     mov r9.xyz, cb2[r0.z + 203].xyzx  // Light<12,13,14>
@@ -1009,55 +1045,55 @@ fxgroup
                     mov r11.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                     mov r12.xyz, v2.xyzx  // thisPoint<0,1,2>
                 
-                #line 237 "shading3D.fx"
+                #line 246 "shading3D.fx"
                     mov r9.xyz, -r9.xyzx
                     add r9.xyz, r9.xyzx, r12.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
-                    dp3 r6.w, r9.xyzx, r9.xyzx
-                    rsq r7.w, r6.w
-                    mul r9.xyz, r7.wwww, r9.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r7.w, r9.xyzx, r9.xyzx
+                    rsq r8.w, r7.w
+                    mul r9.xyz, r8.wwww, r9.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 241
-                    sqrt r6.w, r6.w  // disFromLight<0:NaN:Inf>
-                    mul r3.w, r3.w, r6.w
-                    mul r3.w, r6.w, r3.w
+                #line 250
+                    sqrt r7.w, r7.w  // disFromLight<0:NaN:Inf>
+                    mul r3.w, r3.w, r7.w
+                    mul r3.w, r7.w, r3.w
                     add r3.w, r3.w, l(1.000000)
                     div r3.w, l(1.000000), r3.w  // Attenuation<0:NaN:Inf>
                 
-                #line 246
-                    lt r2.w, r2.w, r6.w
+                #line 255
+                    lt r2.w, r2.w, r7.w
                 
-                #line 253
+                #line 262
                     if_z r2.w
                       mov r12.xyz, -r9.xyzx
                       dp3 r2.w, r12.xyzx, r10.xyzx
                       mul r0.z, r0.z, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 258
+                #line 267
                       nop 
                 
-                #line 179
+                #line 188
                       ine r2.w, l(0, 0, 0, 0), cb1[3].x
                       if_nz r2.w
                         sample_indexable(texture2d)(float,float,float,float) r12.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 186
+                #line 195
                         mov r12.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                       endif 
                 
-                #line 258
+                #line 267
                       mov r12.xyz, r12.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                 
-                #line 264
+                #line 273
                       nop 
                       mov r0.z, r0.z  // diffuseCosFactor<0:NaN:Inf>
                       mov r0.w, r0.w  // lightSpecIntensity<0>
                       itof r2.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
                       mov r3.w, r3.w  // Attenuation<0:NaN:Inf>
                       mov r13.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
-                      mov r6.xyz, r6.xyzx  // lightAmbientColor3<0,1,2>
+                      mov r1.xzw, r1.xxzw  // lightAmbientColor3<0,1,2>
                       mov r12.xyz, r12.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
                       mov r7.xyz, r7.xyzx  // lightDiffuseColor3<0,1,2>
                       mov r14.xyz, cb1[2].xyzx  // matSpecColor3<0,1,2>
@@ -1066,234 +1102,250 @@ fxgroup
                       mov r9.xyz, r9.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r10.xyz, r10.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
-                      mul r6.xyz, r6.xyzx, r13.xyzx
-                      mul r6.xyz, r12.xyzx, r6.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                      mov r6.w, l(1.000000)  // outAmbient<3: 1f>
+                #line 158
+                      mul r1.xzw, r1.xxzw, r13.xxyz
+                      mul r13.xyz, r12.xyzx, r1.xzwx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                      mov r13.w, l(1.000000)  // outAmbient<3: 1f>
                 
-                #line 154
-                      lt r7.w, l(0.000000), r0.z
+                #line 163
+                      lt r1.x, l(0.000000), r0.z
                 
-                #line 157
+                #line 166
                       mul r0.z, r0.z, r3.w
-                      mul r12.xyz, r7.xyzx, r12.xyzx
-                      mov r12.w, l(1.000000)
-                      mul r12.xyzw, r0.zzzz, r12.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mul r7.xyz, r7.xyzx, r12.xyzx
+                      mov r7.w, l(1.000000)
+                      mul r7.xyzw, r0.zzzz, r7.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 160
+                #line 169
                       dp3 r0.z, r9.xyzx, r10.xyzx
                       add r0.z, r0.z, r0.z
                       mov r0.z, -r0.z
-                      mul r7.xyz, r0.zzzz, r10.xyzx
-                      add r7.xyz, r9.xyzx, r7.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                      mul r10.xyz, r0.zzzz, r10.xyzx
+                      add r9.xyz, r9.xyzx, r10.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 163
+                #line 172
                       dp3 r0.z, r11.xyzx, r11.xyzx
                       rsq r0.z, r0.z
-                      mul r9.xyz, r0.zzzz, r11.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                      mul r10.xyz, r0.zzzz, r11.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 166
-                      dp3 r0.z, r7.xyzx, r9.xyzx
+                #line 175
+                      dp3 r0.z, r9.xyzx, r10.xyzx
                       max r0.z, r0.z, l(0.000000)
                       log r0.z, r0.z
                       mul r0.z, r0.z, r2.w
                       exp r0.z, r0.z
                       mul r0.z, r0.z, r0.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 169
+                #line 178
                       mul r0.z, r0.z, r3.w
                       mul r8.xyz, r8.xyzx, r14.xyzx
                       mov r8.w, l(1.000000)
                       mul r8.xyzw, r0.zzzz, r8.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 154
-                      movc r9.xyzw, r7.wwww, r12.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r7.xyzw, r7.wwww, r8.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 163
+                      movc r7.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      movc r8.xyzw, r1.xxxx, r8.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 264
-                      mov r6.xyzw, r6.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
-                      mov r9.xyzw, r9.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 273
+                      mov r13.xyzw, r13.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
+                      mov r7.xyzw, r7.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mov r8.xyzw, r8.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 271
-                      add r6.xyzw, r6.xyzw, r9.xyzw
-                      add r6.xyzw, r7.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 280
+                      add r7.xyzw, r7.xyzw, r13.xyzw
+                      add r7.xyzw, r8.xyzw, r7.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 253
+                #line 262
                     else 
-                      mov r6.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
+                      mov r7.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 83 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
-                    mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    add r5.xyzw, r5.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 92 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
+                    mov r7.xyzw, r7.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    add r6.xyzw, r6.xyzw, r7.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 81
+                #line 90
                     iadd r0.y, r0.y, l(1)  // i<0>
                   endloop 
                 
-                #line 86
-                  mov r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 95
+                  mov r4.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   mov r0.y, r0.x  // i<0>
                   loop 
                     ilt r0.z, r0.y, cb2[650].z
                     breakc_z r0.z
                     nop 
                     imul null, r0.z, r0.y, l(5)
-                    mov r1.xyz, cb2[r0.z + 400].xyzx  // Light<0,1,2>
-                    mov r6.xyz, cb2[r0.z + 401].xyzx  // Light<4,5,6>
+                    mov r1.xzw, cb2[r0.z + 400].xxyz  // Light<0,1,2>
+                    mov r5.xyz, cb2[r0.z + 401].xyzx  // Light<4,5,6>
                     mov r7.xyz, cb2[r0.z + 402].xyzx  // Light<8,9,10>
                     mov r8.xyz, cb2[r0.z + 403].xyzx  // Light<12,13,14>
                     mov r9.xyz, cb2[r0.z + 404].xyzx  // Light<16,17,18>
                     mov r0.w, cb2[r0.z + 400].w  // Light<3>
-                    mov r1.w, cb2[r0.z + 401].w  // Light<7>
-                    mov r2.w, cb2[r0.z + 402].w  // Light<11>
-                    mov r3.w, cb2[r0.z + 403].w  // Light<15>
+                    mov r2.w, cb2[r0.z + 401].w  // Light<7>
+                    mov r3.w, cb2[r0.z + 402].w  // Light<11>
+                    mov r5.w, cb2[r0.z + 403].w  // Light<15>
                     mov r0.z, cb2[r0.z + 404].w  // Light<19>
                     mov r10.xyz, r2.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r11.xyz, r3.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                     mov r12.xyz, v2.xyzx  // thisPoint<0,1,2>
                 
-                #line 287 "shading3D.fx"
+                #line 296 "shading3D.fx"
                     mov r9.xyz, -r9.xyzx
                     add r12.xyz, r9.xyzx, r12.xyzx  // LightVec<0:Inf,1:Inf,2:Inf>
-                    dp3 r6.w, r12.xyzx, r12.xyzx
-                    rsq r7.w, r6.w
-                    mul r12.xyz, r7.wwww, r12.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r7.w, r12.xyzx, r12.xyzx
+                    rsq r8.w, r7.w
+                    mul r12.xyz, r8.wwww, r12.xyzx  // Unit_LightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 291
-                    sqrt r6.w, r6.w  // disFromLight<0:NaN:Inf>
-                    mul r2.w, r2.w, r6.w
-                    mul r2.w, r6.w, r2.w
-                    add r2.w, r2.w, l(1.000000)
-                    div r2.w, l(1.000000), r2.w  // Attenuation<0:NaN:Inf>
+                #line 300
+                    sqrt r7.w, r7.w  // disFromLight<0:NaN:Inf>
+                    mul r3.w, r3.w, r7.w
+                    mul r3.w, r7.w, r3.w
+                    add r3.w, r3.w, l(1.000000)
+                    div r3.w, l(1.000000), r3.w  // Attenuation<0:NaN:Inf>
                 
-                #line 296
+                #line 305
                     add r8.xyz, r8.xyzx, r9.xyzx
-                    dp3 r7.w, r8.xyzx, r8.xyzx
-                    rsq r7.w, r7.w
-                    mul r8.xyz, r7.wwww, r8.xyzx
-                    dp3 r7.w, r12.xyzx, r8.xyzx  // Cos_Theta<0:NaN:Inf>
+                    dp3 r8.w, r8.xyzx, r8.xyzx
+                    rsq r8.w, r8.w
+                    mul r8.xyz, r8.wwww, r8.xyzx
+                    dp3 r8.x, r12.xyzx, r8.xyzx  // Cos_Theta<0:NaN:Inf>
                 
-                #line 299
-                    lt r1.w, r1.w, r6.w
-                    sincos null, r3.w, r3.w
-                    lt r3.w, r7.w, r3.w
-                    or r1.w, r1.w, r3.w
+                #line 308
+                    lt r2.w, r2.w, r7.w
+                    sincos null, r5.w, r5.w
+                    lt r5.w, r8.x, r5.w
+                    or r2.w, r2.w, r5.w
                 
-                #line 306
-                    if_z r1.w
+                #line 315
+                    if_z r2.w
                       mov r8.xyz, -r12.xyzx
-                      dp3 r1.w, r8.xyzx, r10.xyzx
-                      mul r0.z, r0.z, r1.w  // diffuseCosFactor<0:NaN:Inf>
+                      dp3 r2.w, r8.xyzx, r10.xyzx
+                      mul r0.z, r0.z, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 311
+                #line 320
                       nop 
                 
-                #line 179
-                      ine r1.w, l(0, 0, 0, 0), cb1[3].x
-                      if_nz r1.w
+                #line 188
+                      ine r2.w, l(0, 0, 0, 0), cb1[3].x
+                      if_nz r2.w
                         sample_indexable(texture2d)(float,float,float,float) r8.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                       else 
                 
-                #line 186
+                #line 195
                         mov r8.xyz, cb1[1].xyzx  // outDiffColor3<0,1,2>
                 
-                #line 179
+                #line 188
                       endif 
                 
-                #line 311
+                #line 320
                       mov r8.xyz, r8.xyzx  // diffuseColor3<0:Inf,1:Inf,2:Inf>
                       nop 
                       mov r0.z, r0.z  // diffuseCosFactor<0:NaN:Inf>
                       mov r0.w, r0.w  // lightSpecIntensity<0>
-                      itof r1.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
-                      mov r2.w, r2.w  // Attenuation<0:NaN:Inf>
+                      itof r2.w, cb1[0].w  // matSpecSmoothLevel<0:[-2.14748e+009f,2.14748e+009f]>
+                      mov r3.w, r3.w  // Attenuation<0:NaN:Inf>
                       mov r9.xyz, cb1[0].xyzx  // matAmbientColor3<0,1,2>
-                      mov r1.xyz, r1.xyzx  // lightAmbientColor3<0,1,2>
+                      mov r1.xzw, r1.xxzw  // lightAmbientColor3<0,1,2>
                       mov r8.xyz, r8.xyzx  // matDiffuseColor3<0:Inf,1:Inf,2:Inf>
-                      mov r6.xyz, r6.xyzx  // lightDiffuseColor3<0,1,2>
+                      mov r5.xyz, r5.xyzx  // lightDiffuseColor3<0,1,2>
                       mov r13.xyz, cb1[2].xyzx  // matSpecColor3<0,1,2>
                       mov r7.xyz, r7.xyzx  // lightSpecColor3<0,1,2>
                       mov r11.xyz, r11.xyzx  // Vec_toCam<0:Inf,1:Inf,2:Inf>
                       mov r12.xyz, r12.xyzx  // UnitLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r10.xyz, r10.xyzx  // Normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 149
-                      mul r1.xyz, r1.xyzx, r9.xyzx
-                      mul r9.xyz, r8.xyzx, r1.xyzx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                #line 158
+                      mul r1.xzw, r1.xxzw, r9.xxyz
+                      mul r9.xyz, r8.xyzx, r1.xzwx  // outAmbient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                       mov r9.w, l(1.000000)  // outAmbient<3: 1f>
                 
-                #line 154
+                #line 163
                       lt r1.x, l(0.000000), r0.z
                 
-                #line 157
-                      mul r0.z, r0.z, r2.w
-                      mul r6.xyz, r6.xyzx, r8.xyzx
-                      mov r6.w, l(1.000000)
-                      mul r6.xyzw, r0.zzzz, r6.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 166
+                      mul r0.z, r0.z, r3.w
+                      mul r5.xyz, r5.xyzx, r8.xyzx
+                      mov r5.w, l(1.000000)
+                      mul r5.xyzw, r0.zzzz, r5.xyzw  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 160
+                #line 169
                       dp3 r0.z, r12.xyzx, r10.xyzx
                       add r0.z, r0.z, r0.z
                       mov r0.z, -r0.z
                       mul r8.xyz, r0.zzzz, r10.xyzx
                       add r8.xyz, r12.xyzx, r8.xyzx  // tmpV<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 163
+                #line 172
                       dp3 r0.z, r11.xyzx, r11.xyzx
                       rsq r0.z, r0.z
                       mul r10.xyz, r0.zzzz, r11.xyzx  // Vec_toCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 166
+                #line 175
                       dp3 r0.z, r8.xyzx, r10.xyzx
                       max r0.z, r0.z, l(0.000000)
                       log r0.z, r0.z
-                      mul r0.z, r0.z, r1.w
+                      mul r0.z, r0.z, r2.w
                       exp r0.z, r0.z
                       mul r0.z, r0.z, r0.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 169
-                      mul r0.z, r0.z, r2.w
+                #line 178
+                      mul r0.z, r0.z, r3.w
                       mul r7.xyz, r7.xyzx, r13.xyzx
                       mov r7.w, l(1.000000)
                       mul r7.xyzw, r0.zzzz, r7.xyzw  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 154
-                      movc r6.xyzw, r1.xxxx, r6.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      movc r1.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 163
+                      movc r5.xyzw, r1.xxxx, r5.xyzw, l(0,0,0,1.000000)  // outDiffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      movc r7.xyzw, r1.xxxx, r7.xyzw, l(0,0,0,1.000000)  // outSpecular<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 313
+                #line 322
                       mov r9.xyzw, r9.xyzw  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3: 1f>
-                      mov r6.xyzw, r6.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                      mov r1.xyzw, r1.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mov r5.xyzw, r5.xyzw  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                      mov r7.xyzw, r7.xyzw  // outSpec4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 321
-                      add r6.xyzw, r6.xyzw, r9.xyzw
-                      add r1.xyzw, r1.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 330
+                      add r5.xyzw, r5.xyzw, r9.xyzw
+                      add r5.xyzw, r7.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 306
+                #line 315
                     else 
-                      mov r1.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
+                      mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                     endif 
                 
-                #line 88 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
-                    mov r1.xyzw, r1.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                    add r4.xyzw, r1.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                #line 97 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
+                    mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    add r4.xyzw, r4.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 86
+                #line 95
                     iadd r0.y, r0.y, l(1)  // i<0>
                   endloop 
                 
-                #line 74
+                #line 83
                 endif 
                 
-                #line 95
-                max r0.xyzw, r4.xyzw, l(0.000000, 0.000000, 0.000000, 0.000000)
-                min r0.xyzw, r0.xyzw, l(1.000000, 1.000000, 1.000000, 1.000000)  // finalColor4<0:[0f,1f],1:[0f,1f],2:[0f,1f],3:[0f,1f]>
-                mov o0.xyzw, r0.xyzw  // PS_DefaultDraw<0:[0f,1f],1:[0f,1f],2:[0f,1f],3:[0f,1f]>
+                #line 104
+                ine r0.x, l(0, 0, 0, 0), cb3[0].w
+                if_nz r0.x
+                  mov r0.x, -cb3[1].x
+                  add r0.y, r0.x, r1.y
+                  add r0.x, r0.x, cb3[1].y
+                  div r0.x, r0.y, r0.x
+                  max r0.x, r0.x, l(0.000000)  // fogInterpolationFactor<0:Inf:[-0f,1.#INFf]>
+                  mov r1.xyzw, -r4.xyzw
+                  mov r2.xyz, cb3[0].xyzx
+                  mov r2.w, l(1.000000)
+                  add r1.xyzw, r1.xyzw, r2.xyzw
+                  mul r0.xyzw, r0.xxxx, r1.xyzw
+                  add r4.xyzw, r0.xyzw, r4.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 104
+                endif 
+                
+                #line 110
+                mov o0.xyzw, r4.xyzw  // PS_DefaultDraw<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 ret 
-                // Approximately 585 instruction slots used
+                // Approximately 607 instruction slots used
                             
             };
         }
@@ -1356,7 +1408,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 106 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 120 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw
@@ -1402,7 +1454,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 114 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 128 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid3D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -1448,7 +1500,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 2
                 
-                #line 123 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 137 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -1485,7 +1537,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 130 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 144 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid2D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -1532,7 +1584,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 139 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 153 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -1581,7 +1633,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 1
                 
-                #line 147 "F:\1VS PROJECT\3D\Noise3D -(13)Blend State\RenderWindow\Main.fx"
+                #line 161 "F:\1VS PROJECT\3D\Noise3D -(14)Fog\RenderWindow\Main.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // outputColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 mov o0.xyzw, r0.xyzw  // PS_Textured2D<0:Inf,1:Inf,2:Inf,3:Inf>
                 ret 

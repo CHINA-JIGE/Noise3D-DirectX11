@@ -48,6 +48,15 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 	float3 Vec_ToCam = gCamPos - input.posW;
 	
 	
+	//compute fog effect
+	//skip pixel if it is totally fogged
+	float Dist_CurrPointToCam = length(Vec_ToCam);
+	if(gFogEnabled==1 && Dist_CurrPointToCam>gFogFar)
+	{
+		return float4(gFogColor3,1.0f);
+	}
+
+	
 	//compute DYNAMIC LIGHT
 	int i = 0;
 	if(gIsLightingEnabled_Dynamic)
@@ -91,8 +100,13 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 	}
 
 
-	//clamp to [0,1]
-	finalColor4 = saturate(finalColor4);
+	//at last compute fog  ( point farther than gFogFar has been skipped
+	if(gFogEnabled)
+	{
+		float fogInterpolationFactor = max(0,(Dist_CurrPointToCam - gFogNear)/(gFogFar-gFogNear));
+		finalColor4 = lerp(finalColor4,float4(gFogColor3,1.0f),fogInterpolationFactor);
+	}
+
     return finalColor4;
 }
 

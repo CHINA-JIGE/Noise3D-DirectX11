@@ -50,8 +50,6 @@ struct N_Material_Basic
 
 
 
-
-
 /**********************************************************************
 			 CONSTANT    BUFFER
 **************************************************************************/
@@ -80,10 +78,10 @@ cbuffer cbPerSubset
 {
 	//Material
 	N_Material_Basic	gMaterial;
-	int					gIsDiffuseMapValid;
-	float				gIsNormalMapValid;
-	float				gIsSpecularMapValid;
-	float				mPad2;
+	int				gIsDiffuseMapValid;
+	int				gIsNormalMapValid;
+	int				gIsSpecularMapValid;
+	int				mPad2;
 };
 
 cbuffer	cbRarely
@@ -103,6 +101,17 @@ cbuffer cbSolid3D
 {
 	float4x4	gProjMatrix_Line3D;
 	float4x4	gViewMatrix_Line3D;
+};
+
+
+cbuffer cbAtmosphere
+{
+	float3	gFogColor3;				
+	int		gFogEnabled;
+	float	gFogNear;
+	float	gFogFar;
+	float		gPad1;
+	float		gPad2;
 };
 
 

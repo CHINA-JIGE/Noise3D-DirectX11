@@ -37,6 +37,7 @@
 #include "N3D_NoiseGraphicObject.h"
 #include "N3D_NoiseTextureManager.h"
 #include "N3D_NoiseMaterialManager.h"
+#include "N3D_NoiseAtmosphere.h"
 #include "N3D_NoiseScene.h"
 #include "NUT_NoiseUtTimer.h"
 #include "NUT_NoiseUtSlicer.h"

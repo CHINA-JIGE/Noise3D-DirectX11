@@ -22,10 +22,6 @@ NoiseScene::NoiseScene()
 	m_pChildGraphicObjectList	= new std::vector<NoiseGraphicObject*>;
 };
 
-NoiseScene::~NoiseScene()
-{
-}
-
 void NoiseScene::ReleaseAllChildObject()
 {
 	if (m_pChildCamera)			m_pChildCamera->SelfDestruction();
@@ -37,6 +33,8 @@ void NoiseScene::ReleaseAllChildObject()
 	if (m_pChildTextureMgr)	m_pChildTextureMgr->SelfDestruction();
 
 	if (m_pChildMaterialMgr)	m_pChildMaterialMgr->SelfDestruction();
+
+	if (m_pChildAtmosphere)	m_pChildAtmosphere->SelfDestruction();
 
 	if (m_pChildMeshList)
 	{
@@ -54,12 +52,11 @@ void NoiseScene::ReleaseAllChildObject()
 		}
 	}
 
-
 };
 
 BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
 {
-	if(pMesh != NULL)
+	if(pMesh != nullptr)
 	{
 		m_pChildMeshList->push_back(pMesh);
 		pMesh->m_pFatherScene =this;
@@ -74,7 +71,7 @@ BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
 
 BOOL NoiseScene::CreateRenderer(NoiseRenderer* pRenderer)
 {
-	if(pRenderer != NULL)
+	if(pRenderer != nullptr)
 	{
 		m_pChildRenderer = pRenderer;
 		pRenderer->m_pFatherScene =this;
@@ -88,7 +85,7 @@ BOOL NoiseScene::CreateRenderer(NoiseRenderer* pRenderer)
 BOOL NoiseScene::CreateCamera(NoiseCamera* pSceneCam)
 {
 
-	if(pSceneCam != NULL)
+	if(pSceneCam != nullptr)
 	{
 		m_pChildCamera = pSceneCam;
 		pSceneCam->m_pFatherScene = this;
@@ -103,7 +100,7 @@ BOOL NoiseScene::CreateCamera(NoiseCamera* pSceneCam)
 BOOL NoiseScene::CreateLightManager(NoiseLightManager* pLightMgr)
 {
 
-	if(pLightMgr != NULL)
+	if(pLightMgr != nullptr)
 	{
 		m_pChildLightMgr = pLightMgr;
 		m_pChildLightMgr->m_pFatherScene = this;
@@ -117,7 +114,7 @@ BOOL NoiseScene::CreateLightManager(NoiseLightManager* pLightMgr)
 
 BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
 {
-	if (pGraphicObj != NULL)
+	if (pGraphicObj != nullptr)
 	{
 		m_pChildGraphicObjectList->push_back(pGraphicObj);
 		pGraphicObj->m_pFatherScene = this;
@@ -132,7 +129,7 @@ BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
 
 BOOL NoiseScene::CreateTextureManager(NoiseTextureManager* pTexMgr)
 {
-	if (pTexMgr != NULL)
+	if (pTexMgr != nullptr)
 	{
 		m_pChildTextureMgr = pTexMgr;
 		pTexMgr->m_pFatherScene = this;
@@ -147,7 +144,7 @@ BOOL NoiseScene::CreateTextureManager(NoiseTextureManager* pTexMgr)
 
 BOOL NoiseScene::CreateMaterialManager(NoiseMaterialManager * pMatMgr)
 {
-	if (pMatMgr != NULL)
+	if (pMatMgr != nullptr)
 	{
 		m_pChildMaterialMgr = pMatMgr;
 		pMatMgr->m_pFatherScene = this;
@@ -159,6 +156,21 @@ BOOL NoiseScene::CreateMaterialManager(NoiseMaterialManager * pMatMgr)
 
 	return TRUE;
 }
+
+BOOL NoiseScene::CreateAtmosphere(NoiseAtmosphere* pAtmosphere) 
+{
+	if (pAtmosphere != nullptr)
+	{
+		m_pChildAtmosphere = pAtmosphere;
+		pAtmosphere->m_pFatherScene = this;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+};
 
 void	NoiseScene::SetCamera(NoiseCamera* pSceneCam)
 {

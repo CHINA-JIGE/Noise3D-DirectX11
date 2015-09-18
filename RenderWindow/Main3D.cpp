@@ -11,6 +11,7 @@ NoiseCamera Camera;
 NoiseLightManager LightMgr;
 NoiseMaterialManager	MatMgr;
 NoiseTextureManager	TexMgr;
+NoiseAtmosphere			Atmos;
 
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
@@ -51,16 +52,17 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateGraphicObject(&GraphicObjBuffer);
 	Scene.CreateMaterialManager(&MatMgr);
 	Scene.CreateTextureManager(&TexMgr);
+	Scene.CreateAtmosphere(&Atmos);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
-	//Mesh1.LoadFile_STL("table.STL");
 	Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
-	//Mesh1.CreateSphere(6.0, 30, 30);
 	Mesh1.SetPosition(0,0,0);
 	Mesh1.SetScale(0.6f, 0.6f, 0.6f);
 	Camera.SetPosition(2.0f,0,0);
 	Camera.SetLookAt(0,0,0);
+	Atmos.SetFogEnabled(TRUE);
+	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
 	PointLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
@@ -128,7 +130,7 @@ void MainLoop()
 	Angle += 0.0005f;
 	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
 	Camera.SetLookAt(0,0,0);
-	GraphicObjBuffer.SetRectangle(0, NVECTOR2(300+100*sin(Angle), 240+100*cos(Angle)), 100.0f,50.0f, NVECTOR4(0.3f, 0.3f, 0.9f, 0.2f), TexMgr.GetIndexByName("Button"));
+	GraphicObjBuffer.SetRectangle(0, NVECTOR2(300 + 100 * sin(Angle), 240 + 100 * cos(Angle)), 100.0f, 50.0f, NVECTOR4(0.3f, 0.3f, 0.9f, 0.2f),TexMgr.GetIndexByName("Button"));
 	GraphicObjBuffer.SetEllipse(0, 100.0f, 100.0f, NVECTOR2(300+100 * sin(-Angle), 240+100 * cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), TexMgr.GetIndexByName("Planet"));
 
 
@@ -137,12 +139,14 @@ void MainLoop()
 	//add to render list
 	Mesh1.AddToRenderList();
 	GraphicObjBuffer.AddToRenderList();
+	Atmos.AddToRenderList();
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderMeshInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	Renderer.RenderGraphicObjectInList();
+	Renderer.RenderAtmosphereInList();
 
 	//present
 	Renderer.RenderToScreen();

@@ -43,6 +43,9 @@
     <Filter Include="N3D_NoiseGraphicObject">
       <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="N3D_NoiseAtmosphere">
+      <UniqueIdentifier>{a4edb57a-80b9-4330-bc5e-5e1a8a4dc3fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N3D_NoiseScene.h">
@@ -95,6 +98,9 @@
     </ClInclude>
     <ClInclude Include="N3D_NoiseGraphicObject.h">
       <Filter>N3D_NoiseGraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="N3D_NoiseAtmosphere.h">
+      <Filter>N3D_NoiseAtmosphere</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +159,9 @@
     </ClCompile>
     <ClCompile Include="N3D_NoiseGraphicObject.cpp">
       <Filter>N3D_NoiseGraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseAtmosphere.cpp">
+      <Filter>N3D_NoiseAtmosphere</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
