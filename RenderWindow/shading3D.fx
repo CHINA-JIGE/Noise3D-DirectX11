@@ -61,8 +61,6 @@ cbuffer cbPerObject
 
 cbuffer cbPerFrame
 {
-	float4x4				gProjMatrix;
-	float4x4				gViewMatrix;
 	//！！！！Dynamic Light！！！！
 	N_DirectionalLight gDirectionalLight_Dynamic[10];
 	N_PointLight	 gPointLight_Dynamic[10];
@@ -97,10 +95,10 @@ cbuffer	cbRarely
 };
 
 
-cbuffer cbSolid3D
+cbuffer cbCameraMatrix
 {
-	float4x4	gProjMatrix_Line3D;
-	float4x4	gViewMatrix_Line3D;
+	float4x4	gProjMatrix;
+	float4x4	gViewMatrix;
 };
 
 
@@ -110,8 +108,8 @@ cbuffer cbAtmosphere
 	int		gFogEnabled;
 	float	gFogNear;
 	float	gFogFar;
-	float		gPad1;
-	float		gPad2;
+	int		gIsSkyDomeTextureValid;
+	int		gIsSkyBoxTextureValid;
 };
 
 

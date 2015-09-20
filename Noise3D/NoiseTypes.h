@@ -158,8 +158,6 @@ struct N_SubsetInfo
 //GPU Memory : 128 byte alignment
 struct N_CbPerFrame
 {
-	NMATRIX			mProjMatrix;
-	NMATRIX			mViewMatrix;
 	N_DirectionalLight mDirectionalLight_Dynamic[10];//放心 已经对齐了
 	N_PointLight	 mPointLight_Dynamic[10];
 	N_SpotLight	mSpotLight_Dynamic[10];
@@ -198,7 +196,7 @@ struct N_CbRarely
 	int		mIsLightingEnabled_Static;
 };
 
-struct N_CbSolid3D
+struct N_CbCameraMatrix
 {
 	NMATRIX mProjMatrix;
 	NMATRIX	mViewMatrix;
@@ -210,8 +208,8 @@ struct N_CbAtmosphere
 	int				mIsFogEnabled;
 	float				mFogNear;
 	float				mFogFar;
-	float				mPad1;
-	float				mPad2;
+	int				mIsSkyDomeTextureValid;
+	int				mIsSkyBoxTextureValid;
 };
 
 
@@ -242,4 +240,4 @@ struct N_DrawCall_VertexRegion
 	UINT specTexID;
 	UINT	 startVertexID;
 	UINT vertexCount;
-}
+};

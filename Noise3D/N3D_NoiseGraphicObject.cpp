@@ -1352,8 +1352,8 @@ void		NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NV
 {
 	//first ,  get the pixel size of main back buffer (global var)
 	float halfW= (float)g_MainBufferPixelWidth / 2.0f;
-	float halfH = (float)g_MainBufferPixelWidth / 2.0f;
-	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		(pxCoord.y / halfH)-1);
+	float halfH = (float)g_MainBufferPixelHeight / 2.0f;
+	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		1-(pxCoord.y / halfH));
 }
 
 float		NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)

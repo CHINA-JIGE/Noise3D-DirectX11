@@ -117,7 +117,7 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 VS_OUTPUT_SIMPLE VS_Solid3D(VS_INPUT_SIMPLE input)
 {
 	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
-	output.posH = mul(mul(float4(input.posL, 1.0f),gViewMatrix_Line3D), gProjMatrix_Line3D);
+	output.posH = mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix);
 	output.color = input.color;
 	output.texcoord = input.texcoord;
 	return output;
@@ -150,7 +150,7 @@ float4 PS_Solid2D(VS_OUTPUT_SIMPLE input) : SV_Target
 VS_OUTPUT_SIMPLE VS_Textured2D(VS_INPUT_SIMPLE input)
 {
 	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
-	output.posH = float4(input.posL,1.0f);
+	output.posH = float4(input.posL,1.0f);//mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix);
 	output.color = input.color;
 	output.texcoord = input.texcoord;
 	return output;
@@ -161,6 +161,34 @@ float4 PS_Textured2D(VS_OUTPUT_SIMPLE input) : SV_Target
 	float4 outputColor = g2D_DiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
 	return outputColor;
 }
+
+
+
+//--------------------------------------------Draw Sky------------------------------------------
+VS_OUTPUT_SIMPLE VS_DrawSky(VS_INPUT_SIMPLE input)
+{
+	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
+	
+	//erase translation in original view matrix
+	/*float4x4 tmpViewMatrixWithoutTranslation = gViewMatrix;
+	tmpViewMatrixWithoutTranslation[0][3] = 0;
+	tmpViewMatrixWithoutTranslation[1][3] = 0;
+	tmpViewMatrixWithoutTranslation[2][3] = 0;*/
+	
+	//so the sky will always be in the same relative position with camera  (w = 0.0f means the triangles lie in  infinitely far from original point)
+	output.posH = float4(mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix).xy,0.999f,1.0f);
+	output.color = input.color;
+	output.texcoord = input.texcoord;
+	return output;
+}
+
+float4 PS_DrawSky(VS_OUTPUT_SIMPLE input) : SV_Target
+{
+	float4 outputColor = gDiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
+	return outputColor;
+}
+
+
 
 
 
@@ -199,5 +227,14 @@ technique11 DrawTextured2D
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_Textured2D()));
 		SetPixelShader(CompileShader(ps_5_0, PS_Textured2D()));
+	}
+}
+
+technique11 DrawSky
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky()));
 	}
 }

@@ -50,17 +50,17 @@ private:
 
 	void				mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode);
 
-	void				mFunction_RenderMeshInList_UpdatePerObject();
+	void				mFunction_CameraMatrix_Update();
 
-	void				mFunction_RenderMeshInList_UpdatePerFrame();
+	void				mFunction_RenderMeshInList_UpdateCbPerObject();
 
-	void				mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID);
+	void				mFunction_RenderMeshInList_UpdateCbPerFrame();
 
-	void				mFunction_RenderMeshInList_UpdateRarely();
+	void				mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID);
+
+	void				mFunction_RenderMeshInList_UpdateCbRarely();
 
 	//render graphic object
-	void				mFunction_GraphicObj_Update_RenderSolid3D();
-
 	void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
 
 	void				mFunction_GraphicObj_RenderLine3DInList();
@@ -73,7 +73,13 @@ private:
 
 	void				mFunction_GraphicObj_RenderTriangle2DInList();
 
-	void				mFunction_Atmosphere_Update();
+	void				mFunction_Atmosphere_Fog_Update();
+
+	void				mFunction_Atmosphere_SkyDome_Update();
+
+	void				mFunction_Atmosphere_SkyBox_Update();
+
+	void				mFunction_Atmosphere_UpdateCbAtmosphere();
 
 	//validate Mat/Tex ID in case of 'out of range' error
 	UINT				mFunction_ValidateTextureID(UINT texID);
@@ -104,11 +110,12 @@ private:
 	NOISE_BLENDMODE						m_BlendMode;
 
 	//在App中先定义好所有Struct再一次更新
+	BOOL										mCanUpdateCbCameraMatrix;
 	N_CbPerFrame							m_CbPerFrame;
 	N_CbPerObject							m_CbPerObject;
 	N_CbPerSubset							m_CbPerSubset;
 	N_CbRarely								m_CbRarely;
-	N_CbSolid3D								m_CbSolid3D;
+	N_CbCameraMatrix					m_CbCameraMatrix;
 	N_CbAtmosphere						m_CbAtmosphere;
 
 	//用于从app更新到Gpu的接口
@@ -118,6 +125,7 @@ private:
 	ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 	ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;
 	ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
+	ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;
 
 	ID3DX11EffectConstantBuffer* m_pFX_CbPerObject;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerFrame;
@@ -129,6 +137,5 @@ private:
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
-
 	ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
 };

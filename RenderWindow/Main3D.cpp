@@ -54,84 +54,58 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateTextureManager(&TexMgr);
 	Scene.CreateAtmosphere(&Atmos);
 
-	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
-	Mesh1.CreateBox(5.0f,5.0f,5.0f,5,5,5);
-	Mesh1.SetPosition(0,0,0);
-	Mesh1.SetScale(0.6f, 0.6f, 0.6f);
-	Camera.SetPosition(2.0f,0,0);
-	Camera.SetLookAt(0,0,0);
-	Atmos.SetFogEnabled(TRUE);
-	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-
-	//！！！！！！菊高！！！！！！！！
-	PointLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
-	PointLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
-	PointLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
-	PointLight1.mPosition			=NVECTOR3(-3.0f,5.0f,-3.0f);
-	PointLight1.mSpecularIntensity	=1.1f;
-	PointLight1.mDiffuseIntensity = 1.2f;
-	PointLight1.mAttenuationFactor = 0.0f;
-	PointLight1.mLightingRange = 100.0f;
-	LightMgr.AddDynamicPointLight(&PointLight1);
-
-
 	//只郡符薮夕
 	TexMgr.CreateTextureFromFile(L"texture.jpg", "Earth", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"universe.jpg", "Universe", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.png", "BottomRightTitle", TRUE, 0, 0);
+
+	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
+	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
+	Mesh1.CreateSphere(4.0f,30,30);
+	Mesh1.SetPosition(0,0,0);
+	Camera.SetPosition(2.0f,0,0);
+	Camera.SetLookAt(0,0,0);
+	Camera.SetViewAngle(MATH_PI / 2, 1.333f);
+	Atmos.SetFogEnabled(FALSE);
+	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
+	Atmos.CreateSkyDome(10.0f, 3.0f, TexMgr.GetIndexByName("Universe"));
+
+	//！！！！！！菊高！！！！！！！！
+	DirLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
+	DirLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
+	DirLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
+	DirLight1.mDirection = NVECTOR3(1.0f, -0.5f, 0);
+	DirLight1.mSpecularIntensity	=1.1f;
+	DirLight1.mDiffuseIntensity = 1.0f;
+	LightMgr.AddDynamicDirLight(&DirLight1);
 
 	N_Material Mat1;
 	Mat1.baseColor.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
 	Mat1.baseColor.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
 	Mat1.baseColor.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
-	Mat1.baseColor.mSpecularSmoothLevel	=	20;
-	Mat1.diffuseMapID = TexMgr.GetIndexByName("Wood");
+	Mat1.baseColor.mSpecularSmoothLevel	=	50;
+	Mat1.diffuseMapID = TexMgr.GetIndexByName("Earth");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
 	Mesh1.SetMaterial(Mat1_ID);
 
-
-	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("table.STL");
-	Slicer.Step2_Intersection(50);
-	Slicer.Step3_GenerateLineStrip();*/
-	//Slicer.Step4_SaveLayerDataToFile("table.NOISELAYER");
-	//Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("table.NOISELAYER");
-
-
-	/*NVECTOR3 v1, v2,n;
-	for (UINT i = 0;i < Slicer.GetLineStripCount();i++)
-	{
-		
-		Slicer.GetLineStrip(lineStrip, i);
-		for (UINT j = 0;j < lineStrip.at(i).pointList.size() - 1;j++)
-		{
-			v1 =	lineStrip.at(i).pointList.at(j);
-			v2 =	lineStrip.at(i).pointList.at(j + 1);
-			n =	lineStrip.at(i).normalList.at(j);
-			//vertex
-			GraphicObjBuffer.AddLine3D(v1, v2);
-			//normal
-			GraphicObjBuffer.AddLine3D((v1+v2)/2 , ((v1 + v2) / 2)+n,NVECTOR4(1.0f,1.0f,1.0f,1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
-		}
-	}*/
 	GraphicObjBuffer.AddLine2D(NVECTOR2(-1.0f, 0), NVECTOR2(1.0f, 0));
 	GraphicObjBuffer.AddLine2D(NVECTOR2(0, 1.0f), NVECTOR2(0,-1.0f));
-	GraphicObjBuffer.AddRectangle(NVECTOR2(-0.7f, -0.7f), NVECTOR2(-0.5f, -0.5f), NVECTOR4(1.0f,0,0,1.0f), TexMgr.GetIndexByName("Button"));
-	GraphicObjBuffer.AddEllipse(0.3f, 0.3f, NVECTOR2(0.6f, 0.6f), NVECTOR4(0, 1.0f, 0, 1.0f), 20, TexMgr.GetIndexByName("Earth"));
+	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0, 0, 0, 0), TexMgr.GetIndexByName("BottomRightTitle"));
 	return TRUE;
 };
 
 
 void MainLoop()
 {
-	Angle += 0.0005f;
-	Camera.SetPosition(7.0f*cos(Angle),5.0f,7.0f*sin(Angle));
+	Angle += 0.0003f;
+	Camera.SetPosition(7.0f*cos(Angle),4.0f,7.0f*sin(Angle));
 	Camera.SetLookAt(0,0,0);
-	GraphicObjBuffer.SetRectangle(0, NVECTOR2(300 + 100 * sin(Angle), 240 + 100 * cos(Angle)), 100.0f, 50.0f, NVECTOR4(0.3f, 0.3f, 0.9f, 0.2f),TexMgr.GetIndexByName("Button"));
-	GraphicObjBuffer.SetEllipse(0, 100.0f, 100.0f, NVECTOR2(300+100 * sin(-Angle), 240+100 * cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), TexMgr.GetIndexByName("Planet"));
+	//GraphicObjBuffer.SetEllipse(0, 100.0f, 100.0f, NVECTOR2(300+100 * sin(-Angle), 240+100 * cos(-Angle)), NVECTOR4(0, 1.0f, 0, 0.5f), TexMgr.GetIndexByName("Planet"));
 
 
 	Renderer.ClearBackground();
@@ -146,6 +120,7 @@ void MainLoop()
 	Renderer.RenderMeshInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	Renderer.RenderGraphicObjectInList();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderAtmosphereInList();
 
 	//present

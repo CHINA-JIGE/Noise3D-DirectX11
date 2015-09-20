@@ -13,7 +13,7 @@
 NoiseAtmosphere::NoiseAtmosphere()
 {
 	mFogEnabled = FALSE;
-	mCanUpdateAmtosphere = FALSE;
+	mFogCanUpdateToGpu = FALSE;
 	m_pFogColor = new NVECTOR3(1.0f, 1.0f, 1.0f);
 	mFogNear = 10;
 	mFogFar = 100;
@@ -24,6 +24,7 @@ NoiseAtmosphere::NoiseAtmosphere()
 	mSkyDomeRadiusXZ =100;
 	mSkyDomeHeight = 100;
 	mSkyDomeTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
+	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_INVALID;
 
 }
 
@@ -52,7 +53,7 @@ BOOL NoiseAtmosphere::AddToRenderList()
 void NoiseAtmosphere::SetFogEnabled(BOOL isEnabled)
 {
 	mFogEnabled = isEnabled;
-	mCanUpdateAmtosphere = TRUE;
+	mFogCanUpdateToGpu = TRUE;
 }
 
 void NoiseAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
@@ -73,7 +74,7 @@ void NoiseAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 colo
 	//set color
 	*m_pFogColor = color;
 
-	mCanUpdateAmtosphere = TRUE;
+	mFogCanUpdateToGpu = TRUE;
 }
 
 BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
@@ -138,8 +139,8 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 			//the Y coord of  current ring 
 			tmpY = fHeight *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
 
-			////Pythagoras theorem(勾股定理)
-			tmpRingRadius = sqrtf(fRadiusXZ*fRadiusXZ - tmpY * tmpY);
+			// radius of current horizontal ring 
+			tmpRingRadius = fRadiusXZ* sqrtf(1 - (tmpY * tmpY)/(fHeight*fHeight));
 
 			////trigonometric function(三角函数)
 			tmpX = tmpRingRadius * cos(j*StepLength_AngleXZ);
@@ -191,10 +192,11 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 			|/		k+2
 
 			*/
-			//+1是因为复制了第一列，比原来设好的列数多出一列
+			//rotating order is different from the one in mesh ,because sky dome face inside
 			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 0);
-			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 1);
 			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
+			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 1);
+
 
 			/*
 			k+3
@@ -204,8 +206,9 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 
 			*/
 			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 1);
-			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 1);
 			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
+			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 1);
+			//m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
 
 		}
 	}
@@ -216,12 +219,14 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	for (j = 0;j<iColumnCount;j++)
 	{
 		m_pIB_Mem_Sky->push_back(j + 1);
-		m_pIB_Mem_Sky->push_back(j);
 		m_pIB_Mem_Sky->push_back(tmpVertexCount - 2);	//index of top vertex
+		m_pIB_Mem_Sky->push_back(j);
+		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 2);	//index of top vertex
 
 		m_pIB_Mem_Sky->push_back((iColumnCount + 1)* (iRingCount - 1) + j);
-		m_pIB_Mem_Sky->push_back((iColumnCount + 1) * (iRingCount - 1) + j + 1);
 		m_pIB_Mem_Sky->push_back(tmpVertexCount - 1); //index of bottom vertex
+		m_pIB_Mem_Sky->push_back((iColumnCount + 1) * (iRingCount - 1) + j + 1);
+		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 1); //index of bottom vertex
 	}
 
 
@@ -237,7 +242,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 
 	 //Create VERTEX BUFFER (GPU)
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* tmpVertexCount;
+	vbd.ByteWidth = sizeof(N_SimpleVertex)* tmpVertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -249,7 +254,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 
 	//create index buffer
 	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * tmpIndexCount;
+	ibd.ByteWidth = sizeof(UINT) * tmpIndexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -258,9 +263,30 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	hr = g_pd3dDevice->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
 	HR_DEBUG(hr, "INDEX BUFFER创建失败");
 
+	//set current sky type
+	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
+
+	return TRUE;
+}
+
+void NoiseAtmosphere::SetSkyDomeTexture(UINT texID)
+{
+	//validation will be done in NoiseRenderer
+	mSkyDomeTextureID = texID;
+};
+
+BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth)
+{
+
+	//set current sky type
+	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
 
 	return TRUE;
 };
+
+/***************************************************************
+									PRIVATE
+*****************************************************************/
 
 
 

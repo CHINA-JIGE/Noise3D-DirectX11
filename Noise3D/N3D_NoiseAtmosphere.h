@@ -6,12 +6,6 @@
 
 #pragma once
 
-enum NOISE_ATMOSPHERE_SKYTYPE
-{
-	NOISE_ATMOSPHERE_SKYTYPE_BOX = 0,
-	NOISE_ATMOSPHERE_SKYTYPE_SPHERE = 1,
-};
-
 
 public class _declspec(dllexport) NoiseAtmosphere
 {
@@ -33,22 +27,23 @@ public:
 
 	BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, UINT texID);
 
+	void		SetSkyDomeTexture(UINT texID);
+
 	BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth);
 
 private:
 	NoiseScene*		m_pFatherScene;
 
-	//we dont need to update atmo param frequently
-	BOOL				mCanUpdateAmtosphere;
-	
-	//only after atmosphere was added to render list can we 
+	//only after atmosphere was added to render list can we add apply fog effect
 	BOOL				mFogHasBeenAddedToRenderList;
+	BOOL				mFogCanUpdateToGpu;//we dont need update fog param frequently
 	BOOL				mFogEnabled;
 	float					mFogNear;
 	float					mFogFar;
 	NVECTOR3*		m_pFogColor;
 
-	//skybox
+	//sky
+	NOISE_ATMOSPHERE_SKYTYPE		mSkyType;
 	float												mSkyDomeRadiusXZ;
 	float												mSkyDomeHeight;
 	UINT												mSkyDomeTextureID;

@@ -10,6 +10,7 @@ struct N_Texture_Object
 {
 	N_Texture_Object() { ZeroMemory(this,sizeof(*this)); }
 	std::string	 mTexName;
+	ID3D11Texture2D*	m_pTexture2D;
 	ID3D11ShaderResourceView* m_pSRV;
 };
 

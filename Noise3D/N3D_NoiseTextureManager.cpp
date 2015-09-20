@@ -38,7 +38,7 @@ UINT NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureN
 
 	//some settings about loading image
 	D3DX11_IMAGE_LOAD_INFO loadInfo;
-	
+
 	//we must check if user want to use default image size
 	if (useDefaultSize)
 	{
@@ -54,6 +54,7 @@ UINT NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureN
 	//continue filling the settings
 	loadInfo.Filter = D3DX11_FILTER_LINEAR;
 	loadInfo.MiscFlags = D3DX11_DEFAULT;
+	loadInfo.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 	//create New Texture Object
 	HRESULT hr = S_OK;
@@ -73,7 +74,7 @@ UINT NoiseTextureManager::CreateTextureFromFile(LPCWSTR filePath, char* textureN
 
 	//allocate a new element
 	m_pTextureObjectList->push_back(tmpTexObj);
-
+	
 	//Create SRV
 	D3DX11CreateShaderResourceViewFromFile(
 		g_pd3dDevice,

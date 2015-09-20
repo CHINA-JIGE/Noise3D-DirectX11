@@ -21,13 +21,17 @@ static D3DX11_TECHNIQUE_DESC	tmp_pTechDesc;
 
 NoiseRenderer::NoiseRenderer()
 {
-	m_pFatherScene			= NULL;
+	m_pFatherScene			= nullptr;
+	mCanUpdateCbCameraMatrix = FALSE;
 	m_pRenderList_Mesh				= new std::vector <NoiseMesh*>;
 	m_pRenderList_GraphicObject	= new std::vector<NoiseGraphicObject*>;
 	m_pRenderList_Atmosphere		= new std::vector<NoiseAtmosphere*>;
-	m_pFX = NULL;
-	m_pFX_Tech_Default = NULL;
-	m_pFX_Tech_Solid3D = NULL;
+	m_pFX = nullptr;
+	m_pFX_Tech_Default = nullptr;
+	m_pFX_Tech_Solid3D = nullptr;
+	m_pFX_Tech_Solid2D = nullptr;
+	m_pFX_Tech_Textured2D = nullptr;
+	m_pFX_Tech_DrawSky = nullptr;
 	m_FillMode = NOISE_FILLMODE_SOLID;
 	m_CullMode = NOISE_CULLMODE_NONE;
 	m_BlendMode = NOISE_BLENDMODE_OPAQUE;
@@ -63,11 +67,14 @@ void	NoiseRenderer::RenderMeshInList()
 	 tmp_pCamera = m_pFatherScene->GetCamera();
 
 	//更新ConstantBuffer:修改过就更新(cbRarely)
-	 mFunction_RenderMeshInList_UpdateRarely();
+	 mFunction_RenderMeshInList_UpdateCbRarely();
 
 
 	//更新ConstantBuffer:每帧更新一次 (cbPerFrame)
-	 mFunction_RenderMeshInList_UpdatePerFrame();
+	 mFunction_RenderMeshInList_UpdateCbPerFrame();
+
+	 //更新ConstantBuffer : Proj / View Matrix
+	 mFunction_CameraMatrix_Update();
 
 
 #pragma region Render Mesh
@@ -78,7 +85,7 @@ void	NoiseRenderer::RenderMeshInList()
 		tmp_pMesh = m_pRenderList_Mesh->at(i);
 
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
-		mFunction_RenderMeshInList_UpdatePerObject();
+		mFunction_RenderMeshInList_UpdateCbPerObject();
 
 		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
@@ -97,7 +104,7 @@ void	NoiseRenderer::RenderMeshInList()
 		for (j = 0;j < meshSubsetCount;j++)
 		{
 			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
-			mFunction_RenderMeshInList_UpdatePerSubset(j);
+			mFunction_RenderMeshInList_UpdateCbPerSubset(j);
 
 			//遍历所用tech的所有pass ---- index starts from 1
 			m_pFX_Tech_Default->GetDesc(&tmp_pTechDesc);
@@ -154,20 +161,72 @@ void NoiseRenderer::RenderAtmosphereInList()
 	UINT i = 0;
 	tmp_pCamera = m_pFatherScene->GetCamera();
 
+
+	//update view/proj matrix
+	mFunction_CameraMatrix_Update();
+
+
 	//actually there is only 1 atmosphere because you dont need more 
 	for (i = 0;i < m_pRenderList_Atmosphere->size();i++)
 	{
 		tmp_pAtmo = m_pRenderList_Atmosphere->at(i);
-		
-		//update Vertices or atmo param to GPU
-		mFunction_Atmosphere_Update();
 
+		//enable/disable fog effect 
+		mFunction_Atmosphere_Fog_Update();
+
+
+
+	#pragma region Draw Sky
+
+		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pAtmo->m_pVB_Gpu_Sky, &VBstride_Simple, &VBoffset);
+		g_pImmediateContext->IASetIndexBuffer(tmp_pAtmo->m_pIB_Gpu_Sky, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		mFunction_SetRasterState(m_FillMode, m_CullMode);
+		mFunction_SetBlendState(m_BlendMode);
+
+		switch (tmp_pAtmo->mSkyType)
+		{
+		case NOISE_ATMOSPHERE_SKYTYPE_DOME:
+			//update Vertices or atmo param to GPU
+			mFunction_Atmosphere_SkyDome_Update();
+			mFunction_Atmosphere_UpdateCbAtmosphere();
+			break;
+
+		case NOISE_ATMOSPHERE_SKYTYPE_BOX:
+			//update Vertices or atmo param to GPU
+			mFunction_Atmosphere_SkyBox_Update();
+			mFunction_Atmosphere_UpdateCbAtmosphere();
+			break;
+
+		case NOISE_ATMOSPHERE_SKYTYPE_INVALID:
+			//skip updating sky
+			break;
+
+		default:
+			//skip updating sky
+			break;
+
+		}
+
+		mFunction_Atmosphere_UpdateCbAtmosphere();
+
+
+		//traverse passes in one technique ---- pass index starts from 1
+		m_pFX_Tech_DrawSky->GetDesc(&tmp_pTechDesc);
+		for (UINT k = 0;k < tmp_pTechDesc.Passes; k++)
+		{
+			m_pFX_Tech_DrawSky->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
+			g_pImmediateContext->DrawIndexed(tmp_pAtmo->m_pIB_Mem_Sky->size(), 0, 0);
+		}
+
+
+	#pragma endregion Draw Sky
 	}
 
 	//allow atmosphere to "add to render list" again 
 	tmp_pAtmo->mFogHasBeenAddedToRenderList = FALSE;
 };
-
 
 void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 {
@@ -181,6 +240,9 @@ void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 void	NoiseRenderer::RenderToScreen()
 {
 		g_pSwapChain->Present( 0, 0 );
+
+		//reset some state
+		mCanUpdateCbCameraMatrix = TRUE;
 
 		//clear render list
 		m_pRenderList_GraphicObject->clear();
@@ -219,10 +281,10 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_Tech_Solid3D = m_pFX->GetTechniqueByName("DrawSolid3D");
 	m_pFX_Tech_Solid2D = m_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_Textured2D = m_pFX->GetTechniqueByName("DrawTextured2D");
+	m_pFX_Tech_DrawSky = m_pFX->GetTechniqueByName("DrawSky");
 
 #pragma region Create Input Layout
-	//然后要创建InputLayout
-	//默认顶点
+	//default vertex input layout
 	D3DX11_PASS_DESC passDesc;
 	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice->CreateInputLayout(
@@ -233,7 +295,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 		&g_pVertexLayout_Default);
 	HR_DEBUG(hr, "创建input Layout失败！");
 
-	//simple顶点的
+	//simple vertex input layout
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice->CreateInputLayout(
 		&g_VertexDesc_Simple[0],
@@ -251,7 +313,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_CbPerObject=m_pFX->GetConstantBufferByName("cbPerObject");
 	m_pFX_CbPerSubset = m_pFX->GetConstantBufferByName("cbPerSubset");
 	m_pFX_CbRarely=m_pFX->GetConstantBufferByName("cbRarely");
-	m_pFX_CbSolid3D = m_pFX->GetConstantBufferByName("cbSolid3D");
+	m_pFX_CbSolid3D = m_pFX->GetConstantBufferByName("cbCameraMatrix");
 	m_pFX_CbAtmosphere = m_pFX->GetConstantBufferByName("cbAtmosphere");
 
 	//纹理
@@ -505,9 +567,29 @@ void		NoiseRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 		break;
 
 	}
+}
+
+void		NoiseRenderer::mFunction_CameraMatrix_Update()
+{
+	if (mCanUpdateCbCameraMatrix)
+	{
+		//update proj matrix
+		tmp_pCamera->mFunction_UpdateProjMatrix();
+		m_CbCameraMatrix.mProjMatrix = *(tmp_pCamera->m_pMatrixProjection);
+
+		// update view matrix
+		tmp_pCamera->mFunction_UpdateViewMatrix();
+		m_CbCameraMatrix.mViewMatrix = *(tmp_pCamera->m_pMatrixView);
+
+		//——————更新到GPU——————
+		m_pFX_CbSolid3D->SetRawValue(&m_CbCameraMatrix, 0, sizeof(m_CbCameraMatrix));
+
+		//..........
+		mCanUpdateCbCameraMatrix = FALSE;
+	}
 };
 
-void		NoiseRenderer::mFunction_RenderMeshInList_UpdateRarely()
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
 	
 	BOOL tmpCanUpdateCbRarely = FALSE;
@@ -549,16 +631,9 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateRarely()
 	};
 };
 
-void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerFrame()
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 {
-	//————更新Proj Matrix————
-	tmp_pCamera->mFunction_UpdateProjMatrix();
-	m_CbPerFrame.mProjMatrix = *(tmp_pCamera->m_pMatrixProjection);
 
-
-	//————更新View Matrix————
-	tmp_pCamera->mFunction_UpdateViewMatrix();
-	m_CbPerFrame.mViewMatrix = *(tmp_pCamera->m_pMatrixView);
 
 
 	//————更新Dynamic Light————
@@ -593,7 +668,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerFrame()
 	m_pFX_CbPerFrame->SetRawValue(&m_CbPerFrame,0,sizeof(m_CbPerFrame));
 };
 
-void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID)
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 {
 		//we dont accept invalid material ,but accept invalid texture
 		UINT	 currSubsetMatID = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matID;
@@ -638,7 +713,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerSubset(UINT subsetID)
 	
 };
 
-void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerObject()
+void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
 {
 	//————更新World Matrix————
 	tmp_pMesh->mFunction_UpdateWorldMatrix();
@@ -648,20 +723,6 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdatePerObject()
 	//——————更新到GPU——————
 	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject,0,sizeof(m_CbPerObject));
 };
-
-void		NoiseRenderer::mFunction_GraphicObj_Update_RenderSolid3D() 
-{
-	//update proj matrix
-	tmp_pCamera->mFunction_UpdateProjMatrix();
-	m_CbSolid3D.mProjMatrix		= *(tmp_pCamera->m_pMatrixProjection);
-
-	// update view matrix
-	tmp_pCamera->mFunction_UpdateViewMatrix();
-	m_CbSolid3D.mViewMatrix	= *(tmp_pCamera->m_pMatrixView);
-
-	//——————更新到GPU——————
-	m_pFX_CbSolid3D->SetRawValue(&m_CbSolid3D, 0, sizeof(m_CbSolid3D));
-}
 
 void		NoiseRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
 {
@@ -682,9 +743,8 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine3DInList()
 {
 	tmp_pCamera = m_pFatherScene->GetCamera();
 
-	//更新ConstantBuffer:专门给draw Line 3D开了一个cbuffer用于优化
-	mFunction_GraphicObj_Update_RenderSolid3D();
-
+	//更新ConstantBuffer : Proj / View Matrix
+	mFunction_CameraMatrix_Update();
 
 	//更新完cb就可以开始draw了
 	ID3D11Buffer* tmp_pVB = NULL;
@@ -713,9 +773,8 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint3DInList()
 {
 	tmp_pCamera = m_pFatherScene->GetCamera();
 
-	//更新ConstantBuffer:专门给draw Line 3D开了一个cbuffer用于优化
-	mFunction_GraphicObj_Update_RenderSolid3D();
-
+	//update view/proj matrix
+	mFunction_CameraMatrix_Update();
 
 	//更新完cb就可以开始draw了
 	ID3D11Buffer* tmp_pVB = NULL;
@@ -865,21 +924,47 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 	m_pRenderList_GraphicObject->clear();
 }
 
-void		NoiseRenderer::mFunction_Atmosphere_Update()
+void		NoiseRenderer::mFunction_Atmosphere_Fog_Update()
 {
-	if (tmp_pAtmo->mCanUpdateAmtosphere)
+	if (tmp_pAtmo->mFogCanUpdateToGpu)
 	{
 		//update fog param
-		m_CbAtmosphere.mFogColor =*( tmp_pAtmo->m_pFogColor);
+		m_CbAtmosphere.mFogColor = *(tmp_pAtmo->m_pFogColor);
 		m_CbAtmosphere.mFogFar = tmp_pAtmo->mFogFar;
 		m_CbAtmosphere.mFogNear = tmp_pAtmo->mFogNear;
-		m_CbAtmosphere.mIsFogEnabled =(BOOL)( tmp_pAtmo->mFogEnabled && tmp_pAtmo->mFogHasBeenAddedToRenderList);
-		
+		m_CbAtmosphere.mIsFogEnabled = (BOOL)(tmp_pAtmo->mFogEnabled && tmp_pAtmo->mFogHasBeenAddedToRenderList);
+
 		//udpate to GPU
 		m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
-		tmp_pAtmo->mCanUpdateAmtosphere = FALSE;
+		tmp_pAtmo->mFogCanUpdateToGpu = FALSE;
 	}
-}
+};
+
+void		NoiseRenderer::mFunction_Atmosphere_SkyDome_Update()
+{
+	//validate texture and update BOOL value to gpu
+	UINT skyDomeTexID = tmp_pAtmo->mSkyDomeTextureID;
+	m_CbAtmosphere.mIsSkyDomeTextureValid = (mFunction_ValidateTextureID(skyDomeTexID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+};
+
+void NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
+{
+
+};
+
+void NoiseRenderer::mFunction_Atmosphere_UpdateCbAtmosphere()
+{
+	//update valid texture to gpu
+	if (m_CbAtmosphere.mIsSkyDomeTextureValid)
+	{
+		//tmp_pAtmo->mSkyDomeTextureID has been validated
+		auto tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmp_pAtmo->mSkyDomeTextureID).m_pSRV;
+		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
+	}
+
+	m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
+};
+
 
 UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID)
 {
