@@ -165,26 +165,39 @@ float4 PS_Textured2D(VS_OUTPUT_SIMPLE input) : SV_Target
 
 
 //--------------------------------------------Draw Sky------------------------------------------
-VS_OUTPUT_SIMPLE VS_DrawSky(VS_INPUT_SIMPLE input)
+VS_OUTPUT_DEFAULT VS_DrawSky(VS_INPUT_SIMPLE input)
 {
-	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
+	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 	
-	//erase translation in original view matrix
-	/*float4x4 tmpViewMatrixWithoutTranslation = gViewMatrix;
-	tmpViewMatrixWithoutTranslation[0][3] = 0;
-	tmpViewMatrixWithoutTranslation[1][3] = 0;
-	tmpViewMatrixWithoutTranslation[2][3] = 0;*/
-	
-	//so the sky will always be in the same relative position with camera  (w = 0.0f means the triangles lie in  infinitely far from original point)
-	output.posH = float4(mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix).xy,0.999f,1.0f);
+	//so the sky will always be in the same relative position with camera  (ww means the triangles lie in  infinitely far from original point)
+	output.posH = float4(mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix).xy,1.0f,1.0f);
+	output.posW = input.posL;
 	output.color = input.color;
 	output.texcoord = input.texcoord;
 	return output;
 }
 
-float4 PS_DrawSky(VS_OUTPUT_SIMPLE input) : SV_Target
+float4 PS_DrawSky(VS_OUTPUT_DEFAULT input) : SV_Target
 {
-	float4 outputColor = gDiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
+	float4 outputColor = input.color;
+	
+	//both skybox and skydome are invalid
+	if((!gIsSkyDomeValid)&&(!gIsSkyBoxValid))
+	{
+		return outputColor;
+	}
+	if(gIsSkyDomeValid)
+	{
+		outputColor = gDiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
+		return outputColor;
+	}
+	if(gIsSkyBoxValid)
+	{
+		//what we need to intersect sky box is a world-space Vector , but we should map the irregular skybox to a standard normalized box
+		outputColor = gCubeMap.Sample(sampler2D_ANISOTROPIC,input.posW * float3(1/gSkyBoxWidth,1/gSkyBoxHeight,1/gSkyBoxDepth));
+		return outputColor;
+	}
+	
 	return outputColor;
 }
 
@@ -236,5 +249,6 @@ technique11 DrawSky
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
 		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky()));
+		SetDepthStencilState(LessEqualDSS, 0);
 	}
 }

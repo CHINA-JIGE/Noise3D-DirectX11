@@ -185,30 +185,11 @@ void NoiseRenderer::RenderAtmosphereInList()
 		mFunction_SetRasterState(m_FillMode, m_CullMode);
 		mFunction_SetBlendState(m_BlendMode);
 
-		switch (tmp_pAtmo->mSkyType)
-		{
-		case NOISE_ATMOSPHERE_SKYTYPE_DOME:
-			//update Vertices or atmo param to GPU
-			mFunction_Atmosphere_SkyDome_Update();
-			mFunction_Atmosphere_UpdateCbAtmosphere();
-			break;
-
-		case NOISE_ATMOSPHERE_SKYTYPE_BOX:
-			//update Vertices or atmo param to GPU
-			mFunction_Atmosphere_SkyBox_Update();
-			mFunction_Atmosphere_UpdateCbAtmosphere();
-			break;
-
-		case NOISE_ATMOSPHERE_SKYTYPE_INVALID:
-			//skip updating sky
-			break;
-
-		default:
-			//skip updating sky
-			break;
-
-		}
-
+		//update Vertices or atmo param to GPU
+		//shaders will decide to draw skybox or sky dome
+		//( there are SkyboxValid & SkyDomeValid BOOL)
+		mFunction_Atmosphere_SkyDome_Update();
+		mFunction_Atmosphere_SkyBox_Update();
 		mFunction_Atmosphere_UpdateCbAtmosphere();
 
 
@@ -320,6 +301,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_Texture_Diffuse = m_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	m_pFX_Texture_Normal = m_pFX->GetVariableByName("gNormalMap")->AsShaderResource();
 	m_pFX_Texture_Specular = m_pFX->GetVariableByName("gSpecularMap")->AsShaderResource();
+	m_pFX_Texture_CubeMap = m_pFX->GetVariableByName("gCubeMap")->AsShaderResource();
 	m_pFX2D_Texture_Diffuse = m_pFX->GetVariableByName("g2D_DiffuseMap")->AsShaderResource();
 
 #pragma endregion Create Fx Variable
@@ -680,10 +662,13 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 		ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 		m_CbPerSubset.basicMaterial = tmpMat.baseColor;
 
-		//first validate if ID is valid (within range / valid ID)
-		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID(tmpMat.diffuseMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID(tmpMat.normalMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID(tmpMat.specularMapID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		//first validate if ID is valid (within range / valid ID) valid== return original texID
+		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID(tmpMat.diffuseMapID,NOISE_TEXTURE_TYPE_COMMON) 
+			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID(tmpMat.normalMapID, NOISE_TEXTURE_TYPE_COMMON) 
+			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID(tmpMat.specularMapID, NOISE_TEXTURE_TYPE_COMMON) 
+			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 
 
 		//update textures, bound corresponding ShaderResourceView to the pipeline
@@ -730,7 +715,7 @@ void		NoiseRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
 
 	//......
-	TexID = mFunction_ValidateTextureID(TexID);
+	TexID = mFunction_ValidateTextureID(TexID,NOISE_TEXTURE_TYPE_COMMON);
 
 	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
@@ -944,41 +929,78 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyDome_Update()
 {
 	//validate texture and update BOOL value to gpu
 	UINT skyDomeTexID = tmp_pAtmo->mSkyDomeTextureID;
-	m_CbAtmosphere.mIsSkyDomeTextureValid = (mFunction_ValidateTextureID(skyDomeTexID) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+
+	//check skyType
+	if(tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
+	{
+		//if texture pass ID validation and match current-set skytype
+		m_CbAtmosphere.mIsSkyDomeValid = (mFunction_ValidateTextureID(skyDomeTexID,NOISE_TEXTURE_TYPE_COMMON) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+	}
+	else
+	{
+		m_CbAtmosphere.mIsSkyDomeValid = FALSE;
+	}
+
 };
 
-void NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
+void		NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
 {
+	//skybox uses cube map to texture the box
+	UINT skyboxTexID = tmp_pAtmo->mSkyBoxCubeTextureID;
+
+	//check skyType
+	if (tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
+	{
+		//skybox texture must be a cube map
+		m_CbAtmosphere.mIsSkyBoxValid		= (mFunction_ValidateTextureID(skyboxTexID, NOISE_TEXTURE_TYPE_CUBEMAP) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbAtmosphere.mSkyBoxWidth		= tmp_pAtmo->mSkyBoxWidth;
+		m_CbAtmosphere.mSkyBoxHeight	= tmp_pAtmo->mSkyBoxHeight;
+		m_CbAtmosphere.mSkyBoxDepth		= tmp_pAtmo->mSkyBoxDepth;
+		if (!m_CbAtmosphere.mIsSkyBoxValid)
+		{
+			DEBUG_MSG1("Noise Atmosphere Skybox : Texture Invalid!");
+		}
+	}
+	else
+	{
+		m_CbAtmosphere.mIsSkyBoxValid = FALSE;
+	}
 
 };
 
-void NoiseRenderer::mFunction_Atmosphere_UpdateCbAtmosphere()
+void		NoiseRenderer::mFunction_Atmosphere_UpdateCbAtmosphere()
 {
 	//update valid texture to gpu
-	if (m_CbAtmosphere.mIsSkyDomeTextureValid)
+	if (m_CbAtmosphere.mIsSkyDomeValid)
 	{
-		//tmp_pAtmo->mSkyDomeTextureID has been validated
+		//tmp_pAtmo->mSkyDomeTextureID has been validated in UPDATE function
 		auto tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmp_pAtmo->mSkyDomeTextureID).m_pSRV;
 		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 
+
+	//update skybox cube map to gpu
+	if (m_CbAtmosphere.mIsSkyBoxValid)
+	{
+		//tmp_pAtmo->mSkyBoxTextureID has been validated  in UPDATE function
+		//but how do you validate it's a valid cube map ?????
+		auto tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmp_pAtmo->mSkyBoxCubeTextureID).m_pSRV;
+		m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);
+	}
+
+
 	m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
 };
 
-
-UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID)
+UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType)
 {
 	//tex mgr had been validated
 	NoiseTextureManager*		tmpTexMgr = m_pFatherScene->m_pChildTextureMgr;
 
-	//if texID is invalid , an invalid flag should be returned
-	if (texID == NOISE_MACRO_INVALID_TEXTURE_ID || texID >= tmpTexMgr->m_pTextureObjectList->size())
-	{
-		return NOISE_MACRO_INVALID_TEXTURE_ID;
-	}
+	//invoke validation function in Tex Mgr
+	UINT outTexID = tmpTexMgr->mFunction_ValidateTextureID(texID, texType);
 
-	//a no-problem texID
-	return texID;
+	return outTexID;
 }
 
 UINT		NoiseRenderer::mFunction_ValidateMaterialID(UINT matID)

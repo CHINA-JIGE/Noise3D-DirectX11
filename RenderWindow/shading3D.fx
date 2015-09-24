@@ -108,15 +108,19 @@ cbuffer cbAtmosphere
 	int		gFogEnabled;
 	float	gFogNear;
 	float	gFogFar;
-	int		gIsSkyDomeTextureValid;
-	int		gIsSkyBoxTextureValid;
+	int		gIsSkyDomeValid;
+	int		gIsSkyBoxValid;
+	float	gSkyBoxWidth;
+	float	gSkyBoxHeight;
+	float	gSkyBoxDepth;
+	float	mPad3;
 };
 
 
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;
 Texture2D gSpecularMap;
-
+TextureCube gCubeMap;
 
 SamplerState sampler_ANISOTROPIC
 {
@@ -128,7 +132,10 @@ SamplerState sampler_ANISOTROPIC
 };
 
 
-
+DepthStencilState LessEqualDSS  
+{  
+    DepthFunc = LESS_EQUAL;  
+};  
 
 
 
@@ -163,8 +170,8 @@ void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensit
 
 		outDiffuse = Attenuation* diffuseCosFactor* float4(matDiffuseColor3 * lightDiffuseColor3,1.0f);
 		
-		//now specular	----reflect () : input an incoming light,and output an outgoing light
-		float3 tmpV = reflect(UnitLightVec,Normal);
+		//now specular	----reflect () : input an incoming light,and output an outgoing light , the axis being reflected about is a bisecting vector of NORMAL and LIGHTVEC
+		float3 tmpV = reflect(UnitLightVec,normalize(Normal));
 		
 		//remember to normalize vectors to be "dotted"
 		Vec_toCam = normalize(Vec_toCam);

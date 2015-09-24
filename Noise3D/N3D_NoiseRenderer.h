@@ -29,7 +29,7 @@ public:
 
 	void			RenderAtmosphereInList();
 
-	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0.3f,0.3f,1.0f));
+	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0,0,0.0f));
 
 	void			RenderToScreen();
 
@@ -82,7 +82,7 @@ private:
 	void				mFunction_Atmosphere_UpdateCbAtmosphere();
 
 	//validate Mat/Tex ID in case of 'out of range' error
-	UINT				mFunction_ValidateTextureID(UINT texID);
+	UINT				mFunction_ValidateTextureID(UINT texID,NOISE_TEXTURE_TYPE texType);
 
 	UINT				mFunction_ValidateMaterialID(UINT matID);
 
@@ -137,5 +137,6 @@ private:
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
+	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_CubeMap;
 	ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
 };

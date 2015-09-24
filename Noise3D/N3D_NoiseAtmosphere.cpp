@@ -99,8 +99,11 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 		m_pIB_Mem_Sky->clear();
 	}
 
-
+	//set built-in var
 	mSkyDomeTextureID = texID;
+	mSkyDomeRadiusXZ = fRadiusXZ;
+	mSkyDomeHeight = fHeight;
+
 
 #pragma region GenerateVertex
 
@@ -269,25 +272,219 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	return TRUE;
 }
 
-void NoiseAtmosphere::SetSkyDomeTexture(UINT texID)
+void		NoiseAtmosphere::SetSkyDomeTexture(UINT texID)
 {
 	//validation will be done in NoiseRenderer
 	mSkyDomeTextureID = texID;
 };
 
-BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth)
+BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UINT cubeMapTexID)
 {
 
+	UINT tmpVertexCount = 0, tmpIndexCount = 0;
+
+	//check input size
+	if (fWidth <= 0)fWidth = 1.0f;
+	if (fHeight <= 0)fHeight = 1.0f;
+	if (fDepth <= 0)fDepth = 1.0f;
+
+	//release existed gpu buffers
+	if (m_pVB_Gpu_Sky != NULL)
+	{
+		ReleaseCOM(m_pVB_Gpu_Sky);
+		m_pVB_Mem_Sky->clear();
+	}
+
+
+	if (m_pIB_Gpu_Sky != NULL)
+	{
+		ReleaseCOM(m_pIB_Gpu_Sky);
+		m_pIB_Mem_Sky->clear();
+	}
+
+	//Build 6 Quad
+	int tmpBaseIndex;
+	UINT iWidthStep = 3, iDepthStep = 3, iHeightStep = 3;
+
+	//BOTTOM- NORMAL√
+	float tmpStep1 = fWidth / (float)(iWidthStep - 1);
+	float tmpStep2 = fDepth / (float)(iDepthStep - 1);
+	tmpBaseIndex = 0;
+	mFunction_Build_A_Quad(
+		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		NVECTOR3(tmpStep1, 0, 0),
+		NVECTOR3(0, 0, tmpStep2),
+		iWidthStep,
+		iDepthStep,
+		tmpBaseIndex);
+
+	//TOP- NORMAL√
+	tmpStep1 = fDepth / (float)(iDepthStep - 1);
+	tmpStep2 = fWidth / (float)(iWidthStep - 1);
+	tmpBaseIndex = m_pVB_Mem_Sky->size();
+	mFunction_Build_A_Quad(
+		NVECTOR3(-fWidth / 2, fHeight / 2, -fDepth / 2),
+		NVECTOR3(0, 0, tmpStep1),
+		NVECTOR3(tmpStep2, 0, 0),
+		iDepthStep,
+		iWidthStep,
+		tmpBaseIndex);
+
+	//LEFT- NORMAL√
+	tmpStep1 = fDepth / (float)(iDepthStep - 1);
+	tmpStep2 = fHeight / (float)(iHeightStep - 1);
+	tmpBaseIndex = m_pVB_Mem_Sky->size();
+	mFunction_Build_A_Quad(
+		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		NVECTOR3(0, 0, tmpStep1),
+		NVECTOR3(0, tmpStep2, 0),
+		iDepthStep,
+		iHeightStep,
+		tmpBaseIndex);
+
+	//RIGHT- NORMAL √
+	tmpStep1 = fHeight / (float)(iHeightStep - 1);
+	tmpStep2 = fDepth / (float)(iDepthStep - 1);
+	tmpBaseIndex = m_pVB_Mem_Sky->size();
+	mFunction_Build_A_Quad(
+		NVECTOR3(fWidth / 2, -fHeight / 2, -fDepth / 2),
+		NVECTOR3(0, tmpStep1, 0),
+		NVECTOR3(0, 0, tmpStep2),
+		iHeightStep,
+		iDepthStep,
+		tmpBaseIndex);
+
+
+	//FRONT- NORMAL√
+	tmpStep1 = fHeight / (float)(iHeightStep - 1);
+	tmpStep2 = fWidth / (float)(iWidthStep - 1);
+	tmpBaseIndex = m_pVB_Mem_Sky->size();
+	mFunction_Build_A_Quad(
+		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		NVECTOR3(0, tmpStep1, 0),
+		NVECTOR3(tmpStep2, 0, 0),
+		iHeightStep,
+		iWidthStep,
+		tmpBaseIndex);
+
+	//BACK- NORMAL √
+	tmpStep1 = fHeight / (float)(iHeightStep - 1);
+	tmpStep2 = -fWidth / (float)(iWidthStep - 1);
+	tmpBaseIndex = m_pVB_Mem_Sky->size();
+	mFunction_Build_A_Quad(
+		NVECTOR3(fWidth / 2, -fHeight / 2, fDepth / 2),
+		NVECTOR3(0, tmpStep1, 0),
+		NVECTOR3(tmpStep2, 0, 0),
+		iHeightStep,
+		iWidthStep,
+		tmpBaseIndex);
+
+
+
+	//prepare to update to GPU
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem_Sky->at(0);
+	tmpVertexCount = m_pVB_Mem_Sky->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIB_Mem_Sky->at(0);
+	tmpIndexCount = m_pIB_Mem_Sky->size();//(iColumnCount+1) * iRingCount * 2 *3
+
+	 //Create VERTEX BUFFER (GPU)
+	D3D11_BUFFER_DESC vbd;
+	vbd.ByteWidth = sizeof(N_SimpleVertex)* tmpVertexCount;
+	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
+	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	vbd.StructureByteStride = 0;
+	int hr = 0;
+	hr = g_pd3dDevice->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu_Sky);
+	HR_DEBUG(hr, "Noise Atmosphere : creating VERTEX BUFFER failed!!");
+
+	//create index buffer
+	D3D11_BUFFER_DESC ibd;
+	ibd.ByteWidth = sizeof(UINT) * tmpIndexCount;
+	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
+	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	ibd.StructureByteStride = 0;
+	hr = g_pd3dDevice->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
+	HR_DEBUG(hr, "INDEX BUFFER创建失败");
+
+
+	//set texture ID
+	mSkyBoxCubeTextureID = cubeMapTexID;
+	mSkyBoxWidth = fWidth;
+	mSkyBoxHeight = fHeight;
+	mSkyBoxDepth = fDepth;
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
 
 	return TRUE;
+}
+
+void NoiseAtmosphere::SetSkyBoxTexture(UINT cubeMapTexID)
+{
+	mSkyBoxCubeTextureID = cubeMapTexID;
 };
+
+
+
 
 /***************************************************************
 									PRIVATE
 *****************************************************************/
 
+void	NoiseAtmosphere::mFunction_Build_A_Quad
+(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex)
+{
+	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
+
+#pragma region GenerateVertex
+
+	UINT i = 0, j = 0;
+	NVECTOR3 tmpNormal;
+	N_SimpleVertex tmpCompleteV;
+	D3DXVec3Cross(&tmpNormal, &vBasisVector1, &vBasisVector2);
+	D3DXVec3Normalize(&tmpNormal, &tmpNormal);
+
+	for (i = 0;i<StepCount1;i++)
+		for (j = 0;j<StepCount2;j++)
+		{
+			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
+			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
+			tmpCompleteV.TexCoord = NVECTOR2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
+			m_pVB_Mem_Sky->push_back(tmpCompleteV);
+		}
+
+#pragma endregion GenerateVertex
+
+
+#pragma region GenerateIndex
+	i = 0;j = 0;
+	for (i = 0;i<StepCount1 - 1;i++)
+	{
+		for (j = 0;j<StepCount2 - 1;j++)
+		{
+			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
+			//thus inde offset is needed
+			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
+
+			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1) *StepCount2 + j);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j + 1);
+		}
+	}
+
+#pragma endregion GenerateIndex
+
+};
 
 
 

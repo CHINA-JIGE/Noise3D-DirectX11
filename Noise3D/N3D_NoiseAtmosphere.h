@@ -29,7 +29,14 @@ public:
 
 	void		SetSkyDomeTexture(UINT texID);
 
-	BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth);
+	BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, UINT cubeMapTexID);
+
+	void		SetSkyBoxTexture(UINT cubeMapTexID);
+
+private:
+	//used to build box
+	void	mFunction_Build_A_Quad(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex);
+
 
 private:
 	NoiseScene*		m_pFatherScene;
@@ -47,6 +54,10 @@ private:
 	float												mSkyDomeRadiusXZ;
 	float												mSkyDomeHeight;
 	UINT												mSkyDomeTextureID;
+	float												mSkyBoxWidth;
+	float												mSkyBoxHeight;
+	float												mSkyBoxDepth;
+	UINT												mSkyBoxCubeTextureID;
 	std::vector<UINT>*						m_pIB_Mem_Sky;
 	std::vector<N_SimpleVertex>*		m_pVB_Mem_Sky;
 	ID3D11Buffer*								m_pIB_Gpu_Sky;

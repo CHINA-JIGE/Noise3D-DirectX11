@@ -10,7 +10,6 @@ struct N_Texture_Object
 {
 	N_Texture_Object() { ZeroMemory(this,sizeof(*this)); }
 	std::string	 mTexName;
-	ID3D11Texture2D*	m_pTexture2D;
 	ID3D11ShaderResourceView* m_pSRV;
 };
 
@@ -28,11 +27,18 @@ public:
 
 	UINT		CreateTextureFromFile(LPCWSTR filePath,char* textureName,BOOL useDefaultSize, UINT pixelWidth,UINT pixelHeight);
 
+	UINT		CreateCubeMapFromFiles(LPCWSTR fileName[6], char* cubeTextureName,NOISE_CUBEMAP_SIZE faceSize);
+
+	UINT		CreateCubeMapFromDDS(LPCWSTR dds_FileName, char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+
 	UINT		GetIndexByName(char* textureName);
 
 	void		GetNameByIndex(UINT index, std::string* outTextureName);
 
 	UINT		GetTextureCount();
+
+private:
+	UINT		mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
 
 private:
 	NoiseScene*									m_pFatherScene;

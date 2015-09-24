@@ -208,8 +208,12 @@ struct N_CbAtmosphere
 	int				mIsFogEnabled;
 	float				mFogNear;
 	float				mFogFar;
-	int				mIsSkyDomeTextureValid;
-	int				mIsSkyBoxTextureValid;
+	int				mIsSkyDomeValid;
+	int				mIsSkyBoxValid;
+	float				mSkyBoxWidth;
+	float				mSkyBoxHeight;
+	float				mSkyBoxDepth;
+	float				mPad1;
 };
 
 

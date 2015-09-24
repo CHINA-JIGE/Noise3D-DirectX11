@@ -60,18 +60,24 @@ BOOL Init3D(HWND hwnd)
 	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"universe.jpg", "Universe", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.png", "BottomRightTitle", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0);
+	TexMgr.CreateCubeMapFromDDS(L"skybox.dds", "SkyCubeMap", NOISE_CUBEMAP_SIZE_1024x1024);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);
-	Mesh1.CreateSphere(4.0f,30,30);
+
+	Mesh1.CreateSphere(6.0f,30,30);
 	Mesh1.SetPosition(0,0,0);
+
 	Camera.SetPosition(2.0f,0,0);
 	Camera.SetLookAt(0,0,0);
-	Camera.SetViewAngle(MATH_PI / 2, 1.333f);
+	Camera.SetViewAngle(MATH_PI / 1.5f, 1.333333333f);
+
 	Atmos.SetFogEnabled(FALSE);
 	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	Atmos.CreateSkyDome(10.0f, 3.0f, TexMgr.GetIndexByName("Universe"));
+	Atmos.CreateSkyDome(10.0f, 10.0f, TexMgr.GetIndexByName("Universe"));
+	//Atmos.CreateSkyBox(12.80f, 7.20f, 7.20f, TexMgr.GetIndexByName("SkyBoxCube"));
+
 
 	//！！！！！！菊高！！！！！！！！
 	DirLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
@@ -118,10 +124,10 @@ void MainLoop()
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderMeshInList();
-	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
-	Renderer.RenderGraphicObjectInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderAtmosphereInList();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
+	Renderer.RenderGraphicObjectInList();
 
 	//present
 	Renderer.RenderToScreen();
