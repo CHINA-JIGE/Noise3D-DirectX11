@@ -473,12 +473,14 @@ void	NoiseAtmosphere::mFunction_Build_A_Quad
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
 			//thus inde offset is needed
 			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
 			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
+			//m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
 
 			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1) *StepCount2 + j);
 			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j + 1);
+			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1) *StepCount2 + j);
+			//m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j + 1);
 		}
 	}
 

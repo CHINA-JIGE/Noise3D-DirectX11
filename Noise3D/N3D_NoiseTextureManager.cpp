@@ -275,6 +275,8 @@ UINT	 NoiseTextureManager::mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE
 	D3D11_SHADER_RESOURCE_VIEW_DESC tmpSRViewDesc;
 	m_pTextureObjectList->at(texID).m_pSRV->GetDesc(&tmpSRViewDesc);
 
+
+
 	switch (tmpSRViewDesc.ViewDimension)
 	{
 	case D3D11_SRV_DIMENSION_TEXTURECUBE:

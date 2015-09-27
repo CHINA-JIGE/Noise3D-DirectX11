@@ -9,10 +9,9 @@
 #pragma once
 #include "Noise3D.h"
 
-;
-CONST UINT					g_VertexDesc_Simple_ElementNum = 3;
+const UINT					g_VertexDesc_Default_ElementCount = 5;
 
-CONST UINT					g_VertexDesc_Default_ElementNum = 4;
+const UINT					g_VertexDesc_Simple_ElementCount = 3;
 
 //主渲染缓存的像素尺寸
 extern UINT					g_MainBufferPixelWidth;
@@ -30,9 +29,9 @@ extern D3D_FEATURE_LEVEL		g_Device_featureLevel;
 //用于弹出调试信息的ostringstream
 extern std::ostringstream			g_Debug_MsgString;
 //顶点描述
-extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[];
+extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[g_VertexDesc_Default_ElementCount];
 
-extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[];
+extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[g_VertexDesc_Simple_ElementCount];
 
 //——————————全局接口——————————
 

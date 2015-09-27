@@ -16,13 +16,16 @@ NoiseMaterialManager::NoiseMaterialManager()
 	m_pMaterialList = new std::vector<N_Material>;
 	m_pDefaultMaterial = new N_Material;
 
-	m_pDefaultMaterial->baseColor.mBaseAmbientColor	= NVECTOR3(0, 0, 0);
-	m_pDefaultMaterial->baseColor.mBaseDiffuseColor = NVECTOR3(1.0f,1.0f,1.0f);
-	m_pDefaultMaterial->baseColor.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	m_pDefaultMaterial->baseColor.mSpecularSmoothLevel = 10;
+	m_pDefaultMaterial->baseMaterial.mBaseAmbientColor	= NVECTOR3(0, 0, 0);
+	m_pDefaultMaterial->baseMaterial.mBaseDiffuseColor = NVECTOR3(1.0f,1.0f,1.0f);
+	m_pDefaultMaterial->baseMaterial.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	m_pDefaultMaterial->baseMaterial.mSpecularSmoothLevel = 10;
+	m_pDefaultMaterial->baseMaterial.mNormalMapBumpIntensity = 0.1f;
+	m_pDefaultMaterial->baseMaterial.mEnvironmentMapTransparency = 0.3f;
 	m_pDefaultMaterial->diffuseMapID		= NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pDefaultMaterial->normalMapID		= NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pDefaultMaterial->specularMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
+	m_pDefaultMaterial->cubeMap_environmentMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pDefaultMaterial->mMatName		= std::string("DEFAULT_MATERIAL");
 	m_pMaterialList->push_back(*m_pDefaultMaterial);
 

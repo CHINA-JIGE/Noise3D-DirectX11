@@ -21,6 +21,7 @@ struct N_DefaultVertex
 	NVECTOR4 Color;
 	NVECTOR3 Normal;
 	NVECTOR2 TexCoord;
+	NVECTOR3 Tangent;
 };
 
 struct N_SimpleVertex
@@ -111,11 +112,17 @@ struct N_SpotLight
 //--------------------NOISE MESH------------------
 struct N_Material_Basic
 {
-	N_Material_Basic() { ZeroMemory(this, sizeof(*this)); }
+	N_Material_Basic() 
+	{ 
+		ZeroMemory(this, sizeof(*this));
+		mSpecularSmoothLevel = 10;
+		mNormalMapBumpIntensity = 0.1f;
+		mEnvironmentMapTransparency = 0.3f;
+	}
 
 	NVECTOR3	mBaseAmbientColor;	INT32	mSpecularSmoothLevel;
-	NVECTOR3	mBaseDiffuseColor;		float		mPad1;
-	NVECTOR3	mBaseSpecularColor;	float		mPad2;
+	NVECTOR3	mBaseDiffuseColor;		float		mNormalMapBumpIntensity;
+	NVECTOR3	mBaseSpecularColor;	float		mEnvironmentMapTransparency;
 
 };
 
@@ -127,13 +134,15 @@ struct N_Material
 		diffuseMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
 		normalMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
 		specularMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
+		cubeMap_environmentMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
 	std::string	 mMatName;
-	N_Material_Basic baseColor;
+	N_Material_Basic baseMaterial;
 	UINT		diffuseMapID;
 	UINT		normalMapID;
 	UINT		specularMapID;
+	UINT		cubeMap_environmentMapID;
 };
 
 struct N_PrimitiveInfo
@@ -158,13 +167,13 @@ struct N_SubsetInfo
 //GPU Memory : 128 byte alignment
 struct N_CbPerFrame
 {
-	N_DirectionalLight mDirectionalLight_Dynamic[10];//放心 已经对齐了
-	N_PointLight	 mPointLight_Dynamic[10];
-	N_SpotLight	mSpotLight_Dynamic[10];
-	int		mDirLightCount_Dynamic;
-	int		mPointLightCount_Dynamic;
-	int		mSpotLightCount_Dynamic;
-	BOOL	mIsLightingEnabled_Dynamic;
+	N_DirectionalLight	mDirectionalLight_Dynamic[10];//放心 已经对齐了
+	N_PointLight				mPointLight_Dynamic[10];
+	N_SpotLight				mSpotLight_Dynamic[10];
+	int			mDirLightCount_Dynamic;
+	int			mPointLightCount_Dynamic;
+	int			mSpotLightCount_Dynamic;
+	BOOL		mIsLightingEnabled_Dynamic;
 	NVECTOR3	mCamPos;	float mPad1;
 
 };
@@ -181,7 +190,7 @@ struct N_CbPerSubset
 	BOOL			IsDiffuseMapValid;
 	BOOL			IsNormalMapValid;
 	BOOL			IsSpecularMapValid;
-	float				mPad1;
+	float				IsEnvironmentMapValid;
 };
 
 struct N_CbRarely

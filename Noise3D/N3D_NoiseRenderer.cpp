@@ -270,7 +270,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice->CreateInputLayout(
 		&g_VertexDesc_Default[0],
-		g_VertexDesc_Default_ElementNum,
+		g_VertexDesc_Default_ElementCount,
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Default);
@@ -280,7 +280,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice->CreateInputLayout(
 		&g_VertexDesc_Simple[0],
-		g_VertexDesc_Simple_ElementNum,
+		g_VertexDesc_Simple_ElementCount,
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Simple);
@@ -660,7 +660,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 		//then we should check if its child textureS are valid too 
 		N_Material tmpMat = m_pFatherScene->m_pChildMaterialMgr->m_pMaterialList->at(currSubsetMatID);
 		ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-		m_CbPerSubset.basicMaterial = tmpMat.baseColor;
+		m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
 
 		//first validate if ID is valid (within range / valid ID) valid== return original texID
 		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID(tmpMat.diffuseMapID,NOISE_TEXTURE_TYPE_COMMON) 
@@ -668,6 +668,8 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID(tmpMat.normalMapID, NOISE_TEXTURE_TYPE_COMMON) 
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID(tmpMat.specularMapID, NOISE_TEXTURE_TYPE_COMMON) 
+			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbPerSubset.IsEnvironmentMapValid = (mFunction_ValidateTextureID(tmpMat.cubeMap_environmentMapID, NOISE_TEXTURE_TYPE_CUBEMAP)
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 
 
@@ -692,6 +694,14 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.specularMapID).m_pSRV;
 			m_pFX_Texture_Specular->SetResource(tmp_pSRV);
 		}
+
+		//if tetxure is  valid ,then set environment map (cube map)
+		if (m_CbPerSubset.IsEnvironmentMapValid)
+		{
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.cubeMap_environmentMapID).m_pSRV;
+			m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
+		}
+		
 
 		//transmit all data to gpu
 		m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset, 0, sizeof(m_CbPerSubset));

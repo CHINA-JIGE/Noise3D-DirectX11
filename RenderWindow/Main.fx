@@ -13,6 +13,11 @@
 //---------------------------------Default Draw--------------------------------------
 VS_OUTPUT_DEFAULT VS_DefaultDraw(VS_INPUT_DEFAULT input )
 {
+		float3x3 gWorldMatrixWithoutTranslation;
+		gWorldMatrixWithoutTranslation[0] = gWorldMatrix[0].xyz;
+		gWorldMatrixWithoutTranslation[1] = gWorldMatrix[1].xyz;
+		gWorldMatrixWithoutTranslation[2] = gWorldMatrix[2].xyz;
+		
 		//initialize
     	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 		//the W transformation
@@ -23,6 +28,8 @@ VS_OUTPUT_DEFAULT VS_DefaultDraw(VS_INPUT_DEFAULT input )
     	output.color 	= input.color;
 		//we need an normal vector in W space
 		output.normalW 	= mul(float4(input.normalL,1.0f),gWorldInvTransposeMatrix).xyz;
+		//transform tangent to help implement XYZ to TBN
+		output.tangentW = mul(input.tangentL,gWorldMatrixWithoutTranslation);
 		//texture coordinate
 		output.texcoord = input.texcoord;
 
@@ -63,18 +70,18 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 	{
 		for(i=0;i<gDirectionalLightCount_Dynamic;i++)
 		{
-			ComputeDirLightColor(gDirectionalLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,tmpColor4);
+			ComputeDirLightColor(gDirectionalLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gPointLightCount_Dynamic;i++)
 		{
-			ComputePointLightColor(gPointLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,tmpColor4);
+			ComputePointLightColor(gPointLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gSpotLightCount_Dynamic;i++)
 		{
 
-			ComputeSpotLightColor(gSpotLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,tmpColor4);
+			ComputeSpotLightColor(gSpotLight_Dynamic[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		} 
 	}
@@ -84,21 +91,24 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 	{
 		for(i=0;i<gDirectionalLightCount_Static;i++)
 		{
-			ComputeDirLightColor(gDirectionalLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,tmpColor4);
+			ComputeDirLightColor(gDirectionalLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gPointLightCount_Static;i++)
 		{
-			ComputePointLightColor(gPointLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,tmpColor4);
+			ComputePointLightColor(gPointLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for(i=0;i<gSpotLightCount_Static;i++)
 		{
-			ComputeSpotLightColor(gSpotLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,tmpColor4);
+			ComputeSpotLightColor(gSpotLight_Static[i],input.normalW,input.texcoord,Vec_ToCam,input.posW,input.tangentW,tmpColor4);
 			finalColor4 += tmpColor4;
 		} 
 	}
 
+	
+	
+	
 
 	//at last compute fog  ( point farther than gFogFar has been skipped
 	if(gFogEnabled)
@@ -169,8 +179,14 @@ VS_OUTPUT_DEFAULT VS_DrawSky(VS_INPUT_SIMPLE input)
 {
 	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 	
+	float3x3 viewMatrixWithoutTranslation;
+	viewMatrixWithoutTranslation[0]=gViewMatrix[0].xyz;
+	viewMatrixWithoutTranslation[1]=gViewMatrix[1].xyz;
+	viewMatrixWithoutTranslation[2]=gViewMatrix[2].xyz;
+	
 	//so the sky will always be in the same relative position with camera  (ww means the triangles lie in  infinitely far from original point)
-	output.posH = float4(mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix).xy,1.0f,1.0f);
+	//output.posH = float4(mul(float4(mul(input.posL,viewMatrixWithoutTranslation),1.0f), gProjMatrix).xy,1.0f,1.0f);
+	output.posH = mul(float4(mul(input.posL,viewMatrixWithoutTranslation),1.0f), gProjMatrix).xyww;
 	output.posW = input.posL;
 	output.color = input.color;
 	output.texcoord = input.texcoord;

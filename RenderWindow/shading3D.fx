@@ -41,8 +41,8 @@ struct N_SpotLight
 struct N_Material_Basic
 {
 	float3	mAmbientColor;		int		mSpecularSmoothLevel;
-	float3	mDiffuseColor;			float		mPad1;
-	float3	mSpecularColor;		float		mPad2;
+	float3	mDiffuseColor;		float	mNormalMapBumpIntensity;
+	float3	mSpecularColor;		float	mEnvironmentMapTransparency;
 };
 
 
@@ -79,7 +79,7 @@ cbuffer cbPerSubset
 	int				gIsDiffuseMapValid;
 	int				gIsNormalMapValid;
 	int				gIsSpecularMapValid;
-	int				mPad2;
+	int				gIsEnvironmentMapVaild;
 };
 
 cbuffer	cbRarely
@@ -186,10 +186,15 @@ void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensit
 }
 
 
-void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3)
+
+
+void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3,out float3 outNormalTBN,out float3 outSpecColor3)
 {
 	//let's see if diffuse map is valid, and determine whether to use diffuse map
 	outDiffColor3 = float3(0, 0, 0);
+	outSpecColor3 = float3(0,0,0);
+	outNormalTBN = float3(0,0,0);
+	
 	if (gIsDiffuseMapValid)
 	{
 		outDiffColor3 = gDiffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
@@ -199,13 +204,113 @@ void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3)
 		//invalid diffuse map, we should use pure color of basic material
 		outDiffColor3 = gMaterial.mDiffuseColor;
 	}
+	
+	if(gIsNormalMapValid)
+	{
+		//retrieve normals from normal map
+		outNormalTBN = gNormalMap.Sample(sampler_ANISOTROPIC,TexCoord).xyz;
+		//map to [-1,1]
+		outNormalTBN = 2 * outNormalTBN - 1;
+		//scale bump mapping
+		outNormalTBN = normalize(outNormalTBN + saturate(1.0f-gMaterial.mNormalMapBumpIntensity) *(float3(0,1.0f,0)-outNormalTBN));
+	}
+	else
+	{
+		outNormalTBN = float3(0,1.0f,0);
+	}
+	
+	if(gIsSpecularMapValid)
+	{
+		outSpecColor3 = gDiffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+	}
+	else
+	{
+	//invalid diffuse map, we should use pure color of basic material
+		outSpecColor3 = gMaterial.mSpecularColor;
+	}
+	
+}
+
+
+void	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, out float4 outEnvMapColor4)
+{
+	outEnvMapColor4 = float4(0,0,0,0);
+
+	if(gIsEnvironmentMapVaild)
+	{
+		//alpha : user-set transparency , used to blend
+		outEnvMapColor4 = float4(gCubeMap.Sample(sampler_ANISOTROPIC, reflect(-VecToCamW,NormalW)).xyz,saturate(gMaterial.mEnvironmentMapTransparency));
+	}
+	else
+	{
+		outEnvMapColor4 = float4(0,0,0,0);
+	}
 }
 
 
 
 
+//convert XYZ to TBN
+void	TransformCoord_XYZ_TBN(float3 inVectorXYZ,float3 TangentW,float3 NormalW,out float3 outVectorTBN)
+{
+		/*
+			|(N)
+			|
+			|
+			-------------------(T)
+		         /
+		       /
+	                /  (B)
+					
+		*/
 
-void	ComputeDirLightColor(N_DirectionalLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,
+	NormalW = normalize(NormalW);
+	TangentW = normalize(TangentW - dot(NormalW,TangentW)*NormalW);//orthogonalization , subtract  tangent's projection on Normal Vector
+	float3 BinormalW = normalize(cross(NormalW,TangentW));
+	
+	//x - Binormal , Y-Normal ,Z - tangent
+	float4x4 transformMatrix;
+	transformMatrix[0] = float4(BinormalW.x,NormalW.x,TangentW.x,0);
+	transformMatrix[1] = float4(BinormalW.y,NormalW.y,TangentW.y,0);
+	transformMatrix[2] = float4(BinormalW.z,NormalW.z,TangentW.z,0);
+	transformMatrix[3] = float4(0,0,0,1.0f);
+
+	outVectorTBN = mul(float4(inVectorXYZ,1.0f),transformMatrix).xyz;
+}
+
+
+//convert TBN to XYZ
+void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,out float3 outVectorXYZ)
+{
+		/*
+			|(N)
+			|
+			|
+			-------------------(T)
+		         /
+		       /
+	                /  (B)
+					
+		*/
+
+	NormalW = normalize(NormalW);
+	TangentW = normalize(TangentW - dot(NormalW,TangentW)*NormalW);//orthogonalization , subtract  tangent's projection on Normal Vector
+	float3 BinormalW = normalize(cross(NormalW,TangentW));
+	
+	//x - Binormal , Y-Normal ,Z - tangent
+	float4x4 transformMatrix;
+	transformMatrix[0] = float4(BinormalW.x,BinormalW.y,BinormalW.z,0);
+	transformMatrix[1] = float4(NormalW.x,NormalW.y,NormalW.z,0);
+	transformMatrix[2] = float4(TangentW.x,TangentW.y,TangentW.z,0);
+	transformMatrix[3] = float4(0,0,0,1.0f);
+
+	outVectorXYZ = mul(float4(inVectorTBN,1.0f),transformMatrix).xyz;
+}
+
+
+
+//color computation for dir light
+void	ComputeDirLightColor(N_DirectionalLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,float3 tangentW,
 							out float4 outColor4)
 {
 	outColor4 = float4(0,0,0,1.0f);
@@ -215,30 +320,48 @@ void	ComputeDirLightColor(N_DirectionalLight Light,float3 NormalW,float2 TexCoor
 
 
 	//direction of the incoming light
-	float3	LightVec = normalize(Light.mDirection);
+	float3	LightVec = Light.mDirection;
+	float3 	Unit_LightVec =  normalize(LightVec);
 	
-	//Diffuse factor :: the Cos(theta)
-	float 	diffuseCosFactor = Light.mDiffuseIntensity *dot(-LightVec,NormalW);
-	
-	//sample color from textures
-	float3 diffuseColor3 = float3(0, 0, 0);
-	SampleFromTexture(TexCoord,diffuseColor3);
 
+	
+	//sample colors / normal  from textures
+	float3 diffuseColor3 = float3(0, 0, 0);
+	float3 normalTBN = float3(0,1.0f,0);
+	float3 specularColor3 = float3(0,0,0);
+	float4 envMapColor4 = float4(0,0,0,0);
+	float3 lightVecTBN = float3(0,0,0);
+	float3 Vec_toCamTBN = float3(0,0,0);
+	float3 deviatedNormalW = float3(0,0,0);
+	
+	SampleFromTexture(TexCoord,diffuseColor3,normalTBN,specularColor3);
+	TransformCoord_TBN_XYZ(normalTBN,tangentW,NormalW,deviatedNormalW);//to make the reflection being affected by normal deviation
+	SampleFromEnvironmentMap(Vec_toCam,deviatedNormalW,envMapColor4);//we must get the alpha to blend
+	TransformCoord_XYZ_TBN(Vec_toCam,tangentW,NormalW,Vec_toCamTBN);
+	TransformCoord_XYZ_TBN(Unit_LightVec,tangentW,NormalW,lightVecTBN);
+	
+	float diffuseCosFactor = Light.mDiffuseIntensity *dot(-lightVecTBN,normalTBN);
+	
+	
+	//transform XYZ coord to TBN
+	
+	
 	ComputeOutput_Amb_Diff_Spec(diffuseCosFactor,Light.mSpecularIntensity,gMaterial.mSpecularSmoothLevel,1.0f,
 									gMaterial.mAmbientColor	,Light.mAmbientColor,
 									diffuseColor3			,Light.mDiffuseColor,
-									gMaterial.mSpecularColor,Light.mSpecularColor,
-									Vec_toCam,LightVec,NormalW,
+									specularColor3			,Light.mSpecularColor,
+									Vec_toCamTBN,lightVecTBN,normalTBN,
 									outAmbient4,outDiffuse4,outSpec4);
 	
 
-	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
+	outColor4 = float4(lerp(outAmbient4.xyz + outDiffuse4.xyz,envMapColor4.xyz,envMapColor4.w),1.0f) + outSpec4;
 };
 
 
 
 
-void	ComputePointLightColor(N_PointLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,float3 thisPoint,
+
+void	ComputePointLightColor(N_PointLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,float3 thisPoint,float3 tangentW,
 							out float4 outColor4)
 {
 	outColor4 = float4(0,0,0,1.0f);
@@ -263,33 +386,45 @@ void	ComputePointLightColor(N_PointLight Light,float3 NormalW,float2 TexCoord,fl
 		return;
 	}
 
-	//Diffuse factor ::  Cos(theta)
-	float diffuseCosFactor =Light.mDiffuseIntensity * dot(-Unit_LightVec,NormalW);
 	
-	
-	//sample color from textures
+	//sample colors / normal  from textures
 	float3 diffuseColor3 = float3(0, 0, 0);
-	SampleFromTexture(TexCoord,diffuseColor3);
+	float3 normalTBN = float3(0,1.0f,0);
+	float3 specularColor3 = float3(0,0,0);
+	float4 envMapColor4 = float4(0,0,0,0);
+	float3 lightVecTBN = float3(0,0,0);
+	float3 Vec_toCamTBN = float3(0,0,0);
+	float3 deviatedNormalW = float3(0,0,0);//be deviated by normal map
 	
+	SampleFromTexture(TexCoord,diffuseColor3,normalTBN,specularColor3);
+	TransformCoord_TBN_XYZ(normalTBN,tangentW,NormalW,deviatedNormalW);//to make the reflection being affected by normal deviation
+	SampleFromEnvironmentMap(Vec_toCam,deviatedNormalW,envMapColor4);//we must get the alpha to blend
+	TransformCoord_XYZ_TBN(Vec_toCam,tangentW,NormalW,Vec_toCamTBN);
+	TransformCoord_XYZ_TBN(Unit_LightVec,tangentW,NormalW,lightVecTBN);
+
+	
+	float diffuseCosFactor =Light.mDiffuseIntensity * dot(-Unit_LightVec,NormalW);
 	
 	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
 	outAmbient4 = float4(gMaterial.mAmbientColor*Light.mAmbientColor*diffuseColor3, 1.0f);
 	
+	
 	ComputeOutput_Amb_Diff_Spec(diffuseCosFactor,Light.mSpecularIntensity,gMaterial.mSpecularSmoothLevel,Attenuation,
 									gMaterial.mAmbientColor	,Light.mAmbientColor,
 									diffuseColor3			,Light.mDiffuseColor,
-									gMaterial.mSpecularColor,Light.mSpecularColor,
-									Vec_toCam,Unit_LightVec,NormalW,
+									specularColor3			,Light.mSpecularColor,
+									Vec_toCamTBN,lightVecTBN,normalTBN,
 									outAmbient4,outDiffuse4,outSpec4);
 
-	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
+	//we must blend the environment map reflection color first, then add specular color
+	outColor4 = float4(lerp(outAmbient4.xyz + outDiffuse4.xyz,envMapColor4.xyz,envMapColor4.w),1.0f) + outSpec4;
 };
 
 
 
 
 
-void	ComputeSpotLightColor(N_SpotLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,float3 thisPoint,
+void	ComputeSpotLightColor(N_SpotLight Light,float3 NormalW,float2 TexCoord,float3 Vec_toCam,float3 thisPoint,float3 tangentW,
 							out float4 outColor4)
 {
 	outColor4 = float4(0,0,0,1.0f);
@@ -316,21 +451,33 @@ void	ComputeSpotLightColor(N_SpotLight Light,float3 NormalW,float2 TexCoord,floa
 		return;
 	}
 
+	
+	//sample colors / normal  from textures
+	float3 diffuseColor3 = float3(0,0,0);
+	float3 normalTBN = float3(0,1.0f,0);
+	float3 specularColor3 = float3(0,0,0);
+	float3 lightVecTBN = float3(0,0,0);
+	float3 Vec_toCamTBN = float3(0,0,0);
+	float4 envMapColor4 = float4(0,0,0,0);
+	float3 deviatedNormalW = float3(0,0,0);//be deviated by normal map
+	
+	SampleFromTexture(TexCoord,diffuseColor3,normalTBN,specularColor3);
+	TransformCoord_TBN_XYZ(normalTBN,tangentW,NormalW,deviatedNormalW);//to make the reflection being affected by normal deviation
+	SampleFromEnvironmentMap(Vec_toCam,deviatedNormalW,envMapColor4);//we must get the alpha to blend
+	TransformCoord_XYZ_TBN(Vec_toCam,tangentW,NormalW,Vec_toCamTBN);
+	TransformCoord_XYZ_TBN(Unit_LightVec,tangentW,NormalW,lightVecTBN);
+	
 	//Diffuse factor ::  Cos(theta)
 	float diffuseCosFactor = Light.mDiffuseIntensity *dot(-Unit_LightVec,NormalW);
 	
 	
-	//sample color from textures
-	float3 diffuseColor3 = float3(0, 0, 0);
-	SampleFromTexture(TexCoord,diffuseColor3);
-
 	ComputeOutput_Amb_Diff_Spec(diffuseCosFactor,Light.mSpecularIntensity,gMaterial.mSpecularSmoothLevel,Attenuation,
 									gMaterial.mAmbientColor	,Light.mAmbientColor,
 									diffuseColor3			,Light.mDiffuseColor,
-									gMaterial.mSpecularColor,Light.mSpecularColor,
-									Vec_toCam,Unit_LightVec,NormalW,
+									specularColor3,			Light.mSpecularColor,
+									Vec_toCamTBN,Unit_LightVec,normalTBN,
 									outAmbient4,outDiffuse4,outSpec4);
 
 									
-	outColor4 = outAmbient4 + outDiffuse4 + outSpec4;
+	outColor4 = float4(lerp(outAmbient4.xyz + outDiffuse4.xyz,envMapColor4.xyz,envMapColor4.w),1.0f) + outSpec4;
 };

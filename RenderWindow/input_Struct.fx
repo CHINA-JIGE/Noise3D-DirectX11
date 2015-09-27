@@ -17,6 +17,7 @@ struct VS_INPUT_DEFAULT
 	float4 color : COLOR;
 	float3 normalL :NORMAL;
 	float2 texcoord: TEXCOORD;
+	float3 tangentL : TANGENT;
 };
 
 struct VS_OUTPUT_DEFAULT
@@ -26,6 +27,7 @@ struct VS_OUTPUT_DEFAULT
 	float3 posW: POSITION;
 	float3 normalW :NORMAL;
 	float2 texcoord:TEXCOORD;
+	float3 tangentW :TANGENT;
 };
 
 struct VS_INPUT_SIMPLE
