@@ -48,7 +48,7 @@ HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR 
 
 BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
 {
-
+	mRenderWindowHWND = RenderHWND;
 	g_MainBufferPixelWidth = BufferWidth;
 	g_MainBufferPixelHeight = BufferHeight;
 
@@ -308,7 +308,32 @@ void NoiseEngine::SetMainLoopFunction( void (*pFunction)(void) )
 void NoiseEngine::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)
 {
 	mMainLoopStatus = loopStatus;
+}
+
+HWND NoiseEngine::GetRenderWindowHWND()
+{
+	return mRenderWindowHWND;
+}
+
+HINSTANCE NoiseEngine::GetRenderWindowHINSTANCE()
+{
+	return mRenderWindowHINSTANCE;
+}
+
+int	NoiseEngine::GetRenderWindowWidth()
+{
+	RECT windowRect;
+	GetClientRect(mRenderWindowHWND, &windowRect);
+	return (int)(windowRect.right- windowRect.left);
+}
+
+int	NoiseEngine::GetRenderWindowHeight()
+{
+	RECT windowRect;
+	GetClientRect(mRenderWindowHWND, &windowRect);
+	return (int)(windowRect.bottom - windowRect.top);
 };
+
 
 
 /************************************************************************

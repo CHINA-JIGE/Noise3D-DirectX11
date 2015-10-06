@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h：NoiseEngine
+										h：NoiseEngine
 
 ************************************************************************/
 
@@ -27,20 +27,28 @@ public:
 
 	void	SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus);
 
+	HWND GetRenderWindowHWND();
+
+	HINSTANCE GetRenderWindowHINSTANCE();
+
+	int	 GetRenderWindowWidth();
+
+	int	 GetRenderWindowHeight();
+
 private:
 
 	//this is for built-in window creation function
 	LPCWSTR			mRenderWindowTitle;
 	LPCWSTR			mRenderWindowClassName;
 	HINSTANCE		mRenderWindowHINSTANCE;
-	
+	HWND				mRenderWindowHWND;
+
 	UINT					mRenderWindowPixelWidth;
 	UINT					mRenderWindowPixelHeight;
 
 	//用于储存主循环的函数指针 因为要封装消息循环 所以只能这样了
-	 void					(*m_pMainLoopFunction)(void);
+	 void				(*m_pMainLoopFunction)(void);
 	 NOISE_MAINLOOP_STATUS		mMainLoopStatus;
-
 
 private:
 

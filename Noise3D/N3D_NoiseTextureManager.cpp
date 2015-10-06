@@ -119,7 +119,7 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(LPCWSTR fileName[6], char * cub
 
 
 
-
+	return TRUE;
 }
 
 UINT NoiseTextureManager::CreateCubeMapFromDDS(LPCWSTR dds_FileName, char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)

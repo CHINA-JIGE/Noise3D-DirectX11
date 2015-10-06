@@ -18,19 +18,19 @@ public:
 
 	void				SelfDestruction();
 
-	void				SetLookAt(NVECTOR3* vLookat);//要更新旋转角
+	void				SetLookAt(NVECTOR3 vLookat);//要更新旋转角
 
 	void				SetLookAt(float x,float y,float z);//要更新旋转角
 
-	void				GetLookAt(NVECTOR3& out_vLookat);
+	NVECTOR3	GetLookAt();
 
-	void				SetPosition(NVECTOR3* vPos);
+	void				SetPosition(NVECTOR3 vPos);
 
 	void				SetPosition(float x,float y,float z);
 
-	void				GetPosition(NVECTOR3& vPos);
+	NVECTOR3	GetPosition();
 
-	void				Move(NVECTOR3* vRelativePos);
+	void				Move(NVECTOR3 vRelativePos);//pos and lookat
 
 	void				Move(float relativeX,float relativeY,float relativeZ);
 
@@ -46,10 +46,25 @@ public:
 
 	void				SetRotationZ_Roll(float AngleZ);
 
-/*
-	void				fps_Walk();
-	void				fps_Strafe();
+	float				GetRotationY_Yaw();
 
+	float				GetRotationX_Pitch();
+
+	float				GetRotationZ_Roll();
+
+	void				RotateY_Yaw(float angleY);
+
+	void				RotateX_Pitch(float angleX);
+
+	void				RotateZ_Roll(float angleZ);
+
+	void				fps_MoveForward(float fSignedDistance,BOOL enableYAxisMovement=FALSE);
+
+	void				fps_MoveRight(float fSignedDistance, BOOL enableYAxisMovement=FALSE);
+
+	void				fps_MoveUp(float fSignedDistance);
+
+	/*
 	void				sm_Update();
 	void				sm_LinearMoveTo();
 	void				sm_SineMoveTo();

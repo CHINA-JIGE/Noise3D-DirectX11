@@ -1,6 +1,6 @@
 /************************************************************************
 
-							CPP:  	Noise Engine
+							CPP:  	Noise Camera
 				
 1，关于YawPitchRoll的正角定义：（其实是左手系正角的定义）
 			Yaw:俯视图顺时针转
@@ -42,11 +42,9 @@ void NoiseCamera::SelfDestruction()
 	delete m_pLookat;
 };
 
-
-
-void	NoiseCamera::SetLookAt(NVECTOR3* vLookat)
+void	NoiseCamera::SetLookAt(NVECTOR3 vLookat)
 {
-	*m_pLookat=*vLookat;
+	*m_pLookat=vLookat;
 	mFunction_UpdateRotation();
 };
 
@@ -57,15 +55,15 @@ void	NoiseCamera::SetLookAt(float x,float y,float z)
 	mFunction_UpdateRotation();
 };
 
-void	NoiseCamera::GetLookAt(NVECTOR3& out_vLookat)
+NVECTOR3	NoiseCamera::GetLookAt()
 {
-	out_vLookat = *m_pLookat;
+	return  *m_pLookat;
 };
 
-void	NoiseCamera::SetPosition(NVECTOR3* vPos)
+void	NoiseCamera::SetPosition(NVECTOR3 vPos)
 {
 	//lookat和位置不能重合啊
-		*m_pPosition=*vPos;
+		*m_pPosition=vPos;
 		mFunction_UpdateRotation();
 }
 
@@ -76,29 +74,28 @@ void	NoiseCamera::SetPosition(float x,float y,float z)
 	mFunction_UpdateRotation();
 };
 
-void NoiseCamera::GetPosition(NVECTOR3& out_vPos)
+NVECTOR3 NoiseCamera::GetPosition()
 {
-	out_vPos=*m_pPosition;
+	return *m_pPosition;
 };
 
-void	NoiseCamera::Move(NVECTOR3* vRelativePos)
+void	NoiseCamera::Move(NVECTOR3 vRelativePos)
 {
-	D3DXVec3Add(m_pPosition,m_pPosition,vRelativePos);
-	SetPosition(m_pPosition);
+	D3DXVec3Add(m_pPosition,m_pPosition,&vRelativePos);
+	D3DXVec3Add(m_pLookat, m_pLookat, &vRelativePos);
+
 };
 
 void	NoiseCamera::Move(float relativeX,float relativeY,float relativeZ)
 {
-	NVECTOR3 tmpRelativePos(relativeX,relativeY,relativeZ);
-	D3DXVec3Add(m_pPosition,m_pPosition,&tmpRelativePos);
-	SetPosition(m_pPosition);
+	*m_pPosition += NVECTOR3(relativeX, relativeY, relativeZ);
 };
 
 void	NoiseCamera::SetRotation(float RX_Pitch,float RY_Yaw,float RZ_Roll)//要更新Lookat
 {
-	mRotateX_Pitch = RX_Pitch;
-	mRotateY_Yaw = RY_Yaw;
-	mRotateZ_Roll = RZ_Roll;
+	SetRotationX_Pitch(RX_Pitch);
+	SetRotationY_Yaw(RY_Yaw);
+	SetRotationZ_Roll(RZ_Roll);
 	mFunction_UpdateDirection();
 };
 
@@ -110,15 +107,130 @@ void	NoiseCamera::SetRotationY_Yaw(float angleY)
 
 void	NoiseCamera::SetRotationX_Pitch(float AngleX)
 {
-		mRotateX_Pitch = AngleX;
-		mFunction_UpdateDirection();
+	//clamp to [-pi/2,pi/2]
+	mRotateX_Pitch = AngleX > (MATH_PI / 2) ? (MATH_PI / 2) : (AngleX < (-MATH_PI / 2) ? (-MATH_PI / 2) : AngleX);
+
+	mFunction_UpdateDirection();
 };
 
 void	NoiseCamera::SetRotationZ_Roll(float AngleZ)
 {
 	//roll翻滚不需要更新lookat
 	mRotateZ_Roll = AngleZ;
+}
+
+float NoiseCamera::GetRotationY_Yaw()
+{
+	return mRotateY_Yaw;
+}
+
+float NoiseCamera::GetRotationX_Pitch()
+{
+	return mRotateX_Pitch;
+}
+
+float NoiseCamera::GetRotationZ_Roll()
+{
+	return mRotateZ_Roll;
+}
+
+void NoiseCamera::RotateY_Yaw(float angleY)
+{
+	SetRotationY_Yaw(mRotateY_Yaw + angleY);
+	mFunction_UpdateDirection();
 };
+
+void NoiseCamera::RotateX_Pitch(float angleX)
+{
+	float newAngle = mRotateX_Pitch + angleX;
+	SetRotationX_Pitch(newAngle);
+	mFunction_UpdateDirection();
+};
+
+void NoiseCamera::RotateZ_Roll(float angleZ)
+{
+	SetRotationZ_Roll(mRotateZ_Roll + angleZ);
+	mFunction_UpdateDirection();
+};
+
+void NoiseCamera::fps_MoveForward(float fSignedDistance, BOOL enableYAxisMovement)
+{
+	//...Yaw Angle Starts at Z axis ( left-handed system) 
+	/*		Z
+			|    / A
+			|_ /   
+		O	|/__________ X		
+
+			angle AOZ is the yaw angle
+	
+	*/
+
+	NVECTOR3 relativePos;
+
+	//generate a direction first (later multiply it with fDist)
+	if(enableYAxisMovement)
+	{ 
+		relativePos.x = sinf(mRotateY_Yaw) *cosf(mRotateX_Pitch);
+		relativePos.z = cosf(mRotateY_Yaw) *cosf(mRotateX_Pitch);
+		relativePos.y = sinf(mRotateX_Pitch);
+	}
+	else
+	{
+		relativePos.x = sinf(mRotateY_Yaw);
+		relativePos.z = cosf(mRotateY_Yaw);
+		relativePos.y = 0;
+	}
+
+	// length * unit_dir
+	relativePos *= fSignedDistance;
+
+	//relative movement
+	Move(relativePos);
+
+}
+
+void NoiseCamera::fps_MoveRight(float fSignedDistance, BOOL enableYAxisMovement)
+{
+	//...Yaw Angle Starts at Z axis ( left-handed system) 
+	/*		
+		Z
+		|    / A
+		|_ /
+	O	|/__________ X
+
+	angle AOZ is the yaw angle
+
+	*/
+
+		NVECTOR3 relativePos;
+
+		//generate a direction first (later multiply it with fDist)
+		if (enableYAxisMovement)
+		{
+			relativePos.x = cosf(mRotateY_Yaw) *cosf(mRotateX_Pitch);
+			relativePos.z = -sinf(mRotateY_Yaw) *cosf(mRotateX_Pitch);
+			relativePos.y = sinf(mRotateX_Pitch);
+		}
+		else
+		{
+			relativePos.x = cosf(mRotateY_Yaw);
+			relativePos.z = -sinf(mRotateY_Yaw);
+			relativePos.y = 0;
+		}
+
+		// length * unit_dir
+		relativePos *= fSignedDistance;
+
+		//relative movement
+		Move(relativePos);
+}
+
+void NoiseCamera::fps_MoveUp(float fSignedDistance)
+{
+	*m_pPosition += NVECTOR3(0, fSignedDistance, 0);
+	*m_pLookat += NVECTOR3(0, fSignedDistance, 0);
+};
+
 
 void	NoiseCamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 {

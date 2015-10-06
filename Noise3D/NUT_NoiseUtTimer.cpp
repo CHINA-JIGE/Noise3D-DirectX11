@@ -6,7 +6,7 @@
 	简述：高精度计时器，主要用WINAPI的queryPerformanceCount来实现    
 
 ***********************************************************************/
-#include "Noise3D.h"
+#include "NoiseUtility.h"
 
 NoiseUtTimer::NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 {
@@ -23,6 +23,10 @@ NoiseUtTimer::NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
 	mMilliSecondsPerCount = (1000.0) /(double)countsPerSecond;//每一count多少毫秒
 	QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
+}
+
+void NoiseUtTimer::SelfDestruction()
+{
 };
 
 void NoiseUtTimer::Next()

@@ -431,7 +431,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		assert(FALSE:"Shader Compilation Failed !!");
+		DEBUG_MSG1("Noise Renderer : Shader Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 

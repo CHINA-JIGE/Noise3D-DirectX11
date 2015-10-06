@@ -15,6 +15,8 @@ public:
 	//构造函数
 	NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit);
 
+	void		SelfDestruction();
+
 	//在函数名后加const表示此函数不会修改类成员
 	//暂停后不再加
 	double GetTotalTime()const;

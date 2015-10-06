@@ -19,9 +19,6 @@
     <Filter Include="N3D_NoiseEngine">
       <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="N3D_NoiseFileManager">
-      <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N3D_NoiseLightManager">
       <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
     </Filter>
@@ -46,6 +43,12 @@
     <Filter Include="N3D_NoiseAtmosphere">
       <UniqueIdentifier>{a4edb57a-80b9-4330-bc5e-5e1a8a4dc3fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NBASE_NoiseFileManager">
+      <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NUT_NoiseInputEngine">
+      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N3D_NoiseScene.h">
@@ -56,9 +59,6 @@
     </ClInclude>
     <ClInclude Include="N3D_NoiseMesh.h">
       <Filter>N3D_NoiseMesh</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_NoiseFileManager.h">
-      <Filter>N3D_NoiseFileManager</Filter>
     </ClInclude>
     <ClInclude Include="NoiseFlag.h">
       <Filter>Global</Filter>
@@ -102,6 +102,18 @@
     <ClInclude Include="N3D_NoiseAtmosphere.h">
       <Filter>N3D_NoiseAtmosphere</Filter>
     </ClInclude>
+    <ClInclude Include="NBASE_NoiseFileManager.h">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseUtility.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="NUT_NoiseUtInputEngine.h">
+      <Filter>NUT_NoiseInputEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h">
+      <Filter>NUT_NoiseInputEngine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RenderWindow\Main.fx">
@@ -126,9 +138,6 @@
     </ClCompile>
     <ClCompile Include="N3D_NoiseMesh.cpp">
       <Filter>N3D_NoiseMesh</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_NoiseFileManager.cpp">
-      <Filter>N3D_NoiseFileManager</Filter>
     </ClCompile>
     <ClCompile Include="AssemblyInfo.cpp">
       <Filter>Global</Filter>
@@ -162,6 +171,12 @@
     </ClCompile>
     <ClCompile Include="N3D_NoiseAtmosphere.cpp">
       <Filter>N3D_NoiseAtmosphere</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileManager.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NUT_NoiseUtInputEngine.cpp">
+      <Filter>NUT_NoiseInputEngine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

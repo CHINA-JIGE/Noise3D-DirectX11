@@ -430,7 +430,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 void NoiseAtmosphere::SetSkyBoxTexture(UINT cubeMapTexID)
 {
 	mSkyBoxCubeTextureID = cubeMapTexID;
-};
+}
 
 
 

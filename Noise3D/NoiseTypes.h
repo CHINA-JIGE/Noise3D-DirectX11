@@ -190,7 +190,7 @@ struct N_CbPerSubset
 	BOOL			IsDiffuseMapValid;
 	BOOL			IsNormalMapValid;
 	BOOL			IsSpecularMapValid;
-	float				IsEnvironmentMapValid;
+	BOOL			IsEnvironmentMapValid;
 };
 
 struct N_CbRarely

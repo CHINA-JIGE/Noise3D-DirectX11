@@ -6,8 +6,9 @@
 			简述：用于生成3D打印所需的 切层矢量数据
 
 ************************************************************************/
-#include "Noise3D.h"
+#include "NoiseUtility.h"
 
+const UINT const_LayerTileStepCount = 20;
 
 NoiseUtSlicer::NoiseUtSlicer()
 {
@@ -17,7 +18,12 @@ NoiseUtSlicer::NoiseUtSlicer()
 	m_pLineStripBuffer = new std::vector<N_LineStrip>;
 	m_pBoundingBox_Min = new NVECTOR3(0,0,0);
 	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
+	m_pLayerList = new std::vector<N_Layer>;
 }
+
+void NoiseUtSlicer::SelfDestruction()
+{
+};
 
 BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
 {
@@ -88,6 +94,10 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 	//thus ,  minus 1
 	float  layerDeltaY = (Y_max - Y_min) / (float)(iLayerCount-1);
 
+	//since in one intersection request , different thickness settings might be used for a Y region
+	//so we must accumulate LayerCount of ALL intersection mission;
+	UINT totalLayerCount = iLayerCount;
+
 	//...
 	UINT		currentLayerID = 0;
 	UINT		currentTriangleID = 0;
@@ -102,7 +112,6 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 
 	//Total Triangle  Count (one Normal Vector correspond to one Triangle
 	UINT		totalTriangleCount = m_pTriangleNormalBuffer->size();
-
 
 	//........tmp var to store 3 vertex of triangle
 	NVECTOR3 v1 =NVECTOR3(0,0,0);		NVECTOR3 v2 = NVECTOR3(0,0,0);	NVECTOR3 v3 = NVECTOR3(0,0,0);
@@ -131,7 +140,7 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 			 v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
 
 			// tmpResult:"N_IntersectionResult" 
-			tmpResult = mFunction_HowManyVertexOnThisLayer(currentTriangleID,currentLayerY,v1,v2,v3);
+			tmpResult = mFunction_HowManyVertexOnThisLayer(currentLayerY,v1,v2,v3);
 
 			//Category Discussion	(?分类讨论?)
 			switch (tmpResult.mVertexCount)
@@ -289,10 +298,16 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 
 	}
 
+	//preparation for next step
+	m_pLayerList->resize(totalLayerCount);
 }
 
 void	NoiseUtSlicer::Step3_GenerateLineStrip()
 {
+
+	//preprocess (generate layer tile information , optimization for linking line segment)
+	mFunction_GenerateLayerTileInformation();
+
 	//link numerous line segments into line strip
 	//(and at the present  ignore the problem of  'multiple branches'
 
@@ -305,7 +320,6 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 
 	BOOL canFindNextPoint = FALSE;
 
-
 	for (i = 0;i < m_pLineSegmentBuffer->size(); i++)
 	{
 
@@ -314,6 +328,7 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 		if (tmpLineSegment.Dirty == FALSE)
 		{
 				//we have found a "clean" line segment , then add 2 vertices to the current line strip
+				//this is a new line strip spawned
 				//v2 is the tail of the strip
 				tmpLineStrip.LayerID = tmpLineSegment.LayerID;
 				tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
@@ -326,7 +341,7 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 			goto nextLineSegment;
 		}
 
-		//make a line strip grow longer until no more line segment can be added to the tail
+		//make the new  line strip grow longer until no more line segment can be added to the tail
 		canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
 		while (canFindNextPoint)
 		{
@@ -403,7 +418,7 @@ void NoiseUtSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT in
 /************************************************************************
 											P R I V A T E
 ************************************************************************/
-void	NoiseUtSlicer::mFunction_ComputeBoundingBox()
+void		NoiseUtSlicer::mFunction_ComputeBoundingBox()
 {
 	//compute Bounding box : override 1
 
@@ -425,7 +440,7 @@ void	NoiseUtSlicer::mFunction_ComputeBoundingBox()
 
 }
 
-BOOL NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
+BOOL	NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
 {
 
 	//some obvious wrong input check
@@ -463,7 +478,72 @@ BOOL NoiseUtSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, 
 	return FALSE;
 }
 
-N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer(UINT iTriangleID, float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
+void		NoiseUtSlicer::mFunction_GenerateLayerTileInformation()
+{
+	//preprocess , generate line segment Info for each layer tile for optimization
+	// if 1 or 2 of the line segment vertex is(are) right on the tile, then line seg ID will be recorded in a std::vector of this tile
+
+	for (UINT i = 0;i < m_pLineSegmentBuffer->size();i++)
+	{
+		UINT currentLayerID = m_pLineSegmentBuffer->at(i).LayerID;
+		N_LineSegment currentLineSeg = m_pLineSegmentBuffer->at(i);
+		N_LineSegmentVertex tmpLineSegmentVertex;
+		UINT tileID_X = 0, tileID_Z = 0;
+
+#pragma region Line Segment Vertex 1
+		//generate layer tile info for vertex 1 of current line segment
+
+		//get 2 array index integers from point
+		mFunction_GetLayerTileIDFromPoint(currentLineSeg.v1, tileID_X, tileID_Z);
+
+		//add vertex/line segment info to corresponding layer tile
+		tmpLineSegmentVertex.lineSegmentID = i;
+		tmpLineSegmentVertex.vertexID = 1;
+		//note that this is a 2D array !!!!!! dont let [] become overloaded operation of VECTOR
+		//m_pLayerList->at(currentLayerID).layerTile	.at(tileID_X).at(tileID_Z).push_back(tmpLineSegmentVertex);
+		m_pLayerList->at(currentLayerID).layerTile[tileID_X][tileID_Z].push_back(tmpLineSegmentVertex);
+
+
+#pragma endregion Line Segment Vertex 1
+
+#pragma region Line Segment Vertex 2
+		//generate layer tile info for vertex 2 of current line segment
+
+		//get 2 array index integers from point
+		mFunction_GetLayerTileIDFromPoint(currentLineSeg.v2, tileID_X, tileID_Z);
+
+		//add vertex/line segment info to corresponding layer tile
+		tmpLineSegmentVertex.lineSegmentID = i;
+		tmpLineSegmentVertex.vertexID = 2;
+		m_pLayerList->at(currentLayerID).layerTile[tileID_X][tileID_Z].push_back(tmpLineSegmentVertex);
+	
+#pragma endregion Line Segment Vertex 2
+}
+
+}
+
+void		NoiseUtSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X, UINT & tileID_Z)
+{
+	//this function will return index(2 integers) that can be used to locate element in 2D array
+
+	//bounding box of mesh has been computed in slicer- step1
+
+	//axis-aligned bounding box (for the time being, we use bounding box to generate bounding sqare
+	float MIN_X = m_pBoundingBox_Min->x;
+	float MAX_X = m_pBoundingBox_Max->x;
+	float MIN_Z = m_pBoundingBox_Min->z;
+	float MAX_Z = m_pBoundingBox_Max->z;
+
+	//map x to [0,1]first , then map to integer, and apply floot() operation
+	 tileID_X = (UINT)floorf((v.x - MIN_X) / (MAX_X - MIN_X)*const_LayerTileStepCount);
+	 tileID_Z = (UINT)floorf((v.z - MIN_Z) / (MAX_Z - MIN_Z)*const_LayerTileStepCount);
+
+	 //...deal with boundary problem (the most right vertex on the edge)
+	 if (tileID_X == const_LayerTileStepCount)tileID_X--;
+	 if (tileID_Z == const_LayerTileStepCount)tileID_Z--;
+};
+
+N_IntersectionResult	NoiseUtSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
 
 {
 	N_IntersectionResult outResult;
@@ -518,22 +598,28 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 	float						tmpPointDist = 0;
 	const float			SAME_POINT_DIST_THRESHOLD = 0.001f;
 	NVECTOR3			tmpV;
-
 	N_LineSegment		tmpLineSegment;
-	UINT						j = 0;
 
+	UINT tileID_X = 0, tileID_Z = 0;
 
+	//locate layer tile where the tail point lies in ( where it can find the next vertex to weld)
+	mFunction_GetLayerTileIDFromPoint(*tailPoint, tileID_X, tileID_Z);
 
-	for (j = 0; j < m_pLineSegmentBuffer->size();j++)
+	//get layer tile
+	auto currLayerTile = m_pLayerList->at(currentLayerID).layerTile[tileID_X][tileID_Z];
+
+	for (UINT j = 0; j < currLayerTile.size();j++)
 	{
-		tmpLineSegment = m_pLineSegmentBuffer->at(j);
+		//read info from the tile , retrive and traverse vertices in this tile
+		UINT lineSegID = currLayerTile.at(j).lineSegmentID;
+		tmpLineSegment = m_pLineSegmentBuffer->at(lineSegID);
 
 		//if this line segment has not been checked &&
 		//the line segment is on the same layer as the stretching line strip
-		if ((tmpLineSegment.Dirty == FALSE) && (tmpLineSegment.LayerID == currentLayerID))
+		if (tmpLineSegment.Dirty == FALSE )
 		{
 
-			//if we can weld v1 and line strip tail 
+			//if we can weld v1 to line strip tail 
 			tmpV = *tailPoint - tmpLineSegment.v1;
 			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
 			{
@@ -541,12 +627,12 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v2;
 				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
+				m_pLineSegmentBuffer->at(lineSegID).Dirty = TRUE;
 				return TRUE;
 			}
-			//else
+			
 
-			//if we can weld v2 and line strip tail 
+			//if we can weld v2 to line strip tail 
 			tmpV = *tailPoint - tmpLineSegment.v2;
 			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
 			{
@@ -554,7 +640,7 @@ BOOL NoiseUtSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v1;
 				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(j).Dirty = TRUE;
+				m_pLineSegmentBuffer->at(lineSegID).Dirty = TRUE;
 				return TRUE;
 			}
 		}
