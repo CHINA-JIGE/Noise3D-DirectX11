@@ -6,7 +6,7 @@
 			简述：用于生成3D打印所需的 切层矢量数据
 
 ************************************************************************/
-#include "NoiseUtility.h"
+#include "Noise3D.h"
 
 const UINT const_LayerTileStepCount = 20;
 

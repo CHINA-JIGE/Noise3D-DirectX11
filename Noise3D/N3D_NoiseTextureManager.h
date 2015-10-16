@@ -37,10 +37,16 @@ public:
 
 	UINT		GetTextureCount();
 
+	BOOL	DeleteTexture(UINT texID);
+
 private:
 	UINT		mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
+
+	UINT		mFunction_CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, D3D11_USAGE bufferUsage, UINT cpuAccessFlag);
+
 
 private:
 	NoiseScene*									m_pFatherScene;
 	std::vector<N_Texture_Object>*	m_pTextureObjectList;
+
 };

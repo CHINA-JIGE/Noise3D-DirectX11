@@ -59,24 +59,34 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateAtmosphere(&Atmos);
 
 	//只郡符薮夕
-	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE, 0, 0);
-	//TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
-	//TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
-	//TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"universe.jpg", "Universe", TRUE, 0, 0);
 	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0);
-	//TexMgr.CreateTextureFromFile(L"Earth_Bump.bmp", "NormalMap_Earth", TRUE, 0, 0);
-	//TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
+	TexMgr.CreateTextureFromFile(L"Earth_Bump.bmp", "NormalMap_Earth", TRUE, 0, 0);
+	TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
+	/*LPCWSTR cubeFN[6];
+	cubeFN[0] = L"Cube Map\\+x.jpg";
+	cubeFN[1] = L"Cube Map\\+y.jpg";
+	cubeFN[2] = L"Cube Map\\+z.jpg";
+	cubeFN[3] = L"Cube Map\\-x.jpg";
+	cubeFN[4] = L"Cube Map\\-y.jpg";
+	cubeFN[5] = L"Cube Map\\-z.jpg";
+	TexMgr.CreateCubeMapFromFiles(cubeFN, "EnvironmentMap", NOISE_CUBEMAP_SIZE_256x256);*/
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Renderer.SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
+	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
 
-	Mesh1.LoadFile_STL("object.stl");
+	//Mesh1.LoadFile_STL("object.stl");
+	Mesh1.CreateSphere(5.0f, 30, 30);
+	//Mesh1.CreatePlane(10.0f, 10.0f, 5, 5);
 	Mesh1.SetPosition(0,0,0);
 
 	Camera.SetPosition(2.0f,0,0);
 	Camera.SetLookAt(0,0,0);
-	Camera.SetViewAngle(MATH_PI / 2.0f, 1.333333333f);
+	Camera.SetViewAngle(MATH_PI / 2.5f, 1.333333333f);
 	Camera.SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
 	NVECTOR3 AABB_MAX = Mesh1.GetBoundingBoxMax();
@@ -92,21 +102,21 @@ BOOL Init3D(HWND hwnd)
 	//Atmos.CreateSkyBox(10.0f, 10.0f, 10.0f, TexMgr.GetIndexByName("EnvironmentMap"));
 
 	//！！！！！！菊高！！！！！！！！
-	/*DirLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
+	DirLight1.mAmbientColor = NVECTOR3(1.0f,1.0f,1.0f);
 	DirLight1.mDiffuseColor	=	NVECTOR3(1.0f,1.0f,1.0f);
 	DirLight1.mSpecularColor	=NVECTOR3(1.0f,1.0f,1.0f);
 	DirLight1.mDirection = NVECTOR3(0.0f, -0.5f, 1.0f);
 	DirLight1.mSpecularIntensity	=1.5f;
 	DirLight1.mDiffuseIntensity = 1.0f;
-	LightMgr.AddDynamicDirLight(&DirLight1);*/
+	LightMgr.AddDynamicDirLight(&DirLight1);
 
-	/*N_Material Mat1;
+	N_Material Mat1;
 	Mat1.baseMaterial.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
 	Mat1.baseMaterial.mBaseDiffuseColor		= NVECTOR3(1.0f,  1.0f, 1.0f);
 	Mat1.baseMaterial.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
 	Mat1.baseMaterial.mSpecularSmoothLevel	=	40;
 	Mat1.baseMaterial.mNormalMapBumpIntensity = 0.3f;
-	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.2f;
+	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.8f;
 	Mat1.diffuseMapID = TexMgr.GetIndexByName("Earth");
 	Mat1.normalMapID = TexMgr.GetIndexByName("NormalMap_Earth");
 	//Mat1.specularMapID = TexMgr.GetIndexByName("Earth");
@@ -114,18 +124,18 @@ BOOL Init3D(HWND hwnd)
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
-	Mesh1.SetMaterial(Mat1_ID);*/
-	//inputE.Initialize(Engine.GetRenderWindowHINSTANCE(), Engine.GetRenderWindowHWND());
+	Mesh1.SetMaterial(Mat1_ID);
 
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0, 0, 0, 0), TexMgr.GetIndexByName("BottomRightTitle"));
-	Slicer.Step1_LoadPrimitiveMeshFromSTLFile("object.stl");
+	
+	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("object.stl");
 	Slicer.Step2_Intersection(5);
 	Slicer.Step3_GenerateLineStrip();// extremely neccessary for optimization
-	Slicer.Step4_SaveLayerDataToFile("object.LayerOutput");
+	Slicer.Step4_SaveLayerDataToFile("object.LayerOutput");*/
 	//Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("object.LayerOutput");
 
 
-	NVECTOR3 v1, v2, n;
+	/*NVECTOR3 v1, v2, n;
 
 	for (UINT i = 0;i < Slicer.GetLineStripCount();i++)
 	{
@@ -141,7 +151,7 @@ BOOL Init3D(HWND hwnd)
 			//normal
 			GraphicObjBuffer.AddLine3D((v1 + v2) / 2, ((v1 + v2) / 2) + n / 4, NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4(1.0f, 0.2f, 0.2f, 1.0f));
 		}
-	}
+	}*/
 	
 	return TRUE;
 };
@@ -155,13 +165,13 @@ void MainLoop()
 	Renderer.ClearBackground();
 
 	//add to render list
-	//Mesh1.AddToRenderList();
+	Mesh1.AddToRenderList();
 	GraphicObjBuffer.AddToRenderList();
 	Atmos.AddToRenderList();
 
 	//render
-	//Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
-	//Renderer.RenderMeshInList();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
+	Renderer.RenderMeshInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderAtmosphereInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);

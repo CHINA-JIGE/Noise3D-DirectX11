@@ -15,6 +15,7 @@ public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
 	friend class NoiseScene;
 	friend class NoiseMesh;
 	friend class NoiseGraphicObject;
+	friend class NoiseGUIManager;
 	friend class NoiseAtmosphere;
 
 public:
@@ -42,10 +43,19 @@ public:
 private:
 	BOOL			mFunction_Init();
 
+	BOOL			mFunction_Init_CreateBlendState();
+
+	BOOL			mFunction_Init_CreateRasterState();
+
+	BOOL			mFunction_Init_CreateSamplerState();
+
+	BOOL			mFunction_Init_CreateDepthStencilState();
+
 	BOOL			mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath);
 
 	BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
 
+	//..........
 	void				mFunction_SetRasterState(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
 
 	void				mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode);
@@ -86,6 +96,8 @@ private:
 
 	UINT				mFunction_ValidateMaterialID(UINT matID);
 
+
+
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
 	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_GraphicObject;
@@ -98,11 +110,13 @@ private:
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullFront;
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullNone;
 	ID3D11RasterizerState*					m_pRasterState_WireFrame_CullBack;
-	//Blend State
 	ID3D11BlendState*						m_pBlendState_Opaque;
 	ID3D11BlendState*						m_pBlendState_AlphaTransparency;
 	ID3D11BlendState*						m_pBlendState_ColorAdd;
 	ID3D11BlendState*						m_pBlendState_ColorMultiply;
+	ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
+	ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
+	ID3D11SamplerState*					m_pSamplerState_FilterAnis;
 
 	NoiseScene*									m_pFatherScene ;
 	NOISE_FILLMODE							m_FillMode;//填充模式
@@ -120,23 +134,21 @@ private:
 
 	//用于从app更新到Gpu的接口
 	ID3DX11Effect*							m_pFX;
-
 	ID3DX11EffectTechnique*			m_pFX_Tech_Default;
 	ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 	ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;
 	ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
 	ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;
-
 	ID3DX11EffectConstantBuffer* m_pFX_CbPerObject;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerFrame;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbPerSubset;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbSolid3D;
 	ID3DX11EffectConstantBuffer*	m_pFX_CbAtmosphere;
-
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
 	ID3DX11EffectShaderResourceVariable* m_pFX_Texture_CubeMap;
 	ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
+	ID3DX11EffectSamplerVariable*	m_pFX_SamplerState_Default;
 };

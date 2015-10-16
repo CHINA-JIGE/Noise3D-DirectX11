@@ -37,17 +37,32 @@
     <Filter Include="N3D_NoiseRenderer">
       <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="N3D_NoiseGraphicObject">
-      <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N3D_NoiseAtmosphere">
       <UniqueIdentifier>{a4edb57a-80b9-4330-bc5e-5e1a8a4dc3fc}</UniqueIdentifier>
     </Filter>
     <Filter Include="NBASE_NoiseFileManager">
       <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NUT_NoiseInputEngine">
+    <Filter Include="NUT_NoiseUtInputEngine">
       <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGUI">
+      <UniqueIdentifier>{c0486bec-ed07-47ed-ae4f-63ce3cfe5f02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGraphicObject">
+      <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGUI\N2D_GUIManager">
+      <UniqueIdentifier>{c1378f01-f3fd-4576-bae2-f12a28e0b115}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGUI\N2D_GUILabel">
+      <UniqueIdentifier>{8c818803-9291-421b-a170-3a9a0adf11c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGUI\N2D_GUIButton">
+      <UniqueIdentifier>{4fd3d6e3-92b1-4f51-a311-378a1ec56da2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_NoiseGUI\NBASE_GUIBasicContainerInfo">
+      <UniqueIdentifier>{6aedf65b-3f88-4575-8baa-565ef35e2138}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -96,23 +111,35 @@
     <ClInclude Include="N3D_NoiseRenderer.h">
       <Filter>N3D_NoiseRenderer</Filter>
     </ClInclude>
-    <ClInclude Include="N3D_NoiseGraphicObject.h">
-      <Filter>N3D_NoiseGraphicObject</Filter>
-    </ClInclude>
     <ClInclude Include="N3D_NoiseAtmosphere.h">
       <Filter>N3D_NoiseAtmosphere</Filter>
     </ClInclude>
     <ClInclude Include="NBASE_NoiseFileManager.h">
       <Filter>NBASE_NoiseFileManager</Filter>
     </ClInclude>
-    <ClInclude Include="NoiseUtility.h">
-      <Filter>Global</Filter>
-    </ClInclude>
     <ClInclude Include="NUT_NoiseUtInputEngine.h">
-      <Filter>NUT_NoiseInputEngine</Filter>
+      <Filter>NUT_NoiseUtInputEngine</Filter>
     </ClInclude>
     <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h">
-      <Filter>NUT_NoiseInputEngine</Filter>
+      <Filter>NUT_NoiseUtInputEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUI.h">
+      <Filter>N2D_NoiseGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGraphicObject.h">
+      <Filter>N2D_NoiseGraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUIButton.h">
+      <Filter>N2D_NoiseGUI\N2D_GUIButton</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUILabel.h">
+      <Filter>N2D_NoiseGUI\N2D_GUILabel</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUIManager.h">
+      <Filter>N2D_NoiseGUI\N2D_GUIManager</Filter>
+    </ClInclude>
+    <ClInclude Include="NBASE_NoiseGUIBasicContainerInfo.h">
+      <Filter>N2D_NoiseGUI\NBASE_GUIBasicContainerInfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -166,9 +193,6 @@
     <ClCompile Include="N3D_NoiseRenderer.cpp">
       <Filter>N3D_NoiseRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_NoiseGraphicObject.cpp">
-      <Filter>N3D_NoiseGraphicObject</Filter>
-    </ClCompile>
     <ClCompile Include="N3D_NoiseAtmosphere.cpp">
       <Filter>N3D_NoiseAtmosphere</Filter>
     </ClCompile>
@@ -176,7 +200,22 @@
       <Filter>NBASE_NoiseFileManager</Filter>
     </ClCompile>
     <ClCompile Include="NUT_NoiseUtInputEngine.cpp">
-      <Filter>NUT_NoiseInputEngine</Filter>
+      <Filter>NUT_NoiseUtInputEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGraphicObject.cpp">
+      <Filter>N2D_NoiseGraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIButton.cpp">
+      <Filter>N2D_NoiseGUI\N2D_GUIButton</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUILabel.cpp">
+      <Filter>N2D_NoiseGUI\N2D_GUILabel</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIManager.cpp">
+      <Filter>N2D_NoiseGUI\N2D_GUIManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseGUIBasicContainerInfo.cpp">
+      <Filter>N2D_NoiseGUI\NBASE_GUIBasicContainerInfo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

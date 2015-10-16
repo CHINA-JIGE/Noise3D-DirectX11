@@ -122,7 +122,7 @@ Texture2D gNormalMap;
 Texture2D gSpecularMap;
 TextureCube gCubeMap;
 
-SamplerState sampler_ANISOTROPIC
+SamplerState samplerDefault
 {
 	Filter = ANISOTROPIC;
 	MaxAnisotropy = 4;
@@ -130,13 +130,6 @@ SamplerState sampler_ANISOTROPIC
 	AddressV = Wrap;
 	AddressW = Wrap;
 };
-
-
-DepthStencilState LessEqualDSS  
-{  
-    DepthFunc = LESS_EQUAL;  
-};  
-
 
 
 
@@ -197,7 +190,7 @@ void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3,out float3 outNo
 	
 	if (gIsDiffuseMapValid)
 	{
-		outDiffColor3 = gDiffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+		outDiffColor3 = gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
 	}
 	else
 	{
@@ -208,7 +201,7 @@ void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3,out float3 outNo
 	if(gIsNormalMapValid)
 	{
 		//retrieve normals from normal map
-		outNormalTBN = gNormalMap.Sample(sampler_ANISOTROPIC,TexCoord).xyz;
+		outNormalTBN = gNormalMap.Sample(samplerDefault,TexCoord).xyz;
 		//map to [-1,1]
 		outNormalTBN = 2 * outNormalTBN - 1;
 		//scale bump mapping
@@ -221,7 +214,7 @@ void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3,out float3 outNo
 	
 	if(gIsSpecularMapValid)
 	{
-		outSpecColor3 = gDiffuseMap.Sample(sampler_ANISOTROPIC, TexCoord).xyz;
+		outSpecColor3 = gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
 	}
 	else
 	{
@@ -239,7 +232,7 @@ void	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, out float4 outEn
 	if(gIsEnvironmentMapVaild)
 	{
 		//alpha : user-set transparency , used to blend
-		outEnvMapColor4 = float4(gCubeMap.Sample(sampler_ANISOTROPIC, reflect(-VecToCamW,NormalW)).xyz,saturate(gMaterial.mEnvironmentMapTransparency));
+		outEnvMapColor4 = float4(gCubeMap.Sample(samplerDefault, reflect(-VecToCamW,NormalW)).xyz,saturate(gMaterial.mEnvironmentMapTransparency));
 	}
 	else
 	{

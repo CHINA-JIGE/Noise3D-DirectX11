@@ -8,7 +8,7 @@
 
 ************************************************************************/
 
-#include "NoiseUtility.h"
+#include "Noise3D.h"
 
 NoiseUtInputEngine::NoiseUtInputEngine()
 {
@@ -76,11 +76,11 @@ BOOL NoiseUtInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 	hr = m_pDeviceKeyboard->SetCooperativeLevel(hwnd,	DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard)Set Cooperative Format failed!!");
 
-	//acquire control
-	hr = m_pDeviceMouse->Acquire();
-	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Mouse) Acquire failed");
-	hr = m_pDeviceKeyboard->Acquire();
-	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard) Acquire failed");
+	//acquire control (will be done in update)
+	 m_pDeviceMouse->Acquire();
+	//HR_DEBUG(hr, " NoiseUtInputEngine :Device (Mouse) Acquire failed");
+	 m_pDeviceKeyboard->Acquire();
+	//HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard) Acquire failed");*/
 
 	mHasBeenInitialized = TRUE;
 	return TRUE;

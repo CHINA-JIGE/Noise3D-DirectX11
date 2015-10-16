@@ -16,7 +16,7 @@ public class _declspec(dllexport) NoiseScene
 	friend class NoiseMaterialManager;
 	friend class NoiseTextureManager;
 	friend class NoiseAtmosphere;
-
+	friend class NoiseGUIManager;
 
 public:
 	//¹¹Ôìº¯Êý
@@ -39,6 +39,8 @@ public:
 	BOOL			CreateMaterialManager(NoiseMaterialManager* pMatMgr);
 
 	BOOL			CreateAtmosphere(NoiseAtmosphere* pAtmosphere);
+
+	BOOL			CreateGUI(NoiseGUIManager* pGUI);
 
 	void				SetCamera(NoiseCamera* pSceneCam);
 
@@ -65,6 +67,8 @@ private:
 	NoiseMaterialManager*					m_pChildMaterialMgr;
 
 	NoiseAtmosphere*							m_pChildAtmosphere;
+
+	NoiseGUIManager*											m_pChildGUI;
 
 	std::vector<NoiseMesh*> *				m_pChildMeshList;
 

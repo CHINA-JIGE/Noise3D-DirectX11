@@ -13,7 +13,6 @@ public:
 	friend class NoiseScene;
 	friend class NoiseRenderer;
 	friend class NoiseMesh;
-	friend class NoiseMaterialManager;
 
 	//¹¹Ôìº¯Êı
 	NoiseMaterialManager();

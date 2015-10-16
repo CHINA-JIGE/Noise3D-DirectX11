@@ -265,6 +265,6 @@ technique11 DrawSky
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
 		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky()));
-		SetDepthStencilState(LessEqualDSS, 0);
+		//SetDepthStencilState(LessEqualDSS, 0);
 	}
 }

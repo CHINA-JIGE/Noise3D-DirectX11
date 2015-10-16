@@ -276,7 +276,7 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 		tmpCompleteV.Pos			= tmpV[i];
 		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
 		tmpCompleteV.Color		= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
-		tmpCompleteV.Tangent	= NVECTOR3(-tmpV[i].z,0,tmpV[i].x);
+		tmpCompleteV.Tangent	= tmpV[i].z>0?NVECTOR3(-tmpV[i].z,0,tmpV[i].x): NVECTOR3(tmpV[i].z, 0, -tmpV[i].x);
 		tmpCompleteV.TexCoord	= tmpTexCoord[i];
 		m_pVertexInMem->push_back(tmpCompleteV);
 	}
@@ -821,7 +821,7 @@ void	NoiseMesh::mFunction_Build_A_Quad
 				tmpCompleteV.Normal = tmpNormal;
 				tmpCompleteV.Pos		= NVECTOR3(vOriginPoint+(float)i*vBasisVector1+(float)j*vBasisVector2);
 				tmpCompleteV.Color	= NVECTOR4(((float)i/StepCount1),((float)j/StepCount2),0.5f,1.0f);
-				tmpCompleteV.Tangent = vBasisVector1;
+				tmpCompleteV.Tangent = vBasisVector2;
 				tmpCompleteV.TexCoord=NVECTOR2( (float)i/(StepCount1-1) , ( (float)j/StepCount2));
 				m_pVertexInMem->push_back(tmpCompleteV);
 		}

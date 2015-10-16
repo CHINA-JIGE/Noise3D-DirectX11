@@ -99,6 +99,13 @@ void	NoiseRenderer::RenderMeshInList()
 		//设置blend state
 		mFunction_SetBlendState(m_BlendMode);
 
+		//设置samplerState
+		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+
+		//设置depth/Stencil State
+		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+
+
 		//for every subset
 		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
 		for (j = 0;j < meshSubsetCount;j++)
@@ -133,8 +140,19 @@ void NoiseRenderer::RenderGraphicObjectInList()
 		return;
 	};
 
+
+	//设置fillmode和cullmode
+	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+
 	//设置blend state
 	mFunction_SetBlendState(m_BlendMode);
+
+	//设置samplerState
+	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+
+	//设置depth/Stencil State
+	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+
 
 	mFunction_GraphicObj_RenderLine2DInList();
 	mFunction_GraphicObj_RenderLine3DInList();
@@ -166,6 +184,7 @@ void NoiseRenderer::RenderAtmosphereInList()
 	mFunction_CameraMatrix_Update();
 
 
+
 	//actually there is only 1 atmosphere because you dont need more 
 	for (i = 0;i < m_pRenderList_Atmosphere->size();i++)
 	{
@@ -182,8 +201,13 @@ void NoiseRenderer::RenderAtmosphereInList()
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pAtmo->m_pVB_Gpu_Sky, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(tmp_pAtmo->m_pIB_Gpu_Sky, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//......Set States
 		mFunction_SetRasterState(m_FillMode, m_CullMode);
 		mFunction_SetBlendState(m_BlendMode);
+		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+
 
 		//update Vertices or atmo param to GPU
 		//shaders will decide to draw skybox or sky dome
@@ -287,7 +311,6 @@ BOOL	NoiseRenderer::mFunction_Init()
 	HR_DEBUG(hr, "创建input Layout失败！");
 #pragma endregion Create Input Layout
 
-
 #pragma region Create Fx Variable
 	//创建Cbuffer
 	m_pFX_CbPerFrame=m_pFX->GetConstantBufferByName("cbPerFrame");
@@ -304,49 +327,25 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_Texture_CubeMap = m_pFX->GetVariableByName("gCubeMap")->AsShaderResource();
 	m_pFX2D_Texture_Diffuse = m_pFX->GetVariableByName("g2D_DiffuseMap")->AsShaderResource();
 
+	//sampler state ( it needs a name in FX so for the time being I had to use D3DX11Effect
+	m_pFX_SamplerState_Default = m_pFX->GetVariableByName("samplerDefault")->AsSampler();
+
 #pragma endregion Create Fx Variable
 
+	//Create Various kinds of states
+	if (!mFunction_Init_CreateRasterState())return FALSE;
+	if (!mFunction_Init_CreateBlendState())return FALSE;
+	if (!mFunction_Init_CreateSamplerState())return FALSE;
+	if (!mFunction_Init_CreateDepthStencilState())return FALSE;
 
-#pragma region CreateRasterState
-	//创建预设的光栅化state
-	//Create Raster State;If you want various Raster State,you should pre-Create all of them in the beginning
-	D3D11_RASTERIZER_DESC tmpRasterStateDesc;//光栅化设置
-	ZeroMemory(&tmpRasterStateDesc,sizeof(D3D11_RASTERIZER_DESC));
-	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
-	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&m_pRasterState_Solid_CullNone);
-	HR_DEBUG(hr,"创建m_pRasterState_Solid_CullNone失败");
-	
-	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc,&m_pRasterState_WireFrame_CullNone);
-	HR_DEBUG(hr,"创建m_pRasterState_WireFrame_CullNone失败");
+	return TRUE;
+}
 
-	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
-	HR_DEBUG(hr, "创建m_pRasterState_Solid_CullBack失败");
+BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
+{
 
-	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
-	HR_DEBUG(hr, "创建m_pRasterState_WireFrame_CullBack失败");
-
-	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
-	HR_DEBUG(hr, "创建m_pRasterState_Solid_CullFront失败");
-
-	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
-	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
-	HR_DEBUG(hr, "创建m_pRasterState_WireFrame_CullFront失败");
-
-#pragma endregion CreateRasterState
-
-//source color : the first color in blending equation
-#pragma region CreateBlendState
+	//source color : the first color in blending equation
+	HRESULT hr = S_OK;
 
 	D3D11_BLEND_DESC tmpBlendDesc;
 	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
@@ -403,11 +402,92 @@ BOOL	NoiseRenderer::mFunction_Init()
 	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
 	HR_DEBUG(hr, "Create blend state(Transparency) failed!!");
 
+	return TRUE;
+};
 
-#pragma endregion CreateBlendState
+BOOL NoiseRenderer::mFunction_Init_CreateRasterState()
+{
+	HRESULT hr = S_OK;
+	//创建预设的光栅化state
+	//Create Raster State;If you want various Raster State,you should pre-Create all of them in the beginning
+	D3D11_RASTERIZER_DESC tmpRasterStateDesc;//光栅化设置
+	ZeroMemory(&tmpRasterStateDesc, sizeof(D3D11_RASTERIZER_DESC));
+	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
+	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullNone);
+	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullNone failed");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullNone);
+	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullNone failed");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
+	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullBack failed");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
+	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullBack failed");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
+	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullFront failed");
+
+	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
+	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
+	HR_DEBUG(hr, "Createm_pRasterState_WireFrame_CullFront failed");
 
 	return TRUE;
 };
+
+BOOL NoiseRenderer::mFunction_Init_CreateSamplerState()
+{
+	HRESULT hr = S_OK;
+
+	//sampler state (well,maybe I should use ID3DX11SamplerStateVar to Update sampler state to GPU
+	D3D11_SAMPLER_DESC samDesc;
+	ZeroMemory(&samDesc, sizeof(samDesc));
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samDesc.MaxAnisotropy = 4;
+	hr = g_pd3dDevice->CreateSamplerState(&samDesc, &m_pSamplerState_FilterAnis);
+	HR_DEBUG(hr, "Create Sampler State failed!!");
+
+	return TRUE;
+};
+
+BOOL NoiseRenderer::mFunction_Init_CreateDepthStencilState()
+{
+	HRESULT hr = S_OK;
+	//depth stencil state
+	D3D11_DEPTH_STENCIL_DESC dssDesc;
+	ZeroMemory(&dssDesc, sizeof(dssDesc));
+	dssDesc.DepthEnable = TRUE;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.StencilEnable = FALSE;
+	hr = g_pd3dDevice->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
+	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
+
+
+	ZeroMemory(&dssDesc, sizeof(dssDesc));
+	dssDesc.DepthEnable = FALSE;
+	dssDesc.StencilEnable = FALSE;
+	hr = g_pd3dDevice->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
+	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
+
+	return TRUE;
+};
+
 
 BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 {
@@ -758,7 +838,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine3DInList()
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D]->size();
-		g_pImmediateContext->Draw(vCount, 0);
+		if(vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 
@@ -788,7 +868,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint3DInList()
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size();
-		g_pImmediateContext->Draw(vCount, 0);
+		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 }
@@ -813,7 +893,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine2DInList()
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D]->size();
-		g_pImmediateContext->Draw(vCount, 0);
+		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 };
@@ -837,7 +917,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint2DInList()
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size();
-		g_pImmediateContext->Draw(vCount, 0);
+		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 };
@@ -910,7 +990,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 			}
 
 			//draw ( but first translate triangle ID into vertex ID)
-			g_pImmediateContext->Draw(tmpRegion.elememtCount*3, tmpRegion.startID * 3);
+			if (vCount>0)g_pImmediateContext->Draw(tmpRegion.elememtCount*3, tmpRegion.startID * 3);
 		}
 
 	}

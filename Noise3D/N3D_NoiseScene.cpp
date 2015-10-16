@@ -170,7 +170,23 @@ BOOL NoiseScene::CreateAtmosphere(NoiseAtmosphere* pAtmosphere)
 	}
 
 	return TRUE;
+}
+
+BOOL NoiseScene::CreateGUI(NoiseGUIManager * pGUI)
+{
+	if (pGUI != nullptr)
+	{
+		m_pChildGUI = pGUI;
+		pGUI->m_pFatherScene = this;
+	}
+	else
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 };
+
 
 void	NoiseScene::SetCamera(NoiseCamera* pSceneCam)
 {
