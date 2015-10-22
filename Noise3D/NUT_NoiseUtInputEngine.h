@@ -25,6 +25,8 @@ public:
 
 	BOOL		IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn);
 
+	BOOL		IsInitialized();
+
 	int			GetMouseDiffX();
 
 	int			GetMouseDiffY();

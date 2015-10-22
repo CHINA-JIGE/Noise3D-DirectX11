@@ -71,7 +71,7 @@ private:
 	void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex);
 
 	//invoked by NoiseRenderer
-	void		mFunction_UpdateWorldMatrix();
+	void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateWorldMatrix();
 	
 	//this function use the vertex list of vector<N_DefaultVertex>
 	void		mFunction_ComputeBoundingBox();

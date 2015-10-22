@@ -91,12 +91,6 @@ BOOL NoiseUtInputEngine::Update()
 	//input engine must be initialized
 	if (!mHasBeenInitialized)return FALSE;
 
-	//get window size / location info
-	RECT windowRect;
-	GetClientRect(mResponsiveHWND, &windowRect);
-	mWindowWidth = windowRect.right - windowRect.left;
-	mWindowHeight = windowRect.bottom - windowRect.top;
-
 	//..................
 	HRESULT hr;
 	//keyboard get device state (validate , and get buffered keyboard event data to an array)
@@ -154,8 +148,10 @@ BOOL NoiseUtInputEngine::Update()
 
 	//process newly got device state
 	//and in relative mode ( default ), lX / lY are relative coordinates.
-	mMousePosX += (int)mMouseState.lX;
-	mMousePosY += (int)mMouseState.lY;
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+	mMousePosX = cursorPos.x;
+	mMousePosY = cursorPos.y;
 
 	//boundary restriction
 	if (mMousePosX < 0)mMousePosX = 0;
@@ -203,6 +199,11 @@ BOOL NoiseUtInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 	}
 
 	return FALSE;
+}
+
+BOOL NoiseUtInputEngine::IsInitialized()
+{
+	return mHasBeenInitialized;
 }
 
 int NoiseUtInputEngine::GetMouseDiffX()

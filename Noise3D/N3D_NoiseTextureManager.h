@@ -40,7 +40,7 @@ public:
 	BOOL	DeleteTexture(UINT texID);
 
 private:
-	UINT		mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
+	UINT		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
 
 	UINT		mFunction_CreateTextureFromFile(LPCWSTR filePath, char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, D3D11_USAGE bufferUsage, UINT cpuAccessFlag);
 

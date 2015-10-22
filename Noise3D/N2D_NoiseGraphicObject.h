@@ -156,7 +156,7 @@ private:
 
 	//draw call List : optimization ,because there are solid/textured triangles,
 	//2 techniques are needed, so multiple draw calls are needed
-	std::vector<N_DrawCall_VertexRegion>*		m_pDrawCallList_CommonTriangle;
+	//std::vector<N_DrawCall_VertexRegion>*		m_pDrawCallList_CommonTriangle;
 
 
 };

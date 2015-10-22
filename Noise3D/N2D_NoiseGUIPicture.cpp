@@ -10,7 +10,7 @@
 #include "Noise3D.h"
 
 
-NoiseGUILabel::NoiseGUILabel()
+NoiseGUIPicture::NoiseGUIPicture()
 {
 
 };

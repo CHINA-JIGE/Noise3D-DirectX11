@@ -85,7 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="N2D_NoiseGUIButton.h" />
-    <ClInclude Include="N2D_NoiseGUILabel.h" />
+    <ClInclude Include="N2D_NoiseGUIPicture.h" />
     <ClInclude Include="N2D_NoiseGUIManager.h" />
     <ClInclude Include="N3D_NoiseCamera.h" />
     <ClInclude Include="N3D_NoiseEngine.h" />
@@ -125,7 +125,7 @@
     <ClCompile Include="AssemblyInfo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="N2D_NoiseGUILabel.cpp" />
+    <ClCompile Include="N2D_NoiseGUIPicture.cpp" />
     <ClCompile Include="N3D_NoiseCamera.cpp" />
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="NBASE_NoiseGUIBasicContainerInfo.cpp" />

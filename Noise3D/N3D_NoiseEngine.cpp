@@ -49,8 +49,8 @@ HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR 
 BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
 {
 	mRenderWindowHWND = RenderHWND;
-	g_MainBufferPixelWidth = BufferWidth;
-	g_MainBufferPixelHeight = BufferHeight;
+	gMainBufferPixelWidth = BufferWidth;
+	gMainBufferPixelHeight = BufferHeight;
 
 	HRESULT hr = S_OK;
 #pragma region InitDevice
@@ -127,8 +127,8 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	DXGI_SWAP_CHAIN_DESC SwapChainParam;
 	ZeroMemory(&SwapChainParam, sizeof(SwapChainParam));
 	SwapChainParam.BufferCount = 1;
-	SwapChainParam.BufferDesc.Width = g_MainBufferPixelWidth;
-	SwapChainParam.BufferDesc.Height = g_MainBufferPixelHeight;
+	SwapChainParam.BufferDesc.Width = gMainBufferPixelWidth;
+	SwapChainParam.BufferDesc.Height = gMainBufferPixelHeight;
 	SwapChainParam.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	SwapChainParam.BufferDesc.RefreshRate.Numerator = 60;//	·Ö×Ó= =£¿
 	SwapChainParam.BufferDesc.RefreshRate.Denominator = 1;//·ÖÄ¸
@@ -323,6 +323,7 @@ HINSTANCE NoiseEngine::GetRenderWindowHINSTANCE()
 int	NoiseEngine::GetRenderWindowWidth()
 {
 	RECT windowRect;
+	//when you only need the difference , GetClientRect is OK~
 	GetClientRect(mRenderWindowHWND, &windowRect);
 	return (int)(windowRect.right- windowRect.left);
 }
@@ -387,13 +388,16 @@ BOOL NoiseEngine::mFunction_InitWindowClass(WNDCLASS* wc)
 
 HWND NoiseEngine::mFunction_InitWindow()
 {
+	UINT scrWidth = GetSystemMetrics(SM_CXSCREEN);
+	UINT scrHeight = GetSystemMetrics(SM_CYSCREEN);
+
 	HWND hwnd;
 	hwnd = CreateWindow(
 		mRenderWindowClassName,      // window class name
 		mRenderWindowTitle,   // window caption
-		WS_OVERLAPPEDWINDOW, // window style
-		CW_USEDEFAULT,// initial x position
-		CW_USEDEFAULT,// initial y position
+		WS_POPUP , // window style ------WS_OVERLAPPEDWINDOW
+		scrWidth/6,// initial x position ---------CW_USEDEFAULT
+		scrHeight/6,// initial y position
 		640,// initial x size
 		480,// initial y size
 		NULL, // parent window handle

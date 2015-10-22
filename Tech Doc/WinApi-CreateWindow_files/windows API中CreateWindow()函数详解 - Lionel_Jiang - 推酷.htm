@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<!--
+ ______________ 
+< TUICOOL.COM >
+ -------------- 
+        \   ^__^
+         \  (**)\__$__$__
+            (__)\       )\/\
+             U  ||------|
+                ||     ||
+-->
+<html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="authenticity_token" name="csrf-param">
+<meta content="VWkPLCJD+hKDZTl1JetwXm4S4Bb1avgtyoZOYwlUcMk=" name="csrf-token">
+    <title>
+            windows API中CreateWindow()函数详解 - Lionel_Jiang - 推酷
+   </title>
+    <meta name="description" content="windows API中CreateWindow()函数详解 - Lionel_Jiang">
+  <link rel="shortcut icon" href="http://static0.tuicool.com/favicon.ico" type="image/x-icon">
+  <link href="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/application-c3df097207f98ca985afdc4a2ef69b6c.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/font-awesome.css" rel="stylesheet">
+  <script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ca-pub-7054762349007490.js" type="text/javascript" async=""></script><script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/application-5272668a8ed427c5225cac7c6110da64.js" type="text/javascript"></script>
+
+  <!--[if IE 7]>
+  <link rel="stylesheet" href="http://assets.tuicool.com/assets/font-awesome-ie7.min.css">
+  <![endif]--> 
+    <script type="text/javascript" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/tip.js"></script>
+  
+  <script type="text/javascript" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/m.js"></script>
+<script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ds.js"></script>
+<script type="text/javascript" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/spin.js"></script><style type="text/css"></style>
+<link rel="stylesheet" href="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/github.css">
+
+<script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/share.js"></script><link href="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/share_style1_24.css" rel="stylesheet"></head>
+<body><div style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;" id="BAIDU_DUP_fp_wrapper"><iframe style="width: 0px; height: 0px; visibility: hidden; display: none;" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/o.htm" id="BAIDU_DUP_fp_iframe"></iframe></div><div style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;" id="BAIDU_DUP_fp_wrapper"><iframe style="width: 0px; height: 0px; visibility: hidden; display: none;" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/o_002.htm" id="BAIDU_DUP_fp_iframe"></iframe></div>
+  
+  <div id="header" class="navbar-fixed-top">
+    <div class="container">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
+            <span class="icon-bar"></span> 
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span> 
+          </a>
+          <a href="http://www.tuicool.com/" class="brand">推酷</a>        
+        <nav class="nav-collapse collapse">
+            <ul class="nav navbar primary-nav">                            
+              <li class="active">
+                <a href="http://www.tuicool.com/ah">
+                  文章
+                </a>
+              </li>              
+              <li class="">
+                <a href="http://www.tuicool.com/sites/hot">
+                  站点
+                </a>
+              </li>
+              <li class="">
+                <a href="http://www.tuicool.com/topics">
+                  主题
+                </a>
+              </li>
+              <li class="">
+                <a href="http://course.tuicool.com/">
+                  公开课
+                </a>
+              </li>
+              <li class="">
+                <a href="http://huodong.tuicool.com/">
+                  活动
+                </a>
+              </li>
+              <li class="">
+                <a href="http://www.tuicool.com/mobile">
+                  客户端
+                    <sup style="font-size:0.8em;color: #16A085;">荐</sup>
+                </a>
+              </li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">周刊 <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="http://www.tuicool.com/mags">编程狂人</a></li>
+                  <li><a href="http://www.tuicool.com/mags/design">设计匠艺</a></li> 
+                  <li><a href="http://www.tuicool.com/articles/weekly">一周拾遗</a></li>                  
+                </ul>
+              </li>
+              
+               <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">更多 <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="http://www.tuicool.com/bbs">讨论区</a></li>  
+                  <li><a href="http://www.tuicool.com/about">关于我们</a></li>                 
+                </ul>
+              </li>
+              
+              </ul>
+            <form class="navbar-search pull-left" action="http://www.tuicool.com/search">
+              <input class="search-query span2" name="kw" placeholder="搜索" type="text">
+            </form>
+            <ul class="nav pull-right">
+                <li><a href="http://www.tuicool.com/login">登录</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+  </div>   
+</div>
+  <div id="flash_container" class="noPrint">    
+  </div>
+  
+  <div class="container-fluid">  
+    <div class="row-fluid article_row_fluid">
+    <div class="span8 contant article_detail_bg">
+        <h1>windows API中CreateWindow()函数详解 - Lionel_Jiang</h1>
+        <div class="article_meta">
+            <div style="margin-bottom: 5px;">
+            <span class="timestamp">时间&nbsp;2014-07-31 18:13:00
+            </span>
+            <span class="from">
+                <i class="icon-globe"></i>
+                    <a class="cut cut28 from" href="http://www.tuicool.com/sites/QbYvau" target="_blank">博客园-所有随笔区
+                    </a>
+            </span>
+            </div>
+            <div class="source">
+                <i style="float:left;">原文</i>&nbsp; 
+                <a class="cut cut70" href="http://www.cnblogs.com/jjmcu/p/3881441.html?utm_source=tuicool&amp;utm_medium=referral" style="display:inline-block;">http://www.cnblogs.com/jjmcu/p/3881441.html</a>
+            </div>
+            <div>
+                <span>主题</span>
+                <a href="http://www.tuicool.com/topics/11300008" target="_blank">
+                    <span class="new-label">Windows编程</span>
+                </a>
+            </div>
+        </div>
+        <div class="article_body" id="nei">
+            <div>
+  <p>
+    <span>CreateWindow函数详解</span>
+  </p>
+  <p>在注册完窗口类后就需要进行窗口的创建，用到的函数理所当然就是CreateWindow()， 
+而这个函数是基于窗口类的，所以还需要指定几个参数来制定特定的窗口。而且像一些不带边框的窗口是怎么创建的也是具有相当的技巧的，就是创建的是不带标题
+和边框的窗口，然后自己在客户区绘制程序的内容，能够制作个性化的应用程序。</p>
+  <p>
+    <strong>
+      <span>API解释</span>
+    </strong>
+  </p>
+  <div>
+    <p>该函数创建一个重叠式窗口、弹出式窗口或子窗口。它指定窗口类，窗口标题，窗口风格，以及窗口的初始位置及大小（可选的）。函数也指该窗口的父窗口或所属窗口（如果存在的话），及窗口的菜单。</p>
+    <p>&nbsp;&nbsp;&nbsp; 若要使用除 CreateWindow 函数支持的风格外的扩展风格，则使用 CreateWindowEx 函数代替 CreateWindow 函数。</p>
+    <p>
+      <strong>API</strong>
+      <strong>函数原型：</strong>
+    </p>
+    <p>HWND WINAPI CreateWindow(</p>
+  </div>
+  <p>_In_opt_&nbsp;&nbsp;LPCTSTR lpClassName, &nbsp; &nbsp; &nbsp;// 窗口类名称</p>
+  <p>_In_opt_&nbsp;&nbsp;LPCTSTR lpWindowName,&nbsp; // 窗口标题</p>
+  <p>_In_&nbsp; &nbsp;&nbsp; &nbsp;DWORD dwStyle, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// 窗口风格，或称窗口格式</p>
+  <p>_In_&nbsp; &nbsp;&nbsp; &nbsp;int x, &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; // 初始 x 坐标</p>
+  <p>_In_&nbsp; &nbsp;&nbsp; &nbsp;int y, &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; // 初始 y 坐标</p>
+  <p>_In_&nbsp; &nbsp;&nbsp; &nbsp;int nWidth, &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// 初始 x 
+方向尺寸</p>
+  <p>_In_&nbsp; &nbsp;&nbsp; &nbsp;int nHeight, &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // 初始 y 方向尺寸</p>
+  <p>_In_opt_&nbsp;&nbsp;HWND hWndParent,&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;// 父窗口句柄</p>
+  <p>_In_opt_&nbsp;&nbsp;HMENU hMenu, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // 窗口菜单句柄</p>
+  <p>_In_opt_&nbsp;&nbsp;HINSTANCE hInstance,&nbsp; &nbsp; // 程序实例句柄</p>
+  <p>_In_opt_&nbsp;&nbsp;LPVOID lpParam &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// 创建参数</p>
+  <p>);</p>
+  <p>注：_In_ 说明该参数是输入的，_opt_ 说明该参数是可选参数（不是说没有参数，而是可以利用宏搭配参数）。</p>
+  <div>
+    <p>
+      <strong>参数解析：</strong>
+    </p>
+  </div>
+  <table class="table table-bordered" border="1" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td>
+          <p>参数</p>
+        </td>
+        <td>
+          <p>含义</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>lpClassName</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 窗口类名称，可以是一个指向 NULL 结束的字符串或一个整型数值</p>
+            <p>2. 如果是字符串，它指定了窗口的类名。这个类名可以是任何用函数 RegisterClass 注册的类名，或是任何预定义的控制类名</p>
+            <p>3. 如是一个整型量，它是由此前调用 theGlobalAddAtom 函数产生的全局量。这个小于 0xC000 的 16 位数必须是 lpClassName 参数字的低 16 位，该参数的高位必须是 0</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>lpWindowName</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 窗口标题，一个指向 NULL 结束的字符串指针</p>
+            <p>2. 如果窗口风格指定了标题条，由 lpWindowName 指向的窗口标题将显示在标题条上</p>
+            <p>3. 当使用 Createwindow 函数来创建控制例如按钮，选择框和静态控制时，可使用 lpWindowName 来指定控制文本</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>dwStyle</p>
+        </td>
+        <td>
+          <p>指定创建窗口的风格（详见下方↓）</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>x</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 指定窗口的初始水平位置（x 坐标）</p>
+            <p>2. 对一个层叠或弹出式窗口，x 参数是屏幕坐标系的窗口的左上角的初始 x 坐标</p>
+            <p>3. 对于子窗口，x 是子窗口左上角相对父窗口客户区左上角的初始 x 坐标</p>
+            <p>4. 如果该参数被设为 CW_USEDEFAULT 则系统为窗口选择缺省的左上角坐标并忽略 y 参数，CW_USEDEFAULT 只对层叠窗口有效，如果为弹出式窗口或子窗口设定，则 x 和 y 参数被设为零。</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>y</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 指定窗口的初始垂直位置（y 坐标）</p>
+            <p>2. 对一个层叠或弹出式窗口，y 参数是屏幕坐标系的窗口的左上角的初始 y 坐标</p>
+            <p>3. 对于子窗口，y 是子窗口左上角相对父窗口客户区左上角的初始 y 坐标</p>
+            <p>4. 对于列表框，y 是列表框客户区左上角相对父窗口客户区左上角的初始 y 坐标</p>
+            <p>5. 如果层叠窗口是使用 WS_VISIBLE 风格位创建的并且 x 参数被设为 CW_USEDEFAULT，则系统将忽略 y 参数</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>nWidth</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 以设备单元指明窗口的宽度</p>
+            <p>2. 对于层叠窗口，nWidth 的值或是屏幕坐标的窗口宽度或是 CW_USEDEFAULT</p>
+            <p>3. 若 nWidth 是 CW_USEDEFAULT，则系统为窗口选择一个默认的高度和宽度（默认宽度为从初始 x
+ 坐标开始到屏幕的右边界，缺省高度为从初始 y 坐标开始到目标区域的顶部。)，CW_USEDEFAULT 
+只对层叠窗口有效，如果为弹出式窗口和子窗口设定 CW_USEDEFAULT 标志则 nWidth 和 nHeight 被设为零</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>nHeight</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 以设备单元指明窗口的高度</p>
+            <p>2. 对于层叠窗口，nHeight 是屏幕坐标的窗口宽度</p>
+            <p>3. 若 nWidth 被设为 CW_USEDEFAULT，则系统忽略 nHeight 参数，自动为 nWidth 和 nHeight 设置默认参数</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>hWndParent</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 指向被创建窗口的父窗口或所有者窗口的句柄</p>
+            <p>2. 若要创建一个子窗口或一个从属窗口，需提供一个有效的窗口句柄</p>
+            <p>3. 创建一个单纯的消息窗口，可以提供 HWND_MESSAGE 或提供一个己存在的消息窗口的句柄</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>hMenu</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 指向窗口菜单句柄，或依据窗口风格指明一个子窗口标识</p>
+            <p>2. 对于层叠或弹出式窗口，hMenu 指定窗口使用的菜单：如果使用了菜单类，则 hMenu 可以为 NULL</p>
+            <p>3. 对于子窗口，hMenu 指定了该子窗口标识（一个整型量），一个对话框使用这个整型值将事件通知父类。应用程序确定子窗口标识，这个值对于相同父窗口的所有子窗口必须是唯一的</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>hInstance</p>
+        </td>
+        <td>
+          <p>与窗口相关联的模块实例的句柄</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>lpParam</p>
+        </td>
+        <td>
+          <p>
+            1. 指向一个值的指针，该值传递给窗口 WM_CREATE 消息。该值通过在 IParam 参数中的 
+CREATESTRUCT 结构传递            2. 如果应用程序调用 CreateWindow 创建一个 MDI 客户窗口，则 
+lpParam 必须指向一个 CLIENTCREATESTRUCT 结构          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <strong>dwStyle 窗口风格解析</strong>
+  </p>
+  <table class="table table-bordered" border="1" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td>
+          <p>窗口风格</p>
+        </td>
+        <td>
+          <p>含义</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_BORDER</p>
+        </td>
+        <td>
+          <p>创建一个带边框的窗口</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_CAPTION</p>
+        </td>
+        <td>
+          <p>创建一个有标题框的窗口（包含了 WS_BODER 风格）</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_CHILD</p>
+        </td>
+        <td>
+          <p>创建一个子窗口，这个风格的窗口不能拥有菜单也不能与 WS_POPUP 风格合用</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_CHILDWINDOW</p>
+        </td>
+        <td>
+          <p>与 WS_CHILD 相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_CLIPCHILDREN</p>
+        </td>
+        <td>
+          <p>当在父窗口内绘图时，排除子窗口区域，在创建父窗口时使用这个风格</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_CLIPSIBLINGS</p>
+        </td>
+        <td>
+          <p>
+            1. 排除子窗口之间的相对区域，也就是，当一个特定的窗口接收到 WM_PAINT 消息时，WS_CLIPSIBLINGS
+ 风格将所有层叠窗口排除在绘图之外，只重绘指定的子窗口            2. 
+如果未指定该风格，并且子窗口是层叠的，则在重绘子窗口的客户区时，就会重绘邻近的子窗口          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_DISABLED</p>
+        </td>
+        <td>
+          <p>
+            1. 创建一个初始状态为禁止的子窗口，一个禁止状态的窗口不能接受来自用户的输入信息            2. 在窗口创建之后，可以调用 EnableWindow 函数来启用该窗口          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_DLGFRAME</p>
+        </td>
+        <td>
+          <p>创建一个带对话框边框风格的窗口，这种风格的窗口不能带标题条</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_GROUP</p>
+        </td>
+        <td>
+          <div>
+            <p>1. 指定一组“控制窗口”的第一个“控制窗口”</p>
+            <p>2. 这个“控制窗口”组由第一个“控制窗口”和随后定义的“控制窗口”组成，自第二个“控制窗口”开始每个“控制窗口”具有 WS_GROUP 风格</p>
+            <p>3. 每个组的第一个“控制窗口”带有 WS_TABSTOP 风格，从而使用户可以在组间移动</p>
+            <p>4. 用户随后可以使用光标在组内的控制间改变键盘焦点</p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_HSCROLL</p>
+        </td>
+        <td>
+          <p>创建一个有水平滚动条的窗口</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_ICONIC</p>
+        </td>
+        <td>
+          <p>创建一个初始状态为最小化状态的窗口，与 WS_MINIMIZE 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_MAXIMIZE</p>
+        </td>
+        <td>
+          <p>创建一个初始状态为最大化状态的窗口</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_MAXIMIZEBOX</p>
+        </td>
+        <td>
+          <p>创建一个具有最大化按钮的窗口，该风格不能与 WS_EX_CONTEXTHELP 风格同时出现，同时必须指定 WS_SYSMENU 风格</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_MINIMIZE</p>
+        </td>
+        <td>
+          <p>创建一个初始状态为最小化状态的窗口，与 WS_ICONIC 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_MINIMIZEBOX</p>
+        </td>
+        <td>
+          <p>创建一个具有最小化按钮的窗口，该风格不能与 WS_EX_CONTEXTHELP 风格同时出现，同时必须指定 WS_SYSMENU 风格</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_OVERLAPPED</p>
+        </td>
+        <td>
+          <p>产生一个层叠的窗口，一个层叠的窗口有一个标题条和一个边框，与 WS_TILED 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_OVERLAPPEDWINDOW</p>
+        </td>
+        <td>
+          <p>相当于（WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX），与 WS_TILEDWINDOW 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_POPUP</p>
+        </td>
+        <td>
+          <p>创建一个弹出式窗口，该风格不能与 WS_CHILD 风格同时使用。</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_POPUPWINDOW</p>
+        </td>
+        <td>
+          <p>相当于（WS_POPUP | WS_BORDER | WS_SYSMENU），但 WS_CAPTION 和 WS_POPUPWINDOW 必须同时设定才能使窗口某单可见</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_SIZEBOX</p>
+        </td>
+        <td>
+          <p>创建一个可调边框的窗口，与 WS_THICKFRAME 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_SYSMENU</p>
+        </td>
+        <td>
+          <p>创建一个在标题条上带有窗口菜单的窗口，必须同时设定 WS_CAPTION 风格</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_TABSTOP</p>
+        </td>
+        <td>
+          <p>
+            1. 创建一个“控制窗口”，在用户按下 Tab 键时可以获得键盘焦点。            2. 按下 Tab 键后使键盘焦点转移到下一具有 WS_TABSTOP 风格的“控制窗口”          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_THICKFRAME</p>
+        </td>
+        <td>
+          <p>创建一个具有可调边框的窗口，与 WS_SIZEBOX 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_TILED</p>
+        </td>
+        <td>
+          <p>产生一个层叠的窗口，一个层叠的窗口有一个标题和一个边框，与 WS_OVERLAPPED 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_TILEDWINDOW</p>
+        </td>
+        <td>
+          <p>相当于（WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX），与 WS_OVERLAPPEDWINDOW 风格相同</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_VISIBLE</p>
+        </td>
+        <td>
+          <p>创建一个初始状态为可见的窗口</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>WS_VSCROLL</p>
+        </td>
+        <td>
+          <p>创建一个有垂直滚动条的窗口</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <p>
+      <strong>返回值：</strong>
+    </p>
+    <p>1. 如果函数成功，返回值为新窗口的句柄。</p>
+    <p>2. 如果函数失败，返回值为 NULL。</p>
+  </div>
+  <p>
+    <strong>
+      <span>应用举例</span>
+    </strong>
+  </p>
+  <p>
+    <strong>一 创建带垂直滚动条和水平滚动条的窗口程序</strong>
+  </p>
+  <p>hwnd = CreateWindow(szAppName,</p>
+  <p>TEXT("垂直和水平滚动条"),</p>
+  <p>WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,&nbsp; // | 上两参数即可</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>NULL,</p>
+  <p>NULL,</p>
+  <p>hInstance,</p>
+  <p>NULL);</p>
+  <p>
+    <strong>二 创建用户不可操作的win32程序</strong>
+  </p>
+  <p>hwnd = CreateWindow(szAppName,</p>
+  <p>TEXT("垂直和水平滚动条"),</p>
+  <p>WS_DISABLED,&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//
+ 修改为失能参数</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>NULL,</p>
+  <p>NULL,</p>
+  <p>hInstance,</p>
+  <p>NULL);</p>
+  <p>
+    <strong>三 使用弹出式窗口创建不带边框和标题栏的窗口</strong>
+  </p>
+  <p>hwnd = CreateWindow(szAppName,</p>
+  <p>TEXT("垂直和水平滚动条"),</p>
+  <p>WS_POPUP,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ // 弹出式窗口，并且要修改长宽</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>NULL,</p>
+  <p>NULL,</p>
+  <p>hInstance,</p>
+  <p>NULL);</p>
+  <p>
+    <strong>四 带边框的弹出式窗口</strong>
+  </p>
+  <p>hwnd = CreateWindow(szAppName,</p>
+  <p>TEXT("垂直和水平滚动条"),</p>
+  <p>WS_POPUP | 
+WS_SIZEBOX,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ // 弹出式窗口，并且要修改长宽</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>CW_USEDEFAULT,</p>
+  <p>NULL,</p>
+  <p>NULL,</p>
+  <p>hInstance,</p>
+  <p>NULL);</p>
+</div>
+
+        </div>
+        <div class="article_social">
+        <div class="article_like">
+                <button class="btn btn-large btn-like" id="my_like2" data_id="6RvqIrv">
+                    <i class="icon-heart-empty"></i>
+                    赞一个
+                </button>
+                <button class="btn btn-large btn-fav liked" id="my_like" data_id="6RvqIrv">
+                    <i class="icon-star-empty"></i>
+                    收 藏
+                </button>
+        </div>
+        <div class="bottom_ad huodong-detail-ad-banner clearfix">
+            <script type="text/javascript">
+    var cpro_id = "u1665123";
+</script>
+<script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/c.js" type="text/javascript"></script><div id="BAIDU_DUP_wrapper_u1665123_0"><iframe id="cproIframe_u1665123_1" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/acom.htm" marginwidth="0" marginheight="0" scrolling="no" allowtransparency="true" frameborder="0" height="90" align="center,center" width="580"></iframe></div><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/acom"></script>
+
+        </div>
+        </div>
+           <div id="site_articles">
+              <div class="article-part-title">
+                <span>推荐文章</span>
+              </div>
+          <ul class="side_article_list">
+                <li class="side_article_list_item">
+                    1.<a href="http://www.tuicool.com/articles/zaYNrmY" target="_blank" title="使用命令行打包 nuget 包">
+                    使用命令行打包 nuget 包
+                </a>
+                </li>
+                <li class="side_article_list_item">
+                    2.<a href="http://www.tuicool.com/articles/rQFnqii" target="_blank" title="极客DIY：打造你的专属黑客U盘">
+                    极客DIY：打造你的专属黑客U盘
+                </a>
+                </li>
+                <li class="side_article_list_item">
+                    3.<a href="http://www.tuicool.com/articles/VRvI3uQ" target="_blank" title="WinAppDeployCmd部署Win10 App 到移动设备">
+                    WinAppDeployCmd部署Win10 App 到移动设备
+                </a>
+                </li>
+                <li class="side_article_list_item">
+                    4.<a href="http://www.tuicool.com/articles/U77zAb" target="_blank" title="实现windows批处理下的计时功能">
+                    实现windows批处理下的计时功能
+                </a>
+                </li>
+                <li class="side_article_list_item">
+                    5.<a href="http://www.tuicool.com/articles/nEv2Yrn" target="_blank" title="想让安卓 APP 如丝般顺滑？">
+                    想让安卓 APP 如丝般顺滑？
+                </a>
+                </li>
+                <li class="side_article_list_item">
+                    6.<a href="http://www.tuicool.com/articles/Q3AN3i" target="_blank" title="notepad++ 等用正则表达式自动添加sql引号（宏）">
+                    notepad++ 等用正则表达式自动添加sql引号（宏）
+                </a>
+                </li>
+         </ul>
+        </div>
+
+        <div id="kan_articles"></div>
+        <div id="article_weibo" style="display:none;">
+            <div class="article-part-title">
+                <span>相关微博</span>
+                <sub>
+                    <a href="http://www.tuicool.com/articles/weibo_list/6RvqIrv" target="_blank">(<i id="weibo_num"></i>)</a> 
+               </sub>
+            </div>
+            <div class="related-weibo-list"></div>
+        </div>
+        <div class="comments">
+    <div class="comments-area">
+    <div class="comments-header">
+        <h5>我来评几句</h5>
+        <div class="alert comment-alert alert-error" style="display:none;">
+            错误
+        </div>
+            <textarea cols="60" rows="5" id="comment-body" placeholder="请输入评论内容..." style="resize: none;"></textarea>
+            <span class="btn btn-medium btn-submit" id="comment-submit">登录后评论</span>
+        <p style="margin-top: 5px;margin-left:10px;">
+            已发表评论数(<span class="comment_cnt">0</span>)
+        </p>
+    </div>
+    <div class="comments-list">
+        <div class="empty-cmts alert alert-success" style="display:none;">
+            没有更多评论了^^
+        </div>
+    </div>
+    <div class="more-comments" style="display:none;">
+        <a href="">更多评论</a>
+    </div>
+    <div class="load-fail" style="display:none;">
+        评论加载失败，<a href="javascript:reload_comments('6RvqIrv',1,0,-1);">重新加载</a>
+    </div>
+    </div>
+</div>
+
+    </div>
+         <div class="span4 article_right_side">
+            
+            <div class="right_top">
+    <div class="article_related_site article_detail_bg">
+    <h4 class="article-part-title">相关站点</h4>
+    <div class="article_related_site_body clearfix">
+        <div class="logo">
+            <img src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/QbYvau.png">
+        </div>
+        <div class="name">
+            <div>
+                <a href="http://www.tuicool.com/sites/QbYvau" target="_blank"> 博客园-所有随笔区</a>
+            </div>
+            <div>
+                    <input class="btn btn-success right_site_follow" value="+&nbsp;订阅" id="my_follow" data_id="QbYvau" type="button">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="right-ad">
+      <script type="text/javascript">BAIDU_CLB_fillSlot("1092367");</script><div id="BAIDU_DUP_wrapper_1092367_0"><iframe id="baidu_clb_slot_iframe_1092367_0" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/a_004.htm" onload="BAIDU_DUP_CLB_renderFrame('1092367_0')" vspace="0" hspace="0" allowtransparency="true" scrolling="no" marginwidth="0" marginheight="0" style="border:0; vertical-align:bottom; margin:0; display:block;" frameborder="0" height="150" width="300"></iframe></div><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ecom_004"></script><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/fixed7o.js"></script>
+
+</div>
+<div class="right-ad" style="margin-top: 8px">
+      <script type="text/javascript">BAIDU_CLB_fillSlot("1145010");</script><div id="BAIDU_DUP_wrapper_1145010_0"><iframe id="baidu_clb_slot_iframe_1145010_0" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/a_004.htm" onload="BAIDU_DUP_CLB_renderFrame('1145010_0')" vspace="0" hspace="0" allowtransparency="true" scrolling="no" marginwidth="0" marginheight="0" style="border:0; vertical-align:bottom; margin:0; display:block;" frameborder="0" height="150" width="350"></iframe></div><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ecom_003"></script>
+
+</div>
+<div class="right-ad" style="margin-top: 8px">
+      <script type="text/javascript">BAIDU_CLB_fillSlot("1086175");</script><div id="BAIDU_DUP_wrapper_1086175_0"><iframe id="baidu_clb_slot_iframe_1086175_0" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/a_004.htm" onload="BAIDU_DUP_CLB_renderFrame('1086175_0')" vspace="0" hspace="0" allowtransparency="true" scrolling="no" marginwidth="0" marginheight="0" style="border:0; vertical-align:bottom; margin:0; display:block;" frameborder="0" height="150" width="300"></iframe></div><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ecom"></script>
+
+</div>
+<div class="right-ad" style="margin-top: 8px">
+      <script type="text/javascript">BAIDU_CLB_fillSlot("1086186");</script><div id="BAIDU_DUP_wrapper_1086186_0"><iframe id="baidu_clb_slot_iframe_1086186_0" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/a_004.htm" onload="BAIDU_DUP_CLB_renderFrame('1086186_0')" vspace="0" hspace="0" allowtransparency="true" scrolling="no" marginwidth="0" marginheight="0" style="border:0; vertical-align:bottom; margin:0; display:block;" frameborder="0" height="150" width="300"></iframe></div><script charset="utf-8" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/ecom_002"></script>
+
+</div>
+<div id="right_site_articles" class="article_detail_bg">
+    <div class="article-part-title">
+        <span>热门文章</span>
+    </div>
+    <ul class="side_article_list">
+        <li class="side_article_list_item">
+            1.<a href="http://www.tuicool.com/articles/zaYNrmY" target="_blank" title="使用命令行打包 nuget 包"> 使用命令行打包 nuget 包 </a>
+        </li>
+        <li class="side_article_list_item">
+            2.<a href="http://www.tuicool.com/articles/rQFnqii" target="_blank" title="极客DIY：打造你的专属黑客U盘"> 极客DIY：打造你的专属黑客U盘 </a>
+        </li>
+        <li class="side_article_list_item">
+            3.<a href="http://www.tuicool.com/articles/VRvI3uQ" target="_blank" title="WinAppDeployCmd部署Win10 App 到移动设备"> WinAppDeployCmd部署Win10 App 到移动设备 </a>
+        </li>
+        <li class="side_article_list_item">
+            4.<a href="http://www.tuicool.com/articles/U77zAb" target="_blank" title="实现windows批处理下的计时功能"> 实现windows批处理下的计时功能 </a>
+        </li>
+        <li class="side_article_list_item">
+            5.<a href="http://www.tuicool.com/articles/nEv2Yrn" target="_blank" title="想让安卓 APP 如丝般顺滑？"> 想让安卓 APP 如丝般顺滑？ </a>
+        </li>
+        <li class="side_article_list_item">
+            6.<a href="http://www.tuicool.com/articles/Q3AN3i" target="_blank" title="notepad++ 等用正则表达式自动添加sql引号（宏）"> notepad++ 等用正则表达式自动添加sql引号（宏） </a>
+        </li>
+    </ul>
+</div>
+</div>
+
+<div style="position: inherit; top: 0px;" class="operate_zone">
+    <div class="container-body share-body">
+        <div class="article-part-title">
+            <span>分享本文</span>
+        </div>
+        <div class="share_zone">
+    <div data-bd-bind="1445528498334" class="bdsharebuttonbox bdshare-button-style1-24"> 
+         <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+        <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+        <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="#" class="bds_more" data-cmd="more"></a>
+     </div>
+    <script>
+        window._bd_share_config = {
+            "common" : {
+                "bdSnsKey" : {
+                    "tsina" : "3113829255",
+                    "tqq" : "801536792"
+                },
+                "bdText" : "windows API中CreateWindow()函数详解 - Lionel_Jiang (分享自 @推酷网)",
+                "bdMini" : "2",
+                "bdMiniList" : false,
+                "bdPic" : "",
+                "bdStyle" : "1",
+                "bdSize" : "24"
+            },
+            "share" : {}
+        };
+        with (document)
+        0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];
+    </script>
+</div>
+    </div>
+        <div class="frd_pos">
+        <script async="" src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/adsbygoogle.js"></script>
+<ins data-adsbygoogle-status="done" class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px;" data-ad-client="ca-pub-7054762349007490" data-ad-slot="5705695566"><ins id="aswift_0_expand" style="display:inline-table;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><ins id="aswift_0_anchor" style="display:block;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><iframe marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;" frameborder="0" height="250" width="300"></iframe></ins></ins></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+</div>
+         </div>
+</div>
+
+<div id="myLoginModal" class="modal hide fade">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>用户登录</h3>
+    </div>
+    <div class="modal-body">
+        <form method="post" action="/login" class="form-horizontal" id="login-form">
+            <div class="control-group">
+                <input id="xlEmail" name="email" placeholder="邮箱" type="text">
+            </div>
+            <div class="control-group">
+                <input id="xlPassword" name="password" placeholder="密码" type="password">
+            </div>
+            <div class="control-group">
+                <button type="submit" class="btn btn-primary">
+                    &nbsp;&nbsp;登&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="read-later-alert">
+</div>
+<div>
+   <a href="#add-article-to-kan" id="add-article-to-kan-btn" class="btn" data-toggle="modal" style="display:none;">添加到推刊</a>
+   <!-- add_article to kan -->
+<div id="add-article-to-kan" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <span class="add-title">收藏到推刊</span>
+    <a href="#new-kan" class="btn pull-right" data-toggle="modal">创建推刊</a>
+    <i class="clearfix"></i>
+  </div>
+  <div class="modal-body">
+    <ul id="add-kan-list">
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <input value="6RvqIrv" class="article-id" type="hidden"> 
+    <button class="btn btn-primary pull-left add-to-btn">  收 藏  </button>
+    <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+  </div>
+</div>
+<div class="add-article-to-kan-alert">
+  已收藏到推刊！
+</div>
+
+   <div id="new-kan" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-body">
+    <input name="name" id="new-kan-name" placeholder="推刊名(必填)" required="" data-validation-required-message="请填写推刊名" type="text">
+    <span class="new-ness-name">请填写推刊名</span>
+    <br>
+    <textarea name="desc" id="desc" rows="6" placeholder="推刊描述"></textarea>
+    <span class="new-ness-desc">描述不能大于100个字符!</span>
+    <br>
+    权限设置：<input name="type" value="1" checked="checked" type="radio"> 公开
+    <input name="type" value="0" type="radio"> 仅自己可见
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary pull-left create-kan-btn" disabled="disabled">创建</button>
+    <button class="btn dismiss-new-kan" data-dismiss="modal" aria-hidden="true">取消</button>
+  </div>
+</div>
+
+
+</div>
+<style type="text/css">
+    .btn-large {
+        padding: 0;
+    }
+    .load-fail {
+        display: none;
+    }
+</style>
+<script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/highlight.js"></script>
+<script type="text/javascript">
+    $('table').each(function(i) {
+        var size = $(this).children().size();
+        if (size > 1) {
+            $(this).attr('class',"table table-bordered");
+        } else if (size == 1) {
+            var e11 = $(this).children(":first");
+            var e1 = e11[0];
+            var name = e1.nodeName.toLowerCase();
+            if ("tbody" == name) {
+                if (e11.children().size() > 1) {
+                     $(this).attr('class',"table table-bordered");
+                }
+            }
+        }
+    });
+        window.page = 0;
+        window.last = 0;    
+        window.first = true;
+        resize_article_image('#nei', 550);
+                load_comments("6RvqIrv",1,0,-1);
+                window.uid = -1;
+        open_add_article_to_kan("false");
+        async_do_like2_article(); 
+        $('pre').each(function(i, e) {
+            hljs.highlightBlock(e, "<span class='indent'>  </span>", false)
+        });
+       
+          
+       handle_follow_site("#my_follow","已订阅","+ 订阅");
+</script>
+
+
+  </div>
+
+    <div class="footer">
+    <div class="footer-inner">
+    <dl class="about-link site-link">
+        <dt>
+            网站相关
+        </dt>
+        <dd>
+            <a target="_blank" href="http://www.tuicool.com/about">关于我们</a>
+        </dd>
+        <dd>
+            <a target="_blank" href="http://www.tuicool.com/mobile">移动应用</a>
+        </dd>
+        <dd>
+            <a target="_blank" href="http://www.tuicool.com/bbs/go/issues">建议反馈</a>
+        </dd>
+    </dl>
+    <dl class="site-link follow-link">
+        <dt>
+            关注我们
+        </dt>
+        <dd>
+            <a target="_blank" href="http://e.weibo.com/tuicool2012"><img src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/weibo-32.png">推酷网</a>
+        </dd>
+        <dd><img src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/weixin-32.png">tuicool2012
+        </dd>
+        <dd><img src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/qun-54.png">QQ群:164644910
+        </dd>
+    </dl>
+    <dl class="site-link links">
+        <dt>
+            友情链接
+        </dt>
+        <dd>
+                <a href="http://www.woshipm.com/" title="人人都是产品经理" target="_blank">人人都是产品经理</a>
+                <a href="http://www.tmtforum.com/" title="TMTForum" target="_blank">TMTForum</a>
+                <a href="http://www.moobuu.com/" title="魔部网" target="_blank">魔部网</a>
+                <a href="http://www.pm265.com/" title="PM256" target="_blank">PM256</a>
+                <a href="http://www.pintu360.com/" title="品途网" target="_blank">品途网</a>
+                <a href="http://www.yidonghua.com/" title="移动信息化" target="_blank">移动信息化</a>
+                <a href="http://www.snsiu.com/" title="行晓网" target="_blank">行晓网</a>
+                <a href="http://code4app.com/" title="Code4App" target="_blank">Code4App</a>
+                <a href="http://www.taskcity.com/" title="智城外包网" target="_blank">智城外包网</a>
+                <a href="http://blog.lamper.cn/" title="LAMP人" target="_blank">LAMP人</a>
+                <a href="http://www.apkway.com/forum.php" title="安卓航班网" target="_blank">安卓航班网</a>
+                <a href="http://www.huxiu.com/" title="虎嗅" target="_blank">虎嗅</a>
+                <a href="http://www.ycpai.com/" title="缘创派" target="_blank">缘创派</a>
+                <a href="http://www.iterduo.com/" title="IT耳朵" target="_blank">IT耳朵</a>
+                <a href="http://www.iresearch.cn/" title="艾瑞网" target="_blank">艾瑞网</a>
+                <a href="http://mediaworks.caixin.com/" title="创媒工场" target="_blank">创媒工场</a>
+                <a href="http://www.leiphone.com/" title="雷锋网" target="_blank">雷锋网</a>
+                <a href="http://www.managershare.com/" title="经理人分享" target="_blank">经理人分享</a>
+                <a href="http://www.shichangbu.com/" title="市场部网" target="_blank">市场部网</a>
+                <a href="http://www.ikanchai.com/" title="砍柴网" target="_blank">砍柴网</a>
+                <a href="http://www.cocoachina.com/" title="CocoaChina" target="_blank">CocoaChina</a>
+                <a href="http://www.ibeifeng.com/" title="北风网" target="_blank">北风网</a>
+                <a href="http://www.jiankongbao.com/" title="云智慧" target="_blank">云智慧</a>
+                <a href="http://www.wyzc.com/" title="我赢职场" target="_blank">我赢职场</a>
+                <a href="http://www.thebigdata.cn/" title="大数据时代" target="_blank">大数据时代</a>
+                <a href="http://www.qidic.com/" title="奇笛网" target="_blank">奇笛网</a>
+                <a href="http://www.cngulu.com/" title="咕噜网" target="_blank">咕噜网</a>
+                <a href="http://www.linuxdiyf.com/" title="红联linux" target="_blank">红联linux</a>
+                <a href="http://win10.ithome.com/" title="Win10之家" target="_blank">Win10之家</a>
+                <a href="http://www.niaogebiji.com/" title="鸟哥笔记" target="_blank">鸟哥笔记</a>
+                <a href="http://www.play.cn/" title="爱游戏" target="_blank">爱游戏</a>
+                <a href="http://www.investide.cn/" title="投资潮" target="_blank">投资潮</a>
+                <a href="http://www.31huiyi.com/" title="31会议网" target="_blank">31会议网</a>
+                <a href="https://www.jpush.cn/" title="极光推送" target="_blank">极光推送</a>
+                <a href="https://www.teambition.com/" title="Teambition" target="_blank">Teambition</a>
+                <a href="http://cn.cocos2d-x.org/" title="Cocos引擎中文官网" target="_blank">Cocos引擎中文官网</a>
+                <a href="http://www.guigu.org/" title="硅谷网" target="_blank">硅谷网</a>
+            <a href="http://www.tuicool.com/links">更多链接&gt;&gt;</a>&nbsp;&nbsp;
+        </dd>
+    </dl>
+    <div class="clear"></div>
+    </div>
+</div>
+
+<div style="display:none;">
+   <script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/stat.php" language="JavaScript"></script><script src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/core.php" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=5541078" target="_blank" title="站长统计"><img src="windows%20API%E4%B8%ADCreateWindow%28%29%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3%20-%20Lionel_Jiang%20-%20%E6%8E%A8%E9%85%B7_files/pic.gif" hspace="0" border="0" vspace="0"></a>
+</div>
+
+
+
+
+<div style="display: none;" title="返回顶部" class="return"></div></body></html>

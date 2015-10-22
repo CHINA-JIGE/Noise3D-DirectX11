@@ -12,6 +12,8 @@ NoiseLightManager LightMgr;
 NoiseMaterialManager	MatMgr;
 NoiseTextureManager	TexMgr;
 NoiseAtmosphere			Atmos;
+NoiseGUIManager		GUIMgr;
+NoiseGUIButton			GUIButton1;
 
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
@@ -24,8 +26,6 @@ N_SpotLight	SpotLight1;
 float moveForwardVelocity;
 std::vector<NVECTOR3>	 lineSegmentBuffer;
 std::vector<N_LineStrip>	lineStrip;
-
-
 
 
 //Main Entry
@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	
+
 	//³õÊ¼»¯Ê§°Ü
 	if(!Engine.InitD3D( hwnd,640,480,TRUE))return FALSE;
 
@@ -57,6 +57,7 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateMaterialManager(&MatMgr);
 	Scene.CreateTextureManager(&TexMgr);
 	Scene.CreateAtmosphere(&Atmos);
+	Scene.CreateGUI(&GUIMgr, &inputE, hwnd);
 
 	//Âþ·´ÉäÌùÍ¼
 	TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE, 0, 0);
@@ -80,7 +81,7 @@ BOOL Init3D(HWND hwnd)
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
 
 	//Mesh1.LoadFile_STL("object.stl");
-	Mesh1.CreateSphere(5.0f, 30, 30);
+	Mesh1.CreateSphere(5.0f, 50, 50);
 	//Mesh1.CreatePlane(10.0f, 10.0f, 5, 5);
 	Mesh1.SetPosition(0,0,0);
 
@@ -126,8 +127,19 @@ BOOL Init3D(HWND hwnd)
 	//set material
 	Mesh1.SetMaterial(Mat1_ID);
 
-	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0, 0, 0, 0), TexMgr.GetIndexByName("BottomRightTitle"));
+	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetIndexByName("BottomRightTitle"));
 	
+	//GUI System
+	GUIMgr.AddButton(&GUIButton1);
+	GUIMgr.SetWindowHWND(hwnd);
+	GUIButton1.SetCenterPos(50.0f, 50.0f);
+	GUIButton1.SetWidth(100.0f);
+	GUIButton1.SetHeight(70.0f);
+	GUIButton1.SetTexture_MouseAway(TexMgr.GetIndexByName("Button"));
+	GUIButton1.SetTexture_MouseOn(TexMgr.GetIndexByName("Earth"));
+	GUIButton1.SetTexture_MousePressedDown(TexMgr.GetIndexByName("Wood"));
+	GUIButton1.SetEventProcessCallbackFunction(Button1MsgProc);
+	GUIMgr.Update();
 	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("object.stl");
 	Slicer.Step2_Intersection(5);
 	Slicer.Step3_GenerateLineStrip();// extremely neccessary for optimization
@@ -159,6 +171,7 @@ BOOL Init3D(HWND hwnd)
 
 void MainLoop()
 {
+	GUIMgr.Update();
 
 	InputProcess();
 
@@ -168,6 +181,7 @@ void MainLoop()
 	Mesh1.AddToRenderList();
 	GraphicObjBuffer.AddToRenderList();
 	Atmos.AddToRenderList();
+	GUIMgr.AddToRenderList();
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
@@ -216,6 +230,12 @@ void InputProcess()
 		Camera.RotateX_Pitch((float)inputE.GetMouseDiffY() / 200.0f);
 	}
 
+	//quit main loop and terminate program
+	if (inputE.IsKeyPressed(NOISE_KEY_ESCAPE))
+	{
+		Engine.SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
+	}
+
 };
 
 
@@ -228,3 +248,19 @@ void Cleanup()
 	Engine.ReleaseAll();
 	Scene.ReleaseAllChildObject();
 };
+
+UINT Button1MsgProc(UINT msg)
+{
+	switch (msg)
+	{
+	case NOISE_GUI_EVENTS_BUTTON_MOUSEON:
+		break;
+
+	case NOISE_GUI_EVENTS_BUTTON_MOUSEPRESSED:
+		::MessageBoxA(0, "Button pressed!", 0, 0);
+		break;
+	default:
+		break;
+	}
+	return 0;
+}

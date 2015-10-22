@@ -24,7 +24,7 @@ public:
 
 	void				ReleaseAllChildObject();
 
-	BOOL			CreateMesh(NoiseMesh* pMesh);
+	UINT				CreateMesh(NoiseMesh* pMesh);
 	
 	BOOL			CreateRenderer(NoiseRenderer* pRenderer);
 
@@ -32,7 +32,7 @@ public:
 
 	BOOL			CreateLightManager(NoiseLightManager* pLightMgr);
 
-	BOOL			CreateGraphicObject(NoiseGraphicObject* pGraphicObj);
+	UINT				CreateGraphicObject(NoiseGraphicObject* pGraphicObj);
 
 	BOOL			CreateTextureManager(NoiseTextureManager* pTexMgr);
 
@@ -40,7 +40,7 @@ public:
 
 	BOOL			CreateAtmosphere(NoiseAtmosphere* pAtmosphere);
 
-	BOOL			CreateGUI(NoiseGUIManager* pGUI);
+	BOOL			CreateGUI(NoiseGUIManager* pGUI, NoiseUtInputEngine* pInputE,HWND hwnd);
 
 	void				SetCamera(NoiseCamera* pSceneCam);
 

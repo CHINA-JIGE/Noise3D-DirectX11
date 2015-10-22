@@ -74,24 +74,25 @@ public:
 private:
 	NoiseScene*			m_pFatherScene;
 
-	void						mFunction_UpdateProjMatrix();
-	void						mFunction_UpdateViewMatrix();
-	void						mFunction_UpdateRotation();
-	void						mFunction_UpdateDirection();
-	float						mViewAngleY;
-	float						mAspectRatio;
-	float						mNearPlane;
-	float						mFarPlane;
-	NVECTOR3*			m_pPosition;
-	NVECTOR3*			m_pLookat;
-	NVECTOR3*			m_pDirection;
+	void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateProjMatrix();
+	void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateViewMatrix();
+	void		mFunction_UpdateRotation();
+	void		mFunction_UpdateDirection();
+	float		mViewAngleY;
+	float		mAspectRatio;
+	float		mNearPlane;
+	float		mFarPlane;
 
-	NMATRIX*			m_pMatrixView;
-	NMATRIX*			m_pMatrixProjection;
+	NVECTOR3*		m_pPosition;
+	NVECTOR3*		m_pLookat;
+	NVECTOR3*		m_pDirection;
 
-	float						mRotateX_Pitch;
-	float						mRotateY_Yaw;
-	float						mRotateZ_Roll;
+	NMATRIX*		m_pMatrixView;
+	NMATRIX*		m_pMatrixProjection;
+
+	float			mRotateX_Pitch;
+	float			mRotateY_Yaw;
+	float			mRotateZ_Roll;
 
 };
 

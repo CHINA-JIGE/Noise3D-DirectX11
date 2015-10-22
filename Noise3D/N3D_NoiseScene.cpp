@@ -22,7 +22,7 @@ NoiseScene::NoiseScene()
 	m_pChildGraphicObjectList	= new std::vector<NoiseGraphicObject*>;
 };
 
-void NoiseScene::ReleaseAllChildObject()
+void	NoiseScene::ReleaseAllChildObject()
 {
 	if (m_pChildCamera)			m_pChildCamera->SelfDestruction();
 
@@ -54,7 +54,7 @@ void NoiseScene::ReleaseAllChildObject()
 
 };
 
-BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
+UINT NoiseScene::CreateMesh( NoiseMesh* pMesh)
 {
 	if(pMesh != nullptr)
 	{
@@ -63,10 +63,10 @@ BOOL NoiseScene::CreateMesh( NoiseMesh* pMesh)
 	}
 	else
 	{
-		return FALSE;
-	}
-	;
-	return TRUE;
+		return NOISE_MACRO_INVALID_MESH_ID;
+	};
+	
+	return (m_pChildMeshList->size()-1);
 };
 
 BOOL NoiseScene::CreateRenderer(NoiseRenderer* pRenderer)
@@ -112,7 +112,7 @@ BOOL NoiseScene::CreateLightManager(NoiseLightManager* pLightMgr)
 	}
 }
 
-BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
+UINT	  NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
 {
 	if (pGraphicObj != nullptr)
 	{
@@ -121,10 +121,10 @@ BOOL NoiseScene::CreateGraphicObject(NoiseGraphicObject * pGraphicObj)
 	}
 	else
 	{
-		return FALSE;
+		return NOISE_MACRO_INVALID_GRAPHICOBJ_ID;
 	}
 
-	return TRUE;
+	return m_pChildGraphicObjectList->size()-1;
 }
 
 BOOL NoiseScene::CreateTextureManager(NoiseTextureManager* pTexMgr)
@@ -172,12 +172,42 @@ BOOL NoiseScene::CreateAtmosphere(NoiseAtmosphere* pAtmosphere)
 	return TRUE;
 }
 
-BOOL NoiseScene::CreateGUI(NoiseGUIManager * pGUI)
+BOOL NoiseScene::CreateGUI(NoiseGUIManager * pGUI,NoiseUtInputEngine* pInputE, HWND hwnd)
 {
-	if (pGUI != nullptr)
+	if (pGUI)
 	{
 		m_pChildGUI = pGUI;
 		pGUI->m_pFatherScene = this;
+
+		//create internal graphic object
+		if (CreateGraphicObject(pGUI->m_pChildGraphicObject)==NOISE_MACRO_INVALID_GRAPHICOBJ_ID)
+		{
+			DEBUG_MSG1("NoiseScene : Create GUI: Create interval Graphic Object Failed!!");
+			return FALSE;
+		}
+
+		//update the pointer of internal input engine
+		if (pInputE)
+		{
+			pGUI->m_pInputEngine = pInputE;
+		}
+		else
+		{
+			DEBUG_MSG1("Create GUI : pInputE ptr invalid!!");
+			return FALSE;
+		}
+
+		//hwnd is needed for some win API invokation
+		if (hwnd)
+		{
+			pGUI->mWindowHWND = hwnd;
+		}
+		else
+		{
+			DEBUG_MSG1("Create GUI : hwnd Invaid!!");
+			return FALSE;
+		}
+
 	}
 	else
 	{

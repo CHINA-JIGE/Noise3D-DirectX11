@@ -1351,8 +1351,8 @@ void		NoiseGraphicObject::mFunction_SetLine2D_GlobalVB(UINT index, NVECTOR2 v1, 
 void		NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
 {
 	//first ,  get the pixel size of main back buffer (global var)
-	float halfW= (float)g_MainBufferPixelWidth / 2.0f;
-	float halfH = (float)g_MainBufferPixelHeight / 2.0f;
+	float halfW= (float)gMainBufferPixelWidth / 2.0f;
+	float halfH = (float)gMainBufferPixelHeight / 2.0f;
 	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		1-(pxCoord.y / halfH));
 }
 
@@ -1362,11 +1362,11 @@ float		NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen,
 	//we need to know the pixel length is on X or Y direction
 	if (isWidth)
 	{
-		outLength = pxLen*2.0f / (float)g_MainBufferPixelWidth;
+		outLength = pxLen*2.0f / (float)gMainBufferPixelWidth;
 	}
 	else
 	{
-		outLength = pxLen * 2.0f / (float)g_MainBufferPixelHeight;
+		outLength = pxLen * 2.0f / (float)gMainBufferPixelHeight;
 	}
 	return outLength;
 }

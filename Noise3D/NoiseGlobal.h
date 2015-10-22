@@ -14,9 +14,9 @@ const UINT					g_VertexDesc_Default_ElementCount = 5;
 const UINT					g_VertexDesc_Simple_ElementCount = 3;
 
 //主渲染缓存的像素尺寸
-extern UINT					g_MainBufferPixelWidth;
+extern UINT					gMainBufferPixelWidth;
 
-extern UINT					g_MainBufferPixelHeight;
+extern UINT					gMainBufferPixelHeight;
 
 //抗锯齿品质
 extern UINT						g_Device_MSAA4xQuality ;
@@ -52,3 +52,5 @@ extern ID3D11InputLayout*			g_pVertexLayout_Simple;
 
 //——————————全局函数————————————
 extern HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
+
+extern BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);

@@ -13,9 +13,9 @@
 /*--------------------------全局变量----------------------------*/
 
 //主缓存的像素宽度
-UINT					g_MainBufferPixelWidth = 640;
+UINT					gMainBufferPixelWidth = 640;
 //主缓存的像素高度
-UINT					g_MainBufferPixelHeight = 480;
+UINT					gMainBufferPixelHeight = 480;
 
 //抗锯齿品质
 UINT				g_Device_MSAA4xQuality	= 1  ;
@@ -96,4 +96,15 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	return S_OK;
 };
 
+ BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+ {
+	 if (v.x >= vTopLeft.x &&
+		 v.x <= vBottomRight.x &&
+		 v.y >= vTopLeft.y &&
+		 v.y <= vBottomRight.y)
+	 {
+		 return TRUE;
+	 }
 
+	 return FALSE;
+ }

@@ -949,7 +949,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 		for (auto tmpTriangleID : *(m_pRenderList_GraphicObject->at(i)->m_pRegionList_TriangleID_Common))
 		{
 			m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-			m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+			//m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			g_pImmediateContext->Draw(3, tmpTriangleID * 3);
 		}
 
