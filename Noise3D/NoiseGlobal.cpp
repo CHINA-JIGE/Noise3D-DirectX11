@@ -49,7 +49,7 @@ D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[]=
 
 /*-----------------------------全局接口-----------------------------*/
 
-ID3D11Device*           g_pd3dDevice			= NULL;
+ID3D11Device*           g_pd3dDevice11			= NULL;
 
 ID3D11DeviceContext*    g_pImmediateContext		= NULL;
 //交换链

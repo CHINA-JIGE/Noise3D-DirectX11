@@ -1145,7 +1145,7 @@ BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
 
 	//Create Buffers
 	HRESULT hr = 0;
-	hr = g_pd3dDevice->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
+	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
 	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
 
 	return TRUE;

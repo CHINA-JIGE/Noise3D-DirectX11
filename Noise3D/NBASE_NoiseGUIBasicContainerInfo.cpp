@@ -16,9 +16,6 @@ NoiseGUIBasicContainerInfo::NoiseGUIBasicContainerInfo()
 	mIsVisible = TRUE;
 	mWidth = 100;
 	mHeight = 60;
-	mTextureID_MouseAway=NOISE_MACRO_INVALID_TEXTURE_ID;
-	mTextureID_MouseOn = NOISE_MACRO_INVALID_TEXTURE_ID;
-	mTextureID_MousePressedDown = NOISE_MACRO_INVALID_TEXTURE_ID;
 	m_pBasicColor = new NVECTOR4(0.3f,0.3f,1.0f,1.0f);
 }
 
@@ -61,6 +58,16 @@ void NoiseGUIBasicContainerInfo::SetCenterPos(NVECTOR2 v)
 	*(m_pPositionCenter) = v;
 }
 
+void NoiseGUIBasicContainerInfo::Move(float relativeX, float relativeY)
+{
+	SetCenterPos(m_pPositionCenter->x + relativeX, m_pPositionCenter->y + relativeY);
+}
+
+void NoiseGUIBasicContainerInfo::Move(NVECTOR2 relativePos)
+{
+	Move(relativePos.x, relativePos.y);
+}
+
 NVECTOR2 NoiseGUIBasicContainerInfo::GetCenterPos()
 {
 	return *m_pPositionCenter;
@@ -100,22 +107,6 @@ BOOL NoiseGUIBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 		*m_pPositionCenter - NVECTOR2(mWidth / 2, mHeight / 2),
 		*m_pPositionCenter + NVECTOR2(mWidth / 2, mHeight / 2)
 		);
-}
-
-void NoiseGUIBasicContainerInfo::SetTexture_MouseAway(UINT texID)
-{
-	//texID will be validated when rendering graphic object
-	mTextureID_MouseAway = texID;
-};
-
-void NoiseGUIBasicContainerInfo::SetTexture_MouseOn(UINT texID)
-{
-	mTextureID_MouseOn = texID;
-};
-
-void NoiseGUIBasicContainerInfo::SetTexture_MousePressedDown(UINT texID)
-{
-	mTextureID_MousePressedDown = texID;
 };
 
 void NoiseGUIBasicContainerInfo::SetBasicColor(NVECTOR4 c)

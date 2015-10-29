@@ -53,7 +53,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	gMainBufferPixelHeight = BufferHeight;
 
 	HRESULT hr = S_OK;
-#pragma region InitDevice
+#pragma region InitDevice11
 	//用来做判断及返回结果
 
 	//硬件驱动类型
@@ -96,7 +96,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 			featureLevels,		//让D3D选择的特性的版本
 			numFeatureLevels,
 			D3D11_SDK_VERSION,
-			&g_pd3dDevice,		//返回D3D设备指针
+			&g_pd3dDevice11,		//返回D3D设备指针
 			&g_Device_featureLevel,	//返回最终使用的特性的版本
 			&g_pImmediateContext//返回
 			);
@@ -111,7 +111,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 
 	//检测多重采样
-	g_pd3dDevice->CheckMultisampleQualityLevels(
+	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &g_Device_MSAA4xQuality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
 	if (g_Device_MSAA4xQuality > 0)
 	{
@@ -140,7 +140,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 	 //下面的COM的QueryInterface 用一个接口查询另一个接口
 	IDXGIDevice *dxgiDevice = 0;
-	g_pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	IDXGIAdapter *dxgiAdapter = 0;
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	IDXGIFactory *dxgiFactory = 0;
@@ -148,7 +148,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	
 	//终于创建了一个交换链
 	hr = dxgiFactory->CreateSwapChain(
-		g_pd3dDevice,		//设备的指针
+		g_pd3dDevice11,		//设备的指针
 		&SwapChainParam,	//交换链的描述
 		&g_pSwapChain);		//返回的交换链指针
 	HR_DEBUG(hr, "SwapChain创建失败！");
@@ -156,7 +156,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	dxgiFactory->Release();
 	dxgiDevice->Release();
 	dxgiAdapter->Release();
-#pragma endregion InitDevice
+#pragma endregion InitDevice11
 
 	//创建缓冲区和渲染视口，深度/模版 视口
 	//这些Views是用来绑定到pipeline上
@@ -168,7 +168,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	if (FAILED(hr))
 		return FALSE;
 
-	hr = g_pd3dDevice->CreateRenderTargetView(
+	hr = g_pd3dDevice11->CreateRenderTargetView(
 		pBackBuffer,
 		NULL,					//可以填充一个D3D11_RENDERTARGETVIEW_DESC
 		&g_pRenderTargetView);	//返回一个渲染视口
@@ -194,8 +194,8 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 	DSBufferDesc.MiscFlags = 0;
 
 	ID3D11Texture2D* pDepthStencilBuffer;
-	g_pd3dDevice->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);//创建一个缓冲区
-	hr = g_pd3dDevice->CreateDepthStencilView(
+	g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);//创建一个缓冲区
+	hr = g_pd3dDevice11->CreateDepthStencilView(
 		pDepthStencilBuffer,
 		0,
 		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
@@ -249,7 +249,7 @@ void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	ReleaseCOM(g_pDepthStencilView);
 	ReleaseCOM(g_pImmediateContext);
 	//g_pd3dDevice->Release();
-	ReleaseCOM(g_pd3dDevice);
+	ReleaseCOM(g_pd3dDevice11);
 
 }
 

@@ -60,22 +60,25 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateGUI(&GUIMgr, &inputE, hwnd);
 
 	//Âþ·´ÉäÌùÍ¼
-	TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"planet.png", "Planet", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"universe.jpg", "Universe", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0);
-	TexMgr.CreateTextureFromFile(L"Earth_Bump.bmp", "NormalMap_Earth", TRUE, 0, 0);
+	TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
+	TexMgr.CreateTextureFromFile(L"Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
+	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	//TexMgr.CreateTextureFromFile(L"Earth_Bump.bmp", "NormalMap_Earth", TRUE, 0, 0, FALSE);
 	TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
+	TexMgr.ConvertTextureToGreyMap(TexMgr.GetIndexByName("EarthNormalMap"));
+	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetIndexByName("EarthNormalMap"),20.0f);
 	/*LPCWSTR cubeFN[6];
-	cubeFN[0] = L"Cube Map\\+x.jpg";
-	cubeFN[1] = L"Cube Map\\+y.jpg";
-	cubeFN[2] = L"Cube Map\\+z.jpg";
-	cubeFN[3] = L"Cube Map\\-x.jpg";
-	cubeFN[4] = L"Cube Map\\-y.jpg";
-	cubeFN[5] = L"Cube Map\\-z.jpg";
+	cubeFN[0] = L"Cube Map\\+x.PNG";
+	cubeFN[1] = L"Cube Map\\-x.PNG";
+	cubeFN[2] = L"Cube Map\\+y.PNG";
+	cubeFN[3] = L"Cube Map\\-y.PNG";
+	cubeFN[4] = L"Cube Map\\+z.PNG";
+	cubeFN[5] = L"Cube Map\\-z.PNG";
 	TexMgr.CreateCubeMapFromFiles(cubeFN, "EnvironmentMap", NOISE_CUBEMAP_SIZE_256x256);*/
+	//TexMgr.SaveTextureToFile(TexMgr.GetIndexByName("EnvironmentMap"), L"output.dds", NOISE_TEXTURE_SAVE_FORMAT_DDS);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
@@ -117,10 +120,9 @@ BOOL Init3D(HWND hwnd)
 	Mat1.baseMaterial.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
 	Mat1.baseMaterial.mSpecularSmoothLevel	=	40;
 	Mat1.baseMaterial.mNormalMapBumpIntensity = 0.3f;
-	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.8f;
-	Mat1.diffuseMapID = TexMgr.GetIndexByName("Earth");
-	Mat1.normalMapID = TexMgr.GetIndexByName("NormalMap_Earth");
-	//Mat1.specularMapID = TexMgr.GetIndexByName("Earth");
+	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.2f;
+	Mat1.diffuseMapID = TexMgr.GetIndexByName("EarthNormalMap");
+	Mat1.normalMapID = TexMgr.GetIndexByName("EarthNormalMap");
 	Mat1.cubeMap_environmentMapID = TexMgr.GetIndexByName("EnvironmentMap");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
@@ -135,17 +137,19 @@ BOOL Init3D(HWND hwnd)
 	GUIButton1.SetCenterPos(50.0f, 50.0f);
 	GUIButton1.SetWidth(100.0f);
 	GUIButton1.SetHeight(70.0f);
+	GUIButton1.SetDragableX(TRUE);
+	GUIButton1.SetDragableY(TRUE);
 	GUIButton1.SetTexture_MouseAway(TexMgr.GetIndexByName("Button"));
 	GUIButton1.SetTexture_MouseOn(TexMgr.GetIndexByName("Earth"));
 	GUIButton1.SetTexture_MousePressedDown(TexMgr.GetIndexByName("Wood"));
 	GUIButton1.SetEventProcessCallbackFunction(Button1MsgProc);
 	GUIMgr.Update();
+
 	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("object.stl");
 	Slicer.Step2_Intersection(5);
 	Slicer.Step3_GenerateLineStrip();// extremely neccessary for optimization
 	Slicer.Step4_SaveLayerDataToFile("object.LayerOutput");*/
 	//Slicer.Step3_LoadLineStripsFrom_NOISELAYER_File("object.LayerOutput");
-
 
 	/*NVECTOR3 v1, v2, n;
 
@@ -257,7 +261,7 @@ UINT Button1MsgProc(UINT msg)
 		break;
 
 	case NOISE_GUI_EVENTS_BUTTON_MOUSEPRESSED:
-		::MessageBoxA(0, "Button pressed!", 0, 0);
+		//::MessageBoxA(0, "Button pressed!", 0, 0);
 		break;
 	default:
 		break;

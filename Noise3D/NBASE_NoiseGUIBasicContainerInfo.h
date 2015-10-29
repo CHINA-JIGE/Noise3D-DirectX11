@@ -26,6 +26,10 @@ public:
 
 	void	SetCenterPos(NVECTOR2 v);
 
+	void	Move(float relativeX, float relativeY);
+
+	void	Move(NVECTOR2 relativePos);
+
 	NVECTOR2 GetCenterPos();
 
 	void	SetWidth(float w);
@@ -38,12 +42,6 @@ public:
 
 	void	SetVisible(BOOL isVisible);
 
-	void	SetTexture_MouseAway(UINT texID);
-
-	void	SetTexture_MouseOn(UINT texID);
-
-	void	SetTexture_MousePressedDown(UINT texID);
-
     void	SetBasicColor(NVECTOR4 c);
 
 	NVECTOR4 GetBasicColor();
@@ -55,9 +53,6 @@ protected:
 	BOOL	mIsVisible;
 	float		mWidth;
 	float		mHeight;
-	UINT		mTextureID_MouseAway;
-	UINT		mTextureID_MouseOn;
-	UINT		mTextureID_MousePressedDown;
 	NVECTOR4*	m_pBasicColor;
 };
 

@@ -13,7 +13,7 @@ NoiseGUIManager::NoiseGUIManager()
 {
 	m_pChildGraphicObject = new NoiseGraphicObject;
 	m_pChildButtonList	= new std::vector<NoiseGUIButton*>;
-	m_pChildPictureList		= new std::vector<NoiseGUIPicture*>;
+	m_pChildTextList		= new std::vector<NoiseGUIText*>;
 };
 
 void	NoiseGUIManager::AddToRenderList()
@@ -48,13 +48,13 @@ BOOL NoiseGUIManager::AddButton(NoiseGUIButton * pButton)
 	return TRUE;
 }
 
-BOOL NoiseGUIManager::AddPicture(NoiseGUIPicture * pLabel)
+BOOL NoiseGUIManager::AddText(NoiseGUIText* pText)
 {
 	//add label ( pure text)
-	if (pLabel)
+	if (pText)
 	{
-		m_pChildPictureList->push_back(pLabel);
-		pLabel->m_pFatherGUIMgr = this;
+		m_pChildTextList->push_back(pText);
+		pText->m_pFatherGUIMgr = this;
 	}
 	else
 	{
@@ -145,6 +145,18 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 				tmpEventList.push_back(NOISE_GUI_EVENTS_BUTTON_MOUSEDOWN);
 				pCurrButton->mButtonState = NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN;
 				pCurrButton->mButtonHasBeenPressedDown = TRUE;
+
+				//now mouse is down , let's see if the mouse is dragging the button
+				if (!m_pInputEngine->GetMouseDiffX() || !m_pInputEngine->GetMouseDiffY())
+				{
+					tmpEventList.push_back(NOISE_GUI_EVENTS_BUTTON_MOUSEMOVE);
+					//apply relative movemwnt along with mouse
+					//use position difference will lead to some aliasing (because of delay)
+					if (pCurrButton->mIsDragableX)pCurrButton->SetCenterPos(mouseX_BackBufferSpace,pCurrButton->GetCenterPos().y);
+					if (pCurrButton->mIsDragableY)pCurrButton->SetCenterPos(pCurrButton->GetCenterPos().x,mouseY_BackBufferSpace);
+				}
+
+
 			}
 			else
 			{
@@ -162,9 +174,8 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 				pCurrButton->mButtonHasBeenPressedDown = FALSE;
 			}
 		}
-		else
+		else//if cursor isn't within the button
 		{
-			//if cursor isn't within the button
 			pCurrButton->mButtonHasBeenPressedDown = FALSE;
 			pCurrButton->mButtonState = NOISE_GUI_BUTTON_STATE_COMMON;
 		}
@@ -190,9 +201,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 			}
 		}
 
-
-
-	#pragma region CallMsgProcFunction
+	#pragma endregion CallMsgProcFunction
 
 
 	#pragma region UpdateGraphicObj

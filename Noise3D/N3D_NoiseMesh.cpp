@@ -783,7 +783,7 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 
 	//Create Buffers
 	int hr =0;
-	hr = g_pd3dDevice->CreateBuffer(&vbd,pVertexDataInMem,&m_pVertexBuffer);
+	hr = g_pd3dDevice11->CreateBuffer(&vbd,pVertexDataInMem,&m_pVertexBuffer);
 	HR_DEBUG(hr,"VERTEX BUFFER创建失败");
 
 
@@ -796,7 +796,7 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers
-	hr = g_pd3dDevice->CreateBuffer(&ibd,pIndexDataInMem,&m_pIndexBuffer);
+	hr = g_pd3dDevice11->CreateBuffer(&ibd,pIndexDataInMem,&m_pIndexBuffer);
 	HR_DEBUG(hr,"INDEX BUFFER创建失败");
 
 	return TRUE;

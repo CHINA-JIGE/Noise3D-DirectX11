@@ -19,7 +19,7 @@ public:
 
 	BOOL	AddButton(NoiseGUIButton* pButton);
 
-	BOOL	AddPicture(NoiseGUIPicture* pLabel);
+	BOOL	AddText(NoiseGUIText* pText);
 
 	void		SetInputEngine(NoiseUtInputEngine* pInputE);
 
@@ -39,7 +39,7 @@ private:
 	NoiseUtInputEngine*	m_pInputEngine;
 	NoiseGraphicObject*								m_pChildGraphicObject;
 	std::vector<NoiseGUIButton*>*			m_pChildButtonList;
-	std::vector<NoiseGUIPicture*>*			m_pChildPictureList;
+	std::vector<NoiseGUIText*>*				m_pChildTextList;
 	HWND							mWindowHWND;
 };
 

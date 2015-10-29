@@ -292,7 +292,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	//default vertex input layout
 	D3DX11_PASS_DESC passDesc;
 	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
-	hr = g_pd3dDevice->CreateInputLayout(
+	hr = g_pd3dDevice11->CreateInputLayout(
 		&g_VertexDesc_Default[0],
 		g_VertexDesc_Default_ElementCount,
 		passDesc.pIAInputSignature,
@@ -302,7 +302,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 
 	//simple vertex input layout
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
-	hr = g_pd3dDevice->CreateInputLayout(
+	hr = g_pd3dDevice11->CreateInputLayout(
 		&g_VertexDesc_Simple[0],
 		g_VertexDesc_Simple_ElementCount,
 		passDesc.pIAInputSignature,
@@ -358,7 +358,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_Opaque);
+	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_Opaque);
 	HR_DEBUG(hr, "Create blend state(opaque) failed!!");
 
 
@@ -372,7 +372,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorAdd);
+	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorAdd);
 	HR_DEBUG(hr, "Create blend state(Color Add) failed!!");
 
 
@@ -386,7 +386,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorMultiply);
+	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorMultiply);
 	HR_DEBUG(hr, "Create blend state(Color Filter) failed!!");
 
 	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
@@ -399,7 +399,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	hr = g_pd3dDevice->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
+	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
 	HR_DEBUG(hr, "Create blend state(Transparency) failed!!");
 
 	return TRUE;
@@ -415,32 +415,32 @@ BOOL NoiseRenderer::mFunction_Init_CreateRasterState()
 	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullNone);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullNone);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullNone failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullNone);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullNone);
 	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullNone failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullBack failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
 	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullBack failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullFront failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
-	hr = g_pd3dDevice->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
+	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
 	HR_DEBUG(hr, "Createm_pRasterState_WireFrame_CullFront failed");
 
 	return TRUE;
@@ -459,7 +459,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateSamplerState()
 	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samDesc.MaxAnisotropy = 4;
-	hr = g_pd3dDevice->CreateSamplerState(&samDesc, &m_pSamplerState_FilterAnis);
+	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterAnis);
 	HR_DEBUG(hr, "Create Sampler State failed!!");
 
 	return TRUE;
@@ -475,14 +475,14 @@ BOOL NoiseRenderer::mFunction_Init_CreateDepthStencilState()
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.StencilEnable = FALSE;
-	hr = g_pd3dDevice->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
+	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
 	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
 
 
 	ZeroMemory(&dssDesc, sizeof(dssDesc));
 	dssDesc.DepthEnable = FALSE;
 	dssDesc.StencilEnable = FALSE;
-	hr = g_pd3dDevice->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
+	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
 	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
 
 	return TRUE;
@@ -519,7 +519,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	hr = D3DX11CreateEffectFromMemory(
 		compiledFX->GetBufferPointer(),
 		compiledFX->GetBufferSize(),
-		0,g_pd3dDevice,&m_pFX);
+		0,g_pd3dDevice11,&m_pFX);
 	HR_DEBUG(hr,"Create Basic Effect Fail!");
 	ReleaseCOM(compiledFX);
 
@@ -538,7 +538,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPa
 
 	//创建fx特效框架
 	HRESULT hr = S_OK;
-	hr = D3DX11CreateEffectFromMemory(&compiledShader[0], compiledShader.size(), 0, g_pd3dDevice, &m_pFX);
+	hr = D3DX11CreateEffectFromMemory(&compiledShader[0], compiledShader.size(), 0, g_pd3dDevice11, &m_pFX);
 	HR_DEBUG(hr,"load compiled shader failed");
 
 	return TRUE;
@@ -1046,10 +1046,10 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
 		m_CbAtmosphere.mSkyBoxWidth		= tmp_pAtmo->mSkyBoxWidth;
 		m_CbAtmosphere.mSkyBoxHeight	= tmp_pAtmo->mSkyBoxHeight;
 		m_CbAtmosphere.mSkyBoxDepth		= tmp_pAtmo->mSkyBoxDepth;
-		if (!m_CbAtmosphere.mIsSkyBoxValid)
+		/*if (!m_CbAtmosphere.mIsSkyBoxValid)
 		{
 			DEBUG_MSG1("Noise Atmosphere Skybox : Texture Invalid!");
-		}
+		}*/
 	}
 	else
 	{

@@ -252,7 +252,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
 	vbd.StructureByteStride = 0;
 	int hr = 0;
-	hr = g_pd3dDevice->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu_Sky);
+	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu_Sky);
 	HR_DEBUG(hr, "Noise Atmosphere : creating VERTEX BUFFER failed!!");
 
 	//create index buffer
@@ -263,7 +263,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
 	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
 	ibd.StructureByteStride = 0;
-	hr = g_pd3dDevice->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
+	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
 	HR_DEBUG(hr, "INDEX BUFFER创建失败");
 
 	//set current sky type
@@ -401,7 +401,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
 	vbd.StructureByteStride = 0;
 	int hr = 0;
-	hr = g_pd3dDevice->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu_Sky);
+	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu_Sky);
 	HR_DEBUG(hr, "Noise Atmosphere : creating VERTEX BUFFER failed!!");
 
 	//create index buffer
@@ -412,7 +412,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
 	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
 	ibd.StructureByteStride = 0;
-	hr = g_pd3dDevice->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
+	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
 	HR_DEBUG(hr, "INDEX BUFFER创建失败");
 
 

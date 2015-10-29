@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta content="en-us" name="WT.seg_1"><link rel="canonical" href="https://msdn.microsoft.com/en-us/library/windows/desktop/bb205132%28v=vs.85%29.aspx">
+    <title>Copying and Accessing Resource Data (Direct3D 10) (Windows)</title>
+
+
+
+
+
+
+<meta name="DCS.dcsuri" content="/en-us/library/bb205132(d=default,l=en-us,v=vs.85).aspx">
+
+<meta name="NormalizedUrl" content="https://msdn.microsoft.com/en-us/library/bb205132(d=default,l=en-us,v=vs.85).aspx">
+
+<meta name="ms.normalizedurl" content="https://msdn.microsoft.com/en-us/library/bb205132(d=default,l=en-us,v=vs.85).aspx">
+
+<meta name="AmbientContext" content="{&quot;layout.limit_max_width&quot;:false,&quot;AmbientContextId&quot;:&quot;0D07BE26-EC93-4DE9-B935-3DEC29A5C79C&quot;,&quot;display.use_large_font&quot;:true,&quot;AmbientContextDownstream&quot;:{},&quot;display.high_contrast&quot;:false}">
+
+<meta name="VotingContextUrl" content="https://msdn.microsoft.com/en-us/library/bb205132(d=default,l=en-us,v=vs.85).aspx">
+
+<meta name="MN" content="EE4293BE-1:14:46 AM">
+
+<meta name="Search.ShortId" content="bb205132">
+
+<meta name="ms.shortidmsdn" content="bb205132">
+
+<meta name="Ms.Locale" content="en-us">
+
+<meta name="ms.prodver" content="VS.85">
+
+<meta name="ms.contentlang" content="EN">
+
+<meta name="ms.lang" content="EN">
+
+<meta name="ms.loc" content="US">
+
+<meta name="ms.sitever" content="2015.10.22.2">
+
+<meta name="ms.assetid" content="VS|directx_sdk|~\d3d10_graphics_programming_guide_resources_mapping.htm">
+
+<meta name="ms.auth" content="0">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+
+
+
+
+
+
+
+
+
+    <script async="" src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/ai.js" type="text/javascript"></script><script type="text/javascript" data-do-not-move="true">
+        //<![CDATA[
+        var AmbientContext = null;
+
+        (function(){
+            var root = (function(){return this;}).call(null);
+
+            var GetCookie = function(name){
+                var cookies = root.document.cookie ? root.document.cookie.split('; ') : [];
+                for (var i = 0; i < cookies.length; i++) {
+                    var pos = cookies[i].indexOf('=');
+                    if (name === root.decodeURIComponent(cookies[i].slice(0, pos)))
+                    {
+                        var cookie = cookies[i].slice(pos + 1).replace(/\+/g, ' ');
+                        cookie = root.decodeURIComponent(cookie);
+                        return cookie;
+                    }
+                }
+            };
+
+            var JsonDeserialize = function(content) {
+                return root.JSON && root.JSON.parse ? root.JSON.parse(content) : (new Function('return (' + content + ')'))();
+            };
+
+            try {
+                AmbientContext = GetCookie('AmbientContext');
+                AmbientContext = AmbientContext && JsonDeserialize(AmbientContext);
+            } catch(ex) {
+            } finally {
+                AmbientContext = AmbientContext || null;
+            }
+        })();
+        //]]>
+    </script>
+
+    <script type="text/javascript" src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/jquery-1.js" data-do-not-move="true" data-provides="jQuery"></script>
+    
+<link rel="stylesheet" type="text/css" href="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/Combined.css"><script class="mtps-injected">try {
+/**/
+(window.MTPS || (window.MTPS = {})).cdnDomains || (window.MTPS.cdnDomains = { 
+	"image": "https://i-msdn.sec.s-msft.com", 
+	"js": "https://i2-msdn.sec.s-msft.com", 
+	"css": "https://i-msdn.sec.s-msft.com", 
+	"xap": "https://msdn.microsoft.com"
+});
+/**/
+} finally { MTPS._injectNextScript_0 && MTPS._injectNextScript_0(); }</script><script class="mtps-injected">try {
+//
+  var literalNormalizedUrl = '/en-us/library/bb205132(l=en-us,v=vs.85).aspx';
+  var wt_nvr_ru = 'WT_NVR_RU';
+  var wt_fpcdom = '.microsoft.com';
+  var wt_domlist = 'msdn.microsoft.com';
+  var wt_pathlist = '';
+  var wt_paramlist = 'DCSext.mtps_devcenter';
+  var wt_siteid = 'MSDN';
+  var gDomain = 'm.webtrends.com';
+  var gDcsId = 'dcsmgru7m99k7mqmgrhudo0k8_8c6m';
+  var gFpc = 'WT_FPC';
+
+
+
+  if (document.cookie.indexOf(gFpc + "=") == -1) {
+    var wtidJs = document.createElement("script");
+    wtidJs.src = "//" + gDomain + "/" + gDcsId + "/wtid.js";
+    document.getElementsByTagName("head")[0].appendChild(wtidJs);
+  }
+
+
+
+  var detectedLocale = 'en-us';
+  var wtsp = 'msdnlib_w32_com';
+  var gTrackEvents = '0';
+/**/
+} finally { MTPS._injectNextScript_1 && MTPS._injectNextScript_1(); }</script><script class="mtps-injected">try {
+//
+
+        window.appInsightsId = '60854590-027a-4ae4-98be-2741a40f355f';
+        //
+} finally { MTPS._injectNextScript_2 && MTPS._injectNextScript_2(); }</script><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/Combined_002.js" class="mtps-injected"></script><link media="print" type="text/css" rel="stylesheet" href="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/PrintView.css"><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/ms.js" type="text/javascript"></script><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/SearchBox.js" class="mtps-injected"></script><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/jquery.js" class="mtps-injected"></script><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/Combined.js" class="mtps-injected"></script><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/broker.js"></script><script class="mtps-injected">try {
+$(document).ready(function() {
+        try {
+            var token = $("#globalRequestVerification input[name='__RequestVerificationToken']").clone();
+            $("#siteFeedbackForm").append(token);
+        } catch(err) {
+            
+        }
+    });
+} finally { MTPS._injectNextScript_7 && MTPS._injectNextScript_7(); }</script></head>
+<body class="library FF">
+    <div id="page">
+
+        
+
+        
+
+        
+    
+
+    
+    <link type="text/css" rel="stylesheet">
+    
+        
+        
+    <input id="isHeaderBleeding" value="true" type="hidden">
+    <div data-device-type="desktop" id="ux-header" dir="ltr" class="ltr msdn">
+        
+
+      <header ms.pgarea="header">
+        <span id="singleCol"></span>
+        <span id="doubleCol"></span>
+        <span id="isMobile"></span>
+        <div>
+          <div class="row topRow">
+            <div class="top">
+              <div class="left">
+                  <a class="msdnLogoImg" href="https://msdn.microsoft.com/en-us" title="MSDN home">
+                      <div id="msft-logo" class="msft-logo"></div>
+                  </a>
+                <div class="GrayPipe"></div>
+                  <a class="DevCenterFullNameNonMegaBlade" href="https://msdn.microsoft.com/en-us">Developer Network</a>
+                <a class="DevCenterFullName" href="https://msdn.microsoft.com/en-us">Developer Network</a>
+                <a class="DevCenterShortName" href="https://msdn.microsoft.com/en-us">Developer</a>
+              </div>
+              <div class="right">
+                <div id="signIn">
+
+  <img class="profileImage" src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/profile.jpg">
+
+
+
+<a class="scarabLink" href="https://login.live.com/login.srf?wa=wsignin1.0&amp;rpsnv=12&amp;ct=1446106486&amp;rver=6.0.5276.0&amp;wp=MCMBI&amp;wlcxt=MSDN%24MSDN%24MSDN&amp;wreply=https%3a%2f%2fmsdn.microsoft.com%2fen-us%2flibrary%2fbb205132%2528v%3dvs.85%2529.aspx&amp;lc=1033&amp;id=254354&amp;mkt=en-US" title="Sign in">Sign in</a></div>
+
+
+
+
+                <div class="auxNav">
+                  <div>
+                    <div data-fragmentname="Subscriptions" id="Fragment_Subscriptions" xmlns="http://www.w3.org/1999/xhtml">
+  <a href="https://msdn.microsoft.com/subscriptions/manage/hh442900" id="Subscriptions_2153_1" xmlns="http://www.w3.org/1999/xhtml">MSDN subscriptions</a>
+</div>
+                    <div data-fragmentname="GetTools" id="Fragment_GetTools" xmlns="http://www.w3.org/1999/xhtml">
+  <a href="http://go.microsoft.com/fwlink/?LinkId=309297&amp;clcid=0x409&amp;slcid=0x409&amp;campaign=o%7Emsft%7Emsdn%7Egettools-header%7Edn308572" id="GetTools_2153_3" xmlns="http://www.w3.org/1999/xhtml">Get tools</a>
+</div>
+                  </div>                    
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="row middleRow">
+            <div style="display: none;" class="expandTop">
+              <div class="left"></div>
+              <div class="right"></div>
+            </div>
+          </div>
+        </div>
+        <div id="buttomRowWrapper" class="bg_default">
+          <div class="row buttomRow bg_default">
+            <div class="bottom">
+              <div class="left">
+                <a id="grip" class="menu-icon" href="javascript:void(0)"></a>
+                
+                <div id="drawer">
+                  <div class="toc">
+                    
+        <nav>
+            <ul ms.cmpgrp="main nav" class="navL1">
+                        <li class="inactive toggle">
+                            <a href="javascript:void(0)" title="Technologies">Technologies</a>
+                                <ul style="display: none;" class="navL2">
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/cloud-app-development-msdn" title="Cloud">Cloud</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/app-development-msdn" title="App Development">App Development</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/web-app-development-msdn" title="Web">Web</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/big-data-development-msdn" title="Data">Data</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/games-development-msdn" title="Gaming">Gaming</a>
+
+                                                   
+                                        </li>
+                                </ul>
+                        </li>
+                        <li class="inactive toggle">
+                            <a href="javascript:void(0)" title="Downloads">Downloads</a>
+                                <ul style="display: none;" class="navL2">
+                                        <li class="inactive">
+                                            <a href="https://www.visualstudio.com/downloads/download-visual-studio-vs" title="Visual Studio">Visual Studio</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/subscriptions" title="MSDN subscription access">MSDN subscription access</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/microsoft-sdks-msdn" title="SDKs">SDKs</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive toggle">
+                                            <a href="javascript:void(0)" title="Trial software">Trial software</a>
+
+                                                <ul style="display: none;" class="navL3">
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/evalcenter" title="Free downloads">Free downloads</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/officeevaluationresources" title="Office resources">Office resources</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/sharepoint2013resources" title="SharePoint Server 2013 resources">SharePoint Server 2013 resources</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/sqlserver2014expressresources" title="SQL Server 2014 Express resources">SQL Server 2014 Express resources</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/windowsserver2012r2resources" title="Windows Server 2012 resources">Windows Server 2012 resources</a>
+                                                        </li>
+                                                </ul>
+                                                   
+                                        </li>
+                                </ul>
+                        </li>
+                        <li class="inactive toggle">
+                            <a href="javascript:void(0)" title="Programs">Programs</a>
+                                <ul style="display: none;" class="navL2">
+                                        <li class="inactive">
+                                            <a href="https://rewards.msdn.microsoft.com/" title="Rewards">Rewards</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://www.microsoft.com/bizspark" title="Startups">Startups</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive toggle">
+                                            <a href="javascript:void(0)" title="Students">Students</a>
+
+                                                <ul style="display: none;" class="navL3">
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/imagine/imagine-home" title="Microsoft Imagine">Microsoft Imagine</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/microsoftstudentpartners" title="Microsoft Student Partners">Microsoft Student Partners</a>
+                                                        </li>
+                                                </ul>
+                                                   
+                                        </li>
+                                        <li class="inactive toggle">
+                                            <a href="javascript:void(0)" title="Architects">Architects</a>
+
+                                                <ul style="display: none;" class="navL3">
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/architects-overview-msdn" title="Overview">Overview</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/architects-case-studies-msdn" title="Case studies">Case studies</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/architects-blueprints-msdn" title="Blueprints">Blueprints</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="http://blogs.msdn.com/b/msarchitecture/" title="Blog">Blog</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="http://social.msdn.microsoft.com/forums/en-us/home?brandignore=true&amp;sort=relevancedesc&amp;searchterm=architecture+or+architect" title="Forums">Forums</a>
+                                                        </li>
+                                                </ul>
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="http://events.msdn.microsoft.com/" title="Events">Events</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive toggle">
+                                            <a href="javascript:void(0)" title="MSDN Subscriptions">MSDN Subscriptions</a>
+
+                                                <ul style="display: none;" class="navL3">
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/msdn-subscriptions-overview" title="Overview">Overview</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/benefits-overview" title="Benefits">Benefits</a>
+                                                        </li>
+                                                        <li class="inactive">
+                                                            <a href="https://msdn.microsoft.com/msdn-subscriptions-administration" title="Administrators">Administrators</a>
+                                                        </li>
+                                                </ul>
+                                                   
+                                        </li>
+                                </ul>
+                        </li>
+                        <li class="inactive toggle">
+                            <a href="javascript:void(0)" title="Community">Community</a>
+                                <ul style="display: none;" class="navL2">
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/magazine/dd767791" title="Magazine">Magazine</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://social.msdn.microsoft.com/forums/" title="Forums">Forums</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="http://blogs.msdn.com/b/developer-tools/" title="Blogs">Blogs</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="http://tech-advisors.msdn.microsoft.com/en-us" title="Tech Advisors">Tech Advisors</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="http://channel9.msdn.com/" title="Channel 9">Channel 9</a>
+
+                                                   
+                                        </li>
+                                </ul>
+                        </li>
+                        <li class="inactive current toggle">
+                            <a href="javascript:void(0)" title="Documentation">Documentation</a>
+                                <ul style="display: none;" class="navL2">
+                                        <li class="inactive current">
+                                            <a href="https://msdn.microsoft.com/library" title="APIs and reference">APIs and reference</a>
+
+                                                   
+                                        </li>
+                                        <li class="inactive">
+                                            <a href="https://msdn.microsoft.com/developer-centers-msdn" title="Dev centers">Dev centers</a>
+
+                                                   
+                                        </li>
+                                </ul>
+                        </li>
+                        <li class="inactive">
+                            <a href="https://code.msdn.microsoft.com/" title="Samples">Samples</a>
+                        </li>
+            </ul>
+        </nav>
+
+                  </div>
+                </div>
+              </div>
+              <div class="right">
+                <div data-fragmentname="SearchBox" id="Fragment_SearchBox" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="SearchBox">
+    <form class="SearchBoxOnFocus" id="HeaderSearchForm" name="HeaderSearchForm" method="get">
+      <button id="FakeHeaderSearchButton" value="Search" type="submit" class="header-search-button">
+        <div id="search-finder" class="search-finder"></div>
+      </button>
+      <button title="Search MSDN" data-pgarea="header" data-searchtype="icon" id="HeaderSearchButton" style="display:none"></button>
+      <div id="searchSplitter"></div>
+      <div id="searchCloseIcon" class="search-clear-x"></div>
+      <div id="searchTextContainer" style="width: 0px; display: none;">
+        <input data-pgarea="header" data-searchtype="searchbox" autocomplete="off" id="HeaderSearchTextBox" name="query" maxlength="200" onfocus="Epx.Controls.SearchBox.watermarkFocus(event, this.title)" onblur="Epx.Controls.SearchBox.watermarkBlur(event, this.title)" type="text">
+      <div style="display: none; text-align: left; border: 1px solid buttonshadow; position: absolute; z-index: 1000; padding: 2px; background-color: rgb(255, 255, 255); color: rgb(255, 255, 255); font-family: MS Shell Dlg \32 ; font-size: 16px;" id="SearchFlyoutContainer"><div id="SuggestionContainer"><ul data-searchtype="search dropdown" data-pgarea="header" style="list-style: outside none none; padding: 4px 2px 0px 1px; cursor: pointer; margin: 1px; white-space: nowrap;"></ul></div></div></div>
+    </form>
+    
+    
+  </div>
+</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </header>
+
+    <div id="overlayMaskHeader"></div></div>
+
+    
+    
+
+
+
+
+
+<link type="text/css" rel="stylesheet">
+<link type="text/css" rel="stylesheet">
+
+
+    <div id="breadcrumbs">
+        <div id="breadcrumbDesktop" class="breadCrumb">
+                        <span class="breadcrumbEllipsis"><a href="https://msdn.microsoft.com/en-us/library/hh309465%28v=vs.85%29.aspx" title="Classic DirectX Graphics"></a></span>
+                        <span><a href="https://msdn.microsoft.com/en-us/library/bb205066%28v=vs.85%29.aspx" title="Direct3D 10 Graphics"><span>Direct3D 10 Graphics</span></a></span>
+                        <span><a href="https://msdn.microsoft.com/en-us/library/bb205067%28v=vs.85%29.aspx" title="Programming Guide for Direct3D 10"><span>Programming Guide for Direct3D 10</span></a></span>
+                        <span class="breadcrumbDropSmall">
+                            <a id="breadcrumbDropDownButton" href="#" targethref="https://msdn.microsoft.com/en-us/library/bb205067(v=vs.85).aspx" title="Resources"><span>Resources</span></a>
+                        </span>
+        </div>
+        <div style="display: none;" id="breadcrumbDropDownMenu"></div>
+        <div style="display: none;" id="tocDropDownMenu"></div>
+
+        <div id="breadcrumbTablet" class="breadCrumb">
+                        <span class="breadcrumbEllipsis"><a href="https://msdn.microsoft.com/en-us/library/bb205067%28v=vs.85%29.aspx" title="Programming Guide for Direct3D 10"></a></span>
+                    <span><a href="https://msdn.microsoft.com/en-us/library/bb205127%28v=vs.85%29.aspx" title="Resources"><span>Resources</span></a></span>
+                <span class="breadcrumbDropSmall"><a id="tocDropDownButton" href="#" title="Copying and Accessing Resource Data"><span>Copying and Accessing Resource Data</span></a></span>
+        <div id="navigationButtons">
+            <a id="provideFeedback1" href="javascript:void(0)"><ins class="suggestion"></ins>Any suggestions?</a>
+            <a id="isd_print" href="https://msdn.microsoft.com/en-us/library/bb205132%28d=printer,v=vs.85%29.aspx" rel="nofollow"><ins class="print"></ins>Print </a>
+            <a id="isd_printABook" href="https://msdn.microsoft.com/en-us/library/export/help/?returnUrl=%2fen-us%2flibrary%2fbb205132%28v%3dvs.85%29.aspx">
+                <ins class="export"></ins>Export (<span class="count">0</span>)
+            </a>
+        </div></div>
+        <div id="breadcrumbMobile" class="breadCrumb">
+                <span class="breadcrumbEllipsis"><a href="https://msdn.microsoft.com/en-us/library/bb205127%28v=vs.85%29.aspx" title="Resources"></a></span>
+            <span class="breadcrumbDropSmall"><a id="tocPopupButton" href="#" title="Copying and Accessing Resource Data"><span>Copying and Accessing Resource Data</span></a></span>
+        </div>
+    </div>
+    <div style="display: none;" id="tocPopupMenu">
+        <div id="tocPopMenuClose" class="tocCloseLarge"></div>
+        <div id="tocTitle">Copying and Accessing Resource Data</div>        
+    </div>
+
+    
+
+
+        <div id="body">
+            <span id="tabletView_large"></span>
+            <span id="tabletView_small"></span>
+            <span id="mobileView"></span>
+            
+
+
+
+
+
+
+
+
+
+    <div style="height: 526px;" id="leftNav">
+
+
+
+
+
+<div style="width: 255px; position: fixed; top: 60px;" id="tocnav" class="hide-archive" ms.pgarea="left toc">
+
+
+    <div class="tocunselected">
+        <div style="display: block;" id="tocExpandArea">
+            <span class="toc_empty"></span>
+            <span id="tocExpandButton"><a href="#"></a></span>
+        </div>
+        <div id="tocExpand"><div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205133%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Resource Types">Resource Types</a>                </div></div>
+    <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205129%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Choosing a Resource">Choosing a Resource</a>                </div><div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205130%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Creating Buffer Resources">Creating Buffer Resources</a>                </div><div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205131%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Creating Texture Resources">Creating Texture Resources</a>                </div></div>
+    <div class="tocselected"><div class="toclevel current" data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205132%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Copying and Accessing Resource Data">Copying and Accessing Resource Data</a>                </div><div class="tocPadding"></div></div>
+    <div class="tocunselected">
+                
+                
+                
+                
+                
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb205128%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Texture Views">Texture Views</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/bb694531%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Block Compression">Block Compression</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/cc308052%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Resource Limits">Resource Limits</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/cc308049%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Coordinate Systems">Coordinate Systems</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/cc308050%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Floating-Point Rules">Floating-Point Rules</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/dd607323%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Data Conversion Rules">Data Conversion Rules</a>                </div>
+                <div class="toclevel " data-toclevel="1">
+<span class="toc_empty"></span><a href="https://msdn.microsoft.com/en-us/library/cc308051%28v=vs.85%29.aspx" mtpsaliasid="" mtpsassetid="" mtpsshortid="" title="Legacy Formats: Map Direct3D 9 Formats to Direct3D 10">Legacy Formats: Map Direct3D 9 Formats to Direct3D 10</a>                </div>
+    </div>
+    <a id="tocMenuToggler" href="#">
+        <span id="tocMenuTogglerIcon" class="tocMenuCollapse"></span>
+        <div id="tocMenuTogglerLabel">TOC</div>
+    </a>
+</div>            <div style="display:none">
+                <div id="CollapseLocalizeString">Collapse the table of content</div>
+                <div id="ExpandLocalizeString">Expand the table of content</div>
+            </div>
+        <div>
+            <a id="isd_archiveControlResponsive" style="display:none;" data-include-archive="Include Previous Version" data-exclude-archive="Exclude Previous Version">
+            </a>
+        </div>
+    </div>
+    <div id="content" class="content">
+
+
+
+
+
+
+
+
+<div class="topic" xmlns="http://www.w3.org/1999/xhtml">
+  <h1 class="title">Copying and Accessing Resource Data (Direct3D 10)</h1>
+  
+  <div id="mainSection">
+<div class="clsServerSDKContent">
+
+</div>
+<p>It is no longer necessary to think about resources as being created 
+in either video memory or system memory. Or whether or not the runtime 
+should manage the memory. Thanks to the architecture of the new WDDM 
+(Windows Display Driver Model), applications now create Direct3D 10 
+resources with different <a href="https://msdn.microsoft.com/en-us/library/bb172499%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">usage</strong></a>
+ flags to indicate how the application intends on using the resource 
+data. The new driver model virtualizes the memory used by resources; it 
+then becomes the responsibility of the operating system/driver/memory 
+manager to place resources in the most performant area of memory 
+possible given the expected usage.</p>
+<p>The default case is for resources to be available to the GPU. Of 
+course, having said that, there are times when the resource data needs 
+to be available to the CPU. Copying resource data around so that the 
+appropriate processor can access it without impacting performance 
+requires some knowledge of how the API methods work.</p>
+<ul>
+<li><a href="#Copying">Copying Resource Data</a></li>
+<li><a href="#Accessing">Accessing Resource Data</a></li>
+</ul>
+<h2><a id="Copying"></a><a id="copying"></a><a id="COPYING"></a>Copying Resource Data</h2>
+<p>Resources are created in memory when Direct3D executes a Create call.
+ They can be created in video memory, system memory, or any other kind 
+of memory. Since WDDM driver model virtualizes this memory, applications
+ no longer need to keep track of what kind of memory resources are 
+created in.</p>
+<p>Ideally, all resources would be located in video memory so that the 
+GPU can have immediate access to them. However, it is sometimes 
+necessary for the CPU to read the resource data or for the GPU to access
+ resource data the CPU has written to. Direct3D 10 handles these 
+different scenarios by requesting the application specify a usage, and 
+then offers several methods for copying resource data when necessary.</p>
+<p>Depending on how the resource was created, it is not always possible 
+to directly access the underlying data. This may mean that the resource 
+data must be copied from the source resource to another resource that is
+ accessible by the appropriate processor. In terms of Direct3D 10, 
+default resources can be accessed directly by the GPU, dynamic and 
+staging resources can be directly accessed by the CPU.</p>
+<p>Once a resource has been created, its <a href="https://msdn.microsoft.com/en-us/library/bb172499%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">usage</strong></a>
+ cannot be changed. Instead, copy the contents of one resource to 
+another resource that was created with a different usage. Direct3D 10 
+provides this functionality with three different methods. The first two 
+methods( <a href="https://msdn.microsoft.com/en-us/library/bb173541%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopyResource</strong></a> and <a href="https://msdn.microsoft.com/en-us/library/bb173542%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopySubresourceRegion</strong></a>) are designed to copy resource data from one resource to another. The third method (<a href="https://msdn.microsoft.com/en-us/library/bb173621%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::UpdateSubresource</strong></a>) is designed to copy data from memory to a resource.</p>
+<p>There are two main kinds of resources: mappable and non-mappable.  
+Resources created with dynamic or staging usages are mappable, while 
+resources created with default or immutable usages are non-mappable.</p>
+<p>Copying data among non-mappable resources is very fast because this 
+is the most common case and has been optimized to perform well. Since 
+these resources are not directly accessible by the CPU, they are 
+optimized so that the GPU can manipulate them quickly.</p>
+<p>Copying data among mappable resources is more problematic because the
+ performance will depend on the usage the resource was created with.  
+For example, the GPU can read a dynamic resource fairly quickly but 
+cannot write to them, and the GPU cannot read or write to staging 
+resources directly.</p>
+<p>Applications that wish to copy data from a resource with default 
+usage to a resource with staging usage (to allow the CPU to read the 
+data -- i.e. the GPU readback problem) must do so with care. See <a href="#Accessing">Accessing Resource Data</a> for more details on this last case.</p>
+<h2><a id="Accessing"></a><a id="accessing"></a><a id="ACCESSING"></a>Accessing Resource Data</h2>
+<p>Accessing a resource requires mapping the resource; mapping 
+essentially means the application is trying to give the CPU access to 
+memory. The process of mapping a resource so that the CPU can access the
+ underlying memory can cause some performance bottlenecks and for this 
+reason, care must be taken as to how and when to perform this task.</p>
+<p>Performance can grind to a halt if the application tries to map a 
+resource at the wrong time. If the application tries to access the 
+results of an operation before that operation is finished, a pipeline 
+stall will occur.</p>
+<p>Performing a map operation at the wrong time could potentially cause a
+ severe drop in performance by forcing the GPU and the CPU to 
+synchronize with each other. This synchronization will occur if the 
+application wants to access a resource before the GPU is finished 
+copying it into a resource the CPU can map.</p>
+<p>The CPU can only read from resources created with the 
+D3D10_USAGE_STAGING flag. Since resources created with this flag cannot 
+be set as outputs of the pipeline, if the CPU wants to read the data in a
+ resource generated by the GPU, the data must be copied to a resource 
+created with the staging flag.  The application may do this by using the
+ <a href="https://msdn.microsoft.com/en-us/library/bb173541%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopyResource</strong></a> or <a href="https://msdn.microsoft.com/en-us/library/bb173542%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopySubresourceRegion</strong></a>
+ methods to copy the contents of one resource to another. The 
+application can then gain access to this resource by calling the 
+appropriate Map method.  When access to the resource is no longer 
+needed, the application should then call the corresponding Unmap method.
+  For example, <a href="https://msdn.microsoft.com/en-us/library/bb173869%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Texture2D::Map</strong></a> and <a href="https://msdn.microsoft.com/en-us/library/bb173870%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Texture2D::Unmap</strong></a>.  The different Map methods return some specific values depending on the input flags. See <a href="https://msdn.microsoft.com/en-us/library/bb173865%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">Map Remarks section</strong></a> for details.</p>
+<div class="alert"><strong>Note</strong>&nbsp;&nbsp; When the 
+application calls the Map method, it receives a pointer to the resource 
+data to access. The runtime ensures that the pointer has a specific 
+alignment, depending on <a href="https://msdn.microsoft.com/en-us/library/ff476876%28v=vs.85%29.aspx#Overview">feature level</a>. For <a href="https://msdn.microsoft.com/en-us/library/ff476329%28v=vs.85%29.aspx#D3D_FEATURE_LEVEL_10_0"><strong xmlns="http://www.w3.org/1999/xhtml">D3D_FEATURE_LEVEL_10_0</strong></a> and higher, the pointer is aligned to 16 bytes. For lower than <a href="https://msdn.microsoft.com/en-us/library/ff476329%28v=vs.85%29.aspx#D3D_FEATURE_LEVEL_9_1"><strong xmlns="http://www.w3.org/1999/xhtml">D3D_FEATURE_LEVEL_10_0</strong></a>, the pointer is aligned to 4 bytes. The 16-byte alignment allows the application to perform <a href="https://msdn.microsoft.com/en-us/library/t467de55.aspx">SSE</a>-optimized operations on the data natively, without realignment or copy.</div>
+<div>&nbsp;</div>
+<h3><a id="Performance_Considerations"></a><a id="performance_considerations"></a><a id="PERFORMANCE_CONSIDERATIONS"></a>Performance Considerations</h3>
+<p>It is best to think of a PC as a machine running as a parallel 
+architecture with two main types of processors: one or more CPU's and 
+one or more GPU's. As in any parallel architecture, the best performance
+ is achieved when each processor is scheduled with enough tasks to 
+prevent it from going idle and when the work of one processor is not 
+waiting on the work of another.</p>
+<p>The worst-case scenario for GPU/CPU parallelism is the need to force 
+one processor to wait for the results of work done by another.  Direct3D
+ 10 tries to remove this cost by making the <a href="https://msdn.microsoft.com/en-us/library/bb173541%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopyResource</strong></a> and <a href="https://msdn.microsoft.com/en-us/library/bb173542%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopySubresourceRegion</strong></a>
+ methods asynchronous; the copy has not necessarily executed by the time
+ the method returns.  The benefit of this is that the application does 
+not pay the performance cost of actually copying the data until the CPU 
+accesses the data, which is when Map is called.  If the Map method is 
+called after the data has actually been copied, no performance loss 
+occurs. On the other hand, if the Map method is called before the data 
+has been copied, then a pipeline stall will occur.</p>
+<p>Asynchronous calls in Direct3D 10 (which are the vast majority of 
+methods, and especially rendering calls) are stored in what is called a 
+command buffer.  This buffer is internal to the graphics driver and is 
+used to batch calls to the underlying hardware so that the costly switch
+ from user mode to kernel mode in Microsoft Windows occurs as rarely as 
+possible.</p>
+<p>The command buffer is flushed, thus causing a user/kernel mode switch, in one of four situations, which are as follows.</p>
+<ol>
+<li>
+<a href="https://msdn.microsoft.com/en-us/library/bb174576%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">Present</strong></a> is called.</li>
+<li>
+<a href="https://msdn.microsoft.com/en-us/library/bb173568%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::Flush</strong></a> is called.</li>
+<li>The command buffer is full; its size is dynamic and is controlled by the Operating System and the graphics driver.</li>
+<li>The CPU requires access to the results of a command waiting to execute in the command buffer.</li>
+</ol>
+<p>Of the four situations above, number four is the most critical to performance.  If the application issues a <a href="https://msdn.microsoft.com/en-us/library/bb173541%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopyResource</strong></a> or <a href="https://msdn.microsoft.com/en-us/library/bb173542%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopySubresourceRegion</strong></a>
+ call, this call is queued in the command buffer.  If the application 
+then tries to map the staging resource that was the target of the copy 
+call before the command buffer has been flushed, a pipeline stall will 
+occur because not only does the Copy method call need to execute, but 
+all other buffered commands in the command buffer must execute as well. 
+ This will cause the GPU and CPU to synchronize because the CPU will be 
+waiting to access the staging resource while the GPU is emptying the 
+command buffer and finally filling the resource the CPU needs.  Once the
+ GPU finishes the copy, the CPU will begin accessing the staging 
+resource, but during this time, the GPU will be sitting idle.</p>
+<p>Doing this frequently at runtime will severely degrade performance.  
+For that reason, mapping of resources created with default usage should 
+be done with care.  The application needs to wait long enough for the 
+command buffer to be emptied and thus have all of those commands finish 
+executing before it tries to map the corresponding staging resource.  
+How long should the application wait?  At least two frames because this 
+will enable parallelism between the CPU(s) and the GPU to be maximally 
+leveraged.  The way the GPU works is that while the application is 
+processing frame N by submitting calls to the command buffer, the GPU is
+ busy executing the calls from the previous frame, N-1.</p>
+<p>So if an application wants to map a resource that originates in video memory and calls <a href="https://msdn.microsoft.com/en-us/library/bb173541%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopyResource</strong></a> or <a href="https://msdn.microsoft.com/en-us/library/bb173542%28v=vs.85%29.aspx"><strong xmlns="http://www.w3.org/1999/xhtml">ID3D10Device::CopySubresourceRegion</strong></a>
+ at frame N, this call will actually begin to execute at frame N+1, when
+ the application is submitting calls for the next frame.  The copy 
+should be finished when the application is processing frame N+2.</p>
+<div class="contentTableWrapper"><table>
+<tbody><tr><th>Frame</th><th>GPU/CPU Status</th></tr>
+<tr><td>N</td><td>
+<ul>
+<li>CPU issues render calls for current frame.</li>
+</ul>
+</td></tr>
+<tr><td>N+1</td><td>
+<ul>
+<li>GPU executing calls sent from CPU during frame N.</li>
+<li>CPU issues render calls for current frame.</li>
+</ul>
+</td></tr>
+<tr><td>N+2</td><td>
+<ul>
+<li>GPU finished executing calls sent from CPU during frame N. Results ready.</li>
+<li>GPU executing calls sent from CPU during frame N+1.</li>
+<li>CPU issues render calls for current frame.</li>
+</ul>
+</td></tr>
+<tr><td>N+3</td><td>
+<ul>
+<li>GPU finished executing calls sent from CPU during frame N+1. Results ready.</li>
+<li>GPU executing calls sent from CPU during frame N+2.</li>
+<li>CPU issues render calls for current frame.</li>
+</ul>
+</td></tr>
+<tr><td>N+4</td><td>...</td></tr>
+</tbody></table></div>
+<p>&nbsp;</p>
+<h2><a id="related_topics"></a>Related topics</h2>
+<dl>
+<dt>
+<a href="https://msdn.microsoft.com/en-us/library/bb205127%28v=vs.85%29.aspx">Resources (Direct3D 10)</a>
+</dt>
+</dl>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</div>
+
+
+    
+
+
+
+<script id="CommentTemplate" type="text/x-jquery-tmpl">
+    <div class="communityContentAnnotation">
+        <a name="${Index}"></a>
+        <h3>
+            ${Title}
+        </h3>
+        <div class="communityContentAnnotationBody">
+            {{html Body}}
+        </div>
+        <div class="communityContentAnnotationInfo">
+            <div class="communityContentAnnotationAvatarContainer">
+                <a href="${UserAvatar.Href}" title="${UserAvatar.ToolTip}" class="communityContentAnnotationAvatar"><img src="${UserAvatar.ImageUrl}" alt="${UserAvatar.ImageAltText}" width="34" height="34" /></a>
+            </div>
+            <div class="communityContentAnnotationUserDateContainer">
+                <div class="communityContentAnnotationUserContainer">
+                    <a href="${UserAvatar.Href}">
+                        ${User}
+                    </a>
+                </div>
+                <div class="communityContentAnnotationDateContainer">
+                    <span>${Date}</span>
+                    
+                    {{if EditLink}}
+                        <span>
+                            <a href="${EditLink.Href}" title="${EditLink.ToolTip}" class="communityContentCommentEditLink">${EditLink.Title}</a>
+                        </span>
+                    {{/if}}
+
+                    {{if DeleteLink}}
+                        <span>
+                            <a href="${DeleteLink.Href}" title="${DeleteLink.ToolTip}" class="communityContentDeleteLink">${DeleteLink.Title}</a>
+                        </span>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<div class="communityContentContainer">
+    <div id="CommunityContentHeader" class="communityContentHeader">
+        <div class="communityContentHeaderTitleContainer">
+            <h2>Community Additions</h2>
+                <a class="communityContentAddLink" href="https://msdn.microsoft.com/en-us/library/community/add/bb205132%28v=vs.85%29.aspx">
+                    <span class="communityContentAddButton" title="Add">
+                        ADD
+                    </span>
+                </a>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+    
+    <div id="CommunityComments" data-url="/en-us/library/community/comments/bb205132(v=vs.85).aspx"><div class="communityContentAnnotation">         <a name="2"></a>         <h3>             No Its not.         </h3>         <div class="communityContentAnnotationBody">             <p>Its not&nbsp;inconsistent. &nbsp;You've taken the sentences out of context.</p><br><p>They
+ are telling you that mapping a Default resource requires copying to a 
+Staging resource first, and this causes timing 
+issues,&nbsp;because&nbsp;the Command Buffer is a down stream 
+asynchronous machine, and the Map() function on the CPU requires 
+Synchronized Access.</p><br><p></p><br><p></p>         </div>         <div class="communityContentAnnotationInfo">             <div class="communityContentAnnotationAvatarContainer">                 <a href="https://social.msdn.microsoft.com/profile/dan%20w%20hollingsworth/" title="" class="communityContentAnnotationAvatar"><img src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/avatar.jpg" alt="" height="34" width="34"></a>             </div>             <div class="communityContentAnnotationUserDateContainer">                 <div class="communityContentAnnotationUserContainer">                     <a href="https://social.msdn.microsoft.com/profile/dan%20w%20hollingsworth/">                         Dan W Hollingsworth                     </a>                 </div>                 <div class="communityContentAnnotationDateContainer">                     <span>12/28/2012</span>                                                                                 </div>             </div>         </div>     </div><div class="communityContentAnnotation">         <a name="1"></a>         <h3>             Inconsistency in how to use default resources         </h3>         <div class="communityContentAnnotationBody">             <p>There is an inconsistency in the above article : </p><br><p>... resources created with default or immutable usages are non-mappable.</p><br><p>and then later ...</p><br><p>mapping of resources created with default usage should be done with care.</p>         </div>         <div class="communityContentAnnotationInfo">             <div class="communityContentAnnotationAvatarContainer">                 <a href="https://social.msdn.microsoft.com/profile/gavin.williams/" title="" class="communityContentAnnotationAvatar"><img src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/avatar_002.jpg" alt="" height="34" width="34"></a>             </div>             <div class="communityContentAnnotationUserDateContainer">                 <div class="communityContentAnnotationUserContainer">                     <a href="https://social.msdn.microsoft.com/profile/gavin.williams/">                         Gavin.Williams                     </a>                 </div>                 <div class="communityContentAnnotationDateContainer">                     <span>9/15/2012</span>                                                                                 </div>             </div>         </div>     </div></div>
+</div>
+
+
+
+
+<div class="libraryMemberFilter">
+    <div class="filterContainer">
+        <span>Show:</span>
+        <label>
+            <input class="libraryFilterInherited" checked="checked" value="Inherit" type="checkbox">Inherited
+        </label>
+        <label>
+            <input class="libraryFilterProtected" checked="checked" value="Protected" type="checkbox">Protected
+        </label>
+    </div>
+</div>
+    
+<input id="libraryMemberFilterEmptyWarning" value="There are no members available with your current filter settings." type="hidden">
+
+
+
+    </div>
+
+<div style="position: fixed; top: 60px;" id="rightNavigationMenu" ms.pgarea="right nav">
+    <div id="mobileButtons">
+        
+    </div>
+    <div id="navMain">
+        <div id="closeNavigation">
+            <a class="tocCloseSmall" id="closeButton"></a>
+        </div>
+        <div id="navigationButtons">
+            <a id="provideFeedback2" href="javascript:void(0)"><ins class="suggestion"></ins>Any suggestions?</a>
+            <a id="isd_print" href="https://msdn.microsoft.com/en-us/library/bb205132%28d=printer,v=vs.85%29.aspx" rel="nofollow"><ins class="print"></ins>Print </a>
+            <a id="isd_printABook2" href="https://msdn.microsoft.com/en-us/library/export/help/?returnUrl=%2fen-us%2flibrary%2fbb205132%28v%3dvs.85%29.aspx">
+                <ins class="export"></ins>Export (<span class="count">0</span>)
+            </a>
+            <a id="isdShare" href="#">
+                <ins class="share"></ins>Share
+            </a>
+            <div id="socials" style="display: none">
+                <a id="isdFacebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fmsdn.microsoft.com%2Fen-us%2Flibrary%2Fwindows%2Fdesktop%2Fbb205132%28v%3Dvs.85%29.aspx">
+                    <ins class="facebook"></ins>
+                </a>
+                <a id="isdTwitter" href="https://twitter.com/intent/tweet?original_referer=https%3A%2F%2Fmsdn.microsoft.com%2Fen-us%2Flibrary%2Fwindows%2Fdesktop%2Fbb205132%28v%3Dvs.85%29.aspx&amp;text=Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29&amp;tw_p=tweetbutton&amp;url=https%3A%2F%2Fmsdn.microsoft.com%2Fen-us%2Flibrary%2Fwindows%2Fdesktop%2Fbb205132%28v%3Dvs.85%29.aspx">
+                    <ins class="twitter"></ins>
+                </a>
+                <a id="isdGooglePlus" href="https://plus.google.com/share?url=https%3A%2F%2Fmsdn.microsoft.com%2Fen-us%2Flibrary%2Fwindows%2Fdesktop%2Fbb205132%28v%3Dvs.85%29.aspx">
+                    <ins class="googlePlus"></ins>
+                </a>
+            </div>
+        </div>
+        <div id="indoc_toc" style="display: none" ms.cmpgrp="indoc toc">
+            <div id="indoc_title">IN THIS ARTICLE</div>
+            <ul id="indoc_toclist"></ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+        </div>
+        <div class="clear"></div>
+
+        
+
+<input name="__RequestVerificationToken" value="9QRGnsvQQMlAiYHN0IMPvfbpN7wAPVAcE2NVt87llF8hR8JbyCrQJHX0Wrh9ZfqKQkm8FvqfCQXctkNRJSxMt3SYX-o1" type="hidden">
+<input id="ratingSubmitUrl" value="https://msdn.microsoft.com/en-us/library/feedback/add/bb205132(v=vs.85).aspx" type="hidden">
+<input id="isTopicRated" value="false" type="hidden">
+
+    <div id="lib-footer">
+        <div class="show" id="responsiveRating" ms.pgarea="rating">
+            
+
+<div id="skinnyRating">
+    <div class="closeSmallWhite"></div>
+    <div class="rating">
+        <div id="s_ratingSection1">
+            <div class="title">
+                Was this page helpful?
+            </div>
+            <div class="buttons">
+                <button class="button" id="s_ratingYes" aria-label="Yes, this page was helpful">Yes</button>
+                <button class="button" id="s_ratingNo" aria-label="No, this page was not helpful">No</button>
+            </div>
+            <input id="s_ratingValue" value="" type="hidden">
+        </div>
+        <div id="s_ratingSection2">
+            <div id="s_skinnyRatingForm">
+                <div class="title">
+                    Additional feedback?
+                </div>
+                <textarea id="s_ratingText" rows="6" cols="" maxlength="1500"></textarea>
+                <div class="right">
+                    <div class="counter">
+                        <span id="feedbackTextCounter">1500</span> characters remaining
+                    </div>
+                    <div class="buttons">
+                        <button class="button" id="s_ratingSubmit" aria-label="Submit my additional feedback">Submit</button>
+                        <button class="button" id="s_ratingSkipThis" aria-label="Skip additional feedback">Skip this</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="s_ratingSection3" style="display: none">
+            <div class="title">
+                Thank you!
+            </div>
+            <div class="description">
+                We appreciate your feedback.
+            </div>
+        </div>
+
+        
+        <div id="contentFeedbackQAContainer" style="display: none;"></div>
+    </div>
+</div>
+
+
+        </div>
+        
+
+    
+    <link type="text/css" rel="stylesheet">
+    
+        
+    <div id="ux-footer" class="" style="" dir="ltr">
+        
+            
+        <div id="footerSock" class="both">
+            <div id="footerSockInner">
+                             
+                    <div class="footerSockLeft"><div data-fragmentname="SocialLinks" id="Fragment_SocialLinks" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Follow us</div>
+    <ul class="links">
+      <li>
+        <a href="http://www.facebook.com/microsoftdeveloper" target="_blank" id="SocialLinks_2151_19" class="facebook" xmlns="http://www.w3.org/1999/xhtml">http://www.facebook.com/microsoftdeveloper</a>
+      </li>
+      <li>
+        <a href="https://twitter.com/msdev" target="_blank" id="SocialLinks_2151_20" class="twitter" xmlns="http://www.w3.org/1999/xhtml">https://twitter.com/msdev</a>
+      </li>
+      <li>
+        <a href="http://plus.google.com/111221966647232053570/" target="_blank" id="SocialLinks_2151_21" class="googlePlus" xmlns="http://www.w3.org/1999/xhtml">http://plus.google.com/111221966647232053570/</a>
+      </li>
+    </ul>
+  </div>
+</div></div>
+                        
+                <div class="footerSockCenter">
+                        <a name="feedback"></a>
+
+<div class="rating">
+    <div id="ratingSection1">
+        <div class="title">
+            Was this page helpful?
+        </div>
+        <div class="description">
+            Your feedback about this content is important.<br>Let us know what you think.
+        </div>
+        <div class="buttons">
+            <button class="button" id="ratingYes" aria-label="Yes, this page was helpful">Yes</button>
+            <button class="button" id="ratingNo" aria-label="No, this page was not helpful">No</button>
+        </div>
+        <input id="ratingValue" value="" type="hidden">
+    </div>
+    <div id="ratingSection2">
+        <div class="title left">
+            Additional feedback?
+        </div>
+        <textarea id="ratingText" rows="6" cols="" maxlength="1500"></textarea>
+        <div class="right">
+            <div class="counter">
+                <span id="feedbackTextCounter">1500</span> characters remaining
+            </div>
+            <div class="buttons">
+                <button class="button" id="ratingSubmit" aria-label="Submit my additional feedback">Submit</button>
+                <button class="button" id="ratingSkipThis" aria-label="Skip additional feedback">Skip this</button>
+            </div>
+        </div>
+    </div>
+    <div id="ratingSection3">
+        <div class="title">
+            Thank you!
+        </div>
+        <div class="description">
+            We appreciate your feedback.
+        </div>
+    </div>
+    
+    
+    <div id="contentFeedbackQAContainer" style="display: none;"></div>
+</div>
+    
+                    <div class="userVoice">
+    <div class="title">
+        Have a suggestion?
+    </div>
+        <div class="description">
+            Visit our UserVoice Page to submit and vote on ideas!
+        </div>
+    <div class="buttons">
+        <a class="button" id="userVoiceButton" href="http://feedback.msdn.com/forums/257782-msdn-feature-suggestions/category/83975" target="_blank">Make a suggestion</a>
+    </div>
+</div>  
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+
+        <footer class="top">
+            <div data-fragmentname="LeftLinks" id="Fragment_LeftLinks" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Dev centers</div>
+    <ul class="links">
+      <li>
+        <a href="https://dev.windows.com/" id="LeftLinks_2148_1" class="windowsBlue" xmlns="http://www.w3.org/1999/xhtml">Windows</a>
+      </li>
+      <li>
+        <a href="http://dev.office.com/" id="LeftLinks_2148_3" class="office" xmlns="http://www.w3.org/1999/xhtml">Office</a>
+      </li>
+      <li>
+        <a href="https://msdn.microsoft.com/vstudio" id="LeftLinks_2148_4" class="visualStudio" xmlns="http://www.w3.org/1999/xhtml">Visual Studio</a>
+      </li>
+      <li>
+        <a href="http://azure.microsoft.com/en-us/documentation/" target="_blank" id="LeftLinks_2148_12" xmlns="http://www.w3.org/1999/xhtml">Microsoft Azure</a>
+      </li>
+      <li>
+        <a href="https://msdn.microsoft.com/aa937802" id="LeftLinks_2148_5" xmlns="http://www.w3.org/1999/xhtml">More...</a>
+      </li>
+    </ul>
+  </div>
+</div>
+            <div id="rightLinks">
+                <div data-fragmentname="CenterLinks1" id="Fragment_CenterLinks1" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Learning resources</div>
+    <ul class="links">
+      <li>
+        <a href="http://www.microsoftvirtualacademy.com/" id="CenterLinks1_2151_4" xmlns="http://www.w3.org/1999/xhtml">Microsoft Virtual Academy</a>
+      </li>
+      <li>
+        <a href="http://channel9.msdn.com/" id="CenterLinks1_2151_5" xmlns="http://www.w3.org/1999/xhtml">Channel 9</a>
+      </li>
+      <li>
+        <a href="http://www.interoperabilitybridges.com/" id="CenterLinks1_2151_6" xmlns="http://www.w3.org/1999/xhtml">Interoperability Bridges</a>
+      </li>
+      <li>
+        <a href="https://msdn.microsoft.com/magazine/" id="CenterLinks1_2151_7" xmlns="http://www.w3.org/1999/xhtml">MSDN Magazine</a>
+      </li>
+    </ul>
+  </div>
+</div>
+                <div data-fragmentname="CenterLinks2" id="Fragment_CenterLinks2" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Community</div>
+    <ul class="links">
+      <li>
+        <a href="https://social.msdn.microsoft.com/forums/en-us/home" id="CenterLinks2_2151_8" xmlns="http://www.w3.org/1999/xhtml">Forums</a>
+      </li>
+      <li>
+        <a href="http://blogs.msdn.com/b/developer-tools/" id="CenterLinks2_2151_9" xmlns="http://www.w3.org/1999/xhtml">Blogs</a>
+      </li>
+      <li>
+        <a href="http://www.codeplex.com/" id="CenterLinks2_2151_10" xmlns="http://www.w3.org/1999/xhtml">Codeplex</a>
+      </li>
+    </ul>
+  </div>
+</div>
+                <div data-fragmentname="CenterLinks3" id="Fragment_CenterLinks3" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Support</div>
+    <ul class="links">
+      <li>
+        <a href="https://msdn.microsoft.com/hh361695" id="CenterLinks3_2151_11" xmlns="http://www.w3.org/1999/xhtml">Self support</a>
+      </li>
+    </ul>
+  </div>
+</div>
+                <div class="nth-child-4n" data-fragmentname="CenterLinks4" id="Fragment_CenterLinks4" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <div class="linkListTitle">Programs</div>
+    <ul class="links">
+      <li>
+        <a href="https://www.microsoft.com/bizspark/" id="CenterLinks4_2151_13" xmlns="http://www.w3.org/1999/xhtml">BizSpark (for startups)</a>
+      </li>
+      <li>
+        <a href="https://www.dreamspark.com/" id="CenterLinks4_2151_14" xmlns="http://www.w3.org/1999/xhtml">DreamSpark</a>
+      </li>
+      <li>
+        <a href="http://www.imaginecup.com/" id="CenterLinks4_2151_17" xmlns="http://www.w3.org/1999/xhtml">Imagine Cup</a>
+      </li>
+    </ul>
+  </div>
+</div>
+            </div>
+        </footer>
+
+        <footer class="bottom">
+            <span class="localeContainer">
+                
+    <form class="selectLocale" id="selectLocaleForm" action="https://msdn.microsoft.com/en-us/selectlocale-dmc">
+        <input name="fromPage" value="https%3a%2f%2fmsdn.microsoft.com%2fen-us%2flibrary%2fbb205132(v%3dvs.85).aspx" type="hidden">
+        <a href="#" onclick="$('#selectLocaleForm').submit();return false;" title="Change your language">United States (English)</a>
+    </form>
+
+
+            </span>
+
+            <div data-fragmentname="BottomLinks" id="Fragment_BottomLinks" xmlns="http://www.w3.org/1999/xhtml">
+  
+  <div class="linkList">
+    <ul class="links horizontal">
+      <li>
+        <a href="https://msdn.microsoft.com/newsletter.aspx" id="BottomLinks_2148_7" xmlns="http://www.w3.org/1999/xhtml">Newsletter</a>
+      </li>
+      <li>
+        <a href="https://msdn.microsoft.com/dn529288" id="BottomLinks_2148_8" xmlns="http://www.w3.org/1999/xhtml">Privacy &amp; cookies</a>
+      </li>
+      <li>
+        <a href="https://msdn.microsoft.com/cc300389" id="BottomLinks_2148_9" xmlns="http://www.w3.org/1999/xhtml">Terms of use</a>
+      </li>
+      <li>
+        <a href="https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/EN-US.aspx" id="BottomLinks_2148_10" xmlns="http://www.w3.org/1999/xhtml">Trademarks</a>
+      </li>
+    </ul>
+  </div>
+</div>
+            <span class="logoLegal">
+                <span class="logo"></span>
+                <span class="copyright">© 2015 Microsoft</span>
+            </span>
+        </footer>
+    </div>
+    
+
+    </div>
+
+        <div class="footerPrintView">
+            <div class="footerCopyrightPrintView">© 2015 Microsoft</div>
+        </div>
+
+        
+        
+
+        
+        
+
+    <input id="tocPaddingPerLevel" value="17" type="hidden">
+
+
+
+        <input id="MtpsDevice" value="Default" type="hidden">
+
+
+<!--[CDATA[ Third party scripts and code linked to or referenced from this website are licensed to you by the parties that own such code, not by Microsoft.  See ASP.NET Ajax CDN Terms of Use – http://www.asp.net/ajaxlibrary/CDN.ashx. ]]-->
+
+        
+        
+        
+            
+        
+
+
+
+
+
+
+<noscript><div><img alt="DCSIMG" id="Img1" width="1" height="1" src="https://m.webtrends.com/dcsmgru7m99k7mqmgrhudo0k8_8c6m/njs.gif?dcsuri=/nojavascript&amp;WT.js=No" /></div></noscript>
+
+
+
+
+
+
+
+
+<div id="globalRequestVerification">
+    <input name="__RequestVerificationToken" value="IdJdWut4zj__JgSMRvGZbDNcU-ebDSCDoWkxpsu_iigiGc7vB7IBFsn5FWv67Ye8BF4Omu-3oloMLFlyBRFnh3EPaqI1" type="hidden">
+</div>
+
+
+    </div>
+
+    
+    
+
+    
+<script type="text/javascript" class="mtps-injected">
+/*<![CDATA[*/
+(function(window,document){"use strict";function preload(scripts){for(var result=[],script,e,i=0;i<scripts.length;i++)script=scripts[i],script.hasOwnProperty("url")&&(e=document.createElement("script"),e.src=script.url,script.throwaway=e),result.push(script);return result}function inject(scripts,index){var script,elem;if(index>=scripts.length){delete mtps.injectScripts;return}script=scripts[index];elem=document.createElement("script");elem.className="mtps-injected";elem.async=!1;var isLoaded=!1,timeoutId=0,injectNextFnName="",injectNext=elem.onerror=function(){isLoaded||(isLoaded=!0,inject(scripts,index+1),window.clearTimeout(timeoutId),elem.onload=elem.onerror=elem.onreadystatechange=null,injectNextFnName&&delete mtps[injectNextFnName],elem.removeEventListener&&elem.removeEventListener("load",injectNext,!1))};elem.addEventListener?elem.addEventListener("load",injectNext,!1):elem.readyState==="uninitialized"?elem.onreadystatechange=function(){(this.readyState==="loaded"||this.readyState==="complete")&&injectNext()}:elem.onload=injectNext;script.hasOwnProperty("url")?(timeoutId=window.setTimeout(injectNext,12e4),elem.src=script.url):(injectNextFnName="_injectNextScript_"+index,mtps[injectNextFnName]=injectNext,timeoutId=window.setTimeout(injectNext,2e3),elem.text="try {\n"+script.txt+"\n} finally { MTPS."+injectNextFnName+" && MTPS."+injectNextFnName+"(); }");parent.appendChild(elem)}var mtps=window.MTPS||(window.MTPS={}),parent=document.getElementsByTagName("head")[0];mtps.injectScripts=function(scripts){inject(preload(scripts),0)}})(window,document);
+MTPS.injectScripts([
+	{ txt: "/**/\r\n(window.MTPS || (window.MTPS = {})).cdnDomains || (window.MTPS.cdnDomains = { \r\n\t\"image\": \"https://i-msdn.sec.s-msft.com\", \r\n\t\"js\": \"https://i2-msdn.sec.s-msft.com\", \r\n\t\"css\": \"https://i-msdn.sec.s-msft.com\", \r\n\t\"xap\": \"https://msdn.microsoft.com\"\r\n});\r\n/**/" },
+	{ txt: "//\n  var literalNormalizedUrl = \u0027/en-us/library/bb205132(l=en-us,v=vs.85).aspx\u0027;\n  var wt_nvr_ru = \u0027WT_NVR_RU\u0027;\n  var wt_fpcdom = \u0027.microsoft.com\u0027;\n  var wt_domlist = \u0027msdn.microsoft.com\u0027;\n  var wt_pathlist = \u0027\u0027;\n  var wt_paramlist = \u0027DCSext.mtps_devcenter\u0027;\n  var wt_siteid = \u0027MSDN\u0027;\n  var gDomain = \u0027m.webtrends.com\u0027;\n  var gDcsId = \u0027dcsmgru7m99k7mqmgrhudo0k8_8c6m\u0027;\n  var gFpc = \u0027WT_FPC\u0027;\n\n\n\n  if (document.cookie.indexOf(gFpc + \"=\") == -1) {\n    var wtidJs = document.createElement(\"script\");\n    wtidJs.src = \"//\" + gDomain + \"/\" + gDcsId + \"/wtid.js\";\n    document.getElementsByTagName(\"head\")[0].appendChild(wtidJs);\n  }\n\n\n\n  var detectedLocale = \u0027en-us\u0027;\n  var wtsp = \u0027msdnlib_w32_com\u0027;\n  var gTrackEvents = \u00270\u0027;\n/**/" },
+	{ txt: "//\n\n        window.appInsightsId = \u002760854590-027a-4ae4-98be-2741a40f355f\u0027;\n        //" },
+	{ url: "https://i2-msdn.sec.s-msft.com/Combined.js?resources=0:Utilities,1:Layout,2:Header,3:Breadcrumbs,4:LibraryRightNavigationMenu,4:PrintExportButton,4:SkinnyRating,1:Rating,2:Footer,0:Topic,5:webtrendsscript,4:WEDCS,0:ScrollTracking,3:CmpgrpForHeader,0:AppInsightsPerf,3:ResponsiveToc,1:SearchBox;/Areas/Epx/Content/Scripts:0,/Areas/Epx/Themes/Base/Content:1,/Areas/Centers/Themes/StandardDevCenter/Content:2,/Areas/Library/Content:3,/Areas/Library/Themes/Base/Content:4,/Areas/Global/Content/Webtrends/resources:5\u0026amp;hashKey=DDD0A428CE386C786BB35F52FF666C75\u0026amp;v=22D3A88F3888F611E6845788621CC894" },
+	{ url: "https://i1.services.social.microsoft.com/search/Widgets/SearchBox.jss?boxid=HeaderSearchTextBox\u0026btnid=HeaderSearchButton\u0026pgArea=header\u0026brand=Msdn\u0026loc=en-us\u0026focusOnInit=false\u0026emptyWatermark=true\u0026searchButtonTooltip=Search MSDN" },
+	{ url: "https://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js" },
+	{ url: "https://i2-msdn.sec.s-msft.com/Combined.js?resources=0:CommunityContent,0:LibraryMemberFilter,1:Toc_Fixed,1:CodeSnippet,1:TopicNotInScope,0:ResponsiveSupport,1:VersionSelector,1:SurveyBroker;/Areas/Library/Content:0,/Areas/Epx/Content/Scripts:1\u0026amp;hashKey=D522ABC202C69EAACF9852A89721F5A6\u0026amp;v=22D3A88F3888F611E6845788621CC894" },
+	{ txt: "$(document).ready(function() {\n        try {\n            var token = $(\"#globalRequestVerification input[name=\u0027__RequestVerificationToken\u0027]\").clone();\n            $(\"#siteFeedbackForm\").append(token);\n        } catch(err) {\n            \n        }\n    });" }
+]);
+
+/*]]>*/
+</script>
+
+
+
+
+
+
+
+<div id="overlayMask"></div><script src="Copying%20and%20Accessing%20Resource%20Data%20%28Direct3D%2010%29%20%28Windows%29_files/broker-config.js"></script></body></html>

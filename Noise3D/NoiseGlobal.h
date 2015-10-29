@@ -35,7 +35,7 @@ extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[g_VertexDesc_Simple_ElementC
 
 //！！！！！！！！！！畠蕉俊笥！！！！！！！！！！
 
-extern ID3D11Device*					g_pd3dDevice;
+extern ID3D11Device*					g_pd3dDevice11;
 
 extern ID3D11DeviceContext*		g_pImmediateContext;
 //住算全
