@@ -67,6 +67,9 @@
     <Filter Include="N2D_NoiseGUI\N2D_GUIScrollBar">
       <UniqueIdentifier>{1cc54224-b6b8-4602-95ef-80ec74b89540}</UniqueIdentifier>
     </Filter>
+    <Filter Include="N2D_NoiseFontManager">
+      <UniqueIdentifier>{05e51c91-facb-4412-b778-5b7689e1b3c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N3D_NoiseScene.h">
@@ -147,6 +150,9 @@
     <ClInclude Include="N2D_NoiseGUIScrollBar.h">
       <Filter>N2D_NoiseGUI\N2D_GUIScrollBar</Filter>
     </ClInclude>
+    <ClInclude Include="N2D_NoiseFontManager.h">
+      <Filter>N2D_NoiseFontManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RenderWindow\Main.fx">
@@ -225,6 +231,9 @@
     </ClCompile>
     <ClCompile Include="N2D_NoiseGUIScrollBar.cpp">
       <Filter>N2D_NoiseGUI\N2D_GUIScrollBar</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseFontManager.cpp">
+      <Filter>N2D_NoiseFontManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

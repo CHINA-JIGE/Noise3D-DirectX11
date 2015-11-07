@@ -21,8 +21,18 @@
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <fstream>
+
+//FreeType
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#include FT_ERRORS_H
+#include FT_TYPES_H
+#include FT_IMAGE_H
+#include FT_RENDER_H
+#include FT_OUTLINE_H 
 
 #include "NoiseMacro.h"
 #include "NoiseFlag.h"
@@ -39,7 +49,7 @@
 #include "N3D_NoiseMaterialManager.h"
 #include "N3D_NoiseAtmosphere.h"
 #include "N2D_NoiseGUI.h"
-
+#include "N2D_NoiseFontManager.h"
 #include "N2D_NoiseGraphicObject.h"
 #include "N3D_NoiseScene.h"
 

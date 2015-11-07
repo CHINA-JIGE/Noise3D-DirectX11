@@ -14,8 +14,9 @@ NoiseTextureManager	TexMgr;
 NoiseAtmosphere			Atmos;
 NoiseGUIManager		GUIMgr;
 NoiseGUIButton			GUIButton1;
-
 NoiseGraphicObject	GraphicObjBuffer;
+NoiseFontManager		fontMgr;
+
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 NoiseUtSlicer Slicer;
 NoiseUtInputEngine inputE;
@@ -59,26 +60,34 @@ BOOL Init3D(HWND hwnd)
 	Scene.CreateAtmosphere(&Atmos);
 	Scene.CreateGUI(&GUIMgr, &inputE, hwnd);
 
+
 	//只郡符薮夕
-	TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
+	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
+	TexMgr.CreatePureColorTexture("myText", 100, 100, NVECTOR4(0.0f, 0.0f, 0.0f, 0.0f), TRUE);
+	TexMgr.CreateTextureFromFile(L"Earth.jpg","Earth", TRUE,0, 0,TRUE);
 	TexMgr.CreateTextureFromFile(L"Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
 	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
 	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0, FALSE);
 	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", TRUE, 0, 0, FALSE);
 	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	//TexMgr.CreateTextureFromFile(L"Earth_Bump.bmp", "NormalMap_Earth", TRUE, 0, 0, FALSE);
 	TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
-	TexMgr.ConvertTextureToGreyMap(TexMgr.GetIndexByName("EarthNormalMap"));
-	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetIndexByName("EarthNormalMap"),20.0f);
-	/*LPCWSTR cubeFN[6];
-	cubeFN[0] = L"Cube Map\\+x.PNG";
-	cubeFN[1] = L"Cube Map\\-x.PNG";
-	cubeFN[2] = L"Cube Map\\+y.PNG";
-	cubeFN[3] = L"Cube Map\\-y.PNG";
-	cubeFN[4] = L"Cube Map\\+z.PNG";
-	cubeFN[5] = L"Cube Map\\-z.PNG";
-	TexMgr.CreateCubeMapFromFiles(cubeFN, "EnvironmentMap", NOISE_CUBEMAP_SIZE_256x256);*/
-	//TexMgr.SaveTextureToFile(TexMgr.GetIndexByName("EnvironmentMap"), L"output.dds", NOISE_TEXTURE_SAVE_FORMAT_DDS);
+	TexMgr.ConvertTextureToGreyMap(TexMgr.GetTextureID("EarthNormalMap"));
+	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("EarthNormalMap"),20.0f);
+
+	//create font texture
+	fontMgr.CreateFontFromFile("msyh_bold.ttf", "myFont", 36);
+	N_Font_Bitmap fontBitmap;
+	fontMgr.GetBitmapOfChar(0, L'込', fontBitmap,NVECTOR4(1.0f,0,0,0.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
+	for (int j = 0;j < fontBitmap.height;j++)
+	{
+		for (int i = 0;i < fontBitmap.width;i++)
+		{
+			TexMgr.SetPixel_SysMem(TexMgr.GetTextureID("myText"), i, j, fontBitmap.bitmapBuffer.at(j*fontBitmap.width + i));
+
+		}
+	}
+	TexMgr.UpdateTextureDataToGraphicMemory(0);
+
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
@@ -99,10 +108,9 @@ BOOL Init3D(HWND hwnd)
 	Camera.SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	Camera.SetLookAt(0, rotateY / 2, 0);
 
-
 	Atmos.SetFogEnabled(FALSE);
 	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	Atmos.CreateSkyDome(4.0f, 4.0f, TexMgr.GetIndexByName("Universe"));
+	Atmos.CreateSkyDome(4.0f, 4.0f, TexMgr.GetTextureID("Universe"));
 	//Atmos.CreateSkyBox(10.0f, 10.0f, 10.0f, TexMgr.GetIndexByName("EnvironmentMap"));
 
 	//！！！！！！菊高！！！！！！！！
@@ -120,16 +128,16 @@ BOOL Init3D(HWND hwnd)
 	Mat1.baseMaterial.mBaseSpecularColor	=	NVECTOR3(1.0f, 1.0f,1.0f);
 	Mat1.baseMaterial.mSpecularSmoothLevel	=	40;
 	Mat1.baseMaterial.mNormalMapBumpIntensity = 0.3f;
-	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.2f;
-	Mat1.diffuseMapID = TexMgr.GetIndexByName("EarthNormalMap");
-	Mat1.normalMapID = TexMgr.GetIndexByName("EarthNormalMap");
-	Mat1.cubeMap_environmentMapID = TexMgr.GetIndexByName("EnvironmentMap");
+	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.05f;
+	Mat1.diffuseMapID = TexMgr.GetTextureID("Earth");
+	Mat1.normalMapID = TexMgr.GetTextureID("EarthNormalMap");
+	Mat1.cubeMap_environmentMapID = TexMgr.GetTextureID("EnvironmentMap");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
 	Mesh1.SetMaterial(Mat1_ID);
 
-	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetIndexByName("BottomRightTitle"));
+	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetTextureID("BottomRightTitle"));
 	
 	//GUI System
 	GUIMgr.AddButton(&GUIButton1);
@@ -139,11 +147,14 @@ BOOL Init3D(HWND hwnd)
 	GUIButton1.SetHeight(70.0f);
 	GUIButton1.SetDragableX(TRUE);
 	GUIButton1.SetDragableY(TRUE);
-	GUIButton1.SetTexture_MouseAway(TexMgr.GetIndexByName("Button"));
-	GUIButton1.SetTexture_MouseOn(TexMgr.GetIndexByName("Earth"));
-	GUIButton1.SetTexture_MousePressedDown(TexMgr.GetIndexByName("Wood"));
+	GUIButton1.SetTexture_MouseAway(TexMgr.GetTextureID("myText"));
+	GUIButton1.SetTexture_MouseOn(TexMgr.GetTextureID("Earth"));
+	GUIButton1.SetTexture_MousePressedDown(TexMgr.GetTextureID("Wood"));
 	GUIButton1.SetEventProcessCallbackFunction(Button1MsgProc);
 	GUIMgr.Update();
+
+
+
 
 	/*Slicer.Step1_LoadPrimitiveMeshFromSTLFile("object.stl");
 	Slicer.Step2_Intersection(5);
@@ -192,7 +203,7 @@ void MainLoop()
 	Renderer.RenderMeshInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderAtmosphereInList();
-	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	Renderer.RenderGraphicObjectInList();
 
 	//present
@@ -248,6 +259,7 @@ void Cleanup()
 	inputE.SelfDestruction();
 	Slicer.SelfDestruction();
 	NTimer.SelfDestruction();
+	fontMgr.SelfDestruction();
 
 	Engine.ReleaseAll();
 	Scene.ReleaseAllChildObject();

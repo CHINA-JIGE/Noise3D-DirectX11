@@ -15,6 +15,8 @@ public:
 
 	NoiseGUIManager();
 
+	void		SelfDestruction();
+
 	void		AddToRenderList();
 
 	BOOL	AddButton(NoiseGUIButton* pButton);

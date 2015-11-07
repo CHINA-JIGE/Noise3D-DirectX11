@@ -52,6 +52,7 @@ void	NoiseScene::ReleaseAllChildObject()
 		}
 	}
 
+	if (m_pChildGUI)m_pChildGUI->SelfDestruction();
 };
 
 UINT NoiseScene::CreateMesh( NoiseMesh* pMesh)

@@ -38,12 +38,7 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	std::ifstream fileIn(pFilePath, std::ios::binary);
 
 	//文件不存在就return
-	if (!fileIn)
-	{
-		DEBUG_MSG3("","","NoiseFileManager : File Path Not Exist !!");
-		return FALSE;
-	}
-	if (!fileIn.good()) 
+	if (!fileIn.is_open()) 
 	{
 		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
 		return FALSE;
@@ -203,12 +198,8 @@ BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 	std::ifstream fileIn(pFilePath, std::ios::binary);
 
 	//文件不存在就return
-	if (!fileIn)
-	{
-		DEBUG_MSG3("", "", "NoiseFileManager : File Path Not Exist !!");
-		return FALSE;
-	}
-	if (!fileIn.good())
+
+	if (!fileIn.is_open())
 	{
 		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
 		return FALSE;

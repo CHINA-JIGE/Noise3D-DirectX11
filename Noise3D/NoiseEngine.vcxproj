@@ -43,8 +43,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)ExternalLib\FreeType\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)ExternalLib\FreeType\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86\;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -61,7 +61,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
     </Link>
@@ -92,6 +92,7 @@
     <ClInclude Include="N3D_NoiseEngine.h" />
     <ClInclude Include="NBASE_NoiseFileManager.h" />
     <ClInclude Include="N2D_NoiseGUI.h" />
+    <ClInclude Include="N2D_NoiseFontManager.h" />
     <ClInclude Include="NUT_NoiseUtInputEngine.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
     <ClInclude Include="N2D_NoiseGraphicObject.h" />
@@ -130,6 +131,7 @@
     <ClCompile Include="N2D_NoiseGUIText.cpp" />
     <ClCompile Include="N3D_NoiseCamera.cpp" />
     <ClCompile Include="N3D_NoiseEngine.cpp" />
+    <ClCompile Include="N2D_NoiseFontManager.cpp" />
     <ClCompile Include="NBASE_NoiseGUIBasicContainerInfo.cpp" />
     <ClCompile Include="NBASE_NoiseFileManager.cpp" />
     <ClCompile Include="N2D_NoiseGUIManager.cpp" />

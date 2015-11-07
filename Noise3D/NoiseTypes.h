@@ -163,6 +163,15 @@ struct N_SubsetInfo
 };
 
 
+struct N_Font_Bitmap
+{
+	UINT width;
+	UINT height;
+	std::vector<NVECTOR4> bitmapBuffer;
+};
+
+
+
 //-------------CONSTANT BUFFER STRUCTURE----------------
 //GPU Memory : 128 byte alignment
 struct N_CbPerFrame

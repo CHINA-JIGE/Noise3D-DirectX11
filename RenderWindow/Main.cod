@@ -171,7 +171,7 @@ fxgroup
                 dcl_output o5.xyz
                 dcl_temps 6
                 
-                #line 24 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 24 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // output<8:NaN:Inf>
@@ -415,7 +415,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 23
                 
-                #line 42 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 42 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyzw, l(0,0,0,0)  // finalColor4<0: 0f,1: 0f,2: 0f,3: 0f>
                 
                 #line 46
@@ -750,7 +750,7 @@ fxgroup
                   mov r6.w, l(1.000000)
                   add r6.xyzw, r9.xyzw, r6.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 73 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 73 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r5.xyzw, r5.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1092,7 +1092,7 @@ fxgroup
                     mov r6.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                   endif 
                 
-                #line 78 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 78 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r0.xyzw, r0.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1416,7 +1416,7 @@ fxgroup
                     mov r5.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                   endif 
                 
-                #line 84 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 84 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r3.xyzw, r3.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -1733,7 +1733,7 @@ fxgroup
                   mov r5.w, l(1.000000)
                   add r5.xyzw, r8.xyzw, r5.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
-                #line 94 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 94 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r5.xyzw, r5.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r0.xyzw, r0.xyzw, r5.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -2075,7 +2075,7 @@ fxgroup
                     mov r6.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                   endif 
                 
-                #line 99 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 99 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r5.xyzw, r5.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -2397,7 +2397,7 @@ fxgroup
                     mov r6.xyzw, l(0,0,0,1.000000)  // outColor4<0: 0f,1: 0f,2: 0f,3: 1f>
                   endif 
                 
-                #line 104 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 104 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                   mov r6.xyzw, r6.xyzw  // tmpColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                   add r0.xyzw, r0.xyzw, r6.xyzw  // finalColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 
@@ -2501,7 +2501,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 130 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 130 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw
@@ -2547,7 +2547,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 138 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 138 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid3D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -2593,7 +2593,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 2
                 
-                #line 147 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 147 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -2630,7 +2630,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 154 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 154 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid2D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -2677,7 +2677,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 163 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 163 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -2708,7 +2708,7 @@ fxgroup
                 // Name                 Index   Mask Register SysValue Format   Used
                 // -------------------- ----- ------ -------- -------- ------ ------
                 // SV_POSITION              0   xyzw        0      POS  float       
-                // COLOR                    0   xyzw        1     NONE  float       
+                // COLOR                    0   xyzw        1     NONE  float      w
                 // TEXCOORD                 0   xy          2     NONE  float   xy  
                 //
                 //
@@ -2722,15 +2722,18 @@ fxgroup
                 dcl_globalFlags refactoringAllowed
                 dcl_sampler s0, mode_default
                 dcl_resource_texture2d (float,float,float,float) t0
+                dcl_input_ps linear v1.w
                 dcl_input_ps linear v2.xy
                 dcl_output o0.xyzw
                 dcl_temps 1
                 
-                #line 171 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
-                sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // outputColor<0:Inf,1:Inf,2:Inf,3:Inf>
-                mov o0.xyzw, r0.xyzw  // PS_Textured2D<0:Inf,1:Inf,2:Inf,3:Inf>
+                #line 171 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
+                sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // sampledColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                mul r0.w, r0.w, v1.w  // outputColor<3:NaN:Inf>
+                mov r0.xyz, r0.xyzx  // outputColor<0:Inf,1:Inf,2:Inf>
+                mov o0.xyzw, r0.xyzw  // PS_Textured2D<0:Inf,1:Inf,2:Inf,3:NaN:Inf>
                 ret 
-                // Approximately 3 instruction slots used
+                // Approximately 5 instruction slots used
                             
             };
         }
@@ -2799,7 +2802,7 @@ fxgroup
                 dcl_output o5.xyz
                 dcl_temps 4
                 
-                #line 189 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 190 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 dp3 r0.x, v0.xyzx, cb0[4].xyzx
                 dp3 r0.y, v0.xyzx, cb0[5].xyzx
                 dp3 r0.z, v0.xyzx, cb0[6].xyzx
@@ -2886,10 +2889,10 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 3
                 
-                #line 198 "F:\1VS PROJECT\3D\Noise3D -(18)\RenderWindow\Main.fx"
+                #line 199 "F:\1VS PROJECT\3D\Noise3D -(18)(4)(2)GUI Text Ft261\RenderWindow\Main.fx"
                 mov r0.xyzw, v1.xyzw  // outputColor<0,1,2,3>
                 
-                #line 201
+                #line 202
                 ine r1.x, l(0, 0, 0, 0), cb0[1].z
                 not r1.y, r1.x
                 ine r1.z, l(0, 0, 0, 0), cb0[1].w
@@ -2900,19 +2903,19 @@ fxgroup
                   ret 
                 endif 
                 
-                #line 205
+                #line 206
                 if_nz r1.x
                   sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v4.xyxx, t0.xyzw, s0  // outputColor<0:Inf,1:Inf,2:Inf,3:Inf>
                   mov o0.xyzw, r2.xyzw  // PS_DrawSky<0:Inf,1:Inf,2:Inf,3:Inf>
                   ret 
                 
-                #line 205
+                #line 206
                 endif 
                 
-                #line 210
+                #line 211
                 if_nz r1.z
                 
-                #line 213
+                #line 214
                   div r1.x, l(1.000000), cb0[2].x
                   div r1.y, l(1.000000), cb0[2].y
                   div r1.z, l(1.000000), cb0[2].z
@@ -2921,10 +2924,10 @@ fxgroup
                   mov o0.xyzw, r1.xyzw  // PS_DrawSky<0:Inf,1:Inf,2:Inf,3:Inf>
                   ret 
                 
-                #line 210
+                #line 211
                 endif 
                 
-                #line 217
+                #line 218
                 mov o0.xyzw, r0.xyzw  // PS_DrawSky<0,1,2,3>
                 ret 
                 // Approximately 26 instruction slots used

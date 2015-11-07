@@ -14,7 +14,13 @@ NoiseGUIManager::NoiseGUIManager()
 	m_pChildGraphicObject = new NoiseGraphicObject;
 	m_pChildButtonList	= new std::vector<NoiseGUIButton*>;
 	m_pChildTextList		= new std::vector<NoiseGUIText*>;
+}
+
+void NoiseGUIManager::SelfDestruction()
+{
+	m_pChildGraphicObject->SelfDestruction();
 };
+
 
 void	NoiseGUIManager::AddToRenderList()
 {
@@ -194,7 +200,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 		//the function ptr cannot be NULL
 		if (pCurrButton->m_pFunction_EventMessageProcess)
 		{
-			for (auto buttonEventMsg : tmpEventList)
+			for (UINT buttonEventMsg : tmpEventList)
 			{
 				//call back to main .exe using function ptr
 				(*pCurrButton->m_pFunction_EventMessageProcess)(buttonEventMsg);
