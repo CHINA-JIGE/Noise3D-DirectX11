@@ -11,4 +11,5 @@
 
 NoiseGUIScrollBar::NoiseGUIScrollBar()
 {
+	m_pGraphicObj = new NoiseGraphicObject;
 }

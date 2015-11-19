@@ -520,6 +520,8 @@ void NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVE
 
 void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
 {
+	//index mean the 'index'th rectangle
+
 	if (index >= m_pRegionList_TriangleID_Rect->size())
 	{
 		DEBUG_MSG1("Rectangle Index Invalid !!");
@@ -542,9 +544,9 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 		color,
 		color,
 		color,
-		NVECTOR2(0, 0),
-		NVECTOR2(1, 0),
-		NVECTOR2(0, 1)
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID1*3).TexCoord,//NVECTOR2(0, 0),
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID1 * 3+1).TexCoord, //NVECTOR2(1, 0),
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID1 * 3+2).TexCoord //NVECTOR2(0, 1)
 		);
 
 	mFunction_SetSolidTriangle2D_GlobalVB(
@@ -555,9 +557,9 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 		color,
 		color,
 		color,
-		NVECTOR2(1, 0),
-		NVECTOR2(1, 1),
-		NVECTOR2(0, 1)
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID2 * 3).TexCoord,//NVECTOR2(1, 0),
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID2 * 3+1).TexCoord,//NVECTOR2(1, 1),
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(triangleID2 * 3+2).TexCoord//NVECTOR2(0, 1)
 		);
 
 	//modify texID of REGION_INFO 
@@ -571,6 +573,50 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texID);
+}
+
+void NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
+{
+	//index mean the 'index'th rectangle
+
+	if (index >= m_pRegionList_TriangleID_Rect->size())
+	{
+		DEBUG_MSG1("Rectangle Index Invalid !!");
+		return;
+	}
+
+	UINT triangleID1 = m_pRegionList_TriangleID_Rect->at(index).startID;
+	UINT triangleID2 = triangleID1 + 1;
+
+	//after getting triangle ID (in global buffer) , compute 6 vertex ID of these 2 tri (in global buffer)
+	UINT vertexID[6] =
+	{
+		triangleID1 * 3,
+		triangleID1 * 3 + 1,
+		triangleID1 * 3 + 2,
+		triangleID2 * 3,
+		triangleID2 * 3 + 1,
+		triangleID2 * 3 + 2 };
+
+	/*		
+			vTopLeft,
+			NVECTOR2(vBottomRight.x, vTopLeft.y),
+			NVECTOR2(vTopLeft.x, vBottomRight.y),
+
+			NVECTOR2(vBottomRight.x, vTopLeft.y),
+			vBottomRight,
+			NVECTOR2(vTopLeft.x, vBottomRight.y),
+*/
+
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[0]).TexCoord = texCoordTopLeft;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[1]).TexCoord = NVECTOR2(texCoordBottomRight.x,texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[2]).TexCoord = NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[3]).TexCoord = NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[4]).TexCoord = texCoordBottomRight;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->at(vertexID[5]).TexCoord = NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
+	
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
 }
 
 void NoiseGraphicObject::SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color, UINT texID)
@@ -1093,28 +1139,6 @@ UINT NoiseGraphicObject::GetEllipseOutlineCount()
 	return m_pRegionList_LineID_Ellipse->size();
 };
 
-BOOL NoiseGraphicObject::AddToRenderList()
-{
-	
-	if (m_pFatherScene == NULL)
-	{
-		DEBUG_MSG1("Noise Graphic Object: NoiseScene Has Not been created!");
-		return FALSE;
-	}
-	m_pFatherScene->m_pChildRenderer->m_pRenderList_GraphicObject->push_back(this);
-
-	//Update Data to GPU if data is not up to date , 5 object types for now
-	for (UINT i = 0;i < 5;i++)
-	{
-		if (mCanUpdateToGpu[i])
-		{
-			mFunction_UpdateVerticesToGpu(i);
-			mCanUpdateToGpu[i] = FALSE;
-		}
-	}
-	return TRUE;
-}
-
 
 /***********************************************************************
 						PRIVATE
@@ -1245,7 +1269,7 @@ void		NoiseGraphicObject::mFunction_SetVertices(std::vector<N_SimpleVertex>* pLi
 
 }
 
-UINT		NoiseGraphicObject::mFunction_AddSolidTriangle2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2, NVECTOR4 c3, NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3,BOOL isCommonTriangle)
+inline UINT	NoiseGraphicObject::mFunction_AddSolidTriangle2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2, NVECTOR4 c3, NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3,BOOL isCommonTriangle)
 {
 	//I Create this private function to cover the awkward  isCommonTriangle
 	//because updating RegionInfo need to know whether AddTriangle2D is invoked by 
@@ -1284,7 +1308,7 @@ UINT		NoiseGraphicObject::mFunction_AddSolidTriangle2D_GlobalVB(NVECTOR2 v1, NVE
 	return newTriangleID;
 }
 
-void		NoiseGraphicObject::mFunction_SetSolidTriangle2D_GlobalVB(UINT index,NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2, NVECTOR4 c3, NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3)
+inline void		NoiseGraphicObject::mFunction_SetSolidTriangle2D_GlobalVB(UINT index,NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2, NVECTOR4 c3, NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3)
 {
 	N_SimpleVertex simpleV[3];
 	simpleV[0].Pos = NVECTOR3(v1.x, v1.y, 0);
@@ -1306,7 +1330,7 @@ void		NoiseGraphicObject::mFunction_SetSolidTriangle2D_GlobalVB(UINT index,NVECT
 	mFunction_SetVertices(m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D], simpleV, vertexStartID, vertexCount);
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;;
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D] = TRUE;
 }
 
 UINT		NoiseGraphicObject::mFunction_AddLine2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
@@ -1348,7 +1372,7 @@ void		NoiseGraphicObject::mFunction_SetLine2D_GlobalVB(UINT index, NVECTOR2 v1, 
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D] = TRUE;
 }
 
-void		NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
+inline void  NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
 {
 	//first ,  get the pixel size of main back buffer (global var)
 	float halfW= (float)gMainBufferPixelWidth / 2.0f;
@@ -1356,7 +1380,7 @@ void		NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NV
 	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		1-(pxCoord.y / halfH));
 }
 
-float		NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
+inline float NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
 {
 	float outLength = 0;
 	//we need to know the pixel length is on X or Y direction

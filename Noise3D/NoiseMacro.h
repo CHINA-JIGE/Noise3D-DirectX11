@@ -15,11 +15,7 @@
 //but texture can be invalid
 #define NOISE_MACRO_INVALID_ID			UINT_MAX
 
-#define NOISE_MACRO_INVALID_MESH_ID				UINT_MAX
-
 #define	 NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
-
-#define NOISE_MACRO_INVALID_GRAPHICOBJ_ID	UINT_MAX
 
 #define NOISE_MACRO_DEFAULT_MATERIAL_ID 0U
 
@@ -27,6 +23,23 @@
 
 #define NOISE_MACRO_FUNCTION_EXTERN_CALL   //A mark that indicates this function is called by external friend class
 
+#define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT 8U	//used in font mgr
+
+#define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT 16U
+
+#define NOISE_MACRO_ADDTORENDERLIST_SCENE_RENDERER_VALIDATE() \
+{\
+	if (!m_pFatherScene) \
+	{ \
+		DEBUG_MSG1("Current Object has not been bound to the scene!");\
+		return FALSE;\
+	}\
+	if (!m_pFatherScene->m_pChildRenderer)\
+	{\
+		DEBUG_MSG1("Renderer Has Not been bound to the scene !");\
+		return FALSE;\
+	}\
+}\
 
 //释放一个COM对象
 #define ReleaseCOM(ComPointer)\

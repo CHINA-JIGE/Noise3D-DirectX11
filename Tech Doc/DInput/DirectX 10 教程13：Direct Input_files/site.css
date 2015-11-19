@@ -1,0 +1,431 @@
+﻿body
+{
+    background-color: #EEE;
+    font-family: 微软雅黑, 宋体, 'Lucida Grande' , Verdana, Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 10px 0;
+  font-family: 微软雅黑, 宋体, Helvetica, Arial, Sans-Serif;
+  font-weight: 300;
+  line-height: 20px;
+  color: inherit;
+  text-rendering: optimizelegibility;
+}
+
+h2
+{
+    color: #0066CE;
+    margin-left: 5px;
+}
+
+h3
+{
+    margin-top: 5px;
+}
+
+p
+{
+    line-height:170%;
+    font-size :110%;
+}
+
+.navbar-inner {
+    border: none;
+    padding-left: 0px;
+}
+
+.navbar .nav > li > a {
+    color: #FFFFFF;
+    float: none;
+    font-size: 17px;
+    padding: 10px 15px;
+    text-shadow:none;
+}
+
+.navbar .nav li.dropdown.open > .dropdown-toggle, .navbar .nav li.dropdown.active > .dropdown-toggle, .navbar .nav li.dropdown.open.active > .dropdown-toggle {
+    background-color: #0F58A1;
+    color: #FFFFFF;
+}
+
+.navbar .nav > .active > a, .navbar .nav > .active > a:hover, .navbar .nav > .active > a:focus {
+    background-color: #0F58A1;
+    box-shadow: none;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.navbar .nav > li > a:focus, .navbar .nav > li > a:hover
+{
+    color: #FFFFFF;
+    text-decoration: none;
+    background-color: #0F58A1;
+}
+
+.dropdown-menu {
+    visibility: hidden;
+}
+
+.navbar .nav > li:hover ul {
+    display: block;
+    visibility:visible;
+}
+
+.breadcrumb {
+    margin-bottom:0px;
+}
+
+.breadcrumb li {
+    display: inline-block;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+blockquote p
+{
+    text-indent: 2em;
+    line-height:170%;
+    font-size :110%;
+}
+
+.popover {
+    max-width:none;
+}
+
+article p
+{
+    text-indent: 2em;
+    }
+
+article .panelFileName{
+	background-color:#99CCFF;
+	padding:3px;
+	display:inline
+}
+
+a[href^="http:"]
+{
+    background: url('../../images/site/icon_ExternalLink.png') no-repeat right top;
+    padding-right: 12px;
+}
+a[href^="http://shiba.hpe.cn/jiaoyanzu/wuli"]
+{
+    background: none;
+    padding-right: 0px;
+}
+a[href$=".doc"],a[href$=".docx"],a[href$=".rar"],a[href$=".zip"],a[href$=".pdf"],a[href$=".chm"],a[href$=".fla"]
+{
+    background: url('../../images/site/icon_DownloadLink.png') no-repeat right;
+    padding-right: 17px;
+}
+
+header
+{
+    background-color: #005CB9;
+    background-image: url('../../images/MetroSite/header_bg.png');
+    background-position: center top;
+    background-repeat: no-repeat;
+    margin: 0 auto;
+    width: 100%;
+    height: 150px;
+}
+
+.post_date{
+	color:#666666;
+	font-size:0.8em;
+	font-style:italic
+}
+
+.comment
+{
+    display: block;
+    position: relative;
+    margin-bottom: 10px;
+    width :390px;
+}
+
+.logo
+{
+    display: block;
+    padding-top: 20px;
+    padding-bottom: 11px;
+}
+
+p.user_menu{
+	position:absolute;
+	top:5px;
+	right:15px;
+	text-align:right;
+	color:#93c2e6
+}
+
+.titlePoem{
+	position:absolute;
+	top:45px;
+	left:580px
+}
+
+.column,article
+{
+    border-style: solid;
+    border-width: 3px 1px 1px 1px;
+    border-color: #0066CE #D4D4D4 #D4D4D4 #D4D4D4;
+    background-color: #FFFFFF;
+    padding: 10px 15px 20px 15px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    -moz-box-shadow: 3px 3px 4px #CCC;
+    -webkit-box-shadow: 3px 3px 4px #CCC;
+    box-shadow: 3px 3px 4px #CCC; /* For IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')"; /* For IE 5.5 - 7 */
+    filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+}
+
+article h2
+{
+    text-align: center;
+    background: none repeat scroll 0 0 #1268BF;
+    color: #FFFFFF;
+    font-size: 30px;
+    line-height: 50px;
+    padding-left: 0.5em;
+}
+
+article h3
+{
+    background: none repeat scroll 0 0 #CECECE;
+    font-size: 22px;
+    line-height: 40px;
+    margin-bottom: 30px;
+    margin-left: 15px;
+    margin-top: 40px;
+    padding-left: 0.5em;
+    font-weight: normal;
+}
+    article h4
+    {
+        background: none repeat scroll 0 0 #4C4C4C;
+    color: #FFFFFF;
+    font-size: 18px;
+    line-height: 40px;
+    margin-bottom: 30px;
+    margin-left: 15px;
+    margin-top: 40px;
+    padding-left: 0.5em;
+    }
+
+    article h5
+    {
+        background: none repeat scroll 0 0 #000000;
+    color: #FFFFFF;
+    font-size: 16px;
+    line-height: 40px;
+    margin-left: 15px;
+    margin-top: 40px;
+    padding-left: 0.5em;
+    }
+
+article table,#exerciseListBox table
+{
+    border-collapse: collapse;
+    text-align: center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #c1ced2;
+}
+article td,#exerciseListBox td
+{
+    padding: 10px;
+    border-bottom-color: #c1ced2;
+    border-right-color: #c1ced2;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+}
+article caption,#exerciseListBox caption
+{
+    padding: 0 0 5px 0;
+    text-align: center;
+    font-weight: bold;
+}
+article th,#exerciseListBox th
+{
+    color: #FFFFFF;
+    background: rgb(70, 164, 208);
+    font-weight: bold;
+    padding: 10px;
+}
+
+.column a
+{
+    text-decoration: none;
+}
+
+.list
+{    
+    list-style-image: url('../../images/site/bullet.gif');
+    list-style-type: none;
+}
+
+.list li:hover
+{
+    background-color: #EEEEEE;
+}
+.list ul li
+{
+    border-width: thin thin 1px thin;
+    padding-left: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border-bottom-style: dotted;
+    border-bottom-color: #EEEEEE;
+}
+
+.list li a{
+	text-decoration:none;
+	color :#555555;
+	line-height: 2.0em;
+}
+
+.nav li:hover ul{
+	visibility:visible
+}
+
+footer
+{
+    padding: 20px;
+    background: #0056AD url('../../images/MetroSite/footerHighlights.png') no-repeat scroll 700px top;
+    bottom: 0;
+    clear: both;
+    color: #FFFFFF;
+    font-size: 12px;
+    height: 125px;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 1034px;
+    overflow: hidden;
+    width: 100%;
+    z-index: 2;
+    text-align: center;
+}
+
+.img-wrapper{
+	background:url(../../images/MetroSite/shadow.gif) no-repeat right bottom;
+	float:left;
+	position:relative;
+	margin:5px
+}
+.img-wrapper img{
+	background-color:#fff;
+	border:1px solid #a9a9a9;
+	padding:4px;
+	display:block;
+	margin:-5px 5px 5px -5px;
+	position:relative
+}
+
+.updating
+{
+    padding: 5px 10px 5px 25px;
+    background-position: 5px 5px;
+    border: 2px solid #FCBB29;
+    background-image: url('../../images/MetroSite/loading.gif');
+    background-repeat: no-repeat;
+    background-color: #FFF3D9;
+    color: #FCBB29;
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 3px;
+}
+
+figure, .figure
+{
+    margin: 0,10px,10px,10px;
+}
+figcaption ,.figure p{
+	text-align:left;
+	font-weight:bold;
+	text-indent:0px
+}
+figcaption
+{
+    margin-top: 5px;
+}
+
+.photo-border{
+	border:1px solid #cecece;
+	padding:4px;
+	background:#d9d9d9 url(../../images/MetroSite/bg-photo.png) top repeat-x;
+	margin-bottom:5px;
+	display:block
+}
+.photo-float-left{
+	float:left;
+	margin-right:10px
+}
+.photo-float-right
+{
+    margin: 0px 10px 0px 10px;
+    float: right;
+}
+
+figure img,.figure img {
+  padding: 4px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 自定义的图片外框样式 ，用于物理图库*/
+div .fancyImgWrapper {
+    width: 210px;
+    height: 220px;
+    float: left;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding-top: 5px;
+    position: relative;
+}
+
+.title-overlay {
+    width: 210px;
+    opacity: 0.6;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+    z-index: 5;
+    position: absolute;
+    background: #111;
+    text-align: center;
+    bottom: 0px;
+    left: 0px;
+}
+
+/*覆盖bootStrap*/
+.nav-listItem > li
+{
+    padding: 5px;
+    overflow: visible;
+}
+
+.nav-listItem > li > a
+{
+    padding: 5px;
+    border: 1px solid #C0C0C0;
+    width: 200px;
+    text-align: center;
+}
+.nav-listItem > li > a：hover
+{
+    color: #ffffff;
+    background-color: #0088cc;
+}

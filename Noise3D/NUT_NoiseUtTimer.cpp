@@ -29,7 +29,7 @@ void NoiseUtTimer::SelfDestruction()
 {
 };
 
-void NoiseUtTimer::Next()
+void NoiseUtTimer::NextTick()
 {
 	if(mIsPaused)
 	{
@@ -56,8 +56,27 @@ void NoiseUtTimer::Next()
 
 		//没暂停就更新总时间 单位：ms
 		mTotalTime += mDeltaTime;
+
+		//...to compute FPS
+		++mCurrentSecondTickCount;
+
+		//compute FPS(check if we had fallen into next second)
+
+		if (mCurrentSecondInteger != UINT(mTotalTime/1000.0))
+		{
+			mFPS = mCurrentSecondTickCount;
+			mCurrentSecondTickCount = 0;//reset
+			mCurrentSecondInteger = UINT(mTotalTime / 1000.0);
+		};
+		
 	};
+}
+
+UINT NoiseUtTimer::GetFPS() const
+{
+	return mFPS;
 };
+
 
 double NoiseUtTimer::GetTotalTime()const
 {
@@ -67,7 +86,7 @@ double NoiseUtTimer::GetTotalTime()const
 		return mTotalTime; 
 		break;
 	case NOISE_TIMER_TIMEUNIT_SECOND:
-		return (mTotalTime/1000); 
+		return (mTotalTime/1000.0); 
 		break;
 	};
 	return 0;

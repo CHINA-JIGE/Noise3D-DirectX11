@@ -6,24 +6,26 @@
 ************************************************************************/
 #pragma once
 
+class NoiseUtInputEngine;
+
 //the main GUI management class
 public class _declspec(dllexport) NoiseGUIManager
 {
 public:
-	friend NoiseScene;
-	friend NoiseRenderer;
+	friend class NoiseScene;
+	friend class NoiseRenderer;
 
 	NoiseGUIManager();
 
 	void		SelfDestruction();
 
-	void		AddToRenderList();
+	BOOL	AddChildObjectToRenderList();//Renderer need to be valid
 
-	BOOL	AddButton(NoiseGUIButton* pButton);
+	BOOL	AddButton(NoiseGUIButton& refButton);
 
-	BOOL	AddText(NoiseGUIText* pText);
+	BOOL	AddText(NoiseGUIText& refText);
 
-	void		SetInputEngine(NoiseUtInputEngine* pInputE);
+	void		SetInputEngine(NoiseUtInputEngine& refInputE);
 
 	void		Update();//get info of child objects and update events list
 
@@ -34,14 +36,12 @@ private:
 
 	void		mFunction_UpdateButtons();//including graphic objs / events
 
-	void		mFunction_UpdatePictures();
-
 private:
 	NoiseScene*					m_pFatherScene;
 	NoiseUtInputEngine*	m_pInputEngine;
-	NoiseGraphicObject*								m_pChildGraphicObject;
 	std::vector<NoiseGUIButton*>*			m_pChildButtonList;
 	std::vector<NoiseGUIText*>*				m_pChildTextList;
+	std::vector<NoiseGUIScrollBar*>*			m_pChildScrollBarList;
 	HWND							mWindowHWND;
 };
 

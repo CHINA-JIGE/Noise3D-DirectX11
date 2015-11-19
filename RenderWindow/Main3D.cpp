@@ -16,6 +16,9 @@ NoiseGUIManager		GUIMgr;
 NoiseGUIButton			GUIButton1;
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseFontManager		fontMgr;
+Noise2DTextStatic			myText1;
+Noise2DTextStatic			myText2;
+Noise2DTextDynamic	myText_fps;
 
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 NoiseUtSlicer Slicer;
@@ -42,29 +45,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	return 0;
 }
 
-
-
 BOOL Init3D(HWND hwnd)
 {
 
 	//初始化失败
 	if(!Engine.InitD3D( hwnd,640,480,TRUE))return FALSE;
 
-	Scene.CreateMesh(&Mesh1);
-	Scene.CreateRenderer(&Renderer);
-	Scene.CreateCamera(&Camera);
-	Scene.CreateLightManager(&LightMgr);
-	Scene.CreateGraphicObject(&GraphicObjBuffer);
-	Scene.CreateMaterialManager(&MatMgr);
-	Scene.CreateTextureManager(&TexMgr);
-	Scene.CreateAtmosphere(&Atmos);
-	Scene.CreateGUI(&GUIMgr, &inputE, hwnd);
-
+	Scene.CreateMesh(Mesh1);
+	Scene.CreateRenderer(Renderer);
+	Scene.CreateCamera(Camera);
+	Scene.CreateLightManager(LightMgr);
+	Scene.CreateGraphicObject(GraphicObjBuffer);
+	Scene.CreateMaterialManager(MatMgr);
+	Scene.CreateTextureManager(TexMgr);
+	Scene.CreateAtmosphere(Atmos);
+	Scene.CreateGUI(GUIMgr, inputE, hwnd);
+	Scene.CreateFontManager(fontMgr);
 
 	//漫反射贴图
 	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
-	TexMgr.CreatePureColorTexture("myText", 100, 100, NVECTOR4(0.0f, 0.0f, 0.0f, 0.0f), TRUE);
-	TexMgr.CreateTextureFromFile(L"Earth.jpg","Earth", TRUE,0, 0,TRUE);
+	//TexMgr.CreatePureColorTexture("myText", 300, 100, NVECTOR4(0.0f, 0.0f, 0.0f, 0.0f), TRUE);
+	TexMgr.CreateTextureFromFile(L"Earth.jpg","Earth", TRUE,0, 0,FALSE);
 	TexMgr.CreateTextureFromFile(L"Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
 	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
 	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0, FALSE);
@@ -75,19 +76,18 @@ BOOL Init3D(HWND hwnd)
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("EarthNormalMap"),20.0f);
 
 	//create font texture
-	fontMgr.CreateFontFromFile("msyh_bold.ttf", "myFont", 36);
-	N_Font_Bitmap fontBitmap;
-	fontMgr.GetBitmapOfChar(0, L'哈', fontBitmap,NVECTOR4(1.0f,0,0,0.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
-	for (int j = 0;j < fontBitmap.height;j++)
-	{
-		for (int i = 0;i < fontBitmap.width;i++)
-		{
-			TexMgr.SetPixel_SysMem(TexMgr.GetTextureID("myText"), i, j, fontBitmap.bitmapBuffer.at(j*fontBitmap.width + i));
+	fontMgr.CreateFontFromFile("msyh_bold.ttf", "myFont", 24);
 
-		}
-	}
-	TexMgr.UpdateTextureDataToGraphicMemory(0);
+	fontMgr.CreateStaticTextW(0, L"几阿斯达斯柯家哈萨克时代科技啊哈撒是s136gd+_O:das13153!#^!#...", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
+	myText1.SetTextColor(NVECTOR4(1.0f, 0, 0, 0.5f));
+	myText1.SetCenterPos(300.0f, 100.0f);
+	fontMgr.CreateStaticTextW(0, L"几鸡哥哈哈哈啊哈hsadas[][];].]ldfsdfs136gd+_O:das13153!#^!#...", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 3, 0, myText2);
+	myText2.SetTextColor(NVECTOR4(0.5f, 0.3f, 1.0f, 0.5f));
+	myText2.SetCenterPos(100.0f,150.0f);
+	fontMgr.CreateDynamicTextA(0, "hwqrqfasf134163!@%!@%.12.321", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
+	myText_fps.SetTextColor(NVECTOR4(0,0.3f,1.0f,0.5f));
+	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(100, 50));
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
@@ -140,11 +140,11 @@ BOOL Init3D(HWND hwnd)
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetTextureID("BottomRightTitle"));
 	
 	//GUI System
-	GUIMgr.AddButton(&GUIButton1);
+	GUIMgr.AddButton(GUIButton1);
 	GUIMgr.SetWindowHWND(hwnd);
 	GUIButton1.SetCenterPos(50.0f, 50.0f);
-	GUIButton1.SetWidth(100.0f);
-	GUIButton1.SetHeight(70.0f);
+	GUIButton1.SetWidth(300.0f);
+	GUIButton1.SetHeight(100.0f);
 	GUIButton1.SetDragableX(TRUE);
 	GUIButton1.SetDragableY(TRUE);
 	GUIButton1.SetTexture_MouseAway(TexMgr.GetTextureID("myText"));
@@ -187,24 +187,33 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	GUIMgr.Update();
-
 	InputProcess();
-
 	Renderer.ClearBackground();
+	NTimer.NextTick();
+
+	//update fps lable
+	std::stringstream tmpS;
+	tmpS <<"FPS :" <<NTimer.GetFPS();//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
+	myText_fps.SetTextAscii(tmpS.str());
 
 	//add to render list
-	Mesh1.AddToRenderList();
-	GraphicObjBuffer.AddToRenderList();
-	Atmos.AddToRenderList();
-	GUIMgr.AddToRenderList();
+	Renderer.AddOjectToRenderList(Mesh1);
+	Renderer.AddOjectToRenderList(GraphicObjBuffer);
+	Renderer.AddOjectToRenderList(Atmos);
+	Renderer.AddOjectToRenderList(myText1);
+	Renderer.AddOjectToRenderList(myText2);
+	Renderer.AddOjectToRenderList(myText_fps);
+	//GUIMgr.AddChildObjectToRenderList();
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderMeshInList();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderAtmosphereInList();
-	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
 	Renderer.RenderGraphicObjectInList();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
+	Renderer.RenderText2DInList();
 
 	//present
 	Renderer.RenderToScreen();
@@ -259,11 +268,11 @@ void Cleanup()
 	inputE.SelfDestruction();
 	Slicer.SelfDestruction();
 	NTimer.SelfDestruction();
-	fontMgr.SelfDestruction();
 
 	Engine.ReleaseAll();
 	Scene.ReleaseAllChildObject();
 };
+
 
 UINT Button1MsgProc(UINT msg)
 {

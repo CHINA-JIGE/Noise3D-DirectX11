@@ -659,18 +659,6 @@ void NoiseMesh::SetMaterial(std::string matName)
 	SetMaterial(matID);
 }
 
-BOOL NoiseMesh::AddToRenderList()
-{
-	if(m_pFatherScene == NULL)
-	{
-		DEBUG_MSG1("NoiseScene Has Not Been Created!");
-		return FALSE;
-	}
-	//scene是它的友元类；往Scene里管理的RenderList加上自己的指针
-	m_pFatherScene->m_pChildRenderer->m_pRenderList_Mesh->push_back(this);
-	return TRUE;
-};
-
 void NoiseMesh::SetPosition(float x,float y,float z)
 {
 	m_pPosition->x =x;

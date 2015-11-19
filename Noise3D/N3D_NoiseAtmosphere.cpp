@@ -33,23 +33,6 @@ void NoiseAtmosphere::SelfDestruction()
 
 };
 
-BOOL NoiseAtmosphere::AddToRenderList()
-{
-	if (m_pFatherScene == NULL)
-	{
-		DEBUG_MSG1("NoiseScene Has Not Been Created!");
-		return FALSE;
-	}
-	
-	//scene是它的友元类；往Scene里管理的RenderList加上自己的指针
-	m_pFatherScene->m_pChildRenderer->m_pRenderList_Atmosphere->push_back(this);
-
-	//this sentence is to unify render command, that fog color will only be rendered after ADDTORENDERLIST();
-	mFogHasBeenAddedToRenderList = TRUE;
-
-	return TRUE;
-}
-
 void NoiseAtmosphere::SetFogEnabled(BOOL isEnabled)
 {
 	mFogEnabled = isEnabled;
@@ -80,8 +63,8 @@ void NoiseAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 colo
 BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 {
 	//check if the input "Step Count" is illegal
-	UINT iColumnCount		= 25;
-	UINT iRingCount			= 30;
+	UINT iColumnCount		= 30;
+	UINT iRingCount			= 25;
 	UINT tmpVertexCount	= 0;
 	UINT tmpIndexCount	= 0;
 

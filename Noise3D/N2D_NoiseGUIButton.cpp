@@ -12,10 +12,11 @@
 NoiseGUIButton::NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent))
 {
 	*m_pBasicColor = NVECTOR4(0.3f,0.3f,1.0f,1.0f);
+	m_pGraphicObj = new NoiseGraphicObject;
 	mTextureID_MouseAway				= NOISE_MACRO_INVALID_TEXTURE_ID;
 	mTextureID_MouseOn					= NOISE_MACRO_INVALID_TEXTURE_ID;
 	mTextureID_MousePressedDown	= NOISE_MACRO_INVALID_TEXTURE_ID;
-	mGraphicObject_RectID				= NOISE_MACRO_INVALID_GRAPHICOBJ_ID;
+	mGraphicObject_RectID				= NOISE_MACRO_INVALID_ID;
 	mButtonState = NOISE_GUI_BUTTON_STATE_COMMON;
 	mButtonHasBeenPressedDown = FALSE;
 	mIsDragableX = FALSE;

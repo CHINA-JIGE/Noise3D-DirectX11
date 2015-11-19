@@ -17,6 +17,8 @@ public class _declspec(dllexport) NoiseScene
 	friend class NoiseTextureManager;
 	friend class NoiseAtmosphere;
 	friend class NoiseGUIManager;
+	friend class NoiseFontManager;
+
 
 public:
 	//¹¹Ôìº¯Êý
@@ -24,25 +26,41 @@ public:
 
 	void				ReleaseAllChildObject();
 
-	UINT				CreateMesh(NoiseMesh* pMesh);
+	UINT				CreateMesh(NoiseMesh& refMesh);
 	
-	BOOL			CreateRenderer(NoiseRenderer* pRenderer);
+	BOOL			CreateRenderer(NoiseRenderer& refRenderer);
 
-	BOOL			CreateCamera(NoiseCamera* pSceneCam);
+	BOOL			CreateCamera(NoiseCamera& refSceneCam);
 
-	BOOL			CreateLightManager(NoiseLightManager* pLightMgr);
+	BOOL			CreateLightManager(NoiseLightManager& refLightMgr);
 
-	UINT				CreateGraphicObject(NoiseGraphicObject* pGraphicObj);
+	UINT				CreateGraphicObject(NoiseGraphicObject& refGraphicObj);
 
-	BOOL			CreateTextureManager(NoiseTextureManager* pTexMgr);
+	BOOL			CreateTextureManager(NoiseTextureManager& refTexMgr);
 
-	BOOL			CreateMaterialManager(NoiseMaterialManager* pMatMgr);
+	BOOL			CreateMaterialManager(NoiseMaterialManager& refMatMgr);
 
-	BOOL			CreateAtmosphere(NoiseAtmosphere* pAtmosphere);
+	BOOL			CreateAtmosphere(NoiseAtmosphere& refAtmosphere);
 
-	BOOL			CreateGUI(NoiseGUIManager* pGUI, NoiseUtInputEngine* pInputE,HWND hwnd);
+	BOOL			CreateGUI(NoiseGUIManager& refGUI, NoiseUtInputEngine& refInputE,HWND hwnd);
 
-	void				SetCamera(NoiseCamera* pSceneCam);
+	BOOL			CreateFontManager(NoiseFontManager& refFMgr);
+
+	void			BindRenderer(NoiseRenderer& refRenderer);
+
+	void			BindLightManager(NoiseLightManager& refLightMgr);
+
+	void			BindTextureManager(NoiseTextureManager& refTexMgr);
+
+	void			BindMaterialManager(NoiseMaterialManager& refMatMgr);
+
+	void			BindAtmosphere(NoiseAtmosphere& refAtmosphere);
+
+	void			BindGUI(NoiseGUIManager& refGUI);
+
+	void			BindFontManager(NoiseFontManager& refFMgr);
+
+	void			BindCamera(NoiseCamera& refSceneCam);
 
 	NoiseRenderer*					GetRenderer();
 
@@ -54,8 +72,12 @@ public:
 
 	NoiseMaterialManager*	GetMaterialMgr();
 
-private:
+	NoiseFontManager*			GetFontMgr();
 
+	NoiseGUIManager*			GetGUIManager();
+
+private:
+	
 	NoiseCamera*							m_pChildCamera;
 
 	NoiseRenderer*							m_pChildRenderer;
@@ -64,11 +86,15 @@ private:
 
 	NoiseTextureManager*				m_pChildTextureMgr;
 
-	NoiseMaterialManager*					m_pChildMaterialMgr;
+	NoiseMaterialManager*			m_pChildMaterialMgr;
 
-	NoiseAtmosphere*							m_pChildAtmosphere;
+	NoiseAtmosphere*					m_pChildAtmosphere;
 
-	NoiseGUIManager*											m_pChildGUI;
+	NoiseGUIManager*					m_pChildGUIMgr;
+
+	NoiseFontManager*					m_pChildFontMgr;
+
+
 
 	std::vector<NoiseMesh*> *				m_pChildMeshList;
 

@@ -23,9 +23,11 @@ NoiseRenderer::NoiseRenderer()
 {
 	m_pFatherScene			= nullptr;
 	mCanUpdateCbCameraMatrix = FALSE;
-	m_pRenderList_Mesh				= new std::vector <NoiseMesh*>;
-	m_pRenderList_GraphicObject	= new std::vector<NoiseGraphicObject*>;
-	m_pRenderList_Atmosphere		= new std::vector<NoiseAtmosphere*>;
+	m_pRenderList_Mesh			= new std::vector <NoiseMesh*>;
+	m_pRenderList_CommonGraphicObject	= new std::vector<NoiseGraphicObject*>;
+	m_pRenderList_TextDynamic = new std::vector<Noise2DTextDynamic*>;
+	m_pRenderList_TextStatic		= new std::vector<Noise2DTextStatic*>;
+	m_pRenderList_Atmosphere	= new std::vector<NoiseAtmosphere*>;
 	m_pFX = nullptr;
 	m_pFX_Tech_Default = nullptr;
 	m_pFX_Tech_Solid3D = nullptr;
@@ -129,11 +131,6 @@ void	NoiseRenderer::RenderMeshInList()
 void NoiseRenderer::RenderGraphicObjectInList()
 {
 	//validation before rendering
-	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
-	{
-		DEBUG_MSG1("Noise Renderer : Material Mgr has not been created");
-		return;
-	};
 	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
 	{
 		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
@@ -153,12 +150,12 @@ void NoiseRenderer::RenderGraphicObjectInList()
 	//设置depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
-
-	mFunction_GraphicObj_RenderLine2DInList();
-	mFunction_GraphicObj_RenderLine3DInList();
-	mFunction_GraphicObj_RenderPoint3DInList();
-	mFunction_GraphicObj_RenderPoint2DInList();
-	mFunction_GraphicObj_RenderTriangle2DInList();
+	//render various kinds of primitives
+	mFunction_CommonGraphicObj_RenderLine2DInList();
+	mFunction_CommonGraphicObj_RenderLine3DInList();
+	mFunction_CommonGraphicObj_RenderPoint3DInList();
+	mFunction_CommonGraphicObj_RenderPoint2DInList();
+	mFunction_CommonGraphicObj_RenderTriangle2DInList();
 }
 
 void NoiseRenderer::RenderAtmosphereInList()
@@ -231,7 +228,115 @@ void NoiseRenderer::RenderAtmosphereInList()
 
 	//allow atmosphere to "add to render list" again 
 	tmp_pAtmo->mFogHasBeenAddedToRenderList = FALSE;
+}
+
+void NoiseRenderer::RenderText2DInList()
+{
+	//validation before rendering
+	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
+	{
+		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		return;
+	};
+
+	//设置fillmode和cullmode
+	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+
+	//设置blend state
+	mFunction_SetBlendState(m_BlendMode);
+
+	//设置samplerState
+	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+
+	//设置depth/Stencil State
+	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+
+	mFunction_TextGraphicObj_RenderTriangles();
+}
+
+
+void NoiseRenderer::AddOjectToRenderList(NoiseMesh& obj)
+{
+
+	m_pRenderList_Mesh->push_back(&obj);
 };
+
+void NoiseRenderer::AddOjectToRenderList(NoiseGraphicObject& obj)
+{
+	m_pRenderList_CommonGraphicObject->push_back(&obj);
+
+	//Update Data to GPU if data is not up to date , 5 object types for now
+	for (UINT i = 0;i < 5;i++)
+	{
+		if (obj.mCanUpdateToGpu[i])
+		{
+			obj.mFunction_UpdateVerticesToGpu(i);
+			obj.mCanUpdateToGpu[i] = FALSE;
+		}
+	}
+}
+
+void NoiseRenderer::AddOjectToRenderList(NoiseAtmosphere& obj)
+{
+	m_pRenderList_Atmosphere->push_back(&obj);
+	//fog color will only be rendered after ADDTORENDERLIST();
+	obj.mFogHasBeenAddedToRenderList = TRUE;
+};
+
+void NoiseRenderer::AddOjectToRenderList(NoiseGUIButton & obj)
+{
+	//internal graphic object
+	AddOjectToRenderList(*obj.m_pGraphicObj);
+};
+
+void NoiseRenderer::AddOjectToRenderList(NoiseGUIScrollBar & obj)
+{
+	//internal graphic object
+	AddOjectToRenderList(*obj.m_pGraphicObj);
+};
+
+void NoiseRenderer::AddOjectToRenderList(NoiseGUIText & obj)
+{
+	//internal graphic object
+	AddOjectToRenderList(*obj.m_pGraphicObj);
+};
+
+void NoiseRenderer::AddOjectToRenderList(Noise2DTextDynamic & obj)
+{
+	//internal graphic object
+	m_pRenderList_TextDynamic->push_back(&obj);
+	obj.mFunction_UpdateGraphicObject();
+
+	//Update Data to GPU if data is not up to date , 5 object types for now
+	for (UINT i = 0;i < 5;i++)
+	{
+		if (obj.m_pGraphicObj->mCanUpdateToGpu[i])
+		{
+			obj.m_pGraphicObj->mFunction_UpdateVerticesToGpu(i);
+			obj.m_pGraphicObj->mCanUpdateToGpu[i] = FALSE;
+		}
+	}
+}
+
+void NoiseRenderer::AddOjectToRenderList(Noise2DTextStatic & obj)
+{
+	//internal graphic object
+	m_pRenderList_TextStatic->push_back(&obj);
+	obj.mFunction_UpdateGraphicObject();
+
+	//Update Data to GPU if data is not up to date , 5 object types for now
+	for (UINT i = 0;i < 5;i++)
+	{
+		if (obj.m_pGraphicObj->mCanUpdateToGpu[i])
+		{
+			obj.m_pGraphicObj->mFunction_UpdateVerticesToGpu(i);
+			obj.m_pGraphicObj->mCanUpdateToGpu[i] = FALSE;
+		}
+	}
+};
+
+
+
 
 void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 {
@@ -244,13 +349,13 @@ void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 
 void	NoiseRenderer::RenderToScreen()
 {
-		g_pSwapChain->Present( 0, 0 );
+		g_pSwapChain->Present(0, 0 );
 
 		//reset some state
 		mCanUpdateCbCameraMatrix = TRUE;
 
 		//clear render list
-		m_pRenderList_GraphicObject->clear();
+		m_pRenderList_CommonGraphicObject->clear();
 		m_pRenderList_Mesh->clear();
 		m_pRenderList_Atmosphere->clear();
 };
@@ -279,14 +384,15 @@ BOOL	NoiseRenderer::mFunction_Init()
 {
 	HRESULT hr = S_OK;
 
-	mFunction_Init_CreateEffectFromMemory("Main.fxo");
+	mFunction_Init_CreateEffectFromMemory("shader\\Main.fxo");
 
 	//创建Technique
-	m_pFX_Tech_Default = m_pFX->GetTechniqueByName("DefaultDraw");
-	m_pFX_Tech_Solid3D = m_pFX->GetTechniqueByName("DrawSolid3D");
-	m_pFX_Tech_Solid2D = m_pFX->GetTechniqueByName("DrawSolid2D");
+	m_pFX_Tech_Default =	m_pFX->GetTechniqueByName("DefaultDraw");
+	m_pFX_Tech_Solid3D =	m_pFX->GetTechniqueByName("DrawSolid3D");
+	m_pFX_Tech_Solid2D =	m_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_Textured2D = m_pFX->GetTechniqueByName("DrawTextured2D");
 	m_pFX_Tech_DrawSky = m_pFX->GetTechniqueByName("DrawSky");
+	m_pFX_Tech_DrawText2D =	m_pFX->GetTechniqueByName("DrawText2D");
 
 #pragma region Create Input Layout
 	//default vertex input layout
@@ -319,6 +425,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	m_pFX_CbRarely=m_pFX->GetConstantBufferByName("cbRarely");
 	m_pFX_CbSolid3D = m_pFX->GetConstantBufferByName("cbCameraMatrix");
 	m_pFX_CbAtmosphere = m_pFX->GetConstantBufferByName("cbAtmosphere");
+	m_pFX_CbDrawText2D = m_pFX->GetConstantBufferByName("cbDrawText2D");
 
 	//纹理
 	m_pFX_Texture_Diffuse = m_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
@@ -341,7 +448,7 @@ BOOL	NoiseRenderer::mFunction_Init()
 	return TRUE;
 }
 
-BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
+BOOL	NoiseRenderer::mFunction_Init_CreateBlendState()
 {
 
 	//source color : the first color in blending equation
@@ -405,7 +512,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateBlendState()
 	return TRUE;
 };
 
-BOOL NoiseRenderer::mFunction_Init_CreateRasterState()
+BOOL	NoiseRenderer::mFunction_Init_CreateRasterState()
 {
 	HRESULT hr = S_OK;
 	//创建预设的光栅化state
@@ -446,7 +553,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateRasterState()
 	return TRUE;
 };
 
-BOOL NoiseRenderer::mFunction_Init_CreateSamplerState()
+BOOL	NoiseRenderer::mFunction_Init_CreateSamplerState()
 {
 	HRESULT hr = S_OK;
 
@@ -465,7 +572,7 @@ BOOL NoiseRenderer::mFunction_Init_CreateSamplerState()
 	return TRUE;
 };
 
-BOOL NoiseRenderer::mFunction_Init_CreateDepthStencilState()
+BOOL	NoiseRenderer::mFunction_Init_CreateDepthStencilState()
 {
 	HRESULT hr = S_OK;
 	//depth stencil state
@@ -651,6 +758,7 @@ void		NoiseRenderer::mFunction_CameraMatrix_Update()
 	}
 };
 
+
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
 	
@@ -734,7 +842,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 {
 		//we dont accept invalid material ,but accept invalid texture
 		UINT	 currSubsetMatID = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matID;
-		currSubsetMatID = mFunction_ValidateMaterialID(currSubsetMatID);
+		currSubsetMatID = mFunction_ValidateMaterialID_UsingMatMgr(currSubsetMatID);
 
 		//otherwise if the material is valid
 		//then we should check if its child textureS are valid too 
@@ -743,13 +851,13 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 		m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
 
 		//first validate if ID is valid (within range / valid ID) valid== return original texID
-		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID(tmpMat.diffuseMapID,NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID_UsingTexMgr(tmpMat.diffuseMapID,NOISE_TEXTURE_TYPE_COMMON) 
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID(tmpMat.normalMapID, NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID_UsingTexMgr(tmpMat.normalMapID, NOISE_TEXTURE_TYPE_COMMON) 
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID(tmpMat.specularMapID, NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID_UsingTexMgr(tmpMat.specularMapID, NOISE_TEXTURE_TYPE_COMMON) 
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsEnvironmentMapValid = (mFunction_ValidateTextureID(tmpMat.cubeMap_environmentMapID, NOISE_TEXTURE_TYPE_CUBEMAP)
+		m_CbPerSubset.IsEnvironmentMapValid = (mFunction_ValidateTextureID_UsingTexMgr(tmpMat.cubeMap_environmentMapID, NOISE_TEXTURE_TYPE_CUBEMAP)
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 
 
@@ -799,22 +907,23 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
 	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject,0,sizeof(m_CbPerObject));
 };
 
-void		NoiseRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
+
+void		NoiseRenderer::mFunction_CommonGraphicObj_Update_RenderTextured2D(UINT TexID)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
 
 	//......
-	TexID = mFunction_ValidateTextureID(TexID,NOISE_TEXTURE_TYPE_COMMON);
+	TexID = mFunction_ValidateTextureID_UsingTexMgr(TexID,NOISE_TEXTURE_TYPE_COMMON);
 
 	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(TexID).m_pSRV;
 		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
-};
+}
 
-void		NoiseRenderer::mFunction_GraphicObj_RenderLine3DInList()
+void		NoiseRenderer::mFunction_CommonGraphicObj_RenderLine3DInList()
 {
 	tmp_pCamera = m_pFatherScene->GetCamera();
 
@@ -823,10 +932,10 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine3DInList()
 
 	//更新完cb就可以开始draw了
 	ID3D11Buffer* tmp_pVB = NULL;
-	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	for (UINT i = 0;i < m_pRenderList_CommonGraphicObject->size();i++)
 	{
 		//把RenderList的所有GraphicObject的line3D都渲染一次
-		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
+		tmp_pVB = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
@@ -837,14 +946,14 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine3DInList()
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D]->size();
+		UINT vCount = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D]->size();
 		if(vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 
 }
 
-void		NoiseRenderer::mFunction_GraphicObj_RenderPoint3DInList()
+void		NoiseRenderer::mFunction_CommonGraphicObj_RenderPoint3DInList()
 {
 	tmp_pCamera = m_pFatherScene->GetCamera();
 
@@ -853,10 +962,10 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint3DInList()
 
 	//更新完cb就可以开始draw了
 	ID3D11Buffer* tmp_pVB = NULL;
-	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	for (UINT i = 0;i < m_pRenderList_CommonGraphicObject->size();i++)
 	{
 		//把RenderList的所有GraphicObject的line3D都渲染一次
-		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
+		tmp_pVB = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
@@ -867,21 +976,21 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint3DInList()
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size();
+		UINT vCount = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size();
 		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 }
 
-void		NoiseRenderer::mFunction_GraphicObj_RenderLine2DInList()
+void		NoiseRenderer::mFunction_CommonGraphicObj_RenderLine2DInList()
 {
 
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = NULL;
-	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	for (UINT i = 0;i < m_pRenderList_CommonGraphicObject->size();i++)
 	{
 		//把RenderList的所有GraphicObject的line3D都渲染一次
-		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
+		tmp_pVB = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
@@ -892,20 +1001,20 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderLine2DInList()
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D]->size();
+		UINT vCount = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D]->size();
 		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 };
 
-void		NoiseRenderer::mFunction_GraphicObj_RenderPoint2DInList()
+void		NoiseRenderer::mFunction_CommonGraphicObj_RenderPoint2DInList()
 {
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = NULL;
-	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	for (UINT i = 0;i < m_pRenderList_CommonGraphicObject->size();i++)
 	{
 		//把RenderList的所有GraphicObject的line3D都渲染一次
-		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
+		tmp_pVB = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
@@ -916,22 +1025,22 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderPoint2DInList()
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		UINT vCount = m_pRenderList_GraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size();
+		UINT vCount = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size();
 		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
 
 };
 
-void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
+void		NoiseRenderer::mFunction_CommonGraphicObj_RenderTriangle2DInList()
 {
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = NULL;
 
 
-	for (UINT i = 0;i < m_pRenderList_GraphicObject->size();i++)
+	for (UINT i = 0;i < m_pRenderList_CommonGraphicObject->size();i++)
 	{
 		//把RenderList的所有GraphicObject的line3D都渲染一次
-		tmp_pVB = m_pRenderList_GraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
+		tmp_pVB = m_pRenderList_CommonGraphicObject->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
@@ -946,7 +1055,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 
 
 		//1,draw common triangle
-		for (auto tmpTriangleID : *(m_pRenderList_GraphicObject->at(i)->m_pRegionList_TriangleID_Common))
+		for (auto tmpTriangleID : *(m_pRenderList_CommonGraphicObject->at(i)->m_pRegionList_TriangleID_Common))
 		{
 			m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			//m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -955,7 +1064,7 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 
 
 		//2,draw rectangles
-		for (auto tmpRegion : *(m_pRenderList_GraphicObject->at(i)->m_pRegionList_TriangleID_Rect))
+		for (auto tmpRegion : *(m_pRenderList_CommonGraphicObject->at(i)->m_pRegionList_TriangleID_Rect))
 		{
 			//if current Rectangle disable Texture ,then draw in a solid way
 			if (tmpRegion.texID == NOISE_MACRO_INVALID_TEXTURE_ID)
@@ -964,18 +1073,18 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 			}
 			else
 			{
-				//update texture to GPU first
-				mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texID);
+				//------Draw 2D Common Texture-----
+				mFunction_CommonGraphicObj_Update_RenderTextured2D(tmpRegion.texID);
 				m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 
 			//draw 
-			g_pImmediateContext->Draw(6, tmpRegion.startID * 3);
+			g_pImmediateContext->Draw(tmpRegion.elememtCount*3, tmpRegion.startID * 3);
 		}
 
 
 		//3, Draw Ellipse
-		for (auto tmpRegion : *(m_pRenderList_GraphicObject->at(i)->m_pRegionList_TriangleID_Ellipse))
+		for (auto tmpRegion : *(m_pRenderList_CommonGraphicObject->at(i)->m_pRegionList_TriangleID_Ellipse))
 		{
 			//if current Rectangle disable Texture ,then draw in a solid way
 			if (tmpRegion.texID == NOISE_MACRO_INVALID_TEXTURE_ID)
@@ -984,8 +1093,8 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 			}
 			else
 			{
-				//update texture to GPU first
-				mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texID);
+				//set GPU texture  first
+				mFunction_CommonGraphicObj_Update_RenderTextured2D(tmpRegion.texID);
 				m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 
@@ -996,8 +1105,121 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList()
 	}
 
 	//清空渲染列表
-	m_pRenderList_GraphicObject->clear();
+	m_pRenderList_CommonGraphicObject->clear();
 }
+
+
+void	 NoiseRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText)
+{
+	//Get Shader Resource View
+	ID3D11ShaderResourceView* tmp_pSRV = NULL;
+
+	//......
+	//texID = mFunction_ValidateTextureID_UsingTexMgr(texID, NOISE_TEXTURE_TYPE_TEXT,NOISE_TEXTURE_ACCESS_PERMISSION_FONTMGR);
+
+	if (texID != NOISE_MACRO_INVALID_TEXTURE_ID)
+	{
+		HRESULT hr = S_OK;
+		m_CbDrawText2D = (N_CbDrawText2D)cbText;
+		//update Constant buffer
+		m_pFX_CbDrawText2D->SetRawValue(&m_CbDrawText2D, 0,sizeof(m_CbDrawText2D));
+
+		//update textures
+		tmp_pSRV = pTexMgr->m_pTextureObjectList->at(texID).m_pSRV;
+		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+	}
+};
+
+void	NoiseRenderer::mFunction_TextGraphicObj_RenderTriangles()
+{
+	//prepare to draw , various settings.....
+	ID3D11Buffer* tmp_pVB = NULL;
+
+	//fxxking  copied code .....
+
+	for (UINT i = 0;i < m_pRenderList_TextDynamic->size();i++)
+	{
+		//把RenderList的所有GraphicObject的line3D都渲染一次
+		tmp_pVB = m_pRenderList_TextDynamic->at(i)->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
+		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
+		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//traverse all region list 
+
+		//draw rectangles
+		for (auto tmpRegion : *(m_pRenderList_TextDynamic->at(i)->m_pGraphicObj->m_pRegionList_TriangleID_Rect))
+		{
+			//texture must be valid
+			if (tmpRegion.texID != NOISE_MACRO_INVALID_TEXTURE_ID)
+				{
+					//fill cb struct......
+					N_CbDrawText2D tmpCbText;
+					ZeroMemory(&tmpCbText, sizeof(tmpCbText));
+					tmpCbText.mTextColor = *(m_pRenderList_TextDynamic->at(i)->m_pTextColor);
+					tmpCbText.mTextGlowColor = *(m_pRenderList_TextDynamic->at(i)->m_pTextGlowColor);
+
+					//update colors of text(cb & srv)
+					mFunction_TextGraphicObj_Update_TextInfo(tmpRegion.texID, m_pRenderList_TextDynamic->at(i)->m_pFatherFontMgr->m_pTexMgr,tmpCbText);
+					m_pFX_Tech_DrawText2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+
+					//draw 
+					g_pImmediateContext->Draw(tmpRegion.elememtCount * 3, tmpRegion.startID * 3);
+				}
+
+		}
+
+	}
+
+	for (UINT i = 0;i < m_pRenderList_TextStatic->size();i++)
+	{
+		//把RenderList的所有GraphicObject的line3D都渲染一次
+		tmp_pVB = m_pRenderList_TextStatic->at(i)->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
+		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &VBstride_Simple, &VBoffset);
+		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//traverse all region list 
+
+		//draw rectangles
+		for (auto tmpRegion : *(m_pRenderList_TextStatic->at(i)->m_pGraphicObj->m_pRegionList_TriangleID_Rect))
+		{
+			//DEBUG_MSG3(tmpRegion.texID,"   type:",m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpRegion.texID).mTextureType);
+			
+			//validate texture ID
+			UINT validatedTexID = mFunction_ValidateTextureID_UsingTexMgr(tmpRegion.texID);
+
+			//texture must be valid and it must be a TEXT TEXTURE
+			if(validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+			{
+				//fill cb struct......
+				N_CbDrawText2D tmpCbText;
+				ZeroMemory(&tmpCbText, sizeof(tmpCbText));
+				tmpCbText.mTextColor = *(m_pRenderList_TextStatic->at(i)->m_pTextColor);
+				tmpCbText.mTextGlowColor = *(m_pRenderList_TextStatic->at(i)->m_pTextGlowColor);
+
+				//update colors of text(cb & srv)
+				mFunction_TextGraphicObj_Update_TextInfo(validatedTexID, m_pRenderList_TextStatic->at(i)->m_pFatherFontMgr->m_pTexMgr,tmpCbText);
+				//m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+				m_pFX_Tech_DrawText2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+
+				//draw 
+				g_pImmediateContext->Draw(tmpRegion.elememtCount * 3, tmpRegion.startID * 3);
+			}
+
+		}
+
+	}
+
+
+
+	//clear render list
+	m_pRenderList_TextStatic->clear();
+	m_pRenderList_TextDynamic->clear();
+};
+
 
 void		NoiseRenderer::mFunction_Atmosphere_Fog_Update()
 {
@@ -1024,7 +1246,7 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyDome_Update()
 	if(tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
 	{
 		//if texture pass ID validation and match current-set skytype
-		m_CbAtmosphere.mIsSkyDomeValid = (mFunction_ValidateTextureID(skyDomeTexID,NOISE_TEXTURE_TYPE_COMMON) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbAtmosphere.mIsSkyDomeValid = (mFunction_ValidateTextureID_UsingTexMgr(skyDomeTexID,NOISE_TEXTURE_TYPE_COMMON) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 	}
 	else
 	{
@@ -1042,7 +1264,7 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
 	if (tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
 		//skybox texture must be a cube map
-		m_CbAtmosphere.mIsSkyBoxValid		= (mFunction_ValidateTextureID(skyboxTexID, NOISE_TEXTURE_TYPE_CUBEMAP) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbAtmosphere.mIsSkyBoxValid		= (mFunction_ValidateTextureID_UsingTexMgr(skyboxTexID, NOISE_TEXTURE_TYPE_CUBEMAP) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 		m_CbAtmosphere.mSkyBoxWidth		= tmp_pAtmo->mSkyBoxWidth;
 		m_CbAtmosphere.mSkyBoxHeight	= tmp_pAtmo->mSkyBoxHeight;
 		m_CbAtmosphere.mSkyBoxDepth		= tmp_pAtmo->mSkyBoxDepth;
@@ -1082,7 +1304,8 @@ void		NoiseRenderer::mFunction_Atmosphere_UpdateCbAtmosphere()
 	m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
 };
 
-UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType)
+
+inline UINT	NoiseRenderer::mFunction_ValidateTextureID_UsingTexMgr(UINT texID, NOISE_TEXTURE_TYPE texType)
 {
 	//tex mgr had been validated
 	NoiseTextureManager*		tmpTexMgr = m_pFatherScene->m_pChildTextureMgr;
@@ -1093,7 +1316,7 @@ UINT		NoiseRenderer::mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE 
 	return outTexID;
 }
 
-UINT		NoiseRenderer::mFunction_ValidateMaterialID(UINT matID)
+inline UINT	NoiseRenderer::mFunction_ValidateMaterialID_UsingMatMgr(UINT matID)
 {
 	//mat mgr had been validated
 	NoiseMaterialManager*	tmpMatMgr = m_pFatherScene->m_pChildMaterialMgr;

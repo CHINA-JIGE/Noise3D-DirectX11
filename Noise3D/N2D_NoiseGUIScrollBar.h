@@ -8,10 +8,11 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseGUIScrollBar :public NoiseGUIBasicContainerInfo
+public class _declspec(dllexport) NoiseGUIScrollBar :public Noise2DBasicContainerInfo
 {
 public:
 	friend class NoiseGUIManager;
+	friend class NoiseRenderer;
 
 	NoiseGUIScrollBar();
 
@@ -19,6 +20,7 @@ public:
 
 private:
 	NoiseGUIManager*		m_pFatherGUIMgr;
+	NoiseGraphicObject*		m_pGraphicObj;
 
 	NoiseGUIButton*			m_pScrollButton;
 	UINT								mTextureID_Groove;

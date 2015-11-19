@@ -13,6 +13,10 @@ SamplerState sampler2D_ANISOTROPIC
 	AddressW = Wrap;
 };
 
-
+cbuffer cbDrawText2D
+{
+	float4 	g2D_TextColor;
+	float4	g2D_TextGlowColor;
+}
 
 Texture2D g2D_DiffuseMap;

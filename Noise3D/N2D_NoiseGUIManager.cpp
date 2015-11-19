@@ -11,72 +11,82 @@
 
 NoiseGUIManager::NoiseGUIManager()
 {
-	m_pChildGraphicObject = new NoiseGraphicObject;
 	m_pChildButtonList	= new std::vector<NoiseGUIButton*>;
 	m_pChildTextList		= new std::vector<NoiseGUIText*>;
+	m_pChildScrollBarList = new std::vector<NoiseGUIScrollBar*>;
 }
 
 void NoiseGUIManager::SelfDestruction()
 {
-	m_pChildGraphicObject->SelfDestruction();
+	for (auto obj : *m_pChildButtonList)
+	{
+		if(obj)obj->m_pGraphicObj->SelfDestruction();
+	}
+
+	for (auto obj : *m_pChildTextList)
+	{
+		if (obj)obj->m_pGraphicObj->SelfDestruction();
+	}
+
+	for (auto obj : *m_pChildScrollBarList)
+	{
+		if (obj)obj->m_pGraphicObj->SelfDestruction();
+	}
 };
 
 
-void	NoiseGUIManager::AddToRenderList()
+BOOL	NoiseGUIManager::AddChildObjectToRenderList()
 {
-	if (!m_pFatherScene)return;
+	NOISE_MACRO_ADDTORENDERLIST_SCENE_RENDERER_VALIDATE();
 
-	m_pChildGraphicObject->AddToRenderList();
+	for (auto obj : *m_pChildButtonList)
+	{
+		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
+	}
+	for (auto obj : *m_pChildTextList)
+	{
+		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
+	}
+
+	for (auto obj : *m_pChildScrollBarList)
+	{
+		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
+	}
+	return TRUE;
 };
 
-BOOL NoiseGUIManager::AddButton(NoiseGUIButton * pButton)
+BOOL NoiseGUIManager::AddButton(NoiseGUIButton& refButton)
 {
 	//add button to child button list
-	if (pButton)
-	{
-		m_pChildButtonList->push_back(pButton);
-		pButton->m_pFatherGUIMgr = this;
+	m_pChildButtonList->push_back(&refButton);
+	refButton.m_pFatherGUIMgr = this;
 
-		//create graphic object
-		UINT rectID = 0;
-		rectID=m_pChildGraphicObject->AddRectangle(NVECTOR2(0, 0), NVECTOR2(100.0f, 50.0f),
+	m_pFatherScene->CreateGraphicObject(*refButton.m_pGraphicObj);
+
+	//create graphic object
+	UINT rectID = 0;
+	rectID=refButton.m_pGraphicObj->AddRectangle(NVECTOR2(0, 0), NVECTOR2(100.0f, 50.0f),
 					NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),NOISE_MACRO_INVALID_TEXTURE_ID);
 
-		//tell the button its rect ID 
-		pButton->mGraphicObject_RectID = rectID;
+	//tell the button its rect ID 
+	refButton.mGraphicObject_RectID = rectID;
 
-	}
-	else
-	{
-		DEBUG_MSG1("Noise GUI mgr : Add Button : Ptr invalid!");
-		return TRUE;
-	}
+
 	return TRUE;
 }
 
-BOOL NoiseGUIManager::AddText(NoiseGUIText* pText)
+BOOL NoiseGUIManager::AddText(NoiseGUIText& refText)
 {
 	//add label ( pure text)
-	if (pText)
-	{
-		m_pChildTextList->push_back(pText);
-		pText->m_pFatherGUIMgr = this;
-	}
-	else
-	{
-		DEBUG_MSG1("Noise GUI mgr : Add Label : Ptr invalid!");
-		return TRUE;
-	}
+	m_pChildTextList->push_back(&refText);
+	refText.m_pFatherGUIMgr = this;
 
 	return TRUE;
 }
 
-void	NoiseGUIManager::SetInputEngine(NoiseUtInputEngine * pInputE)
+void	NoiseGUIManager::SetInputEngine(NoiseUtInputEngine& refInputE)
 {
-	if (!pInputE)
-	{
-		m_pInputEngine = pInputE;
-	}
+	m_pInputEngine = &refInputE;
 };
 
 void	NoiseGUIManager::Update()
@@ -90,7 +100,6 @@ void	NoiseGUIManager::Update()
 
 		//traverse various kinds of objects and send message
 		mFunction_UpdateButtons();
-		mFunction_UpdatePictures();
 
 	}
 
@@ -218,7 +227,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 		default:
 		case NOISE_GUI_BUTTON_STATE_COMMON:
 			v = pCurrButton->GetTopLeft();
-			m_pChildGraphicObject->SetRectangle(
+			pCurrButton->m_pGraphicObj->SetRectangle(
 				pCurrButton->mGraphicObject_RectID,
 				pCurrButton->GetTopLeft(),
 				pCurrButton->GetBottomRight(),
@@ -228,7 +237,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 			break;
 
 		case NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN:
-			m_pChildGraphicObject->SetRectangle(
+			pCurrButton->m_pGraphicObj->SetRectangle(
 				pCurrButton->mGraphicObject_RectID,
 				pCurrButton->GetTopLeft(),
 				pCurrButton->GetBottomRight(),
@@ -238,7 +247,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 			break;
 
 		case NOISE_GUI_BUTTON_STATE_MOUSEON:
-			m_pChildGraphicObject->SetRectangle(
+			pCurrButton->m_pGraphicObj->SetRectangle(
 				pCurrButton->mGraphicObject_RectID,
 				pCurrButton->GetTopLeft(),
 				pCurrButton->GetBottomRight(),
@@ -255,12 +264,4 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 	}//end button traverse
 
 }
-
-void NoiseGUIManager::mFunction_UpdatePictures()
-{
-
-};
-
-
-
 

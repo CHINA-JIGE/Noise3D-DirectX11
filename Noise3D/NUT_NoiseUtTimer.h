@@ -28,7 +28,10 @@ public:
 	void SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit);
 
 	//进入下一帧
-	void Next();
+	void NextTick();
+
+	//....
+	UINT	 GetFPS() const;
 
 	//暂停计时
 	void Pause();
@@ -41,12 +44,19 @@ public:
 	void ResetTotalTime();
 
 private:
-	//更新后的总时间
+	//更新后的总时间(ms)
 	double					mTotalTime;
 	//就是INTERVAL 两帧间的时间间隔
 	double					mDeltaTime;				
 	//每一count占了多少毫秒
 	double					mMilliSecondsPerCount;	
+	//how many ticks are in current second
+	UINT						mCurrentSecondTickCount;
+	//a rounded total time
+	UINT						mCurrentSecondInteger;
+	//frames per second
+	UINT						mFPS;
+
 	//时间制
 	NOISE_TIMER_TIMEUNIT	mTimeUnit; 
 	//

@@ -175,6 +175,28 @@ float4 PS_Textured2D(VS_OUTPUT_SIMPLE input) : SV_Target
 
 
 
+//----------------------------------Draw Text/String----------------------------------
+VS_OUTPUT_SIMPLE VS_DrawText2D(VS_INPUT_SIMPLE input)
+{
+	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
+	output.posH = float4(input.posL,1.0f);//mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix);
+	output.color = input.color;
+	output.texcoord = input.texcoord;
+	return output;
+}
+
+float4 PS_DrawText2D(VS_OUTPUT_SIMPLE input) : SV_Target
+{
+	float4 sampledColor = g2D_DiffuseMap.Sample(sampler2D_ANISOTROPIC, input.texcoord);
+	if(sampledColor.w!=0)sampledColor.xyz=g2D_TextColor.xyz;
+	float4 outputColor = float4(sampledColor.xyz,sampledColor.w);
+	//float4 outputColor = float4(sampledColor.xyz, input.color.w);
+	return outputColor;
+
+}
+
+
+
 //--------------------------------------------Draw Sky------------------------------------------
 VS_OUTPUT_DEFAULT VS_DrawSky(VS_INPUT_SIMPLE input)
 {
@@ -257,6 +279,16 @@ technique11 DrawTextured2D
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_Textured2D()));
 		SetPixelShader(CompileShader(ps_5_0, PS_Textured2D()));
+	}
+}
+
+technique11 DrawText2D
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawText2D()));
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawText2D()));
+		//SetDepthStencilState(LessEqualDSS, 0);
 	}
 }
 

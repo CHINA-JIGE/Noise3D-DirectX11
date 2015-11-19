@@ -12,5 +12,5 @@
 
 NoiseGUIText::NoiseGUIText()
 {
-
-};
+	m_pGraphicObj = new NoiseGraphicObject;
+}

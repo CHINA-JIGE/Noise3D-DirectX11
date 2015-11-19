@@ -9,18 +9,19 @@
 struct N_TextureObject
 {
 	N_TextureObject() { ZeroMemory(this,sizeof(*this));}
-	std::string	 mTexName;
+	std::string			mTexName;
 	std::vector<NVECTOR4>	mPixelBuffer;
 	BOOL	mIsPixelBufferInMemValid;
-	ID3D11ShaderResourceView* m_pSRV;
+	ID3D11ShaderResourceView*	m_pSRV;
+	NOISE_TEXTURE_TYPE mTextureType;
 };
 
 public class _declspec(dllexport) NoiseTextureManager
 {
 public:
-	friend NoiseScene;
-	friend NoiseRenderer;
-	friend NoiseMesh;
+	friend class NoiseScene;
+	friend class NoiseRenderer;
+	friend class NoiseFontManager;//Let it Create\Access bitmap table Texture
 
 	//¹¹Ôìº¯Êý
 	NoiseTextureManager();
@@ -41,8 +42,6 @@ public:
 
 	UINT		CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 	
-	//UINT		CreateTextTextureSingleLine(std::string str,const char* fontName);
-	
 	BOOL	ConvertTextureToGreyMap(UINT texID);
 
 	BOOL	ConvertTextureToGreyMapEx(UINT texID,float factorR,float factorG,float factorB);
@@ -51,9 +50,11 @@ public:
 
 	UINT		GetTextureID(const char* textureName);
 
+	UINT		GetTextureID(std::string textureName);
+
 	BOOL	SaveTextureToFile(UINT texID,const LPCWSTR filePath,NOISE_TEXTURE_SAVE_FORMAT picFormat);
 
-	void		GetTextureName(UINT index, std::string* outTextureName);
+	void		GetTextureName(UINT index, std::string& outTextureName);
 
 	UINT		GetTextureWidth(UINT texID);
 
@@ -76,5 +77,4 @@ private:
 private:
 	NoiseScene*									m_pFatherScene;
 	std::vector<N_TextureObject>*	m_pTextureObjectList;
-
 };

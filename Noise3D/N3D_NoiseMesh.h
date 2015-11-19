@@ -32,8 +32,6 @@ public:
 
 	BOOL	LoadFile_STL(char* pFilePath);
 
-	BOOL	AddToRenderList();
-
 	void		SetPosition(float x,float y,float z);
 
 	void		SetRotation(float angleX, float angleY, float angleZ);
@@ -86,7 +84,7 @@ private:
 
 	UINT										m_VertexCount;
 	UINT										m_IndexCount;
-	UINT										m_MaterialID_for_SetMaterial;
+	UINT										m_MaterialID_for_SetMaterial;//Set a material for the whole mesh
 	ID3D11Buffer*						m_pVertexBuffer;
 	ID3D11Buffer*						m_pIndexBuffer;
 

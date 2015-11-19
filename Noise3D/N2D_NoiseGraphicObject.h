@@ -9,13 +9,13 @@
 
 public class _declspec(dllexport) NoiseGraphicObject
 {
-	friend NoiseRenderer;
-	friend NoiseScene;
+	friend class NoiseRenderer;
+	friend class NoiseScene;
 
 public:
 	//¹¹Ôìº¯Êý
 	NoiseGraphicObject();
-	
+
 	void		SelfDestruction();
 
 	UINT		AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -53,6 +53,8 @@ public:
 	void		SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
 	void		SetRectangle(UINT index, NVECTOR2 vCenter,float fWidth,float fHeight,NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+
+	void		SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight);
 
 	void		SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color,UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
@@ -104,9 +106,6 @@ public:
 	UINT		GetRectOutlineCount();
 
 	UINT		GetEllipseOutlineCount();
-
-	BOOL	AddToRenderList();
-
 
 private:
 	BOOL		mFunction_InitVB(UINT objType_ID);

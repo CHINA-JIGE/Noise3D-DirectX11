@@ -5,28 +5,50 @@
 		
 
 ************************************************************************/
+
 #include "Noise3D.h"
 
 NoiseFontManager::NoiseFontManager()
 {
 	mIsFTInitialized = FALSE;
 	m_FTLibrary		= nullptr;
-	m_pFTFaceList = new std::vector<N_FontObject>;
-	mFunction_InitFreeType();
+	m_pTexMgr = new NoiseTextureManager;
+	m_pFontObjectList = new std::vector<N_FontObject>;
+	m_pChildTextDynamic = new std::vector<Noise2DTextDynamic*>;
+	m_pChildTextStatic = new std::vector<Noise2DTextStatic*>;
 }
 
 void NoiseFontManager::SelfDestruction()
 {
 
-	for (auto face : *m_pFTFaceList)
-	{
-		FT_Done_Face(face.mFtFace);
-	}
+		for (auto face : *m_pFontObjectList)
+		{
+			FT_Done_Face(face.mFtFace);
+		}
 
-	FT_Done_FreeType(m_FTLibrary);
+		FT_Done_FreeType(m_FTLibrary);
+		m_pTexMgr->SelfDestruction();
+
 };
 
-UINT NoiseFontManager::CreateFontFromFile(const char * filePath, const char * fontName, UINT fontSize)
+BOOL NoiseFontManager::AddChildObjectToRenderList()
+{
+	NOISE_MACRO_ADDTORENDERLIST_SCENE_RENDERER_VALIDATE();
+	
+	for (auto obj : *m_pChildTextDynamic)
+	{
+		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
+	}
+
+	for (auto obj : *m_pChildTextStatic)
+	{
+		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
+	}
+	return TRUE;
+};
+
+
+UINT	 NoiseFontManager::CreateFontFromFile(const char * filePath, const char * fontName, UINT fontSize, float fontAspectRatio)
 {
 	if (!mIsFTInitialized)
 	{
@@ -46,7 +68,7 @@ UINT NoiseFontManager::CreateFontFromFile(const char * filePath, const char * fo
 	}
 
 	//font name must not be used
-	for (auto fontObj : *m_pFTFaceList)
+	for (auto fontObj : *m_pFontObjectList)
 	{
 		//string cmp
 		if (fontObj.mFontName == std::string(fontName))
@@ -56,113 +78,233 @@ UINT NoiseFontManager::CreateFontFromFile(const char * filePath, const char * fo
 		}
 	}
 
-	//....
-	N_FontObject	tmpFontObj;
-	tmpFontObj.mFontName = fontName;
 
+//....
+N_FontObject	tmpFontObj;
+tmpFontObj.mFontName = fontName;
+tmpFontObj.mFontSize = fontSize;
+tmpFontObj.mAspectRatio = fontAspectRatio;
 
-	//Create a FT_Face (to store font/char  info)
-	FT_Error ftCreateNewFaceErr = FT_New_Face(
-		m_FTLibrary,
-		filePath,
-		0,		//which style	,	regular/italic/bold/italic_bold
-		&tmpFontObj.mFtFace);
+//Create a FT_Face (to store font/char  info)
+FT_Error ftCreateNewFaceErr = FT_New_Face(
+	m_FTLibrary,
+	filePath,
+	0,		//which style	,	regular/italic/bold/italic_bold (maybe available)
+	&tmpFontObj.mFtFace);
 
-	if (ftCreateNewFaceErr)
-	{
-		DEBUG_MSG1("FontLoader : Create Font failed!");
-		return NOISE_MACRO_INVALID_ID;
-	}
-	else
-	{
-		mIsFTInitialized = TRUE;
-	};
-	
-	//font size should be multiplied by 64 .... I don't know why but it's how it works
-	FT_Set_Char_Size(tmpFontObj.mFtFace, UINT(fontSize/1.414) << 6,fontSize << 6, 64, 96);
-	FT_Matrix    fontTransMatrix;              /* transformation matrix */
-
-	FT_Vector     pen;
-
-	//set a rotation matrix
-	float angle = 0;
-	fontTransMatrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
-	fontTransMatrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-	fontTransMatrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
-	fontTransMatrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
-
-	FT_Set_Transform(tmpFontObj.mFtFace, &fontTransMatrix, &pen);
-
-
-	//at last , store newly created face to a vector
-	m_pFTFaceList->push_back(tmpFontObj);
-	UINT newFontIndex = m_pFTFaceList->size() - 1;
-
-	return newFontIndex;
+if (ftCreateNewFaceErr)
+{
+	DEBUG_MSG1("FontLoader : Create Font failed!");
+	return NOISE_MACRO_INVALID_ID;
+}
+else
+{
+	mIsFTInitialized = TRUE;
 };
 
-void NoiseFontManager::GetBitmapOfChar(UINT fontID, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 backColor, NVECTOR4 textColor)
+//font size should be multiplied by 64 .... I don't know why but it's how it works
+//FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
+FT_Set_Char_Size(tmpFontObj.mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
+
+
+FT_Matrix    fontTransMatrix;              /* transformation matrix */
+FT_Vector     pen;
+
+//set a rotation matrix
+float angle = 0.0f;
+fontTransMatrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
+fontTransMatrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
+fontTransMatrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
+fontTransMatrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
+
+FT_Set_Transform(tmpFontObj.mFtFace, &fontTransMatrix, &pen);
+
+
+//------------new Font Object--------------
+//Create Bitmap Table
+UINT bitmapTableTexID = mFunction_CreateTexture_AsciiBitmapTable(
+	tmpFontObj,
+	UINT(fontSize*fontAspectRatio),
+	fontSize);//bitmap size (height) for 1 ascii char
+
+if (bitmapTableTexID == NOISE_MACRO_INVALID_ID)
 {
-	if (!mFunction_ValidateFontID(fontID))
+	DEBUG_MSG1("CreateFont : create bitmap table failed!!");
+	return NOISE_MACRO_INVALID_ID;
+}
+
+m_pFontObjectList->push_back(tmpFontObj);
+UINT newFontIndex = m_pFontObjectList->size() - 1;
+
+return newFontIndex;
+}
+
+BOOL NoiseFontManager::SetFontSize(UINT fontID, UINT  fontSize)
+{
+	if (mFunction_ValidateFontID(fontID) != NOISE_MACRO_INVALID_ID)
 	{
-		DEBUG_MSG1("FontMgr : GetPixelMatrix : FontID invalid!");
-		return;
+		if (fontSize < 4)fontSize = 4;
+		m_pFontObjectList->at(fontID).mFontSize = fontSize;
+		//font size should be multiplied by 64 .... I don't know why but it's how it works
+		//FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
+		FT_Set_Char_Size(m_pFontObjectList->at(fontID).mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
+
+
+		return TRUE;
+	}
+	return FALSE;
+}
+
+UINT	 NoiseFontManager::CreateStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic & refText)
+{
+	UINT returnedTextID = NOISE_MACRO_INVALID_ID;
+	std::wstring tmpWString;
+	tmpWString.assign(targetString.begin(), targetString.end());
+	returnedTextID = CreateStaticTextW(fontID, tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset, refText);
+	return returnedTextID;
+};
+
+UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& refText)
+{
+	//the Texture was fixed once static text is Created
+
+	if(refText.mIsInitialized)return  m_pChildTextStatic->size() - 1;
+
+
+	//validate font ID
+	BOOL validatedFontID = mFunction_ValidateFontID(fontID);
+	if (validatedFontID == NOISE_MACRO_INVALID_ID)
+	{
+		DEBUG_MSG1("CreateStaticTextW:Font ID Invalid!!");
+		return NOISE_MACRO_INVALID_ID;
 	}
 
-	//Load Glyph from the target Unicode 
-	FT_Error ftErr;
-	//get corresponding ID of the wchar
-	FT_UInt	 glyph_index = FT_Get_Char_Index(m_pFTFaceList->at(fontID).mFtFace, targetWChar);
-	ftErr = FT_Load_Glyph(
-		m_pFTFaceList->at(fontID).mFtFace,
-		glyph_index,
-		FT_LOAD_DEFAULT);
 
-	//Get the Glyph of char
-	FT_Glyph glyph;
-	if (FT_Get_Glyph(m_pFTFaceList->at(fontID).mFtFace->glyph, &glyph))
-		throw std::runtime_error("FT_Get_Glyph failed");
+	//texture name in	TexMgr
+	std::stringstream tmpTextureName;
+	tmpTextureName << "Internal_StaticTextTexture" << (m_pTexMgr->m_pTextureObjectList->size()-1);//texture name generated with font ID
+
+	//Create a pure color Texture
+	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
+	stringTextureID = m_pTexMgr->CreatePureColorTexture(
+		tmpTextureName.str().c_str(),
+		boundaryWidth,
+		boundaryHeight,
+		NVECTOR4(0, 0, 0, 0),
+		TRUE
+		);
+
+	//check if texture creation success
+	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
+	{
+		DEBUG_MSG1("CreateStaticTextW : Create Bitmap Table Texture failed!");
+		return NOISE_MACRO_INVALID_ID;
+	}
+
+	//now get the whole bitmap from user-input string
+	N_Font_Bitmap tmpFontBitmap;
+	mFunction_GetBitmapOfString(
+		m_pFontObjectList->at(fontID),//font ID validated
+		targetString,
+		boundaryWidth,
+		boundaryHeight,
+		textColor,
+		tmpFontBitmap,
+		0,
+		0);
+
+	//copy bitmap to texture 
+	m_pTexMgr->m_pTextureObjectList->at(stringTextureID).mPixelBuffer.assign(
+		tmpFontBitmap.bitmapBuffer.begin(),
+		tmpFontBitmap.bitmapBuffer.end()
+		);
+
+	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
+	BOOL UpdateToGMSuccess = FALSE;
+	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
+	if (!UpdateToGMSuccess)
+	{
+		DEBUG_MSG1("CreateStaticTextW : Create Text Bitmap failed!!");
+		m_pTexMgr->DeleteTexture(stringTextureID);
+		return NOISE_MACRO_INVALID_ID;
+	}
+
+
+	//------------initialize the graphic object of the TEXT------------
+	//m_pFatherScene->CreateGraphicObject(*refText.m_pGraphicObj);
+	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
+
+
+	//....only after all init work was done can we bind mgr/object together
+	refText.m_pFatherFontMgr = this;
+	*(refText.m_pTextureName)=tmpTextureName.str();
+	refText.mIsInitialized = TRUE;
+	m_pChildTextStatic->push_back(&refText);
+
+
+	return m_pChildTextStatic->size() - 1;
+}
+
+UINT	 NoiseFontManager::CreateDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextDynamic& refText)
+{
+	//dynamic text use bitmap table & texture coordinate to  render text
+
+	//cannot be created twice
+	if(refText.mIsInitialized)	return m_pChildTextDynamic->size() - 1;
 	
-	//convert (and render) to a bitmap buffer
-	FT_Render_Glyph(m_pFTFaceList->at(fontID).mFtFace->glyph, FT_RENDER_MODE_NORMAL);
-	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
-	FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
-
-	//use the FT_Bitmap's 'buffer' to retrieve data
-	FT_Bitmap& charBitmap = bitmap_glyph->bitmap;
-
-	//assign color values to user-defined color buffer ref
-	int charWidth = charBitmap.width;
-	int charHeight = charBitmap.rows;
-
-	//output to references
-	for (int i = 0;i < charWidth*charHeight;i++)
+	//validate font ID
+	BOOL validatedFontID = mFunction_ValidateFontID(fontID);
+	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
-		if (charBitmap.buffer[i])
+		DEBUG_MSG1("CreateStaticText:Font ID Invalid!!");
+		return NOISE_MACRO_INVALID_ID;
+	}
+
+	//bind Text_Dynamic to MGR
+	m_pChildTextDynamic->push_back(&refText);
+	refText.m_pFatherFontMgr = this;
+
+	//Get texID of bitmap table (ID may change, but not name)
+	UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mFontName.c_str());
+
+
+	refText.mLineSpacingOffset = lineSpacingOffset;
+	refText.mWordSpacingOffset = wordSpacingOffset;
+
+	//use the internal init func of TEXT 
+	refText.mIsInitialized = TRUE;
+	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
+	refText.mFontID = fontID;
+	refText.mCharBoundarySizeY= UINT(m_pFontObjectList->at(fontID).mFontSize);
+	refText.mCharBoundarySizeX= UINT(refText.mCharBoundarySizeY* m_pFontObjectList->at(fontID).mAspectRatio);
+
+	//update TEXT content
+	*(refText.m_pTextContent) = targetString;
+
+	//(the texture has been created for each font
+	//texture name in	TexMgr
+	std::stringstream tmpTextureName;
+	tmpTextureName << "AsciiBitmapTable" << fontID;//texture name generated with font ID
+	*(refText.m_pTextureName)= tmpTextureName.str();
+
+
+
+	return m_pChildTextDynamic->size()-1;
+}
+
+UINT	 NoiseFontManager::GetFontID(std::string fontName)
+{
+	for (UINT i = 0;i < m_pFontObjectList->size();i++)
+	{
+		N_FontObject fontObj = m_pFontObjectList->at(i);
+		if (fontName == fontObj.mFontName)
 		{
-			//add colors to user-defined buffer (greyScaleIntensity * color)
-			outFontBitmap.bitmapBuffer.push_back(
-				NVECTOR4(
-					float(charBitmap.buffer[i]) / 256.0f *textColor.x,
-					float(charBitmap.buffer[i]) / 256.0f* textColor.y,
-					float(charBitmap.buffer[i]) / 256.0f* textColor.z,
-					textColor.w));
-		}
-		else
-		//current pixel  is black (not in glyph)
-		{
-			outFontBitmap.bitmapBuffer.push_back(backColor);
+			return i;
 		}
 	}
-	outFontBitmap.height = charHeight;
-	outFontBitmap.width = charWidth;
+
+	return NOISE_MACRO_INVALID_ID;
 }
-
-void NoiseFontManager::GetBitmapOfString(UINT fontID, std::string targetString, N_Font_Bitmap & outFontBitmap, NVECTOR4 backColor, NVECTOR4 textColor)
-{
-}
-
-
 
 
 /************************************************************************
@@ -171,7 +313,6 @@ void NoiseFontManager::GetBitmapOfString(UINT fontID, std::string targetString, 
 
 BOOL NoiseFontManager::mFunction_InitFreeType()
 {
-
 	//Init FreeType Library
 	FT_Error ftInitError = FT_Init_FreeType(&m_FTLibrary);
 
@@ -189,17 +330,216 @@ BOOL NoiseFontManager::mFunction_InitFreeType()
 	return TRUE;
 }
 
-BOOL NoiseFontManager::mFunction_ValidateFontID(UINT fontID)
+void NoiseFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
 {
-	if (fontID >= 0 && fontID < m_pFTFaceList->size())
+	//didn't check fontID here , only be able to get the bitmap
+	
+	//if user pass the same N_Font_Bitmap several times , repetitive push_back will finally cause errors
+	outFontBitmap.bitmapBuffer.clear();
+
+	//Load Glyph from the target Unicode 
+	FT_Error ftErr;
+	//get corresponding ID of the w_char
+	FT_UInt	 glyph_index = FT_Get_Char_Index(fontObj.mFtFace, targetWChar);
+	ftErr = FT_Load_Glyph(
+		fontObj.mFtFace,
+		glyph_index,
+		FT_LOAD_DEFAULT);
+
+	//Get the Glyph of char
+	FT_Glyph glyph;
+	if (FT_Get_Glyph(fontObj.mFtFace->glyph, &glyph))
+		throw std::runtime_error("FT_Get_Glyph failed");
+
+	//convert (and render) to a bitmap buffer
+	FT_Render_Glyph(fontObj.mFtFace->glyph, FT_RENDER_MODE_NORMAL);
+	FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1);
+	FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
+
+	//use the FT_Bitmap's 'buffer' to retrieve data
+	FT_Bitmap& charBitmap = bitmap_glyph->bitmap;
+
+	//assign color values to user-defined color buffer ref
+	int charWidth = charBitmap.width;
+	int charHeight = charBitmap.rows;
+
+	//---------------------CHAR SIZE--------------------
+	//after multiple passing firstly started in CreateFont
+	//the reference of FontObj finally come here to get bitmap size for each char
+	fontObj.mAsciiCharSizeList.push_back(NVECTOR2(float(charWidth), float(charHeight)));
+
+	//output to references
+	for (int i = 0;i < charWidth*charHeight;i++)
 	{
-		return TRUE;
+		if (charBitmap.buffer[i])
+		{
+			//add colors to user-defined buffer (greyScaleIntensity * color)
+			float greyScaleColor = float(charBitmap.buffer[i]) / 256.0f;
+			outFontBitmap.bitmapBuffer.push_back(
+				NVECTOR4(
+					greyScaleColor *textColor.x,
+					greyScaleColor* textColor.y,
+					greyScaleColor* textColor.z,
+					greyScaleColor));
+		}
+		else
+			//current pixel  is black (not in glyph)
+		{
+			outFontBitmap.bitmapBuffer.push_back(NVECTOR4(0, 0, 0, 0));
+		}
 	}
-	else
+	outFontBitmap.height = charHeight;
+	outFontBitmap.width = charWidth;
+}
+
+void	NoiseFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
+{
+
+
+	//arbitrarily get a wchar to Get the basic size of char
+	N_Font_Bitmap singleCharBitmap;
+	UINT CharBoundarySizeY = fontObj.mFontSize;
+	UINT CharBoundarySizeX = UINT(CharBoundarySizeY*fontObj.mAspectRatio);
+
+
+	//control the offset  prevent lines getting to near
+	if (lineSpacingOffset <= -int(CharBoundarySizeY) + 2)lineSpacingOffset = CharBoundarySizeY;
+	//control the offset to prevent words getting to near
+	if (wordSpacingOffset <= -int(CharBoundarySizeX) + 2)wordSpacingOffset = CharBoundarySizeX;
+
+	//a string rectangle must be big enough to contain at least  1 word
+	if (CharBoundarySizeX > boundaryWidth)boundaryWidth = CharBoundarySizeX + 1;
+	if (CharBoundarySizeY > boundaryHeight)boundaryHeight = CharBoundarySizeY + 1;
+	outFontBitmap.bitmapBuffer.resize(boundaryWidth*boundaryHeight, NVECTOR4(0, 0, 0, 0));
+
+
+	//used to locate the position of current drawing char
+	UINT currentCharTopLeftX = 0;
+	UINT currentCharTopLeftY = 0;
+
+	for (UINT i = 0;i < targetString.size();i++)
 	{
-		return FALSE;
+
+		//get the bitmap of each char, later combine them into a string in an adequate layout
+		mFunction_GetBitmapOfChar(fontObj, targetString.at(i), singleCharBitmap, textColor);
+
+		//we will prevent every word from being incomplete
+		if (currentCharTopLeftX + singleCharBitmap.width + wordSpacingOffset >= boundaryWidth)
+		{
+			//go to next line
+			currentCharTopLeftX = 0;
+			currentCharTopLeftY += (CharBoundarySizeY + lineSpacingOffset);
+		}
+
+		UINT outputBitmapPixelCount = outFontBitmap.bitmapBuffer.size();
+		//-----------draw a char in global space-------------
+		for (UINT localY = 0;localY < singleCharBitmap.height;localY++)
+		{
+			for (UINT localX = 0;localX < singleCharBitmap.width;localX++)
+			{
+				//pixel index in string bitmap buffer ( in contrast to local single char bitmap buffer)
+				//remember to align to the bottom
+				UINT globalPixelID =
+					(currentCharTopLeftY + CharBoundarySizeY - singleCharBitmap.height + localY)*boundaryWidth +
+					(currentCharTopLeftX + localX);
+
+				UINT localPixelID = localY* singleCharBitmap.width + localX;
+
+				//check if currently drawing pixel have exceed the lower bound
+				if (globalPixelID < outputBitmapPixelCount)
+				{
+					//alpha !=0 , not background color
+					if (singleCharBitmap.bitmapBuffer.at(localPixelID).w != 0)
+					{
+						outFontBitmap.bitmapBuffer.at(globalPixelID) = singleCharBitmap.bitmapBuffer.at(localPixelID);
+					}
+				}
+
+			}
+		}
+
+		//move to next position
+		currentCharTopLeftX += (singleCharBitmap.width + wordSpacingOffset);
+
+
+	}
+
+	outFontBitmap.width = boundaryWidth;
+	outFontBitmap.height = boundaryHeight;
+}
+
+UINT NoiseFontManager::mFunction_ValidateFontID(UINT fontID)
+{
+	if (!(fontID >= 0 && fontID < m_pFontObjectList->size()))
+	{
+		return NOISE_MACRO_INVALID_ID;
 	}
 
 	//default return 
-	return TRUE;
+	return fontID;
 }
+
+UINT NoiseFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj, UINT charWidth, UINT charHeight)
+{
+
+	//define the width /height of bitmap Table , Ascii code 0~127
+	UINT tablePxWidth = charWidth*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
+	UINT tablePxHeight = charHeight*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
+	UINT tableRowCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
+	UINT tableColumnCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
+
+	//try to create a new pure color texture to be modified
+	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
+	std::stringstream tmpTextureName;
+	tmpTextureName << "AsciiBitmapTable" << (m_pFontObjectList->size());//font ID
+
+	//Create a pure color Texture
+	stringTextureID = m_pTexMgr->CreatePureColorTexture(
+		tmpTextureName.str().c_str(),
+		tablePxWidth,
+		tablePxHeight,
+		NVECTOR4(0, 0, 0, 0),
+		TRUE
+		);
+
+	//check if texture creation success
+	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
+	{
+		DEBUG_MSG1("CreateFontFromFile : Create Bitmap Table Texture failed!");
+		return NOISE_MACRO_INVALID_ID;
+	}
+	
+	//-----Up to now,the texture is still a pure color bitmap-------
+	//-----we are gonna write an ASCII bitmap table to it (code 0~127)--
+	auto& pixelBuff= m_pTexMgr->m_pTextureObjectList->at(stringTextureID).mPixelBuffer;
+
+	for (UINT rowID = 0;rowID < tableRowCount;rowID++)
+	{
+		for (UINT colID = 0;colID < tableColumnCount;colID++)
+		{
+
+			N_Font_Bitmap tmpFontBitmap;
+			mFunction_GetBitmapOfChar(fontObj, rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
+			for (UINT localY = 0;localY < charHeight;localY++)
+			{
+				for (UINT localX = 0;localX < charWidth;localX++)
+				{
+					//...the size of  char bitmap might didn't match the size of the boundary rect(for 1 char)
+					if (localX < tmpFontBitmap.width && localY < tmpFontBitmap.height)
+					{
+						//copy every char bitmap to the global char bitmap table
+						UINT currentPixelID = (rowID*charHeight + localY)*tablePxWidth + colID*charWidth + localX;
+						pixelBuff.at(currentPixelID) = tmpFontBitmap.bitmapBuffer.at(localY*tmpFontBitmap.width + localX);
+					}
+				}
+			}
+
+		}
+	}
+	//update a texture to Graphic Memory
+	m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
+
+
+	return stringTextureID;
+}
+

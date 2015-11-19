@@ -10,16 +10,14 @@
 public class _declspec(dllexport) NoiseAtmosphere
 {
 public:
-	friend NoiseScene;
-	friend NoiseRenderer;
+	friend class NoiseScene;
+	friend class NoiseRenderer;
 
 
 	//¹¹Ôìº¯Êý
 	NoiseAtmosphere();
 
 	void		SelfDestruction();
-
-	BOOL	AddToRenderList();
 
 	void		SetFogEnabled(BOOL isEnabled);
 
@@ -41,7 +39,7 @@ private:
 private:
 	NoiseScene*		m_pFatherScene;
 
-	//only after atmosphere was added to render list can we add apply fog effect
+	//only after atmosphere was added to render list can we  apply fog effect
 	BOOL				mFogHasBeenAddedToRenderList;
 	BOOL				mFogCanUpdateToGpu;//we dont need update fog param frequently
 	BOOL				mFogEnabled;

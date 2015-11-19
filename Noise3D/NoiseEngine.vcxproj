@@ -84,6 +84,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="N2D_Noise2DTextStatic.h" />
+    <ClInclude Include="N2D_Noise2DTextDynamic.h" />
+    <ClInclude Include="N2D_NoiseGUI.h" />
     <ClInclude Include="N2D_NoiseGUIButton.h" />
     <ClInclude Include="N2D_NoiseGUIScrollBar.h" />
     <ClInclude Include="N2D_NoiseGUIText.h" />
@@ -91,7 +94,6 @@
     <ClInclude Include="N3D_NoiseCamera.h" />
     <ClInclude Include="N3D_NoiseEngine.h" />
     <ClInclude Include="NBASE_NoiseFileManager.h" />
-    <ClInclude Include="N2D_NoiseGUI.h" />
     <ClInclude Include="N2D_NoiseFontManager.h" />
     <ClInclude Include="NUT_NoiseUtInputEngine.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
@@ -110,7 +112,7 @@
     <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h" />
     <ClInclude Include="NUT_NoiseUtSlicer.h" />
     <ClInclude Include="NUT_NoiseUtTimer.h" />
-    <ClInclude Include="NBASE_NoiseGUIBasicContainerInfo.h" />
+    <ClInclude Include="NBASE_Noise2DBasicContainerInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RenderWindow\Main.fx">
@@ -127,12 +129,14 @@
     <ClCompile Include="AssemblyInfo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="N2D_Noise2DTextDynamic.cpp" />
+    <ClCompile Include="N2D_Noise2DTextStatic.cpp" />
     <ClCompile Include="N2D_NoiseGUIScrollBar.cpp" />
     <ClCompile Include="N2D_NoiseGUIText.cpp" />
     <ClCompile Include="N3D_NoiseCamera.cpp" />
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="N2D_NoiseFontManager.cpp" />
-    <ClCompile Include="NBASE_NoiseGUIBasicContainerInfo.cpp" />
+    <ClCompile Include="NBASE_Noise2DBasicContainerInfo.cpp" />
     <ClCompile Include="NBASE_NoiseFileManager.cpp" />
     <ClCompile Include="N2D_NoiseGUIManager.cpp" />
     <ClCompile Include="N2D_NoiseGUIButton.cpp" />

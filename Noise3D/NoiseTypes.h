@@ -234,6 +234,11 @@ struct N_CbAtmosphere
 	float				mPad1;
 };
 
+struct N_CbDrawText2D
+{
+	NVECTOR4 	mTextColor;
+	NVECTOR4	mTextGlowColor;
+};
 
 
 //--------------------------------------------------------
@@ -254,7 +259,7 @@ struct N_RegionInfo//区间...唔想个好点的词再改
 	UINT elememtCount;
 };
 
-struct N_DrawCall_VertexRegion
+struct N_DrawCall_VertexRegion//will be used in future for optimization........
 {
 	N_DrawCall_VertexRegion() { ZeroMemory(this, sizeof(*this)); }
 	UINT diffuseTexID;
@@ -263,3 +268,4 @@ struct N_DrawCall_VertexRegion
 	UINT	 startVertexID;
 	UINT vertexCount;
 };
+
