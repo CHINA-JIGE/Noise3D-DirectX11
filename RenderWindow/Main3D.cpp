@@ -17,7 +17,7 @@ NoiseGUIButton			GUIButton1;
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseFontManager		fontMgr;
 Noise2DTextStatic			myText1;
-Noise2DTextStatic			myText2;
+Noise2DTextDynamic	myText2;
 Noise2DTextDynamic	myText_fps;
 
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
@@ -76,18 +76,18 @@ BOOL Init3D(HWND hwnd)
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("EarthNormalMap"),20.0f);
 
 	//create font texture
-	fontMgr.CreateFontFromFile("msyh_bold.ttf", "myFont", 24);
+	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 36);
 
 	fontMgr.CreateStaticTextW(0, L"几阿斯达斯柯家哈萨克时代科技啊哈撒是s136gd+_O:das13153!#^!#...", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
 	myText1.SetTextColor(NVECTOR4(1.0f, 0, 0, 0.5f));
 	myText1.SetCenterPos(300.0f, 100.0f);
-	fontMgr.CreateStaticTextW(0, L"几鸡哥哈哈哈啊哈hsadas[][];].]ldfsdfs136gd+_O:das13153!#^!#...", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 3, 0, myText2);
+	fontMgr.CreateDynamicTextA(0, "abcdefghijklmnopqrstuvwxyz!@#$%^&*()_<>-+?/+ 1234567890<>?,./{}[]\\", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText2);
 	myText2.SetTextColor(NVECTOR4(0.5f, 0.3f, 1.0f, 0.5f));
-	myText2.SetCenterPos(100.0f,150.0f);
+	myText2.SetCenterPos(300.0f,400.0f);
 	fontMgr.CreateDynamicTextA(0, "hwqrqfasf134163!@%!@%.12.321", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
 	myText_fps.SetTextColor(NVECTOR4(0,0.3f,1.0f,0.5f));
-	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(100, 50));
+	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(150, 50));
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
@@ -193,7 +193,7 @@ void MainLoop()
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS <<"FPS :" <<NTimer.GetFPS();//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
+	tmpS <<"fps :" <<NTimer.GetFPS();//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
 	myText_fps.SetTextAscii(tmpS.str());
 
 	//add to render list

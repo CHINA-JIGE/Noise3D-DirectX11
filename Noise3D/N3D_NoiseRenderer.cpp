@@ -1109,7 +1109,7 @@ void		NoiseRenderer::mFunction_CommonGraphicObj_RenderTriangle2DInList()
 }
 
 
-void	 NoiseRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText)
+inline void	 NoiseRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;

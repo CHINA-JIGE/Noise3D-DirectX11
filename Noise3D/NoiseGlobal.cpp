@@ -108,3 +108,38 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 
 	 return FALSE;
  }
+
+ int gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, UINT inputChar)
+ {
+	 //!!!!!!the return type is signed INT ,because  top left might go beyond the upper boundary
+
+	 //if it's unicode
+	 if(inputChar > 128) return 0;
+
+	//Ascii alignment
+	 switch (inputChar)
+	 {
+		 //1, upper alignment ,the top of each character lies right beneath the top
+	 case '\"':	 case '\'':	 case '^':	 case '*':	 case '`':	case'j':
+		 return 0;
+		 break;
+
+		//2,lower-bound alignment
+	 case '_':	case '.':		case ',':
+		 return (boundaryPxHeight - charRealHeight);
+		 break;
+
+		 //3,upper 1/3 alignment
+	 case 'g':	case 'p':	case 'q': case 'y':
+		 return boundaryPxHeight / 6;
+		 break;
+
+		 //4, lower 2/3 alignment, the bottom of each character lies right on the 2/3 line
+	 default:
+		 return (int(boundaryPxHeight *0.7)-charRealHeight);
+		 break;
+
+	 }
+
+	 return 0;
+ }

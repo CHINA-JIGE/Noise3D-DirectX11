@@ -93,6 +93,7 @@ void Noise2DTextDynamic::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight
 
 void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
 {
+	if (!mIsInitialized)return;
 
 	mFontID = m_pFatherFontMgr->mFunction_ValidateFontID(mFontID);
 	//.....we must clear the graphic objects 
@@ -124,6 +125,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 	//newly updated TextContent
 
 #pragma region AdjustTheCountOfRects
+
 	//1.adjust rectangles count to fit the chars' count of new Text
 	UINT currentRectCountInGraphicObj = m_pGraphicObj->GetRectCount();
 	if (stringCharCount>currentRectCountInGraphicObj)
@@ -152,12 +154,13 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 	//texcoord update (char bitmap udpate)
 	//like a cursor moving around
 	NVECTOR2	posGeneralOffset(0, 0);
-	NVECTOR2	posAlignmentOffset(0, 1 / (float(tableRowCount) * 4));//some special characters need special alignment like 'g' 'p' 'q'
+	NVECTOR2	posAlignmentOffset(0, 0);//some special characters need special alignment like 'g' 'p' 'q'
 	for (UINT i = 0;i < stringCharCount;i++)
 	{
 
 		//chars which are at the corresponding position (if one string is longer than the other
 		char currentChar = (i < m_pTextContent->size()) ? m_pTextContent->at(i) : 0;
+
 
 #pragma region UpdateTexcoord
 		//TEXCOORD modification
@@ -177,9 +180,13 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		m_pGraphicObj->SetRectangleTexCoord(i, newTexCoordTopLeft, newTexCoordBottomRight);
 #pragma endregion UpdateTexcoord
 
+		NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(currentChar);
 
 #pragma region UpdatePositionOfSubRects
 		//calculate position of Rects (relative to the graphic object container)
+		posAlignmentOffset.x = 0;
+		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, realCharBitmapPixelSize.y, currentChar);
+
 		NVECTOR2 tmpRectTopLeft(0, 0);
 		NVECTOR2 tmpRectBottomRight(0, 0);
 		tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
@@ -198,7 +205,6 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 
 
 		//update internal position offset ( to move the texcoord cursor of "TopLeft")
-		NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(currentChar);
 		posGeneralOffset.x += (realCharBitmapPixelSize.x+mWordSpacingOffset);
 
 		if (posGeneralOffset.x >= stringBoundaryWidth)

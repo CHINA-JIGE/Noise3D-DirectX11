@@ -6,6 +6,8 @@
 
 #pragma once
 
+
+
 struct N_FontObject
 {
 	//HFONT 		mHFont;

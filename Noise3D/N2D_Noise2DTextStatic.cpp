@@ -56,6 +56,8 @@ void Noise2DTextStatic::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight,
 
 void Noise2DTextStatic::mFunction_UpdateGraphicObject()
 {
+	if (!mIsInitialized)return;
+
 	//in case other font has been deleted 
 	UINT stringTexID = mTextureID;
 
