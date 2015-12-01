@@ -1,0 +1,12 @@
+﻿生成启动时间为 2015/12/1 22:54:39。
+     1>项目“F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\RenderWindow\RenderWindow.vcxproj”在节点 2 上(Build 个目标)。
+     1>Link:
+         E:\VS2015\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\Debug\RenderWindow.exe" /INCREMENTAL /NOLOGO d3d11.lib winmm.lib Noise3D.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\Debug\RenderWindow.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 Debug\Main3D.obj
+         "Debug\.NETFramework,Version=v4.0.AssemblyAttributes.obj"
+           正在创建库 F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\Debug\RenderWindow.lib 和对象 F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\Debug\RenderWindow.exp
+         RenderWindow.vcxproj -> F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\Debug\RenderWindow.exe
+     1>已完成生成项目“F:\1VS PROJECT\3D\Noise3D -(18)(6)GraphicObj reconstruct\RenderWindow\RenderWindow.vcxproj”(Build 个目标)的操作。
+
+已成功生成。
+
+已用时间 00:00:00.56

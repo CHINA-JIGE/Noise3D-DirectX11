@@ -14,6 +14,7 @@ NoiseTextureManager	TexMgr;
 NoiseAtmosphere			Atmos;
 NoiseGUIManager		GUIMgr;
 NoiseGUIButton			GUIButton1;
+NoiseGUIScrollBar			GUIScrollBar1(TRUE);
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseFontManager		fontMgr;
 Noise2DTextStatic			myText1;
@@ -78,14 +79,14 @@ BOOL Init3D(HWND hwnd)
 	//create font texture
 	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 36);
 
-	fontMgr.CreateStaticTextW(0, L"几阿斯达斯柯家哈萨克时代科技啊哈撒是s136gd+_O:das13153!#^!#...", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
+	fontMgr.CreateStaticTextW(0, L"Graphic Object在渲染前都会生成一个Subset List。。。这才对路嘛。。。", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
 	myText1.SetTextColor(NVECTOR4(1.0f, 0, 0, 0.5f));
 	myText1.SetCenterPos(300.0f, 100.0f);
 	fontMgr.CreateDynamicTextA(0, "abcdefghijklmnopqrstuvwxyz!@#$%^&*()_<>-+?/+ 1234567890<>?,./{}[]\\", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText2);
 	myText2.SetTextColor(NVECTOR4(0.5f, 0.3f, 1.0f, 0.5f));
 	myText2.SetCenterPos(300.0f,400.0f);
-	fontMgr.CreateDynamicTextA(0, "hwqrqfasf134163!@%!@%.12.321", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
+	fontMgr.CreateDynamicTextA(0, "fps:000", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
 	myText_fps.SetTextColor(NVECTOR4(0,0.3f,1.0f,0.5f));
 	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(150, 50));
 
@@ -93,7 +94,7 @@ BOOL Init3D(HWND hwnd)
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
 
 	//Mesh1.LoadFile_STL("object.stl");
-	Mesh1.CreateSphere(5.0f, 50, 50);
+	Mesh1.CreateSphere(5.0f, 30, 30);
 	//Mesh1.CreatePlane(10.0f, 10.0f, 5, 5);
 	Mesh1.SetPosition(0,0,0);
 
@@ -120,7 +121,7 @@ BOOL Init3D(HWND hwnd)
 	DirLight1.mDirection = NVECTOR3(0.0f, -0.5f, 1.0f);
 	DirLight1.mSpecularIntensity	=1.5f;
 	DirLight1.mDiffuseIntensity = 1.0f;
-	LightMgr.AddDynamicDirLight(&DirLight1);
+	LightMgr.AddDynamicDirLight(DirLight1);
 
 	N_Material Mat1;
 	Mat1.baseMaterial.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);
@@ -140,17 +141,27 @@ BOOL Init3D(HWND hwnd)
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetTextureID("BottomRightTitle"));
 	
 	//GUI System
-	GUIMgr.AddButton(GUIButton1);
 	GUIMgr.SetWindowHWND(hwnd);
+	GUIMgr.CreateButton(GUIButton1);
+	GUIMgr.CreateScrollBar(GUIScrollBar1);
 	GUIButton1.SetCenterPos(50.0f, 50.0f);
 	GUIButton1.SetWidth(300.0f);
 	GUIButton1.SetHeight(100.0f);
 	GUIButton1.SetDragableX(TRUE);
 	GUIButton1.SetDragableY(TRUE);
-	GUIButton1.SetTexture_MouseAway(TexMgr.GetTextureID("myText"));
-	GUIButton1.SetTexture_MouseOn(TexMgr.GetTextureID("Earth"));
-	GUIButton1.SetTexture_MousePressedDown(TexMgr.GetTextureID("Wood"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_COMMON,TexMgr.GetTextureID("Button"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEON,TexMgr.GetTextureID("Earth"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN,TexMgr.GetTextureID("Wood"));
 	GUIButton1.SetEventProcessCallbackFunction(Button1MsgProc);
+	GUIScrollBar1.SetCenterPos(300.0f, 300.0f);
+	GUIScrollBar1.SetWidth(30.0f);
+	GUIScrollBar1.SetHeight(300.0f);
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_COMMON, TexMgr.GetTextureID("Earth"));
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEON, TexMgr.GetTextureID("Wood"));
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN, TexMgr.GetTextureID("Button"));
+	GUIScrollBar1.SetTexture_ScrollGroove(TexMgr.GetTextureID("EarthNormalMap"));
+	GUIScrollBar1.SetAlignment(FALSE);
+	GUIScrollBar1.SetValue(0.5f);
 	GUIMgr.Update();
 
 
@@ -193,8 +204,12 @@ void MainLoop()
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS <<"fps :" <<NTimer.GetFPS();//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
+	tmpS <<"fps :" << NTimer.GetFPS()<<std::endl;//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
 	myText_fps.SetTextAscii(tmpS.str());
+	std::stringstream tmpS2;
+	tmpS2 << GUIScrollBar1.GetValue();
+	float aaaa = GUIScrollBar1.GetValue();
+	myText2.SetTextAscii(tmpS2.str());
 
 	//add to render list
 	Renderer.AddOjectToRenderList(Mesh1);
@@ -203,17 +218,21 @@ void MainLoop()
 	Renderer.AddOjectToRenderList(myText1);
 	Renderer.AddOjectToRenderList(myText2);
 	Renderer.AddOjectToRenderList(myText_fps);
-	//GUIMgr.AddChildObjectToRenderList();
+	
+	Renderer.AddOjectToRenderList(GUIScrollBar1);
+	Renderer.AddOjectToRenderList(GUIButton1);
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
-	Renderer.RenderMeshInList();
+	Renderer.RenderMeshes();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
-	Renderer.RenderAtmosphereInList();
-	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
-	Renderer.RenderGraphicObjectInList();
+	Renderer.RenderAtmosphere();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
+	Renderer.RenderGraphicObjects();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
-	Renderer.RenderText2DInList();
+	Renderer.RenderTexts();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
+	Renderer.RenderGUIObjects();
 
 	//present
 	Renderer.RenderToScreen();
@@ -282,7 +301,9 @@ UINT Button1MsgProc(UINT msg)
 		break;
 
 	case NOISE_GUI_EVENTS_BUTTON_MOUSEPRESSED:
-		//::MessageBoxA(0, "Button pressed!", 0, 0);
+		break;
+
+	case NOISE_GUI_EVENTS_BUTTON_MOUSEMOVE:
 		break;
 	default:
 		break;

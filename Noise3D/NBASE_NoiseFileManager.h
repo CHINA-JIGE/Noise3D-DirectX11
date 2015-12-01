@@ -6,12 +6,10 @@
 
 #pragma once
 
-public class _declspec(dllexport) NoiseFileManager
+class _declspec(dllexport) NoiseFileManager
 {
 public:
 		NoiseFileManager();
-		
-		void	SelfDestruction();
 
 		BOOL ImportFile_PURE(char* pFilePath, std::vector<char>* pFileBuffer);
 

@@ -27,6 +27,7 @@ struct N_DefaultVertex
 struct N_SimpleVertex
 {
 	N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
+	N_SimpleVertex(NVECTOR3 inPos, NVECTOR4 inColor, NVECTOR2 inTexCoord) { Pos = inPos;Color = inColor;TexCoord = inTexCoord; };
 	NVECTOR3 Pos;
 	NVECTOR4 Color;
 	NVECTOR2 TexCoord;
@@ -251,21 +252,11 @@ struct N_LineStrip
 	UINT		LayerID;
 };
 
-struct N_RegionInfo//区间...唔想个好点的词再改
+struct N_GraphicObject_SubsetInfo//区间...唔想个好点的词再改
 {
-	N_RegionInfo() { ZeroMemory(this, sizeof(*this));texID = NOISE_MACRO_INVALID_TEXTURE_ID; }
+	N_GraphicObject_SubsetInfo() { ZeroMemory(this, sizeof(*this));texID = NOISE_MACRO_INVALID_TEXTURE_ID; }
 	UINT texID;
 	UINT startID;
-	UINT elememtCount;
-};
-
-struct N_DrawCall_VertexRegion//will be used in future for optimization........
-{
-	N_DrawCall_VertexRegion() { ZeroMemory(this, sizeof(*this)); }
-	UINT diffuseTexID;
-	UINT normalTexID;
-	UINT specTexID;
-	UINT	 startVertexID;
 	UINT vertexCount;
 };
 

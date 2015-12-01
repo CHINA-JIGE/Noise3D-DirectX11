@@ -8,7 +8,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseEngine
+class _declspec(dllexport) NoiseEngine:public NoiseClassLifeCycle
 {
 public:
 
@@ -36,6 +36,8 @@ public:
 	int	 GetRenderWindowHeight();
 
 private:
+
+	void		Destroy();
 
 	//this is for built-in window creation function
 	LPCWSTR			mRenderWindowTitle;

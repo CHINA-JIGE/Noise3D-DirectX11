@@ -23,10 +23,6 @@ NoiseFileManager::NoiseFileManager()
 
 };
 
- void NoiseFileManager::SelfDestruction()
-{
- };
-
 BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFileBuffer)
 {
 	if (!pFileBuffer)

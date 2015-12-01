@@ -9,38 +9,40 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseRenderer : private NoiseFileManager
+class _declspec(dllexport) NoiseRenderer : private NoiseFileManager, public NoiseClassLifeCycle
 {
 
 	friend class NoiseScene;
-	/*friend class NoiseMesh;
-	friend class NoiseGraphicObject;
-	friend class NoiseGUIManager;
-	friend class NoiseAtmosphere;
-	friend class Noise2DTextDynamic;
-	friend class Noise2DTextStatic;*/
 
 public:
 	//¹¹Ôìº¯Êý
 	NoiseRenderer();
 
-	void			SelfDestruction();
 
-	void			RenderMeshInList();
+	void			RenderMeshes();
 
-	void			RenderGraphicObjectInList();
+	void			RenderGraphicObjects();
 
-	void			RenderAtmosphereInList();
+	void			RenderAtmosphere();
 
-	void			RenderText2DInList();
+	void			RenderTexts();
+
+	void			RenderGUIObjects();
 
 	void			AddOjectToRenderList(NoiseMesh& obj);
+
 	void			AddOjectToRenderList(NoiseGraphicObject& obj);
+
 	void			AddOjectToRenderList(NoiseAtmosphere& obj);
+
 	void			AddOjectToRenderList(NoiseGUIButton& obj);
+
 	void			AddOjectToRenderList(NoiseGUIScrollBar& obj);
-	void			AddOjectToRenderList(NoiseGUIText& obj);
+
+	void			AddOjectToRenderList(NoiseGUITextBox& obj);
+
 	void			AddOjectToRenderList(Noise2DTextDynamic& obj);
+
 	void			AddOjectToRenderList(Noise2DTextStatic& obj);
 
 	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0,0,0.0f));
@@ -53,7 +55,12 @@ public:
 
 	void			SetBlendingMode(NOISE_BLENDMODE iMode);
 
+
+
 private:
+
+	void				Destroy();
+
 	BOOL			mFunction_Init();
 
 	BOOL			mFunction_Init_CreateBlendState();
@@ -83,18 +90,22 @@ private:
 
 	void				mFunction_RenderMeshInList_UpdateCbRarely();
 
+
+	//for adding internal graphic Object to Different List
+	void				mFunction_GraphicObj_AddToRenderList(NoiseGraphicObject* pGraphicObj, std::vector<NoiseGraphicObject*>* pList);
+
 	//render graphic object
-	void				mFunction_CommonGraphicObj_Update_RenderTextured2D(UINT TexID);
+	void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
 
-	void				mFunction_CommonGraphicObj_RenderLine3DInList();
+	void				mFunction_GraphicObj_RenderLine3DInList(std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_CommonGraphicObj_RenderPoint3DInList();
+	void				mFunction_GraphicObj_RenderPoint3DInList(std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_CommonGraphicObj_RenderLine2DInList();
+	void				mFunction_GraphicObj_RenderLine2DInList(std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_CommonGraphicObj_RenderPoint2DInList();
+	void				mFunction_GraphicObj_RenderPoint2DInList(std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_CommonGraphicObj_RenderTriangle2DInList();
+	void				mFunction_GraphicObj_RenderTriangle2DInList(std::vector<NoiseGraphicObject*>* pList);
 
 	void				mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText);
 	
@@ -117,9 +128,10 @@ private:
 
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
-	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_CommonGraphicObject;
-	std::vector<Noise2DTextDynamic*>*	m_pRenderList_TextDynamic;//specially set for text rendering
-	std::vector<Noise2DTextStatic*>*		m_pRenderList_TextStatic;//specially set for text rendering
+	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
+	std::vector<NoiseGraphicObject*>*	m_pRenderList_GUIGraphicObj;//for GUI rendering
+	std::vector<Noise2DTextDynamic*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
+	std::vector<Noise2DTextStatic*>*		m_pRenderList_TextStatic;//for static Text Rendering(including other info)
 	std::vector	<NoiseAtmosphere*>*		m_pRenderList_Atmosphere;
 
 	//Raster State
@@ -174,3 +186,4 @@ private:
 	ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
 	ID3DX11EffectSamplerVariable*	m_pFX_SamplerState_Default;
 };
+

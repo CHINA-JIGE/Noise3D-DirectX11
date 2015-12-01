@@ -28,9 +28,10 @@ NoiseAtmosphere::NoiseAtmosphere()
 
 }
 
-void NoiseAtmosphere::SelfDestruction()
+void NoiseAtmosphere::Destroy()
 {
-
+	ReleaseCOM(m_pVB_Gpu_Sky);
+	ReleaseCOM(m_pIB_Gpu_Sky);
 };
 
 void NoiseAtmosphere::SetFogEnabled(BOOL isEnabled)

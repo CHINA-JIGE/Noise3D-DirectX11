@@ -13,7 +13,6 @@
 Noise2DBasicContainerInfo::Noise2DBasicContainerInfo()
 {
 	m_pPositionCenter = new NVECTOR2(50,30);
-	mIsVisible = TRUE;
 	mWidth = 100;
 	mHeight = 60;
 	m_pBasicColor = new NVECTOR4(0.3f,0.3f,1.0f,1.0f);
@@ -95,10 +94,6 @@ float Noise2DBasicContainerInfo::GetHeight()
 	return mHeight;
 }
 
-void Noise2DBasicContainerInfo::SetVisible(BOOL isVisible)
-{
-	mIsVisible = isVisible;
-}
 
 BOOL Noise2DBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 {
@@ -117,7 +112,9 @@ void Noise2DBasicContainerInfo::SetBasicColor(NVECTOR4 c)
 NVECTOR4 Noise2DBasicContainerInfo::GetBasicColor()
 {
 	return *m_pBasicColor;
-};
+}
+
+
 
 
 

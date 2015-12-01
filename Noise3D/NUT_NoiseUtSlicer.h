@@ -54,7 +54,7 @@ struct N_Layer
 
 
 
-public class _declspec(dllexport) NoiseUtSlicer : private NoiseFileManager
+class _declspec(dllexport) NoiseUtSlicer : private NoiseFileManager
 {
 
 public:

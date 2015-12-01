@@ -18,6 +18,13 @@ NoiseEngine::NoiseEngine()
 	static_pEngine = this;
 }
 
+void NoiseEngine::Destroy()
+{
+	m_pMainLoopFunction = nullptr;
+	static_pEngine = this;
+	ReleaseAll();
+}
+
 HWND NoiseEngine::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
 {
 
@@ -248,9 +255,18 @@ void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	ReleaseCOM(g_pVertexLayout_Simple);
 	ReleaseCOM(g_pDepthStencilView);
 	ReleaseCOM(g_pImmediateContext);
-	//g_pd3dDevice->Release();
-	ReleaseCOM(g_pd3dDevice11);
+	//check live object
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug *d3dDebug;
+	HRESULT hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
+	if (SUCCEEDED(hr))
+	{
+		hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	}
+	if (d3dDebug != nullptr)			d3dDebug->Release();
+#endif
 
+	ReleaseCOM(g_pd3dDevice11);
 }
 
 void NoiseEngine::Mainloop()

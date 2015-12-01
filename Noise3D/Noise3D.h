@@ -21,7 +21,7 @@
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
 #include <vector>
-#include <map>
+#include <stdexcept>
 #include <sstream>
 #include <fstream>
 
@@ -39,6 +39,8 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 
+#include "NBASE_NoiseClassLifeCycle.h"
+#include "NBASE_NoiseGUIEventCommonOperation.h"
 #include "NBASE_Noise2DBasicContainerInfo.h"
 #include "NBASE_NoiseFileManager.h"
 #include "N3D_NoiseEngine.h"
@@ -55,7 +57,7 @@
 #include "N2D_NoiseFontManager.h"
 //--------------GUI-----------
 #include "N2D_NoiseGUIButton.h"
-#include "N2D_NoiseGUIText.h"
+#include "N2D_NoiseGUITextBox.h"
 #include "N2D_NoiseGUIScrollBar.h"
 #include "N2D_NoiseGUIManager.h"
 //-------------Core Class-------------

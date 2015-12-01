@@ -55,4 +55,10 @@ extern HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LP
 
 extern BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
-extern int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, UINT inputChar);
+extern int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
+
+extern float gFunction_Lerp(float a, float b, float t);
+
+/*template <typename T>
+extern T gFunction_Clamp(T val, T min, T max);*/
+extern float gFunction_Clamp(float val, float min, float max);

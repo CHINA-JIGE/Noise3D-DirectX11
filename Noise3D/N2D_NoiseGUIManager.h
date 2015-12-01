@@ -9,7 +9,7 @@
 class NoiseUtInputEngine;
 
 //the main GUI management class
-public class _declspec(dllexport) NoiseGUIManager
+class _declspec(dllexport) NoiseGUIManager:public NoiseClassLifeCycle
 {
 public:
 	friend class NoiseScene;
@@ -17,13 +17,14 @@ public:
 
 	NoiseGUIManager();
 
-	void		SelfDestruction();
+	//cancel AddChildObjectToRenderList and let user decide the render order
+	//(and avoid repetitve render,like internal button)
 
-	BOOL	AddChildObjectToRenderList();//Renderer need to be valid
+	BOOL	CreateButton(NoiseGUIButton& refObject);
 
-	BOOL	AddButton(NoiseGUIButton& refButton);
+	BOOL	CreateTextBox(NoiseGUITextBox& refObject);
 
-	BOOL	AddText(NoiseGUIText& refText);
+	BOOL	CreateScrollBar(NoiseGUIScrollBar& refObject);
 
 	void		SetInputEngine(NoiseUtInputEngine& refInputE);
 
@@ -34,13 +35,19 @@ public:
 
 private:
 
+	void	Destroy();
+
 	void		mFunction_UpdateButtons();//including graphic objs / events
+
+	void		mFunction_UpdateScrollBars();//embed buttons
+
+	void		mFunction_UpdateAllInternalGraphicObjs();//update graphic objs in every component
 
 private:
 	NoiseScene*					m_pFatherScene;
 	NoiseUtInputEngine*	m_pInputEngine;
 	std::vector<NoiseGUIButton*>*			m_pChildButtonList;
-	std::vector<NoiseGUIText*>*				m_pChildTextList;
+	std::vector<NoiseGUITextBox*>*				m_pChildTextList;
 	std::vector<NoiseGUIScrollBar*>*			m_pChildScrollBarList;
 	HWND							mWindowHWND;
 };

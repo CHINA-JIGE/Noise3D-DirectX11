@@ -8,7 +8,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseUtTimer
+class _declspec(dllexport) NoiseUtTimer
 {
 public:
 

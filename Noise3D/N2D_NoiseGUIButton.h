@@ -8,7 +8,10 @@
 #pragma once
 
 //A button ; can be embbed into other GUI object
-public class _declspec(dllexport) NoiseGUIButton :public  Noise2DBasicContainerInfo//common 2D container op
+class _declspec(dllexport) NoiseGUIButton :
+	public	Noise2DBasicContainerInfo,
+	public	NoiseClassLifeCycle,
+	public	NoiseGUIEventCommonOperation
 {
 public:
 	friend class NoiseGUIManager;
@@ -16,25 +19,27 @@ public:
 
 	NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent) = nullptr);
 
-	void	SetEventProcessCallbackFunction(UINT(*pFunc)(UINT NoiseGUIEvent));
-
 	void	SetDragableX(BOOL dragableX);
 
 	void	SetDragableY(BOOL dragableY);                                                                                                                               
 
-	void	SetTexture_MouseAway(UINT texID);
+	void	SetTexture(NOISE_GUI_BUTTON_STATE btnState, UINT texID);
 
-	void	SetTexture_MouseOn(UINT texID);
+	void	SetEnabled(BOOL isEnabled);
 
-	void	SetTexture_MousePressedDown(UINT texID);
+	BOOL IsEnabled();
 
 private:
+
+	void	Destroy();
+
 	NoiseGUIManager*		m_pFatherGUIMgr;
 	NoiseGraphicObject*		m_pGraphicObj;
-	UINT  (*m_pFunction_EventMessageProcess)(UINT NoiseGUIEvent);//a callback function pointer
-	UINT		mGraphicObject_RectID;//index of rectangle in main graphic object
+
+	BOOL	mIsEnabled;
 	NOISE_GUI_BUTTON_STATE mButtonState;
 	BOOL	mButtonHasBeenPressedDown;
+	NVECTOR2* m_pMouseDown_OffsetFromCenter;//used when dragable , to keep the relative position unchanged to cursor
 
 	//textures for 3 different state
 	UINT		mTextureID_MouseAway;

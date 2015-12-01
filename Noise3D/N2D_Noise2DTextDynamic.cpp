@@ -7,7 +7,6 @@
 
 Noise2DTextDynamic::Noise2DTextDynamic()
 {
-	mIsInitialized = FALSE;//set to TRUE when created
 	mWordSpacingOffset = 0;
 	mLineSpacingOffset = 0;
 	m_pTextureName = new std::string;
@@ -17,10 +16,9 @@ Noise2DTextDynamic::Noise2DTextDynamic()
 	m_pGraphicObj = new NoiseGraphicObject;
 };
 
-void Noise2DTextDynamic::SelfDestruction()
+void Noise2DTextDynamic::Destroy()
 {
 	m_pGraphicObj->SelfDestruction();
-	mIsInitialized = FALSE;
 };
 
 void Noise2DTextDynamic::SetFont(UINT fontID)
@@ -93,7 +91,7 @@ void Noise2DTextDynamic::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight
 
 void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
 {
-	if (!mIsInitialized)return;
+	if (!NoiseClassLifeCycle::IsInitialized())return;
 
 	mFontID = m_pFatherFontMgr->mFunction_ValidateFontID(mFontID);
 	//.....we must clear the graphic objects 
@@ -143,7 +141,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		for (UINT i = 0;i < currentRectCountInGraphicObj - stringCharCount;i++)
 		{
 			//delete elements at this position
-			m_pGraphicObj->DeleteRectangle(stringCharCount - 1);
+			m_pGraphicObj->DeleteRectangle(stringCharCount );
 		}
 	}
 
@@ -185,12 +183,12 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 #pragma region UpdatePositionOfSubRects
 		//calculate position of Rects (relative to the graphic object container)
 		posAlignmentOffset.x = 0;
-		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, realCharBitmapPixelSize.y, currentChar);
+		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
 
 		NVECTOR2 tmpRectTopLeft(0, 0);
 		NVECTOR2 tmpRectBottomRight(0, 0);
 		tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
-		tmpRectBottomRight = tmpRectTopLeft + NVECTOR2(mCharBoundarySizeX, mCharBoundarySizeY);
+		tmpRectBottomRight = tmpRectTopLeft + NVECTOR2(float(mCharBoundarySizeX), float(mCharBoundarySizeY));
 		
 		//.......
 		m_pGraphicObj->SetRectangle(
@@ -200,14 +198,14 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 			Noise2DBasicContainerInfo::GetBasicColor(),
 			mStringTextureID
 			);
-
+	
 #pragma endregion UpdatePositionOfSubRects
 
 
 		//update internal position offset ( to move the texcoord cursor of "TopLeft")
 		posGeneralOffset.x += (realCharBitmapPixelSize.x+mWordSpacingOffset);
 
-		if (posGeneralOffset.x >= stringBoundaryWidth)
+ 		if (posGeneralOffset.x >= stringBoundaryWidth)
 		{
 			//cursor move to next line
 			posGeneralOffset.y +=( mCharBoundarySizeY+mLineSpacingOffset);

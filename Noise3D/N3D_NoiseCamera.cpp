@@ -33,13 +33,14 @@ NoiseCamera::NoiseCamera()
 	D3DXMatrixIdentity(m_pMatrixView);
 };
 
-void NoiseCamera::SelfDestruction()
+void NoiseCamera::Destroy()
 {
-	delete m_pMatrixView;
-	delete m_pMatrixProjection;
-	delete m_pDirection;
-	delete m_pPosition;
-	delete m_pLookat;
+	 m_pMatrixView=nullptr;
+	 m_pMatrixProjection = nullptr;
+	 m_pDirection = nullptr;
+	 m_pPosition = nullptr;
+	 m_pLookat = nullptr;
+
 };
 
 void	NoiseCamera::SetLookAt(NVECTOR3 vLookat)

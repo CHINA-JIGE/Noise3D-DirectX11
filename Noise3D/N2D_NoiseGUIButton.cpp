@@ -11,12 +11,14 @@
 
 NoiseGUIButton::NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent))
 {
+	mIsEnabled = TRUE;
 	*m_pBasicColor = NVECTOR4(0.3f,0.3f,1.0f,1.0f);
+	m_pMouseDown_OffsetFromCenter = new NVECTOR2(0, 0);
 	m_pGraphicObj = new NoiseGraphicObject;
+	m_pEventList = new std::vector<UINT>;
 	mTextureID_MouseAway				= NOISE_MACRO_INVALID_TEXTURE_ID;
 	mTextureID_MouseOn					= NOISE_MACRO_INVALID_TEXTURE_ID;
 	mTextureID_MousePressedDown	= NOISE_MACRO_INVALID_TEXTURE_ID;
-	mGraphicObject_RectID				= NOISE_MACRO_INVALID_ID;
 	mButtonState = NOISE_GUI_BUTTON_STATE_COMMON;
 	mButtonHasBeenPressedDown = FALSE;
 	mIsDragableX = FALSE;
@@ -24,9 +26,10 @@ NoiseGUIButton::NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent))
 	m_pFunction_EventMessageProcess = pFunc;//default:nullptr
 }
 
-void NoiseGUIButton::SetEventProcessCallbackFunction(UINT(*pFunc)(UINT NoiseGUIEvent))
+void NoiseGUIButton::Destroy()
 {
-	if(pFunc)m_pFunction_EventMessageProcess = pFunc;
+	m_pFunction_EventMessageProcess = nullptr;
+	m_pGraphicObj->SelfDestruction();
 }
 
 void NoiseGUIButton::SetDragableX(BOOL dragableX)
@@ -39,26 +42,36 @@ void NoiseGUIButton::SetDragableY(BOOL dragableY)
 	mIsDragableY = dragableY;
 }
 
-void NoiseGUIButton::SetTexture_MouseAway(UINT texID)
+void NoiseGUIButton::SetTexture(NOISE_GUI_BUTTON_STATE btnState, UINT texID)
 {
-	//texID will be validated when rendering graphic object
-	mTextureID_MouseAway = texID;
-};
+	switch (btnState)
+	{
+	case NOISE_GUI_BUTTON_STATE_COMMON:
+		mTextureID_MouseAway = texID;
+		break;
+	case NOISE_GUI_BUTTON_STATE_MOUSEON:
+		mTextureID_MouseOn = texID;
+		break;
+	case NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN:
+		mTextureID_MousePressedDown = texID;
+		break;
+	default:
+		break;
+	}
+}
 
-void NoiseGUIButton::SetTexture_MouseOn(UINT texID)
+void NoiseGUIButton::SetEnabled(BOOL isEnabled)
 {
-	mTextureID_MouseOn = texID;
-};
+	mIsEnabled = isEnabled;
+}
 
-void NoiseGUIButton::SetTexture_MousePressedDown(UINT texID)
+BOOL NoiseGUIButton::IsEnabled()
 {
-	mTextureID_MousePressedDown = texID;
-};
+	return mIsEnabled;
+}
+
 
 /************************************************************************
                                      P R I V A T E          
 ************************************************************************/
-
-
-
 

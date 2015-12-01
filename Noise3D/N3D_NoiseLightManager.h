@@ -7,7 +7,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseLightManager
+class _declspec(dllexport) NoiseLightManager:public NoiseClassLifeCycle
 {
 public:
 	friend NoiseScene;
@@ -16,19 +16,17 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseLightManager();
 
-	void		SelfDestruction();
+	void		AddDynamicDirLight(N_DirectionalLight& refLight);
 
-	void		AddDynamicDirLight(N_DirectionalLight* pLight);
+	void		AddDynamicPointLight(N_PointLight& refLight);
 
-	void		AddDynamicPointLight(N_PointLight* pLight);
+	void		AddDynamicSpotLight(N_SpotLight& refLight);
 
-	void		AddDynamicSpotLight(N_SpotLight* pLight);
+	void		RemoveDynamicDirLight(N_DirectionalLight& refLight);
 
-	void		RemoveDynamicDirLight(N_DirectionalLight* pLight);
+	void		RemoveDynamicPointLight(N_PointLight& refLight);
 
-	void		RemoveDynamicPointLight(N_PointLight* pLight);
-
-	void		RemoveDynamicSpotLight(N_SpotLight* pLight);
+	void		RemoveDynamicSpotLight(N_SpotLight& refLight);
 
 	void		SetDynamicLightingEnabled(BOOL isEnabled);
 
@@ -53,6 +51,9 @@ public:
 
 
 private:
+
+	void		Destroy();
+
 	template <typename T> 
 	void mFunction_AddLight(std::vector<T>* pList, T iLight,UINT maxElementCount);
 

@@ -8,7 +8,7 @@
 
 #include "NUT_NoiseUtInputEngine_KeyDef.h"
 
-public class _declspec(dllexport) NoiseUtInputEngine
+class _declspec(dllexport) NoiseUtInputEngine
 {
 public:
 

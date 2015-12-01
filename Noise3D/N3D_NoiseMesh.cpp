@@ -39,7 +39,7 @@ NoiseMesh::NoiseMesh()
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
 };
 
-void NoiseMesh::SelfDestruction()
+void NoiseMesh::Destroy()
 {
 	ReleaseCOM(m_pVertexBuffer);
 	ReleaseCOM(m_pIndexBuffer);

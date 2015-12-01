@@ -7,7 +7,6 @@
 
 Noise2DTextStatic::Noise2DTextStatic()
 {
-	mIsInitialized = FALSE;//set TRUE when created
 	m_pTextureName = new std::string;
 	m_pTextColor = new NVECTOR4(0, 0, 0, 1.0f);
 	m_pTextGlowColor = new NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -15,10 +14,9 @@ Noise2DTextStatic::Noise2DTextStatic()
 
 }
 
-void Noise2DTextStatic::SelfDestruction()
+void Noise2DTextStatic::Destroy()
 {
 	m_pGraphicObj->SelfDestruction();
-	mIsInitialized = FALSE;
 };
 
 void Noise2DTextStatic::SetTextColor(NVECTOR4 color)
@@ -56,7 +54,7 @@ void Noise2DTextStatic::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight,
 
 void Noise2DTextStatic::mFunction_UpdateGraphicObject()
 {
-	if (!mIsInitialized)return;
+	if (!NoiseClassLifeCycle::IsInitialized())return;
 
 	//in case other font has been deleted 
 	UINT stringTexID = mTextureID;

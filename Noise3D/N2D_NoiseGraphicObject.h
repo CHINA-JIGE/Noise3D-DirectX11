@@ -7,7 +7,9 @@
 ************************************************************************/
 #pragma once
 
-public class _declspec(dllexport) NoiseGraphicObject
+#define NOISE_GRAPHIC_OBJECT_BUFFER_COUNT 6
+
+class _declspec(dllexport) NoiseGraphicObject:public NoiseClassLifeCycle
 {
 	friend class NoiseRenderer;
 	friend class NoiseScene;
@@ -15,8 +17,6 @@ public class _declspec(dllexport) NoiseGraphicObject
 public:
 	//¹¹Ôìº¯Êý
 	NoiseGraphicObject();
-
-	void		SelfDestruction();
 
 	UINT		AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -31,14 +31,6 @@ public:
 	UINT		AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color,UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
 	UINT		AddRectangle(NVECTOR2 vCenter, float fWidth,float fHeight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
-
-	UINT		AddEllipse( float a, float b,NVECTOR2 vCenter, NVECTOR4 color,UINT stepCount = 30, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
-
-	UINT		AddTriangleOutline(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	UINT		AddRectangleOutline(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color);
-
-	UINT		AddEllipseOutline(float a, float b, NVECTOR2 vCenter, NVECTOR4 color, UINT stepCount = 30);
 
 	void		SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -56,17 +48,6 @@ public:
 
 	void		SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight);
 
-	void		SetEllipse(UINT index, float a, float b,NVECTOR2 vCenter, NVECTOR4 color,UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
-
-	void		SetTriangleOutline(UINT index,NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	void		SetRectangleOutline(UINT index,NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color);
-
-	void		SetRectangleOutline(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color);
-
-	void		SetEllipseOutline(UINT index,float a, float b, NVECTOR2 vCenter, NVECTOR4 color);
-
-
 	void		DeleteLine3D(UINT index);
 
 	void		DeleteLine2D(UINT index);
@@ -78,14 +59,6 @@ public:
 	void		DeleteTriangle2D(UINT index);
 
 	void		DeleteRectangle(UINT index);
-
-	void		DeleteEllipse(UINT index);
-
-	void		DeleteTriangleOutline(UINT index);
-
-	void		DeleteRectOutline(UINT index);
-
-	void		DeleteEllipseOutline(UINT index);
 
 	UINT		GetLine3DCount();
 
@@ -99,63 +72,48 @@ public:
 
 	UINT		GetRectCount();
 
-	UINT		GetEllipseCount();
-
-	UINT		GetTriangleOutlineCount();
-
-	UINT		GetRectOutlineCount();
-
-	UINT		GetEllipseOutlineCount();
-
 private:
+
+	void			Destroy();
+
 	BOOL		mFunction_InitVB(UINT objType_ID);
 
-	void			mFunction_UpdateVerticesToGpu(UINT objType_ID);
+	void			NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateVerticesToGpu(UINT objType_ID);//by renderer
 
-	void			mFunction_EraseVertices(std::vector<N_SimpleVertex>* pList,UINT iVertexStartID, UINT iVertexCount);
+	//set/add/delete  using initializer_list
+	void			mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
 
-	void			mFunction_SetVertices(std::vector<N_SimpleVertex>* pList, N_SimpleVertex* pSourceArray,UINT iVertexStartID, UINT iVertexCount);
+	void			mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
 
-	UINT			mFunction_AddSolidTriangle2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2 , NVECTOR4 c3,NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3,BOOL isCommonTriangle);
+	void			mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
 
-	void			mFunction_SetSolidTriangle2D_GlobalVB(UINT index,NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 c1, NVECTOR4 c2, NVECTOR4 c3, NVECTOR2 texcoord1, NVECTOR2 texcoord2, NVECTOR2 texcoord3);
+	void			mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
 
-	UINT			mFunction_AddLine2D_GlobalVB(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	void			mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, UINT iVertexCount);
 
-	void			mFunction_SetLine2D_GlobalVB(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	void			mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2);
 
 	float			mFunction_ConvertPixelLength2FloatLength(float pxLen,BOOL isWidth);
 
-	void			mFunction_GenerateTriangleDrawCallList();//for optimization
+	void			NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_GenerateRectSubsetInfo();//for optimization,by renderer
 
 private:
 
+
 	NoiseScene*			m_pFatherScene;
 
-	UINT						mVB_ByteSize_GPU[5];
+	UINT						mVB_ByteSize_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
-	ID3D11Buffer*		m_pVB_GPU[5];
+	ID3D11Buffer*		m_pVB_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
-	BOOL					mCanUpdateToGpu[5];
+	BOOL					mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
-	std::vector<N_SimpleVertex>*	m_pVB_Mem[5];
+	std::vector<N_SimpleVertex>*	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 	
-	//used to locate triangles block in triangle 2D VB
-	std::vector<UINT>*					m_pRegionList_TriangleID_Common;
-	std::vector<N_RegionInfo>*		m_pRegionList_TriangleID_Rect;
-	std::vector<N_RegionInfo>*		m_pRegionList_TriangleID_Ellipse;
+	//used to store TexID of rectangles
+	std::vector<UINT>*			m_pTextureList_Rect;
 
-	//used to locate lines block in line 2D VB
-	std::vector<UINT>*					m_pRegionList_LineID_Common;
-	std::vector<N_RegionInfo>*		m_pRegionList_LineID_Triangle;
-	std::vector<N_RegionInfo>*		m_pRegionList_LineID_Rect;
-	std::vector<N_RegionInfo>*		m_pRegionList_LineID_Ellipse;
-
-	//draw call List : optimization ,because there are solid/textured triangles,
-	//2 techniques are needed, so multiple draw calls are needed
-	//std::vector<N_DrawCall_VertexRegion>*		m_pDrawCallList_CommonTriangle;
-
+	std::vector<N_GraphicObject_SubsetInfo>*	m_pRectSubsetInfoList;
 
 };

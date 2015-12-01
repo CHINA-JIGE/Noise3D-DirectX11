@@ -109,13 +109,10 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 return FALSE;
  }
 
- int gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, UINT inputChar)
+ int gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
  {
 	 //!!!!!!the return type is signed INT ,because  top left might go beyond the upper boundary
-
-	 //if it's unicode
-	 if(inputChar > 128) return 0;
-
+	
 	//Ascii alignment
 	 switch (inputChar)
 	 {
@@ -123,23 +120,44 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 case '\"':	 case '\'':	 case '^':	 case '*':	 case '`':	case'j':
 		 return 0;
 		 break;
-
-		//2,lower-bound alignment
-	 case '_':	case '.':		case ',':
-		 return (boundaryPxHeight - charRealHeight);
+		
+	//2,lower-bound alignment
+	 case L'£¬':  case L'¡£' : case L'£»': case L'£º':  case L'£¿':  case L'¡¢':  case L'¡¶':
+	 case L'¡·':  case L'¡±': case L'¡°':  case L'¡¯':	case L'¡¤':	case L'¡¾':  case L'¡¿':
+	 case L'£û':  case L'£ı': case L'¡®':  case L'¡ª':	
+		 return (int(boundaryPxHeight *0.75) -charRealHeight );
 		 break;
 
 		 //3,upper 1/3 alignment
 	 case 'g':	case 'p':	case 'q': case 'y':
-		 return boundaryPxHeight / 6;
+		 return boundaryPxHeight / 4;
 		 break;
 
 		 //4, lower 2/3 alignment, the bottom of each character lies right on the 2/3 line
 	 default:
-		 return (int(boundaryPxHeight *0.7)-charRealHeight);
+		 if(inputChar>0x007f)
+		 {
+			 return int((boundaryPxHeight *0.5) - charRealHeight*0.5);//CHINESE
+		 }
+		 else
+		 {
+			 return (int(boundaryPxHeight *0.75) - charRealHeight);
+		 }
 		 break;
 
 	 }
 
 	 return 0;
  }
+
+ float gFunction_Lerp(float a, float b, float t)
+ {
+	 return( a + (b - a)*t);
+ };
+
+
+ float gFunction_Clamp(float val, float min, float max)
+ {
+	 return (val >= min ? (val <= max ? val : max) : min);
+ };
+

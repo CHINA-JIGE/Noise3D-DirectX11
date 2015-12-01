@@ -7,7 +7,7 @@
 
 #pragma once
 
-public class _declspec(dllexport) NoiseScene
+class _declspec(dllexport) NoiseScene:public NoiseClassLifeCycle
 {
 	friend class NoiseMesh;
 	friend class NoiseRenderer;
@@ -24,43 +24,44 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseScene();
 
+
 	void				ReleaseAllChildObject();
 
-	UINT				CreateMesh(NoiseMesh& refMesh);
+	UINT				CreateMesh(NoiseMesh& refObject);
 	
-	BOOL			CreateRenderer(NoiseRenderer& refRenderer);
+	BOOL			CreateRenderer(NoiseRenderer& refObject);
 
-	BOOL			CreateCamera(NoiseCamera& refSceneCam);
+	BOOL			CreateCamera(NoiseCamera& refObject);
 
-	BOOL			CreateLightManager(NoiseLightManager& refLightMgr);
+	BOOL			CreateLightManager(NoiseLightManager& refObject);
 
-	UINT				CreateGraphicObject(NoiseGraphicObject& refGraphicObj);
+	UINT				CreateGraphicObject(NoiseGraphicObject& refObject);
 
-	BOOL			CreateTextureManager(NoiseTextureManager& refTexMgr);
+	BOOL			CreateTextureManager(NoiseTextureManager& refObject);
 
-	BOOL			CreateMaterialManager(NoiseMaterialManager& refMatMgr);
+	BOOL			CreateMaterialManager(NoiseMaterialManager& refObject);
 
-	BOOL			CreateAtmosphere(NoiseAtmosphere& refAtmosphere);
+	BOOL			CreateAtmosphere(NoiseAtmosphere& refObject);
 
 	BOOL			CreateGUI(NoiseGUIManager& refGUI, NoiseUtInputEngine& refInputE,HWND hwnd);
 
-	BOOL			CreateFontManager(NoiseFontManager& refFMgr);
+	BOOL			CreateFontManager(NoiseFontManager& refObject);
 
-	void			BindRenderer(NoiseRenderer& refRenderer);
+	void			BindRenderer(NoiseRenderer& refObject);
 
-	void			BindLightManager(NoiseLightManager& refLightMgr);
+	void			BindLightManager(NoiseLightManager& refObject);
 
-	void			BindTextureManager(NoiseTextureManager& refTexMgr);
+	void			BindTextureManager(NoiseTextureManager& refObject);
 
-	void			BindMaterialManager(NoiseMaterialManager& refMatMgr);
+	void			BindMaterialManager(NoiseMaterialManager& refObject);
 
-	void			BindAtmosphere(NoiseAtmosphere& refAtmosphere);
+	void			BindAtmosphere(NoiseAtmosphere& refObject);
 
-	void			BindGUI(NoiseGUIManager& refGUI);
+	void			BindGUI(NoiseGUIManager& refObject);
 
-	void			BindFontManager(NoiseFontManager& refFMgr);
+	void			BindFontManager(NoiseFontManager& refObject);
 
-	void			BindCamera(NoiseCamera& refSceneCam);
+	void			BindCamera(NoiseCamera& refObject);
 
 	NoiseRenderer*					GetRenderer();
 
@@ -77,7 +78,9 @@ public:
 	NoiseGUIManager*			GetGUIManager();
 
 private:
-	
+
+	void		Destroy();
+
 	NoiseCamera*							m_pChildCamera;
 
 	NoiseRenderer*							m_pChildRenderer;

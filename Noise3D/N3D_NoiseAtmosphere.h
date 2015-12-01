@@ -7,7 +7,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseAtmosphere
+class _declspec(dllexport) NoiseAtmosphere:public NoiseClassLifeCycle
 {
 public:
 	friend class NoiseScene;
@@ -16,8 +16,6 @@ public:
 
 	//¹¹Ôìº¯Êý
 	NoiseAtmosphere();
-
-	void		SelfDestruction();
 
 	void		SetFogEnabled(BOOL isEnabled);
 
@@ -31,7 +29,13 @@ public:
 
 	void		SetSkyBoxTexture(UINT cubeMapTexID);
 
+
+protected:
+
+	void	Destroy();
+
 private:
+
 	//used to build box
 	void	mFunction_Build_A_Quad(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex);
 

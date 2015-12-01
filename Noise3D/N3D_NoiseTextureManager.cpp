@@ -16,7 +16,7 @@ NoiseTextureManager::NoiseTextureManager()
 	m_pTextureObjectList = new std::vector<N_TextureObject>;
 };
 
-void	 NoiseTextureManager::SelfDestruction()
+void	 NoiseTextureManager::Destroy()
 {
 	for (auto texObj : *m_pTextureObjectList)
 	{
@@ -383,6 +383,7 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], cons
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
+	
 	//we disable texture modification of Cube Map for the time being...
 	N_TextureObject tmpTexObj;
 	tmpTexObj.mTexName = cubemapNameString;

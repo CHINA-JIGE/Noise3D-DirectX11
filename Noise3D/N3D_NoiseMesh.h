@@ -7,7 +7,7 @@
 
 #pragma once
 
-public class _declspec(dllexport) NoiseMesh : private NoiseFileManager
+class _declspec(dllexport) NoiseMesh : private NoiseFileManager,public NoiseClassLifeCycle
 {
 	friend class NoiseScene;
 	friend class NoiseRenderer;
@@ -15,8 +15,6 @@ public class _declspec(dllexport) NoiseMesh : private NoiseFileManager
 public:
 	//¹¹Ôìº¯Êý
 	NoiseMesh();
-
-	void	SelfDestruction();
 
 	void	CreatePlane(float fWidth,float fHeight,UINT iRowCount =5,UINT iColumnCount =5);
 
@@ -61,6 +59,8 @@ public:
 	NVECTOR3		GetBoundingBoxMin();
 
 private:
+
+	void	Destroy();
 
 	//the Parameter "iVertexCount" remind me to update the VertexCount in different Creating Method
 	BOOL	mFunction_CreateGpuBuffers(D3D11_SUBRESOURCE_DATA* pVertexDataInMem,int iVertexCount,D3D11_SUBRESOURCE_DATA* pIndexDataInMem,int iIndexCount);

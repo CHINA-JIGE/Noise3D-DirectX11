@@ -7,7 +7,7 @@
 
 #pragma once
 
-public class _declspec(dllexport) NoiseCamera
+class _declspec(dllexport) NoiseCamera:public NoiseClassLifeCycle
 {
 public:
 
@@ -16,7 +16,7 @@ public:
 
 	NoiseCamera();
 
-	void				SelfDestruction();
+	void				Destroy();
 
 	void				SetLookAt(NVECTOR3 vLookat);//要更新旋转角
 

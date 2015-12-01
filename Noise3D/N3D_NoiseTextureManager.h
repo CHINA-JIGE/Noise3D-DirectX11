@@ -16,7 +16,7 @@ struct N_TextureObject
 	NOISE_TEXTURE_TYPE mTextureType;
 };
 
-public class _declspec(dllexport) NoiseTextureManager
+class _declspec(dllexport) NoiseTextureManager:public NoiseClassLifeCycle
 {
 public:
 	friend class NoiseScene;
@@ -25,8 +25,6 @@ public:
 
 	//¹¹Ôìº¯Êý
 	NoiseTextureManager();
-
-	void		SelfDestruction();
 
 	BOOL	SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4& color);
 
@@ -66,6 +64,9 @@ public:
 
 
 private:
+
+	void		Destroy();
+
 	UINT		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
 
 	UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, const  char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);

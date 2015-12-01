@@ -3,13 +3,17 @@
 
 						h£ºNoiseGUI Basic Container Info
 
+
+			Description : encapsule basic container information like
+			position, size ..... this is a base class to be inherited.
+
+
 ************************************************************************/
 
 #pragma once
 
-
 //a base class that encapsulate basic information of a container 
-public class _declspec(dllexport) Noise2DBasicContainerInfo
+class  _declspec(dllexport)  Noise2DBasicContainerInfo
 {
 public:
 	Noise2DBasicContainerInfo();
@@ -22,7 +26,7 @@ public:
 
 	NVECTOR2 GetBottomRight();
 
-	void	SetCenterPos(float x, float y);
+	void	SetCenterPos(float x, float y) ;
 
 	void	SetCenterPos(NVECTOR2 v);
 
@@ -40,19 +44,17 @@ public:
 
 	float GetHeight();
 
-	void	SetVisible(BOOL isVisible);
-
     void	SetBasicColor(NVECTOR4 c);//if texture is invalid,use basic color to draw solid rect
 
 	NVECTOR4 GetBasicColor();//if texture is invalid,use basic color to draw solid rect
+
+	void	SetEnabled(BOOL isEnabled);
 
 protected:
 	BOOL IsPointInContainer(NVECTOR2 v);
 
 	NVECTOR2*	m_pPositionCenter;
-	BOOL	mIsVisible;
 	float		mWidth;
 	float		mHeight;
 	NVECTOR4*	m_pBasicColor;
 };
-

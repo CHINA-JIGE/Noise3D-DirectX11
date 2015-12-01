@@ -7,7 +7,7 @@
 #pragma once
 
 
-public class _declspec(dllexport) NoiseMaterialManager
+class _declspec(dllexport) NoiseMaterialManager:public NoiseClassLifeCycle
 {
 public:
 	friend class NoiseScene;
@@ -16,8 +16,6 @@ public:
 
 	//¹¹Ôìº¯Êý
 	NoiseMaterialManager();
-
-	void		SelfDestruction();
 
 	UINT		CreateMaterial(N_Material newMat);
 
@@ -33,6 +31,9 @@ public:
 
 
 private:
+
+	void		Destroy();
+
 	NoiseScene*								m_pFatherScene;
 	N_Material*								m_pDefaultMaterial;
 	std::vector<N_Material>*			m_pMaterialList;

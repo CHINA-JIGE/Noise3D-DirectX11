@@ -31,8 +31,9 @@ NoiseMaterialManager::NoiseMaterialManager()
 
 }
 
-void NoiseMaterialManager::SelfDestruction()
+void NoiseMaterialManager::Destroy()
 {
+	m_pFatherScene = nullptr;
 };
 
 UINT NoiseMaterialManager::CreateMaterial(N_Material newMat)

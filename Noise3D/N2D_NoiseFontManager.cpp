@@ -18,7 +18,7 @@ NoiseFontManager::NoiseFontManager()
 	m_pChildTextStatic = new std::vector<Noise2DTextStatic*>;
 }
 
-void NoiseFontManager::SelfDestruction()
+void NoiseFontManager::Destroy()
 {
 
 		for (auto face : *m_pFontObjectList)
@@ -29,6 +29,14 @@ void NoiseFontManager::SelfDestruction()
 		FT_Done_FreeType(m_FTLibrary);
 		m_pTexMgr->SelfDestruction();
 
+		for (auto text : *m_pChildTextDynamic)
+		{
+			text->SelfDestruction();
+		}
+		for (auto text : *m_pChildTextStatic)
+		{
+			text->SelfDestruction();
+		}
 };
 
 BOOL NoiseFontManager::AddChildObjectToRenderList()
@@ -103,8 +111,8 @@ UINT	 NoiseFontManager::CreateFontFromFile(const char * filePath, const char * f
 	};
 
 	//font size should be multiplied by 64 .... I don't know why but it's how it works
-	//FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
-	FT_Set_Char_Size(tmpFontObj.mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
+	FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
+	//FT_Set_Char_Size(tmpFontObj.mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
 
 
 	FT_Matrix    fontTransMatrix;              /* transformation matrix */
@@ -166,9 +174,16 @@ UINT	 NoiseFontManager::CreateStaticTextA(UINT fontID, std::string targetString,
 
 UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& refText)
 {
-	//the Texture was fixed once static text is Created
+	try
+	{
+		refText.Initialize();
+	}
+	catch (std::runtime_error)
+	{
+		DEBUG_MSG3(__func__, "", "Object Has Been Created!");
+		return  m_pChildTextStatic->size() - 1;
+	}
 
-	if(refText.mIsInitialized)return  m_pChildTextStatic->size() - 1;
 
 
 	//validate font ID
@@ -237,7 +252,6 @@ UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString
 	//....only after all init work was done can we bind mgr/object together
 
 	*(refText.m_pTextureName)=tmpTextureName.str();
-	refText.mIsInitialized = TRUE;
 	m_pChildTextStatic->push_back(&refText);
 	refText.m_pFatherFontMgr = this;
 
@@ -248,10 +262,15 @@ UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString
 UINT	 NoiseFontManager::CreateDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextDynamic& refText)
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
-
-	//cannot be created twice
-	if(refText.mIsInitialized)	return m_pChildTextDynamic->size() - 1;
-	
+	try
+	{
+		refText.Initialize();
+	}
+	catch (std::runtime_error)
+	{
+		DEBUG_MSG3(__func__,"","Object Has Been Created!");
+		return m_pChildTextDynamic->size() - 1;;
+	}
 
 
 	//validate font ID
@@ -270,7 +289,6 @@ UINT	 NoiseFontManager::CreateDynamicTextA(UINT fontID, std::string targetString
 	refText.mWordSpacingOffset = wordSpacingOffset;
 
 	//use the internal init func of TEXT 
-	refText.mIsInitialized = TRUE;
 	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
 	refText.mFontID = fontID;
 	refText.mCharBoundarySizeY= UINT(m_pFontObjectList->at(fontID).mFontSize);

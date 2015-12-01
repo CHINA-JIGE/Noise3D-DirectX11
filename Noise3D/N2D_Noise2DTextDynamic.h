@@ -5,7 +5,7 @@
 ************************************************************************/
 
 #pragma once
-public class _declspec(dllexport) Noise2DTextDynamic:public  Noise2DBasicContainerInfo
+class _declspec(dllexport) Noise2DTextDynamic:public  Noise2DBasicContainerInfo,public NoiseClassLifeCycle
 {
 public:
 	friend class NoiseScene;
@@ -13,8 +13,6 @@ public:
 	friend class NoiseFontManager;
 
 	Noise2DTextDynamic();
-
-	void		SelfDestruction();
 
 	void		SetFont(UINT fontID);
 
@@ -30,6 +28,8 @@ public:
 
 private:
 
+	void	Destroy();
+
 	void	mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVECTOR4 color, UINT texID);
 	
 	void  NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//by renderer
@@ -37,7 +37,6 @@ private:
 private:
 	NoiseFontManager*	m_pFatherFontMgr;
 	NoiseGraphicObject* m_pGraphicObj;//to store char rectangles
-	BOOL				mIsInitialized;
 
 	UINT					mFontID;
 	UINT					mStringTextureID;

@@ -89,12 +89,14 @@
     <ClInclude Include="N2D_NoiseGUI.h" />
     <ClInclude Include="N2D_NoiseGUIButton.h" />
     <ClInclude Include="N2D_NoiseGUIScrollBar.h" />
-    <ClInclude Include="N2D_NoiseGUIText.h" />
+    <ClInclude Include="N2D_NoiseGUITextBox.h" />
     <ClInclude Include="N2D_NoiseGUIManager.h" />
     <ClInclude Include="N3D_NoiseCamera.h" />
     <ClInclude Include="N3D_NoiseEngine.h" />
+    <ClInclude Include="NBASE_NoiseClassLifeCycle.h" />
     <ClInclude Include="NBASE_NoiseFileManager.h" />
     <ClInclude Include="N2D_NoiseFontManager.h" />
+    <ClInclude Include="NBASE_NoiseGUIEventCommonOperation.h" />
     <ClInclude Include="NUT_NoiseUtInputEngine.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
     <ClInclude Include="N2D_NoiseGraphicObject.h" />
@@ -115,11 +117,6 @@
     <ClInclude Include="NBASE_Noise2DBasicContainerInfo.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\RenderWindow\Main.fx">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
@@ -132,7 +129,7 @@
     <ClCompile Include="N2D_Noise2DTextDynamic.cpp" />
     <ClCompile Include="N2D_Noise2DTextStatic.cpp" />
     <ClCompile Include="N2D_NoiseGUIScrollBar.cpp" />
-    <ClCompile Include="N2D_NoiseGUIText.cpp" />
+    <ClCompile Include="N2D_NoiseGUITextBox.cpp" />
     <ClCompile Include="N3D_NoiseCamera.cpp" />
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="N2D_NoiseFontManager.cpp" />
@@ -154,19 +151,6 @@
     </ClCompile>
     <ClCompile Include="NUT_NoiseUtSlicer.cpp" />
     <ClCompile Include="NUT_NoiseUtTimer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\RenderWindow\shading3D.fx">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\RenderWindow\input_Struct.fx">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\RenderWindow\shading2D.fx">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

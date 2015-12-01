@@ -23,39 +23,41 @@ NoiseLightManager::NoiseLightManager()
 	mCanUpdateStaticLights = FALSE;
 }
 
-void NoiseLightManager::SelfDestruction()
+void NoiseLightManager::Destroy()
 {
+	m_pFatherScene = nullptr;
+
 };
 
 //这些烂鬼add remove 就用macro吧
-void	NoiseLightManager::AddDynamicDirLight(N_DirectionalLight* pLight)
+void	NoiseLightManager::AddDynamicDirLight(N_DirectionalLight& refLight)
 {
-	mFunction_AddLight<N_DirectionalLight*>(m_pLightList_Dir_Dynamic,pLight,10);
+	mFunction_AddLight<N_DirectionalLight*>(m_pLightList_Dir_Dynamic, &refLight,10);
 };
 
-void	NoiseLightManager::AddDynamicPointLight(N_PointLight* pLight)
+void	NoiseLightManager::AddDynamicPointLight(N_PointLight& refLight)
 {
-	mFunction_AddLight<N_PointLight*>(m_pLightList_Point_Dynamic,pLight,10);
+	mFunction_AddLight<N_PointLight*>(m_pLightList_Point_Dynamic,&refLight,10);
 };          
 
-void NoiseLightManager::AddDynamicSpotLight(N_SpotLight* pLight)
+void NoiseLightManager::AddDynamicSpotLight(N_SpotLight& refLight)
 {
-	mFunction_AddLight<N_SpotLight*>(m_pLightList_Spot_Dynamic,pLight,10);
+	mFunction_AddLight<N_SpotLight*>(m_pLightList_Spot_Dynamic, &refLight,10);
 };
 
-void	NoiseLightManager::RemoveDynamicDirLight(N_DirectionalLight* pLight)
+void	NoiseLightManager::RemoveDynamicDirLight(N_DirectionalLight& refLight)
 {
-	mFunction_RemoveLight_ByAddr<N_DirectionalLight*>(m_pLightList_Dir_Dynamic,pLight);
+	mFunction_RemoveLight_ByAddr<N_DirectionalLight*>(m_pLightList_Dir_Dynamic, &refLight);
 };
 
-void	NoiseLightManager::RemoveDynamicPointLight(N_PointLight* pLight)
+void	NoiseLightManager::RemoveDynamicPointLight(N_PointLight& refLight)
 {
-	mFunction_RemoveLight_ByAddr<N_PointLight*>(m_pLightList_Point_Dynamic,pLight);
+	mFunction_RemoveLight_ByAddr<N_PointLight*>(m_pLightList_Point_Dynamic, &refLight);
 };
 
-void	NoiseLightManager::RemoveDynamicSpotLight(N_SpotLight* pLight)
+void	NoiseLightManager::RemoveDynamicSpotLight(N_SpotLight& refLight)
 {	
-	mFunction_RemoveLight_ByAddr<N_SpotLight*>(m_pLightList_Spot_Dynamic,pLight);
+	mFunction_RemoveLight_ByAddr<N_SpotLight*>(m_pLightList_Spot_Dynamic, &refLight);
 };
 
 void	NoiseLightManager::SetDynamicLightingEnabled(BOOL isEnabled)

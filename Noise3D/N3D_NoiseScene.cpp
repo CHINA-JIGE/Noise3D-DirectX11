@@ -10,9 +10,42 @@
 
 #include "Noise3D.h"
 
+#pragma region HAHAHA
+#define CREATE_OBJECT_ADDTOLIST(childObjList) \
+	try\
+	{\
+		refObject.Initialize();\
+	}\
+	catch (std::runtime_error)\
+	{\
+		DEBUG_MSG1("Object Has Been Created!");\
+		return NOISE_MACRO_INVALID_ID;\
+	}\
+	childObjList->push_back(&refObject);\
+	refObject.m_pFatherScene = this;\
+	return (childObjList->size()-1);\
+
+#define CREATE_OBJECT(pChildObj) \
+	try\
+	{\
+		refObject.Initialize();\
+	}\
+	catch (std::runtime_error)\
+	{\
+		DEBUG_MSG1("Object Has Been Created!");\
+		return FALSE;\
+	}\
+	pChildObj=&refObject;\
+	refObject.m_pFatherScene = this;\
+	return TRUE;\
+
+#pragma endregion HAHAHA
 
 NoiseScene::NoiseScene()
 {
+	m_pChildAtmosphere = nullptr;
+	m_pChildFontMgr = nullptr;
+	m_pChildGUIMgr = nullptr;
 	m_pChildCamera			= nullptr;
 	m_pChildRenderer		= nullptr;
 	m_pChildLightMgr		= nullptr;
@@ -20,6 +53,19 @@ NoiseScene::NoiseScene()
 	m_pChildMaterialMgr	= nullptr;
 	m_pChildMeshList					= new std::vector<NoiseMesh*>;
 	m_pChildGraphicObjectList	= new std::vector<NoiseGraphicObject*>;
+}
+
+void NoiseScene::Destroy()
+{
+	m_pChildAtmosphere = nullptr;
+	m_pChildFontMgr = nullptr;
+	m_pChildGUIMgr = nullptr;
+	m_pChildCamera = nullptr;
+	m_pChildRenderer = nullptr;
+	m_pChildLightMgr = nullptr;
+	m_pChildTextureMgr = nullptr;
+	m_pChildMaterialMgr = nullptr;
+	ReleaseAllChildObject();
 };
 
 void	NoiseScene::ReleaseAllChildObject()
@@ -60,69 +106,63 @@ void	NoiseScene::ReleaseAllChildObject()
 
 };
 
-UINT NoiseScene::CreateMesh(NoiseMesh& refMesh)
+UINT NoiseScene::CreateMesh(NoiseMesh& refObject)
 {
-	m_pChildMeshList->push_back(&refMesh);
-	refMesh.m_pFatherScene =this;
-
-	return (m_pChildMeshList->size()-1);
+	CREATE_OBJECT_ADDTOLIST(m_pChildMeshList);
 };
 
-BOOL NoiseScene::CreateRenderer(NoiseRenderer& refRenderer)
+BOOL NoiseScene::CreateRenderer(NoiseRenderer& refObject)
 {
+	try
+	{
+		refObject.Initialize();
+	}
+		catch (std::runtime_error)
+	{
+		DEBUG_MSG1("Object Has Been Created!");
+	}
+		m_pChildRenderer = &refObject;
+		refObject.m_pFatherScene = this;
 
-	m_pChildRenderer = &refRenderer;
-	refRenderer.m_pFatherScene =this;
 	BOOL isSucceeded;
-	isSucceeded=refRenderer.mFunction_Init();
-
+	isSucceeded= refObject.mFunction_Init();
+	if (!isSucceeded)
+	{
+		DEBUG_MSG1("Create Renderer Failed!");
+	}
 	return isSucceeded;
 };
 
-BOOL NoiseScene::CreateCamera(NoiseCamera& refCamera)
+BOOL NoiseScene::CreateCamera(NoiseCamera& refObject)
 {
-	m_pChildCamera = &refCamera;
-	refCamera.m_pFatherScene = this;
+	CREATE_OBJECT(m_pChildCamera);
 	return TRUE;
 
 }
 
-BOOL NoiseScene::CreateLightManager(NoiseLightManager& refLightMgr)
+BOOL NoiseScene::CreateLightManager(NoiseLightManager& refObject)
 {
-	m_pChildLightMgr = &refLightMgr;
-	m_pChildLightMgr->m_pFatherScene = this;
-	return TRUE;
-
+	CREATE_OBJECT(m_pChildLightMgr);
 }
 
-UINT	  NoiseScene::CreateGraphicObject(NoiseGraphicObject& refGraphicObj)
+UINT	  NoiseScene::CreateGraphicObject(NoiseGraphicObject& refObject)
 {
-
-	m_pChildGraphicObjectList->push_back(&refGraphicObj);
-	refGraphicObj.m_pFatherScene = this;
-	return m_pChildGraphicObjectList->size()-1;
+	CREATE_OBJECT_ADDTOLIST(m_pChildGraphicObjectList);
 }
 
-BOOL NoiseScene::CreateTextureManager(NoiseTextureManager& refTexMgr)
+BOOL NoiseScene::CreateTextureManager(NoiseTextureManager& refObject)
 {
-	m_pChildTextureMgr = &refTexMgr;
-	refTexMgr.m_pFatherScene = this;
-	return TRUE;
+	CREATE_OBJECT(m_pChildTextureMgr);
 }
 
-BOOL NoiseScene::CreateMaterialManager(NoiseMaterialManager& refMatMgr)
+BOOL NoiseScene::CreateMaterialManager(NoiseMaterialManager& refObject)
 {
-	m_pChildMaterialMgr = &refMatMgr;
-	refMatMgr.m_pFatherScene = this;
-
-	return TRUE;
+	CREATE_OBJECT(m_pChildMaterialMgr);
 }
 
-BOOL NoiseScene::CreateAtmosphere(NoiseAtmosphere& refAtmosphere) 
+BOOL NoiseScene::CreateAtmosphere(NoiseAtmosphere& refObject)
 {
-	m_pChildAtmosphere = &refAtmosphere;
-	refAtmosphere.m_pFatherScene = this;
-	return TRUE;
+	CREATE_OBJECT(m_pChildAtmosphere);
 }
 
 BOOL NoiseScene::CreateGUI(NoiseGUIManager& refGUI,NoiseUtInputEngine& refInputE, HWND hwnd)
@@ -146,52 +186,50 @@ BOOL NoiseScene::CreateGUI(NoiseGUIManager& refGUI,NoiseUtInputEngine& refInputE
 	return TRUE;
 }
 
-BOOL NoiseScene::CreateFontManager(NoiseFontManager& refFontMgr)
+BOOL NoiseScene::CreateFontManager(NoiseFontManager& refObject)
 {
-	if (!refFontMgr.mFunction_InitFreeType())return FALSE;
-	m_pChildFontMgr = &refFontMgr;
-	refFontMgr.m_pFatherScene = this;
-	return TRUE;
+	if (!refObject.mFunction_InitFreeType())return FALSE;
+	CREATE_OBJECT(m_pChildFontMgr);
 }
 
-void NoiseScene::BindRenderer(NoiseRenderer & refRenderer)
+void NoiseScene::BindRenderer(NoiseRenderer & refObject)
 {
-	m_pChildRenderer = &refRenderer;
+	m_pChildRenderer = &refObject;
 };
 
-void NoiseScene::BindLightManager(NoiseLightManager & refLightMgr)
+void NoiseScene::BindLightManager(NoiseLightManager & refObject)
 {
-	m_pChildLightMgr = &refLightMgr;
+	m_pChildLightMgr = &refObject;
 }
 
-void NoiseScene::BindTextureManager(NoiseTextureManager & refTexMgr)
+void NoiseScene::BindTextureManager(NoiseTextureManager & refObject)
 {
-	m_pChildTextureMgr = &refTexMgr;
+	m_pChildTextureMgr = &refObject;
 }
 
-void NoiseScene::BindMaterialManager(NoiseMaterialManager & refMatMgr)
+void NoiseScene::BindMaterialManager(NoiseMaterialManager & refObject)
 {
-	m_pChildMaterialMgr = &refMatMgr;
+	m_pChildMaterialMgr = &refObject;
 }
 
-void NoiseScene::BindAtmosphere(NoiseAtmosphere & refAtmosphere)
+void NoiseScene::BindAtmosphere(NoiseAtmosphere & refObject)
 {
-	m_pChildAtmosphere = &refAtmosphere;
+	m_pChildAtmosphere = &refObject;
 }
 
-void NoiseScene::BindGUI(NoiseGUIManager & refGUI)
+void NoiseScene::BindGUI(NoiseGUIManager & refObject)
 {
-	m_pChildGUIMgr = &refGUI;
+	m_pChildGUIMgr = &refObject;
 }
 
-void NoiseScene::BindFontManager(NoiseFontManager & refFMgr)
+void NoiseScene::BindFontManager(NoiseFontManager & refObject)
 {
-	m_pChildFontMgr = &refFMgr;
+	m_pChildFontMgr = &refObject;
 };
 
-void	NoiseScene::BindCamera(NoiseCamera& refCamera)
+void	NoiseScene::BindCamera(NoiseCamera& refObject)
 {
-	m_pChildCamera = &refCamera;
+	m_pChildCamera = &refObject;
 }
 
 NoiseRenderer * NoiseScene::GetRenderer()
@@ -233,5 +271,4 @@ NoiseGUIManager * NoiseScene::GetGUIManager()
 /************************************************************************
                                           P R I V A T E                       
 ************************************************************************/
-	
 

@@ -20,7 +20,7 @@ struct N_FontObject
 };
 
 
-public class _declspec(dllexport) NoiseFontManager
+class _declspec(dllexport) NoiseFontManager:public NoiseClassLifeCycle
 {
 public:
 	friend	class NoiseScene;
@@ -30,7 +30,6 @@ public:
 
 	NoiseFontManager();
 
-	void		SelfDestruction();
 
 	BOOL	AddChildObjectToRenderList();//Renderer need to be valid
 
@@ -59,6 +58,8 @@ private:
 	UINT		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj, UINT charWidth, UINT charHeight);
 
 private:
+
+	void		Destroy();
 
 	NoiseScene*						m_pFatherScene;
 	NoiseTextureManager*		m_pTexMgr;//internal texture manager
