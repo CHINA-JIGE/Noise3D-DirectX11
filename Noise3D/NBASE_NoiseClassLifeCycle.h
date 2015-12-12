@@ -16,6 +16,12 @@
 class _declspec(dllexport) NoiseClassLifeCycle
 {
 public:
+	/*~NoiseClassLifeCycle()
+	{
+		SelfDestruction();
+	}*/
+
+
 	void	SelfDestruction()
 	{
 		if (mIsInitialized)
@@ -27,7 +33,7 @@ public:
 
 
 protected:
-	void	   Initialize() 
+	void	   SetStatusToBeInitialized() 
 	{ 
 		if (mIsInitialized)
 		{

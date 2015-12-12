@@ -8,20 +8,21 @@
 
 #include "NUT_NoiseUtInputEngine_KeyDef.h"
 
-class _declspec(dllexport) NoiseUtInputEngine
+class _declspec(dllexport) NoiseUtInputEngine:public NoiseClassLifeCycle
 {
 public:
 
 	//¹¹Ôìº¯Êý
 	NoiseUtInputEngine();
 
-	void			SelfDestruction();
 
 	BOOL		Initialize(HINSTANCE hinstance, HWND hwnd);
 
 	BOOL		Update();
 
 	BOOL		IsKeyPressed(NOISE_KEY keyVal);
+
+	BOOL		IsKeyPressed(UINT keyVal);
 
 	BOOL		IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn);
 
@@ -38,6 +39,8 @@ public:
 	int			GetMouseScrPosY();
 
 private:
+
+	void			Destroy();
 
 	IDirectInput8*				m_pDirectInput;
 	IDirectInputDevice8*		m_pDeviceKeyboard;

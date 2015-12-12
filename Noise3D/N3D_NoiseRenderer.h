@@ -9,7 +9,9 @@
 #pragma once
 
 
-class _declspec(dllexport) NoiseRenderer : private NoiseFileManager, public NoiseClassLifeCycle
+class _declspec(dllexport) NoiseRenderer : 
+	private NoiseFileManager, 
+	public NoiseClassLifeCycle
 {
 
 	friend class NoiseScene;
@@ -17,7 +19,6 @@ class _declspec(dllexport) NoiseRenderer : private NoiseFileManager, public Nois
 public:
 	//¹¹Ôìº¯Êý
 	NoiseRenderer();
-
 
 	void			RenderMeshes();
 
@@ -90,11 +91,12 @@ private:
 
 	void				mFunction_RenderMeshInList_UpdateCbRarely();
 
+	//--------------------ADD TO RENDER LIST----------------------
+	void				mFunction_AddToRenderList_GraphicObj(NoiseGraphicObject* pGraphicObj, std::vector<NoiseGraphicObject*>* pList);
 
-	//for adding internal graphic Object to Different List
-	void				mFunction_GraphicObj_AddToRenderList(NoiseGraphicObject* pGraphicObj, std::vector<NoiseGraphicObject*>* pList);
-
-	//render graphic object
+	void				mFunction_AddToRenderList_Text(Noise2DBasicTextInfo* pText, std::vector<Noise2DBasicTextInfo*>* pList);
+	
+	//----------------UPDATE & RENDER-----------------------
 	void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
 
 	void				mFunction_GraphicObj_RenderLine3DInList(std::vector<NoiseGraphicObject*>* pList);
@@ -109,7 +111,7 @@ private:
 
 	void				mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText);
 	
-	void				mFunction_TextGraphicObj_RenderTriangles();
+	void				mFunction_TextGraphicObj_Render(std::vector<Noise2DBasicTextInfo*>* pList);
 
 	void				mFunction_Atmosphere_Fog_Update();
 
@@ -120,7 +122,7 @@ private:
 	void				mFunction_Atmosphere_UpdateCbAtmosphere();
 
 	//validate Mat/Tex ID in case of 'out of range' error
-	UINT				mFunction_ValidateTextureID_UsingTexMgr(UINT texID, NOISE_TEXTURE_TYPE texType=NOISE_TEXTURE_TYPE_COMMON);
+	UINT				mFunction_ValidateTextureID_UsingSceneTexMgr(UINT texID, NOISE_TEXTURE_TYPE texType=NOISE_TEXTURE_TYPE_COMMON);
 
 	UINT				mFunction_ValidateMaterialID_UsingMatMgr(UINT matID);
 
@@ -129,9 +131,10 @@ private:
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
 	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
-	std::vector<NoiseGraphicObject*>*	m_pRenderList_GUIGraphicObj;//for GUI rendering
-	std::vector<Noise2DTextDynamic*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
-	std::vector<Noise2DTextStatic*>*		m_pRenderList_TextStatic;//for static Text Rendering(including other info)
+	std::vector<NoiseGraphicObject*>*	m_pRenderList_GUIGraphicObj;//for GUI common object rendering
+	std::vector<Noise2DBasicTextInfo*>*m_pRenderList_GUIText;//internal Text Object
+	std::vector<Noise2DBasicTextInfo*>*m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
+	std::vector<Noise2DBasicTextInfo*>*m_pRenderList_TextStatic;//for static Text Rendering(including other info)
 	std::vector	<NoiseAtmosphere*>*		m_pRenderList_Atmosphere;
 
 	//Raster State

@@ -150,14 +150,67 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 return 0;
  }
 
+ UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode)
+ {
+	 switch (scanCode)
+	 {
+	 case NOISE_KEY_0: return '0'; break;
+	 case NOISE_KEY_1: return '1'; break;
+	 case NOISE_KEY_2: return '2'; break;
+	 case NOISE_KEY_3: return '3'; break;
+	 case NOISE_KEY_4: return '4'; break;
+	 case NOISE_KEY_5: return '5'; break;
+	 case NOISE_KEY_6: return '6'; break;
+	 case NOISE_KEY_7: return '7'; break;
+	 case NOISE_KEY_8: return '8'; break;
+	 case NOISE_KEY_9: return '9'; break;
+	 case NOISE_KEY_A: return 'a'; break;
+	 case NOISE_KEY_B: return 'b'; break;
+	 case NOISE_KEY_C: return 'c'; break;
+	 case NOISE_KEY_D: return 'd'; break;
+	 case NOISE_KEY_E: return 'e'; break;
+	 case NOISE_KEY_F: return 'f'; break;
+	 case NOISE_KEY_G: return 'g'; break;
+	 case NOISE_KEY_H: return 'h'; break;
+	 case NOISE_KEY_I: return 'i'; break;
+	 case NOISE_KEY_J: return 'j'; break;
+	 case NOISE_KEY_K: return 'k'; break;
+	 case NOISE_KEY_L: return 'l'; break;
+	 case NOISE_KEY_M: return 'm'; break;
+	 case NOISE_KEY_N: return 'n'; break;
+	 case NOISE_KEY_O: return 'o'; break;
+	 case NOISE_KEY_P: return 'p'; break;
+	 case NOISE_KEY_Q: return 'q'; break;
+	 case NOISE_KEY_R: return 'r'; break;
+	 case NOISE_KEY_S: return 's'; break;
+	 case NOISE_KEY_T: return 't'; break;
+	 case NOISE_KEY_U: return 'u'; break;
+	 case NOISE_KEY_V: return 'v'; break;
+	 case NOISE_KEY_W: return 'w'; break;
+	 case NOISE_KEY_X: return 'x'; break;
+	 case NOISE_KEY_Y: return 'y'; break;
+	 case NOISE_KEY_Z: return 'z'; break;
+	 case NOISE_KEY_COMMA: return ','; break;
+	 case NOISE_KEY_LBRACKET: return '['; break;
+	 case NOISE_KEY_RBRACKET: return ']'; break;
+	 case NOISE_KEY_PERIOD: return '.'; break;
+	 default:return 0;break;
+	 }
+ };
+
+
  float gFunction_Lerp(float a, float b, float t)
  {
 	 return( a + (b - a)*t);
  };
 
 
- float gFunction_Clamp(float val, float min, float max)
+ float gFunction_Clampf(float val, float min, float max)
  {
 	 return (val >= min ? (val <= max ? val : max) : min);
  };
 
+ int	gFunction_Clamp(int val, int min, int max)
+ {
+	 return (val >= min ? (val <= max ? val : max) : min);
+ };

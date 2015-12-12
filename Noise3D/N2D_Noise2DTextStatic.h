@@ -6,7 +6,10 @@
 
 #pragma once
 
-class _declspec(dllexport) Noise2DTextStatic:public Noise2DBasicContainerInfo,public NoiseClassLifeCycle
+class _declspec(dllexport) Noise2DTextStatic:
+	public Noise2DBasicContainerInfo,
+	public NoiseClassLifeCycle,
+	public Noise2DBasicTextInfo
 {
 public:
 
@@ -16,9 +19,9 @@ public:
 
 	Noise2DTextStatic();
 
-	void		SetTextColor(NVECTOR4 color);
+	//void		SetTextColor(NVECTOR4 color);
 
-	void		SetTextGlowColor(NVECTOR4 color);
+	//void		SetTextGlowColor(NVECTOR4 color);
 
 
 private:
@@ -31,11 +34,6 @@ private:
 
 private:
 
-	NoiseFontManager*		m_pFatherFontMgr;
-	NoiseGraphicObject*		m_pGraphicObj;//to store char rectangles
-
-	NVECTOR4*		m_pTextColor;
-	NVECTOR4*		m_pTextGlowColor;
-	UINT					mTextureID;//to avoid performance downfall cause by GetTextureID;
+	UINT					mStringTextureID;//to avoid performance overhead caused by GetTextureID;
 	std::string*		m_pTextureName;//which bitmap texture to refer to
 };

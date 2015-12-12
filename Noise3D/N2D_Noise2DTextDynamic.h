@@ -5,7 +5,10 @@
 ************************************************************************/
 
 #pragma once
-class _declspec(dllexport) Noise2DTextDynamic:public  Noise2DBasicContainerInfo,public NoiseClassLifeCycle
+class _declspec(dllexport) Noise2DTextDynamic:
+	public  Noise2DBasicContainerInfo,
+	public NoiseClassLifeCycle,
+	public Noise2DBasicTextInfo
 {
 public:
 	friend class NoiseScene;
@@ -16,15 +19,19 @@ public:
 
 	void		SetFont(UINT fontID);
 
+	UINT		GetFontID();
+
 	void		SetTextAscii(std::string newText);
 
-	void		SetTextColor(NVECTOR4 color);
-
-	void		SetGlowColor(NVECTOR4 color);
+	void		GetTextAscii(std::string& outString);
 
 	void		SetLineSpacingOffset(int offset);
 
+	int		GetLineSpacingOffset();
+
 	void		SetWordSpacingOffset(int offset);
+
+	int		GetWordSpacingOffset();
 
 private:
 
@@ -35,8 +42,6 @@ private:
 	void  NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//by renderer
 
 private:
-	NoiseFontManager*	m_pFatherFontMgr;
-	NoiseGraphicObject* m_pGraphicObj;//to store char rectangles
 
 	UINT					mFontID;
 	UINT					mStringTextureID;
@@ -44,8 +49,6 @@ private:
 	UINT					mCharBoundarySizeY;
 	int					mWordSpacingOffset;
 	int					mLineSpacingOffset;
-	NVECTOR4*		m_pTextColor;
-	NVECTOR4*		m_pTextGlowColor;
 	std::string*		m_pTextureName;//which bitmap texture to refer to
 	std::string*		m_pTextContent;//the target "string"
 };

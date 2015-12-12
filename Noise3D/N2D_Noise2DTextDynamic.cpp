@@ -11,9 +11,7 @@ Noise2DTextDynamic::Noise2DTextDynamic()
 	mLineSpacingOffset = 0;
 	m_pTextureName = new std::string;
 	m_pTextContent	= new std::string;
-	m_pTextColor = new NVECTOR4(0, 0, 0, 1.0f);
-	m_pTextGlowColor = new NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pGraphicObj = new NoiseGraphicObject;
+
 };
 
 void Noise2DTextDynamic::Destroy()
@@ -26,44 +24,57 @@ void Noise2DTextDynamic::SetFont(UINT fontID)
 	if (m_pFatherFontMgr->mFunction_ValidateFontID(fontID) != NOISE_MACRO_INVALID_ID)
 	{
 		mFontID = fontID;
-		auto& fontObj =m_pFatherFontMgr->m_pFontObjectList->at(fontID);
-
+		auto fontObj =m_pFatherFontMgr->m_pFontObjectList->at(fontID);
+		
 		//boundary size of 1 Char
 		mCharBoundarySizeY = UINT(fontObj.mFontSize);
-		mCharBoundarySizeX = mCharBoundarySizeY*UINT(fontObj.mAspectRatio);
+		mCharBoundarySizeX = UINT(mCharBoundarySizeY*fontObj.mAspectRatio);
 
-		//update Texture ID
-		std::stringstream tmpS;
-		tmpS << "AsciiBitmapTable" << fontID;
-		mStringTextureID = m_pFatherFontMgr->m_pTexMgr->GetTextureID(tmpS.str());
+		//update Texture ID using name "AsciiBitmapTable" + number
+		mStringTextureID = m_pFatherFontMgr->m_pTexMgr->GetTextureID(fontObj.mInternalTextureName);
+
 	}
+}
+
+UINT Noise2DTextDynamic::GetFontID()
+{
+	return mFontID;
 };
+
 
 
 void Noise2DTextDynamic::SetTextAscii(std::string newText)
 {
 	*m_pTextContent = newText;
+}
+
+void Noise2DTextDynamic::GetTextAscii(std::string & outString)
+{
+	outString = *m_pTextContent;
 };
 
-void Noise2DTextDynamic::SetTextColor(NVECTOR4 color)
-{
-	*m_pTextColor = color;
-}
-
-void Noise2DTextDynamic::SetGlowColor(NVECTOR4 color)
-{
-	*m_pTextGlowColor = color;
-}
 
 void Noise2DTextDynamic::SetLineSpacingOffset(int offset)
 {
 	if (offset > -int(mCharBoundarySizeY))mLineSpacingOffset = offset;
+}
+
+int Noise2DTextDynamic::GetLineSpacingOffset()
+{
+	return mLineSpacingOffset;
 };
+
 
 void Noise2DTextDynamic::SetWordSpacingOffset(int offset)
 {
 	if (offset > -int(mCharBoundarySizeX))mWordSpacingOffset = offset;
+}
+
+int Noise2DTextDynamic::GetWordSpacingOffset()
+{
+	return mWordSpacingOffset;
 };
+
 
 
 
@@ -148,6 +159,8 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 #pragma endregion AdjustTheCountOfRects
 
 
+
+
 	//2. update (set) rectangles to its new condition, and we store 2 string to avoid unnecessary 
 	//texcoord update (char bitmap udpate)
 	//like a cursor moving around
@@ -157,7 +170,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 	{
 
 		//chars which are at the corresponding position (if one string is longer than the other
-		char currentChar = (i < m_pTextContent->size()) ? m_pTextContent->at(i) : 0;
+		char currentChar = m_pTextContent->at(i);//(i < m_pTextContent->size()) ? m_pTextContent->at(i) : 0;
 
 
 #pragma region UpdateTexcoord
@@ -178,7 +191,9 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		m_pGraphicObj->SetRectangleTexCoord(i, newTexCoordTopLeft, newTexCoordBottomRight);
 #pragma endregion UpdateTexcoord
 
+
 		NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(currentChar);
+
 
 #pragma region UpdatePositionOfSubRects
 		//calculate position of Rects (relative to the graphic object container)
@@ -190,22 +205,38 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
 		tmpRectBottomRight = tmpRectTopLeft + NVECTOR2(float(mCharBoundarySizeX), float(mCharBoundarySizeY));
 		
-		//.......
-		m_pGraphicObj->SetRectangle(
-			i,
-			tmpRectTopLeft,
-			tmpRectBottomRight,
-			Noise2DBasicContainerInfo::GetBasicColor(),
-			mStringTextureID
-			);
-	
+		//COLLAPSE the rectangle into ONE POINT to make it invisible if this rectangle
+		//is outside the boundary of Text
+		if (tmpRectBottomRight.y >(GetBottomRight().y+ realCharBitmapPixelSize.y))
+		{
+			//collapse
+			m_pGraphicObj->SetRectangle(
+				i,
+				NVECTOR2(0, 0),
+				NVECTOR2(0, 0),
+				Noise2DBasicContainerInfo::GetBasicColor(),
+				mStringTextureID
+				);
+		}
+		else
+		{
+			//common set
+			m_pGraphicObj->SetRectangle(
+				i,
+				tmpRectTopLeft,
+				tmpRectBottomRight,
+				Noise2DBasicContainerInfo::GetBasicColor(),
+				mStringTextureID
+				);
+		}
 #pragma endregion UpdatePositionOfSubRects
 
 
 		//update internal position offset ( to move the texcoord cursor of "TopLeft")
 		posGeneralOffset.x += (realCharBitmapPixelSize.x+mWordSpacingOffset);
 
- 		if (posGeneralOffset.x >= stringBoundaryWidth)
+		//if the right side of current char has exceeded the right text boundary
+ 		if (posGeneralOffset.x +realCharBitmapPixelSize.x >= stringBoundaryWidth)
 		{
 			//cursor move to next line
 			posGeneralOffset.y +=( mCharBoundarySizeY+mLineSpacingOffset);

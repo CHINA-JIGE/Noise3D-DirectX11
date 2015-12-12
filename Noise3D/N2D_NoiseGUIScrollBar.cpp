@@ -11,9 +11,8 @@
 
 NoiseGUIScrollBar::NoiseGUIScrollBar(BOOL isHorizontal, float maxValue , float minValue)
 {
-	mIsEnabled = TRUE;
 	m_pEventList					= new std::vector<UINT>;
-	m_pGraphicObj				= new NoiseGraphicObject;
+	m_pGraphicObj_Groove				= new NoiseGraphicObject;
 	m_pButtonScrolling		= new NoiseGUIButton;
 	mScrollWheelSpeed		= 1.0f;
 	mIsMouseWheelScrollingEnabled =FALSE;
@@ -53,7 +52,7 @@ void NoiseGUIScrollBar::SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE btnState,
 
 void NoiseGUIScrollBar::SetValue(float val)
 {
-	mCurrentValue = gFunction_Clamp(val, mRangeMin, mRangeMax);
+	mCurrentValue = gFunction_Clampf(val, mRangeMin, mRangeMax);
 }
 
 float NoiseGUIScrollBar::GetValue()
@@ -95,17 +94,10 @@ void NoiseGUIScrollBar::SetEnabled(BOOL isEnabled)
 	m_pButtonScrolling->SetEnabled(isEnabled);
 	mIsEnabled =isEnabled;
 }
-BOOL NoiseGUIScrollBar::IsEnabled()
-{
-	return mIsEnabled;
-};
-
-
-
 
 void NoiseGUIScrollBar::Destroy()
 {
 	m_pButtonScrolling->SelfDestruction();
-	m_pGraphicObj->SelfDestruction();
+	m_pGraphicObj_Groove->SelfDestruction();
 
 }

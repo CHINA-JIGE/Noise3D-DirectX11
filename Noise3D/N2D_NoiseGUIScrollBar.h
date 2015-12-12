@@ -34,17 +34,14 @@ public:
 
 	void		SetScrollWheelSpeed(float fSpeed=1.0f);//default :1.0f
 
-	void		SetEnabled(BOOL isEnabled);
-
-	BOOL	IsEnabled();
+	void		SetEnabled(BOOL isEnabled);//override (internal btn also need to set)
 
 private:
 
 	void	Destroy();
 
-	BOOL							mIsEnabled;
 	NoiseGUIManager*		m_pFatherGUIMgr;
-	NoiseGraphicObject*		m_pGraphicObj;//used to store the Groove picture for the time being
+	NoiseGraphicObject*		m_pGraphicObj_Groove;//used to store the Groove picture for the time being
 	UINT								mTextureID_Groove;
 	NoiseGUIButton*			m_pButtonScrolling;
 	float								mScrollButtonLength;

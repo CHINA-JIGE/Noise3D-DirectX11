@@ -57,8 +57,10 @@ extern BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vB
 
 extern int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
+extern UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode);
+
 extern float gFunction_Lerp(float a, float b, float t);
 
-/*template <typename T>
-extern T gFunction_Clamp(T val, T min, T max);*/
-extern float gFunction_Clamp(float val, float min, float max);
+extern float gFunction_Clampf(float val, float min, float max);
+
+extern int	gFunction_Clamp(int val, int min, int max);

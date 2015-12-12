@@ -50,9 +50,11 @@ public:
 
 	void	SetEnabled(BOOL isEnabled);
 
-protected:
-	BOOL IsPointInContainer(NVECTOR2 v);
+	BOOL IsEnabled();
 
+protected:
+	BOOL	 IsPointInContainer(NVECTOR2 v);
+	BOOL	mIsEnabled;
 	NVECTOR2*	m_pPositionCenter;
 	float		mWidth;
 	float		mHeight;

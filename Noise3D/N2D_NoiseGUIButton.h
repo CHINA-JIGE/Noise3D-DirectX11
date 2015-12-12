@@ -25,10 +25,6 @@ public:
 
 	void	SetTexture(NOISE_GUI_BUTTON_STATE btnState, UINT texID);
 
-	void	SetEnabled(BOOL isEnabled);
-
-	BOOL IsEnabled();
-
 private:
 
 	void	Destroy();
@@ -36,7 +32,6 @@ private:
 	NoiseGUIManager*		m_pFatherGUIMgr;
 	NoiseGraphicObject*		m_pGraphicObj;
 
-	BOOL	mIsEnabled;
 	NOISE_GUI_BUTTON_STATE mButtonState;
 	BOOL	mButtonHasBeenPressedDown;
 	NVECTOR2* m_pMouseDown_OffsetFromCenter;//used when dragable , to keep the relative position unchanged to cursor

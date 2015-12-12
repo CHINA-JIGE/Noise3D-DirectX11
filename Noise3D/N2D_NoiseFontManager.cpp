@@ -18,6 +18,19 @@ NoiseFontManager::NoiseFontManager()
 	m_pChildTextStatic = new std::vector<Noise2DTextStatic*>;
 }
 
+BOOL NoiseFontManager::Initialize()
+{
+	BOOL isFTInitSucceeded=mFunction_InitFreeType();
+	if (!isFTInitSucceeded)
+	{
+		DEBUG_MSG1("Font Manager Initialize failed!!");
+		return FALSE;
+	}
+
+	SetStatusToBeInitialized();
+	return TRUE;
+}
+
 void NoiseFontManager::Destroy()
 {
 
@@ -37,22 +50,6 @@ void NoiseFontManager::Destroy()
 		{
 			text->SelfDestruction();
 		}
-};
-
-BOOL NoiseFontManager::AddChildObjectToRenderList()
-{
-	NOISE_MACRO_ADDTORENDERLIST_SCENE_RENDERER_VALIDATE();
-	
-	for (auto obj : *m_pChildTextDynamic)
-	{
-		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
-	}
-
-	for (auto obj : *m_pChildTextStatic)
-	{
-		m_pFatherScene->m_pChildRenderer->AddOjectToRenderList(*obj);
-	}
-	return TRUE;
 };
 
 
@@ -120,7 +117,7 @@ UINT	 NoiseFontManager::CreateFontFromFile(const char * filePath, const char * f
 
 	//set a rotation matrix
 	float angle = 0.0f;
-		fontTransMatrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
+	fontTransMatrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
 	fontTransMatrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
 	fontTransMatrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
 	fontTransMatrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
@@ -163,34 +160,32 @@ BOOL NoiseFontManager::SetFontSize(UINT fontID, UINT  fontSize)
 	return FALSE;
 }
 
-UINT	 NoiseFontManager::CreateStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic & refText)
+UINT	 NoiseFontManager::InitStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic & refText)
 {
 	UINT returnedTextID = NOISE_MACRO_INVALID_ID;
 	std::wstring tmpWString;
 	tmpWString.assign(targetString.begin(), targetString.end());
-	returnedTextID = CreateStaticTextW(fontID, tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset, refText);
+	returnedTextID = InitStaticTextW(fontID, tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset, refText);
 	return returnedTextID;
 };
 
-UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& refText)
+UINT	 NoiseFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& refText)
 {
-	try
+	//dynamic text use bitmap table & texture coordinate to  render text
+	if (refText.IsInitialized())
 	{
-		refText.Initialize();
-	}
-	catch (std::runtime_error)
-	{
-		DEBUG_MSG3(__func__, "", "Object Has Been Created!");
-		return  m_pChildTextStatic->size() - 1;
+		DEBUG_MSG3(__func__, "", "Object Has Been Initialized!");
+		return NOISE_MACRO_INVALID_ID;
 	}
 
 
 
 	//validate font ID
-	BOOL validatedFontID = mFunction_ValidateFontID(fontID);
+	UINT validatedFontID = mFunction_ValidateFontID(fontID);
 	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
-		DEBUG_MSG1("CreateStaticTextW:Font ID Invalid!!");
+		refText.Destroy();
+		DEBUG_MSG1("InitStaticTextW:Font ID Invalid!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -211,7 +206,8 @@ UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString
 	//check if texture creation success
 	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("CreateStaticTextW : Create Bitmap Table Texture failed!");
+		refText.Destroy();
+		DEBUG_MSG1("InitStaticTextW : Create Bitmap Table Texture failed!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -238,7 +234,8 @@ UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString
 	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
 	if (!UpdateToGMSuccess)
 	{
-		DEBUG_MSG1("CreateStaticTextW : Create Text Bitmap failed!!");
+		refText.Destroy();
+		DEBUG_MSG1("InitStaticTextW : Create Text Bitmap failed!!");
 		m_pTexMgr->DeleteTexture(stringTextureID);
 		return NOISE_MACRO_INVALID_ID;
 	}
@@ -254,42 +251,39 @@ UINT	 NoiseFontManager::CreateStaticTextW(UINT fontID, std::wstring targetString
 	*(refText.m_pTextureName)=tmpTextureName.str();
 	m_pChildTextStatic->push_back(&refText);
 	refText.m_pFatherFontMgr = this;
-
+	refText.SetStatusToBeInitialized();
 
 	return m_pChildTextStatic->size() - 1;
 }
 
-UINT	 NoiseFontManager::CreateDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextDynamic& refText)
+UINT	 NoiseFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextDynamic& refText)
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
-	try
+	if (refText.IsInitialized())
 	{
-		refText.Initialize();
-	}
-	catch (std::runtime_error)
-	{
-		DEBUG_MSG3(__func__,"","Object Has Been Created!");
-		return m_pChildTextDynamic->size() - 1;;
+		DEBUG_MSG3(__func__,"","Object Has Been Initialized!");
+		return NOISE_MACRO_INVALID_ID;
 	}
 
 
 	//validate font ID
-	BOOL validatedFontID = mFunction_ValidateFontID(fontID);
+	UINT validatedFontID = mFunction_ValidateFontID(fontID);
 	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
+		refText.Destroy();
 		DEBUG_MSG1("CreateDynamicText:Font ID Invalid!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
 	//Get texID of bitmap table (ID may change, but not name)
-	UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mFontName.c_str());
+	//UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mFontName);
+	UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mInternalTextureName);
 
 
 	refText.mLineSpacingOffset = lineSpacingOffset;
 	refText.mWordSpacingOffset = wordSpacingOffset;
 
 	//use the internal init func of TEXT 
-	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
 	refText.mFontID = fontID;
 	refText.mCharBoundarySizeY= UINT(m_pFontObjectList->at(fontID).mFontSize);
 	refText.mCharBoundarySizeX= UINT(refText.mCharBoundarySizeY* m_pFontObjectList->at(fontID).mAspectRatio);
@@ -312,6 +306,7 @@ UINT	 NoiseFontManager::CreateDynamicTextA(UINT fontID, std::string targetString
 	//bind Text_Dynamic to MGR
 	m_pChildTextDynamic->push_back(&refText);
 	refText.m_pFatherFontMgr = this;
+	refText.SetStatusToBeInitialized();//life cycle
 
 	return m_pChildTextDynamic->size()-1;
 }
@@ -503,7 +498,7 @@ void	NoiseFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::w
 	outFontBitmap.height = boundaryHeight;
 }
 
-UINT NoiseFontManager::mFunction_ValidateFontID(UINT fontID)
+inline UINT NoiseFontManager::mFunction_ValidateFontID(UINT fontID)
 {
 	if (!(fontID >= 0 && fontID < m_pFontObjectList->size()))
 	{
@@ -526,7 +521,8 @@ UINT NoiseFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fo
 	//try to create a new pure color texture to be modified
 	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
 	std::stringstream tmpTextureName;
-	tmpTextureName << "AsciiBitmapTable" << (m_pFontObjectList->size());//font ID
+	tmpTextureName << "AsciiBitmapTable" << (m_pFontObjectList->size());//"AsciiBitmapTable"+font ID
+	fontObj.mInternalTextureName = tmpTextureName.str();//not same with the public FONT NAME
 
 	//Create a pure color Texture
 	stringTextureID = m_pTexMgr->CreatePureColorTexture(

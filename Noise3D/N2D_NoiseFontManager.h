@@ -6,16 +6,15 @@
 
 #pragma once
 
-
-
 struct N_FontObject
 {
-	//HFONT 		mHFont;
 	FT_Face		mFtFace;
 	UINT				mFontSize;
 	float				mAspectRatio;
-	std::string		mFontName;
+	std::string		mFontName;//used by GetFontID;
+	std::string		mInternalTextureName;//name in texture mgr
 	std::vector	<NVECTOR2>	mAsciiCharSizeList;//elements will be added in GetBitmapOfChar
+
 	//UINT				mAsciiBitmapTableTextureID; should be updated by TexMgr:GetTextureID
 };
 
@@ -30,18 +29,17 @@ public:
 
 	NoiseFontManager();
 
-
-	BOOL	AddChildObjectToRenderList();//Renderer need to be valid
+	BOOL	Initialize();
 
 	UINT		CreateFontFromFile(const char* filePath, const char* fontName, UINT fontSize,float fontAspectRatio=0.707f);
 
 	BOOL	SetFontSize(UINT fontID,UINT  fontSize);
 	
-	UINT		CreateStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& pText);
+	UINT		InitStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextStatic& pText);
 
-	UINT		CreateStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextStatic& pText );
+	UINT		InitStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,Noise2DTextStatic& pText );
 
-	UINT		CreateDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextDynamic& pText);
+	UINT		InitDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextDynamic& pText);
 
 	UINT		GetFontID(std::string fontName);
 
@@ -61,8 +59,7 @@ private:
 
 	void		Destroy();
 
-	NoiseScene*						m_pFatherScene;
-	NoiseTextureManager*		m_pTexMgr;//internal texture manager
+	NoiseTextureManager*		m_pTexMgr;//internal texture manager (ascii bitmap table/static Bitmap)
 	FT_Library			m_FTLibrary;
 	BOOL				mIsFTInitialized;
 	std::vector<N_FontObject>*					m_pFontObjectList;

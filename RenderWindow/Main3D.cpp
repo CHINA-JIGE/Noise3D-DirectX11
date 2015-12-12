@@ -15,6 +15,7 @@ NoiseAtmosphere			Atmos;
 NoiseGUIManager		GUIMgr;
 NoiseGUIButton			GUIButton1;
 NoiseGUIScrollBar			GUIScrollBar1(TRUE);
+NoiseGUITextBox			GUITextBox1;
 NoiseGraphicObject	GraphicObjBuffer;
 NoiseFontManager		fontMgr;
 Noise2DTextStatic			myText1;
@@ -52,16 +53,15 @@ BOOL Init3D(HWND hwnd)
 	//初始化失败
 	if(!Engine.InitD3D( hwnd,640,480,TRUE))return FALSE;
 
-	Scene.CreateMesh(Mesh1);
-	Scene.CreateRenderer(Renderer);
-	Scene.CreateCamera(Camera);
-	Scene.CreateLightManager(LightMgr);
-	Scene.CreateGraphicObject(GraphicObjBuffer);
-	Scene.CreateMaterialManager(MatMgr);
-	Scene.CreateTextureManager(TexMgr);
-	Scene.CreateAtmosphere(Atmos);
-	Scene.CreateGUI(GUIMgr, inputE, hwnd);
-	Scene.CreateFontManager(fontMgr);
+	Scene.InitMesh(Mesh1);
+	Scene.InitRenderer(Renderer);
+	Scene.InitCamera(Camera);
+	Scene.InitLightManager(LightMgr);
+	Scene.InitMaterialManager(MatMgr);
+	Scene.InitTextureManager(TexMgr);
+	Scene.InitAtmosphere(Atmos);
+	fontMgr.Initialize();
+	GUIMgr.Initialize(inputE,fontMgr,hwnd);
 
 	//漫反射贴图
 	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
@@ -79,16 +79,17 @@ BOOL Init3D(HWND hwnd)
 	//create font texture
 	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 36);
 
-	fontMgr.CreateStaticTextW(0, L"Graphic Object在渲染前都会生成一个Subset List。。。这才对路嘛。。。", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
+	fontMgr.InitStaticTextW(0, L"Graphic Object在渲染前都会生成一个Subset List。。。这才对路嘛。。。", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
 	myText1.SetTextColor(NVECTOR4(1.0f, 0, 0, 0.5f));
 	myText1.SetCenterPos(300.0f, 100.0f);
-	fontMgr.CreateDynamicTextA(0, "abcdefghijklmnopqrstuvwxyz!@#$%^&*()_<>-+?/+ 1234567890<>?,./{}[]\\", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText2);
+	fontMgr.InitDynamicTextA(0, "abcdefghijklmnopqrstuvwxyz!@#$%^&*()_<>-+?/+ 1234567890<>?,./{}[]\\", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText2);
 	myText2.SetTextColor(NVECTOR4(0.5f, 0.3f, 1.0f, 0.5f));
 	myText2.SetCenterPos(300.0f,400.0f);
-	fontMgr.CreateDynamicTextA(0, "fps:000", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
+	fontMgr.InitDynamicTextA(0, "fps:000", 200, 100, NVECTOR4(0,0,0,1.0f), 0, 0, myText_fps);
 	myText_fps.SetTextColor(NVECTOR4(0,0.3f,1.0f,0.5f));
-	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(150, 50));
+	myText_fps.SetDiagonal(NVECTOR2(20, 20),NVECTOR2(150, 60));
+	myText_fps.SetFont(0);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
 	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
@@ -142,9 +143,11 @@ BOOL Init3D(HWND hwnd)
 	
 	//GUI System
 	GUIMgr.SetWindowHWND(hwnd);
-	GUIMgr.CreateButton(GUIButton1);
-	GUIMgr.CreateScrollBar(GUIScrollBar1);
-	GUIButton1.SetCenterPos(50.0f, 50.0f);
+	GUIMgr.InitButton(GUIButton1);
+	GUIMgr.InitScrollBar(GUIScrollBar1);
+	GUIMgr.InitTextBox(GUITextBox1,0);
+	GUIMgr.SetFontManager(fontMgr);
+	GUIButton1.SetCenterPos(150.0f, 50.0f);
 	GUIButton1.SetWidth(300.0f);
 	GUIButton1.SetHeight(100.0f);
 	GUIButton1.SetDragableX(TRUE);
@@ -162,6 +165,12 @@ BOOL Init3D(HWND hwnd)
 	GUIScrollBar1.SetTexture_ScrollGroove(TexMgr.GetTextureID("EarthNormalMap"));
 	GUIScrollBar1.SetAlignment(FALSE);
 	GUIScrollBar1.SetValue(0.5f);
+	GUITextBox1.SetCenterPos(200.0f, 400.0f);
+	GUITextBox1.SetWidth(300.0f);
+	GUITextBox1.SetHeight(40.0f);
+	GUITextBox1.SetFont(0);
+	GUITextBox1.SetTexture_BackGround( TexMgr.GetTextureID("Earth"));
+	GUITextBox1.SetTexture_Cursor( TexMgr.GetTextureID("Wood"));
 	GUIMgr.Update();
 
 
@@ -221,6 +230,7 @@ void MainLoop()
 	
 	Renderer.AddOjectToRenderList(GUIScrollBar1);
 	Renderer.AddOjectToRenderList(GUIButton1);
+	Renderer.AddOjectToRenderList(GUITextBox1);
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
@@ -240,8 +250,8 @@ void MainLoop()
 
 void InputProcess()
 {
-	inputE.Update();
-
+	//inputE.Update();
+	
 	if (inputE.IsKeyPressed(NOISE_KEY_A))
 	{
 		Camera.fps_MoveRight(-0.1f, FALSE);
@@ -287,6 +297,8 @@ void Cleanup()
 	inputE.SelfDestruction();
 	Slicer.SelfDestruction();
 	NTimer.SelfDestruction();
+	fontMgr.SelfDestruction();
+	GUIMgr.SelfDestruction();
 
 	Engine.ReleaseAll();
 	Scene.ReleaseAllChildObject();

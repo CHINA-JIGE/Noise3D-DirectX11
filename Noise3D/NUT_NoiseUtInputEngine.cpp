@@ -26,7 +26,7 @@ NoiseUtInputEngine::NoiseUtInputEngine()
 	mResponsiveHWND=(HWND)0;
 };
 
-void NoiseUtInputEngine::SelfDestruction()
+void NoiseUtInputEngine::Destroy()
 {
 	if (m_pDeviceKeyboard)m_pDeviceKeyboard->Unacquire();
 	if (m_pDeviceMouse)m_pDeviceMouse->Unacquire();
@@ -48,7 +48,7 @@ BOOL NoiseUtInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 	
 	//get cursor position at initial time
 	POINT cursorPos;
-	GetCursorPos(&cursorPos);
+	NOISE_MACRO_FUNCTION_WINAPI GetCursorPos(&cursorPos);
 	mMousePosX = (int)cursorPos.x;
 	mMousePosY = (int)cursorPos.y;
 
@@ -126,7 +126,7 @@ BOOL NoiseUtInputEngine::Update()
 
 			//keep updating initial mouse pixel position
 			POINT cursorPos;
-			GetCursorPos(&cursorPos);
+			NOISE_MACRO_FUNCTION_WINAPI GetCursorPos(&cursorPos);
 			mMousePosX = cursorPos.x;
 			mMousePosY = cursorPos.y;
 		}
@@ -149,7 +149,7 @@ BOOL NoiseUtInputEngine::Update()
 	//process newly got device state
 	//and in relative mode ( default ), lX / lY are relative coordinates.
 	POINT cursorPos;
-	GetCursorPos(&cursorPos);
+	NOISE_MACRO_FUNCTION_WINAPI GetCursorPos(&cursorPos);
 	mMousePosX = cursorPos.x;
 	mMousePosY = cursorPos.y;
 
@@ -164,7 +164,12 @@ BOOL NoiseUtInputEngine::Update()
 	return TRUE;
 }
 
-BOOL NoiseUtInputEngine::IsKeyPressed(NOISE_KEY keyVal)
+inline BOOL NoiseUtInputEngine::IsKeyPressed(NOISE_KEY keyVal)
+{
+	return IsKeyPressed(UINT(keyVal));
+}
+
+inline BOOL NoiseUtInputEngine::IsKeyPressed(UINT keyVal)
 {
 	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
 	//according to the doc , only low byte of the dwData  matters, so apply "and" with 0x80

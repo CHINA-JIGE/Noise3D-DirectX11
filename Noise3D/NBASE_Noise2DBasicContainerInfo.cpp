@@ -12,6 +12,7 @@
 
 Noise2DBasicContainerInfo::Noise2DBasicContainerInfo()
 {
+	mIsEnabled = TRUE;
 	m_pPositionCenter = new NVECTOR2(50,30);
 	mWidth = 100;
 	mHeight = 60;
@@ -113,6 +114,17 @@ NVECTOR4 Noise2DBasicContainerInfo::GetBasicColor()
 {
 	return *m_pBasicColor;
 }
+
+void Noise2DBasicContainerInfo::SetEnabled(BOOL isEnabled)
+{
+	mIsEnabled = isEnabled;
+}
+
+BOOL Noise2DBasicContainerInfo::IsEnabled()
+{
+	return mIsEnabled;
+}
+
 
 
 

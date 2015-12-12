@@ -20,9 +20,9 @@ NoiseUtTimer::NoiseUtTimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_
 	//每秒可以数多少次
 	INT64 countsPerSecond;
 	//获取这个计数计时器的频率
-	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
+	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
 	mMilliSecondsPerCount = (1000.0) /(double)countsPerSecond;//每一count多少毫秒
-	QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
+	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 
 }
 
@@ -41,7 +41,7 @@ void NoiseUtTimer::NextTick()
 	{
 		//更新count
 		mPrevCount = mCurrentCount;
-		QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
+		NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 
 		//如果在省电模式下，若切换处理器可能会导致counts也是负的
 		mDeltaCount = mCurrentCount - mPrevCount;

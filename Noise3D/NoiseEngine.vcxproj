@@ -84,6 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="NBASE_Noise2DBasicTextInfo.h" />
     <ClInclude Include="N2D_Noise2DTextStatic.h" />
     <ClInclude Include="N2D_Noise2DTextDynamic.h" />
     <ClInclude Include="N2D_NoiseGUI.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="N3D_NoiseEngine.cpp" />
     <ClCompile Include="N2D_NoiseFontManager.cpp" />
     <ClCompile Include="NBASE_Noise2DBasicContainerInfo.cpp" />
+    <ClCompile Include="NBASE_Noise2DBasicTextInfo.cpp" />
     <ClCompile Include="NBASE_NoiseFileManager.cpp" />
     <ClCompile Include="N2D_NoiseGUIManager.cpp" />
     <ClCompile Include="N2D_NoiseGUIButton.cpp" />

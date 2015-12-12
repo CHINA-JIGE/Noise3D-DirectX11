@@ -4,12 +4,14 @@
 				CLASS: GUI Events Common Operation
 
 ************************************************************************/
-
 #pragma once
+
 
 //a base class that provide general life cycle management
 class _declspec(dllexport) NoiseGUIEventCommonOperation
 {
+	friend class NoiseGUIManager;
+
 public:
 
 	NoiseGUIEventCommonOperation()

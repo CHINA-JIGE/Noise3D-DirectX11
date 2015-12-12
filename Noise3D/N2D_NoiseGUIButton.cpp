@@ -11,7 +11,6 @@
 
 NoiseGUIButton::NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent))
 {
-	mIsEnabled = TRUE;
 	*m_pBasicColor = NVECTOR4(0.3f,0.3f,1.0f,1.0f);
 	m_pMouseDown_OffsetFromCenter = new NVECTOR2(0, 0);
 	m_pGraphicObj = new NoiseGraphicObject;
@@ -58,16 +57,6 @@ void NoiseGUIButton::SetTexture(NOISE_GUI_BUTTON_STATE btnState, UINT texID)
 	default:
 		break;
 	}
-}
-
-void NoiseGUIButton::SetEnabled(BOOL isEnabled)
-{
-	mIsEnabled = isEnabled;
-}
-
-BOOL NoiseGUIButton::IsEnabled()
-{
-	return mIsEnabled;
 }
 
 

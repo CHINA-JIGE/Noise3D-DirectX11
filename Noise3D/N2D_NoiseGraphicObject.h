@@ -9,7 +9,8 @@
 
 #define NOISE_GRAPHIC_OBJECT_BUFFER_COUNT 6
 
-class _declspec(dllexport) NoiseGraphicObject:public NoiseClassLifeCycle
+class _declspec(dllexport) NoiseGraphicObject:
+	public NoiseClassLifeCycle
 {
 	friend class NoiseRenderer;
 	friend class NoiseScene;
@@ -99,9 +100,6 @@ private:
 	void			NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_GenerateRectSubsetInfo();//for optimization,by renderer
 
 private:
-
-
-	NoiseScene*			m_pFatherScene;
 
 	UINT						mVB_ByteSize_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 

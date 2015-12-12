@@ -250,9 +250,11 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu_Sky);
 	HR_DEBUG(hr, "INDEX BUFFER´´½¨Ê§°Ü");
 
+
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
 
+	ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 
@@ -408,6 +410,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
 
+	ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 

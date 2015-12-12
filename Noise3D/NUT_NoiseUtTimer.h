@@ -25,7 +25,7 @@ public:
 	double GetInterval()const;
 
 	//设置时间单位
-	void SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit);
+	void SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit=NOISE_TIMER_TIMEUNIT_MILLISECOND);
 
 	//进入下一帧
 	void NextTick();

@@ -7,8 +7,10 @@
 
 #pragma once
 
-
-class _declspec(dllexport) NoiseGUITextBox :public Noise2DBasicContainerInfo,public NoiseClassLifeCycle
+class _declspec(dllexport) NoiseGUITextBox :
+	public Noise2DBasicContainerInfo,
+	public NoiseClassLifeCycle,
+	public NoiseGUIEventCommonOperation
 {
 public:
 	friend class NoiseGUIManager;
@@ -16,18 +18,37 @@ public:
 
 	NoiseGUITextBox();
 
-	void		SetEnabled(BOOL isEnabled);
+	void		SetTexture_BackGround(UINT texID);
 
-	BOOL	IsEnabled();
+	void		SetTexture_Cursor(UINT texID);
+
+	void		SetEditable(BOOL isEditable);
+
+	BOOL	GetEditable();
+
+	void		SetCursorPos(UINT pos);
+
+	UINT		GetCursorPos();
+		
+	void		SetTextAscii(std::string text);
+
+	void		GetTextAscii(std::string& outText);
+
+	void		SetFont(UINT fontID);
+
+	UINT		GetFontID();
 
 private:
 
 	void	Destroy();
 
-	BOOL			mIsEnabled;
 	NoiseGUIManager*		m_pFatherGUIMgr;
-	NoiseGraphicObject*		m_pGraphicObj;
+	Noise2DTextDynamic*	m_pTextDynamic;
+	NoiseGraphicObject*		m_pGraphicObj;//cursor & background
+	BOOL			mIsFocused;
 	BOOL			mIsTextEditable;
-	UINT				mTextureID;
+	UINT				mCursorPos;
+	UINT				mTextureID_BackGround;
+	UINT				mTextureID_Cursor;
 
 };

@@ -28,6 +28,7 @@ NoiseGraphicObject::NoiseGraphicObject()
 
 	m_pTextureList_Rect = new std::vector<UINT>;
 	m_pRectSubsetInfoList= new std::vector<N_GraphicObject_SubsetInfo>;
+	SetStatusToBeInitialized();
 }
 
 void NoiseGraphicObject::Destroy()
@@ -464,7 +465,7 @@ BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
 
 
 	D3D11_SUBRESOURCE_DATA tmpInitData;
-	tmpInitData.pSysMem = &m_pVB_Mem[objType_ID]->at(0);
+	tmpInitData.pSysMem = vertexCount>0?&m_pVB_Mem[objType_ID]->at(0):nullptr;
 	tmpInitData.SysMemPitch = 0;
 	tmpInitData.SysMemSlicePitch = 0;
 
@@ -474,6 +475,7 @@ BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
 	//Create Buffers
 	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
+	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
 
 	return TRUE;
@@ -481,12 +483,17 @@ BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
 
 void		NoiseGraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
 {
+	//nothing to update ,so exit (in InitVB() , create a  
+	if (m_pVB_Mem[objType_ID]->size() == 0)return;
+
+
 	//if a GPU buffer has not been created then create a new one
 	if (m_pVB_GPU[objType_ID] == NULL)
 	{
 		mFunction_InitVB(objType_ID);
 		return;
 	}
+
 
 	//calculate byte size of ALL VERTEX BUFFER
 	UINT mVB_Byte_Size_Memory =	m_pVB_Mem[objType_ID]->size()*	sizeof(N_SimpleVertex);
@@ -508,8 +515,10 @@ void		NoiseGraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
 		}
 	}
 
+
 	//update new data to GPU
 	g_pImmediateContext->UpdateSubresource(m_pVB_GPU[objType_ID], 0, 0, &m_pVB_Mem[objType_ID]->at(0), 0, 0);
+
 }
 
 void		NoiseGraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)

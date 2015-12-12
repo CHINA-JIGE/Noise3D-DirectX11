@@ -125,6 +125,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 		g_Device_MSAA4xEnabled = TRUE;	//4x抗锯齿可以开了
 	};
 
+	ReleaseCOM(g_pd3dDevice11);
 
 
 	/*填充交换链的属性
@@ -182,6 +183,8 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 	pBackBuffer->Release();		//已经用完了的临时接口- -
 
+	ReleaseCOM(g_pd3dDevice11);
+
 	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
 
 
@@ -207,7 +210,9 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 		0,
 		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
 
+	ReleaseCOM(g_pd3dDevice11);
 	pDepthStencilBuffer->Release();
+
 	if (FAILED(hr))
 	{
 		return FALSE;
@@ -239,6 +244,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 #pragma endregion CreateViewPort
 
+	ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 
 };
@@ -266,7 +272,8 @@ void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	if (d3dDebug != nullptr)			d3dDebug->Release();
 #endif
 
-	ReleaseCOM(g_pd3dDevice11);
+
+	ReleaseCOM(g_pd3dDevice11);	
 }
 
 void NoiseEngine::Mainloop()
@@ -411,7 +418,8 @@ HWND NoiseEngine::mFunction_InitWindow()
 	hwnd = CreateWindow(
 		mRenderWindowClassName,      // window class name
 		mRenderWindowTitle,   // window caption
-		WS_POPUP , // window style ------WS_OVERLAPPEDWINDOW
+		WS_OVERLAPPEDWINDOW, // window style ------WS_OVERLAPPEDWINDOW/WS_POPUP
+		//WS_POPUP, // window style ------WS_OVERLAPPEDWINDOW/WS_POPUP
 		scrWidth/6,// initial x position ---------CW_USEDEFAULT
 		scrHeight/6,// initial y position
 		640,// initial x size

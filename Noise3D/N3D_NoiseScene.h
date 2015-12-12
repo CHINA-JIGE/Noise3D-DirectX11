@@ -12,40 +12,30 @@ class _declspec(dllexport) NoiseScene:public NoiseClassLifeCycle
 	friend class NoiseMesh;
 	friend class NoiseRenderer;
 	friend class NoiseCamera;
-	friend class NoiseGraphicObject;
 	friend class NoiseMaterialManager;
 	friend class NoiseTextureManager;
 	friend class NoiseAtmosphere;
-	friend class NoiseGUIManager;
-	friend class NoiseFontManager;
 
 
 public:
 	//¹¹Ôìº¯Êý
 	NoiseScene();
 
-
 	void				ReleaseAllChildObject();
 
-	UINT				CreateMesh(NoiseMesh& refObject);
+	UINT				InitMesh(NoiseMesh& refObject);
 	
-	BOOL			CreateRenderer(NoiseRenderer& refObject);
+	BOOL			InitRenderer(NoiseRenderer& refObject);
 
-	BOOL			CreateCamera(NoiseCamera& refObject);
+	BOOL			InitCamera(NoiseCamera& refObject);
 
-	BOOL			CreateLightManager(NoiseLightManager& refObject);
+	BOOL			InitLightManager(NoiseLightManager& refObject);
 
-	UINT				CreateGraphicObject(NoiseGraphicObject& refObject);
+	BOOL			InitTextureManager(NoiseTextureManager& refObject);
 
-	BOOL			CreateTextureManager(NoiseTextureManager& refObject);
+	BOOL			InitMaterialManager(NoiseMaterialManager& refObject);
 
-	BOOL			CreateMaterialManager(NoiseMaterialManager& refObject);
-
-	BOOL			CreateAtmosphere(NoiseAtmosphere& refObject);
-
-	BOOL			CreateGUI(NoiseGUIManager& refGUI, NoiseUtInputEngine& refInputE,HWND hwnd);
-
-	BOOL			CreateFontManager(NoiseFontManager& refObject);
+	BOOL			InitAtmosphere(NoiseAtmosphere& refObject);
 
 	void			BindRenderer(NoiseRenderer& refObject);
 
@@ -56,10 +46,6 @@ public:
 	void			BindMaterialManager(NoiseMaterialManager& refObject);
 
 	void			BindAtmosphere(NoiseAtmosphere& refObject);
-
-	void			BindGUI(NoiseGUIManager& refObject);
-
-	void			BindFontManager(NoiseFontManager& refObject);
 
 	void			BindCamera(NoiseCamera& refObject);
 
@@ -72,10 +58,6 @@ public:
 	NoiseTextureManager*		GetTextureMgr();
 
 	NoiseMaterialManager*	GetMaterialMgr();
-
-	NoiseFontManager*			GetFontMgr();
-
-	NoiseGUIManager*			GetGUIManager();
 
 private:
 
@@ -93,15 +75,7 @@ private:
 
 	NoiseAtmosphere*					m_pChildAtmosphere;
 
-	NoiseGUIManager*					m_pChildGUIMgr;
-
-	NoiseFontManager*					m_pChildFontMgr;
-
-
-
-	std::vector<NoiseMesh*> *				m_pChildMeshList;
-
-	std::vector<NoiseGraphicObject*>*	m_pChildGraphicObjectList;
+	std::vector<NoiseMesh*> *		m_pChildMeshList;//maybe picking-ray may need this list later....
 
 };
 
