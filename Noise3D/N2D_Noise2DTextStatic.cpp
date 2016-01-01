@@ -4,11 +4,18 @@
 
 ************************************************************************/
 #include "Noise3D.h"
+#include "N2D_Noise2DTextStatic.h"
 
 Noise2DTextStatic::Noise2DTextStatic()
 {
 	m_pTextureName = new std::string;
 
+}
+
+NVECTOR2 Noise2DTextStatic::GetFontSize(UINT fontID)
+{
+	if (!IsInitialized())return NVECTOR2(0, 0);
+	return m_pFatherFontMgr->GetFontSize(fontID);
 }
 
 void Noise2DTextStatic::Destroy()
@@ -52,6 +59,9 @@ void Noise2DTextStatic::mFunction_UpdateGraphicObject()
 		NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f),
 		stringTexID
 		);
+
+	//rectangle depth,used for 2D overlapping
+	m_pGraphicObj->SetRectangleDepth(0, mPosZ);
 };
 
 

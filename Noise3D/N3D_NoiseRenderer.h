@@ -28,23 +28,17 @@ public:
 
 	void			RenderTexts();
 
-	void			RenderGUIObjects();
+	void			RenderGUIObjects();//this function will render if Noise GUI is involved
 
-	void			AddOjectToRenderList(NoiseMesh& obj);
+	void			AddObjectToRenderList(NoiseMesh& obj);
 
-	void			AddOjectToRenderList(NoiseGraphicObject& obj);
+	void			AddObjectToRenderList(NoiseGraphicObject& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
 
-	void			AddOjectToRenderList(NoiseAtmosphere& obj);
+	void			AddObjectToRenderList(NoiseAtmosphere& obj);
 
-	void			AddOjectToRenderList(NoiseGUIButton& obj);
+	void			AddObjectToRenderList(Noise2DTextDynamic& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
 
-	void			AddOjectToRenderList(NoiseGUIScrollBar& obj);
-
-	void			AddOjectToRenderList(NoiseGUITextBox& obj);
-
-	void			AddOjectToRenderList(Noise2DTextDynamic& obj);
-
-	void			AddOjectToRenderList(Noise2DTextStatic& obj);
+	void			AddObjectToRenderList(Noise2DTextStatic& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
 
 	void			ClearBackground(NVECTOR4 color = NVECTOR4(0,0,0,0.0f));
 

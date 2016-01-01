@@ -13,9 +13,9 @@
 /*--------------------------全局变量----------------------------*/
 
 //主缓存的像素宽度
-UINT					gMainBufferPixelWidth = 640;
+ UINT		gMainBufferPixelWidth = 640;
 //主缓存的像素高度
-UINT					gMainBufferPixelHeight = 480;
+ UINT		gMainBufferPixelHeight = 480;
 
 //抗锯齿品质
 UINT				g_Device_MSAA4xQuality	= 1  ;
@@ -25,8 +25,6 @@ BOOL				g_Device_MSAA4xEnabled	= FALSE;
 D3D_DRIVER_TYPE		g_Device_driverType	= D3D_DRIVER_TYPE_SOFTWARE;
 //
 D3D_FEATURE_LEVEL	g_Device_featureLevel = D3D_FEATURE_LEVEL_11_0;
-//弹出数字的MSG
-std::ostringstream	g_Debug_MsgString;
 
 //SemanticName,Index,Format,InputSlot,ByteOffset,InputSlotClass,InstanceDataStepRate
 D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Simple[]=
@@ -67,7 +65,7 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 
 /*------------------------------全局函数--------------------------*/
 
- HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
+NOISE_DLL_EXPORT  HRESULT gFunction_CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
 {
 
 	HRESULT hr = S_OK;
@@ -96,7 +94,7 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	return S_OK;
 };
 
- BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+NOISE_DLL_EXPORT	BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
  {
 	 if (v.x >= vTopLeft.x &&
 		 v.x <= vBottomRight.x &&
@@ -109,7 +107,7 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 return FALSE;
  }
 
- int gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
+NOISE_DLL_EXPORT int gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
  {
 	 //!!!!!!the return type is signed INT ,because  top left might go beyond the upper boundary
 	
@@ -125,11 +123,12 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 case L'，':  case L'。' : case L'；': case L'：':  case L'？':  case L'、':  case L'《':
 	 case L'》':  case L'”': case L'“':  case L'’':	case L'·':	case L'【':  case L'】':
 	 case L'｛':  case L'｝': case L'‘':  case L'—':	
+	 case '[':	case ']':		case '{':	case'}': case '|': 
 		 return (int(boundaryPxHeight *0.75) -charRealHeight );
 		 break;
-
+		
 		 //3,upper 1/3 alignment
-	 case 'g':	case 'p':	case 'q': case 'y':
+	 case 'g':	case 'p':	case 'q': case 'y': case '-': case '=': //case '+':
 		 return boundaryPxHeight / 4;
 		 break;
 
@@ -137,7 +136,7 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 default:
 		 if(inputChar>0x007f)
 		 {
-			 return int((boundaryPxHeight *0.5) - charRealHeight*0.5);//CHINESE
+			 return int((boundaryPxHeight *0.5) - charRealHeight*0.5);//CHINESE,middle alignment
 		 }
 		 else
 		 {
@@ -150,67 +149,85 @@ ID3D11RasterizerState*		g_pRasterState_WireFrame_CullNone= NULL;
 	 return 0;
  }
 
- UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode)
+NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital)
  {
+#define returnChar(UCase,LCase) if(isCapital){return UCase;}else {return LCase;} break;
+
 	 switch (scanCode)
 	 {
-	 case NOISE_KEY_0: return '0'; break;
-	 case NOISE_KEY_1: return '1'; break;
-	 case NOISE_KEY_2: return '2'; break;
-	 case NOISE_KEY_3: return '3'; break;
-	 case NOISE_KEY_4: return '4'; break;
-	 case NOISE_KEY_5: return '5'; break;
-	 case NOISE_KEY_6: return '6'; break;
-	 case NOISE_KEY_7: return '7'; break;
-	 case NOISE_KEY_8: return '8'; break;
-	 case NOISE_KEY_9: return '9'; break;
-	 case NOISE_KEY_A: return 'a'; break;
-	 case NOISE_KEY_B: return 'b'; break;
-	 case NOISE_KEY_C: return 'c'; break;
-	 case NOISE_KEY_D: return 'd'; break;
-	 case NOISE_KEY_E: return 'e'; break;
-	 case NOISE_KEY_F: return 'f'; break;
-	 case NOISE_KEY_G: return 'g'; break;
-	 case NOISE_KEY_H: return 'h'; break;
-	 case NOISE_KEY_I: return 'i'; break;
-	 case NOISE_KEY_J: return 'j'; break;
-	 case NOISE_KEY_K: return 'k'; break;
-	 case NOISE_KEY_L: return 'l'; break;
-	 case NOISE_KEY_M: return 'm'; break;
-	 case NOISE_KEY_N: return 'n'; break;
-	 case NOISE_KEY_O: return 'o'; break;
-	 case NOISE_KEY_P: return 'p'; break;
-	 case NOISE_KEY_Q: return 'q'; break;
-	 case NOISE_KEY_R: return 'r'; break;
-	 case NOISE_KEY_S: return 's'; break;
-	 case NOISE_KEY_T: return 't'; break;
-	 case NOISE_KEY_U: return 'u'; break;
-	 case NOISE_KEY_V: return 'v'; break;
-	 case NOISE_KEY_W: return 'w'; break;
-	 case NOISE_KEY_X: return 'x'; break;
-	 case NOISE_KEY_Y: return 'y'; break;
-	 case NOISE_KEY_Z: return 'z'; break;
-	 case NOISE_KEY_COMMA: return ','; break;
-	 case NOISE_KEY_LBRACKET: return '['; break;
-	 case NOISE_KEY_RBRACKET: return ']'; break;
-	 case NOISE_KEY_PERIOD: return '.'; break;
+	 case NOISE_KEY_0:	returnChar(')', '0');
+	 case NOISE_KEY_1:	returnChar('!', '1');
+	 case NOISE_KEY_2:	returnChar('@', '2');
+	 case NOISE_KEY_3:	returnChar('#', '3');
+	 case NOISE_KEY_4:	returnChar('$', '4');
+	 case NOISE_KEY_5:	returnChar('%', '5');
+	 case NOISE_KEY_6:	 returnChar('^', '6');
+	 case NOISE_KEY_7:	returnChar('&', '7');
+	 case NOISE_KEY_8:	returnChar('*', '8');
+	 case NOISE_KEY_9:	returnChar('(', '9');
+	 case NOISE_KEY_A:	returnChar('A', 'a');
+	 case NOISE_KEY_B:	returnChar('B', 'b');
+	 case NOISE_KEY_C:	returnChar('C', 'c');
+	 case NOISE_KEY_D:	returnChar('D', 'd');
+	 case NOISE_KEY_E:	returnChar('E', 'e');
+	 case NOISE_KEY_F:	returnChar('F', 'f');
+	 case NOISE_KEY_G:	returnChar('G', 'g');
+	 case NOISE_KEY_H:	returnChar('H', 'h');
+	 case NOISE_KEY_I:	returnChar('I', 'i');
+	 case NOISE_KEY_J:	returnChar('J', 'j');
+	 case NOISE_KEY_K:	returnChar('K', 'k');
+	 case NOISE_KEY_L:	returnChar('L', 'l');
+	 case NOISE_KEY_M:	returnChar('M', 'm');
+	 case NOISE_KEY_N:	returnChar('N', 'n');
+	 case NOISE_KEY_O:	returnChar('O', 'o');
+	 case NOISE_KEY_P:	returnChar('P', 'p');
+	 case NOISE_KEY_Q:	returnChar('Q', 'q');
+	 case NOISE_KEY_R:	returnChar('R', 'r');
+	 case NOISE_KEY_S:	returnChar('S', 's');
+	 case NOISE_KEY_T:	returnChar('T', 't');
+	 case NOISE_KEY_U:	returnChar('U', 'u');
+	 case NOISE_KEY_V:	returnChar('V', 'v');
+	 case NOISE_KEY_W:	returnChar('W', 'w');
+	 case NOISE_KEY_X:	returnChar('X', 'x');
+	 case NOISE_KEY_Y:	returnChar('Y', 'y');
+	 case NOISE_KEY_Z:	returnChar('Z', 'z');
+	 case NOISE_KEY_COMMA:	returnChar('<', ',');
+	 case NOISE_KEY_PERIOD:		returnChar('>', '.');
+	 case NOISE_KEY_LBRACKET:	returnChar('{', '[');
+	 case NOISE_KEY_RBRACKET:	returnChar('}', ']');
+	 case NOISE_KEY_MINUS:		returnChar('_', '-');
+	 case NOISE_KEY_EQUALS :	returnChar('+', '=');
+	 case NOISE_KEY_SEMICOLON: returnChar(':', ';');
+	 case NOISE_KEY_SLASH: returnChar('?', '/');
+	 case NOISE_KEY_BACKSLASH: returnChar('|', '\\');
+	 case NOISE_KEY_APOSTROPHE: returnChar('"', '\'');
+	 case NOISE_KEY_SPACE: return ' ';break;
 	 default:return 0;break;
 	 }
  };
 
-
- float gFunction_Lerp(float a, float b, float t)
+NOISE_DLL_EXPORT float gFunction_Lerp(float a, float b, float t)
  {
 	 return( a + (b - a)*t);
  };
 
-
- float gFunction_Clampf(float val, float min, float max)
+NOISE_DLL_EXPORT float gFunction_Clampf(float val, float min, float max)
  {
 	 return (val >= min ? (val <= max ? val : max) : min);
  };
 
- int	gFunction_Clamp(int val, int min, int max)
+NOISE_DLL_EXPORT int	gFunction_Clamp(int val, int min, int max)
  {
 	 return (val >= min ? (val <= max ? val : max) : min);
  };
+
+NOISE_DLL_EXPORT void DEBUG_MSG1(std::string msg)
+{
+	std::ostringstream debugMsg;
+	debugMsg << msg << std::endl;
+	debugMsg << "file: " << __FILE__ << std::endl;
+	debugMsg << "line: " << __LINE__ << std::endl;
+	debugMsg << "function:" << __func__ << std::endl;
+	MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
+	debugMsg.clear();
+};

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="N2D_1GUIManager">
+      <UniqueIdentifier>{0c8ff3dc-71ef-4645-a01c-bbd68b1d679b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_GUIButton">
+      <UniqueIdentifier>{149aa4d7-b09f-404b-b38a-efb440d08324}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_GUIScrollBar">
+      <UniqueIdentifier>{a5ed5f12-43e2-4dd2-8255-0b754a0eaf71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N2D_GUITextBox">
+      <UniqueIdentifier>{a1fef5fb-07dd-41dd-b131-8aa7c3dd77f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NBASE_NoiseGUIComponentBase">
+      <UniqueIdentifier>{9f3214e1-6231-438b-89ed-c53922fec752}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="N2D_NoiseGUIButton.h">
+      <Filter>N2D_GUIButton</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUIManager.h">
+      <Filter>N2D_1GUIManager</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUIScrollBar.h">
+      <Filter>N2D_GUIScrollBar</Filter>
+    </ClInclude>
+    <ClInclude Include="N2D_NoiseGUITextBox.h">
+      <Filter>N2D_GUITextBox</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseGUISystem.h" />
+    <ClInclude Include="NBASE_NoiseGUIComponentBase.h">
+      <Filter>NBASE_NoiseGUIComponentBase</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="N2D_NoiseGUIManager.cpp">
+      <Filter>N2D_1GUIManager</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIScrollBar.cpp">
+      <Filter>N2D_GUIScrollBar</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUITextBox.cpp">
+      <Filter>N2D_GUITextBox</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIButton.cpp">
+      <Filter>N2D_GUIButton</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseGUIComponentBase.cpp">
+      <Filter>NBASE_NoiseGUIComponentBase</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -14,7 +14,7 @@
 class NoiseGraphicObject;
 class NoiseFontManager;
 
-//a base class that provide general life cycle management
+//a base class that abstract common text attribute and op
 class _declspec(dllexport) Noise2DBasicTextInfo
 {
 	friend class NoiseRenderer;
@@ -26,7 +26,9 @@ public:
 
 	void		SetGlowColor(NVECTOR4 color) { *m_pTextGlowColor = color; };
 
+	NVECTOR4 GetTextColor() {return *m_pTextColor;};
 
+	NVECTOR4 GetTextGlowColor(){ return *m_pTextGlowColor; };
 protected:
 
 	virtual	void	mFunction_UpdateGraphicObject() = 0;//require implementation

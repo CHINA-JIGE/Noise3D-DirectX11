@@ -174,7 +174,7 @@ UINT	 NoiseFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, 
 	//dynamic text use bitmap table & texture coordinate to  render text
 	if (refText.IsInitialized())
 	{
-		DEBUG_MSG3(__func__, "", "Object Has Been Initialized!");
+		DEBUG_MSG1("Object Has Been Initialized!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -261,7 +261,7 @@ UINT	 NoiseFontManager::InitDynamicTextA(UINT fontID, std::string targetString, 
 	//dynamic text use bitmap table & texture coordinate to  render text
 	if (refText.IsInitialized())
 	{
-		DEBUG_MSG3(__func__,"","Object Has Been Initialized!");
+		DEBUG_MSG1("Object Has Been Initialized!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -323,6 +323,17 @@ UINT	 NoiseFontManager::GetFontID(std::string fontName)
 	}
 
 	return NOISE_MACRO_INVALID_ID;
+}
+
+NVECTOR2 NoiseFontManager::GetFontSize(UINT fontID)
+{
+	float fontWidth = 0.0f; float fontHeight = 0.0f;
+	if (fontID < m_pFontObjectList->size())
+	{
+		fontHeight = float(m_pFontObjectList->at(fontID).mFontSize);
+		fontWidth = fontHeight*m_pFontObjectList->at(fontID).mAspectRatio;
+	}
+	return NVECTOR2(fontWidth,fontHeight);
 }
 
 

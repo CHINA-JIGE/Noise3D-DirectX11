@@ -36,7 +36,7 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	//文件不存在就return
 	if (!fileIn.is_open()) 
 	{
-		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
 		return FALSE;
 	}
 
@@ -197,7 +197,7 @@ BOOL NoiseFileManager::ImportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 
 	if (!fileIn.is_open())
 	{
-		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
 		return FALSE;
 	}
 
@@ -293,7 +293,7 @@ BOOL NoiseFileManager::ExportFile_PURE(char * pFilePath, std::vector<char>* pFil
 	//check if we have successfully opened the file
 	if (!fileOut.good())
 	{
-		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
 		return FALSE;
 	}
 
@@ -327,7 +327,7 @@ BOOL NoiseFileManager::ExportFile_NOISELAYER(char * pFilePath, std::vector<N_Lin
 	//check if we have successfully opened the file
 	if (!fileOut.good())
 	{
-		DEBUG_MSG3("", "", "NoiseFileManager : Cannot Open File !!");
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
 		return FALSE;
 	}
 

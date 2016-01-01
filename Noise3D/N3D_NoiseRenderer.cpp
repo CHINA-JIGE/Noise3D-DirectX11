@@ -250,10 +250,14 @@ void NoiseRenderer::RenderTexts()
 		return;
 	};
 
+	//CLEAR DEPTH!! to implement component overlapping
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 	mFunction_SetBlendState(m_BlendMode);
 	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
-	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_DisableDepthTest, 0xffffffff);
 
 	//render TEXT
 	mFunction_TextGraphicObj_Render(m_pRenderList_TextDynamic);
@@ -269,62 +273,68 @@ void NoiseRenderer::RenderGUIObjects()
 		return;
 	};
 
+	//CLEAR DEPTH!! to implement component overlapping
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 	mFunction_SetBlendState(m_BlendMode);
 	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-	
+
 	//render internal graphic objects
 	mFunction_GraphicObj_RenderTriangle2DInList(m_pRenderList_GUIGraphicObj);
 	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
 }
 
 
-void NoiseRenderer::AddOjectToRenderList(NoiseMesh& obj)
+void NoiseRenderer::AddObjectToRenderList(NoiseMesh& obj)
 {
 	m_pRenderList_Mesh->push_back(&obj);
 };
 
-void NoiseRenderer::AddOjectToRenderList(NoiseGraphicObject& obj)
-{
-	mFunction_AddToRenderList_GraphicObj(&obj, m_pRenderList_CommonGraphicObj);
-}
-
-void NoiseRenderer::AddOjectToRenderList(NoiseAtmosphere& obj)
+void NoiseRenderer::AddObjectToRenderList(NoiseAtmosphere& obj)
 {
 	m_pRenderList_Atmosphere->push_back(&obj);
 	//fog color will only be rendered after ADDTORENDERLIST();
 	obj.mFogHasBeenAddedToRenderList = TRUE;
 };
 
-void NoiseRenderer::AddOjectToRenderList(NoiseGUIButton & obj)
+void NoiseRenderer::AddObjectToRenderList(NoiseGraphicObject& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
 {
-	mFunction_AddToRenderList_GraphicObj(obj.m_pGraphicObj, m_pRenderList_GUIGraphicObj);
-};
-
-void NoiseRenderer::AddOjectToRenderList(NoiseGUIScrollBar & obj)
-{
-	mFunction_AddToRenderList_GraphicObj(obj.m_pGraphicObj_Groove, m_pRenderList_GUIGraphicObj);
-	mFunction_AddToRenderList_GraphicObj(obj.m_pButtonScrolling->m_pGraphicObj, m_pRenderList_GUIGraphicObj);
-};
-
-void NoiseRenderer::AddOjectToRenderList(NoiseGUITextBox & obj)
-{
-	//well....if i render common graphic object here,then no
-	mFunction_AddToRenderList_Text(obj.m_pTextDynamic,m_pRenderList_GUIText);
-	mFunction_AddToRenderList_GraphicObj(obj.m_pGraphicObj, m_pRenderList_GUIGraphicObj);
-};
-
-void NoiseRenderer::AddOjectToRenderList(Noise2DTextDynamic & obj)
-{
-	mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextDynamic);
+	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
+	{
+		mFunction_AddToRenderList_GraphicObj(&obj, m_pRenderList_CommonGraphicObj);
+	}
+	else
+	{
+		mFunction_AddToRenderList_GraphicObj(&obj, m_pRenderList_GUIGraphicObj);
+	}
 }
 
-void NoiseRenderer::AddOjectToRenderList(Noise2DTextStatic & obj)
+void NoiseRenderer::AddObjectToRenderList(Noise2DTextDynamic & obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
 {
-	mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextStatic);
-};
+	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
+	{
+		mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextDynamic);
+	}
+	else
+	{
+		mFunction_AddToRenderList_Text(&obj, m_pRenderList_GUIText);
+	}
+}
 
+void NoiseRenderer::AddObjectToRenderList(Noise2DTextStatic & obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
+{
+	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
+	{
+		mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextStatic);
+	}
+	else
+	{
+		mFunction_AddToRenderList_Text(&obj, m_pRenderList_GUIText);
+	}
+};
 
 void	NoiseRenderer::ClearBackground(NVECTOR4 color)
 {
@@ -668,7 +678,7 @@ void		NoiseRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CU
 		case NOISE_CULLMODE_NONE:
 			g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullNone);
 			break;
-
+			
 		case NOISE_CULLMODE_FRONT:
 			g_pImmediateContext->RSSetState(m_pRasterState_Solid_CullFront);
 			break;
@@ -1084,7 +1094,6 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<Noi
 
 	for (UINT i = 0;i < pList->size();i++)
 	{
-
 		//----------------------1,draw common triangle----------------------
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);

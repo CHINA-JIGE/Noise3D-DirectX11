@@ -49,9 +49,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
+	const UINT bufferWidth = 640;
+	const UINT bufferHeight = 480;
 
 	//初始化失败
-	if(!Engine.InitD3D( hwnd,640,480,TRUE))return FALSE;
+	if(!Engine.InitD3D( hwnd, bufferWidth, bufferHeight,TRUE))return FALSE;
 
 	Scene.InitMesh(Mesh1);
 	Scene.InitRenderer(Renderer);
@@ -61,25 +63,28 @@ BOOL Init3D(HWND hwnd)
 	Scene.InitTextureManager(TexMgr);
 	Scene.InitAtmosphere(Atmos);
 	fontMgr.Initialize();
-	GUIMgr.Initialize(inputE,fontMgr,hwnd);
+
 
 	//漫反射贴图
 	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
 	//TexMgr.CreatePureColorTexture("myText", 300, 100, NVECTOR4(0.0f, 0.0f, 0.0f, 0.0f), TRUE);
+	TexMgr.CreateTextureFromFile(L"button1.png", "GUI_Button1", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"button2.png", "GUI_Button2", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"button3.png", "GUI_Button3", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"button4.png", "GUI_Button4", TRUE, 0, 0, FALSE);
 	TexMgr.CreateTextureFromFile(L"Earth.jpg","Earth", TRUE,0, 0,FALSE);
 	TexMgr.CreateTextureFromFile(L"Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
 	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button.dds", "Button", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
 	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
 	TexMgr.ConvertTextureToGreyMap(TexMgr.GetTextureID("EarthNormalMap"));
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("EarthNormalMap"),20.0f);
 
 	//create font texture
-	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 36);
+	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 24);
 
-	fontMgr.InitStaticTextW(0, L"Graphic Object在渲染前都会生成一个Subset List。。。这才对路嘛。。。", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
+	fontMgr.InitStaticTextW(0, L"TextBox的CapsLock和大小写/ GUI system需不需要重构一下啊....很多Event是比较重复的....= =", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
 	myText1.SetTextColor(NVECTOR4(1.0f, 0, 0, 0.5f));
 	myText1.SetCenterPos(300.0f, 100.0f);
@@ -131,9 +136,9 @@ BOOL Init3D(HWND hwnd)
 	Mat1.baseMaterial.mSpecularSmoothLevel	=	40;
 	Mat1.baseMaterial.mNormalMapBumpIntensity = 0.3f;
 	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.05f;
-	Mat1.diffuseMapID = TexMgr.GetTextureID("Earth");
+	Mat1.diffuseMapID = TexMgr.GetTextureID("Wood");//"Earth");
 	Mat1.normalMapID = TexMgr.GetTextureID("EarthNormalMap");
-	Mat1.cubeMap_environmentMapID = TexMgr.GetTextureID("EnvironmentMap");
+	Mat1.cubeMap_environmentMapID = NOISE_MACRO_INVALID_TEXTURE_ID;//TexMgr.GetTextureID("EnvironmentMap");
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
@@ -142,35 +147,37 @@ BOOL Init3D(HWND hwnd)
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),TexMgr.GetTextureID("BottomRightTitle"));
 	
 	//GUI System
+	GUIMgr.Initialize(bufferWidth, bufferHeight, Renderer, inputE, fontMgr, hwnd);
 	GUIMgr.SetWindowHWND(hwnd);
+	GUIMgr.SetFontManager(fontMgr);
 	GUIMgr.InitButton(GUIButton1);
 	GUIMgr.InitScrollBar(GUIScrollBar1);
 	GUIMgr.InitTextBox(GUITextBox1,0);
-	GUIMgr.SetFontManager(fontMgr);
 	GUIButton1.SetCenterPos(150.0f, 50.0f);
 	GUIButton1.SetWidth(300.0f);
 	GUIButton1.SetHeight(100.0f);
 	GUIButton1.SetDragableX(TRUE);
 	GUIButton1.SetDragableY(TRUE);
-	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_COMMON,TexMgr.GetTextureID("Button"));
-	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEON,TexMgr.GetTextureID("Earth"));
-	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN,TexMgr.GetTextureID("Wood"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_COMMON,TexMgr.GetTextureID("GUI_Button2"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEON,TexMgr.GetTextureID("GUI_Button3"));
+	GUIButton1.SetTexture(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN,TexMgr.GetTextureID("GUI_Button4"));
 	GUIButton1.SetEventProcessCallbackFunction(Button1MsgProc);
 	GUIScrollBar1.SetCenterPos(300.0f, 300.0f);
 	GUIScrollBar1.SetWidth(30.0f);
 	GUIScrollBar1.SetHeight(300.0f);
-	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_COMMON, TexMgr.GetTextureID("Earth"));
-	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEON, TexMgr.GetTextureID("Wood"));
-	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN, TexMgr.GetTextureID("Button"));
-	GUIScrollBar1.SetTexture_ScrollGroove(TexMgr.GetTextureID("EarthNormalMap"));
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_COMMON, TexMgr.GetTextureID("GUI_Button1"));
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEON, TexMgr.GetTextureID("GUI_Button2"));
+	GUIScrollBar1.SetTexture_ScrollButton(NOISE_GUI_BUTTON_STATE_MOUSEBUTTONDOWN, TexMgr.GetTextureID("GUI_Button3"));
+	GUIScrollBar1.SetTexture_ScrollGroove(TexMgr.GetTextureID("GUI_Button4"));
 	GUIScrollBar1.SetAlignment(FALSE);
 	GUIScrollBar1.SetValue(0.5f);
+	GUITextBox1.SetTextColor({ 1.0f,0,0,1.0f });
 	GUITextBox1.SetCenterPos(200.0f, 400.0f);
 	GUITextBox1.SetWidth(300.0f);
-	GUITextBox1.SetHeight(40.0f);
+	GUITextBox1.SetHeight(80.0f);
 	GUITextBox1.SetFont(0);
-	GUITextBox1.SetTexture_BackGround( TexMgr.GetTextureID("Earth"));
-	GUITextBox1.SetTexture_Cursor( TexMgr.GetTextureID("Wood"));
+	GUITextBox1.SetTexture_BackGround( TexMgr.GetTextureID("GUI_Button3"));
+	GUITextBox1.SetTexture_Cursor( TexMgr.GetTextureID("GUI_Button2"));
 	GUIMgr.Update();
 
 
@@ -221,16 +228,17 @@ void MainLoop()
 	myText2.SetTextAscii(tmpS2.str());
 
 	//add to render list
-	Renderer.AddOjectToRenderList(Mesh1);
-	Renderer.AddOjectToRenderList(GraphicObjBuffer);
-	Renderer.AddOjectToRenderList(Atmos);
-	Renderer.AddOjectToRenderList(myText1);
-	Renderer.AddOjectToRenderList(myText2);
-	Renderer.AddOjectToRenderList(myText_fps);
+	Renderer.AddObjectToRenderList(Mesh1);
+	Renderer.AddObjectToRenderList(GraphicObjBuffer);
+	Renderer.AddObjectToRenderList(Atmos);
+	Renderer.AddObjectToRenderList(myText1);
+	Renderer.AddObjectToRenderList(myText2);
+	Renderer.AddObjectToRenderList(myText_fps);
 	
-	Renderer.AddOjectToRenderList(GUIScrollBar1);
-	Renderer.AddOjectToRenderList(GUIButton1);
-	Renderer.AddOjectToRenderList(GUITextBox1);
+	GUIMgr.AddObjectToRenderList(GUIScrollBar1);
+	GUIMgr.AddObjectToRenderList(GUIButton1);
+	GUIMgr.AddObjectToRenderList(GUITextBox1);
+	
 
 	//render
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
@@ -240,9 +248,9 @@ void MainLoop()
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderGraphicObjects();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
-	Renderer.RenderTexts();
-	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	Renderer.RenderGUIObjects();
+	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);
+	Renderer.RenderTexts();
 
 	//present
 	Renderer.RenderToScreen();
@@ -309,13 +317,13 @@ UINT Button1MsgProc(UINT msg)
 {
 	switch (msg)
 	{
-	case NOISE_GUI_EVENTS_BUTTON_MOUSEON:
+	case NOISE_GUI_EVENTS_COMMON_MOUSEDOWN:
 		break;
 
-	case NOISE_GUI_EVENTS_BUTTON_MOUSEPRESSED:
+	case NOISE_GUI_EVENTS_COMMON_MOUSEUP:
 		break;
 
-	case NOISE_GUI_EVENTS_BUTTON_MOUSEMOVE:
+	case NOISE_GUI_EVENTS_COMMON_MOUSEMOVE:
 		break;
 	default:
 		break;

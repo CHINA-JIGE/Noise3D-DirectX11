@@ -56,7 +56,7 @@
 
 
 //调试：弹出消息
-#define DEBUG_MSG3(msg1,msg2,msg3)\
+/*#define DEBUG_MSG3(msg1,msg2,msg3)\
 				g_Debug_MsgString<<msg1<<msg2<<msg3<<std::endl;\
 				g_Debug_MsgString<<"file: "<<__FILE__<<std::endl;\
 				g_Debug_MsgString<<"line: "<<__LINE__<<std::endl;\
@@ -68,7 +68,7 @@
 				g_Debug_MsgString<<"file: "<<__FILE__<<std::endl;\
 				g_Debug_MsgString<<"line: "<<__LINE__<<std::endl;\
 				MessageBoxA(0,g_Debug_MsgString.str().c_str(),0,0);\
-				g_Debug_MsgString.clear()\
+				g_Debug_MsgString.clear()\*/
 
 ;//文件尾
 

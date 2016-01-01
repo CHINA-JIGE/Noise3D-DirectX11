@@ -8,9 +8,8 @@
 #pragma once
 
 class _declspec(dllexport) NoiseGUIScrollBar :
-	public Noise2DBasicContainerInfo,
 	public NoiseClassLifeCycle,
-	public NoiseGUIEventCommonOperation
+	public NoiseGUIComponentBase
 {
 public:
 	friend class NoiseGUIManager;
@@ -39,6 +38,10 @@ public:
 private:
 
 	void	Destroy();
+
+	void NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_Update(BOOL isMouseInContainer, N_GUI_MOUSE_INFO& mouseInfo);
+
+	void NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();
 
 	NoiseGUIManager*		m_pFatherGUIMgr;
 	NoiseGraphicObject*		m_pGraphicObj_Groove;//used to store the Groove picture for the time being

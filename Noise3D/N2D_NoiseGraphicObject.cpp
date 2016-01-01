@@ -142,7 +142,7 @@ UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHei
 	return newRectID;
 }
 
-void NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	if (index > GetLine3DCount())
 	{
@@ -160,7 +160,7 @@ void NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR
 
 }
 
-void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	if (index >=GetLine2DCount())
 	{
@@ -182,7 +182,7 @@ void NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 
 }
 
-void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
+void	NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 {
 	if (index > GetPoint3DCount())
 	{
@@ -200,7 +200,7 @@ void NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 
 }
 
-void NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
+void	NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 {
 	if (index > GetPoint2DCount())
 	{
@@ -217,7 +217,7 @@ void NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 	);
 }
 
-void NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+void	NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
 	if (index >= GetTriangle2DCount())
 	{
@@ -239,7 +239,7 @@ void NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVE
 	);
 }
 
-void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
+void	NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
 {
 	//index mean the 'index'th rectangle
 
@@ -273,13 +273,13 @@ void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 
 }
 
-void NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
+void	NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texID);
 }
 
-void NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
+void	NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
 {
 	//index mean the 'index'th rectangle
 
@@ -311,7 +311,22 @@ void NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLe
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
 }
 
-void NoiseGraphicObject::DeleteLine3D(UINT index)
+void	NoiseGraphicObject::SetRectangleDepth(UINT index, float posZ)
+{
+	//index mean the 'index'th rectangle
+
+	if (index >= GetRectCount())
+	{DEBUG_MSG1("Rectangle Index Invalid !!");return;}
+
+	//after getting triangle ID (in global buffer) , compute 6 vertex ID of these 2 tri (in global buffer)
+	for (UINT i = 0;i < 6;++i)
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6 +i).Pos.z = posZ;
+
+	//now it is allowed to update because of modification
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
+}
+
+void	NoiseGraphicObject::DeleteLine3D(UINT index)
 {
 	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index * 2;
@@ -322,7 +337,7 @@ void NoiseGraphicObject::DeleteLine3D(UINT index)
 
 }
 
-void NoiseGraphicObject::DeleteLine2D(UINT index)
+void	NoiseGraphicObject::DeleteLine2D(UINT index)
 {
 	if (index < GetLine2DCount())
 	{
@@ -342,7 +357,7 @@ void NoiseGraphicObject::DeleteLine2D(UINT index)
 	}
 }
 
-void NoiseGraphicObject::DeletePoint3D(UINT index)
+void	NoiseGraphicObject::DeletePoint3D(UINT index)
 {
 	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index;
@@ -353,7 +368,7 @@ void NoiseGraphicObject::DeletePoint3D(UINT index)
 
 }
 
-void NoiseGraphicObject::DeletePoint2D(UINT index)
+void	NoiseGraphicObject::DeletePoint2D(UINT index)
 {
 	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index;
@@ -364,7 +379,7 @@ void NoiseGraphicObject::DeletePoint2D(UINT index)
 
 }
 
-void NoiseGraphicObject::DeleteTriangle2D(UINT index)
+void	NoiseGraphicObject::DeleteTriangle2D(UINT index)
 {
 	//delete the index_th single Triangle
 	UINT vertexStartIndex = 0;
@@ -388,7 +403,7 @@ void NoiseGraphicObject::DeleteTriangle2D(UINT index)
 
 }
 
-void NoiseGraphicObject::DeleteRectangle(UINT index)
+void	NoiseGraphicObject::DeleteRectangle(UINT index)
 {
 	//delete the index_th Rectangle
 
@@ -446,7 +461,7 @@ UINT NoiseGraphicObject::GetRectCount()
 
 
 /***********************************************************************
-						PRIVATE
+						P R I V A T E
 ***********************************************************************/
 
 BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
@@ -667,7 +682,7 @@ void		NoiseGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buff
 
 inline void  NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
 {
-	//first ,  get the pixel size of main back buffer (global var)
+	//PIXEL SPACE TO [-1,1] SCR SPACE
 	float halfW= (float)gMainBufferPixelWidth / 2.0f;
 	float halfH = (float)gMainBufferPixelHeight / 2.0f;
 	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		1-(pxCoord.y / halfH));
@@ -676,7 +691,7 @@ inline void  NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxC
 inline float NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
 {
 	float outLength = 0;
-	//we need to know the pixel length is on X or Y direction
+	//PIXEL SPACE TO [-1,1] SCR SPACE
 	if (isWidth)
 	{
 		outLength = pxLen*2.0f / (float)gMainBufferPixelWidth;

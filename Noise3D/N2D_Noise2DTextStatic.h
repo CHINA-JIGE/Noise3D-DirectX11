@@ -13,15 +13,12 @@ class _declspec(dllexport) Noise2DTextStatic:
 {
 public:
 
-	friend class NoiseScene;
 	friend class NoiseRenderer;
 	friend class NoiseFontManager;
 
 	Noise2DTextStatic();
 
-	//void		SetTextColor(NVECTOR4 color);
-
-	//void		SetTextGlowColor(NVECTOR4 color);
+	NVECTOR2 GetFontSize(UINT fontID);
 
 
 private:

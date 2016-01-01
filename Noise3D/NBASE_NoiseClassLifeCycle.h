@@ -13,44 +13,43 @@
 #pragma once
 
 //a base class that provide general life cycle management
-class _declspec(dllexport) NoiseClassLifeCycle
-{
-public:
-	/*~NoiseClassLifeCycle()
+	class _declspec(dllexport) NoiseClassLifeCycle
 	{
-		SelfDestruction();
-	}*/
-
-
-	void	SelfDestruction()
-	{
-		if (mIsInitialized)
+	public:
+		/*~NoiseClassLifeCycle()
 		{
-			Destroy();//!!!!!!!!!!!!!!!!!!!! A DETAILED destruction must be implemented by derived class
-			mIsInitialized = FALSE;
-		}
+			SelfDestruction();
+		}*/
+
+
+		void	SelfDestruction()
+		{
+			if (mIsInitialized)
+			{
+				Destroy();//!!!!!!!!!!!!!!!!!!!! A DETAILED destruction must be implemented by derived class
+				mIsInitialized = FALSE;
+			}
+		};
+
+
+	protected:
+		void	   SetStatusToBeInitialized()
+		{
+			if (mIsInitialized)
+			{
+				//catched by "create" functions or high level initialization
+				throw(std::runtime_error("NoiseLifeCycle_ObjectInitialized"));
+			}
+			else
+			{
+				mIsInitialized = TRUE;
+			}
+		};
+
+		BOOL	IsInitialized() { return mIsInitialized; };
+
+		virtual	void	Destroy() = 0; //!!!!!!!!!!!!!!!!!!!! A DETAILED destruction must be implemented by derived class
+
+	private:
+		BOOL	mIsInitialized = FALSE;
 	};
-
-
-protected:
-	void	   SetStatusToBeInitialized() 
-	{ 
-		if (mIsInitialized)
-		{
-			//catched by "create" functions or high level initialization
-			throw(std::runtime_error("NoiseLifeCycle_ObjectInitialized"));
-		}
-		else
-		{
-			mIsInitialized = TRUE;
-		}
-	};
-
-	BOOL	IsInitialized() { return mIsInitialized; };
-
-	virtual	void	Destroy() = 0; //!!!!!!!!!!!!!!!!!!!! A DETAILED destruction must be implemented by derived class
-
-private:
-	BOOL	mIsInitialized=FALSE;
-};
-

@@ -4,6 +4,7 @@
 
 ************************************************************************/
 #include "Noise3D.h"
+#include "N2D_Noise2DTextDynamic.h"
 
 Noise2DTextDynamic::Noise2DTextDynamic()
 {
@@ -39,7 +40,13 @@ void Noise2DTextDynamic::SetFont(UINT fontID)
 UINT Noise2DTextDynamic::GetFontID()
 {
 	return mFontID;
+}
+NVECTOR2 Noise2DTextDynamic::GetFontSize(UINT fontID)
+{
+	if (!IsInitialized())return NVECTOR2(0, 0);
+	return m_pFatherFontMgr->GetFontSize(fontID);
 };
+
 
 
 
@@ -73,11 +80,57 @@ void Noise2DTextDynamic::SetWordSpacingOffset(int offset)
 int Noise2DTextDynamic::GetWordSpacingOffset()
 {
 	return mWordSpacingOffset;
+}
+
+NVECTOR2 Noise2DTextDynamic::GetWordLocalPosOffset(UINT wordIndex)
+{
+	if (!NoiseClassLifeCycle::IsInitialized())
+	{
+		DEBUG_MSG1("Text Dynamic is not initialized!!");
+		return NVECTOR2(0, 0);
+	}//ensure font mgr has been initialized
+
+	//There is some overlapped code in mFunc_UpdateGraphicObj()
+	std::string str;
+	GetTextAscii(str);
+
+	UINT stringBoundaryWidth = UINT(Noise2DBasicContainerInfo::GetWidth());
+	UINT stringBoundaryHeight = UINT(Noise2DBasicContainerInfo::GetHeight());
+
+	NVECTOR2	posTopLeftOffset(0, 0);
+
+	//clamp wordIndex
+	for (UINT i = 0;i <	(wordIndex<str.size()?wordIndex:str.size()); i++)
+	{
+		NVECTOR2 realCharBitmapSize = GetWordRealSize(m_pTextContent->at(i));
+
+		//sum up widths and heights of words to derive pos offset
+		posTopLeftOffset.x += (realCharBitmapSize.x + mWordSpacingOffset);
+
+		//if the right side of current char has exceeded the right text boundary
+		if (posTopLeftOffset.x + realCharBitmapSize.x >= stringBoundaryWidth)
+		{
+			//cursor move to next line
+			posTopLeftOffset.y += (mCharBoundarySizeY + mLineSpacingOffset);
+			posTopLeftOffset.x = 0.0f;
+		}
+	}
+
+	return posTopLeftOffset;
+
 };
 
+inline NVECTOR2 Noise2DTextDynamic::GetWordRealSize(UINT wordIndex)
+{
+	if (!NoiseClassLifeCycle::IsInitialized())
+	{
+		DEBUG_MSG1("Text Dynamic is not initialized!!");
+		return NVECTOR2(0, 0);//ensure font mgr has been initialized
+	}
 
-
-
+	NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(wordIndex);
+	return realCharBitmapPixelSize;
+};
 
 
 /************************************************************************
@@ -159,8 +212,6 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 #pragma endregion AdjustTheCountOfRects
 
 
-
-
 	//2. update (set) rectangles to its new condition, and we store 2 string to avoid unnecessary 
 	//texcoord update (char bitmap udpate)
 	//like a cursor moving around
@@ -196,6 +247,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 
 
 #pragma region UpdatePositionOfSubRects
+
 		//calculate position of Rects (relative to the graphic object container)
 		posAlignmentOffset.x = 0;
 		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
@@ -207,7 +259,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		
 		//COLLAPSE the rectangle into ONE POINT to make it invisible if this rectangle
 		//is outside the boundary of Text
-		if (tmpRectBottomRight.y >(GetBottomRight().y+ realCharBitmapPixelSize.y))
+		if (tmpRectTopLeft.y+realCharBitmapPixelSize.y >GetBottomRight().y)
 		{
 			//collapse
 			m_pGraphicObj->SetRectangle(
@@ -229,6 +281,11 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 				mStringTextureID
 				);
 		}
+
+		//rectangle depth,used for 2D overlapping
+		m_pGraphicObj->SetRectangleDepth(i, mPosZ);
+
+
 #pragma endregion UpdatePositionOfSubRects
 
 

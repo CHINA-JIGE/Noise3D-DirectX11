@@ -10,7 +10,6 @@
 class _declspec(dllexport) NoiseCamera:public NoiseClassLifeCycle
 {
 public:
-
 	friend class NoiseScene;
 	friend class NoiseRenderer;
 

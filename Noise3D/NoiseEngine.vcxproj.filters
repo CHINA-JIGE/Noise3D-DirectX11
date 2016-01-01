@@ -46,29 +46,14 @@
     <Filter Include="NUT_NoiseUtInputEngine">
       <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="N2D_NoiseGUI">
-      <UniqueIdentifier>{c0486bec-ed07-47ed-ae4f-63ce3cfe5f02}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N2D_NoiseGraphicObject">
       <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="N2D_NoiseGUI\N2D_GUIManager">
-      <UniqueIdentifier>{c1378f01-f3fd-4576-bae2-f12a28e0b115}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="N2D_NoiseGUI\N2D_GUIButton">
-      <UniqueIdentifier>{4fd3d6e3-92b1-4f51-a311-378a1ec56da2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="N2D_NoiseGUI\N2D_GUIScrollBar">
-      <UniqueIdentifier>{1cc54224-b6b8-4602-95ef-80ec74b89540}</UniqueIdentifier>
     </Filter>
     <Filter Include="NBASE_NoiseClassLifeCycle">
       <UniqueIdentifier>{aeee8b99-5971-4cd4-b448-eee6ccad044e}</UniqueIdentifier>
     </Filter>
     <Filter Include="NBASE_NoiseBasicContainerInfo">
       <UniqueIdentifier>{6aedf65b-3f88-4575-8baa-565ef35e2138}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="N2D_NoiseGUI\N2D_GUITextBox">
-      <UniqueIdentifier>{8c818803-9291-421b-a170-3a9a0adf11c2}</UniqueIdentifier>
     </Filter>
     <Filter Include="N2D_NoiseFont&amp;Text">
       <UniqueIdentifier>{05e51c91-facb-4412-b778-5b7689e1b3c8}</UniqueIdentifier>
@@ -147,26 +132,11 @@
     <ClInclude Include="N2D_NoiseGraphicObject.h">
       <Filter>N2D_NoiseGraphicObject</Filter>
     </ClInclude>
-    <ClInclude Include="N2D_NoiseGUIButton.h">
-      <Filter>N2D_NoiseGUI\N2D_GUIButton</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_NoiseGUIManager.h">
-      <Filter>N2D_NoiseGUI\N2D_GUIManager</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_NoiseGUIScrollBar.h">
-      <Filter>N2D_NoiseGUI\N2D_GUIScrollBar</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_NoiseGUI.h">
-      <Filter>N2D_NoiseGUI</Filter>
-    </ClInclude>
     <ClInclude Include="NBASE_NoiseClassLifeCycle.h">
       <Filter>NBASE_NoiseClassLifeCycle</Filter>
     </ClInclude>
     <ClInclude Include="NBASE_Noise2DBasicContainerInfo.h">
       <Filter>NBASE_NoiseBasicContainerInfo</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_NoiseGUITextBox.h">
-      <Filter>N2D_NoiseGUI\N2D_GUITextBox</Filter>
     </ClInclude>
     <ClInclude Include="N2D_Noise2DTextDynamic.h">
       <Filter>N2D_NoiseFont&amp;Text\N2D_Noise2DTextDynamic</Filter>
@@ -176,9 +146,6 @@
     </ClInclude>
     <ClInclude Include="N2D_NoiseFontManager.h">
       <Filter>N2D_NoiseFont&amp;Text\N2D_NoiseFontManager</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_NoiseGUIEventCommonOperation.h">
-      <Filter>N2D_NoiseGUI</Filter>
     </ClInclude>
     <ClInclude Include="NBASE_Noise2DBasicTextInfo.h">
       <Filter>N2D_NoiseFont&amp;Text\NBASE_Noise2DBasicTextInfo</Filter>
@@ -233,20 +200,8 @@
     <ClCompile Include="N2D_NoiseGraphicObject.cpp">
       <Filter>N2D_NoiseGraphicObject</Filter>
     </ClCompile>
-    <ClCompile Include="N2D_NoiseGUIButton.cpp">
-      <Filter>N2D_NoiseGUI\N2D_GUIButton</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_NoiseGUIManager.cpp">
-      <Filter>N2D_NoiseGUI\N2D_GUIManager</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_NoiseGUIScrollBar.cpp">
-      <Filter>N2D_NoiseGUI\N2D_GUIScrollBar</Filter>
-    </ClCompile>
     <ClCompile Include="NBASE_Noise2DBasicContainerInfo.cpp">
       <Filter>NBASE_NoiseBasicContainerInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_NoiseGUITextBox.cpp">
-      <Filter>N2D_NoiseGUI\N2D_GUITextBox</Filter>
     </ClCompile>
     <ClCompile Include="N2D_Noise2DTextDynamic.cpp">
       <Filter>N2D_NoiseFont&amp;Text\N2D_Noise2DTextDynamic</Filter>

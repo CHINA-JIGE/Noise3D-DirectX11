@@ -9,14 +9,18 @@
 #pragma once
 #include "Noise3D.h"
 
+#define NOISE_DLL_EXPORT _declspec(dllexport)
+
+
+
 const UINT					g_VertexDesc_Default_ElementCount = 5;
 
 const UINT					g_VertexDesc_Simple_ElementCount = 3;
 
 //主渲染缓存的像素尺寸
-extern UINT					gMainBufferPixelWidth;
+extern  UINT	gMainBufferPixelWidth;
 
-extern UINT					gMainBufferPixelHeight;
+extern  UINT	gMainBufferPixelHeight;
 
 //抗锯齿品质
 extern UINT						g_Device_MSAA4xQuality ;
@@ -26,8 +30,7 @@ extern BOOL						g_Device_MSAA4xEnabled ;
 extern D3D_DRIVER_TYPE			g_Device_driverType;
 //
 extern D3D_FEATURE_LEVEL		g_Device_featureLevel;
-//用于弹出调试信息的ostringstream
-extern std::ostringstream			g_Debug_MsgString;
+
 //顶点描述
 extern D3D11_INPUT_ELEMENT_DESC g_VertexDesc_Default[g_VertexDesc_Default_ElementCount];
 
@@ -49,18 +52,19 @@ extern ID3D11InputLayout*			g_pVertexLayout_Default;
 
 extern ID3D11InputLayout*			g_pVertexLayout_Simple;
 
-
 //——————————全局函数————————————
-extern HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
+extern NOISE_DLL_EXPORT HRESULT gFunction_CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
 
-extern BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
+extern NOISE_DLL_EXPORT BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
-extern int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
+extern NOISE_DLL_EXPORT int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
-extern UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode);
+extern NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode,BOOL isCapital);
 
-extern float gFunction_Lerp(float a, float b, float t);
+extern NOISE_DLL_EXPORT float gFunction_Lerp(float a, float b, float t);
 
-extern float gFunction_Clampf(float val, float min, float max);
+extern NOISE_DLL_EXPORT float gFunction_Clampf(float val, float min, float max);
 
-extern int	gFunction_Clamp(int val, int min, int max);
+extern NOISE_DLL_EXPORT int	gFunction_Clamp(int val, int min, int max);
+
+extern NOISE_DLL_EXPORT void DEBUG_MSG1(std::string msg);

@@ -6,6 +6,8 @@
 
 **************************************************************************/
 
+#ifndef INPUT_STRUCT_H
+#define INPUT_STRUCT_H
 
 
 /**********************************************************************
@@ -43,3 +45,5 @@ struct VS_OUTPUT_SIMPLE
 	float4 color : COLOR;
 	float2 texcoord:TEXCOORD;
 };
+
+#endif

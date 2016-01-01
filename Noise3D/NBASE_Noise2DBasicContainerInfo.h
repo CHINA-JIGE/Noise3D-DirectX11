@@ -52,11 +52,16 @@ public:
 
 	BOOL IsEnabled();
 
+	void	SetPosZ(float posZ);
+
+	float	GetPosZ();
+
 protected:
 	BOOL	 IsPointInContainer(NVECTOR2 v);
 	BOOL	mIsEnabled;
 	NVECTOR2*	m_pPositionCenter;
 	float		mWidth;
 	float		mHeight;
+	float		mPosZ;//the real "Z" coordinate of 2D triangle
 	NVECTOR4*	m_pBasicColor;
 };

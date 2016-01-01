@@ -12,6 +12,7 @@
 
 Noise2DBasicContainerInfo::Noise2DBasicContainerInfo()
 {
+	mPosZ = 1.0f;//the deepest
 	mIsEnabled = TRUE;
 	m_pPositionCenter = new NVECTOR2(50,30);
 	mWidth = 100;
@@ -125,6 +126,16 @@ BOOL Noise2DBasicContainerInfo::IsEnabled()
 	return mIsEnabled;
 }
 
+void Noise2DBasicContainerInfo::SetPosZ(float posZ)
+{
+	//clamp to 0~1
+	mPosZ = posZ >= 0.0 ? (posZ <= 1.0f ? posZ : 1.0f) : 0.0f;
+}
+
+float Noise2DBasicContainerInfo::GetPosZ()
+{
+	return mPosZ;
+}
 
 
 

@@ -306,7 +306,7 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], cons
 				DeleteTexture(tmpTexID[j]);
 			}
 
-			DEBUG_MSG3("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ", i, "");
+			DEBUG_MSG1("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;
 		}
 	}
@@ -401,7 +401,6 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], cons
 	if (FAILED(hr))
 	{
 		//new temporary tex obj should be dumped
-		DEBUG_MSG1(hr);
 		DEBUG_MSG1("NoiseTexMgr:CreateCubeMapFromFiles : Create SRV failed!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
@@ -427,7 +426,7 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const
 		//check if  one of the texture id is illegal
 		if (!isFileNameValid)
 		{
-			DEBUG_MSG3("Noise Tex Mgr :CreateCubeTextureFromDDS : file not exist!! ; Index : ", i, ".");
+			DEBUG_MSG1("Noise Tex Mgr :CreateCubeTextureFromDDS : file not exist!! ; Index : ");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;
 		}
 	}

@@ -11,7 +11,6 @@ class _declspec(dllexport) Noise2DTextDynamic:
 	public Noise2DBasicTextInfo
 {
 public:
-	friend class NoiseScene;
 	friend class NoiseRenderer;
 	friend class NoiseFontManager;
 
@@ -32,6 +31,12 @@ public:
 	void		SetWordSpacingOffset(int offset);
 
 	int		GetWordSpacingOffset();
+
+	NVECTOR2 GetWordLocalPosOffset(UINT wordIndex);//index of word in string,not ascii code
+
+	NVECTOR2 GetWordRealSize(UINT wordIndex);
+
+	NVECTOR2 GetFontSize(UINT fontID);
 
 private:
 

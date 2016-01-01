@@ -9,15 +9,15 @@
 
 //A button ; can be embbed into other GUI object
 class _declspec(dllexport) NoiseGUIButton :
-	public	Noise2DBasicContainerInfo,
 	public	NoiseClassLifeCycle,
-	public	NoiseGUIEventCommonOperation
+	public	NoiseGUIComponentBase
 {
 public:
 	friend class NoiseGUIManager;
 	friend class NoiseRenderer;
 
 	NoiseGUIButton(UINT(*pFunc)(UINT NoiseGUIEvent) = nullptr);
+
 
 	void	SetDragableX(BOOL dragableX);
 
@@ -29,11 +29,14 @@ private:
 
 	void	Destroy();
 
+	void NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_Update(BOOL isMouseInContainer, N_GUI_MOUSE_INFO& mouseInfo);
+
+	void NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();
+
 	NoiseGUIManager*		m_pFatherGUIMgr;
 	NoiseGraphicObject*		m_pGraphicObj;
 
 	NOISE_GUI_BUTTON_STATE mButtonState;
-	BOOL	mButtonHasBeenPressedDown;
 	NVECTOR2* m_pMouseDown_OffsetFromCenter;//used when dragable , to keep the relative position unchanged to cursor
 
 	//textures for 3 different state

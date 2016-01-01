@@ -13,7 +13,6 @@ class _declspec(dllexport) NoiseGraphicObject:
 	public NoiseClassLifeCycle
 {
 	friend class NoiseRenderer;
-	friend class NoiseScene;
 
 public:
 	//¹¹Ôìº¯Êý
@@ -48,6 +47,8 @@ public:
 	void		SetRectangle(UINT index, NVECTOR2 vCenter,float fWidth,float fHeight,NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
 
 	void		SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight);
+
+	void		SetRectangleDepth(UINT index, float posZ);
 
 	void		DeleteLine3D(UINT index);
 

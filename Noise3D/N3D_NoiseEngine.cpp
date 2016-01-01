@@ -251,7 +251,6 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 void NoiseEngine::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 {
-	g_Debug_MsgString.clear();
 	//g_pImmediateContext->Flush();
 	//g_pImmediateContext->ClearState();
 

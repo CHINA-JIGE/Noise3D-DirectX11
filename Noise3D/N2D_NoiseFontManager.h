@@ -22,8 +22,7 @@ struct N_FontObject
 class _declspec(dllexport) NoiseFontManager:public NoiseClassLifeCycle
 {
 public:
-	friend	class NoiseScene;
-	friend	class NoiseRenderer;
+	friend   class NoiseRenderer;
 	friend	class Noise2DTextDynamic;
 	friend	class Noise2DTextStatic;
 
@@ -42,6 +41,8 @@ public:
 	UINT		InitDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, Noise2DTextDynamic& pText);
 
 	UINT		GetFontID(std::string fontName);
+
+	NVECTOR2 GetFontSize(UINT fontID);
 
 private:
 	//init freetype library

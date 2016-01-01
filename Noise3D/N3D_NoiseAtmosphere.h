@@ -13,7 +13,6 @@ public:
 	friend class NoiseScene;
 	friend class NoiseRenderer;
 
-
 	//¹¹Ôìº¯Êý
 	NoiseAtmosphere();
 

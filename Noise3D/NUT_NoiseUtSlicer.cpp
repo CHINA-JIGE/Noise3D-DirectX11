@@ -65,7 +65,7 @@ BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 	//assert
 	if (!isLoadSTLsucceeded)
 	{
-		DEBUG_MSG3("", "", "NoiseUtSliceGenerator: Load STL file failed!!");
+		DEBUG_MSG1("NoiseUtSliceGenerator: Load STL file failed!!");
 		return FALSE;
 	}
 
@@ -82,7 +82,7 @@ void NoiseUtSlicer::Step2_Intersection(UINT iLayerCount)
 
 	if (iLayerCount < 2)
 	{
-		DEBUG_MSG3("", "", "NoiseUtSlicer : Layer Count is too little !!");
+		DEBUG_MSG1("NoiseUtSlicer : Layer Count is too little !!");
 	}
 
 	//top/bottom y of the bounding box (AABB)
