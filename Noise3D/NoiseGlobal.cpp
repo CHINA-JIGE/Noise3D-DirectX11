@@ -206,22 +206,22 @@ NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isC
 	 }
  };
 
-NOISE_DLL_EXPORT float gFunction_Lerp(float a, float b, float t)
+NOISE_DLL_EXPORT inline float gFunction_Lerp(float a, float b, float t)
  {
 	 return( a + (b - a)*t);
  };
 
-NOISE_DLL_EXPORT float gFunction_Clampf(float val, float min, float max)
+NOISE_DLL_EXPORT inline float gFunction_Clampf(float val, float min, float max)
  {
 	 return (val >= min ? (val <= max ? val : max) : min);
  };
 
-NOISE_DLL_EXPORT int	gFunction_Clamp(int val, int min, int max)
+NOISE_DLL_EXPORT inline int	gFunction_Clamp(int val, int min, int max)
  {
 	 return (val >= min ? (val <= max ? val : max) : min);
  };
 
-NOISE_DLL_EXPORT void DEBUG_MSG1(std::string msg)
+NOISE_DLL_EXPORT inline void DEBUG_MSG1(std::string msg)
 {
 	std::ostringstream debugMsg;
 	debugMsg << msg << std::endl;

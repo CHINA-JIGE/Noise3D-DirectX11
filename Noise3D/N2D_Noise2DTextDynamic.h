@@ -16,6 +16,10 @@ public:
 
 	Noise2DTextDynamic();
 
+	void		SetWidth(float w);
+
+	void		SetHeight(float h);
+
 	void		SetFont(UINT fontID);
 
 	UINT		GetFontID();
@@ -56,4 +60,6 @@ private:
 	int					mLineSpacingOffset;
 	std::string*		m_pTextureName;//which bitmap texture to refer to
 	std::string*		m_pTextContent;//the target "string"
+	BOOL				mIsTextContentChanged;
+	BOOL				mIsSizeChanged;
 };

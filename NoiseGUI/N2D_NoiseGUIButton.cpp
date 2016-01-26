@@ -205,8 +205,14 @@ void	NoiseGUIButton::mFunction_Update(BOOL isMouseInContainer, N_GUI_MOUSE_INFO&
 		case NOISE_GUI_EVENTS_COMMON_MOUSEON:
 			//cursor is within the button and mouseLeft is up
 			mButtonState = NOISE_GUI_BUTTON_STATE_MOUSEON;
+			break;
 
-		default:
+		
+		case NOISE_GUI_EVENTS_COMMON_MOUSEUP:
+			mButtonState = NOISE_GUI_BUTTON_STATE_COMMON;
+			break;
+
+		case NOISE_GUI_EVENTS_COMMON_MOUSEMOVE:
 			break;
 
 		}
@@ -224,6 +230,7 @@ void	NoiseGUIButton::mFunction_Update(BOOL isMouseInContainer, N_GUI_MOUSE_INFO&
 
 void  NoiseGUIButton::mFunction_UpdateGraphicObject()
 {
+
 	switch (mButtonState)
 	{
 	default:

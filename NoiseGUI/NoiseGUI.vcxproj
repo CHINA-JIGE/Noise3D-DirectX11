@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClInclude Include="N2D_NoiseGUIButton.h" />
     <ClInclude Include="N2D_NoiseGUIManager.h" />
+    <ClInclude Include="N2D_NoiseGUIOscilloscope.h" />
     <ClInclude Include="N2D_NoiseGUIScrollBar.h" />
     <ClInclude Include="N2D_NoiseGUITextBox.h" />
     <ClInclude Include="NBASE_NoiseGUIComponentBase.h" />
@@ -134,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="N2D_NoiseGUIButton.cpp" />
     <ClCompile Include="N2D_NoiseGUIManager.cpp" />
+    <ClCompile Include="N2D_NoiseGUIOscilloscope.cpp" />
     <ClCompile Include="N2D_NoiseGUIScrollBar.cpp" />
     <ClCompile Include="N2D_NoiseGUITextBox.cpp" />
     <ClCompile Include="NBASE_NoiseGUIComponentBase.cpp" />

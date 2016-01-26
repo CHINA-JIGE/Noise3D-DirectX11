@@ -28,6 +28,11 @@ struct N_SimpleVertex
 {
 	N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
 	N_SimpleVertex(NVECTOR3 inPos, NVECTOR4 inColor, NVECTOR2 inTexCoord) { Pos = inPos;Color = inColor;TexCoord = inTexCoord; };
+	bool operator!=(N_SimpleVertex& v) {
+		if (v.Color != Color || v.Pos != Pos || v.TexCoord != TexCoord) { return true; }else { return false; }};
+	bool operator==(N_SimpleVertex& v) {
+		if (v.Color == Color && v.Pos == Pos && v.TexCoord == TexCoord) { return true; }else { return false; }};
+
 	NVECTOR3 Pos;
 	NVECTOR4 Color;
 	NVECTOR2 TexCoord;
@@ -242,7 +247,6 @@ struct N_CbDrawText2D
 };
 
 
-//--------------------------------------------------------
 struct N_LineStrip
 {
 	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }

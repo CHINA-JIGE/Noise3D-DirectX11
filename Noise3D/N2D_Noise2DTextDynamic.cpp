@@ -4,7 +4,6 @@
 
 ************************************************************************/
 #include "Noise3D.h"
-#include "N2D_Noise2DTextDynamic.h"
 
 Noise2DTextDynamic::Noise2DTextDynamic()
 {
@@ -12,8 +11,28 @@ Noise2DTextDynamic::Noise2DTextDynamic()
 	mLineSpacingOffset = 0;
 	m_pTextureName = new std::string;
 	m_pTextContent	= new std::string;
+	mIsTextContentChanged=TRUE;
+	mIsSizeChanged=TRUE;
+}
 
+void Noise2DTextDynamic::SetWidth(float w)
+{
+	if (w != GetWidth())
+	{
+		Noise2DBasicContainerInfo::SetWidth(w);
+		mIsSizeChanged = TRUE;
+	}
+}
+
+void Noise2DTextDynamic::SetHeight(float h)
+{
+	if (h != GetHeight())
+	{
+		Noise2DBasicContainerInfo::SetHeight(h);
+		mIsSizeChanged = TRUE;
+	}
 };
+
 
 void Noise2DTextDynamic::Destroy()
 {
@@ -41,6 +60,7 @@ UINT Noise2DTextDynamic::GetFontID()
 {
 	return mFontID;
 }
+
 NVECTOR2 Noise2DTextDynamic::GetFontSize(UINT fontID)
 {
 	if (!IsInitialized())return NVECTOR2(0, 0);
@@ -48,11 +68,15 @@ NVECTOR2 Noise2DTextDynamic::GetFontSize(UINT fontID)
 };
 
 
-
-
 void Noise2DTextDynamic::SetTextAscii(std::string newText)
 {
-	*m_pTextContent = newText;
+	//std::hash<std::string>() can hash a key
+	//if (std::hash<std::string>()(newText) != std::hash<std::string>()(*m_pTextContent))
+	if(newText!=*m_pTextContent)
+	{
+		*m_pTextContent = newText;
+		mIsTextContentChanged = TRUE;
+	}
 }
 
 void Noise2DTextDynamic::GetTextAscii(std::string & outString)
@@ -169,6 +193,16 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 		return;
 	};
 
+	//if no need to change ,then skip unnecessary UPDATE (especially to optimize UpdateSubresource)
+	//those SetRectangle/SetXXX might cause GraphicObject to update ,then data must be updated to GPU
+	NVECTOR2 aaa = m_pGraphicObj->GetBasePosOffset();
+	NVECTOR2 bbb = GetTopLeft();
+	if ( mIsSizeChanged == FALSE
+		&& mIsTextContentChanged == FALSE
+		 && m_pGraphicObj->GetBasePosOffset()==GetTopLeft())
+		return;
+
+
 	UINT stringBoundaryWidth = UINT(Noise2DBasicContainerInfo::GetWidth());
 	UINT stringBoundaryHeight = UINT(Noise2DBasicContainerInfo::GetHeight());
 	const UINT tableRowCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
@@ -211,6 +245,9 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 
 #pragma endregion AdjustTheCountOfRects
 
+	//1.adjust rectangles count to fit the chars' count of new Text
+	//m_pGraphicObj->AdjustRectangleCount(stringCharCount);
+
 
 	//2. update (set) rectangles to its new condition, and we store 2 string to avoid unnecessary 
 	//texcoord update (char bitmap udpate)
@@ -240,6 +277,7 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 
 		//update texcoord of current rect
 		m_pGraphicObj->SetRectangleTexCoord(i, newTexCoordTopLeft, newTexCoordBottomRight);
+
 #pragma endregion UpdateTexcoord
 
 
@@ -248,18 +286,22 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 
 #pragma region UpdatePositionOfSubRects
 
+		//a base OFFSET to be added to vertices
+		m_pGraphicObj->SetBasePosOffset(GetTopLeft());
+
 		//calculate position of Rects (relative to the graphic object container)
 		posAlignmentOffset.x = 0;
 		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
 
 		NVECTOR2 tmpRectTopLeft(0, 0);
 		NVECTOR2 tmpRectBottomRight(0, 0);
-		tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
+		//tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
+		tmpRectTopLeft =  posGeneralOffset + posAlignmentOffset;
 		tmpRectBottomRight = tmpRectTopLeft + NVECTOR2(float(mCharBoundarySizeX), float(mCharBoundarySizeY));
 		
 		//COLLAPSE the rectangle into ONE POINT to make it invisible if this rectangle
 		//is outside the boundary of Text
-		if (tmpRectTopLeft.y+realCharBitmapPixelSize.y >GetBottomRight().y)
+		if (GetTopLeft().y+ tmpRectTopLeft.y+realCharBitmapPixelSize.y >GetBottomRight().y)
 		{
 			//collapse
 			m_pGraphicObj->SetRectangle(
@@ -303,6 +345,8 @@ void  Noise2DTextDynamic::mFunction_UpdateGraphicObject()//call by Renderer:AddO
 	}//1 char update finished
 
 
+	mIsSizeChanged = FALSE;
+	mIsTextContentChanged = FALSE;
 //all chars update finished.
 };
 

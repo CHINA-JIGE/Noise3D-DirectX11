@@ -1,6 +1,8 @@
 
 #include "Noise3D.h"
 
+#define NOISE_CLR_ENABLE
+#ifdef NOISE_CLR_ENABLE
 using namespace System;
 using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
@@ -39,3 +41,5 @@ using namespace System::Security::Permissions;
 [assembly:CLSCompliantAttribute(true)];
 
 //[assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];
+
+#endif

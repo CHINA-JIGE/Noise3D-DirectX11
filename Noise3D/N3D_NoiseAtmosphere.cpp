@@ -73,6 +73,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	if (m_pVB_Gpu_Sky != NULL) 
 	{ 
 		ReleaseCOM(m_pVB_Gpu_Sky);
+		m_pVB_Gpu_Sky = nullptr;
 		m_pVB_Mem_Sky->clear();
 	}
 
@@ -80,6 +81,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	if (m_pIB_Gpu_Sky != NULL)
 	{
 		ReleaseCOM(m_pIB_Gpu_Sky);
+		m_pIB_Gpu_Sky = nullptr;
 		m_pIB_Mem_Sky->clear();
 	}
 
@@ -254,7 +256,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 
@@ -410,7 +412,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 

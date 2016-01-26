@@ -7,10 +7,6 @@
 
 #pragma once
 
-class NoiseUtTimer;
-
-#include <Noise3D.h>
-
 class _declspec(dllexport) NoiseGUITextBox :
 	public NoiseClassLifeCycle,
 	public NoiseGUIComponentBase
@@ -35,6 +31,10 @@ public:
 
 	UINT		GetCursorPos();
 		
+	void		SetMaxWordCount(UINT count= NOISE_GUI_CONST_TEXTBOX_DEFAULT_MAX_WORD_COUNT);
+
+	UINT		GetMaxWordCount();
+
 	void		SetTextAscii(std::string text);
 
 	void		GetTextAscii(std::string& outText);
@@ -75,4 +75,5 @@ private:
 	UINT				mTextureID_Cursor;
 	UINT				mKeyPressedDownLastFrame;
 	UINT				mIsHoldingOnOneKey;
+	UINT				mMaxWordCount;//the max count  of character which can be set 
 };

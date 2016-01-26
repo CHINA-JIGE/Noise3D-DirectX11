@@ -9,13 +9,13 @@
 
 #include "NoiseGUISystem.h"
 
-static UINT	static_mouseScrPosX=0;
+/*static UINT	static_mouseScrPosX=0;
 static UINT	static_mouseScrPosY = 0;
 static float	static_windowSizeScaleX = 1.0f;
 static float	static_windowSizeScaleY = 1.0f;
 static float	static_mouseX_BackBufferSpace = 0.0;
-static float	static_mouseY_BackBufferSpace = 0.0f;
-static UINT	static_mousePosZ = 1;
+static float	static_mouseY_BackBufferSpace = 0.0f;*/
+//static UINT	static_mousePosZ = 1;
 static N_GUI_MOUSE_INFO static_mouseInfo = {};
 
 
@@ -28,6 +28,7 @@ NoiseGUIManager::NoiseGUIManager()
 	m_pChildButtonList		= new std::vector<NoiseGUIButton*>;
 	m_pChildTextList			= new std::vector<NoiseGUITextBox*>;
 	m_pChildScrollBarList	= new std::vector<NoiseGUIScrollBar*>;
+	m_pChildOscilloscope	= new std::vector<NoiseGUIOscilloscope*>;
 }
 
 NoiseGUIManager::~NoiseGUIManager()
@@ -35,6 +36,7 @@ NoiseGUIManager::~NoiseGUIManager()
 	delete m_pChildButtonList;
 	delete m_pChildTextList;
 	delete m_pChildScrollBarList;
+	delete m_pChildOscilloscope;
 }
 
 BOOL NoiseGUIManager::Initialize(UINT backBufferWidth, UINT backBufferHeight, NoiseRenderer& refRenderer, NoiseUtInputEngine& refInputE, NoiseFontManager& refFontMgr, HWND hwnd)
@@ -148,6 +150,56 @@ BOOL NoiseGUIManager::InitScrollBar(NoiseGUIScrollBar & refObject)
 	return TRUE;
 }
 
+BOOL NoiseGUIManager::InitOscilloscope(NoiseGUIOscilloscope & refObject)
+{
+	if (refObject.IsInitialized())
+	{
+		DEBUG_MSG1("Object Has Been Initialized!");
+		return FALSE;
+	}
+
+	//add button to child button list
+	m_pChildOscilloscope->push_back(&refObject);
+	refObject.m_pFatherGUIMgr = this;
+
+	refObject.SetDiagonal({0,0}, {300.0f,150.0f});
+
+	//cross "Ê®×Ö"
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		{refObject.GetTopLeft().x, refObject.GetCenterPos().y},
+		{refObject.GetBottomRight().x, refObject.GetCenterPos().y});
+
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		{ refObject.GetCenterPos().x, refObject.GetTopLeft().y },
+		{ refObject.GetCenterPos().x, refObject.GetBottomRight().y });
+	
+	//outline "ÂÖÀª"
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		refObject.GetTopLeft(),
+		{ refObject.GetTopLeft().x, refObject.GetBottomRight().y });
+
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		refObject.GetTopLeft(),
+		{ refObject.GetBottomRight().x, refObject.GetTopLeft().y });
+
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		refObject.GetBottomRight(),
+		{ refObject.GetTopLeft().x, refObject.GetBottomRight().y });
+
+	refObject.m_pGraphicObj_Grid->AddLine2D(
+		refObject.GetBottomRight(),
+		{ refObject.GetBottomRight().x, refObject.GetTopLeft().y });
+
+
+	refObject.SetStatusToBeInitialized();
+
+	//init Z pos/depth
+	++mCurrentTimeStamp;
+	refObject.SetDepthLevel(mCurrentTimeStamp);
+
+	return TRUE;
+}
+
 void	NoiseGUIManager::SetInputEngine(NoiseUtInputEngine& refInputE)
 {
 	m_pInputEngine = &refInputE;
@@ -163,13 +215,12 @@ void NoiseGUIManager::SetRenderer(NoiseRenderer & refRenderer)
 	m_pRenderer = &refRenderer;
 };
 
-
 void	NoiseGUIManager::Update()
 {
 	if (!IsInitialized())return;
 
 	//input Engine must be set
-	if (!m_pInputEngine)return;
+	if (m_pInputEngine==nullptr)return;
 
 	//if internal input engine was inoperative, then nth will be retrieved
 	if (m_pInputEngine->IsInitialized())
@@ -187,6 +238,8 @@ void	NoiseGUIManager::Update()
 
 		if (m_pFontMgr != nullptr)mFunction_UpdateTextBoxs();
 
+		mFunction_UpdateOscilloscope();
+
 		mFunction_UpdateAllInternalGraphicObjs();
 	}
 	else
@@ -200,7 +253,6 @@ void NoiseGUIManager::SetWindowHWND(HWND hWnd)
 {
 	mWindowHWND = hWnd;
 };
-
 
 inline void NoiseGUIManager::AddObjectToRenderList(NoiseGUIButton & obj)
 {
@@ -218,6 +270,13 @@ inline void NoiseGUIManager::AddObjectToRenderList(NoiseGUITextBox & obj)
 {
 	m_pRenderer->AddObjectToRenderList(*obj.m_pTextDynamic, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_GUI_OBJECT);
 	m_pRenderer->AddObjectToRenderList(*obj.m_pGraphicObj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_GUI_OBJECT);
+}
+
+inline void NoiseGUIManager::AddObjectToRenderList(NoiseGUIOscilloscope & obj)
+{
+	m_pRenderer->AddObjectToRenderList(*obj.m_pGraphicObj_Grid, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_GUI_OBJECT);
+	m_pRenderer->AddObjectToRenderList(*obj.m_pGraphicObj_Wave, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_GUI_OBJECT);
+
 }
 
 
@@ -240,16 +299,21 @@ void NoiseGUIManager::Destroy()
 	{
 		if (obj)obj->SelfDestruction();
 	}
+
+	for (auto obj : *m_pChildOscilloscope)
+	{
+		if (obj)obj->SelfDestruction();
+	}
 }
 
 void NoiseGUIManager::mFunction_UpdateInputEngineInfo()
 {
 	//!!!!!!!!!!!!DONT FORGET THIS
-	m_pInputEngine->Update();
+	//BUT IT WILL ERASE THE UPDATE() DATA BY EXE!!
+	//m_pInputEngine->Update();
 
-
-	static_mouseScrPosX = m_pInputEngine->GetMouseScrPosX();
-	static_mouseScrPosY = m_pInputEngine->GetMouseScrPosY();
+	UINT mouseScrPosX = m_pInputEngine->GetMouseScrPosX();
+	UINT mouseScrPosY = m_pInputEngine->GetMouseScrPosY();
 
 	//get the Rect info of render window
 	RECT windowRect;
@@ -272,19 +336,18 @@ void NoiseGUIManager::mFunction_UpdateInputEngineInfo()
 	//remember , render window might enlarge or shrink , (didnt match the back buffer)
 	//so mouse coord must be scaled to fit 
 	//also note that actual render area don't include the window FRAMES & CAPTION
-	static_windowSizeScaleX = (float)(windowRect.right - windowRect.left - windowFrameWidth * 2) / mBackBufferWidth;
-	static_windowSizeScaleY = (float)(windowRect.bottom - windowRect.top - windowFrameHeight * 2 - windowCaptionHeight) / mBackBufferHeight;
+	float windowSizeScaleX = (float)(windowRect.right - windowRect.left - windowFrameWidth * 2) / mBackBufferWidth;
+	float windowSizeScaleY = (float)(windowRect.bottom - windowRect.top - windowFrameHeight * 2 - windowCaptionHeight) / mBackBufferHeight;
 
 	//relative cursor Pos (window scaling is taken into account)
-	static_mouseX_BackBufferSpace = (static_mouseScrPosX - windowRect.left - windowFrameWidth) / static_windowSizeScaleX;
-	static_mouseY_BackBufferSpace = (static_mouseScrPosY - windowRect.top - windowFrameHeight - windowCaptionHeight) / static_windowSizeScaleY;
+	float  mouseX_BackBufferSpace = (mouseScrPosX - windowRect.left - windowFrameWidth) / windowSizeScaleX;
+	float mouseY_BackBufferSpace = (mouseScrPosY - windowRect.top - windowFrameHeight - windowCaptionHeight) / windowSizeScaleY;
 
 	//mouseInfo
 	static_mouseInfo.isMouseLeftPressedDown = m_pInputEngine->IsMouseButtonPressed(NOISE_MOUSEBUTTON_LEFT);
 	static_mouseInfo.isMouseMoving = (m_pInputEngine->GetMouseDiffX() != 0) || (m_pInputEngine->GetMouseDiffY() != 0);
-	static_mouseInfo.mouseX_backBufferSpace = static_mouseX_BackBufferSpace;
-	static_mouseInfo.mouseY_backBufferSpace = static_mouseY_BackBufferSpace;
-	static_mouseInfo.mouseDepthLevel = static_mousePosZ;
+	static_mouseInfo.mouseX_backBufferSpace = mouseX_BackBufferSpace;
+	static_mouseInfo.mouseY_backBufferSpace = mouseY_BackBufferSpace;
 	static_mouseInfo.mouseScrollDiff = -float(m_pInputEngine->GetMouseScrollDiff()) / 30.0f;
 }
 
@@ -297,7 +360,7 @@ void NoiseGUIManager::mFunction_ComputeMouseDepth()
 	//which only the one with the smallest Z coord can be clicked.
 	UINT currentMinDepth=NOISE_GUI_CONST_MAX_POSITION_Z;
 
-	NVECTOR2 mousePos(static_mouseX_BackBufferSpace, static_mouseY_BackBufferSpace);
+	NVECTOR2 mousePos(static_mouseInfo.mouseX_backBufferSpace, static_mouseInfo.mouseY_backBufferSpace);
 
 	for (auto obj : *m_pChildButtonList)
 	{
@@ -318,9 +381,14 @@ void NoiseGUIManager::mFunction_ComputeMouseDepth()
 		if (obj->IsPointInContainer(mousePos) == TRUE && currentMinDepth>obj->GetDepthLevel())currentMinDepth = obj->GetDepthLevel();
 	}
 
-	//..find the smallest Z
-	static_mousePosZ = currentMinDepth;
+	for (auto obj : *m_pChildOscilloscope)
+	{
+		if (obj->IsInitialized() == FALSE)continue;
+		if (obj->IsPointInContainer(mousePos) == TRUE && currentMinDepth>obj->GetDepthLevel())currentMinDepth = obj->GetDepthLevel();
+	}
 
+	//..find the smallest Z
+	static_mouseInfo.mouseDepthLevel = currentMinDepth;
 }
 
 void NoiseGUIManager::mFunction_UpdateButtons()
@@ -329,7 +397,7 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 	for (auto pCurrButton : *m_pChildButtonList)
 	{
 		pCurrButton->mFunction_Update(
-			pCurrButton->IsPointInContainer(NVECTOR2(static_mouseX_BackBufferSpace, static_mouseY_BackBufferSpace)),
+			pCurrButton->IsPointInContainer(NVECTOR2(static_mouseInfo.mouseX_backBufferSpace, static_mouseInfo.mouseY_backBufferSpace)),
 			static_mouseInfo
 			);
 	}
@@ -337,15 +405,14 @@ void NoiseGUIManager::mFunction_UpdateButtons()
 
 void NoiseGUIManager::mFunction_UpdateScrollBars()
 {
-
 	//internal button has been updated,so DRAG operation has been done
 	for (auto pBar : *m_pChildScrollBarList)
 	{
 		pBar->mFunction_Update(
-			pBar->IsPointInContainer(NVECTOR2(static_mouseX_BackBufferSpace, static_mouseY_BackBufferSpace)),
+			pBar->IsPointInContainer(NVECTOR2(static_mouseInfo.mouseX_backBufferSpace, static_mouseInfo.mouseY_backBufferSpace)),
 			static_mouseInfo
 			);
-	}//next Scroll Bar
+	}
 
 }
 
@@ -358,22 +425,34 @@ void NoiseGUIManager::mFunction_UpdateTextBoxs()
 
 	//get a list of 'whether the key is pressed'
 	std::vector<BOOL> scanCodeStatusList;
+	scanCodeStatusList.resize(maxScanCodeCount);
 	for (UINT scanCode = 0;scanCode < maxScanCodeCount;++scanCode)
 	{
-		scanCodeStatusList.push_back(m_pInputEngine->IsKeyPressed(scanCode));
+		scanCodeStatusList.at(scanCode)=(m_pInputEngine->IsKeyPressed(scanCode));
 	}
 
 	//------------------------------------------------------------------------
 	for (auto pTextBox : *m_pChildTextList)
 	{
 		pTextBox->mFunction_Update(
-			pTextBox->IsPointInContainer(NVECTOR2(static_mouseX_BackBufferSpace, static_mouseY_BackBufferSpace)),
+			pTextBox->IsPointInContainer(NVECTOR2(static_mouseInfo.mouseX_backBufferSpace, static_mouseInfo.mouseY_backBufferSpace)),
 			static_mouseInfo,
 			isShiftPressed,
 			isCapsLocked,
 			scanCodeStatusList
 			);
 	}//1 textbox
+}
+
+void NoiseGUIManager::mFunction_UpdateOscilloscope()
+{
+	for (auto pOsc : *m_pChildOscilloscope)
+	{
+		pOsc->mFunction_Update(
+			pOsc->IsPointInContainer(NVECTOR2(static_mouseInfo.mouseX_backBufferSpace, static_mouseInfo.mouseY_backBufferSpace)),
+			static_mouseInfo
+			);
+	}
 };
 
 void NoiseGUIManager::mFunction_UpdateAllInternalGraphicObjs()
@@ -403,5 +482,12 @@ void NoiseGUIManager::mFunction_UpdateAllInternalGraphicObjs()
 			if (pTextBox->IsEnabled() == FALSE)continue;
 			pTextBox->mFunction_UpdateGraphicObject();
 	}
+
+	for (auto pOsc : *m_pChildOscilloscope)
+	{
+		if (pOsc->IsEnabled() == FALSE)continue;
+		pOsc->mFunction_UpdateGraphicObject();
+	}
+
 
 }

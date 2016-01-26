@@ -41,7 +41,7 @@ public:
 	UINT GetDepthLevel();
 
 protected:
-	
+
 	//update events /callback message process function
 	void	mFunction_CallMsgProcFunctionAndUpdateEventList(std::vector<UINT>& eventList);
 

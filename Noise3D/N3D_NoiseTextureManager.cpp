@@ -209,7 +209,7 @@ UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT 
 	 //create texture2D first 
 	ID3D11Texture2D* pTmpTexture2D;
 	hr = g_pd3dDevice11->CreateTexture2D(&texDesc, &texInitDataDesc, &pTmpTexture2D);
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
@@ -219,7 +219,7 @@ UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT 
 
 	//Create SRV from texture 2D (to a tmp textureObject)
 	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmpTexObj.m_pSRV);
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
@@ -491,7 +491,7 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const
 		&tmpTexObj.m_pSRV,
 		&hr
 		);
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 
 	//................
 	if (FAILED(hr))

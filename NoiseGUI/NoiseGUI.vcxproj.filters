@@ -16,6 +16,9 @@
     <Filter Include="NBASE_NoiseGUIComponentBase">
       <UniqueIdentifier>{9f3214e1-6231-438b-89ed-c53922fec752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="N2D_GUIOscilloscope">
+      <UniqueIdentifier>{3bee49a3-076f-4d72-ae1b-d178f86c80ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N2D_NoiseGUIButton.h">
@@ -34,6 +37,9 @@
     <ClInclude Include="NBASE_NoiseGUIComponentBase.h">
       <Filter>NBASE_NoiseGUIComponentBase</Filter>
     </ClInclude>
+    <ClInclude Include="N2D_NoiseGUIOscilloscope.h">
+      <Filter>N2D_GUIOscilloscope</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="N2D_NoiseGUIManager.cpp">
@@ -50,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="NBASE_NoiseGUIComponentBase.cpp">
       <Filter>NBASE_NoiseGUIComponentBase</Filter>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIOscilloscope.cpp">
+      <Filter>N2D_GUIOscilloscope</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

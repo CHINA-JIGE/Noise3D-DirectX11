@@ -21,6 +21,7 @@ NoiseGUITextBox::NoiseGUITextBox()
 	mCursorPos = 0;
 	mIsHoldingOnOneKey = FALSE;
 	mKeyPressedDownLastFrame = NOISE_MACRO_INVALID_ID;
+	mMaxWordCount = 2000;
 }
 
 void NoiseGUITextBox::SetTexture_BackGround(UINT texID)
@@ -57,8 +58,25 @@ UINT NoiseGUITextBox::GetCursorPos()
 	return mCursorPos;
 }
 
+void NoiseGUITextBox::SetMaxWordCount(UINT count)
+{
+	mMaxWordCount = gFunction_Clamp(count, 0, mMaxWordCount);
+}
+
+UINT NoiseGUITextBox::GetMaxWordCount()
+{
+	return mMaxWordCount;
+}
+
+
 void NoiseGUITextBox::SetTextAscii(std::string text)
 {
+	if (text.size() > mMaxWordCount)
+	{
+		//truncation
+		text = text.substr(0, mMaxWordCount);
+	}
+
 	m_pTextDynamic->SetTextAscii(text);
 };
 

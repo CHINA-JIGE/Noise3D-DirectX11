@@ -25,6 +25,8 @@ public:
 
 	BOOL	InitScrollBar(NoiseGUIScrollBar& refObject);
 
+	BOOL	InitOscilloscope(NoiseGUIOscilloscope& refObject);
+
 	void		SetInputEngine(NoiseUtInputEngine& refInputE);
 
 	void		SetFontManager(NoiseFontManager& refFontMgr);
@@ -43,7 +45,7 @@ public:
 
 	void		AddObjectToRenderList(NoiseGUITextBox& obj);
 
-
+	void		AddObjectToRenderList(NoiseGUIOscilloscope& obj);
 	//void		AddObjectsToRenderList();
 
 private:
@@ -60,6 +62,8 @@ private:
 
 	void		mFunction_UpdateTextBoxs();
 
+	void		mFunction_UpdateOscilloscope();
+
 	void		mFunction_UpdateAllInternalGraphicObjs();//update graphic objs in every component
 
 
@@ -71,6 +75,7 @@ private:
 	std::vector<NoiseGUIButton*>*			m_pChildButtonList;
 	std::vector<NoiseGUITextBox*>*			m_pChildTextList;
 	std::vector<NoiseGUIScrollBar*>*			m_pChildScrollBarList;
+	std::vector<NoiseGUIOscilloscope*>*	m_pChildOscilloscope;
 	UINT			mCurrentTimeStamp;
 	HWND		mWindowHWND;
 	UINT			mBackBufferWidth;

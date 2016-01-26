@@ -91,7 +91,7 @@ UINT NoiseGUIComponentBase::GetDepthLevel()
 
 	//--------------------------MOUSE EVENT--------------------------
 	//if mouse lies in the rect of button
-	if (isMouseInContainer && mouseInfo.mouseDepthLevel >= mDepthLevel)
+	if (isMouseInContainer==TRUE && mouseInfo.mouseDepthLevel >= mDepthLevel)
 	{
 		//message proc callback function
 		outEventList.push_back(NOISE_GUI_EVENTS_COMMON_MOUSEON);
@@ -110,7 +110,7 @@ UINT NoiseGUIComponentBase::GetDepthLevel()
 		}
 
 		//mouse button up
-		if ((!mouseInfo.isMouseLeftPressedDown) && mHasBeenPressedDown)
+		if ((mouseInfo.isMouseLeftPressedDown==FALSE) && mHasBeenPressedDown==TRUE)
 		{
 			//a button down and up makes a "press"
 			outEventList.push_back(NOISE_GUI_EVENTS_COMMON_MOUSEUP);

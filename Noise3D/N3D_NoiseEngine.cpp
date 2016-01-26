@@ -125,7 +125,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 		g_Device_MSAA4xEnabled = TRUE;	//4x抗锯齿可以开了
 	};
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 
 
 	/*填充交换链的属性
@@ -183,7 +183,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 	pBackBuffer->Release();		//已经用完了的临时接口- -
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 
 	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
 
@@ -210,7 +210,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 		0,
 		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	pDepthStencilBuffer->Release();
 
 	if (FAILED(hr))
@@ -244,7 +244,7 @@ BOOL NoiseEngine::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, 
 
 #pragma endregion CreateViewPort
 
-	ReleaseCOM(g_pd3dDevice11);
+	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 
 };

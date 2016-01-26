@@ -8,7 +8,13 @@
 ************************************************************************/
 #include "Noise3D.h"
 
-//God...i feel that i am a laborer
+#define CHECK_BEFORE_CHANGE_TEXCOORD(id,coord) \
+	if (m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord != coord)\
+	{\
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord = coord;\
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;	\
+	};\
+
 
 NoiseGraphicObject::NoiseGraphicObject()
 {
@@ -26,9 +32,59 @@ NoiseGraphicObject::NoiseGraphicObject()
 		m_pVB_Mem[i]					= new std::vector<N_SimpleVertex>;
 	}
 
+	m_pBaseScreenSpacePosOffset = new NVECTOR2(0, 0);
 	m_pTextureList_Rect = new std::vector<UINT>;
 	m_pRectSubsetInfoList= new std::vector<N_GraphicObject_SubsetInfo>;
 	SetStatusToBeInitialized();
+}
+
+void NoiseGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
+{
+	// --------->
+	// |		
+	// |	PIXEL SPACE
+	// |
+
+	//				  ^
+	//				   |
+	//		--------|--------->
+	//				   |		SCR SPACE
+	//				   |
+	
+	pixelOffset.x = pixelOffset.x * 2.0f / float(gMainBufferPixelWidth);
+	pixelOffset.y = -pixelOffset.y*2.0f  / float(gMainBufferPixelHeight);
+
+	//vector difference
+	NVECTOR2 offsetV = pixelOffset - (*m_pBaseScreenSpacePosOffset);
+
+	if (offsetV.x ==0.0f && offsetV.y == 0.0f)return;
+
+
+	*m_pBaseScreenSpacePosOffset = pixelOffset;
+
+	//update vertices, deviate with the upper difference
+	for (UINT i = 0;i < NOISE_GRAPHIC_OBJECT_BUFFER_COUNT;i++)
+	{
+		if (i == NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D || i == NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D)continue;
+		for (UINT j = 0;j < m_pVB_Mem[i]->size();++j)
+		//for (auto &v : *m_pVB_Mem[i])
+		{
+			m_pVB_Mem[i]->at(j).Pos.x += offsetV.x;
+			m_pVB_Mem[i]->at(j).Pos.y += offsetV.y;
+		}
+		mCanUpdateToGpu[i] = TRUE;
+	}
+}
+
+NVECTOR2 NoiseGraphicObject::GetBasePosOffset()
+{
+	//Position Offset
+
+	NVECTOR2 outBaseTopLeftPixel = *m_pBaseScreenSpacePosOffset;
+	//mFunction_ConvertFloatVec2PixelVec(outBaseTopLeftPixel);
+	outBaseTopLeftPixel.x = outBaseTopLeftPixel.x *float(gMainBufferPixelWidth) / 2.0f;
+	outBaseTopLeftPixel.y = - outBaseTopLeftPixel.y * float(gMainBufferPixelHeight) / 2.0f;
+	return outBaseTopLeftPixel;
 }
 
 void NoiseGraphicObject::Destroy()
@@ -53,8 +109,8 @@ UINT NoiseGraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NV
 UINT NoiseGraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(v1,v1);
-	mFunction_ConvertPixelVec2FloatVec(v2,v2);
+	mFunction_ConvertPixelVec2FloatVec(v1);
+	mFunction_ConvertPixelVec2FloatVec(v2);
 
 	mFunction_AddVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D,
@@ -80,7 +136,7 @@ UINT NoiseGraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 UINT NoiseGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 {
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(v, v);
+	mFunction_ConvertPixelVec2FloatVec(v);
 
 	mFunction_AddVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D,
@@ -95,9 +151,9 @@ UINT NoiseGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 UINT NoiseGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(v1, v1);
-	mFunction_ConvertPixelVec2FloatVec(v2, v2);
-	mFunction_ConvertPixelVec2FloatVec(v3, v3);
+	mFunction_ConvertPixelVec2FloatVec(v1);
+	mFunction_ConvertPixelVec2FloatVec(v2);
+	mFunction_ConvertPixelVec2FloatVec(v3);
 
 	mFunction_AddVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D,
@@ -109,11 +165,11 @@ UINT NoiseGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NV
 	return GetTriangle2DCount() - 1;
 }
 
-UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
+UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color,UINT texID)
 {
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
-	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight);
 
 
 	NVECTOR2 vTopRight = NVECTOR2(vBottomRight.x, vTopLeft.y);
@@ -123,7 +179,7 @@ UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, 
 	mFunction_AddVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D,
 		{ vTopLeft,vTopRight,vBottomLeft,vTopRight,vBottomRight,vBottomLeft },
-		{color,color ,color ,color ,color ,color },
+		{ color,color ,color ,color ,color ,color },
 		{ NVECTOR2(0,0),NVECTOR2(1,0),NVECTOR2(0, 1),NVECTOR2(1, 0),NVECTOR2(1, 1),NVECTOR2(0, 1) }
 	);
 
@@ -140,6 +196,39 @@ UINT NoiseGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHei
 	UINT newRectID = NOISE_MACRO_INVALID_ID;
 	newRectID = AddRectangle(vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color, texID);
 	return newRectID;
+}
+
+void NoiseGraphicObject::AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount)
+{
+	switch (objType)
+	{
+	case NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D:
+		mFunction_AdjustElementCount(newElementCount, GetLine2DCount(), NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D);
+		break;
+
+	case NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D:
+		mFunction_AdjustElementCount(newElementCount, GetLine3DCount(), NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D);
+		break;
+
+	case NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D:
+		mFunction_AdjustElementCount(newElementCount, GetPoint2DCount(), NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D);
+		break;
+
+	case NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D:
+		mFunction_AdjustElementCount(newElementCount, GetPoint3DCount(), NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D);
+		break;
+
+	case NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D:
+		mFunction_AdjustElementCount(newElementCount, GetTriangle2DCount(), NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D);
+		break;
+
+	case NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D:
+		mFunction_AdjustElementCount(newElementCount, GetRectCount(), NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void	NoiseGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
@@ -169,8 +258,8 @@ void	NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 	}
 
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(v1, v1);
-	mFunction_ConvertPixelVec2FloatVec(v2, v2);
+	mFunction_ConvertPixelVec2FloatVec(v1);
+	mFunction_ConvertPixelVec2FloatVec(v2);
 
 	mFunction_SetVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D,
@@ -179,7 +268,6 @@ void	NoiseGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 		{ color1,color2 },
 		{ NVECTOR2(0,0),NVECTOR2(0,0) }
 	);
-
 }
 
 void	NoiseGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
@@ -208,6 +296,8 @@ void	NoiseGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 		return;
 	}
 
+	mFunction_ConvertPixelVec2FloatVec(v);
+
 	mFunction_SetVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D,
 		index,
@@ -226,9 +316,9 @@ void	NoiseGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVE
 	}
 
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(v1, v1);
-	mFunction_ConvertPixelVec2FloatVec(v2, v2);
-	mFunction_ConvertPixelVec2FloatVec(v3, v3);
+	mFunction_ConvertPixelVec2FloatVec(v1);
+	mFunction_ConvertPixelVec2FloatVec(v2);
+	mFunction_ConvertPixelVec2FloatVec(v3);
 
 	mFunction_SetVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D,
@@ -250,13 +340,26 @@ void	NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 	}
 
 	//coord unit conversion
-	mFunction_ConvertPixelVec2FloatVec(vTopLeft, vTopLeft);
-	mFunction_ConvertPixelVec2FloatVec(vBottomRight, vBottomRight);
+	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
+	mFunction_ConvertPixelVec2FloatVec(vBottomRight);
 
 	//.............
 	auto pList = m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
 	NVECTOR2 vTopRight = NVECTOR2(vBottomRight.x, vTopLeft.y);
 	NVECTOR2 vBottomLeft = NVECTOR2(vTopLeft.x, vBottomRight.y);
+
+	//modify TextureID
+	if (texID != m_pTextureList_Rect->at(index))
+	{
+		m_pTextureList_Rect->at(index) = texID;
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
+	}
+
+	//skip if nth need to change,avoid unnecessary update subresource
+	/*if (vTopLeft == m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6).Pos &&//top left
+		vBottomRight == m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6 + 4).Pos &&//bottom right
+		color == m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6).Color)//
+		return;*/
 
 	//....initializer_list nit
 	mFunction_SetVertices2D(
@@ -268,8 +371,6 @@ void	NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vB
 		pList->at(index * 6 +3).TexCoord,pList->at(index * 6 + 4).TexCoord, pList->at(index * 6 + 5).TexCoord }
 	);
 
-	//add TextureID
-	m_pTextureList_Rect->at(index)=texID;
 
 }
 
@@ -281,6 +382,8 @@ void	NoiseGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth
 
 void	NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
 {
+
+
 	//index mean the 'index'th rectangle
 
 	if (index >=GetRectCount())
@@ -300,15 +403,23 @@ void	NoiseGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLe
 		index * 6	+ 5
 	};
 
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[0]).TexCoord = texCoordTopLeft;
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[1]).TexCoord = NVECTOR2(texCoordBottomRight.x,texCoordTopLeft.y);
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[2]).TexCoord = NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[3]).TexCoord = NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[4]).TexCoord = texCoordBottomRight;
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord = NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
-	
-	//now it is allowed to update because of modification
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
+	//m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[0]).TexCoord = texCoordTopLeft;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[0]).TexCoord =  texCoordTopLeft;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[1]).TexCoord =  NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[2]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[3]).TexCoord =  NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[4]).TexCoord =  texCoordBottomRight;
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
+
+	/*CHECK_BEFORE_CHANGE_TEXCOORD(0, texCoordTopLeft);
+	CHECK_BEFORE_CHANGE_TEXCOORD(1, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
+	CHECK_BEFORE_CHANGE_TEXCOORD(2, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));
+	CHECK_BEFORE_CHANGE_TEXCOORD(3, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
+	CHECK_BEFORE_CHANGE_TEXCOORD(4, texCoordBottomRight);
+	CHECK_BEFORE_CHANGE_TEXCOORD(5, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));*/
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;	
+
+
 }
 
 void	NoiseGraphicObject::SetRectangleDepth(UINT index, float posZ)
@@ -318,9 +429,13 @@ void	NoiseGraphicObject::SetRectangleDepth(UINT index, float posZ)
 	if (index >= GetRectCount())
 	{DEBUG_MSG1("Rectangle Index Invalid !!");return;}
 
+	//depth unchanged
+	float& tmpPosZ = m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6).Pos.z;
+	if (tmpPosZ == posZ)return;
+
 	//after getting triangle ID (in global buffer) , compute 6 vertex ID of these 2 tri (in global buffer)
 	for (UINT i = 0;i < 6;++i)
-		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6 +i).Pos.z = posZ;
+		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6+i).Pos.z = posZ;
 
 	//now it is allowed to update because of modification
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
@@ -328,79 +443,78 @@ void	NoiseGraphicObject::SetRectangleDepth(UINT index, float posZ)
 
 void	NoiseGraphicObject::DeleteLine3D(UINT index)
 {
-	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index * 2;
 	UINT vertexCount = 2;	//1 line consist of 2 vertices
-
-	//erase function
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, vertexStartIndex, vertexCount);
 
 }
 
+void NoiseGraphicObject::DeleteLine3D(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	UINT vertexStartIndex = startID * 2;
+	UINT vertexCount = (endID-startID+1)*2;	//1 line consist of 2 vertices
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, vertexStartIndex, vertexCount);
+}
+
 void	NoiseGraphicObject::DeleteLine2D(UINT index)
 {
-	if (index < GetLine2DCount())
-	{
+	UINT vertexStartIndex = index * 2;
+	UINT vertexCount = 2;	//1 line consist of 2 vertices
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D, vertexStartIndex, vertexCount);
+}
 
-		//to explain codes in a  clearer way
-		UINT vertexStartIndex = index * 2;
-		UINT vertexCount = 2;	//1 line consist of 2 vertices
-
-
-		//erase function
-		mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D, vertexStartIndex, vertexCount);
-
-	}
-	else
-	{
-		DEBUG_MSG1("delete line 2d :invalid index");
-	}
+void NoiseGraphicObject::DeleteLine2D(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	UINT vertexStartIndex = startID * 2;
+	UINT vertexCount = (endID - startID+1) * 2;	//1 line consist of 2 vertices
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D, vertexStartIndex, vertexCount);
 }
 
 void	NoiseGraphicObject::DeletePoint3D(UINT index)
 {
-	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index;
-	UINT vertexCount = 1;	//1 line consist of 2 vertices
-
-							//erase function
+	UINT vertexCount = 1;
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D, vertexStartIndex, vertexCount);
+}
 
+void NoiseGraphicObject::DeletePoint3D(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	UINT vertexStartIndex = startID;
+	UINT vertexCount = (endID - startID+1);
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D, vertexStartIndex, vertexCount);
 }
 
 void	NoiseGraphicObject::DeletePoint2D(UINT index)
 {
-	//to explain codes in a  clearer way
 	UINT vertexStartIndex = index;
-	UINT vertexCount = 1;	//1 line consist of 2 vertices
-
-	//erase function
+	UINT vertexCount = 1;	
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D, vertexStartIndex, vertexCount);
+}
 
+void NoiseGraphicObject::DeletePoint2D(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	UINT vertexStartIndex = startID;
+	UINT vertexCount = endID-startID+1;	
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D, vertexStartIndex, vertexCount);
 }
 
 void	NoiseGraphicObject::DeleteTriangle2D(UINT index)
 {
-	//delete the index_th single Triangle
-	UINT vertexStartIndex = 0;
-	UINT	 vertexCount = 0;
+	UINT vertexStartIndex = index* 3;
+	UINT vertexCount = 3;
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D, vertexStartIndex, vertexCount);
+}
 
-	if (index < GetTriangle2DCount())
-	{
-		//sum up triangle counts , because the step count of Ellipse might not be the same
-		vertexStartIndex = index* 3;
-		vertexCount = 3;
-
-		//erase from vector
-		mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D, vertexStartIndex, vertexCount);
-
-	}
-	else
-	{
-		DEBUG_MSG1("delete triangle : Triangle Index Invalid!!");
-		return;
-	}
-
+void NoiseGraphicObject::DeleteTriangle2D(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	UINT vertexStartIndex = startID * 3;
+	UINT vertexCount = (endID-startID+1)*3;
+	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D, vertexStartIndex, vertexCount);
 }
 
 void	NoiseGraphicObject::DeleteRectangle(UINT index)
@@ -427,6 +541,33 @@ void	NoiseGraphicObject::DeleteRectangle(UINT index)
 		return;
 	}
 
+}
+
+void NoiseGraphicObject::DeleteRectangle(UINT startID, UINT endID)
+{
+	if (startID > endID)std::swap(startID, endID);
+	//delete the index_th Rectangle
+
+	UINT vertexStartIndex = 0;
+	UINT	 vertexCount = 0;
+
+	if (endID < GetRectCount())
+	{
+		vertexStartIndex = startID * 6;
+		vertexCount = (endID-startID+1)*6;
+		//erase vertices
+		mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D, vertexStartIndex, vertexCount);
+
+		//erase texture info
+		auto iterStart = m_pTextureList_Rect->begin() + startID;
+		auto iterEnd = m_pTextureList_Rect->begin() + endID;
+		m_pTextureList_Rect->erase(iterStart,iterEnd);
+	}
+	else
+	{
+		DEBUG_MSG1("delete rectangle : Rectangle Index Invalid!!");
+		return;
+	}
 }
 
 UINT NoiseGraphicObject::GetLine3DCount()
@@ -490,7 +631,7 @@ BOOL	NoiseGraphicObject::mFunction_InitVB(UINT objType_ID)
 	//Create Buffers
 	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
-	//ReleaseCOM(g_pd3dDevice11);
+	////ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
 
 	return TRUE;
@@ -550,7 +691,7 @@ void		NoiseGraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buff
 
 		tmpVertex = 
 		{
-			NVECTOR3(vertexIter->x,vertexIter->y,0.0f),
+			NVECTOR3(vertexIter->x+m_pBaseScreenSpacePosOffset->x,vertexIter->y + m_pBaseScreenSpacePosOffset->y,0.0f),
 			*colorIter++,
 			*texcoordIter++
 		};
@@ -596,28 +737,43 @@ void		NoiseGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buff
 		return;
 	}
 	
-	N_SimpleVertex tmpVertex;
-	auto vertexIter = vertexList.begin();
-	auto colorIter = colorList.begin();
-	auto texcoordIter = texcoordList.begin();
+	std::initializer_list<NVECTOR2>::iterator vertexIter = vertexList.begin();
+	std::initializer_list<NVECTOR4>::iterator colorIter = colorList.begin();
+	std::initializer_list<NVECTOR2>::iterator texcoordIter = texcoordList.begin();
+
+	BOOL canUpdate = FALSE;
 
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
 	{
+		// --------->
+		// |		
+		// |	PIXEL SPACE
+		// |
 
-		tmpVertex =
-		{
-			NVECTOR3(vertexIter->x,vertexIter->y,0.0f),
-			*colorIter++,
-			*texcoordIter++
-		};
-		vertexIter++;
+		//				  ^
+		//				   |
+		//		--------|--------->
+		//				   |		SCR SPACE
+		//				   |
+		/*m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.x = vertexIter->x + m_pBaseScreenSpacePosOffset->x;
+		m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.y= vertexIter->y + m_pBaseScreenSpacePosOffset->y;
+		m_pVB_Mem[buffType]->at(iVertexStartID + i).Color = *colorIter++;
+		m_pVB_Mem[buffType]->at(iVertexStartID + i).TexCoord = *texcoordIter++;
+		++vertexIter;*/
 
-		m_pVB_Mem[buffType]->at(iVertexStartID+i)=tmpVertex;
+		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.x, vertexIter->x + m_pBaseScreenSpacePosOffset->x);
+		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.y, vertexIter->y + m_pBaseScreenSpacePosOffset->y);
+		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Color, *colorIter);
+		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).TexCoord,*texcoordIter);
+		++colorIter;
+		++texcoordIter;
+		++vertexIter;
+
 	}
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[buffType] = TRUE;
+	mCanUpdateToGpu[buffType] = TRUE;//(mCanUpdateToGpu[buffType] || canUpdate);//TRUE;
 
 }
 
@@ -635,6 +791,8 @@ void		NoiseGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buff
 	auto colorIter = colorList.begin();
 	auto texcoordIter = texcoordList.begin();
 
+	BOOL canUpdate = FALSE;
+
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
 	{
@@ -646,11 +804,12 @@ void		NoiseGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buff
 			*texcoordIter++
 		};
 
-		m_pVB_Mem[buffType]->at(i) = tmpVertex;
+		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i), tmpVertex);
+		//m_pVB_Mem[buffType]->at(iVertexStartID + i) = tmpVertex;
 	}
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[buffType] = TRUE;
+	mCanUpdateToGpu[buffType] = canUpdate;
 
 }
 
@@ -678,14 +837,43 @@ void		NoiseGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buff
 	pList->erase(iter_Start, iter_End);
 
 	mCanUpdateToGpu[buffType] = TRUE;
+}
+
+void		NoiseGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
+{
+	// --------->
+	// |		
+	// |	PIXEL SPACE
+	// |
+
+	//				  ^
+	//				   |
+	//		--------|--------->
+	//				   |		SCR SPACE
+	//				   |
+	in_out_vec.x = float(gMainBufferPixelWidth) *((in_out_vec.x + 1.0f) / 2.0f);
+	in_out_vec.y = float(gMainBufferPixelHeight)*((1.0f - in_out_vec.y) / 2.0f);
 };
 
-inline void  NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2 pxCoord,NVECTOR2& outVec2)
+inline void  NoiseGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 {
+	// --------->
+	// |		
+	// |	PIXEL SPACE
+	// |
+
+	//				  ^
+	//				   |
+	//		--------|--------->
+	//				   |		SCR SPACE
+	//				   |
+
 	//PIXEL SPACE TO [-1,1] SCR SPACE
 	float halfW= (float)gMainBufferPixelWidth / 2.0f;
 	float halfH = (float)gMainBufferPixelHeight / 2.0f;
-	outVec2 = NVECTOR2((pxCoord.x /halfW)-1,		1-(pxCoord.y / halfH));
+	vec.x = (vec.x / halfW)- 1.0f;	
+	vec.y=1.0f - (vec.y / halfH);
+	//vec -= *m_pBaseScreenSpacePosOffset;
 }
 
 inline float NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
@@ -701,6 +889,82 @@ inline float NoiseGraphicObject::mFunction_ConvertPixelLength2FloatLength(float 
 		outLength = pxLen * 2.0f / (float)gMainBufferPixelHeight;
 	}
 	return outLength;
+}
+
+void	NoiseGraphicObject::mFunction_AdjustElementCount(UINT newCount, UINT currentObjCount, NOISE_GRAPHIC_OBJECT_TYPE objType)
+{
+
+	if (newCount<0 || currentObjCount == newCount)
+	{
+		return;
+	}
+
+	if (currentObjCount < newCount)
+	{
+		for (UINT i = 0;i < newCount - currentObjCount;i++)
+		{
+			switch (objType)
+			{
+			case NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D:
+				AddLine2D(NVECTOR2(0.0f, 0.0f), NVECTOR2(0.0f, 0.0f));
+				break;
+
+			case NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D:
+				AddLine3D(NVECTOR3(0, 0, 0), NVECTOR3(0, 0, 0));
+				break;
+
+			case NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D:
+				AddPoint2D(NVECTOR2(0, 0));
+				break;
+			case NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D:
+				AddPoint3D(NVECTOR3(0, 0,0));
+				break;
+
+			case NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D:
+				AddTriangle2D(NVECTOR2(0, 0), NVECTOR2(0, 0), NVECTOR2(0, 0));
+				break;
+
+			case NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D:			
+				AddRectangle(NVECTOR2(0.0f, 0.0f), NVECTOR2(0.0f, 0.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+				break;
+			}
+
+		}
+		return;
+	}
+
+	if (currentObjCount > newCount)
+	{
+		switch (objType)
+		{
+		case NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D:
+			DeleteLine2D(newCount,currentObjCount-1);
+			break;
+
+		case NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D:
+			DeleteLine3D(newCount, currentObjCount - 1);
+			break;
+
+		case NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D:
+			DeletePoint2D( newCount, currentObjCount - 1);
+			break;
+
+		case NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D:
+			DeletePoint3D( newCount, currentObjCount - 1);
+			break;
+
+		case NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D:
+			DeleteTriangle2D(newCount, currentObjCount - 1);
+			break;
+
+		case NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D:
+			DeleteRectangle(newCount, currentObjCount - 1);
+			break;
+		}
+		return;
+	}
+
+	return;
 }
 
 void		NoiseGraphicObject::mFunction_GenerateRectSubsetInfo()
