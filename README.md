@@ -26,7 +26,7 @@ Some simple features are implemented:
 
 --A Shabby GUI System...
 
---2D Element Rendering(points,lines,trianlet,textured rectangles)
+--2D Element Rendering(points,lines,triangle,textured rectangles)
 
 --Text Rendering
 
