@@ -25,8 +25,8 @@ NoiseMesh::NoiseMesh()
 	m_ScaleY = 1.0f;
 	m_ScaleZ = 1.0f;
 
-	m_pVertexInMem		= new std::vector<N_DefaultVertex>;
-	m_pIndexInMem		= new std::vector<UINT>;
+	m_pVB_Mem		= new std::vector<N_DefaultVertex>;
+	m_pIB_Mem		= new std::vector<UINT>;
 	m_pPrimitiveInfoList	= new std::vector<N_PrimitiveInfo>;//store tex/mat ID of a triangle
 	m_pSubsetInfoList		= new std::vector<N_SubsetInfo>;//store [a,b] of a subset
 
@@ -41,8 +41,8 @@ NoiseMesh::NoiseMesh()
 
 void NoiseMesh::Destroy()
 {
-	ReleaseCOM(m_pVertexBuffer);
-	ReleaseCOM(m_pIndexBuffer);
+	ReleaseCOM(m_pVB_Gpu);
+	ReleaseCOM(m_pIB_Gpu);
 };
 
 void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColumnCount)
@@ -51,11 +51,10 @@ void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColu
 	if(iColumnCount <= 2)	{iColumnCount =2;}
 	if(iRowCount <= 2)		{iRowCount = 2;}
 
-	if(m_pVertexBuffer != NULL){ReleaseCOM(m_pVertexBuffer);}
-	m_pVertexInMem->clear();
-
-	if(m_pIndexBuffer!= NULL){ReleaseCOM(m_pIndexBuffer);}
-	m_pIndexInMem->clear();
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
 
 	//this function can generate a Quad according to basis
 	mFunction_Build_A_Quad(
@@ -69,13 +68,13 @@ void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColu
 	//Prepare to update to GPU
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
-	m_VertexCount = m_pVertexInMem->size();
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	m_VertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
-	m_IndexCount = m_pIndexInMem->size();
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	m_IndexCount = m_pIB_Mem->size();
 
 	//最后
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
@@ -88,11 +87,10 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 {
 	//If the user has create sth before,then we will destroy the former
 	//VB in order to create a new size buffer
-	if(m_pVertexBuffer!= NULL){ReleaseCOM(m_pVertexBuffer);}
-	m_pVertexInMem->clear();
-
-	if(m_pIndexBuffer!= NULL){ReleaseCOM(m_pIndexBuffer);}
-	m_pIndexInMem->clear();
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
 
 	/*
 	Y  |
@@ -120,7 +118,7 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//TOP- NORMAL√
 	tmpStep1 = fDepth/(float)(iDepthStep-1)	;
 	tmpStep2 = fWidth/(float)(iWidthStep-1);
-	tmpBaseIndex = m_pVertexInMem->size();
+	tmpBaseIndex = m_pVB_Mem->size();
 	mFunction_Build_A_Quad(
 		NVECTOR3(-fWidth/2,		fHeight/2,		-fDepth/2),
 		NVECTOR3(0,0,tmpStep1),
@@ -132,7 +130,7 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//LEFT- NORMAL√
 	tmpStep1 = fDepth/(float)(iDepthStep-1)	;
 	tmpStep2 = fHeight/(float)(iHeightStep-1);
-	tmpBaseIndex = m_pVertexInMem->size();
+	tmpBaseIndex = m_pVB_Mem->size();
 	mFunction_Build_A_Quad(
 		NVECTOR3(-fWidth/2,	-fHeight/2,	-fDepth/2),
 		NVECTOR3(0,0,tmpStep1),
@@ -144,7 +142,7 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//RIGHT- NORMAL √
 	tmpStep1 = fHeight/(float)(iHeightStep-1);
 	tmpStep2 = fDepth/(float)(iDepthStep-1)	;
-	tmpBaseIndex = m_pVertexInMem->size();
+	tmpBaseIndex = m_pVB_Mem->size();
 	mFunction_Build_A_Quad(
 		NVECTOR3(fWidth/2,	-fHeight/2,	-fDepth/2),
 		NVECTOR3(0,tmpStep1,0),
@@ -157,7 +155,7 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//FRONT- NORMAL√
 	tmpStep1 = fHeight/(float)(iHeightStep-1);
 	tmpStep2 = fWidth/(float)(iWidthStep-1)	;
-	tmpBaseIndex = m_pVertexInMem->size();
+	tmpBaseIndex = m_pVB_Mem->size();
 	mFunction_Build_A_Quad(
 		NVECTOR3(-fWidth/2,	-fHeight/2,	-fDepth/2),
 		NVECTOR3(0,tmpStep1,0),
@@ -169,7 +167,7 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//BACK- NORMAL √
 	tmpStep1 = fHeight/(float)(iHeightStep-1);
 	tmpStep2 = -fWidth/(float)(iWidthStep-1)	;
-	tmpBaseIndex = m_pVertexInMem->size();
+	tmpBaseIndex = m_pVB_Mem->size();
 	mFunction_Build_A_Quad(
 		NVECTOR3(fWidth/2,	-fHeight/2,	fDepth/2),
 		NVECTOR3(0,tmpStep1,0),
@@ -181,13 +179,13 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	//Prepare to Create Gpu Buffers
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
-	m_VertexCount = m_pVertexInMem->size();
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	m_VertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
-	m_IndexCount = m_pIndexInMem->size();
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	m_IndexCount = m_pIB_Mem->size();
 
 	//transmit to gpu
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
@@ -202,11 +200,10 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	if(iColumnCount <= 3)	{iColumnCount =3;}
 	if(iRingCount <= 1)		{iRingCount = 1;}
 
-	if(m_pVertexBuffer != NULL){ReleaseCOM(m_pVertexBuffer);}
-	m_pVertexInMem->clear();
-
-	if(m_pIndexBuffer!= NULL){ReleaseCOM(m_pIndexBuffer);}
-	m_pIndexInMem->clear();
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
 
 	#pragma region GenerateVertex
 
@@ -273,17 +270,19 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	N_DefaultVertex tmpCompleteV;
 	for(i =0;i<tmpVertexCount;i++)
 	{
+
 		tmpCompleteV.Pos			= tmpV[i];
 		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
 		tmpCompleteV.Color		= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
-		tmpCompleteV.Tangent	= tmpV[i].z>0?NVECTOR3(-tmpV[i].z,0,tmpV[i].x): NVECTOR3(tmpV[i].z, 0, -tmpV[i].x);
 		tmpCompleteV.TexCoord	= tmpTexCoord[i];
-		m_pVertexInMem->push_back(tmpCompleteV);
+		NVECTOR3 tmpTangent(-tmpV[i].z, 0, tmpV[i].x);
+		D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpTangent, &tmpCompleteV.Normal);//tangent
+		m_pVB_Mem->push_back(tmpCompleteV);
 	}
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
 	m_VertexCount = tmpVertexCount;
 
 	#pragma endregion GenerateVertex
@@ -305,9 +304,9 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 		
 			*/
 			//+1是因为复制了第一列，比原来设好的列数多出一列
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+0);
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount	+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount	+1)		+j		+0);
 
 			/*
 						k+3
@@ -316,9 +315,9 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 			k+5	/___|	k+4
 
 			*/
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
 			
 		}
 	}
@@ -328,21 +327,21 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	
 	for(j =0;j<iColumnCount;j++)
 	{
-		m_pIndexInMem->push_back(j+1);
-		m_pIndexInMem->push_back(j) ;
-		m_pIndexInMem->push_back(tmpVertexCount-2);	//index of top vertex
+		m_pIB_Mem->push_back(j+1);
+		m_pIB_Mem->push_back(j) ;
+		m_pIB_Mem->push_back(tmpVertexCount-2);	//index of top vertex
 
-		m_pIndexInMem->push_back((iColumnCount+1)* (iRingCount-1) + j);
-		m_pIndexInMem->push_back((iColumnCount+1) * (iRingCount-1) + j+1);
-		m_pIndexInMem->push_back(tmpVertexCount -1); //index of bottom vertex
+		m_pIB_Mem->push_back((iColumnCount+1)* (iRingCount-1) + j);
+		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount-1) + j+1);
+		m_pIB_Mem->push_back(tmpVertexCount -1); //index of bottom vertex
 	}
 	
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
 	//a single Triangle
-	m_IndexCount = m_pIndexInMem->size();//(iColumnCount+1) * iRingCount * 2 *3
+	m_IndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
 
 	#pragma endregion GenerateIndex
 
@@ -360,11 +359,10 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	if(iColumnCount <= 3)	{iColumnCount =3;}
 	if(iRingCount <= 2)		{iRingCount = 2;}
 
-	if(m_pVertexBuffer != NULL){ReleaseCOM(m_pVertexBuffer);}
-	m_pVertexInMem->clear();
-
-	if(m_pIndexBuffer!= NULL){ReleaseCOM(m_pIndexBuffer);}
-	m_pIndexInMem->clear();
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
 
 	#pragma region GenerateVertex
 
@@ -447,7 +445,7 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
 		tmpCompleteV.Color =NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
-		m_pVertexInMem->push_back(tmpCompleteV);
+		m_pVB_Mem->push_back(tmpCompleteV);
 	}
 	//TOP/BOTTOM face along with their normals
 	for(i =(iColumnCount+1)*iRingCount;i<(iColumnCount+1)*(iRingCount+2);i++)
@@ -459,7 +457,7 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
 		tmpCompleteV.Color =NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
-		m_pVertexInMem->push_back(tmpCompleteV);
+		m_pVB_Mem->push_back(tmpCompleteV);
 	}
 
 
@@ -470,20 +468,20 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
 	tmpCompleteV.Color    =NVECTOR4(1.0f,1.0f,1.0f,1.0f);
 	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount-2];
-	m_pVertexInMem->push_back(tmpCompleteV);
+	m_pVB_Mem->push_back(tmpCompleteV);
 
 	tmpCompleteV.Pos =tmpV[tmpVertexCount-1];
 	tmpCompleteV.Normal = NVECTOR3(0,-1.0f,0);
 	tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
 	tmpCompleteV.Color    =NVECTOR4(1.0f,1.0f,1.0f,1.0f);
 	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount-1];
-	m_pVertexInMem->push_back(tmpCompleteV);
+	m_pVB_Mem->push_back(tmpCompleteV);
 
 	//,........
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
-	m_VertexCount = m_pVertexInMem->size();//tmpVertexCount;
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	m_VertexCount = m_pVB_Mem->size();//tmpVertexCount;
 
 	#pragma endregion GenerateVertex
 	
@@ -505,9 +503,9 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 						|/		k+2
 		
 			*/
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+0);
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
 
 			/*
 						k+3
@@ -516,9 +514,9 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 			k+5	/___|	k+4
 
 			*/
-			m_pIndexInMem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
-			m_pIndexInMem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
+			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
+			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
 		}
 	}
 
@@ -526,22 +524,22 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	//deal with the TOP/BOTTOM
 	for( j =0;j<iColumnCount;j++)
 	{
-		m_pIndexInMem->push_back((iColumnCount+1)*iRingCount+j);
-		m_pIndexInMem->push_back((iColumnCount+1)*iRingCount+j+1) ;
-		m_pIndexInMem->push_back(tmpVertexCount-2);	//index of top vertex
+		m_pIB_Mem->push_back((iColumnCount+1)*iRingCount+j);
+		m_pIB_Mem->push_back((iColumnCount+1)*iRingCount+j+1) ;
+		m_pIB_Mem->push_back(tmpVertexCount-2);	//index of top vertex
 
-		m_pIndexInMem->push_back((iColumnCount+1) * (iRingCount+1) + j);
-		m_pIndexInMem->push_back((iColumnCount+1) * (iRingCount+1) + j +1);
-		m_pIndexInMem->push_back(tmpVertexCount -1); //index of bottom vertex
+		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount+1) + j);
+		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount+1) + j +1);
+		m_pIB_Mem->push_back(tmpVertexCount -1); //index of bottom vertex
 
 	}
 
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
 	//a single Triangle
-	m_IndexCount = m_pIndexInMem->size();//iColumnCount * iRingCount * 2 *3
+	m_IndexCount = m_pIB_Mem->size();//iColumnCount * iRingCount * 2 *3
 
 	#pragma endregion GenerateIndex
 
@@ -550,26 +548,32 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
 	//user-set material
 	SetMaterial(m_MaterialID_for_SetMaterial);
+
 };
 
 BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 {
 	//check if buffers have been created
-	if (m_pVertexBuffer != NULL) { ReleaseCOM(m_pVertexBuffer); }
-	m_pVertexInMem->clear();
-
-	if (m_pIndexBuffer != NULL) { ReleaseCOM(m_pIndexBuffer); }
-	m_pIndexInMem->clear();
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
 
 
 	std::vector<NVECTOR3> tmpVertexList;
 	std::vector<NVECTOR3> tmpNormalList;
-	std::vector<char>			   tmpInfo;
+	std::string				tmpInfo;
 	N_DefaultVertex	tmpCompleteV;
 	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
 
 	//加载STL
-	NoiseFileManager::ImportFile_STL(pFilePath, &tmpVertexList, m_pIndexInMem, &tmpNormalList, &tmpInfo);
+	BOOL fileLoadSucceeded = FALSE;
+	fileLoadSucceeded=NoiseFileManager::ImportFile_STL(pFilePath, tmpVertexList, *m_pIB_Mem, tmpNormalList, tmpInfo);
+	if (!fileLoadSucceeded)
+	{
+		DEBUG_MSG1("Noise Mesh : Load STL failed!");
+		return FALSE;
+	}
 
 	//先计算包围盒，就能求出网格的中心点（不一定是Mesh Space的原点）
 	mFunction_ComputeBoundingBox(&tmpVertexList);
@@ -590,7 +594,7 @@ BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 		tmpCompleteV.Normal = tmpNormalList.at(k);
 		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
 		tmpCompleteV.TexCoord = mFunction_ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
-		m_pVertexInMem->push_back(tmpCompleteV);
+		m_pVB_Mem->push_back(tmpCompleteV);
 
 		//每新增了一个三角形3个顶点 就要轮到下个三角形的法线了
 		if (i % 3 == 2) { k++; }
@@ -600,13 +604,13 @@ BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 	//Prepare to update to GPU
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVertexInMem->at(0);
-	m_VertexCount = m_pVertexInMem->size();
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	m_VertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIndexInMem->at(0);
-	m_IndexCount = m_pIndexInMem->size();
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	m_IndexCount = m_pIB_Mem->size();
 
 	//最后
 	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
@@ -614,7 +618,49 @@ BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 	//user-set material
 	SetMaterial(m_MaterialID_for_SetMaterial);
 
-	return FALSE;
+	return TRUE;
+}
+
+BOOL NoiseMesh::LoadFile_OBJ(char * pFilePath)
+{
+	//check if buffers have been created
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu); 
+	m_pIB_Mem->clear();
+
+
+	std::vector<N_DefaultVertex> tmpCompleteVertexList;
+	std::vector<UINT> tmpNormalList;
+
+	//加载STL
+	BOOL fileLoadSucceeded = FALSE;
+	fileLoadSucceeded = NoiseFileManager::ImportFile_OBJ(pFilePath, *m_pVB_Mem, *m_pIB_Mem);
+	if (!fileLoadSucceeded)
+	{
+		DEBUG_MSG1("Noise Mesh : Load STL failed!");
+		return FALSE;
+	}
+
+
+	//Prepare to update to GPU
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	m_VertexCount = m_pVB_Mem->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	m_IndexCount = m_pIB_Mem->size();
+
+	//最后
+	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
+
+	//user-set material
+	SetMaterial(m_MaterialID_for_SetMaterial);
+
+	return TRUE;
 }
 
 void	NoiseMesh::SetMaterial(UINT matID)
@@ -628,13 +674,13 @@ void	NoiseMesh::SetMaterial(UINT matID)
 		
 		//actually in this function filling m_pPrimitiveInfoList is optional .(I dont want it to be empty= =)
 		//but when loading mesh from file, this primitive info  list should be filled to be sorted.
-		for (UINT i = 0;	i < m_pIndexInMem->size()/3	;i ++)
+		for (UINT i = 0;	i < m_pIB_Mem->size()/3	;i ++)
 		{
 			N_PrimitiveInfo tmpInfo;
 			m_pPrimitiveInfoList->push_back(tmpInfo);
-			m_pPrimitiveInfoList->at(i).index1 = m_pIndexInMem->at(3 * i);
-			m_pPrimitiveInfoList->at(i).index2 = m_pIndexInMem->at(3 * i + 1);
-			m_pPrimitiveInfoList->at(i).index3 = m_pIndexInMem->at(3 * i + 2);
+			m_pPrimitiveInfoList->at(i).index1 = m_pIB_Mem->at(3 * i);
+			m_pPrimitiveInfoList->at(i).index2 = m_pIB_Mem->at(3 * i + 1);
+			m_pPrimitiveInfoList->at(i).index3 = m_pIB_Mem->at(3 * i + 2);
 			m_pPrimitiveInfoList->at(i).mMatID = matID;
 		}
 
@@ -712,26 +758,26 @@ void NoiseMesh::SetScaleZ(float scaleZ)
 
 UINT NoiseMesh::GetVertexCount()
 {
-	return m_pVertexInMem->size();
+	return m_pVB_Mem->size();
 }
 
 void NoiseMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 {
-	if (iIndex < m_pVertexInMem->size())
+	if (iIndex < m_pVB_Mem->size())
 	{
-		outVertex = m_pVertexInMem->at(iIndex);
+		outVertex = m_pVB_Mem->at(iIndex);
 	}
 }
 
 void NoiseMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
 {
 	std::vector<N_DefaultVertex>::iterator iterBegin, iterLast;
-	iterBegin = m_pVertexInMem->begin();
-	iterLast = m_pVertexInMem->end();
+	iterBegin = m_pVB_Mem->begin();
+	iterLast = m_pVB_Mem->end();
 	outBuff.assign(iterBegin,iterLast);
 }
 
-NVECTOR3 NoiseMesh::GetBoundingBoxMax()
+NVECTOR3 NoiseMesh::ComputeBoundingBoxMax()
 {
 	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
 	{
@@ -741,7 +787,7 @@ NVECTOR3 NoiseMesh::GetBoundingBoxMax()
 	return *m_pBoundingBox_Max;
 };
 
-NVECTOR3 NoiseMesh::GetBoundingBoxMin()
+NVECTOR3 NoiseMesh::ComputeBoundingBoxMin()
 {
 	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
 	{
@@ -771,7 +817,7 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 
 	//Create Buffers
 	int hr =0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd,pVertexDataInMem,&m_pVertexBuffer);
+	hr = g_pd3dDevice11->CreateBuffer(&vbd,pVertexDataInMem,&m_pVB_Gpu);
 	HR_DEBUG(hr,"VERTEX BUFFER创建失败");
 
 
@@ -784,7 +830,7 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers
-	hr = g_pd3dDevice11->CreateBuffer(&ibd,pIndexDataInMem,&m_pIndexBuffer);
+	hr = g_pd3dDevice11->CreateBuffer(&ibd,pIndexDataInMem,&m_pIB_Gpu);
 	HR_DEBUG(hr,"INDEX BUFFER创建失败");
 
 	//ReleaseCOM(g_pd3dDevice11);
@@ -812,7 +858,7 @@ void	NoiseMesh::mFunction_Build_A_Quad
 				tmpCompleteV.Color	= NVECTOR4(((float)i/StepCount1),((float)j/StepCount2),0.5f,1.0f);
 				tmpCompleteV.Tangent = vBasisVector2;
 				tmpCompleteV.TexCoord=NVECTOR2( (float)i/(StepCount1-1) , ( (float)j/StepCount2));
-				m_pVertexInMem->push_back(tmpCompleteV);
+				m_pVB_Mem->push_back(tmpCompleteV);
 		}
 
 	#pragma endregion GenerateVertex
@@ -826,13 +872,13 @@ void	NoiseMesh::mFunction_Build_A_Quad
 		{
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
 			//thus inde offset is needed
-			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j		);
-			m_pIndexInMem->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
-			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j +1);
+			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j		);
+			m_pIB_Mem->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
+			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j +1);
 
-			m_pIndexInMem->push_back(iBaseIndex+i *		StepCount2 + j +1);
-			m_pIndexInMem->push_back(iBaseIndex+(i+1) *StepCount2 + j	);
-			m_pIndexInMem->push_back(iBaseIndex+(i+1)* StepCount2 + j+1	);
+			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j +1);
+			m_pIB_Mem->push_back(iBaseIndex+(i+1) *StepCount2 + j	);
+			m_pIB_Mem->push_back(iBaseIndex+(i+1)* StepCount2 + j+1	);
 		}
 	}
 
@@ -885,10 +931,10 @@ void NoiseMesh::mFunction_ComputeBoundingBox()
 	UINT i = 0;
 	NVECTOR3 tmpV;
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
-	for (i = 0;i < m_pVertexInMem->size();i++)
+	for (i = 0;i < m_pVB_Mem->size();i++)
 	{
 		//N_DEFAULT_VERTEX
-		tmpV = m_pVertexInMem->at(i).Pos;
+		tmpV = m_pVB_Mem->at(i).Pos;
 		if (tmpV.x <( m_pBoundingBox_Min->x)) { m_pBoundingBox_Min->x = tmpV.x; }
 		if (tmpV.y <(m_pBoundingBox_Min->y)) { m_pBoundingBox_Min->y = tmpV.y; }
 		if (tmpV.z <(m_pBoundingBox_Min->z)) { m_pBoundingBox_Min->z = tmpV.z; }
@@ -921,7 +967,7 @@ void NoiseMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffe
 
 }
 
-NVECTOR2 NoiseMesh::mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint)
+inline NVECTOR2 NoiseMesh::mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint)
 {
 	//额...这个函数做简单的纹理球形包裹
 

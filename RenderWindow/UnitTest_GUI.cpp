@@ -49,15 +49,15 @@ BOOL Init3D(HWND hwnd)
 
 
 	//漫反射贴图
-	TexMgr.CreateTextureFromFile(L"button1.png", "GUI_Button1", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button2.png", "GUI_Button2", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button3.png", "GUI_Button3", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button4.png", "GUI_Button4", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
-	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button1.png", "GUI_Button1", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button2.png", "GUI_Button2", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button3.png", "GUI_Button3", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button4.png", "GUI_Button4", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 
 	//create font texture
-	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 24);
+	fontMgr.CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
 
 	fontMgr.InitStaticTextW(0, L"TextBox的CapsLock和大小写/ GUI system需不需要重构一下啊....很多Event是比较重复的....= =", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 

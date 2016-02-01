@@ -67,10 +67,10 @@ BOOL Init3D(HWND hwnd)
 	GUIMgr.Initialize(bufferWidth, bufferHeight, Renderer, inputE, fontMgr, hwnd);
 	GUIMgr.InitOscilloscope(GUIOsc);
 	GUIOsc.SetDiagonal({ 50.0f,50.0f }, {590.0f,430.0f});
-	GUIOsc.SetSignalTimeInterval(0.1f);
+	GUIOsc.SetSignalTimeInterval(0.2f);
 	GUIOsc.SetScreenTimeRange(0.0f, 20.0f);
 	GUIOsc.SetTriggerRecordingTime(20.0f);
-	GUIOsc.SetMaxAmplitude(2.0f);
+	GUIOsc.SetMaxAmplitude(3.0f);
 
 	GUIMgr.Update();
 
@@ -93,7 +93,7 @@ void MainLoop()
 	tmpS << "fps :" << NTimer.GetFPS() << std::endl;//I wonder why this FPS is EXACTLY the half of Graphic Debug FPS
 	myText_fps.SetTextAscii(tmpS.str());
 
-	if(frameCount%5==0)GUIOsc.PushSignal(sinf(0.05f*frameCount) + 0.005f * (rand() % 100));
+	if(frameCount%5==0)GUIOsc.PushSignal(sinf(0.05f*frameCount) + 0.01f * (rand() % 100));
 
 	//add to render list
 	Renderer.AddObjectToRenderList(myText_fps);

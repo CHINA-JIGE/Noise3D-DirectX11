@@ -30,6 +30,8 @@ public:
 
 	BOOL	LoadFile_STL(char* pFilePath);
 
+	BOOL	LoadFile_OBJ(char* pFilePath);
+
 	void		SetPosition(float x,float y,float z);
 
 	void		SetRotation(float angleX, float angleY, float angleZ);
@@ -54,9 +56,9 @@ public:
 
 	void		GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
 
-	NVECTOR3		GetBoundingBoxMax();
+	NVECTOR3		ComputeBoundingBoxMax();
 
-	NVECTOR3		GetBoundingBoxMin();
+	NVECTOR3		ComputeBoundingBoxMin();
 
 private:
 
@@ -85,8 +87,8 @@ private:
 	UINT										m_VertexCount;
 	UINT										m_IndexCount;
 	UINT										m_MaterialID_for_SetMaterial;//Set a material for the whole mesh
-	ID3D11Buffer*						m_pVertexBuffer;
-	ID3D11Buffer*						m_pIndexBuffer;
+	ID3D11Buffer*						m_pVB_Gpu;
+	ID3D11Buffer*						m_pIB_Gpu;
 
 	float										m_RotationX_Pitch;
 	float										m_RotationY_Yaw;
@@ -100,8 +102,8 @@ private:
 	NVECTOR3*							m_pBoundingBox_Max;
 	NMATRIX*										m_pMatrixWorld;
 	NMATRIX*										m_pMatrixWorldInvTranspose;
-	std::vector<N_DefaultVertex>*			m_pVertexInMem;//vertex in CPU memory
-	std::vector<UINT>*							m_pIndexInMem;//index in CPU memory
+	std::vector<N_DefaultVertex>*			m_pVB_Mem;//vertex in CPU memory
+	std::vector<UINT>*							m_pIB_Mem;//index in CPU memory
 	std::vector<N_PrimitiveInfo>*			m_pPrimitiveInfoList;//store mat ID of a triangle
 	std::vector<N_SubsetInfo>*				m_pSubsetInfoList;//store [a,b] of a subset
 

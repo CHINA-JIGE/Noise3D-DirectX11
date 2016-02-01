@@ -51,16 +51,16 @@ BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
 	//than Triangle Normal Buffer , this is because 1 triangle consists of 3 vertices.
 
 	std::vector<UINT>	tmpIndexBuffer;
-	std::vector<char>		tmpInfoBuffer;
+	std::string					tmpHeaderString;
 	BOOL isLoadSTLsucceeded = FALSE;
 
 	//we must check if the STL has been loaded successfully
 	isLoadSTLsucceeded =NoiseFileManager::ImportFile_STL(
 		pFilePath, 
-		m_pPrimitiveVertexBuffer, 
-		&tmpIndexBuffer,
-		m_pTriangleNormalBuffer, 
-		&tmpInfoBuffer);
+		*m_pPrimitiveVertexBuffer, 
+		tmpIndexBuffer,
+		*m_pTriangleNormalBuffer, 
+		tmpHeaderString);
 
 	//assert
 	if (!isLoadSTLsucceeded)

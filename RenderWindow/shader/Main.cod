@@ -2507,7 +2507,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 35 "shader2D.fx"
+                #line 175 "shader3D.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[4].xyzw
@@ -2553,7 +2553,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 43 "shader2D.fx"
+                #line 183 "shader3D.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid3D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -2599,7 +2599,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 2
                 
-                #line 52 "shader2D.fx"
+                #line 35 "shader2D.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -2636,7 +2636,7 @@ fxgroup
                 dcl_input_ps linear v1.xyzw
                 dcl_output o0.xyzw
                 
-                #line 59 "shader2D.fx"
+                #line 42 "shader2D.fx"
                 mov o0.xyzw, v1.xyzw  // PS_Solid2D<0,1,2,3>
                 ret 
                 // Approximately 2 instruction slots used
@@ -2683,7 +2683,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 68 "shader2D.fx"
+                #line 50 "shader2D.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -2733,7 +2733,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 1
                 
-                #line 76 "shader2D.fx"
+                #line 58 "shader2D.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // sampledColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 mul r0.w, r0.w, v1.w  // outputColor<3:NaN:Inf>
                 mov r0.xyz, r0.xyzx  // outputColor<0:Inf,1:Inf,2:Inf>
@@ -2783,7 +2783,7 @@ fxgroup
                 dcl_output o2.xy
                 dcl_temps 3
                 
-                #line 87 "shader2D.fx"
+                #line 69 "shader2D.fx"
                 mov r0.xyz, v0.xyzx  // output<0,1,2>
                 mov r0.w, l(1.000000)  // output<3: 1f>
                 mov r1.xyzw, v1.xyzw  // output<4,5,6,7>
@@ -2845,7 +2845,7 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 2
                 
-                #line 95 "shader2D.fx"
+                #line 77 "shader2D.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v2.xyxx, t0.xyzw, s0  // sampledColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 ne r1.x, r0.w, l(0.000000)
                 if_nz r1.x

@@ -32,9 +32,10 @@
 
 //释放一个COM对象
 #define ReleaseCOM(ComPointer)\
-				if(ComPointer!=0)\
+				if(ComPointer!=nullptr)\
 				{\
 				ComPointer->Release();\
+				ComPointer=nullptr;\
 				}\
 
 

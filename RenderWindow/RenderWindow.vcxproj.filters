@@ -20,6 +20,9 @@
     <ClCompile Include="UnitTest_GUI.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_Mesh.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main3D.h">
@@ -27,9 +30,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="UnitTest_Mesh.cpp">
-      <Filter>Main3D</Filter>
-    </None>
     <None Include="Main3D_Minimize.cpp">
       <Filter>Main3D</Filter>
     </None>

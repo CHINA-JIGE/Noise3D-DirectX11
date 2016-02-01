@@ -101,8 +101,8 @@ void	NoiseRenderer::RenderMeshes()
 
 		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVertexBuffer,&VBstride_Default,&VBoffset);
-		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
+		g_pImmediateContext->IASetVertexBuffers(0,1,&tmp_pMesh->m_pVB_Gpu,&VBstride_Default,&VBoffset);
+		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIB_Gpu,DXGI_FORMAT_R32_UINT,0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//设置fillmode和cullmode
@@ -651,7 +651,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPa
 	std::vector<char> compiledShader;
 
 	//加载fxo文件
-	if (!NoiseFileManager::ImportFile_PURE(compiledShaderPath, &compiledShader))
+	if (!NoiseFileManager::ImportFile_PURE(compiledShaderPath, compiledShader))
 	{
 		return FALSE; 
 	}

@@ -97,8 +97,8 @@ cbuffer	cbRarely
 
 cbuffer cbCameraMatrix
 {
-	float4x4	gProjMatrix;
-	float4x4	gViewMatrix;
+	float4x4	gProjMatrix;//to proj space
+	float4x4	gViewMatrix;//to view space
 };
 
 
@@ -292,9 +292,9 @@ void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,
 	
 	//x - Binormal , Y-Normal ,Z - tangent
 	float4x4 transformMatrix;
-	transformMatrix[0] = float4(BinormalW.x,BinormalW.y,BinormalW.z,0);
-	transformMatrix[1] = float4(NormalW.x,NormalW.y,NormalW.z,0);
-	transformMatrix[2] = float4(TangentW.x,TangentW.y,TangentW.z,0);
+	transformMatrix[0] = float4(BinormalW.xyz,0);
+	transformMatrix[1] = float4(NormalW.xyz,0);
+	transformMatrix[2] = float4(TangentW.xyz,0);
 	transformMatrix[3] = float4(0,0,0,1.0f);
 
 	outVectorXYZ = mul(float4(inVectorTBN,1.0f),transformMatrix).xyz;

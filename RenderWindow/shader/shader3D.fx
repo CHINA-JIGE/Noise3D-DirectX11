@@ -164,3 +164,22 @@ float4 PS_DrawSky(VS_OUTPUT_DEFAULT input) : SV_Target
 	
 	return outputColor;
 }
+
+
+
+
+//-----------------------------------Draw 3D Lines/Points------------------------------
+VS_OUTPUT_SIMPLE VS_Solid3D(VS_INPUT_SIMPLE input)
+{
+	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
+	output.posH = mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix);
+	output.color = input.color;
+	output.texcoord = input.texcoord;
+	return output;
+}
+
+float4 PS_Solid3D(VS_OUTPUT_SIMPLE input) : SV_Target
+{
+	return input.color;
+}
+

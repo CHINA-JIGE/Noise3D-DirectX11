@@ -22,7 +22,7 @@ NoiseGUIOscilloscope::NoiseGUIOscilloscope(float maxAmplitude, float signalTimeI
 	mBackGroundTexID=NOISE_MACRO_INVALID_TEXTURE_ID;
 	mScreenTimeRange_Min=0.0;//set Time Range which the User Interface can present
 	mScreenTimeRange_Max=10.0; //say that there is a series of 20ms signal,but we just put 10ms on the screen
-	m_pWaveColor = new NVECTOR4(0.3f,1.0f,0.3f,0.3f);
+	m_pWaveColor = new NVECTOR4(0.3f,1.0f,0.3f,0.8f);
 	m_pGridColor = new NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f);
 	m_pSignalList = new std::vector<float>;
 	m_pSignalSequenceList=new 	std::vector<std::vector<float>>;
@@ -248,8 +248,8 @@ void  NoiseGUIOscilloscope::mFunction_UpdateGraphicObject()
 					graphicElementCount + j,
 					resampledSequence[j],
 					resampledSequence[j + 1],
-					*m_pWaveColor,
-					*m_pWaveColor);
+					*m_pWaveColor *float(1+i-startSequenceID)/float(waveCount),//the older wave fade out
+					*m_pWaveColor* float(1+i- startSequenceID) / float(waveCount));
 			}
 
 			//an offset used by SetLine2D
@@ -267,7 +267,7 @@ void  NoiseGUIOscilloscope::mFunction_UpdateGraphicObject()
 				m_pGraphicObj_Wave->SetPoint2D(
 					graphicElementCount + j,
 					resampledSequence.at(j),
-					*m_pWaveColor);
+					*m_pWaveColor* float(1+i - startSequenceID) / float(waveCount));//the older wave fade out
 			}
 			graphicElementCount += currSequenceGraphicElementCount;
 
@@ -320,8 +320,8 @@ void NoiseGUIOscilloscope::mFunction_ResampleSignalToFitTheScreen(UINT sequenceI
 			//to place them in correct place
 
 			//sequence starts at 0.0ms ,adjacent signals have the same time interval 
-			double signalScrRatioX = (i*mSignalTimeInterval - mScreenTimeRange_Min) / screenTimeLength;
-			double signalScrRatioY = currSequence.at(i)/ mMaxAmplitude;
+			float signalScrRatioX = (i*float(mSignalTimeInterval - mScreenTimeRange_Min)) / screenTimeLength;
+			float signalScrRatioY = currSequence.at(i)/ mMaxAmplitude;
 
 			//this ratio is defined in Scr X Lerp Ratio Space
 			float pointX = GetTopLeft().x + GetWidth()*gFunction_Clampf(signalScrRatioX, 0.0f, 1.0f);
@@ -329,24 +329,6 @@ void NoiseGUIOscilloscope::mFunction_ResampleSignalToFitTheScreen(UINT sequenceI
 			NVECTOR2 tmpPoint(pointX,pointY);
 			outResampledSequence[i]=tmpPoint;
 		}
-
-	//---------------------DEAL WITH MINIFICATION--------------------
-	/*if (sequenceTimeLength <= screenTimeLength)
-	{
-		//DownSamplecxxxmjnnnnnnn
-		//  |____________SIGNAL______|
-
-		//for every pixel X
-		for (UINT i = 0;i < GetWidth();i++)
-		{
-			//in Signal Sequence Lerp Space,the ratio of each pixel X might be not in
-			double pixelSequenceRatioX = (i*mSignalTimeInterval - mScreenTimeRange_Min) / screenTimeLength;
-			double pixelSequenceRatioY = (currSequence.at(i) - (-mMaxAmplitude) / (2 * mMaxAmplitude));
-
-		}
-
-
-	}*/
 
 	/*outResampledSequence.resize(GetWidth() / 5);
 	for (UINT i = 0;i < GetWidth();i+=5)

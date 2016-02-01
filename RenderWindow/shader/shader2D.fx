@@ -28,23 +28,6 @@ Texture2D g2D_DiffuseMap;
 
 
 
-//-----------------------------------Draw 3D Lines/Points------------------------------
-VS_OUTPUT_SIMPLE VS_Solid3D(VS_INPUT_SIMPLE input)
-{
-	VS_OUTPUT_SIMPLE output = (VS_OUTPUT_SIMPLE)0;
-	output.posH = mul(mul(float4(input.posL, 1.0f),gViewMatrix), gProjMatrix);
-	output.color = input.color;
-	output.texcoord = input.texcoord;
-	return output;
-}
-
-float4 PS_Solid3D(VS_OUTPUT_SIMPLE input) : SV_Target
-{
-	return input.color;
-}
-
-
-
 //----------------------------------Draw 2D Lines/Points/Triangles----------------------------------
 VS_OUTPUT_SIMPLE VS_Solid2D(VS_INPUT_SIMPLE input)
 {
@@ -58,7 +41,6 @@ float4 PS_Solid2D(VS_OUTPUT_SIMPLE input) : SV_Target
 {
 	return input.color;
 }
-
 
 
 //----------------------------------Draw Textured 2D Triangles----------------------------------

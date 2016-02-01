@@ -68,21 +68,21 @@ BOOL Init3D(HWND hwnd)
 	//漫反射贴图
 	//TexMgr.CreateTextureFromFile(L"Earth.jpg", "Earth", TRUE,0, 0, TRUE);
 	//TexMgr.CreatePureColorTexture("myText", 300, 100, NVECTOR4(0.0f, 0.0f, 0.0f, 0.0f), TRUE);
-	TexMgr.CreateTextureFromFile(L"button1.png", "GUI_Button1", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button2.png", "GUI_Button2", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button3.png", "GUI_Button3", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"button4.png", "GUI_Button4", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"Earth.jpg","Earth", TRUE,0, 0,FALSE);
-	TexMgr.CreateTextureFromFile(L"Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
-	TexMgr.CreateTextureFromFile(L"texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
-	TexMgr.CreateTextureFromFile(L"bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	TexMgr.CreateCubeMapFromDDS(L"UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
+	TexMgr.CreateTextureFromFile(L"media/button1.png", "GUI_Button1", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button2.png", "GUI_Button2", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button3.png", "GUI_Button3", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/button4.png", "GUI_Button4", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/Earth.jpg","Earth", TRUE,0, 0,FALSE);
+	TexMgr.CreateTextureFromFile(L"media/Earth.jpg", "EarthNormalMap", TRUE, 0, 0, TRUE);
+	TexMgr.CreateTextureFromFile(L"media/texture2.jpg", "Wood", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
+	TexMgr.CreateTextureFromFile(L"media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	TexMgr.CreateCubeMapFromDDS(L"media/UniverseEnv.dds", "EnvironmentMap",NOISE_CUBEMAP_SIZE_256x256);
 	TexMgr.ConvertTextureToGreyMap(TexMgr.GetTextureID("EarthNormalMap"));
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("EarthNormalMap"),20.0f);
 
 	//create font texture
-	fontMgr.CreateFontFromFile("STXINWEI.ttf", "myFont", 24);
+	fontMgr.CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
 
 	fontMgr.InitStaticTextW(0, L"TextBox的CapsLock和大小写/ GUI system需不需要重构一下啊....很多Event是比较重复的....= =", 300, 100, NVECTOR4(0, 1.0f, 0.5f, 1.0f), 0, 0, myText1);
 
@@ -109,9 +109,9 @@ BOOL Init3D(HWND hwnd)
 	Camera.SetViewAngle(MATH_PI / 2.5f, 1.333333333f);
 	Camera.SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
-	NVECTOR3 AABB_MAX = Mesh1.GetBoundingBoxMax();
+	NVECTOR3 AABB_MAX = Mesh1.ComputeBoundingBoxMax();
 	float rotateRadius = sqrtf(AABB_MAX.x*AABB_MAX.x + AABB_MAX.z*AABB_MAX.z)*1.2f;
-	float rotateY = Mesh1.GetBoundingBoxMax().y*1.3f;
+	float rotateY = Mesh1.ComputeBoundingBoxMax().y*1.3f;
 	Camera.SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	Camera.SetLookAt(0, rotateY / 2, 0);
 
