@@ -135,7 +135,11 @@
     <ClCompile Include="N2D_NoiseFontManager.cpp" />
     <ClCompile Include="NBASE_Noise2DBasicContainerInfo.cpp" />
     <ClCompile Include="NBASE_Noise2DBasicTextInfo.cpp" />
-    <ClCompile Include="NBASE_NoiseFileManager.cpp" />
+    <ClCompile Include="NBASE_NoiseFileManager_Basic.cpp" />
+    <ClCompile Include="NBASE_NoiseFileMgr_3DS.cpp" />
+    <ClCompile Include="NBASE_NoiseFileMgr_NOISELAYER.cpp" />
+    <ClCompile Include="NBASE_NoiseFileMgr_OBJ.cpp" />
+    <ClCompile Include="NBASE_NoiseFileMgr_STL.cpp" />
     <ClCompile Include="NUT_NoiseUtInputEngine.cpp" />
     <ClCompile Include="N3D_NoiseLightManager.cpp" />
     <ClCompile Include="N2D_NoiseGraphicObject.cpp" />

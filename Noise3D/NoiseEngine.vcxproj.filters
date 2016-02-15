@@ -191,9 +191,6 @@
     <ClCompile Include="N3D_NoiseAtmosphere.cpp">
       <Filter>N3D_NoiseAtmosphere</Filter>
     </ClCompile>
-    <ClCompile Include="NBASE_NoiseFileManager.cpp">
-      <Filter>NBASE_NoiseFileManager</Filter>
-    </ClCompile>
     <ClCompile Include="NUT_NoiseUtInputEngine.cpp">
       <Filter>NUT_NoiseUtInputEngine</Filter>
     </ClCompile>
@@ -214,6 +211,21 @@
     </ClCompile>
     <ClCompile Include="NBASE_Noise2DBasicTextInfo.cpp">
       <Filter>N2D_NoiseFont&amp;Text\NBASE_Noise2DBasicTextInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileMgr_STL.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileManager_Basic.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileMgr_OBJ.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileMgr_NOISELAYER.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseFileMgr_3DS.cpp">
+      <Filter>NBASE_NoiseFileManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
