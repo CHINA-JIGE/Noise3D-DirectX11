@@ -1,0 +1,10 @@
+.dmod_html_lnk_add_html { color: #80ff80 !important; margin-top:15px !important; }
+.dmod_html_lnk_duplicate_html { color: #80ffff !important; }
+.dmod_html_lnk_delete_html { color: #ff4040 !important; }
+.dmod_html_lbl_id { display:block; float:left; width:30px; text-align:left; }
+.dmod_html_txt_id { display:block; float:left; width:275px;} 
+.dmod_html_lbl_lang { display:block; float:left; width:150px; text-align:right; margin-right:10px;}
+.dmod_html_lst_lang { display:block; width:275px; }
+.dmod_html_lbl_html { font-weight: bold; display:block; clear:left; margin-top:20px; margin-bottom:2px; text-align:left; }
+.dmod_html_txt_html { font-size: 14px; display:block; width:740px; height: 500px; padding:5px;}
+.dmod_html_btn_submit_page { position:absolute; top:40px; left:870px; } 

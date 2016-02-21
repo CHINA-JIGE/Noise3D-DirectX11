@@ -1,0 +1,63 @@
+/*  Main classes, useful for html user generated content */
+.centerme { display:block; text-align:center; margin-left:auto; margin-right:auto; }
+.floatleft { float: left; margin-right: 10px; margin-bottom: 10px; }
+.floatright { float: right; margin-left: 10px; margin-bottom: 10px; }
+.clearleft { clear: left; }
+.clearright { clear: right; }
+.clearboth { clear: both; }
+.justify { text-align:justify; }
+.source_code { font-family: Courier New, Courier; margin: 0px; color: #ff0000; }
+.aligntop {vertical-align:top;}
+.alignbottom {vertical-align:bottom;}
+.window_header img { display:block; float:left; margin-left: 5px; margin-top:3px;} 
+.window_header h2 { color: black; display:block; padding-left: 8px; padding-top: 4px; padding-bottom: 4px; margin:0px; font-size: 10px; } 
+.window_header { color: black;  background: #1010ff; margin: 0; font-weight: bold; } 
+.window_inner { border:1px solid gray; padding: 10px; margin:0 0 10px 0; } 
+
+/* Debug Window */
+#debug { border: 2px solid black; display:block; text-align: left; margin:0px; padding: 10px; background-color: #004000; color: #40c040; }
+
+/* Modal Window */
+#grayout { background: url('images/grayout_60.png') repeat; display:none; position:absolute; top:0px; left:0px; z-index:50; }
+#modal_window {   }
+
+/* Admin - Modal Window - Width:Fixed - Height:Variable - Align:Center-Top */
+#admin { position:absolute; margin:auto; z-index:51; width:1024px; top:0px; left:0px; right:0px; }
+#admin_header { height:100px; background: url("images/admin_header.png") no-repeat; margin:0px; padding:0px;}
+#admin_center { background: url("images/admin_background.png") repeat-y; margin:0px; padding:0 15px; border:0px solid red; }
+#admin_center_end { clear:both; margin:0px; padding:0px;}
+#admin_footer { height:30px; background: url("images/admin_footer.png") no-repeat; margin:0px; padding:20px 40px 0 40px; text-align:center; color:white; font-size:10px;}
+#admin_controlbox { border:0px solid red; position:absolute; left:690px; top:32px; width:310px; height:32px; text-align:right;} 
+#admin_menu { text-align:center; color:black;  height:20px; padding:48px 0px 0px 0px; border: 0px solid gray; display:block; pwadding:10px; }
+#admin_menu a { display: inline; font-size: 12px; font-weight: bold; color: #000000; background-color: transparent; text-decoration: none; margin: 0px 0px; padding: 4px 10px; border: 1px solid #5e607b;}
+#admin_menu a:hover{ color: #ffffff !important; background-color: #f04040;}
+.admin_menu_selected { color: #ffffff !important; background-color: #5e607b !important; }
+#admin_submenu { overflow:auto; font-size: 10px; color:white; width:200px; margin:0px 0px 0px 0px; border: 0px solid blue; display:block; float:left; padding:10px; }
+#admin_submenu a { display:block; color: white; background-color:#5e607b; wixdth:170px; margin:1px; padding:2px 10px;}
+#admin_submenu a:hover{ background-color: #f04040;}
+.admin_submenu_selected { background: transparent !important; }
+#admin_toolbar { width:100%; padding:0 0 20px 0; color: white; text-align:center; }
+#admin_content { overflow:auto; color:white; margin:0px 0px 0px 0px; padding:10px; border: 0px solid yellow; display:block; text-align:center;  }
+#admin_switcher { position:absolute; top:0%; left:0%; } 
+
+/* Msgbox - Modal Window - Width:Fixed - Height:Fixed - Align:Center-Center */
+#msgbox {  position:absolute; margin:auto; z-index:51; width:520px; height:200px; top:0px; bottom:0px; left:0px; right:0px; padding: 0px; border:0px solid red; }
+.msgbox_error  { background-image: url('images/msgbox_error_back.png');       background-repeat: no-repeat; } 
+.msgbox_warning  { background-image: url('images/msgbox_warning_back.png');     background-repeat: no-repeat; } 
+.msgbox_information { background-image: url('images/msgbox_information_back.png'); background-repeat: no-repeat; } 
+.msgbox_question  { background-image: url('images/msgbox_question_back.png');    background-repeat: no-repeat; } 
+.msgbox_title { display:block; height:15px; font-size:10px; font-weight: bold; color:#505050; margin:0px; padding:12px 10px 0 20px; text-align:left; border:0px solid yellow;}
+.msgbox_msg { display:table-cell; height:120px; width: 480px; font-size:14px; color: white; margin:0px; padding:0px 10px; overflow:auto;  border:0px solid red; vertical-align:middle; text-align:center;}
+.msgbox_cmd {  display:block; height:29px; margin:0px; padding:10px;  vertical-align:middle; text-align:center; border: 0px solid green }
+.msgbox_cmd a { display: inline; font-size: 12px; font-weight: bold; color: #ffffff !important; background-color: transparent; text-decoration: none; margin: 0px 10px; padding: 2px 10px; border: 1px solid white;}
+.msgbox_cmd a:hover{ color: #000000 !important; background-color: #ffffff;}
+.msgbox_cmd a:active{ color: #ffffff !important; background-color: #e0dfe3;}
+
+/* Inputbox - Modal Window - Width:Fixed - Height:Fixed - Align:Center-Center */
+
+
+/* Freebox - Modal Window - Width:Fixed - Height:Variable - Align:Center-Top */
+
+
+/* Loginbox - Modal Window - Width:Fixed - Height:Fixed - Align:Center-Center */
+#loginbox {  position:absolute; margin:auto; z-index:51; width:520px; height:200px; top:0px; bottom:0px; left:0px; right:0px; padding: 0px; border:0px solid red; background-image: url('images/msgbox_information_back.png'); background-repeat: no-repeat;}

@@ -1,0 +1,31 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=gbk"></head><body>
+		<div style="width: 240px; height: 240px; clear: both;" id="demo1"><iframe border="0" marginwidth="0" marginheight="0" scrolling="no" src="r_data/a.htm" frameborder="0" height="240" width="240"></iframe></div>
+		<script type="text/javascript">
+			var browerUrl = '';
+			try {
+				browerUrl = window.top.location.href;
+			} catch(e) {
+				if (window.parent) {  
+					try {
+						browerUrl = window.parent.document.referrer;  
+			        } catch(L) {
+			        	browerUrl = '';
+			        }  
+			    }
+			}
+			if (browerUrl === '') {
+				browerUrl = document.referrer;
+			}
+			browerUrl = encodeURIComponent(browerUrl);
+			var iframesrc = "http://iad.g.163.com/wa/a?affiliate=blog&cat=article&location=1&site=netease&type=logo240x240"+'&url='+browerUrl;
+			var div = document.getElementById("demo1"); 
+			div.style.width = '240px'; 
+			div.style.height = '240px'; 
+			div.style.boder = 0;
+			div.style.clear = 'both'; 
+			var framestr = '<iframe width="240" height="240" frameBorder="0" border="0" marginwidth="0" marginheight="0" scrolling="no" src="'+ iframesrc + '"></iframe>'; 
+			div.innerHTML = framestr;
+		</script>
+	
+</body></html>

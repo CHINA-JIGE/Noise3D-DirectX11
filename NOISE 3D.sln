@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderWindow", "RenderWindow\RenderWindow.vcxproj", "{380D0EC0-85A9-4A96-836F-C64C070D1121}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -55,8 +55,7 @@ Global
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|Win32.Build.0 = Debug|Win32
-		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|x64.ActiveCfg = Debug|x64
-		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|x64.Build.0 = Debug|x64
+		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Debug|x64.ActiveCfg = Debug|Win32
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Release|Any CPU.ActiveCfg = Release|Win32
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{C63B3614-96AF-4FCA-8A88-918CEB6BF8A3}.Release|Mixed Platforms.Build.0 = Release|Win32

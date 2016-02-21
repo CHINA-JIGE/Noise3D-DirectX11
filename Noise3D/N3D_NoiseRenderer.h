@@ -115,13 +115,6 @@ private:
 
 	void				mFunction_Atmosphere_UpdateCbAtmosphere();
 
-	//validate Mat/Tex ID in case of 'out of range' error
-	UINT				mFunction_ValidateTextureID_UsingSceneTexMgr(UINT texID, NOISE_TEXTURE_TYPE texType=NOISE_TEXTURE_TYPE_COMMON);
-
-	UINT				mFunction_ValidateMaterialID_UsingMatMgr(UINT matID);
-
-
-
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;
 	std::vector	<NoiseGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering

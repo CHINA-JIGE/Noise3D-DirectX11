@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!-- base href="http://spacesimulator.net/" -->
+<title>Spacesimulator.net - Space Simulator Project - OpenGL Tutorials - Game Development</title>
+<meta charset="UTF-8">
+<meta name="description" content="Spacesimulator.net is a portal for Space Simuluation fans. I am presenting here my Space Flight Simulator Project. You will also find Tutorials about 3d Engine Development and Game Programming."><meta name="keywords" content="Space Simulator, 3D Engine, OpenGL, Tutorials, Lessons, Game Programming, Game Development, Libraries, C/C++"><link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/default_003.css">
+<link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/default.css">
+<link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/default_002.css">
+<link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/base.css">
+<link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/main.css">
+<link rel="stylesheet" type="text/css" media="screen" href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/C1024_custom.css">
+
+<script src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/analytics.js" async=""></script><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3878029-3', 'auto');
+  ga('set', 'anonymizeIP', true);
+  ga('send', 'pageview');
+
+</script>
+		
+	
+		
+<link href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/content.css" type="text/css" rel="stylesheet"><link href="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/search.css" type="text/css" rel="stylesheet"></head>
+<body>
+
+  	<script src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/cookiechoices.js"></script>
+	<script>
+  		document.addEventListener('DOMContentLoaded', function(event) {
+    	cookieChoices.showCookieConsentBar('Our website uses cookies. By continuing we assume your permission to deploy cookies',
+    	  'Close Message', 'Learn More', 'privacy.html');
+  		});
+	</script> 
+
+<div id="banner">
+</div>
+<div id="wrapper_0">
+<div id="header">
+<div id="Mdmod_html_Ctext_logo_background_plus" class="dmod_html_text_logo_background_plus"><img style="position:relative; left:22px; top:9px;" src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/logo.png">
+</div>
+</div>
+<div id="login">
+</div>
+			<div id="menu">
+				<div id="Mdmod_menu_Ctvw_vertical" class="dmod_menu_tvw_vertical">
+					<ul id="Mdmod_menu_Ctvw_vertical_node_main_menu2">
+						<li><a href="http://spacesimulator.net/tutorials/index.html">TUTORIALS</a></li>
+						<li><a href="http://novavoyager.com/">NOVAVOYAGER</a></li>
+						<li><a href="http://spacesimulator.net/about.html">ABOUT</a></li>
+					</ul>
+				</div>
+			</div>		
+<div id="wrapper_1">
+<div id="custom_0">
+</div>
+<div id="custom_1">
+</div>
+<div id="content">
+<div id="Mdmod_html_Ctext_home_content" class="dmod_html_text_home_content">
+<div style="clear:both;"></div>
+		
+
+		<!-- start content -->
+<div id="mw-content-text" dir="ltr" class="mw-content-ltr" lang="en"><div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#INTRODUCTION"><span class="tocnumber">1</span> <span class="toctext">INTRODUCTION</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#THE_3DS_FILE_STRUCTURE"><span class="tocnumber">2</span> <span class="toctext">THE 3DS FILE STRUCTURE</span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#A_SHORT_BRIEFING"><span class="tocnumber">3</span> <span class="toctext">A SHORT BRIEFING</span></a></li>
+<li class="toclevel-1 tocsection-4"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#FINALLY..._CODE.21"><span class="tocnumber">4</span> <span class="toctext">FINALLY... CODE!</span></a></li>
+<li class="toclevel-1 tocsection-5"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#CONCLUSIONS"><span class="tocnumber">5</span> <span class="toctext">CONCLUSIONS</span></a></li>
+<li class="toclevel-1 tocsection-6"><a href="http://spacesimulator.net/tutorials/3ds_loader_tutorial.html#LINKS"><span class="tocnumber">6</span> <span class="toctext">LINKS</span></a></li>
+</ul>
+</div>
+
+<br>
+<center>
+<script async="" src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/adsbygoogle.js"></script>
+<!-- banner -->
+<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-0965631207175145" data-ad-slot="7246488387"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</center>
+
+<h2><span class="mw-headline" id="INTRODUCTION">INTRODUCTION</span></h2>
+<p>Original Author: <b>Damiano Vitulli</b></p>
+<p>Translation by: <a href="http://spacesimulator.net/about.html">Click here</a></p>
+<p></p><p>It's now time to say goodbye to our dear cube! In this lesson we will develop a routine to load <b>3ds objects</b>,
+ a very popular file format on the internet and supported by various 3d 
+modelers. A 3d modeler allows you to create any type of object in a more
+ intuitive and human way rather than to define by hand the coordinates 
+of the vertices, which can become an impossible task even for simple 
+objects just slightly more complicated than a cube. 
+</p><p>Actually, I am very reluctant to throw away the cube, such a 
+simple and perfect figure. However, until proven otherwise, spaceships, 
+planets, missiles and anything that has to do with a space simulator 
+seems to be completely different from the cube.
+</p><p>Before starting to write the code it will be necessary to analyze
+ the 3ds file structure. Ok, prepare your favorite programming drink and
+ get ready...
+</p>
+<h2><span class="mw-headline" id="THE_3DS_FILE_STRUCTURE">THE 3DS FILE STRUCTURE</span></h2>
+<p>A 3ds file contains a series of information used to describe every 
+detail of a 3d scene composed of one or more objects. A 3ds file 
+contains a series of blocks called <b>Chunks</b>. What is contained in these blocks? Everything necessary to describe the scene: <b>the name of each object</b>, <b>the vertices coordinates</b>, the <b>mapping coordinates</b>, the <b>list of polygons</b>, the <b>faces colors</b>, <b>the animation keyframes</b> and so on.
+</p><p><u>These chunks don't have a linear structure.</u> This means that some chunks are dependent on others and <u>can only be read if their relative parent chunks have been read first</u>.  It's not necessary to read all the chunks and we will only consider the most important ones here.
+</p><p>I will base my description of the 3ds file format on the information contained in the <b>3dsinfo.txt</b> file written by <b>Jochen Wilhelmy</b> which explains in detail the structure of all the chunks. 
+</p><p>A chunk is composed of 3 fields: 
+</p>
+<ul>
+<li><b>Identifier</b>: a hexadecimal number two bytes in length that 
+identifies the chunk. This information immediately tells us if the chunk
+ is useful for our purpose. If we need the chunk we can then extrapolate
+ the scene information in it and, if necessary, any child chunks it may 
+have. If we don't need the chunk, we jump it using the following 
+information: 
+</li>
+<li><b>Length of the chunk</b>: a 4 byte number that is the sum of the chunk length and all the lengths of every contained sub-chunk.
+</li>
+<li><b>Chunk data</b>: this field has a variable length and conatians all the data for the scene.
+</li>
+</ul>
+<p>This table shows the offset (in bytes) and the length (also in bytes) of each field in a typical chunk:
+</p>
+<table style="text-align:center">
+<tbody><tr>
+<th>Offset</th><th>Length</th><th>Description</th>
+</tr>
+<tr>
+<td>0</td><td>2</td><td>Chunk identifier</td>
+</tr>
+<tr>
+<td>2</td><td>4</td><td>Chunk length: chunk data + sub-chunks(6+n+m)
+</td></tr>
+<tr>
+<td>6</td><td>n</td><td>Data</td>
+</tr>
+<tr>
+<td>6+n</td><td>m</td><td>Sub-chunks</td>
+</tr>
+</tbody></table>
+<p>We can see from the last line in the table exactly how some chunks 
+are dependent on others: each child chunk is in fact contained inside 
+the field "<b>Sub-chunks</b>" of the parent chunk.  
+</p><p>The following are the most important chunks in a 3ds file. Please note the hierarchy among the various elements:
+</p>
+<pre>MAIN CHUNK 0x4D4D
+   3D EDITOR CHUNK 0x3D3D
+      OBJECT BLOCK 0x4000
+         TRIANGULAR MESH 0x4100
+            VERTICES LIST 0x4110
+            FACES DESCRIPTION 0x4120
+               FACES MATERIAL 0x4130
+            MAPPING COORDINATES LIST 0x4140
+               SMOOTHING GROUP LIST 0x4150
+            LOCAL COORDINATES SYSTEM 0x4160
+         LIGHT 0x4600
+            SPOTLIGHT 0x4610
+         CAMERA 0x4700
+      MATERIAL BLOCK 0xAFFF
+         MATERIAL NAME 0xA000
+         AMBIENT COLOR 0xA010
+         DIFFUSE COLOR 0xA020
+         SPECULAR COLOR 0xA030
+         TEXTURE MAP 1 0xA200
+         BUMP MAP 0xA230
+         REFLECTION MAP 0xA220
+         [SUB CHUNKS FOR EACH MAP]
+            MAPPING FILENAME 0xA300
+            MAPPING PARAMETERS 0xA351
+      KEYFRAMER CHUNK 0xB000
+         MESH INFORMATION BLOCK 0xB002
+         SPOT LIGHT INFORMATION BLOCK 0xB007
+         FRAMES (START AND END) 0xB008
+            OBJECT NAME 0xB010
+            OBJECT PIVOT POINT 0xB013
+            POSITION TRACK 0xB020
+            ROTATION TRACK 0xB021
+            SCALE TRACK 0xB022
+            HIERARCHY POSITION 0xB030
+</pre>
+<p>As mentioned earlier, <u>if we want to read a particular chunk we must always read its parent chunk first</u>. Imagine the 3ds file is a <b>tree</b> and the chunk that we need is a <b>leaf</b>
+ (and we are a little ant on the ground). In order to reach the leaf, we
+ need to start from the trunk and cross any branches that lead to that 
+leaf. For example, if we want to reach the chunk <b>VERTICES LIST</b>, we have to read the <b>MAIN CHUNK</b> first, then the <b>3D EDITOR CHUNK</b>, the <b>OBJECT BLOCK</b> and finally the <b>TRIANGULAR MESH</b> chunk. The other chunks can safely be skipped. 
+</p><p>Now let's prune our tree and leave only the branches we are going to use in this tutorial&nbsp;: <b>vertices</b>, <b>faces</b>, <b>mapping coordinates</b> and their relative parents:
+</p>
+<pre>MAIN CHUNK 0x4D4D
+   3D EDITOR CHUNK 0x3D3D
+      OBJECT BLOCK 0x4000
+         TRIANGULAR MESH 0x4100
+            VERTICES LIST 0x4110
+            FACES DESCRIPTION 0x4120
+            MAPPING COORDINATES LIST 0x4140
+</pre>
+<p>Here are the chunks described in detail:
+</p>
+<table>
+<tbody><tr><th colspan="2" style="text-align:left">MAIN CHUNK</th></tr>
+<tr><td>Identifier</td><td>0x4d4d</td></tr>
+<tr><td>Length</td><td>0 + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>None</td></tr>
+<tr><td>Sub chunks</td><td>3D EDITOR CHUNK</td></tr>
+<tr><td>Data</td><td>None</td></tr>
+<tr><th colspan="2" style="text-align:left">3D EDITOR CHUNK</th></tr>
+<tr><td>Identifier</td><td>0x3D3D</td></tr>
+<tr><td>Length</td><td>0 + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>MAIN CHUNK</td></tr>
+<tr><td>Sub chunks</td><td>OBJECT BLOCK, MATERIAL BLOCK, KEYFRAMER CHUNK</td></tr>
+<tr><td>Data</td><td>None</td></tr>
+<tr><th colspan="2" style="text-align:left">OBJECT BLOCK</th></tr>
+<tr><td>Identifier</td><td>0x4000</td></tr>
+<tr><td>Length</td><td>Object name length + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>3D EDITOR CHUNK</td></tr>
+<tr><td>Sub chunks</td><td>TRIANGULAR MESH, LIGHT, CAMERA</td></tr>
+<tr><td>Data</td><td>Object name</td></tr>
+<tr><th colspan="2" style="text-align:left">TRIANGULAR MESH</th></tr>
+<tr><td>Identifier</td><td>0x4100</td></tr>
+<tr><td>Length</td><td>0 + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>OBJECT BLOCK</td></tr>
+<tr><td>Sub chunks</td><td>VERTICES LIST, FACES DESCRIPTION, MAPPING COORDINATES LIST</td></tr>
+<tr><td>Data</td><td>None</td></tr>
+<tr><th colspan="2" style="text-align:left">VERTICES LIST</th></tr>
+<tr><td>Identifier</td><td>0x4110</td></tr>
+<tr><td>Length</td><td>varying + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>TRIANGULAR MESH</td></tr>
+<tr><td>Sub chunks</td><td>None</td></tr>
+<tr><td>Data</td><td>Vertices number (unsigned short)<br>Vertices list: x1,y1,z1,x2,y2,z2 etc. (for each vertex: 3*float)</td></tr>
+<tr><th colspan="2" style="text-align:left">FACES DESCRIPTION</th></tr>
+<tr><td>Identifier</td><td>0x4120</td></tr>
+<tr><td>Length</td><td>varying + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>TRIANGULAR MESH</td></tr>
+<tr><td>Sub chunks</td><td>FACES MATERIAL</td></tr>
+<tr><td>Data</td><td>Polygons number (unsigned short)<br>Polygons list: a1,b1,c1,a2,b2,c2 etc. (for each point: 3*unsigned short)<br>Face flag: face options, sides visibility etc. (unsigned short)</td></tr>
+<tr><th colspan="2" style="text-align:left">MAPPING COORDINATES LIST</th></tr>
+<tr><td>Identifier</td><td>0x4140</td></tr>
+<tr><td>Length</td><td>varying + sub-chunks length</td></tr>
+<tr><td>Chunk father</td><td>TRIANGULAR MESH</td></tr>
+<tr><td>Sub chunks</td><td>SMOOTHING GROUP LIST</td></tr>
+<tr><td>Data</td><td>Vertices number (unsigned short)<br>Mapping coordinates list: u1,v1,u2,v2 etc. (for each vertex: 2*float)</td></tr>
+</tbody></table>
+<p>Now that the 3ds file format is clear enough, we are going to take a 
+look at the code for this tutorial. What? You're completely lost? =D 
+Let's continue anyway. The chunks structure will become clearer to you 
+as you go through the lesson. After all, we are programmers and we 
+understand C better than own chatter&nbsp;;)
+</p>
+<h2><span class="mw-headline" id="A_SHORT_BRIEFING">A SHORT BRIEFING</span></h2>
+<p>The steps we need to take in order to load a 3ds object and save it in the format defined by our engine are: 
+</p>
+<ol>
+<li><b>implement a "while" loop</b> (as we did for the texture loader) that continues its execution until the end of file is reached. 
+</li>
+<li><b>read the chunk_id and the chunk_length</b> each iteration of the loop. 
+</li>
+<li><b>analyze the content of the chunk_id</b> using a switch . 
+</li>
+<li>if the chunk is a section of the tree we don't need to read, <b>we jump the whole length of that chunk</b>
+ by moving the file pointer to a new position which is calculated by 
+using the length of the current chunk added to the current position. 
+This allows us to jump any chunk we don't need as well as all contained 
+sub-chunks. In other words: let's jump to another branch! Are you 
+starting to feel like a monkey yet? =) 
+</li>
+<li>if the chunk allows us to reach another chunk that we need, or it contains data that we need, then <b>we read its data</b> if needed, and then <b>move to the next chunk</b>. 
+</li>
+</ol>
+<h2><span class="mw-headline" id="FINALLY..._CODE.21">FINALLY... CODE!</span></h2>
+<p>The first thing to do is to create the files that will contain the new routines.
+</p><p>We have used the file <b>tutorial(n).cpp</b> to contain the main 
+data types of the engine in the previous tutotials. However, since our 
+data structures are becoming bigger, we will insert the declarations of 
+the data types in a header file that we will call <b>tutorial4.h</b>
+</p><p>First, we increase the number of vertices and polygons that our engine is able to manage.
+</p>
+<pre>#define MAX_VERTICES 8000
+#define MAX_POLYGONS 8000
+</pre>
+<p>Next, we add the field <b>char name[20];</b> to the structure <b>obj_type</b>. This field will contain the name of the loaded object. 
+</p><p>Lastly, we modify the name of our object variable from <b>obj_type cube;</b> to <b>obj_type object;</b> just to "highlight" the generic nature of our object. 
+</p><p>The next file to create is <b>3dsloader.cpp</b>. In this file, we insert the following routine:
+</p>
+<pre>char Load3DS (obj_type_ptr p_object, char *p_filename)
+{
+   int i;
+   FILE *l_file;
+   unsigned short l_chunk_id;
+   unsigned int l_chunk_length;
+   unsigned char l_char;
+   unsigned short l_qty;
+   unsigned short l_face_flags;
+</pre>
+<p>The Load3DS routine accepts two parameters: a pointer to the object 
+data structure and the name of the file to open. It returns "0" if the 
+file has not been found or "1" if the file has been found and read. 
+There aren't too many variables to initialize: we have the usual counter
+ <b>i</b>, a pointer to the file <b>*l_file</b> and a support variable to extrapolate byte data <b>l_char</b>.
+The other variables are: 
+</p>
+<ul>
+<li><b>unsigned short l_chunk_id;</b> a 2 bytes hexadecimal number that tells us the chunk's id.
+</li>
+<li><b>unsigned int l_chunk_length;</b> a 4 bytes number used to specify the length of the chunk.
+</li>
+<li><b>unsigned short l_qty;</b> a support variable that will tell us the quantity of information to read. 
+</li>
+<li><b>unsigned short l_face_flags;</b> This variable holds various 
+information regarding the current polygon (visible, not visible etc.) 
+which the 3d editor uses to render the scene. We will only use this 
+value to move the file pointer to the next chunk position.
+</li>
+</ul>
+<p>So let's open the file at last!
+</p>
+<pre>   if ((l_file=fopen (p_filename, "rb"))== NULL) return 0; //Open the file
+   while (ftell (l_file) &lt; filelength (fileno (l_file))) //Loop to scan the whole file 
+   {
+</pre>
+<p>The while loop is performed for the entire length of the file. The <b>ftell</b> function allows us to acquire the current file pointer position while <b>filelength</b> returns the length of the file.
+</p>
+<pre>      fread (&amp;l_chunk_id, 2, 1, l_file); //Read the chunk header
+      fread (&amp;l_chunk_length, 4, 1, l_file); //Read the length of the chunk
+</pre>
+<p>Here, we have extrapolated the identifier and the length of the chunk and have saved them in <b>l_chunk_id</b> and <b>l_chunk_length</b> respectively. 
+First, we analyze the content of <b>l_chunk_id</b>:
+</p>
+<pre>      switch (l_chunk_id)
+      {
+         case 0x4d4d: 
+         break;
+</pre>
+<p>We have found the <b>MAIN CHUNK</b>! Cool! What are we going to do 
+with it? Simple... nothing! In fact, the MAIN CHUNK has no data. 
+However, we are interested in its sub-chunks. We have included this 
+particular "<b>case</b>" statement so that the whole MAIN chunk is not 
+jumped! Jumping the length of the MAIN CHUNK would have meant moving the
+ file pointer to the end of the file due to the "default case" at the 
+end of this switch statement. I will discuss this "default case" more, 
+later in this tutorial
+</p><p>We take the same approach for the <b>3D EDITOR CHUNK</b>:
+</p>
+<pre>         case 0x3d3d:
+         break;
+</pre>
+<p>This is the next node that we need to navigate through in order to 
+reach the information we need. Once again, this node has no data. So 
+let's pretend to read it =) This will bring us to the child called <b>Object Block</b>:
+</p>
+<pre>         case 0x4000: 
+            i=0;
+            do
+            {
+               fread (&amp;l_char, 1, 1, l_file);
+               p_object-&gt;name[i]=l_char;
+               i++;
+            }while(l_char&nbsp;!= '\0' &amp;&amp; i&lt;20);
+         break;
+</pre>
+<p>The chunk <b>OBJECT BLOCK</b> finally has some interesting information: <b>the name of the object</b>. We store this data in the "<b>name</b>" field of the <b>object</b>
+ structure. The while loop exits if the '\0' character is encountered or
+ the number of characters exceeds 20. Be careful! We have just read all 
+the data of this chunk and this has moved the file pointer to the next 
+chunk:
+</p>
+<pre>         case 0x4100:
+         break;
+</pre>
+<p>This last chunk is simply another <b>empty node</b> that is the parent node of the next chunks that we must read.
+</p><p>Finally, here are the vertices! The chunk <b>VERTICES LIST</b> contains all the vertices of the model:
+</p>
+<pre>         case 0x4110: 
+            fread (&amp;l_qty, sizeof (unsigned short), 1, l_file);
+            p_object-&gt;vertices_qty = l_qty;
+            printf("Number of vertices:&nbsp;%d\n",l_qty);
+            for (i=0; i&lt;l_qty; i++)
+            {
+               fread (&amp;p_object-&gt;vertex[i].x, sizeof(float), 1, l_file);
+               fread (&amp;p_object-&gt;vertex[i].y, sizeof(float), 1, l_file);
+               fread (&amp;p_object-&gt;vertex[i].z, sizeof(float), 1, l_file);
+            }
+         break;
+</pre>
+<p>First, we read the value "<b>quantity</b>" and use it to create a for
+ loop that reads all the vertices. We then save each vertex in the 
+corresponding field of the object structure.
+</p><p>The chunk <b>FACES DESCRIPTION</b> contains a list of the object's polygons:
+</p>
+<pre>         case 0x4120:
+            fread (&amp;l_qty, sizeof (unsigned short), 1, l_file);
+            p_object-&gt;polygons_qty = l_qty;
+            printf("Number of polygons:&nbsp;%d\n",l_qty); 
+            for (i=0; i&lt;l_qty; i++)
+            {
+               fread (&amp;p_object-&gt;polygon[i].a, sizeof (unsigned short), 1, l_file);
+               fread (&amp;p_object-&gt;polygon[i].b, sizeof (unsigned short), 1, l_file);
+               fread (&amp;p_object-&gt;polygon[i].c, sizeof (unsigned short), 1, l_file);
+               fread (&amp;l_face_flags, sizeof (unsigned short), 1, l_file);
+            }
+         break;
+</pre>
+<p>As explained in tutorial 1, the structure dealing with polygons 
+doesn't contain coordinates, only numbers that correspond to elements 
+containing a list of vertices. In order to read this chunk we do exactly
+ the same procedure we have done for the vertices chunk: first, we read 
+the number of faces then we create a for loop to read all the faces.
+Each face also has another 2 byte field, the <b>face flags</b>, that 
+contains some information useful only for 3d editors (indicating visible
+ faces and so on). We will only read it to move the file pointer to the 
+next chunk.
+</p><p>Finally, we read the <b>MAPPING COORDINATES LIST</b>:
+</p>
+<pre>         case 0x4140:
+            fread (&amp;l_qty, sizeof (unsigned short), 1, l_file);
+            for (i=0; i&lt;l_qty; i++)
+            {
+               fread (&amp;p_object-&gt;mapcoord[i].u, sizeof (float), 1, l_file);
+               fread (&amp;p_object-&gt;mapcoord[i].v, sizeof (float), 1, l_file);
+            }
+         break;
+</pre>
+<p>Once again, we read the quantity and use this value to set up a for loop. Each point has two coordinates, <b>u</b> and <b>v</b> do you remember? No?? What are you doing here then?&nbsp;;P
+</p><p>Finally, the <b>default case</b>:
+</p>
+<pre>         default:
+            fseek(l_file, l_chunk_length-6, SEEK_CUR);
+      } 
+   }
+</pre>
+<p>This means that we are at the end of the routine. This case is simple: when we find chunks that we don't want to read, the <b>fseek</b> function moves the file pointer to the beginning of the next chunk using the <b>chunk_length</b> information
+</p><p>We have finished! Very little remains to be done. We close the file and return <b>1</b>.
+</p>
+<pre>   fclose (l_file); // Closes the file stream
+   return (1); // Returns ok
+}
+</pre>
+<h2><span class="mw-headline" id="CONCLUSIONS">CONCLUSIONS</span></h2>
+<p>The 3ds reader that we have developed here is a starting point for 
+more complex readers. Keep in mind however that our routine can only 
+read a 3ds file if there is only one object present and it is positioned
+ at the center.  One of the next tutorials (the matrices tutorial), will
+ add the functionality needed to load other objects. This will be the 
+fun part. We have to include other spaceships right? Otherwise we won't 
+have anything to destroy =) 
+</p><p>This lesson wasn't so hard was it? After all, we have already 
+done the big work in previous lessons. We can use all the code written 
+so far for the next tutorial, in which we will learn how to add lighting
+ using OpenGL functions. Bye bye for now happy coders!
+</p>
+
+<h2><span class="mw-headline" id="LINKS">SOURCE CODE</span></h2>
+<p>The <b>Source Code</b> of this lesson can be downloaded from the <a href="http://spacesimulator.net/tutorials/index.html" title="3d Engine Programming Tutorials">Tutorials Main Page</a></p>
+				
+<br>
+<center>
+<script async="" src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/adsbygoogle.js"></script>
+<!-- banner -->
+<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-0965631207175145" data-ad-slot="7246488387"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</center>
+
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="Mdmod_html_Ctext_footer" class="dmod_html_text_footer">
+©2000-2015 Spacesimulator.net - <a href="http://spacesimulator.net/copyright.html">Copyright, Licence, Disclaimer and Privacy Policy information</a>
+</div>
+</div>
+</div>
+
+
+<div style="position: fixed; width: 100%; background-color: rgb(68, 68, 68); margin: 0px; left: 0px; top: 0px; padding: 4px; z-index: 1000; text-align: center;" id="cookieChoiceInfo"><span>Our website uses cookies. By continuing we assume your permission to deploy cookies</span><a style="margin-left: 8px;" target="_blank" href="http://spacesimulator.net/privacy.html">Learn More</a><a style="margin-left: 24px;" href="#" id="cookieChoiceDismiss">Close Message</a></div></body><iframe src="Spacesimulator.net%20-%20Space%20Simulator%20Project%20-%20OpenGL%20Tutorials%20-%20Game%20Development_files/top.htm" style="position: fixed ! important; z-index: 2147483647 ! important; overflow: hidden ! important; top: 0px ! important; left: 0px ! important; right: 0px ! important; width: 138px ! important; height: 13px ! important; max-height: none ! important; min-height: 0px ! important; margin: 0px auto ! important; padding: 0px ! important; border: 0px none ! important; background-color: transparent ! important; display: block ! important;" id="abs-top-frame" allowtransparency="true" frameborder="0"></iframe></html>

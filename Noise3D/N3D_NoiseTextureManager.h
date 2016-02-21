@@ -26,56 +26,95 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseTextureManager();
 
+	//-------Set Pixel of texture system memory
 	BOOL	SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4& color);
 
+	//-------
 	NVECTOR4	GetPixel_SysMem(UINT texID, UINT x, UINT y);
 
+	//--------upload the pixel matrix (in memory) to GPU
 	BOOL	UpdateTextureDataToGraphicMemory(UINT texID);
 
-	UINT		CreatePureColorTexture(const char* textureName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
+	BOOL	UpdateTextureDataToGraphicMemory(std::string texName);
 
-	UINT		CreateTextureFromFile(const LPCWSTR filePath, const char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory=FALSE);
+	//--------
+	UINT		CreatePureColorTexture(std::string texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
 
-	UINT		CreateCubeMapFromFiles(const LPCWSTR fileName[6], const  char* cubeTextureName,NOISE_CUBEMAP_SIZE faceSize);
+	//--------
+	UINT		CreateTextureFromFile(const LPCWSTR filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory=FALSE);
 
-	UINT		CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+	//--------
+	UINT		CreateCubeMapFromFiles(const LPCWSTR fileName[6], std::string cubeTextureName,NOISE_CUBEMAP_SIZE faceSize);
+
+	//--------
+	UINT		CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 	
+	//--------
 	BOOL	ConvertTextureToGreyMap(UINT texID);
 
+	BOOL	ConvertTextureToGreyMap(std::string texName);
+
+	//--------
 	BOOL	ConvertTextureToGreyMapEx(UINT texID,float factorR,float factorG,float factorB);
+	
+	BOOL	ConvertTextureToGreyMapEx(std::string texName, float factorR, float factorG, float factorB);
 
+	//--------
 	BOOL	ConvertHeightMapToNormalMap(UINT texID,float heightFieldScaleFactor=10.0f);
+	
+	BOOL	ConvertHeightMapToNormalMap(std::string texName, float heightFieldScaleFactor = 10.0f);
 
-	UINT		GetTextureID(const char* textureName);
-
-	UINT		GetTextureID(std::string textureName);
-
+	//--------
 	BOOL	SaveTextureToFile(UINT texID,const LPCWSTR filePath,NOISE_TEXTURE_SAVE_FORMAT picFormat);
+	
+	BOOL	SaveTextureToFile(std::string texName, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
 
+	//--------
+	UINT		GetTextureID(std::string texName);
+
+	//--------
 	void		GetTextureName(UINT index, std::string& outTextureName);
 
+	//--------
 	UINT		GetTextureWidth(UINT texID);
+	
+	UINT		GetTextureWidth(std::string texName);
 
+	//--------
 	UINT		GetTextureHeight(UINT texID);
+	
+	UINT		GetTextureHeight(std::string texName);
 
+	//--------
 	UINT		GetTextureCount();
 
+	//--------
 	BOOL	DeleteTexture(UINT texID);
+	
+	BOOL	DeleteTexture(std::string texName);
 
+	//--------return original index if valid, return INVALID_ID otherwise
+	UINT		ValidateIndex(UINT texID);
+
+	UINT		ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType);
 
 private:
 
 	void		Destroy();
 
-	UINT		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType);
+	void		mFunction_RefreshHashTableAfterDeletion(UINT deletedTexID_threshold, UINT indexDecrement);
 
-	UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, const  char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+	UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
-	UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, const  char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+	UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
 	UINT		mFunction_GetPixelIndexFromXY(UINT x, UINT y,UINT width);
 
 private:
-	NoiseScene*									m_pFatherScene;
+	NoiseScene*								m_pFatherScene;
 	std::vector<N_TextureObject>*	m_pTextureObjectList;
+	//using index to access resource is inevitable, but only
+	//NAME STRING can uniquely identify a resource, optimization must be 
+	//implemented.
+	std::unordered_map<std::string, UINT>*	m_pTextureObjectHashTable;
 };

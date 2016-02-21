@@ -3,8 +3,6 @@
 
                            类：NOISE Renderer
 
-						简述：负责渲染
-
 ************************************************************************/
 
 #include "Noise3D.h"
@@ -130,7 +128,7 @@ void	NoiseRenderer::RenderMeshes()
 			for (k = 0;k < tmp_pTechDesc.Passes; k++)
 			{
 				m_pFX_Tech_Default->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
-				g_pImmediateContext->DrawIndexed(tmp_pMesh->m_IndexCount, 0, 0);
+				g_pImmediateContext->DrawIndexed(tmp_pMesh->mIndexCount, 0, 0);
 			}
 		}
 }
@@ -818,9 +816,6 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 {
-
-
-
 	//————更新Dynamic Light————
 	NoiseLightManager* tmpLightMgr = m_pFatherScene->m_pChildLightMgr;
 	if(tmpLightMgr != NULL)
@@ -856,23 +851,42 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 {
 		//we dont accept invalid material ,but accept invalid texture
-		UINT	 currSubsetMatID = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matID;
-		currSubsetMatID = mFunction_ValidateMaterialID_UsingMatMgr(currSubsetMatID);
+	NoiseTextureManager*		pSceneTexMgr = m_pFatherScene->m_pChildTextureMgr;
+	NoiseMaterialManager*	pSceneMatMgr = m_pFatherScene->m_pChildMaterialMgr;
 
-		//otherwise if the material is valid
+		//Get Material ID by unique name
+		UINT	 currSubsetMatID = pSceneMatMgr->GetMatID( tmp_pMesh->m_pSubsetInfoList->at(subsetID).matName);
+
+		//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 		//then we should check if its child textureS are valid too 
-		N_Material tmpMat = m_pFatherScene->m_pChildMaterialMgr->m_pMaterialList->at(currSubsetMatID);
+		N_Material tmpMat;
+		if (currSubsetMatID == NOISE_MACRO_INVALID_MATERIAL_ID)
+		{
+			 pSceneMatMgr->GetDefaultMaterial(tmpMat);
+		}
+		else
+		{
+			 pSceneMatMgr->GetMaterial(currSubsetMatID, tmpMat);
+		}
+		
+		
+		//Validate Indices of MATERIALS/TEXTURES
 		ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 		m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
 
+		UINT diffMapIndex = pSceneTexMgr->GetTextureID(tmpMat.diffuseMapName);
+		UINT normalMapIndex = pSceneTexMgr->GetTextureID(tmpMat.normalMapName);
+		UINT specularMapIndex = pSceneTexMgr->GetTextureID(tmpMat.specularMapName);
+		UINT envMapIndex = pSceneTexMgr->GetTextureID(tmpMat.environmentMapName);
+
 		//first validate if ID is valid (within range / valid ID) valid== return original texID
-		m_CbPerSubset.IsDiffuseMapValid = (mFunction_ValidateTextureID_UsingSceneTexMgr(tmpMat.diffuseMapID,NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsDiffuseMapValid = (pSceneTexMgr->ValidateIndex(diffMapIndex,NOISE_TEXTURE_TYPE_COMMON) 
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsNormalMapValid = (mFunction_ValidateTextureID_UsingSceneTexMgr(tmpMat.normalMapID, NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsNormalMapValid = (pSceneTexMgr->ValidateIndex(normalMapIndex, NOISE_TEXTURE_TYPE_COMMON)
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsSpecularMapValid	= (mFunction_ValidateTextureID_UsingSceneTexMgr(tmpMat.specularMapID, NOISE_TEXTURE_TYPE_COMMON) 
+		m_CbPerSubset.IsSpecularMapValid	= (pSceneTexMgr->ValidateIndex(specularMapIndex, NOISE_TEXTURE_TYPE_COMMON)
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-		m_CbPerSubset.IsEnvironmentMapValid = (mFunction_ValidateTextureID_UsingSceneTexMgr(tmpMat.cubeMap_environmentMapID, NOISE_TEXTURE_TYPE_CUBEMAP)
+		m_CbPerSubset.IsEnvironmentMapValid = (pSceneTexMgr->ValidateIndex(envMapIndex, NOISE_TEXTURE_TYPE_CUBEMAP)
 			== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 
 
@@ -880,28 +894,28 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 		//if tetxure is  valid ,then set diffuse map
 		if (m_CbPerSubset.IsDiffuseMapValid)
 		{
-			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.diffuseMapID).m_pSRV;
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(diffMapIndex).m_pSRV;
 			m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
 		}
 
 		//if tetxure is  valid ,then set normal map
 		if (m_CbPerSubset.IsNormalMapValid)
 		{
-			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.normalMapID).m_pSRV;
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(normalMapIndex).m_pSRV;
 			m_pFX_Texture_Normal->SetResource(tmp_pSRV);
 		}
 
 		//if tetxure is  valid ,then set specular map
 		if (m_CbPerSubset.IsSpecularMapValid)
 		{
-			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.specularMapID).m_pSRV;
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(specularMapIndex).m_pSRV;
 			m_pFX_Texture_Specular->SetResource(tmp_pSRV);
 		}
 
 		//if tetxure is  valid ,then set environment map (cube map)
 		if (m_CbPerSubset.IsEnvironmentMapValid)
 		{
-			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(tmpMat.cubeMap_environmentMapID).m_pSRV;
+			tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(envMapIndex).m_pSRV;
 			m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
 		}
 		
@@ -963,7 +977,7 @@ void		NoiseRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
 
 	//......
-	TexID = mFunction_ValidateTextureID_UsingSceneTexMgr(TexID,NOISE_TEXTURE_TYPE_COMMON);
+	TexID = m_pFatherScene->m_pChildTextureMgr->ValidateIndex(TexID,NOISE_TEXTURE_TYPE_COMMON);
 
 	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
@@ -1191,8 +1205,9 @@ void		NoiseRenderer::mFunction_TextGraphicObj_Render(std::vector<Noise2DBasicTex
 		{
 			if (pList->at(i)->m_pFatherFontMgr == nullptr)continue;
 
-			//validation
-			tmpRegion.texID = pList->at(i)->m_pFatherFontMgr->m_pTexMgr->mFunction_ValidateTextureID(tmpRegion.texID, NOISE_TEXTURE_TYPE_COMMON);
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr
+			tmpRegion.texID = pList->at(i)->m_pFatherFontMgr->m_pTexMgr->ValidateIndex(tmpRegion.texID, NOISE_TEXTURE_TYPE_COMMON);
 
 			//if current Rectangle disable Texture ,then draw in a solid way
 			if (tmpRegion.texID == NOISE_MACRO_INVALID_TEXTURE_ID)
@@ -1248,7 +1263,7 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyDome_Update()
 	if(tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
 	{
 		//if texture pass ID validation and match current-set skytype
-		m_CbAtmosphere.mIsSkyDomeValid = (mFunction_ValidateTextureID_UsingSceneTexMgr(skyDomeTexID,NOISE_TEXTURE_TYPE_COMMON) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbAtmosphere.mIsSkyDomeValid = (m_pFatherScene->m_pChildTextureMgr->ValidateIndex(skyDomeTexID,NOISE_TEXTURE_TYPE_COMMON) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 	}
 	else
 	{
@@ -1266,7 +1281,7 @@ void		NoiseRenderer::mFunction_Atmosphere_SkyBox_Update()
 	if (tmp_pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
 		//skybox texture must be a cube map
-		m_CbAtmosphere.mIsSkyBoxValid		= (mFunction_ValidateTextureID_UsingSceneTexMgr(skyboxTexID, NOISE_TEXTURE_TYPE_CUBEMAP) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
+		m_CbAtmosphere.mIsSkyBoxValid		= (m_pFatherScene->m_pChildTextureMgr->ValidateIndex(skyboxTexID, NOISE_TEXTURE_TYPE_CUBEMAP) == NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 		m_CbAtmosphere.mSkyBoxWidth		= tmp_pAtmo->mSkyBoxWidth;
 		m_CbAtmosphere.mSkyBoxHeight	= tmp_pAtmo->mSkyBoxHeight;
 		m_CbAtmosphere.mSkyBoxDepth		= tmp_pAtmo->mSkyBoxDepth;
@@ -1305,30 +1320,3 @@ void		NoiseRenderer::mFunction_Atmosphere_UpdateCbAtmosphere()
 
 	m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
 };
-
-
-inline UINT	NoiseRenderer::mFunction_ValidateTextureID_UsingSceneTexMgr(UINT texID, NOISE_TEXTURE_TYPE texType)
-{
-	//tex mgr had been validated
-	NoiseTextureManager*		tmpTexMgr = m_pFatherScene->m_pChildTextureMgr;
-
-	//invoke validation function in Tex Mgr
-	UINT outTexID = tmpTexMgr->mFunction_ValidateTextureID(texID, texType);
-
-	return outTexID;
-}
-
-inline UINT	NoiseRenderer::mFunction_ValidateMaterialID_UsingMatMgr(UINT matID)
-{
-	//mat mgr had been validated
-	NoiseMaterialManager*	tmpMatMgr = m_pFatherScene->m_pChildMaterialMgr;
-
-	//if matID is out of range, a default mateial should be returned
-	if (matID >= tmpMatMgr->m_pMaterialList->size())
-	{
-		return NOISE_MACRO_DEFAULT_MATERIAL_ID;
-	}
-
-	//a no-problem texID
-	return matID;
-}

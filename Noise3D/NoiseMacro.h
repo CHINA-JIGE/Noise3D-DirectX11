@@ -17,18 +17,19 @@
 
 #define	 NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
 
-#define NOISE_MACRO_DEFAULT_MATERIAL_ID 0U
+#define NOISE_MACRO_INVALID_MATERIAL_ID		UINT_MAX
+
+#define NOISE_MACRO_DEFAULT_MATERIAL_NAME "NoIsE_3d_DeFaUlT_MaTeRiAl"//default material name
 
 #define NOISE_MACRO_DEFAULT_COLOR_BYTESIZE 16U //DXGI_FORMAT_R32G32B32A32_FLOAT 128bit 16bytes
 
-#define NOISE_MACRO_FUNCTION_EXTERN_CALL   //A mark that indicates this function is called by external friend class
+#define NOISE_MACRO_FUNCTION_EXTERN_CALL   //A mark that indicates this function is called by external function or friend class
 
 #define NOISE_MACRO_FUNCTION_WINAPI //A mark that indicates this function is windows api,might help when migrate to other platform 
 
 #define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT 8U	//used in font mgr
 
 #define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT 16U
-
 
 //释放一个COM对象
 #define ReleaseCOM(ComPointer)\
@@ -54,6 +55,7 @@
 				DEBUG_MSG1(MsgText);\
 				return NOISE_MACRO_INVALID_TEXTURE_ID;\
 				};\
+
 
 
 //调试：弹出消息

@@ -1,0 +1,91 @@
+/* HTML Tags */
+/* 
+Main Text color:
+Main Background color:
+
+*/
+
+body { color: #e5e5ff; margin:0; padding:0; font-family: verdana, tahoma, sans-serif; font-weight: normal; font-size:12px; background: url("images/main_background.jpg") #3a69bd repeat-x; }
+
+p { margin: .4em 0 .5em 0; line-height: 1.5em; text-align:justify;}
+p img { margin: 0; }
+
+hr { height: 1px; color: #85859f; background-color: #85859f; border: 0; margin: .2em 0 .2em 0; }
+
+a { color: #f0f050; }
+a:link { font-weight: bold; background-color: transparent; text-decoration: none; }
+a:visited { font-weight: bold; background-color: transparent; text-decoration: none; }
+a:hover { font-weight: bold; background-color: transparent; text-decoration: none; }	
+a {	text-decoration: none; color: #f0f050; background: none; }
+a:visited { color: #f0f050; }
+a:active { color: #f0f050; }
+a:hover { color: #ffffc0; }
+
+form { background-color: transparent; }
+fieldset { border: 1px solid #2f6fab; margin: 1em 0 1em 0; padding: 0 1em 1em; line-height: 1.5em; }
+legend { padding: .5em; font-size: 95%; }
+form { border: none; margin: 0; }
+
+textarea { width: 100%; padding: .1em; }
+
+h1, h2, h3, h4, h5, h6 { color: #e5e5ff; background: none; font-weight: normal; margin: 0; padding-top: 1em; padding-bottom: .17em; border-bottom: 1px solid #85859f; }
+h1 { font-size: 188%; font-weight: bold;}
+h2 { font-size: 150%; font-weight: bold;}
+h3, h4, h5, h6 { border-bottom: none; font-weight: bold; }
+h3 { font-size: 132%; }
+h4 { font-size: 116%; }
+h5 { font-size: 100%; }
+h5 .editsection { font-weight: normal; }
+h6 .editsection { font-size: 125%; font-weight: normal; }
+
+ul { line-height: 1.5em; list-style-type: square; margin: .3em 0 0 1.5em; padding: 0; list-style-image: url(bullet.gif); }
+ol { line-height: 1.5em; margin: .3em 0 0 3.2em; padding: 0; list-style-image: none; }
+li { margin-bottom: .1em; }
+dt { font-weight: bold; margin-bottom: .1em; }
+dl { margin-top: .2em; margin-bottom: .5em; }
+dd { line-height: 1.5em; margin-left: 2em; margin-bottom: .1em; }
+
+img { border: none; vertical-align: middle; margin: 0px; padding: 0px; }
+fieldset { border: 1px solid; padding:10px; }
+legend { display: block; border: 0px solid; text-align:left; font-weight:bold; font-size:11px; }
+legend img { display:block; float:left; margin-right:10px; } 
+label { color: #e5e5ff; }
+
+table { width:100%; font-size: 100%; color: #e5e5ff; background-color: #102050; padding:0px; border-collapse:collapse; border:1px solid #102050; margin:10px 0; }
+td { padding:5px; background-color: #2a59ad; border:1px solid #102050; }
+th { padding:5px; background-color: #102050; border:1px solid #102050; }
+
+select { vertical-align: top; }
+
+/* Header */
+#header { height:99px; border:0px solid white; text-align: left; margin:0px; padding: 0px; }
+
+/* Banner */
+#banner { height:59px; border:0px solid white; text-align: right; margin:0px; padding: 20px; position: absolute; top:0px; right:0px; background: transparent; }
+
+
+/* Footer */
+#footer { border:0px solid red; clear:both; height:30px; width:100%; text-align: center; margin:0px; padding:10px 0px 10px 0px;  background: black;}
+
+/* Horizontal Menu */
+#menu { border:0px solid red; height: 40px; width: 100%; background: url("images/menu_background.png") transparent repeat-x; }
+#menu ul { border:0px solid white; text-align: center; list-style-type: none;  margin: 0px; padding: 10px 0px 12px 0px; }
+#menu li { display: inline; margin: 0px; padding: 0px; }
+#menu a { color: #e5e5ff; border:0px solid yellow; margin: 0px; padding: 10px 10px 14px 10px; }
+#menu a:hover { color: #6a99ed; }
+
+/* Columns container */
+#wrapper_0 { background: url("images/earth_background.png") transparent no-repeat; margin:0px; padding:0px; }
+#wrapper_1 { border:0px solid red; background: url("images/content_background.png") transparent repeat-x; }
+#wrapper_2 { border:0px solid blue; }
+#wrapper_3 { border:0px solid gray; width: 100%; position: relative; float: left; }
+
+/* Content */
+
+/* Main column (usually left column) */
+#mmmain_column { width: 18%; position:absolute; left:0px; top:140px; padding: 10px 1%; border: 0px solid red; margin:0px; overflow:hidden; }
+#mmminor_column { width: 18%; position:absolute; right:0px; top:140px; padding: 10px 1%; border: 0px solid pink; margin:0px; overflow:hidden; }
+
+#content { border:0px solid yellow; padding: 10px; margin:0px; }
+#main_column { position: relative; float: left; }
+#minor_column { position: relative; float: left; }

@@ -320,7 +320,7 @@ void NoiseGUIOscilloscope::mFunction_ResampleSignalToFitTheScreen(UINT sequenceI
 			//to place them in correct place
 
 			//sequence starts at 0.0ms ,adjacent signals have the same time interval 
-			float signalScrRatioX = (i*float(mSignalTimeInterval - mScreenTimeRange_Min)) / screenTimeLength;
+			float signalScrRatioX = (i*float(mSignalTimeInterval - mScreenTimeRange_Min)) / float(screenTimeLength);
 			float signalScrRatioY = currSequence.at(i)/ mMaxAmplitude;
 
 			//this ratio is defined in Scr X Lerp Ratio Space

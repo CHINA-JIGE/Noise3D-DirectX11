@@ -15,28 +15,26 @@ static UINT VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是
 
 NoiseMesh::NoiseMesh()
 {
-	m_VertexCount	= 0;
-	m_IndexCount	= 0;
-	m_MaterialID_for_SetMaterial = NOISE_MACRO_DEFAULT_MATERIAL_ID;
-	m_RotationX_Pitch = 0.0f;
-	m_RotationY_Yaw = 0.0f;
-	m_RotationZ_Roll = 0.0f;
-	m_ScaleX = 1.0f;
-	m_ScaleY = 1.0f;
-	m_ScaleZ = 1.0f;
+	mVertexCount	= 0;
+	mIndexCount	= 0;
+	mRotationX_Pitch = 0.0f;
+	mRotationY_Yaw = 0.0f;
+	mRotationZ_Roll = 0.0f;
+	mScaleX = 1.0f;
+	mScaleY = 1.0f;
+	mScaleZ = 1.0f;
 
-	m_pVB_Mem		= new std::vector<N_DefaultVertex>;
-	m_pIB_Mem		= new std::vector<UINT>;
-	m_pPrimitiveInfoList	= new std::vector<N_PrimitiveInfo>;//store tex/mat ID of a triangle
-	m_pSubsetInfoList		= new std::vector<N_SubsetInfo>;//store [a,b] of a subset
-
-	m_pMatrixWorld		= new NMATRIX;
-	m_pMatrixWorldInvTranspose	= new NMATRIX;
-	m_pPosition					= new NVECTOR3(0 ,0, 0);
-	m_pBoundingBox_Min	= new NVECTOR3(0, 0, 0);
-	m_pBoundingBox_Max	= new NVECTOR3(0, 0, 0);
+	m_pMatrixWorld = new NMATRIX;
+	m_pMatrixWorldInvTranspose = new NMATRIX;
+	m_pPosition = new NVECTOR3(0, 0, 0);
+	m_pBoundingBox_Min = new NVECTOR3(0, 0, 0);
+	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
 	D3DXMatrixIdentity(m_pMatrixWorld);
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
+
+	m_pVB_Mem		= new std::vector<N_DefaultVertex>;
+	m_pIB_Mem			= new std::vector<UINT>;
+	m_pSubsetInfoList		= new std::vector<N_MeshSubsetInfo>;//store [a,b] of a subset
 };
 
 void NoiseMesh::Destroy()
@@ -69,18 +67,18 @@ void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColu
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = m_pVB_Mem->size();
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	m_IndexCount = m_pIB_Mem->size();
+	mIndexCount = m_pIB_Mem->size();
 
 	//最后
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
 
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
 void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthStep,UINT iWidthStep,UINT iHeightStep)
@@ -180,18 +178,18 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = m_pVB_Mem->size();
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	m_IndexCount = m_pIB_Mem->size();
+	mIndexCount = m_pIB_Mem->size();
 
 	//transmit to gpu
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
 
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
 
 void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
@@ -283,7 +281,7 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = tmpVertexCount;
+	mVertexCount = tmpVertexCount;
 
 	#pragma endregion GenerateVertex
 	
@@ -341,15 +339,15 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
 	//a single Triangle
-	m_IndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
+	mIndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
 
 	#pragma endregion GenerateIndex
 
 
 	//最后
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 };
 
@@ -481,7 +479,7 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = m_pVB_Mem->size();//tmpVertexCount;
+	mVertexCount = m_pVB_Mem->size();//tmpVertexCount;
 
 	#pragma endregion GenerateVertex
 	
@@ -539,15 +537,15 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
 	//a single Triangle
-	m_IndexCount = m_pIB_Mem->size();//iColumnCount * iRingCount * 2 *3
+	mIndexCount = m_pIB_Mem->size();//iColumnCount * iRingCount * 2 *3
 
 	#pragma endregion GenerateIndex
 
 
 	//最后
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,m_VertexCount,&tmpInitData_Index,m_IndexCount);
+	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 };
 
@@ -605,18 +603,18 @@ BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = m_pVB_Mem->size();
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	m_IndexCount = m_pIB_Mem->size();
+	mIndexCount = m_pIB_Mem->size();
 
 	//最后
-	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
+	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, mVertexCount, &tmpInitData_Index, mIndexCount);
 
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return TRUE;
 }
@@ -647,62 +645,33 @@ BOOL NoiseMesh::LoadFile_OBJ(char * pFilePath)
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	m_VertexCount = m_pVB_Mem->size();
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	m_IndexCount = m_pIB_Mem->size();
+	mIndexCount = m_pIB_Mem->size();
 
 	//最后
-	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, m_VertexCount, &tmpInitData_Index, m_IndexCount);
+	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, mVertexCount, &tmpInitData_Index, mIndexCount);
 
 	//user-set material
-	SetMaterial(m_MaterialID_for_SetMaterial);
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return TRUE;
 }
 
-void	NoiseMesh::SetMaterial(UINT matID)
-{
-	//if mat ID is valid
-	if (matID < m_pFatherScene->m_pChildMaterialMgr->GetMaterialCount())
-	{
-
-		//this is just for user-set ;;;  In File-Loading method,we will use material settings in file
-		m_MaterialID_for_SetMaterial = matID;
-		
-		//actually in this function filling m_pPrimitiveInfoList is optional .(I dont want it to be empty= =)
-		//but when loading mesh from file, this primitive info  list should be filled to be sorted.
-		for (UINT i = 0;	i < m_pIB_Mem->size()/3	;i ++)
-		{
-			N_PrimitiveInfo tmpInfo;
-			m_pPrimitiveInfoList->push_back(tmpInfo);
-			m_pPrimitiveInfoList->at(i).index1 = m_pIB_Mem->at(3 * i);
-			m_pPrimitiveInfoList->at(i).index2 = m_pIB_Mem->at(3 * i + 1);
-			m_pPrimitiveInfoList->at(i).index3 = m_pIB_Mem->at(3 * i + 2);
-			m_pPrimitiveInfoList->at(i).mMatID = matID;
-		}
-
-		//but set the "SUBSET" list to a correct state is crucial.
-		N_SubsetInfo tmpSubset;
-		tmpSubset.startPrimitiveID = 0;
-		tmpSubset.endPrimitiveID = m_pPrimitiveInfoList->size()-1;//count of triangles
-		tmpSubset.matID = matID;
-
-		//because this SetMaterial aim to the entire mesh (all primitives) ,s
-		//o previously-defined material will be wiped out,and set to this material
-		m_pSubsetInfoList->clear();
-		m_pSubsetInfoList->push_back(tmpSubset);
-	}
-}
-
 void NoiseMesh::SetMaterial(std::string matName)
 {
-	UINT matID = 0;
-	matID = m_pFatherScene->m_pChildMaterialMgr->GetIndexByName(&matName);
-	//if matName is valid , matID will not equal to 0
-	SetMaterial(matID);
+	N_MeshSubsetInfo tmpSubset;
+	tmpSubset.startPrimitiveID = 0;
+	tmpSubset.primitiveCount = mIndexCount/3;//count of triangles
+	tmpSubset.matName = matName;
+
+	//because this SetMaterial aim to the entire mesh (all primitives) ,so
+	//previously-defined material will be wiped,and set to this material
+	m_pSubsetInfoList->clear();
+	m_pSubsetInfoList->push_back(tmpSubset);
 }
 
 void NoiseMesh::SetPosition(float x,float y,float z)
@@ -714,46 +683,46 @@ void NoiseMesh::SetPosition(float x,float y,float z)
 
 void NoiseMesh::SetRotation(float angleX, float angleY, float angleZ)
 {
-	m_RotationX_Pitch	= angleX;
-	m_RotationY_Yaw		= angleY;
-	m_RotationZ_Roll		= angleZ;
+	mRotationX_Pitch	= angleX;
+	mRotationY_Yaw		= angleY;
+	mRotationZ_Roll		= angleZ;
 }
 
 void NoiseMesh::SetRotationX_Pitch(float angleX)
 {
-	m_RotationX_Pitch = angleX;
+	mRotationX_Pitch = angleX;
 };
 
 void NoiseMesh::SetRotationY_Yaw(float angleY)
 {
-	m_RotationY_Yaw = angleY;
+	mRotationY_Yaw = angleY;
 };
 
 void NoiseMesh::SetRotationZ_Roll(float angleZ)
 {
-	m_RotationZ_Roll = angleZ;
+	mRotationZ_Roll = angleZ;
 }
 
 void NoiseMesh::SetScale(float scaleX, float scaleY, float scaleZ)
 {
-	m_ScaleX = scaleX;
-	m_ScaleY = scaleY;
-	m_ScaleZ = scaleZ;
+	mScaleX = scaleX;
+	mScaleY = scaleY;
+	mScaleZ = scaleZ;
 }
 
 void NoiseMesh::SetScaleX(float scaleX)
 {
-	m_ScaleX = scaleX;
+	mScaleX = scaleX;
 }
 
 void NoiseMesh::SetScaleY(float scaleY)
 {
-	m_ScaleY = scaleY;
+	mScaleY = scaleY;
 }
 
 void NoiseMesh::SetScaleZ(float scaleZ)
 {
-	m_ScaleZ = scaleZ;
+	mScaleZ = scaleZ;
 }
 
 UINT NoiseMesh::GetVertexCount()
@@ -899,10 +868,10 @@ void	NoiseMesh::mFunction_UpdateWorldMatrix()
 	D3DXMatrixIdentity(&tmpMatrix);
 		
 	//缩放矩阵
-	D3DXMatrixScaling(&tmpMatrixScaling, m_ScaleX, m_ScaleY, m_ScaleZ);
+	D3DXMatrixScaling(&tmpMatrixScaling, mScaleX, mScaleY, mScaleZ);
 
 	//旋转矩阵(连mesh也用航向角hhhhhh）
-	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, m_RotationY_Yaw, m_RotationX_Pitch, m_RotationZ_Roll);
+	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
 
 	//平移矩阵
 	D3DXMatrixTranslation(&tmpMatrixTranslation, m_pPosition->x, m_pPosition->y, m_pPosition->z);

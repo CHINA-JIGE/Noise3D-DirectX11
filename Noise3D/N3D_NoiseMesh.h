@@ -24,8 +24,6 @@ public:
 
 	void CreateCylinder(float fRadius,float fHeight,UINT iColumnCount =40,UINT iRingCount =8);
 
-	void	SetMaterial(UINT matID);
-
 	void	SetMaterial(std::string matName);
 
 	BOOL	LoadFile_STL(char* pFilePath);
@@ -84,18 +82,17 @@ private:
 private:
 	NoiseScene* m_pFatherScene;
 
-	UINT										m_VertexCount;
-	UINT										m_IndexCount;
-	UINT										m_MaterialID_for_SetMaterial;//Set a material for the whole mesh
+	UINT										mVertexCount;
+	UINT										mIndexCount;
 	ID3D11Buffer*						m_pVB_Gpu;
 	ID3D11Buffer*						m_pIB_Gpu;
 
-	float										m_RotationX_Pitch;
-	float										m_RotationY_Yaw;
-	float										m_RotationZ_Roll;
-	float										m_ScaleX;
-	float										m_ScaleY;
-	float										m_ScaleZ;
+	float										mRotationX_Pitch;
+	float										mRotationY_Yaw;
+	float										mRotationZ_Roll;
+	float										mScaleX;
+	float										mScaleY;
+	float										mScaleZ;
 
 	NVECTOR3*							m_pPosition;
 	NVECTOR3*							m_pBoundingBox_Min;
@@ -104,8 +101,6 @@ private:
 	NMATRIX*										m_pMatrixWorldInvTranspose;
 	std::vector<N_DefaultVertex>*			m_pVB_Mem;//vertex in CPU memory
 	std::vector<UINT>*							m_pIB_Mem;//index in CPU memory
-	std::vector<N_PrimitiveInfo>*			m_pPrimitiveInfoList;//store mat ID of a triangle
-	std::vector<N_SubsetInfo>*				m_pSubsetInfoList;//store [a,b] of a subset
-
+	std::vector<N_MeshSubsetInfo>*		m_pSubsetInfoList;//store [a,b] of a subset
 
 };

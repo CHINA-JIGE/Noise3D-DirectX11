@@ -115,12 +115,16 @@ struct N_SpotLight
 	NVECTOR3 mPosition;				float mDiffuseIntensity;
 };
 
-//--------------------NOISE MESH------------------
+//------------------------NOISE MESH-------------------------
+
 struct N_Material_Basic
 {
 	N_Material_Basic() 
 	{ 
 		ZeroMemory(this, sizeof(*this));
+		mBaseAmbientColor = NVECTOR3(0, 0, 0);
+		mBaseDiffuseColor = NVECTOR3(0.3f, 1.0f, 0.3f);
+		mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 		mSpecularSmoothLevel = 10;
 		mNormalMapBumpIntensity = 0.1f;
 		mEnvironmentMapTransparency = 0.3f;
@@ -134,21 +138,24 @@ struct N_Material_Basic
 
 struct N_Material
 {
-	N_Material() 
-	{ 
-		ZeroMemory(this, sizeof(*this)); 
-		diffuseMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
-		normalMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
-		specularMapID	= NOISE_MACRO_INVALID_TEXTURE_ID;
-		cubeMap_environmentMapID = NOISE_MACRO_INVALID_TEXTURE_ID;
-	}
+	N_Material() :
+		mMatName(""),
+		diffuseMapName(""),
+		normalMapName(""), 
+		specularMapName(""),
+		environmentMapName("")
+	{ }
 
 	std::string	 mMatName;
 	N_Material_Basic baseMaterial;
-	UINT		diffuseMapID;
+	std::string diffuseMapName;
+	std::string normalMapName;
+	std::string specularMapName;
+	std::string environmentMapName;
+	/*UINT		diffuseMapID;
 	UINT		normalMapID;
 	UINT		specularMapID;
-	UINT		cubeMap_environmentMapID;
+	UINT		cubeMap_environmentMapID;*/
 };
 
 struct N_PrimitiveInfo
@@ -160,14 +167,14 @@ struct N_PrimitiveInfo
 	int		mMatID;
 };
 
-struct N_SubsetInfo
+//correspond to one draw call of MESH
+struct N_MeshSubsetInfo
 {
-	N_SubsetInfo() { ZeroMemory(this, sizeof(*this)); }
+	N_MeshSubsetInfo() { ZeroMemory(this, sizeof(*this)); }
 	UINT		startPrimitiveID;
-	UINT		endPrimitiveID;
-	UINT		matID;
+	UINT		primitiveCount;
+	std::string		matName;
 };
-
 
 struct N_Font_Bitmap
 {
@@ -175,7 +182,6 @@ struct N_Font_Bitmap
 	UINT height;
 	std::vector<NVECTOR4> bitmapBuffer;
 };
-
 
 
 //-------------CONSTANT BUFFER STRUCTURE----------------
@@ -245,7 +251,6 @@ struct N_CbDrawText2D
 	NVECTOR4 	mTextColor;
 	NVECTOR4	mTextGlowColor;
 };
-
 
 struct N_LineStrip
 {

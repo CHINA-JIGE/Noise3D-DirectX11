@@ -5,7 +5,6 @@
 
 							texture management/modification
 
-
 ************************************************************************/
 
 #include "Noise3D.h"
@@ -14,6 +13,7 @@ NoiseTextureManager::NoiseTextureManager()
 {
 	m_pFatherScene = NULL;
 	m_pTextureObjectList = new std::vector<N_TextureObject>;
+	m_pTextureObjectHashTable = new std::unordered_map<std::string, UINT>;
 };
 
 void	 NoiseTextureManager::Destroy()
@@ -27,7 +27,7 @@ void	 NoiseTextureManager::Destroy()
 
 BOOL NoiseTextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4& color)
 {
-	UINT validatedTexID = mFunction_ValidateTextureID(texID, NOISE_TEXTURE_TYPE_COMMON);
+	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 	
 	if (validatedTexID!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
@@ -66,7 +66,7 @@ NVECTOR4 NoiseTextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 {
 	NVECTOR4 outColor(0, 0, 0, 1.0f);
 
-	UINT validatedTexID = mFunction_ValidateTextureID(texID, NOISE_TEXTURE_TYPE_COMMON);
+	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 
 	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
@@ -104,7 +104,7 @@ NVECTOR4 NoiseTextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 
 BOOL NoiseTextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 {
-	UINT validatedTexID = mFunction_ValidateTextureID(texID, NOISE_TEXTURE_TYPE_COMMON);
+	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 
 	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
@@ -146,25 +146,27 @@ BOOL NoiseTextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 	return TRUE;
 }
 
+inline BOOL NoiseTextureManager::UpdateTextureDataToGraphicMemory(std::string texName)
+{
+	return UpdateTextureDataToGraphicMemory(GetTextureID(texName));
+}
 
-UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory)
+//--------------------------------TEXTURE CREATION-----------------------------
+UINT NoiseTextureManager::CreatePureColorTexture(std::string texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory)
 {
 	//create New Texture Object
 	HRESULT hr = S_OK;
 	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
-	std::string tmpStringTextureName(textureName);
+	std::string tmpStringTextureName(texName);
 
 	//we must check if new name has been used
-	for (auto t : *m_pTextureObjectList)
+	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		if (t.mTexName == tmpStringTextureName)
-		{
 			DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
-		}
 	}
 
-
+#pragma region CreateTex2D&SRV
 
 	//a temporary Texture Object
 	N_TextureObject tmpTexObj;
@@ -175,8 +177,6 @@ UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT 
 	//assign a the same NVECTOR4 to vector
 	tmpTexObj.mPixelBuffer.resize(pixelWidth*pixelHeight,color);
 	//tmpTexObj.mPixelBuffer.assign(pixelHeight*pixelWidth, color);????
-
-
 
 	//texture2D desc (create a default usage texture)
 	D3D11_TEXTURE2D_DESC texDesc;
@@ -227,7 +227,6 @@ UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT 
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
-#pragma endregion CreateTex2D&SRV
 
 	//clear tmp interfaces
 	ReleaseCOM(pTmpTexture2D);
@@ -235,26 +234,32 @@ UINT NoiseTextureManager::CreatePureColorTexture(const char * textureName, UINT 
 	//clear Memory of the picture
 	if (!keepCopyInMemory)tmpTexObj.mPixelBuffer.clear();
 
+#pragma endregion CreateTex2D&SRV
+
 	//at last push back a new texture object
 	m_pTextureObjectList->push_back(tmpTexObj);
 	newTexIndex = m_pTextureObjectList->size() - 1;
+
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
+
 	return newTexIndex;
 };
 
-UINT NoiseTextureManager::CreateTextureFromFile(const LPCWSTR filePath, const  char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
+UINT NoiseTextureManager::CreateTextureFromFile(const LPCWSTR filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
 {
 	if (keepCopyInMemory)
 	{
-		return mFunction_CreateTextureFromFile_KeepACopyInMemory(filePath, textureName, useDefaultSize, pixelWidth, pixelHeight);
+		return mFunction_CreateTextureFromFile_KeepACopyInMemory(filePath, texName, useDefaultSize, pixelWidth, pixelHeight);
 	}
 	else
 	{
-		return mFunction_CreateTextureFromFile_DirectlyLoadToGpu(filePath, textureName, useDefaultSize, pixelWidth, pixelHeight);
+		return mFunction_CreateTextureFromFile_DirectlyLoadToGpu(filePath, texName, useDefaultSize, pixelWidth, pixelHeight);
 	}
 	return NOISE_MACRO_INVALID_TEXTURE_ID;
 }
 
-UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], const  char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	HRESULT hr = S_OK;
 	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
@@ -412,10 +417,13 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], cons
 	m_pTextureObjectList->push_back(tmpTexObj);
 	newTexIndex = m_pTextureObjectList->size() - 1;
 
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
+
 	return newTexIndex;
 }
 
-UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const  char * cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	BOOL isFileNameValid;
 	for (UINT i = 0; i < 6;i++)
@@ -431,7 +439,7 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const
 		}
 	}
 
-
+#pragma region CreateSRVFromDDS
 
 	//some settings about loading image
 	D3DX11_IMAGE_LOAD_INFO loadInfo;
@@ -506,12 +514,19 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, const
 	tmpTexObj.mTexName = tmpString;
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;
 
-	m_pTextureObjectList->push_back(tmpTexObj);
+#pragma endregion CreateSRVFromDDS
 
+
+	//by now ,we have successfully created a cube map Texture Object
+	m_pTextureObjectList->push_back(tmpTexObj);
 	UINT newTexIndex = m_pTextureObjectList->size()-1;
+
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
 	return newTexIndex;
 }
+
 
 
 BOOL NoiseTextureManager::ConvertTextureToGreyMap(UINT texID)
@@ -521,9 +536,14 @@ BOOL NoiseTextureManager::ConvertTextureToGreyMap(UINT texID)
 	return ConvertTextureToGreyMapEx(texID,0.3f,0.59f,0.11f);
 }
 
+BOOL NoiseTextureManager::ConvertTextureToGreyMap(std::string texName)
+{
+	return ConvertTextureToGreyMap(GetTextureID(texName));
+}
+
 BOOL NoiseTextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float factorG, float factorB)
 {
-	UINT validatedTexID = mFunction_ValidateTextureID(texID, NOISE_TEXTURE_TYPE_COMMON);
+	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 	if (validatedTexID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		DEBUG_MSG1("ConvertTextureToGreyMap:texID Out of Range or Type Invalid!");
@@ -577,9 +597,14 @@ BOOL NoiseTextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, f
 	return TRUE;
 }
 
+BOOL NoiseTextureManager::ConvertTextureToGreyMapEx(std::string texName, float factorR, float factorG, float factorB)
+{
+	return ConvertTextureToGreyMapEx(GetTextureID(texName),factorR,factorG,factorB);
+}
+
 BOOL NoiseTextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFactor)
 {
-	UINT validatedTexID = mFunction_ValidateTextureID(texID, NOISE_TEXTURE_TYPE_COMMON);
+	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 	if (validatedTexID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		DEBUG_MSG1("ConvertTextureToNormalMap:texID Out of Range or Type Invalid!");
@@ -687,29 +712,9 @@ BOOL NoiseTextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScal
 	return TRUE;
 }
 
-UINT	 NoiseTextureManager::GetTextureID(const char* textureName)
+BOOL NoiseTextureManager::ConvertHeightMapToNormalMap(std::string texName, float heightFieldScaleFactor)
 {
-	N_TextureObject tmpTexObj;
-	std::string tmpString(textureName);
-
-	for (UINT i = 0;i < m_pTextureObjectList->size();i++)
-	{
-		tmpTexObj = m_pTextureObjectList->at(i);
-
-		//if find specified tex name
-		if (tmpTexObj.mTexName == tmpString)
-		{
-			//return corresponding index
-			return i;
-		}
-	}
-
-	return NOISE_MACRO_INVALID_TEXTURE_ID;//Invalid texture Name
-}
-
-UINT NoiseTextureManager::GetTextureID(std::string textureName)
-{
-	return GetTextureID(textureName.c_str());
+	return ConvertHeightMapToNormalMap(GetTextureID(texName),heightFieldScaleFactor);
 }
 
 BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
@@ -732,7 +737,25 @@ BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, const LPCWSTR filePath, 
 	}
 
 	return TRUE;
+}
+
+BOOL NoiseTextureManager::SaveTextureToFile(std::string texName, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+{
+	return SaveTextureToFile(GetTextureID(texName),filePath,picFormat);
 };
+
+UINT	NoiseTextureManager::GetTextureID(std::string texName)
+{
+	auto nameIndexPairIter = m_pTextureObjectHashTable->find(texName);
+	if (nameIndexPairIter != m_pTextureObjectHashTable->end())
+	{
+		return nameIndexPairIter->second;//string-UINT pair
+	}
+	else
+	{
+		return NOISE_MACRO_INVALID_TEXTURE_ID;//Invalid texture Name
+	}
+}
 
 void	 NoiseTextureManager::GetTextureName(UINT index, std::string& outTextureName)
 {
@@ -760,6 +783,11 @@ UINT NoiseTextureManager::GetTextureWidth(UINT texID)
 	return 0;
 }
 
+UINT NoiseTextureManager::GetTextureWidth(std::string texName)
+{
+	return GetTextureWidth(GetTextureID(texName));
+}
+
 UINT NoiseTextureManager::GetTextureHeight(UINT texID)
 {
 	if (texID >= 0 && texID < m_pTextureObjectList->size())
@@ -776,47 +804,96 @@ UINT NoiseTextureManager::GetTextureHeight(UINT texID)
 	return 0;
 }
 
+UINT NoiseTextureManager::GetTextureHeight(std::string texName)
+{
+	return GetTextureHeight(GetTextureID(texName));
+}
+
 UINT	 NoiseTextureManager::GetTextureCount()
 {
 	return m_pTextureObjectList->size();
 }
 
+
 BOOL NoiseTextureManager::DeleteTexture(UINT texID)
 {
 	auto iter = m_pTextureObjectList->begin();
 
-	if (texID < m_pTextureObjectList->size())
+	//validate index 
+	UINT validatedTexID = ValidateIndex(texID, m_pTextureObjectList->at(texID).mTextureType);
+	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		UINT validatedTexID = mFunction_ValidateTextureID(texID, m_pTextureObjectList->at(texID).mTextureType);
-		if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+		//delete name-index pair
+		std::string deleteTexName = m_pTextureObjectList->at(validatedTexID).mTexName;
+		auto nameIndexPairIter = m_pTextureObjectHashTable->find(deleteTexName);
+		//..............(the check might be useless...)
+		if (nameIndexPairIter != m_pTextureObjectHashTable->end())
 		{
-			iter += texID;
-			//safe_release SRV  interface
-			ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
-			m_pTextureObjectList->at(texID).mPixelBuffer.clear();
-			m_pTextureObjectList->erase(iter);
+			m_pTextureObjectHashTable->erase(nameIndexPairIter);
 		}
-		else
-		{
-			DEBUG_MSG1("NoiseTexMgr: DeleteTexture : texID invalid!!");
-			return FALSE;
-		}
+
+		//clear TextureObject Data
+		iter += texID;
+		//safe_release SRV  interface
+		ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
+		m_pTextureObjectList->at(texID).mPixelBuffer.clear();
+		m_pTextureObjectList->erase(iter);
+
+		//update name-index pair (decrease the "val")
+		mFunction_RefreshHashTableAfterDeletion(validatedTexID, 1);
 	}
 	else
 	{
-		DEBUG_MSG1("NoiseTexMgr: DeleteTexture : texID invalid!!");
+		DEBUG_MSG1("Delete Texture : texID invalid!!");
 		return FALSE;
 	}
 
 	return TRUE;
 }
 
+BOOL NoiseTextureManager::DeleteTexture(std::string texName)
+{
+	auto nameIndexPairIter = m_pTextureObjectHashTable->find(texName);
+	//..............(the check might be useless...)
+	if (nameIndexPairIter != m_pTextureObjectHashTable->end())
+	{
+		UINT deleteTexID = nameIndexPairIter->second;
+		UINT validatedTexID = ValidateIndex(deleteTexID);//only check the ID boundary
+		//delete the real data
+		if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+		{
+			//delete real Texture Data
+			auto tmpIter = m_pTextureObjectList->begin() + validatedTexID;
+			m_pTextureObjectList->erase(tmpIter);
+		}
 
-/*************************************************************
-							P R I V A T E
-*************************************************************/
+		//delete string-index pair
+		m_pTextureObjectHashTable->erase(nameIndexPairIter);
 
-inline UINT NoiseTextureManager::mFunction_ValidateTextureID(UINT texID, NOISE_TEXTURE_TYPE texType)
+		//update name-index pair (decrease the "val")
+		mFunction_RefreshHashTableAfterDeletion(validatedTexID,1);
+	}
+	else
+	{
+		DEBUG_MSG1("Delete Texture : texture Name not found!!");
+		return FALSE;
+	}
+	return TRUE;
+}
+
+UINT NoiseTextureManager::ValidateIndex(UINT texID)
+{
+	if (texID < m_pTextureObjectList->size())
+	{
+		return texID;
+	}
+	else
+	{
+		return NOISE_MACRO_INVALID_TEXTURE_ID;
+	}
+}
+
+UINT NoiseTextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
 {
 	//validate if texID is within range of vector , and if the TextureType of this texture match the given 'texType'
 
@@ -855,12 +932,26 @@ inline UINT NoiseTextureManager::mFunction_ValidateTextureID(UINT texID, NOISE_T
 
 	}
 
-
 	//a no-problem texID
 	return texID;
 }
 
-UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, const  char * textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+
+/*************************************************************
+							P R I V A T E
+*************************************************************/
+
+inline void NoiseTextureManager::mFunction_RefreshHashTableAfterDeletion(UINT deletedTexID_threshold, UINT indexDecrement)
+{
+	//deletions always happen in the middle of a list , so elements after it 
+	//will be affected.
+	for (auto& pair : *m_pTextureObjectHashTable)
+	{
+		if (pair.second>deletedTexID_threshold)pair.second -= indexDecrement;
+	}
+};
+
+UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -901,16 +992,12 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(cons
 	HRESULT hr = S_OK;
 	UINT newTexIndex = m_pTextureObjectList->size();
 	N_TextureObject tmpTexObj;
-	std::string tmpString(textureName);
 
 	//we must check if new name has been used
-	for (auto t : *m_pTextureObjectList)
+	if(GetTextureID(textureName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		if (t.mTexName == tmpString)
-		{
-			DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
-			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
-		}
+		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
+		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
 	//then endow a pointer to new SRV
@@ -928,7 +1015,7 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(cons
 	HR_DEBUG_CREATETEX(hr, "CreateTextureFromFile : Create SRV failed ! ; keepCopyInMem:false");
 
 	//endow the tex obj a name
-	tmpTexObj.mTexName = tmpString;
+	tmpTexObj.mTexName = textureName;
 	tmpTexObj.mIsPixelBufferInMemValid = FALSE;
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;
 	m_pTextureObjectList->push_back(tmpTexObj);
@@ -936,10 +1023,13 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(cons
 	//new texture index
 	newTexIndex = m_pTextureObjectList->size() - 1;
 
+	//---------------ADD NAME-INDEX PAIR-----------------
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
+
 	return newTexIndex;//invalid file or sth else
 }
 
-UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, const char* textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -955,22 +1045,19 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(cons
 	//create New Texture Object
 	HRESULT hr = S_OK;
 	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
-	std::string tmpStringTextureName(textureName);
 
 	//we must check if new name has been used
-	for (auto t : *m_pTextureObjectList)
+	//count() will return 0 if given key dont exists
+	if (GetTextureID(textureName) != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		if (t.mTexName == tmpStringTextureName)
-		{
-			DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
-			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
-		}
+		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
+		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
 	//a temporary Texture Object
 	N_TextureObject tmpTexObj;
 	tmpTexObj.mIsPixelBufferInMemValid = TRUE;
-	tmpTexObj.mTexName = tmpStringTextureName;
+	tmpTexObj.mTexName = textureName;
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;
 
 
@@ -1098,6 +1185,11 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(cons
 	//at last push back a new texture object
 	m_pTextureObjectList->push_back(tmpTexObj);
 	newTexIndex = m_pTextureObjectList->size()-1;
+
+	//---------------ADD NAME-INDEX PAIR-----------------
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
+
+
 	return newTexIndex;
 }
 
@@ -1105,6 +1197,4 @@ inline UINT NoiseTextureManager::mFunction_GetPixelIndexFromXY(UINT x, UINT y, U
 {
 	return y*width +x;
 };
-
-
 

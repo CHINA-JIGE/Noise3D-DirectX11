@@ -106,19 +106,19 @@ BOOL Init3D(HWND hwnd)
 	LightMgr.AddDynamicDirLight(DirLight1);
 
 	N_Material Mat1;
+	Mat1.mMatName = "myDefaultMaterial";
 	Mat1.baseMaterial.mBaseAmbientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	Mat1.baseMaterial.mBaseDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.baseMaterial.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.baseMaterial.mSpecularSmoothLevel = 40;
 	Mat1.baseMaterial.mNormalMapBumpIntensity = 0.1f;
 	Mat1.baseMaterial.mEnvironmentMapTransparency = 0.05f;
-	Mat1.diffuseMapID =TexMgr.GetTextureID("Jade");//"Earth");
-	Mat1.normalMapID =TexMgr.GetTextureID("JadeNormalMap");
-	Mat1.cubeMap_environmentMapID = NOISE_MACRO_INVALID_TEXTURE_ID;//TexMgr.GetTextureID("EnvironmentMap");
+	Mat1.diffuseMapName ="Jade";//"Earth");
+	Mat1.normalMapName ="JadeNormalMap";
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
-	Mesh1.SetMaterial(Mat1_ID);
+	Mesh1.SetMaterial("myDefaultMaterial");
 
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), TexMgr.GetTextureID("BottomRightTitle"));
 

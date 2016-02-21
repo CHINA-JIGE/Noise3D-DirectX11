@@ -283,7 +283,7 @@ static std::string static_objectName;
 static std::vector<NVECTOR3> static_verticesList;
 static std::vector<NVECTOR2> static_texcoordList;
 static std::vector<UINT> static_indicesList;
-static std::vector<N_SubsetInfo> static_subsetList;
+static std::vector<N_MeshSubsetInfo> static_subsetList;
 static std::vector<N_Material> static_materialList;
 
 //-------------------------INTERFACE---------------------
@@ -310,6 +310,7 @@ BOOL NoiseFileManager::ImportFile_3DS(char* pFilePath, std::vector<NVECTOR3>& re
 		ReadChunk();
 	}
 	fileIn.close();
+	return TRUE;
 }
 
 //when encountering not interested chunk, use absolute end file pos of the chunk to skip
@@ -646,7 +647,7 @@ void ParseFacesAndMatID()
 
 	std::string matName("");
 
-	std::vector<N_SubsetInfo> currMatSubsetList;//faces can be 
+	std::vector<N_MeshSubsetInfo> currMatSubsetList;//faces can be 
 	std::vector<uint16_t> static_indicesList;
 
 	//material name
@@ -667,12 +668,12 @@ void ParseFacesAndMatID()
 
 	if (static_indicesList.size() == 0)
 	{
-		std::cout << "face Material Info : no faces attached to this material!!";
+		DEBUG_MSG1( "face Material Info : no faces attached to this material!!");
 		return;
 	}
 
 	//generate subsets list (for current Material)
-	N_SubsetInfo newSubset;
+	N_MeshSubsetInfo newSubset;
 	newSubset.matName = matName;
 	newSubset.primitiveCount = 0;
 	newSubset.startPrimitiveID = static_indicesList.at(0);
@@ -750,7 +751,7 @@ void ParseMaterialBlock()
 void ParseMaterialName()
 {
 	//data: material name
-	ReadStringFromFile(static_materialList.back().matName);
+	ReadStringFromFile(static_materialList.back().mMatName);
 }
 
 //*************************************************
@@ -763,7 +764,7 @@ void ParseAmbientColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().AmbColor);
+		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseAmbientColor);
 		filePos = fileIn.tellg();
 	} while (filePos<currentChunkFileEndPos);
 }
@@ -775,7 +776,7 @@ void ParseDiffuseColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().diffColor);
+		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseDiffuseColor);
 		filePos = fileIn.tellg();
 	} while (filePos<currentChunkFileEndPos);
 }
@@ -787,7 +788,7 @@ void ParseSpecularColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().specColor);
+		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseSpecularColor);
 		filePos = fileIn.tellg();
 	} while (filePos<currentChunkFileEndPos);
 }
@@ -800,7 +801,7 @@ void ParseDiffuseMap()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseMapChunk(static_materialList.back().diffMapName);
+		ReadAndParseMapChunk(static_materialList.back().diffuseMapName);
 		filePos = fileIn.tellg();
 	} while (filePos<currentChunkFileEndPos);
 }
@@ -826,7 +827,7 @@ void ParseSpecularMap()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseMapChunk(static_materialList.back().specMapName);
+		ReadAndParseMapChunk(static_materialList.back().specularMapName);
 		filePos = fileIn.tellg();
 	} while (filePos<currentChunkFileEndPos);
 }

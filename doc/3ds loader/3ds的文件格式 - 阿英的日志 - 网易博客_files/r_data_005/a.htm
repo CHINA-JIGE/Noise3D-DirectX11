@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="http://www.163.com/favicon.ico" type="image/x-icon">
+<title>网易个性化广告投放系统</title>
+<script type="text/javascript" src="a_data/jquery-1.js"></script>
+<script type="text/javascript">
+    function sendHover(uuid, flight_id, ad_id) {
+        $.ajax({
+            type: 'GET',
+            url: 'http://iad.g.163.com/wa/s',
+            data: {
+                'uuid': uuid,
+                'flight_id': flight_id,
+                'ad_id': ad_id
+            },
+            dataType: 'json',
+            success: function(info) {
+            }
+        });
+    }
+    
+    function sendClick(uuid, flight_id, ad_id) {
+        $.ajax({
+            type: 'GET',
+            url: 'http://iad.g.163.com/wa/c',
+            data: {
+                'uuid': uuid,
+                'flight_id': flight_id,
+                'ad_id': ad_id
+            },
+            dataType: 'json',
+            success: function(info) {
+            }
+        });
+    }
+    
+    var count = 0;
+    $(document).ready(function() {
+        $('body').click(function() {
+            var uuid = $('body').attr('data-uuid');
+            var flight_id = $('body').attr('data-flight_id');
+            var ad_id = $('body').attr('data-ad_id');
+            sendClick(uuid, flight_id, ad_id);
+        });
+        
+        $('body').hover(function() {
+            if(count == 0) {
+                var uuid = $('body').attr('data-uuid');
+                var flight_id = $('body').attr('data-flight_id');
+                var ad_id = $('body').attr('data-ad_id');
+                sendHover(uuid, flight_id, ad_id);
+            }
+            count++;
+        });
+    });
+</script>
+</head>
+<body class="adrec" data-uuid="6c9c40fc-c1e1-4300-a13e-9a7a7e1ec3b4" data-flight_id="2472" data-ad_id="219966" marginheight="0" marginwidth="0">
+<a target="_blank" href="http://g.163.com/c?AID=219966&amp;FlightID=2472&amp;Values=2988109860&amp;Redirect=http://u.163.com/gift?from=blogrizhi"><img src="a_data/0201yxds-tl.jpg" alt="" height="100" border="0" width="590"></a>
+
+
+</body></html>

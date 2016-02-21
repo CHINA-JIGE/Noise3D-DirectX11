@@ -1,0 +1,54 @@
+/* Form */
+.dmod_login_frm_login { margin:0px; padding:0px; }
+.dmod_login_lbl_userid  { font-size: 9px; font-weight: bold; display:block; float:left; text-align:left; width:80px; border: 0px solid black; margin:0px 0px 0px 0px;}
+.dmod_login_lbl_password { font-size: 9px; font-weight: bold; display:block; float:left; text-align:left; width:80px; border: 0px solid black; margin:0px 0px 0px 2px;}
+
+.dmod_login_txt_userid { font-size: 10px; display:block; clear:left; float: left; width:80px; margin:0px 0px 0px 0px; border: 1px solid black;}
+.dmod_login_txt_password { font-size: 10px; display:block; float: left; width:80px;  margin:0px 0px 0px 2px;border: 1px solid black; }
+.dmod_login_btn_login { width:60px; float: left; display:block; margin: 0px 0px 0px 4px; }	
+.dmod_login_lbl_remember { font-size: 9px; display:block;  clear:left; float: left; widdth: 100px; margin:3px 0 0 0;}
+.dmod_login_chk_remember { display:block; float: left; wisdth: 100px; }
+
+.dmod_login_txt_info { font-size: 10px; display:block; margin-top: 12px; }
+.dmod_login_lnk_login { font-size: 10px; display:block; margin: 0px; }
+
+/* In linea
+.dmod_login_frm_login { margin:auto; width:250px; text-align:center; border: 0px solid yellow;}
+.dmod_login_txt_info { margin:5px; }
+.dmod_login_lbl_userid  { display:block; float:left; text-align:left; width:80px; border: 1px solid black; margin:5px 0px 0px 5px;}
+.dmod_login_txt_userid {  width:100px; border: 0px solid yellow; margin:5px 5px 5px 5px; }
+.dmod_login_lbl_password { display:block; float:left; text-align:left; width:80px; border: 1px solid black; margin:5px 0px 5px 5px;}
+.dmod_login_txt_password {  width:100px; border: 0px solid yellow; margin:5px 5px 5px 5px; }
+.dmod_login_btn_login { width:80%; display:block; margin: 10px 10% 10px 10%; border: 0px solid yellow;}	
+.dmod_login_lnk_login { display:block; margin: 10px; border: 0px solid yellow;}
+*/
+
+
+
+.dmod_login_frm_login_short { widfth:200px; margin:0px; padding:0px; text-align:left;}
+.dmod_login_txt_info_short{ float:left; font-size: 10px; display: block; margin-right: 10px; }
+.dmod_login_lnk_login_short{ font-size: 10px; display: block; text-arlign:left; }
+
+.dmod_login_grd_users_admin table { margin-left:auto; margin-right:auto; }
+
+.dmod_login_lbl_admin_userid { display:block; font-size:10px; float:left; width:100px; }
+.dmod_login_txt_admin_userid { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_name { display:block; font-size:10px; float:left; width:100px;}
+.dmod_login_txt_admin_name { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_surname { display:block; font-size:10px; float:left; width:100px;}
+.dmod_login_txt_admin_surname { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_password { display:block; font-size:10px; float:left; width:100px;}
+.dmod_login_txt_admin_password { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_rptpassword { display:block; font-size:10px; float:left; width:100px;}
+.dmod_login_txt_admin_rptpassword { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_company { display:block; font-size:10px; float:left;width:100px;}
+.dmod_login_txt_admin_company { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_enabled { display:block; font-size:10px; float:left;width:100px;}
+.dmod_login_lst_admin_enabled { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_sex { display:block; font-size:10px; float:left;width:100px;}
+.dmod_login_lst_admin_sex { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_lbl_admin_level { display:block; font-size:10px; float:left;width:100px;}
+.dmod_login_lst_admin_level { display:block; margin: 0px 0px 5px 100px;}
+.dmod_login_btn_admin_apply { margin: 5px 5px 0px 0px;}
+.dmod_login_btn_admin_cancel { margin: 5px 5px 0px 0px;}
+
