@@ -53,7 +53,7 @@ void NoiseFontManager::Destroy()
 };
 
 
-UINT	 NoiseFontManager::CreateFontFromFile(const char * filePath, const char * fontName, UINT fontSize, float fontAspectRatio)
+UINT	 NoiseFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName, UINT fontSize, float fontAspectRatio)
 {
 	if (!mIsFTInitialized)
 	{
@@ -93,7 +93,7 @@ UINT	 NoiseFontManager::CreateFontFromFile(const char * filePath, const char * f
 	//Create a FT_Face (to store font/char  info)
 	FT_Error ftCreateNewFaceErr = FT_New_Face(
 		m_FTLibrary,
-		filePath,
+		filePath.c_str(),
 		0,		//which style	,	regular/italic/bold/italic_bold (maybe available)
 		&tmpFontObj.mFtFace);
 

@@ -45,7 +45,7 @@ BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVerte
 	return TRUE;
 }
 
-BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(char * pFilePath)
+BOOL NoiseUtSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 {
 	// this function is used to load STL file , and Primitive Vertex Data has 3x more elements
 	//than Triangle Normal Buffer , this is because 1 triangle consists of 3 vertices.
@@ -362,15 +362,15 @@ void	NoiseUtSlicer::Step3_GenerateLineStrip()
 BOOL NoiseUtSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
 {
 	BOOL isSucceeded;
-	isSucceeded = NoiseFileManager::ImportFile_NOISELAYER(filePath, m_pLineStripBuffer);
+	isSucceeded = mFunction_ImportFile_NOISELAYER(filePath, m_pLineStripBuffer);
 	return isSucceeded;
 }
 
-BOOL NoiseUtSlicer::Step4_SaveLayerDataToFile(char * filePath)
+BOOL NoiseUtSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
 {
 
 	BOOL isSucceeded;  
-	isSucceeded = NoiseFileManager::ExportFile_NOISELAYER(filePath, m_pLineStripBuffer, TRUE);
+	isSucceeded = mFunction_ExportFile_NOISELAYER(filePath, m_pLineStripBuffer, TRUE);
 	return isSucceeded;
 }
 
@@ -659,3 +659,187 @@ NVECTOR3 NoiseUtSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 	return outNormal;
 }
 
+//.NOISELAYER loader
+BOOL NoiseUtSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
+{
+	if (!pLineStripBuffer)
+	{
+		return FALSE;
+	}
+
+	//文件输入流
+	std::ifstream fileIn(pFilePath, std::ios::binary);
+
+	//文件不存在就return
+
+	if (!fileIn.is_open())
+	{
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
+		return FALSE;
+	}
+
+	//指针移到文件尾
+	fileIn.seekg(0, std::ios_base::end);
+
+	//指针指着文件尾，当前位置就是大小
+	int static_fileSize = (int)fileIn.tellg();
+
+
+	//指针移到文件头
+	fileIn.seekg(0, std::ios_base::beg);
+
+
+	//some  check before importing file
+	if (!pLineStripBuffer)
+	{
+		return FALSE;
+	}
+
+
+	//first import the count data of line strip
+	UINT magicNum = 0;
+	UINT versionID = 0;
+	UINT lineStripCount = 0;
+	UINT currLineStripPointCount = 0;
+	UINT currLIneStripNormalCount = 0;
+	UINT layerID = 0;
+	NVECTOR3 tmpV;
+	N_LineStrip  emptyLineStrip;
+	UINT i = 0, j = 0;
+
+
+#define STREAM_READ(STREAM,OBJECT) STREAM.read((char*)&(OBJECT),sizeof(OBJECT));
+
+	//file head
+	STREAM_READ(fileIn, magicNum);
+
+	STREAM_READ(fileIn, versionID);
+	//.........how many line strips
+	STREAM_READ(fileIn, lineStripCount);
+
+
+	//start to read line strip
+	for (i = 0;i < lineStripCount;i++)
+	{
+		//we can push an empty line strip at the back , but didn't specify a layerID
+		//because we no longer need (it's used for optimization)
+		pLineStripBuffer->push_back(emptyLineStrip);
+
+		STREAM_READ(fileIn, layerID);
+		pLineStripBuffer->at(i).LayerID = layerID;
+
+		STREAM_READ(fileIn, currLineStripPointCount);
+
+		STREAM_READ(fileIn, currLIneStripNormalCount);
+
+
+		//input Points of a line strip
+		for (j = 0;j < currLineStripPointCount;j++)
+		{
+			STREAM_READ(fileIn, tmpV);
+			pLineStripBuffer->at(i).pointList.push_back(tmpV);
+		}
+
+		//input normals of line segments
+		for (j = 0;j < currLIneStripNormalCount;j++)
+		{
+			STREAM_READ(fileIn, tmpV)
+				pLineStripBuffer->at(i).normalList.push_back(tmpV);
+		}
+
+	}
+
+	fileIn.close();
+
+	return TRUE;
+}
+
+//.NOISELAYER exporter
+BOOL NoiseUtSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld)
+{
+	std::ofstream fileOut;
+
+	//can we overlap the old file??
+	if (canOverlapOld)
+	{
+		fileOut.open(pFilePath, std::ios::binary | std::ios::trunc);
+	}
+	else
+	{
+		fileOut.open(pFilePath, std::ios::binary | std::ios::app);
+	}
+
+	//check if we have successfully opened the file
+	if (!fileOut.good())
+	{
+		DEBUG_MSG1("NoiseFileManager : Cannot Open File !!");
+		return FALSE;
+	}
+
+	//prepare to output,tmp var to store number
+	UINT i = 0, j = 0;
+
+	/*
+	FORMAT:
+	4 byte magicNum
+	4 byte versionID
+	4 byte to store Line Strip Count
+	and for every Line Strip :
+	first		4 byte for pointList.size()
+	then		4 byte for normalList.size(), but it's actually  normalList.size()-1 ,and this is a reminder that
+	there are normal data to be read
+	then		4 (float) * 3 (vec3 component) *( n + n-1) byte for a whole line strip(vertex + normal)
+
+	keep writing data until all line strip are traversed
+	*/
+
+	//convert variables into char* to directly write in a file
+#define STREAM_WRITE(STREAM,OBJECT)  {(STREAM).write((char *)&(OBJECT),sizeof(OBJECT));}
+
+	//	first 4 byte for magic number
+	char magicNum[] = { 'k','A','s','T' };
+	STREAM_WRITE(fileOut, magicNum);
+
+	//	4 byte for version
+	UINT32 version = 0xffffff01;
+	STREAM_WRITE(fileOut, version);
+
+	//	 4 byte for line strip count
+	UINT32 lineStripCount = pLineStripBuffer->size();
+	STREAM_WRITE(fileOut, lineStripCount);
+
+
+
+	//for every line strip
+	for (i = 0;i < pLineStripBuffer->size();i++)
+	{
+		UINT layerID = pLineStripBuffer->at(i).LayerID;
+		STREAM_WRITE(fileOut, layerID);
+
+		//first output points count of current line strip 
+		UINT pointListSize = pLineStripBuffer->at(i).pointList.size();
+		STREAM_WRITE(fileOut, pointListSize);
+
+		//then normals
+		UINT normalListSize = pLineStripBuffer->at(i).normalList.size();
+		STREAM_WRITE(fileOut, normalListSize);
+
+		//and traverse every vertices
+		for (j = 0;j < pLineStripBuffer->at(i).pointList.size(); j++)
+		{
+			NVECTOR3 tmpVertex = pLineStripBuffer->at(i).pointList.at(j);
+			STREAM_WRITE(fileOut, tmpVertex);
+		}
+
+		//and traverse every normal
+		for (j = 0;j < pLineStripBuffer->at(i).normalList.size(); j++)
+		{
+			NVECTOR3 tmpNormal = pLineStripBuffer->at(i).normalList.at(j);
+			STREAM_WRITE(fileOut, tmpNormal);
+		}
+	}
+
+	fileOut.close();
+
+	return TRUE;
+}

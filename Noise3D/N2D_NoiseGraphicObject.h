@@ -11,6 +11,14 @@
 
 #define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=TRUE;}
 
+struct N_GraphicObject_SubsetInfo
+{
+	N_GraphicObject_SubsetInfo() { ZeroMemory(this, sizeof(*this));texID = NOISE_MACRO_INVALID_TEXTURE_ID; }
+	UINT texID;
+	UINT startID;
+	UINT vertexCount;
+};
+
 
 class _declspec(dllexport) NoiseGraphicObject:
 	public NoiseClassLifeCycle

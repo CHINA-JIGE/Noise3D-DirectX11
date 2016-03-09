@@ -206,6 +206,24 @@ NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isC
 	 }
  };
 
+NOISE_DLL_EXPORT std::string GetFileDirectory(std::string completeFilePath) 
+{
+	//Get the directory which the file lies on 
+	std::string outDir=completeFilePath;
+	while (outDir.size() > 0)
+	{
+		if (outDir.back()!= '\\' && outDir.back()!='/')
+		{
+			outDir.pop_back();
+		}
+		else
+		{
+			return outDir;
+		}
+	}
+	return "";
+};
+
 NOISE_DLL_EXPORT inline float gFunction_Lerp(float a, float b, float t)
  {
 	 return( a + (b - a)*t);

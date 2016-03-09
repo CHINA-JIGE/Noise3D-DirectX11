@@ -8,6 +8,15 @@
 
 extern const UINT const_LayerTileStepCount;
 
+struct N_LineStrip
+{
+	N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }
+
+	std::vector<NVECTOR3>	pointList;
+	std::vector<NVECTOR3>	normalList;
+	UINT		LayerID;
+};
+
 struct N_LineSegment
 {
 	N_LineSegment() { ZeroMemory(this, sizeof(*this)); }
@@ -65,7 +74,7 @@ public:
 
 	BOOL	Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer);
 
-	BOOL	Step1_LoadPrimitiveMeshFromSTLFile(char* pFilePath);
+	BOOL	Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath);
 
 	void		Step2_Intersection(UINT iLayerCount);
 
@@ -73,7 +82,7 @@ public:
 
 	BOOL	Step3_LoadLineStripsFrom_NOISELAYER_File(char* filePath);
 
-	BOOL	Step4_SaveLayerDataToFile(char* filePath);
+	BOOL	Step4_SaveLayerDataToFile(NFilePath filePath);
 
 	UINT		GetLineSegmentCount();
 
@@ -99,6 +108,10 @@ private:
 	NVECTOR3 mFunction_Compute_Normal2D(NVECTOR3 triangleNormal);
 	
 	N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(float currentlayerY,NVECTOR3& v1,NVECTOR3& v2,NVECTOR3& v3);
+
+	BOOL mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer);
+
+	BOOL mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld);
 
 
 	std::vector<NVECTOR3>*			m_pPrimitiveVertexBuffer;

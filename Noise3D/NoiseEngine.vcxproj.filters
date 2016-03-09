@@ -221,9 +221,6 @@
     <ClCompile Include="NBASE_NoiseFileMgr_OBJ.cpp">
       <Filter>NBASE_NoiseFileManager</Filter>
     </ClCompile>
-    <ClCompile Include="NBASE_NoiseFileMgr_NOISELAYER.cpp">
-      <Filter>NBASE_NoiseFileManager</Filter>
-    </ClCompile>
     <ClCompile Include="NBASE_NoiseFileMgr_3DS.cpp">
       <Filter>NBASE_NoiseFileManager</Filter>
     </ClCompile>

@@ -157,6 +157,11 @@ void NoiseScene::BindMaterialManager(NoiseMaterialManager & refObject)
 	m_pChildMaterialMgr = &refObject;
 }
 
+void NoiseScene::BindAtmosphere(NoiseAtmosphere & refObject)
+{
+	m_pChildAtmosphere = &refObject;
+}
+
 void	NoiseScene::BindCamera(NoiseCamera& refObject)
 {
 	m_pChildCamera = &refObject;

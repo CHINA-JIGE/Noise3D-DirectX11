@@ -2,11 +2,79 @@
 /***********************************************************************
 
                            h：NoiseRenderer3D
-					主要功能 ：负责渲染
+						desc: use gpu to render
 
 ************************************************************************/
 
 #pragma once
+
+//-------------CONSTANT BUFFER STRUCTURE----------------
+//GPU Memory : 128 byte alignment
+struct N_CbPerFrame
+{
+	N_DirectionalLight	mDirectionalLight_Dynamic[10];//放心 已经对齐了
+	N_PointLight				mPointLight_Dynamic[10];
+	N_SpotLight				mSpotLight_Dynamic[10];
+	int			mDirLightCount_Dynamic;
+	int			mPointLightCount_Dynamic;
+	int			mSpotLightCount_Dynamic;
+	BOOL		mIsLightingEnabled_Dynamic;
+	NVECTOR3	mCamPos;	float mPad1;
+
+};
+
+struct N_CbPerObject
+{
+	NMATRIX	mWorldMatrix;
+	NMATRIX	mWorldInvTransposeMatrix;
+};
+
+struct N_CbPerSubset
+{
+	N_Material_Basic	basicMaterial;
+	BOOL			IsDiffuseMapValid;
+	BOOL			IsNormalMapValid;
+	BOOL			IsSpecularMapValid;
+	BOOL			IsEnvironmentMapValid;
+};
+
+struct N_CbRarely
+{
+	//———————static light————————
+	N_DirectionalLight mDirectionalLight_Static[50];
+	N_PointLight	 mPointLight_Static[50];
+	N_SpotLight	mSpotLight_Static[50];
+	int		mDirLightCount_Static;
+	int		mPointLightCount_Static;
+	int		mSpotLightCount_Static;
+	int		mIsLightingEnabled_Static;
+};
+
+struct N_CbCameraMatrix
+{
+	NMATRIX mProjMatrix;
+	NMATRIX	mViewMatrix;
+};
+
+struct N_CbAtmosphere
+{
+	NVECTOR3	mFogColor;
+	int				mIsFogEnabled;
+	float				mFogNear;
+	float				mFogFar;
+	int				mIsSkyDomeValid;
+	int				mIsSkyBoxValid;
+	float				mSkyBoxWidth;
+	float				mSkyBoxHeight;
+	float				mSkyBoxDepth;
+	float				mPad1;
+};
+
+struct N_CbDrawText2D
+{
+	NVECTOR4 	mTextColor;
+	NVECTOR4	mTextGlowColor;
+};
 
 
 class _declspec(dllexport) NoiseRenderer : 
@@ -66,7 +134,7 @@ private:
 
 	BOOL			mFunction_Init_CreateDepthStencilState();
 
-	BOOL			mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath);
+	BOOL			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
 	BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
 

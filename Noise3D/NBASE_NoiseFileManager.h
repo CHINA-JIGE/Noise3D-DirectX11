@@ -6,24 +6,35 @@
 
 #pragma once
 
+struct N_Load3ds_TexName_FilePath_Mapping
+{
+	std::string textureName;
+	std::string FilePath;
+};
+
+
 class _declspec(dllexport) NoiseFileManager
 {
 public:
 		NoiseFileManager();
 
-		BOOL ImportFile_PURE(char* pFilePath, std::vector<char>& byteBuffer);
+		BOOL ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer);
 
-		BOOL ImportFile_STL(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
+		BOOL ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
 
-		BOOL ImportFile_3DS(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer);
+		BOOL ImportFile_3DS(
+			NFilePath pFilePath,
+			std::string& outObjectName,
+			std::vector<NVECTOR3>& outVertexBuffer,
+			std::vector<NVECTOR2>& outTexCoordList,
+			std::vector<UINT>& outIndexBuffer,
+			std::vector<N_MeshSubsetInfo>& outSubsetList,
+			std::vector<N_Material>& outMaterialList,
+			std::unordered_map<std::string,NFilePath>& out_TexName2FilePathPairList);
 
-		BOOL ImportFile_OBJ(char* pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer);
+		BOOL ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& outVertexBuffer, std::vector<UINT>& outIndexBuffer);
 
-		BOOL ImportFile_NOISELAYER(char* pFilePath, std::vector<N_LineStrip>* pLineStripBuffer);
-
-		BOOL ExportFile_PURE(char* pFilePath, std::vector<char>* pFileBuffer,BOOL canOverlapOld);
-
-		BOOL ExportFile_NOISELAYER(char* pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld);
+		BOOL ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer,BOOL canOverlapOld);
 
 private:
 

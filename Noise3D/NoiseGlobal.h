@@ -61,6 +61,8 @@ extern NOISE_DLL_EXPORT int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundary
 
 extern NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode,BOOL isCapital);
 
+extern NOISE_DLL_EXPORT std::string GetFileDirectory(std::string completeFilePath);
+
 extern NOISE_DLL_EXPORT float gFunction_Lerp(float a, float b, float t);
 
 extern NOISE_DLL_EXPORT float gFunction_Clampf(float val, float min, float max);

@@ -12,7 +12,6 @@ class _declspec(dllexport) NoiseMaterialManager:public NoiseClassLifeCycle
 public:
 	friend class NoiseScene;
 	friend class NoiseRenderer;
-	friend class NoiseMesh;
 
 	//¹¹Ôìº¯Êý
 	NoiseMaterialManager();

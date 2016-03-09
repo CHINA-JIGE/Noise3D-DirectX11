@@ -9,10 +9,11 @@ NoiseScene Scene;
 NoiseMesh Mesh1;
 NoiseCamera Camera;
 NoiseLightManager LightMgr;
+NoiseAtmosphere Atmos;
 NoiseMaterialManager	MatMgr;
 NoiseTextureManager	TexMgr;
-NoiseAtmosphere			Atmos;
 NoiseGraphicObject	GraphicObjBuffer;
+
 NoiseFontManager fontMgr;
 Noise2DTextDynamic myText_fps;
 
@@ -54,13 +55,14 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âþ·´ÉäÌùÍ¼
-	TexMgr.CreateTextureFromFile(L"media/Earth.jpg", "Earth", TRUE, 0, 0, FALSE);
-	TexMgr.CreateTextureFromFile(L"media/Jade.jpg", "Jade", FALSE, 256, 267, FALSE);
-	TexMgr.CreateTextureFromFile(L"media/Jade.jpg", "JadeNormalMap", FALSE, 256, 256, TRUE);
-	TexMgr.CreateTextureFromFile(L"media/universe2.jpg", "Universe", FALSE, 512, 512, FALSE);
-	TexMgr.CreateTextureFromFile(L"media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile("media/Earth.jpg", "Earth", TRUE, 0, 0, FALSE);
+	TexMgr.CreateTextureFromFile("media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
+	TexMgr.CreateTextureFromFile("media/Jade.jpg", "JadeNormalMap", FALSE, 256, 256, TRUE);
+	TexMgr.CreateTextureFromFile("media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	TexMgr.CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	TexMgr.ConvertTextureToGreyMap(TexMgr.GetTextureID("JadeNormalMap"));
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("JadeNormalMap"), 5.0f);
+
 
 
 	//create font texture
@@ -75,7 +77,8 @@ BOOL Init3D(HWND hwnd)
 
 	//------------------MESH INITIALIZATION----------------
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
-	Mesh1.LoadFile_OBJ("model/teapot2.obj");
+	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
+	Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
 	//Mesh1.CreateSphere(5.0f, 30, 30);
 	Mesh1.SetPosition(0, 0, 0);
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
@@ -118,7 +121,7 @@ BOOL Init3D(HWND hwnd)
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
-	Mesh1.SetMaterial("myDefaultMaterial");
+	//Mesh1.SetMaterial("myDefaultMaterial");
 
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), TexMgr.GetTextureID("BottomRightTitle"));
 
@@ -149,7 +152,7 @@ void MainLoop()
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	Renderer.RenderMeshes();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
-	//Renderer.RenderAtmosphere();
+	Renderer.RenderAtmosphere();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
 	Renderer.RenderGraphicObjects();
 	Renderer.SetBlendingMode(NOISE_BLENDMODE_ALPHA);

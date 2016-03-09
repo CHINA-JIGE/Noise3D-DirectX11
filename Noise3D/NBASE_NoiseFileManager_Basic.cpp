@@ -26,7 +26,7 @@ NoiseFileManager::NoiseFileManager()
 
 };
 
-BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>& byteBuffer)
+BOOL NoiseFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
 {
 	//文件输入流
 	std::ifstream fileIn(pFilePath, std::ios::binary);
@@ -42,7 +42,7 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>& byte
 	fileIn.seekg(0, std::ios_base::end);
 
 	//指针指着文件尾，当前位置就是大小
-	int fileSize = (int)fileIn.tellg();
+	int static_fileSize = (int)fileIn.tellg();
 
 
 	//指针移到文件头
@@ -52,11 +52,11 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>& byte
 	int i = 0;char tmpC =0;
 
 	//allocate new memory block , initialized with 0
-	byteBuffer.resize(fileSize,0);
+	byteBuffer.resize(static_fileSize,0);
 	while (!fileIn.eof())
 	{
 		
-		fileIn.read(&byteBuffer.at(0), fileSize);
+		fileIn.read(&byteBuffer.at(0), static_fileSize);
 		//逐字节读取
 		//fileIn.get(tmpC);
 		//pFileBuffer->push_back(tmpC);
@@ -70,7 +70,7 @@ BOOL NoiseFileManager::ImportFile_PURE(char * pFilePath, std::vector<char>& byte
 	return TRUE;
 }
 
-BOOL NoiseFileManager::ExportFile_PURE(char * pFilePath, std::vector<char>* pFileBuffer, BOOL canOverlapOld)
+BOOL NoiseFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, BOOL canOverlapOld)
 {
 
 	std::ofstream fileOut;

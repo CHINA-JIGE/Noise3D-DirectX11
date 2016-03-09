@@ -8,7 +8,7 @@ NoiseRenderer Renderer;
 NoiseScene Scene;
 NoiseMesh Mesh1;
 NoiseCamera Camera;
-NoiseLightManager LightMgr;
+NoiseLightManager		LightMgr;
 NoiseMaterialManager	MatMgr;
 NoiseTextureManager	TexMgr;
 NoiseAtmosphere			Atmos;

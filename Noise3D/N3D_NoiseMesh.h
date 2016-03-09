@@ -7,6 +7,7 @@
 
 #pragma once
 
+
 class _declspec(dllexport) NoiseMesh : private NoiseFileManager,public NoiseClassLifeCycle
 {
 	friend class NoiseScene;
@@ -26,9 +27,11 @@ public:
 
 	void	SetMaterial(std::string matName);
 
-	BOOL	LoadFile_STL(char* pFilePath);
+	BOOL	LoadFile_STL(NFilePath pFilePath);
 
-	BOOL	LoadFile_OBJ(char* pFilePath);
+	BOOL	LoadFile_OBJ(NFilePath pFilePath);
+
+	BOOL	LoadFile_3DS(NFilePath pFilePath);
 
 	void		SetPosition(float x,float y,float z);
 
@@ -77,7 +80,6 @@ private:
 	void		mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer);
 
 	NVECTOR2	mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter,NVECTOR3 vPoint);
-
 
 private:
 	NoiseScene* m_pFatherScene;

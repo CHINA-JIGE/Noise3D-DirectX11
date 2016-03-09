@@ -608,7 +608,7 @@ BOOL	NoiseRenderer::mFunction_Init_CreateDepthStencilState()
 	return TRUE;
 };
 
-BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
+BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 {
 	HRESULT hr = S_OK;
 
@@ -621,8 +621,8 @@ BOOL	NoiseRenderer::mFunction_Init_CreateEffectFromFile(LPCWSTR fxPath)
 	ID3D10Blob*	compilationMsg;
 	
 	//±àÒëfxÎÄ¼þ
-	hr = D3DX11CompileFromFile(
-		fxPath,0,0,0,"fx_5_0",
+	hr = D3DX11CompileFromFileA(
+		fxPath.c_str(),0,0,0,"fx_5_0",
 		shaderFlags,0,0,&compiledFX,
 		&compilationMsg,0);
 
@@ -856,6 +856,7 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 
 		//Get Material ID by unique name
 		UINT	 currSubsetMatID = pSceneMatMgr->GetMatID( tmp_pMesh->m_pSubsetInfoList->at(subsetID).matName);
+		auto aaa = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matName;
 
 		//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 		//then we should check if its child textureS are valid too 

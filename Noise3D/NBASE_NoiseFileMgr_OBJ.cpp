@@ -41,7 +41,7 @@ struct N_LoadOBJ_vertexInfoIndex
 										INTERFACE
 
 *********************************************************************/
-BOOL NoiseFileManager::ImportFile_OBJ(char * pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
+BOOL NoiseFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
 {
 	std::fstream fileIn(pFilePath);
 	if (!fileIn.good())
@@ -95,7 +95,6 @@ BOOL NoiseFileManager::ImportFile_OBJ(char * pFilePath, std::vector<N_DefaultVer
 		{
 			for (UINT i = 0;i < 3;++i)
 			{
-				//the .size() will be slow????
 				//static UINT currUniqueVertexCount = 0;
 				N_LoadOBJ_vertexInfoIndex currVertex = { 0,0,0 };
 				std::stringstream tmpSStream;

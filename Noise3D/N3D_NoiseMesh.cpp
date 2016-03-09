@@ -549,7 +549,7 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 
 };
 
-BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
+BOOL NoiseMesh::LoadFile_STL(NFilePath pFilePath)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -619,7 +619,7 @@ BOOL NoiseMesh::LoadFile_STL(char * pFilePath)
 	return TRUE;
 }
 
-BOOL NoiseMesh::LoadFile_OBJ(char * pFilePath)
+BOOL NoiseMesh::LoadFile_OBJ(NFilePath pFilePath)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -657,6 +657,201 @@ BOOL NoiseMesh::LoadFile_OBJ(char * pFilePath)
 
 	//user-set material
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+
+	return TRUE;
+}
+
+BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
+{
+	//check if buffers have been created
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
+
+
+	std::string								objectName;
+	std::vector<NVECTOR3>		verticesList;
+	std::vector<NVECTOR2>		texCoordList;
+	std::vector<UINT>				indicesList;
+	std::vector<N_MeshSubsetInfo> subsetList;
+	std::vector<N_Material>		materialList;
+	std::unordered_map<std::string, std::string> texName2FilePathMap;
+
+	//import data
+	BOOL importSucceeded = FALSE;
+	importSucceeded= NoiseFileManager::ImportFile_3DS(
+		pFilePath,
+		objectName, 
+		verticesList, 
+		texCoordList,
+		indicesList, 
+		subsetList, 
+		materialList,
+		texName2FilePathMap);
+
+	if (!importSucceeded)
+	{
+		DEBUG_MSG1("Load 3ds : Import Operation Failed!!");
+		return FALSE;
+	}
+
+#pragma region Index/VertexData
+
+	//to compute vertex normal ,we should generate adjacent information of vertices first.
+	//thus "vertexNormalList" holds the sum of face normal (the triangle is adjacent to corresponding vertex)
+	std::vector<NVECTOR3>	vertexNormalList(verticesList.size());
+	std::vector<NVECTOR3>	vertexTangentList(verticesList.size());
+
+	//1. compute vertex normal of faces
+	for (UINT i = 0;i < indicesList.size();i += 3)
+	{
+		//compute face normal
+		UINT idx1 = indicesList.at(i);
+		UINT idx2 = indicesList.at(i + 1);
+		UINT idx3 = indicesList.at(i + 2);
+		NVECTOR3 v1 = verticesList.at(idx1);
+		NVECTOR3 v2 = verticesList.at(idx2);
+		NVECTOR3 v3 = verticesList.at(idx3);
+		NVECTOR3 vec1 = v2 - v1;
+		NVECTOR3 vec2 = v3 - v1;
+		NVECTOR3 faceNormal(0,1.0f,0);
+		D3DXVec3Cross(&faceNormal, &vec1, &vec2);
+
+		//add face normal to vertex normal
+		vertexNormalList.at(idx1) += faceNormal;
+		vertexNormalList.at(idx2) += faceNormal;
+		vertexNormalList.at(idx3) += faceNormal;
+	}
+
+	//2.normalize all vertex normal
+	//3.by the way, compute vertex tangent
+	vertexTangentList.reserve(verticesList.size());
+	for (auto& vn:vertexNormalList)
+	{
+		D3DXVec3Normalize(&vn, &vn);
+
+		//compute Tangent
+		NVECTOR3 tmpTangent(1, 0, 0);
+		NVECTOR3 tmpVec(-vn.z, 0, vn.x);
+		D3DXVec3Cross(&tmpTangent, &vn, &tmpVec);
+		D3DXVec3Normalize(&tmpTangent, &tmpTangent);
+
+		//one vertex for one tangent
+		vertexTangentList.push_back(tmpTangent);
+	}
+	
+	//generate complete vertices
+	std::vector<N_DefaultVertex> completeVertexList;
+	completeVertexList.reserve(verticesList.size());
+	for (UINT i = 0;i < verticesList.size();i++)
+	{
+		N_DefaultVertex tmpCompleteVertex;
+
+		try
+		{
+			tmpCompleteVertex.Color = NVECTOR4(0.3f, 0.3f, 0.3f, 1.0f);
+			tmpCompleteVertex.Normal = vertexNormalList.at(i);
+			tmpCompleteVertex.Pos = verticesList.at(i);
+			tmpCompleteVertex.Tangent = vertexTangentList.at(i);
+			tmpCompleteVertex.TexCoord = texCoordList.at(i);
+
+			completeVertexList.push_back(tmpCompleteVertex);
+		}
+		catch(std::out_of_range)
+		{
+			//theoretically , all buffer should have the same total elements count
+			//but if shit happens,we must stop this.
+			DEBUG_MSG1("Load File 3DS: WARNING : data could be damaged!!");
+			break;
+		}
+	}
+
+	//.....................
+	*m_pIB_Mem = std::move(indicesList);
+	*m_pVB_Mem = std::move(completeVertexList);
+
+#pragma endregion
+
+#pragma region material&TextureData
+	//subsets...
+	*m_pSubsetInfoList = std::move(subsetList);
+
+	//!!!!!materials have not been created. The Creation of materials will be done
+	//by current Scene Tex&Mat Manager	
+	NoiseMaterialManager* pMatMgr = m_pFatherScene->m_pChildMaterialMgr;
+	NoiseTextureManager* pTexMgr= m_pFatherScene->m_pChildTextureMgr;
+
+	//Get the directory where the file locates
+	std::string modelFileDirectory = GetFileDirectory(pFilePath);
+
+	if (pTexMgr!=nullptr && pMatMgr!=nullptr)
+	{
+		for (UINT i = 0;i < materialList.size();i++)
+		{
+			//----------Create Material-----------
+			UINT matReturnID = pMatMgr->CreateMaterial(materialList.at(i));
+			if(matReturnID==NOISE_MACRO_INVALID_MATERIAL_ID)
+				DEBUG_MSG1("WARNING : Load 3ds : Material Creation Failed!!");
+
+			//----------Create Texture Maps----------
+			std::string& diffMapName = materialList.at(i).diffuseMapName;
+			std::string& normalMapName = materialList.at(i).normalMapName;
+			std::string& specMapName = materialList.at(i).specularMapName;
+
+			//Define a temp lambda function for texture creations
+			auto lambdaFunc_CreateTexture = [&](std::string& texName)
+			{
+				if (pTexMgr->GetTextureID(texName) == NOISE_MACRO_INVALID_TEXTURE_ID)
+				{
+					if (texName != "")
+					{
+						UINT textureReturnID = NOISE_MACRO_INVALID_TEXTURE_ID;
+
+						//locate the directory to generate file path
+						std::string mapPath = modelFileDirectory + texName2FilePathMap.at(texName);
+
+						//Try to create texture
+						textureReturnID = pTexMgr->CreateTextureFromFile(
+							mapPath.c_str(),
+							texName,
+							TRUE, 0, 0, FALSE);
+
+						if (textureReturnID == NOISE_MACRO_INVALID_TEXTURE_ID)
+							DEBUG_MSG1("WARNING : Load 3ds : texture Creation Failed!!");
+					}
+				}
+			};
+
+			//DIFFUSE MAP
+			lambdaFunc_CreateTexture(diffMapName);
+
+			//NORMAL MAP
+			lambdaFunc_CreateTexture(normalMapName);
+
+			//SPECULAR MAP
+			lambdaFunc_CreateTexture(specMapName);
+		}
+	}
+
+#pragma endregion
+
+#pragma region CreateGpuBuffer
+	//Prepare to update to GPU
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	mVertexCount = m_pVB_Mem->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	mIndexCount = m_pIB_Mem->size();
+
+	//×îºó
+	mFunction_CreateGpuBuffers(&tmpInitData_Vertex, mVertexCount, &tmpInitData_Index, mIndexCount);
+
+#pragma endregion
 
 	return TRUE;
 }

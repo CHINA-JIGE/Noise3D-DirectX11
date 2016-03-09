@@ -246,7 +246,7 @@ UINT NoiseTextureManager::CreatePureColorTexture(std::string texName, UINT pixel
 	return newTexIndex;
 };
 
-UINT NoiseTextureManager::CreateTextureFromFile(const LPCWSTR filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
+UINT NoiseTextureManager::CreateTextureFromFile(NFilePath filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
 {
 	if (keepCopyInMemory)
 	{
@@ -259,7 +259,7 @@ UINT NoiseTextureManager::CreateTextureFromFile(const LPCWSTR filePath, std::str
 	return NOISE_MACRO_INVALID_TEXTURE_ID;
 }
 
-UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT NoiseTextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	HRESULT hr = S_OK;
 	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
@@ -423,7 +423,7 @@ UINT NoiseTextureManager::CreateCubeMapFromFiles(const LPCWSTR fileName[6], std:
 	return newTexIndex;
 }
 
-UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT NoiseTextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	BOOL isFileNameValid;
 	for (UINT i = 0; i < 6;i++)
@@ -491,9 +491,9 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::
 	}
 
 	//then endow a pointer to new SRV
-	D3DX11CreateShaderResourceViewFromFile(
+	D3DX11CreateShaderResourceViewFromFileA(
 		g_pd3dDevice11,
-		dds_FileName,
+		dds_FileName.c_str(),
 		&loadInfo,
 		nullptr,
 		&tmpTexObj.m_pSRV,
@@ -526,7 +526,6 @@ UINT NoiseTextureManager::CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::
 
 	return newTexIndex;
 }
-
 
 
 BOOL NoiseTextureManager::ConvertTextureToGreyMap(UINT texID)
@@ -717,7 +716,7 @@ BOOL NoiseTextureManager::ConvertHeightMapToNormalMap(std::string texName, float
 	return ConvertHeightMapToNormalMap(GetTextureID(texName),heightFieldScaleFactor);
 }
 
-BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
 {
 	if (texID >= 0 && texID < m_pTextureObjectList->size())
 	{
@@ -725,11 +724,11 @@ BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, const LPCWSTR filePath, 
 		ID3D11Texture2D* tmp_pResource;
 		 m_pTextureObjectList->at(texID).m_pSRV->GetResource((ID3D11Resource**)&tmp_pResource);
 		 //use d3dx11
-		 hr= D3DX11SaveTextureToFileW(
+		 hr= D3DX11SaveTextureToFileA(
 			g_pImmediateContext, 
 			tmp_pResource,
 			D3DX11_IMAGE_FILE_FORMAT(picFormat),
-			filePath
+			filePath.c_str()
 			);
 		 HR_DEBUG(hr, "Save Texture Failed!");
 		ReleaseCOM(tmp_pResource);
@@ -739,7 +738,7 @@ BOOL NoiseTextureManager::SaveTextureToFile(UINT texID, const LPCWSTR filePath, 
 	return TRUE;
 }
 
-BOOL NoiseTextureManager::SaveTextureToFile(std::string texName, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+BOOL NoiseTextureManager::SaveTextureToFile(std::string texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
 {
 	return SaveTextureToFile(GetTextureID(texName),filePath,picFormat);
 };
@@ -951,7 +950,7 @@ inline void NoiseTextureManager::mFunction_RefreshHashTableAfterDeletion(UINT de
 	}
 };
 
-UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -1002,9 +1001,9 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(cons
 
 	//then endow a pointer to new SRV
 
-	D3DX11CreateShaderResourceViewFromFile(
+	D3DX11CreateShaderResourceViewFromFileA(
 		g_pd3dDevice11,
-		filePath,
+		filePath.c_str(),
 		&loadInfo,
 		nullptr,
 		&tmpTexObj.m_pSRV,
@@ -1029,7 +1028,7 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(cons
 	return newTexIndex;//invalid file or sth else
 }
 
-UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -1090,9 +1089,9 @@ UINT NoiseTextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(cons
 
 	//create texture from files
 	ID3D11Texture2D* pOriginTexture2D;
-	D3DX11CreateTextureFromFile(
+	D3DX11CreateTextureFromFileA(
 		g_pd3dDevice11,
-		filePath,
+		filePath.c_str(),
 		&loadInfo,
 		NULL,
 		(ID3D11Resource**)&pOriginTexture2D,

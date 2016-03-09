@@ -41,13 +41,13 @@ public:
 	UINT		CreatePureColorTexture(std::string texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
 
 	//--------
-	UINT		CreateTextureFromFile(const LPCWSTR filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory=FALSE);
+	UINT		CreateTextureFromFile(NFilePath filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory=FALSE);
 
 	//--------
-	UINT		CreateCubeMapFromFiles(const LPCWSTR fileName[6], std::string cubeTextureName,NOISE_CUBEMAP_SIZE faceSize);
+	UINT		CreateCubeMapFromFiles(NFilePath fileName[6], std::string cubeTextureName,NOISE_CUBEMAP_SIZE faceSize);
 
 	//--------
-	UINT		CreateCubeMapFromDDS(const LPCWSTR dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+	UINT		CreateCubeMapFromDDS(NFilePath dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 	
 	//--------
 	BOOL	ConvertTextureToGreyMap(UINT texID);
@@ -65,9 +65,9 @@ public:
 	BOOL	ConvertHeightMapToNormalMap(std::string texName, float heightFieldScaleFactor = 10.0f);
 
 	//--------
-	BOOL	SaveTextureToFile(UINT texID,const LPCWSTR filePath,NOISE_TEXTURE_SAVE_FORMAT picFormat);
+	BOOL	SaveTextureToFile(UINT texID, NFilePath filePath,NOISE_TEXTURE_SAVE_FORMAT picFormat);
 	
-	BOOL	SaveTextureToFile(std::string texName, const LPCWSTR filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
+	BOOL	SaveTextureToFile(std::string texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
 
 	//--------
 	UINT		GetTextureID(std::string texName);
@@ -104,9 +104,9 @@ private:
 
 	void		mFunction_RefreshHashTableAfterDeletion(UINT deletedTexID_threshold, UINT indexDecrement);
 
-	UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+	UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
-	UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(const LPCWSTR filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+	UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
 	UINT		mFunction_GetPixelIndexFromXY(UINT x, UINT y,UINT width);
 

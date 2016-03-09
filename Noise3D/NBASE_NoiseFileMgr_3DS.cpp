@@ -6,7 +6,6 @@
 
 #include "Noise3D.h"
 
-
 /*******************************************************************
 
 								DECLARATION
@@ -14,6 +13,10 @@
 *********************************************************************/
 
 const UINT c_chunkHeadByteLength = 6;
+
+const std::string c_defaultTexNamePrefix = std::string("N3dSTexNAmE_");
+
+const std::string c_defaultMatNamePrefix = std::string("N3dSMatNAmE_");
 
 enum NOISE_3DS_CHUNKID
 {
@@ -64,11 +67,13 @@ fileIn.read((char*)&var,sizeof(var));
 
 ***************************************************/
 
+std::string DecorateMatName(std::string name);
+
 void ReadChunk();
 
 void	SkipCurrentChunk();
 
-void	ReadStringFromFile(std::string& outString);
+void	ReadStringFromFileA(std::string& outString);
 
 //**********************************************
 void		ParseMainChunk();//1
@@ -83,7 +88,7 @@ void		ParseMainChunk();//1
 
 				void		ParseFaceDescAndIndices();//5
 
-					void		ParseFacesAndMatID();//6
+					void		ParseFacesAndMatName();//6
 
 				void		ParseTextureCoordinate();//5
 
@@ -105,7 +110,7 @@ void		ParseMainChunk();//1
 
 			void	ParseSpecularMap();//4
 
-				void	ReadAndParseMapChunk(std::string& outMapFileName);//level 5 for each map chunk
+				void	ReadAndParseMapChunk(std::string& outGeneratedTextureName);//level 5 for each map chunk
 
 /***********************************************************************
 Offset			Length			Description
@@ -272,55 +277,122 @@ z轴的向量（三个浮点数u、v、n）
 
 *********************************************************************/
 
-//there are so many output that put them in function parameter will be too verbose
-//Not to mention recursive function or deep function calling tree
-static uint64_t fileSize = 0;
+
+static uint64_t static_fileSize = 0;
 static std::ifstream fileIn;
-static uint64_t currentChunkFileEndPos = 0;
+static uint64_t static_currentChunkFileEndPos = 0;
+
+//used in generating unique Mat Name. One Mesh Loading for one unique Mesh Index
+static UINT static_MeshIndex = 0;
+//used in generating unique tex name
+static UINT static_textureMapIndex = 0;
+
 
 //--------Data From File--------
+//if I use tree-like hierarchy parsing, then the REF of output buffers will be passed 
+//through a lot of functions, which is troublesome. So static output Buffers are used 
+//here ,rather than pass argument by ref , for convenience.
 static std::string static_objectName;
 static std::vector<NVECTOR3> static_verticesList;
 static std::vector<NVECTOR2> static_texcoordList;
 static std::vector<UINT> static_indicesList;
 static std::vector<N_MeshSubsetInfo> static_subsetList;
 static std::vector<N_Material> static_materialList;
+static std::unordered_map<std::string,NFilePath>  static_TexName2FilePathPairList;//textures files that should be loaded
 
-//-------------------------INTERFACE---------------------
-BOOL NoiseFileManager::ImportFile_3DS(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
+
+
+
+
+
+
+
+//-------------------------INTERFACE------------------------
+BOOL NoiseFileManager::ImportFile_3DS(
+	NFilePath pFilePath,
+	std::string& outObjectName, 
+	std::vector<NVECTOR3>& outVertexBuffer, 
+	std::vector<NVECTOR2>& outTexCoordList, 
+	std::vector<UINT>& outIndexBuffer, 
+	std::vector<N_MeshSubsetInfo>& outSubsetList, 
+	std::vector<N_Material>& outMaterialList,
+	std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList)
 {
-	fileIn.open("TexturedBox.3ds", std::ios::binary);
+	static_objectName.clear();
+	static_verticesList.clear();
+	static_texcoordList.clear();
+	static_indicesList.clear();
+	static_subsetList.clear();
+	static_materialList.clear();
+	static_TexName2FilePathPairList.clear();
+
+	fileIn.open(pFilePath, std::ios::binary);
 
 	if (!fileIn.good())
 	{
-		DEBUG_MSG1("file cannot open");
+		DEBUG_MSG1("Noise File Manager : Import .3ds file failed!!");
 		return FALSE;
 	}
 
 	fileIn.seekg(0, std::ios::end);
-	currentChunkFileEndPos = 0;
-	fileSize = fileIn.tellg();
+	static_currentChunkFileEndPos = 0;
+	static_fileSize = fileIn.tellg();
 	fileIn.seekg(0);
 
 	//maybe linearly deal with chunks is also OK....
 	//stack will be used when necessary because recursive solution
-	//can sometimes be rewritten into non-recursive form using stack.
+	//can sometimes be rewritten in non-recursive form using stack.
 	while (!fileIn.eof() && fileIn.good())
 	{
 		ReadChunk();
 	}
 	fileIn.close();
+
+	//Finish Parsing ,
+	if (static_verticesList.size() == 0 || static_indicesList.size() == 0)
+	{
+		DEBUG_MSG1("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
+		return FALSE;
+	}
+
+	//when material is not valid, a default subset should also be generated.
+	//otherwise, the vertices wouldn't even be drawn ('Cos one subset for one draw call)
+	if (static_subsetList.size() == 0)
+	{
+		N_MeshSubsetInfo tmpSubsetInfo;
+		tmpSubsetInfo.matName = NOISE_MACRO_DEFAULT_MATERIAL_NAME;
+		tmpSubsetInfo.primitiveCount = static_verticesList.size();
+		tmpSubsetInfo.startPrimitiveID = 0;
+		static_subsetList.push_back(tmpSubsetInfo);
+	}
+
+	//std::move transform lval into rval to avoid copying happens
+	outObjectName = static_objectName;
+	outIndexBuffer = std::move(static_indicesList);
+	outVertexBuffer = std::move(static_verticesList);
+	outTexCoordList = std::move(static_texcoordList);
+	outSubsetList = std::move(static_subsetList);
+	outMaterialList = std::move(static_materialList);
+	out_TexName2FilePathPairList = std::move(static_TexName2FilePathPairList);
+
+	//used to generate unique name
+	++static_MeshIndex;
+
 	return TRUE;
 }
+
+
+
+//----------------------------------------------------------------------------
 
 //when encountering not interested chunk, use absolute end file pos of the chunk to skip
 void SkipCurrentChunk()
 {
 	//sometimes we will encounter error / corrupted data , we must shutdown the reading 
 	//of this chunk
-	if (currentChunkFileEndPos < fileSize)
+	if (static_currentChunkFileEndPos < static_fileSize)
 	{
-		fileIn.seekg(currentChunkFileEndPos);
+		fileIn.seekg(static_currentChunkFileEndPos);
 	}
 	else
 	{
@@ -345,16 +417,16 @@ void ReadChunk()
 	BINARY_READ(chunkLength);
 
 	//if chunk length corrupted , length data might be invalid
-	if (currentChunkFileEndPos+chunkLength > fileSize)
+	if (chunkLength > static_fileSize)
 	{
-		currentChunkFileEndPos = fileSize - 1;
+		static_currentChunkFileEndPos = static_fileSize - 1;
 		fileIn.seekg(0, std::ios::end);
 		DEBUG_MSG1("Load 3ds File : chunk is too long ! 3ds file might be damaged!!!");
 		return;
 	}
 
 	uint64_t tmpFilePos = fileIn.tellg();
-	currentChunkFileEndPos = tmpFilePos + chunkLength - c_chunkHeadByteLength;
+	static_currentChunkFileEndPos = tmpFilePos + chunkLength - c_chunkHeadByteLength;
 
 	//in CURRENT chunk, there can be several sub-chunks to read
 	switch (chunkID)
@@ -384,7 +456,7 @@ void ReadChunk()
 		break;
 
 	case NOISE_3DS_CHUNKID_FACES_MATERIAL:
-		ParseFacesAndMatID();//level 6
+		ParseFacesAndMatName();//level 6
 		break;
 
 	case NOISE_3DS_CHUNKID_MAPPING_COORDINATES_LIST:
@@ -436,7 +508,25 @@ void ReadChunk()
 }
 
 //orderly read a string from file at current position
-void ReadStringFromFile(std::string & outString)
+void ReadStringFromFileA(std::string & outString)
+{
+	do
+	{
+		char tmpChar = 0;
+		BINARY_READ(tmpChar);
+
+		if (tmpChar)
+		{
+			outString.push_back(tmpChar);
+		}
+		else
+		{
+			break;
+		}
+	} while (true);
+}
+
+void	ReadStringFromFileW(std::wstring& outString)
 {
 	do
 	{
@@ -512,7 +602,7 @@ void ReadAndParseColorChunk(NVECTOR3 & outColor)
 
 //father: xxx map chunk
 //child:none
-void ReadAndParseMapChunk(std::string & outMapFileName)
+void ReadAndParseMapChunk(std::string& outGeneratedTextureName)
 {
 	//please refer to project "Assimp" for more chunk information
 
@@ -533,7 +623,20 @@ void ReadAndParseMapChunk(std::string & outMapFileName)
 	switch (chunkID)
 	{
 	case NOISE_3DS_CHUNKID_MAPPING_FILENAME:
-		ReadStringFromFile(outMapFileName);
+	{
+		std::string texFilePath;
+		//back() can retrieve the current processing material
+		std::string texName=c_defaultTexNamePrefix + std::to_string(static_textureMapIndex);
+		++static_textureMapIndex;
+
+		//...Read File Path From File
+		ReadStringFromFileA(texFilePath);
+
+		//texName-filePath pair,so that texture creation could be done
+		static_TexName2FilePathPairList.insert(std::make_pair(texName,texFilePath.c_str()));
+
+		outGeneratedTextureName = std::move(texName);
+	}
 		break;
 
 	default:
@@ -569,7 +672,7 @@ void Parse3DEditorChunk()
 void ParseObjectBlock()
 {
 	//data: object name
-	ReadStringFromFile(static_objectName);
+	ReadStringFromFileA(static_objectName);
 };
 
 //*************************************************
@@ -635,9 +738,9 @@ void ParseFaceDescAndIndices()
 //*************************************************
 //father::FACES DESCRIPTION 0x4120
 //child: none
-void ParseFacesAndMatID()
+void ParseFacesAndMatName()
 {
-	//this chunk belongs to one indices block ,i guess one indices(faces) block can
+	//i guess one indices(faces) block can
 	//possess several this kind of FaceMaterial Block ...
 
 	//data : 
@@ -651,7 +754,7 @@ void ParseFacesAndMatID()
 	std::vector<uint16_t> static_indicesList;
 
 	//material name
-	ReadStringFromFile(matName);
+	ReadStringFromFileA(matName);
 
 	//faces that link to this material
 	uint16_t faceCount = 0;
@@ -674,7 +777,7 @@ void ParseFacesAndMatID()
 
 	//generate subsets list (for current Material)
 	N_MeshSubsetInfo newSubset;
-	newSubset.matName = matName;
+	newSubset.matName = DecorateMatName(matName);
 	newSubset.primitiveCount = 0;
 	newSubset.startPrimitiveID = static_indicesList.at(0);
 	currMatSubsetList.push_back(newSubset);
@@ -691,6 +794,7 @@ void ParseFacesAndMatID()
 		else
 		{
 			//this index isn't adjacent to the growing region
+			//so create a new region
 			newSubset.matName = matName;
 			newSubset.primitiveCount = 1;
 			newSubset.startPrimitiveID = static_indicesList.at(i);
@@ -751,7 +855,9 @@ void ParseMaterialBlock()
 void ParseMaterialName()
 {
 	//data: material name
-	ReadStringFromFile(static_materialList.back().mMatName);
+	std::string orginalMatName;
+	ReadStringFromFileA(orginalMatName);
+	static_materialList.back().mMatName = DecorateMatName(orginalMatName);
 }
 
 //*************************************************
@@ -766,7 +872,7 @@ void ParseAmbientColor()
 	{
 		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseAmbientColor);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
@@ -778,7 +884,7 @@ void ParseDiffuseColor()
 	{
 		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseDiffuseColor);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
@@ -790,7 +896,7 @@ void ParseSpecularColor()
 	{
 		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseSpecularColor);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
@@ -801,9 +907,11 @@ void ParseDiffuseMap()
 	uint64_t filePos = 0;
 	do
 	{
+		std::string texName;
+		//mapName-mapFilePath pair will be added in this function
 		ReadAndParseMapChunk(static_materialList.back().diffuseMapName);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
@@ -814,9 +922,10 @@ void ParseBumpMap()
 	uint64_t filePos = 0;
 	do
 	{
+		//mapName-mapFilePath pair will be added in this function
 		ReadAndParseMapChunk(static_materialList.back().normalMapName);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
@@ -827,7 +936,11 @@ void ParseSpecularMap()
 	uint64_t filePos = 0;
 	do
 	{
+		//mapName-mapFilePath pair will be added in this function
 		ReadAndParseMapChunk(static_materialList.back().specularMapName);
 		filePos = fileIn.tellg();
-	} while (filePos<currentChunkFileEndPos);
+	} while (filePos<static_currentChunkFileEndPos);
 }
+
+
+std::string DecorateMatName(std::string name) { return c_defaultMatNamePrefix + name + std::to_string(static_MeshIndex); };

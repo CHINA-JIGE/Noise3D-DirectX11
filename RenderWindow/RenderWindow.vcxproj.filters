@@ -23,6 +23,9 @@
     <ClCompile Include="UnitTest_Mesh.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="Demo_Utility_ConvertToNormalMap.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main3D.h">

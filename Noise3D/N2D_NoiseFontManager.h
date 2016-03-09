@@ -6,6 +6,13 @@
 
 #pragma once
 
+struct N_Font_Bitmap
+{
+	UINT width;
+	UINT height;
+	std::vector<NVECTOR4> bitmapBuffer;
+};
+
 struct N_FontObject
 {
 	FT_Face		mFtFace;
@@ -30,7 +37,7 @@ public:
 
 	BOOL	Initialize();
 
-	UINT		CreateFontFromFile(const char* filePath, const char* fontName, UINT fontSize,float fontAspectRatio=0.707f);
+	UINT		CreateFontFromFile(NFilePath filePath, const char* fontName, UINT fontSize,float fontAspectRatio=0.707f);
 
 	BOOL	SetFontSize(UINT fontID,UINT  fontSize);
 	

@@ -7,9 +7,9 @@
 
 #include "Noise3D.h"
 
-static BOOL localFunction_ImportFile_STL_Binary(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
+static BOOL localFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
 
-static BOOL localFunction_ImportFile_STL_Ascii(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
+static BOOL localFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo);
 
 
 /*******************************************************************
@@ -17,7 +17,7 @@ static BOOL localFunction_ImportFile_STL_Ascii(char* pFilePath, std::vector<NVEC
 									INTERFACE
 
 *********************************************************************/
-BOOL NoiseFileManager::ImportFile_STL(char * pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string & refFileInfo)
+BOOL NoiseFileManager::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string & refFileInfo)
 {
 	std::ifstream tmpFile(pFilePath, std::ios::binary);
 
@@ -29,8 +29,8 @@ BOOL NoiseFileManager::ImportFile_STL(char * pFilePath, std::vector<NVECTOR3>& r
 
 	//move file cursor to the end
 	tmpFile.seekg(0, std::ios::end);
-	std::streamoff fileSize = tmpFile.tellg();
-	if (fileSize < 84L)
+	std::streamoff static_fileSize = tmpFile.tellg();
+	if (static_fileSize < 84L)
 	{
 		DEBUG_MSG1("Load STL : file Damaged!!File Size is Too Small!!");
 		return FALSE;
@@ -58,7 +58,7 @@ BOOL NoiseFileManager::ImportFile_STL(char * pFilePath, std::vector<NVECTOR3>& r
 								LOCAL FUNCTION
 
 *********************************************************************/
-BOOL localFunction_ImportFile_STL_Binary(char* pFilePath, std::vector<NVECTOR3>& refVertexBuffer,
+BOOL localFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer,
 	std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath, std::ios::binary);
@@ -168,7 +168,7 @@ BOOL localFunction_ImportFile_STL_Binary(char* pFilePath, std::vector<NVECTOR3>&
 	return TRUE;
 }
 
-BOOL localFunction_ImportFile_STL_Ascii(char * pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
+BOOL localFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath);
 
