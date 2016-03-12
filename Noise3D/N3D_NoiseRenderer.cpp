@@ -120,6 +120,10 @@ void	NoiseRenderer::RenderMeshes()
 		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
 		for (j = 0;j < meshSubsetCount;j++)
 		{
+			//subset info
+			UINT currSubsetIndicesCount = tmp_pMesh->m_pSubsetInfoList->at(j).primitiveCount*3;
+			UINT currSubsetStartIndex = tmp_pMesh->m_pSubsetInfoList->at(j).startPrimitiveID * 3;
+			
 			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
 			mFunction_RenderMeshInList_UpdateCbPerSubset(j);
 
@@ -128,7 +132,7 @@ void	NoiseRenderer::RenderMeshes()
 			for (k = 0;k < tmp_pTechDesc.Passes; k++)
 			{
 				m_pFX_Tech_Default->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
-				g_pImmediateContext->DrawIndexed(tmp_pMesh->mIndexCount, 0, 0);
+				g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
 			}
 		}
 }
@@ -851,12 +855,11 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame()
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 {
 		//we dont accept invalid material ,but accept invalid texture
-	NoiseTextureManager*		pSceneTexMgr = m_pFatherScene->m_pChildTextureMgr;
-	NoiseMaterialManager*	pSceneMatMgr = m_pFatherScene->m_pChildMaterialMgr;
+		NoiseTextureManager*		pSceneTexMgr = m_pFatherScene->m_pChildTextureMgr;
+		NoiseMaterialManager*	pSceneMatMgr = m_pFatherScene->m_pChildMaterialMgr;
 
 		//Get Material ID by unique name
 		UINT	 currSubsetMatID = pSceneMatMgr->GetMatID( tmp_pMesh->m_pSubsetInfoList->at(subsetID).matName);
-		auto aaa = tmp_pMesh->m_pSubsetInfoList->at(subsetID).matName;
 
 		//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 		//then we should check if its child textureS are valid too 
@@ -920,10 +923,9 @@ void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID)
 			m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
 		}
 		
-
 		//transmit all data to gpu
 		m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset, 0, sizeof(m_CbPerSubset));
-	
+
 };
 
 void		NoiseRenderer::mFunction_RenderMeshInList_UpdateCbPerObject()
@@ -1107,6 +1109,8 @@ void		NoiseRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<Noi
 {
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = NULL;
+
+	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 
 
 	for (UINT i = 0;i < pList->size();i++)

@@ -149,7 +149,7 @@ private:
 
 	void				mFunction_RenderMeshInList_UpdateCbPerFrame();
 
-	void				mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID);
+	void				mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID);//return subset primitive count
 
 	void				mFunction_RenderMeshInList_UpdateCbRarely();
 

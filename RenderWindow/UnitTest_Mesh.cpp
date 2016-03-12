@@ -60,6 +60,7 @@ BOOL Init3D(HWND hwnd)
 	TexMgr.CreateTextureFromFile("media/Jade.jpg", "JadeNormalMap", FALSE, 256, 256, TRUE);
 	TexMgr.CreateTextureFromFile("media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
 	TexMgr.CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	TexMgr.CreateCubeMapFromDDS("media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);;
 	TexMgr.ConvertTextureToGreyMap(TexMgr.GetTextureID("JadeNormalMap"));
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("JadeNormalMap"), 5.0f);
 
@@ -78,10 +79,21 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
 	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
-	Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
+	//Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
+	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
+	Mesh1.LoadFile_3DS("model/treeScene/treeScene2.3ds");
 	//Mesh1.CreateSphere(5.0f, 30, 30);
 	Mesh1.SetPosition(0, 0, 0);
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
+	
+	/*std::vector<N_DefaultVertex> tmpVB;
+	Mesh1.GetVertexBuffer(tmpVB);
+	for (auto v : tmpVB)
+	{
+		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	}*/
+	
 	//----------------------------------------------------------
 
 	Camera.SetPosition(2.0f, 0, 0);
@@ -98,15 +110,17 @@ BOOL Init3D(HWND hwnd)
 	Atmos.SetFogEnabled(FALSE);
 	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
 	Atmos.CreateSkyDome(4.0f, 4.0f, TexMgr.GetTextureID("Universe"));
+	//Atmos.CreateSkyBox(100.0f, 100.0f, 100.0f, TexMgr.GetTextureID("AtmoTexture"));
 
 	//！！！！！！菊高！！！！！！！！
-	DirLight1.mAmbientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	DirLight1.mAmbientColor = NVECTOR3(0.0f,0.0f, 0.0f);
 	DirLight1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	DirLight1.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	DirLight1.mDirection = NVECTOR3(0.0f, -0.0f, 1.0f);
-	DirLight1.mSpecularIntensity = 1.5f;
-	DirLight1.mDiffuseIntensity = 1.0f;
+	DirLight1.mDirection = NVECTOR3(-1.0f,-1.0f, 0);
+	DirLight1.mSpecularIntensity = 1.0f;
+	DirLight1.mDiffuseIntensity =2.0f;
 	LightMgr.AddDynamicDirLight(DirLight1);
+
 
 	N_Material Mat1;
 	Mat1.mMatName = "myDefaultMaterial";

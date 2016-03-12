@@ -1,275 +1,11 @@
 /***********************************************************************
 
-						Description: OBJ File Operation
+						Description: 3ds File Operation
 
 ************************************************************************/
 
 #include "Noise3D.h"
-
-/*******************************************************************
-
-								DECLARATION
-
-*********************************************************************/
-
-const UINT c_chunkHeadByteLength = 6;
-
-const std::string c_defaultTexNamePrefix = std::string("N3dSTexNAmE_");
-
-const std::string c_defaultMatNamePrefix = std::string("N3dSMatNAmE_");
-
-enum NOISE_3DS_CHUNKID
-{
-	//some of these chunks are not interested
-	NOISE_3DS_CHUNKID_MAIN3D = 0x4D4D,
-	NOISE_3DS_CHUNKID_3D_EDITOR_CHUNK = 0x3D3D,
-	NOISE_3DS_CHUNKID_OBJECT_BLOCK = 0x4000,
-	NOISE_3DS_CHUNKID_TRIANGULAR_MESH = 0x4100,
-	NOISE_3DS_CHUNKID_VERTICES_LIST = 0x4110,
-	NOISE_3DS_CHUNKID_FACES_DESCRIPTION = 0x4120,
-	NOISE_3DS_CHUNKID_FACES_MATERIAL = 0x4130,
-	NOISE_3DS_CHUNKID_MAPPING_COORDINATES_LIST = 0x4140,
-	NOISE_3DS_CHUNKID_SMOOTHING_GROUP_LIST = 0x4150,
-	NOISE_3DS_CHUNKID_LOCAL_COORDINATES_SYSTEM = 0x4160,
-	NOISE_3DS_CHUNKID_LIGHT = 0x4600,
-	NOISE_3DS_CHUNKID_SPOTLIGHT = 0x4610,
-	NOISE_3DS_CHUNKID_CAMERA = 0x4700,
-	NOISE_3DS_CHUNKID_MATERIAL_BLOCK = 0xAFFF,
-	NOISE_3DS_CHUNKID_MATERIAL_NAME = 0xA000,
-	NOISE_3DS_CHUNKID_AMBIENT_COLOR = 0xA010,
-	NOISE_3DS_CHUNKID_DIFFUSE_COLOR = 0xA020,
-	NOISE_3DS_CHUNKID_SPECULAR_COLOR = 0xA030,
-	NOISE_3DS_CHUNKID_TEXTURE_MAP = 0xA200,
-	NOISE_3DS_CHUNKID_BUMP_MAP = 0xA230,
-	NOISE_3DS_CHUNKID_SPECULAR_MAP = 0xA204,
-	NOISE_3DS_CHUNKID_REFLECTION_MAP = 0xA220,
-	NOISE_3DS_CHUNKID_MAPPING_FILENAME = 0xA300,
-	NOISE_3DS_CHUNKID_MAPPING_PARAMETERS = 0xA351,
-
-	// Common chunks which can be found everywhere in the file
-	NOISE_3DS_CHUNKID_VERSION = 0x0002,
-	NOISE_3DS_CHUNKID_RGBF = 0x0010,	// float4 R; float4 G; float4 B
-	NOISE_3DS_CHUNKID_RGBB = 0x0011,	// int1 R; int1 G; int B
-	NOISE_3DS_CHUNKID_LINRGBF = 0x0013,	// float4 R; float4 G; float4 B
-	NOISE_3DS_CHUNKID_LINRGBB = 0x0012,	// int1 R; int1 G; int B
-	NOISE_3DS_CHUNKID_PERCENTW = 0x0030,	// int2   percentage
-	NOISE_3DS_CHUNKID_PERCENTF = 0x0031,	// float4  percentage
-};
-
-
-#define BINARY_READ(var) \
-fileIn.read((char*)&var,sizeof(var));
-
-
-/***************************************************
-
-				FUNCTION DEFINITION
-
-***************************************************/
-
-std::string DecorateMatName(std::string name);
-
-void ReadChunk();
-
-void	SkipCurrentChunk();
-
-void	ReadStringFromFileA(std::string& outString);
-
-//**********************************************
-void		ParseMainChunk();//1
-
-	void		Parse3DEditorChunk();//2
-
-		void		ParseObjectBlock();//3
-
-			void		ParseTriangularMeshChunk();//4
-
-				void		ParseVerticesChunk();//5
-
-				void		ParseFaceDescAndIndices();//5
-
-					void		ParseFacesAndMatName();//6
-
-				void		ParseTextureCoordinate();//5
-
-		void	ParseMaterialBlock();//3
-			
-			void	ParseMaterialName();//4
-
-			void	ParseAmbientColor();//4
-
-			void	ParseDiffuseColor();//4
-
-			void	ParseSpecularColor();//4
-
-				void ReadAndParseColorChunk(NVECTOR3& outColor);//level 5 for each color chunk
-
-			void	ParseDiffuseMap();//4
-
-			void	ParseBumpMap();//4
-
-			void	ParseSpecularMap();//4
-
-				void	ReadAndParseMapChunk(std::string& outGeneratedTextureName);//level 5 for each map chunk
-
-/***********************************************************************
-Offset			Length			Description
-0					2			Chunk	identifier
-2					4			Chunk	length : chunk data + sub - chunks(6 + n + m)
-6					n			Data
-6 + n			m			Sub-chunks
-*********************************************************************/
-
-/***************************************************
-
-Here are hierarchies of some chunks;
-some chunks don't have data, only sub-chunks;
-We just read interested chunks, then skip the rest.
-Switch(chunkID) to decide whether to read.
-
-MAIN CHUNK 0x4D4D
-   3D EDITOR CHUNK 0x3D3D
-      OBJECT BLOCK 0x4000
-         TRIANGULAR MESH 0x4100
-            VERTICES LIST 0x4110
-            FACES DESCRIPTION 0x4120
-               FACES MATERIAL 0x4130
-            MAPPING COORDINATES LIST 0x4140
-               SMOOTHING GROUP LIST 0x4150
-            LOCAL COORDINATES SYSTEM 0x4160
-         LIGHT 0x4600
-            SPOTLIGHT 0x4610
-         CAMERA 0x4700
-      MATERIAL BLOCK 0xAFFF
-         MATERIAL NAME 0xA000
-         AMBIENT COLOR 0xA010
-         DIFFUSE COLOR 0xA020
-         SPECULAR COLOR 0xA030
-         TEXTURE MAP 1 0xA200
-         BUMP MAP 0xA230
-         REFLECTION MAP 0xA220
-         [SUB CHUNKS FOR EACH MAP]
-            MAPPING FILENAME 0xA300
-            MAPPING PARAMETERS 0xA351
-      KEYFRAMER CHUNK 0xB000
-         MESH INFORMATION BLOCK 0xB002
-         SPOT LIGHT INFORMATION BLOCK 0xB007
-         FRAMES (START AND END) 0xB008
-            OBJECT NAME 0xB010
-            OBJECT PIVOT POINT 0xB013
-            POSITION TRACK 0xB020
-            ROTATION TRACK 0xB021
-            SCALE TRACK 0xB022
-            HIERARCHY POSITION 0xB030
-************************************************************/
-
-/************************CHUNK DETAILS - FROM BLOG*****************************
-http://anony3721.blog.163.com/blog/static/5119742011525103920153/
-
-0x4D4D：根chunk，每一个3ds文件都起自它，它的长度也就是文件的长度。它包含了两个chunk：编辑器，和关键帧。
-父chunk：无
-子chunk：0x3D3D、0xB000
-长度：头长度+子chunk长度
-内容：无
-
-0x3D3D：编辑器主chunk，它包含有：网格信息、灯光信息、摄象机信息和材质信息。
-父chunk：0x4D4D
-子chunk：0x4000、0xafff
-长度：头长度+子chunk长度
-内容：无
-
-0x4000：网格主chunk，它包含了所有的网格。
-父chunk：0x3D3D
-子chunk：0x4100
-长度：头长度+子chunk长度+内容长度
-内容：
-名称（以空字节结尾的字符串）
-
-0x4100：网格信息，包含网格名称、顶点、面、纹理坐标等。
-父chunk：0x4000
-子chunk：0x4110、0x4120、0x4140、0x4160
-长度：头长度+子chunk长度
-内容：无
-
-0x4110：顶点信息。
-父chunk：0x4100
-子chunk：无
-长度：头长度+内容长度
-内容：
-顶点个数（一个字）
-顶点坐标（三个浮点数一个坐标x、y、z，个数*3*浮点数）
-
-0x4120：面信息。
-父chunk：0x4100
-子chunk：0x4130
-长度：头长度+子chunk长度+内容长度
-内容：
-面个数（一个字）
-顶点索引（三个字一个索引1、2、3，个数*3*字）
-
-0x4130：与网格相关的材质信息。
-父chunk：0x4120
-子chunk：无
-长度：头长度+内容长度
-内容：
-名称（以空字节结尾的字符串）
-与材质相连的面的个数（一个字）
-与材质相连的面的索引（个数*字）
-
-0x4140：纹理坐标。
-父chunk：0x4100
-子chunk：无
-长度：头长度+内容长度
-内容：
-坐标个数（一个字）
-坐标（两个浮点数一个坐标u、v，个数*2*浮点数）
-
-0x4160：转换矩阵。
-父chunk：0x4100
-子chunk：无
-长度：头长度+内容长度
-内容：
-x轴的向量（三个浮点数u、v、n）
-y轴的向量（三个浮点数u、v、n）
-z轴的向量（三个浮点数u、v、n）
-源点坐标（三个浮点数x、y、z）
-
-0xafff：材质信息。
-父chunk：0x4D4D
-子chunk：0xa000、0xa020、0xa200
-长度：头长度+子chunk长度
-内容：无
-
-0xa000：材质名称。
-父chunk：0xafff
-子chunk：无
-长度：头长度+内容长度
-内容：
-名称（以空字节结尾的字符串）
-
-
-0xa020：Diffuse。
-父chunk：0xafff
-子chunk：0x0011、0x0012
-长度：头长度+子chunk长度
-内容：无
-
-
-0xa200：纹理帖图。
-父chunk：0xafff
-子chunk：0xa300
-长度：头长度+子chunk长度
-内容：无
-
-0xa300：贴图名称。
-父chunk：0xa200
-子chunk：无
-长度：头长度+内容长度
-内容：
-名称（以空字节结尾的字符串）
-
-*/
-
+#include  "NBASE_NoiseFileManager_3DS.h"
 
 /*******************************************************************
 
@@ -277,9 +13,8 @@ z轴的向量（三个浮点数u、v、n）
 
 *********************************************************************/
 
-
-static uint64_t static_fileSize = 0;
 static std::ifstream fileIn;
+static uint64_t static_fileSize = 0;
 static uint64_t static_currentChunkFileEndPos = 0;
 
 //used in generating unique Mat Name. One Mesh Loading for one unique Mesh Index
@@ -287,30 +22,19 @@ static UINT static_MeshIndex = 0;
 //used in generating unique tex name
 static UINT static_textureMapIndex = 0;
 
-
 //--------Data From File--------
-//if I use tree-like hierarchy parsing, then the REF of output buffers will be passed 
-//through a lot of functions, which is troublesome. So static output Buffers are used 
-//here ,rather than pass argument by ref , for convenience.
-static std::string static_objectName;
-static std::vector<NVECTOR3> static_verticesList;
-static std::vector<NVECTOR2> static_texcoordList;
-static std::vector<UINT> static_indicesList;
-static std::vector<N_MeshSubsetInfo> static_subsetList;
-static std::vector<N_Material> static_materialList;
-static std::unordered_map<std::string,NFilePath>  static_TexName2FilePathPairList;//textures files that should be loaded
-
-
-
-
-
-
+//there might be many Mesh Object in one .3ds scene,but when considering the structure
+//of NoiseMesh, meshes will be integrated as a whole.
+static std::vector<N_Load3ds_MeshObject> static_meshObjList;
+//Material Lists
+std::vector<N_Material> static_materialList;
+//string as UID, FilePath is used to load file
+std::unordered_map<std::string, NFilePath>  static_TexName2FilePathPairList;
 
 
 //-------------------------INTERFACE------------------------
 BOOL NoiseFileManager::ImportFile_3DS(
 	NFilePath pFilePath,
-	std::string& outObjectName, 
 	std::vector<NVECTOR3>& outVertexBuffer, 
 	std::vector<NVECTOR2>& outTexCoordList, 
 	std::vector<UINT>& outIndexBuffer, 
@@ -318,11 +42,7 @@ BOOL NoiseFileManager::ImportFile_3DS(
 	std::vector<N_Material>& outMaterialList,
 	std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList)
 {
-	static_objectName.clear();
-	static_verticesList.clear();
-	static_texcoordList.clear();
-	static_indicesList.clear();
-	static_subsetList.clear();
+	static_meshObjList.clear();
 	static_materialList.clear();
 	static_TexName2FilePathPairList.clear();
 
@@ -348,30 +68,22 @@ BOOL NoiseFileManager::ImportFile_3DS(
 	}
 	fileIn.close();
 
-	//Finish Parsing ,
-	if (static_verticesList.size() == 0 || static_indicesList.size() == 0)
+	//Finish Parsing,check if Vertices/Indices had been loaded
+	auto& vertexList = static_meshObjList.back().verticesList;
+	if (vertexList.size() == 0 || vertexList.size() == 0)
 	{
 		DEBUG_MSG1("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
 		return FALSE;
 	}
 
-	//when material is not valid, a default subset should also be generated.
-	//otherwise, the vertices wouldn't even be drawn ('Cos one subset for one draw call)
-	if (static_subsetList.size() == 0)
-	{
-		N_MeshSubsetInfo tmpSubsetInfo;
-		tmpSubsetInfo.matName = NOISE_MACRO_DEFAULT_MATERIAL_NAME;
-		tmpSubsetInfo.primitiveCount = static_verticesList.size();
-		tmpSubsetInfo.startPrimitiveID = 0;
-		static_subsetList.push_back(tmpSubsetInfo);
-	}
 
 	//std::move transform lval into rval to avoid copying happens
-	outObjectName = static_objectName;
-	outIndexBuffer = std::move(static_indicesList);
-	outVertexBuffer = std::move(static_verticesList);
-	outTexCoordList = std::move(static_texcoordList);
-	outSubsetList = std::move(static_subsetList);
+	N_Load3ds_MeshObject finalMeshObj;
+	IntegratePartialMeshIntoOnePiece(finalMeshObj);
+	outIndexBuffer = std::move(finalMeshObj.indicesList);
+	outVertexBuffer = std::move(finalMeshObj.verticesList);
+	outTexCoordList = std::move(finalMeshObj.texcoordList);
+	outSubsetList = std::move(finalMeshObj.subsetList);
 	outMaterialList = std::move(static_materialList);
 	out_TexName2FilePathPairList = std::move(static_TexName2FilePathPairList);
 
@@ -526,6 +238,7 @@ void ReadStringFromFileA(std::string & outString)
 	} while (true);
 }
 
+//Read String(Wide Char Version)
 void	ReadStringFromFileW(std::wstring& outString)
 {
 	do
@@ -542,6 +255,79 @@ void	ReadStringFromFileW(std::wstring& outString)
 			break;
 		}
 	} while (true);
+}
+
+//integrate several meshes into one big mesh
+void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
+{
+	N_Load3ds_MeshObject tmpMesh;
+
+	//sum up to calculate element count, then reserve memory
+	UINT totalIndicesCount = 0;
+	UINT totalVerticesCount = 0;
+	UINT totalSubsetCount = 0;
+	for (auto& partialMesh : static_meshObjList)
+	{
+		totalIndicesCount += partialMesh.indicesList.size();
+		totalVerticesCount += partialMesh.verticesList.size();
+		totalSubsetCount += partialMesh.subsetList.size();
+	}
+	tmpMesh.indicesList.reserve(totalIndicesCount);
+	tmpMesh.subsetList.reserve(totalSubsetCount);
+	tmpMesh.texcoordList.reserve(totalVerticesCount);
+	tmpMesh.verticesList.reserve(totalVerticesCount);
+
+
+	//start to compute OFFSET and combine into one mesh
+	for (auto& partialMesh : static_meshObjList)
+	{
+		UINT indexOffset = tmpMesh.verticesList.size();
+		UINT primitiveIndexOffset = 0;
+
+		if (tmpMesh.subsetList.size() != 0)
+			primitiveIndexOffset = tmpMesh.subsetList.back().startPrimitiveID + tmpMesh.subsetList.back().primitiveCount;
+	
+
+		//INDICES LIST
+		for (auto idx : partialMesh.indicesList)
+		{
+			tmpMesh.indicesList.push_back(idx + indexOffset);
+		}
+
+		//SUBSET LIST
+		for (auto subset : partialMesh.subsetList)
+		{
+			subset.startPrimitiveID += primitiveIndexOffset;
+			tmpMesh.subsetList.push_back(subset);
+		}
+
+		//VERTICES LIST
+		tmpMesh.verticesList.insert(tmpMesh.verticesList.end(), partialMesh.verticesList.begin(), partialMesh.verticesList.end());
+
+		//TEXCOORD LIST
+		tmpMesh.texcoordList.insert(tmpMesh.texcoordList.end(), partialMesh.texcoordList.begin(), partialMesh.texcoordList.end());
+	}
+
+	//when material is not valid, a default subset should also be generated.
+	//otherwise, the vertices wouldn't even be drawn ('Cos one subset for one draw call)
+	if (tmpMesh.subsetList.size() == 0)
+	{
+		N_MeshSubsetInfo tmpSubsetInfo;
+		tmpSubsetInfo.matName = NOISE_MACRO_DEFAULT_MATERIAL_NAME;
+		tmpSubsetInfo.primitiveCount = tmpMesh.subsetList.size();
+		tmpSubsetInfo.startPrimitiveID = 0;
+		tmpMesh.subsetList.push_back(tmpSubsetInfo);
+	}
+
+	//swap vertices rotation order
+
+	//clockwise or counterClockwise
+	for (UINT i = 0;i < tmpMesh.indicesList.size();i += 3)
+	{
+		std::swap(tmpMesh.indicesList[i + 1], tmpMesh.indicesList[i + 2]);
+	}
+
+	outCombinedMesh = std::move(tmpMesh);
 }
 
 //father: xxx color chunk
@@ -647,6 +433,10 @@ void ReadAndParseMapChunk(std::string& outGeneratedTextureName)
 
 }
 
+//to generate unique mat Name
+std::string DecorateMatName(std::string name) { return c_defaultMatNamePrefix + name + std::to_string(static_MeshIndex); };
+
+
 //*****************************************************************
 
 //*************************************************
@@ -671,8 +461,10 @@ void Parse3DEditorChunk()
 //child : TriangularMesh,  (Light , Camera)
 void ParseObjectBlock()
 {
-	//data: object name
-	ReadStringFromFileA(static_objectName);
+	//data: object name (could be mesh,light,camera)
+	std::string rubbishStr;
+	ReadStringFromFileA(rubbishStr);
+	//SkipCurrentChunk();
 };
 
 //*************************************************
@@ -680,7 +472,10 @@ void ParseObjectBlock()
 //child : VerticesChunk, FaceDescription(Indices) , TextureCoordinate
 void ParseTriangularMeshChunk()
 {
-	//no data in this chunk ,only need to go into sub-chunks
+	//create a new mesh
+	N_Load3ds_MeshObject tmpMesh;
+	static_meshObjList.push_back(tmpMesh);
+
 }
 
 //*************************************************
@@ -692,14 +487,15 @@ void ParseVerticesChunk()
 	uint16_t verticesCount = 0;//unsigned short
 	BINARY_READ(verticesCount);
 
-	static_verticesList.reserve(verticesCount);
+	auto& vertexList = static_meshObjList.back().verticesList;
+	vertexList.reserve(vertexList.size()+verticesCount);
 	for (UINT i = 0;i < verticesCount;i++)
 	{
 		NVECTOR3 tmpVertex(0, 0, 0);
 		BINARY_READ(tmpVertex.x);
-		BINARY_READ(tmpVertex.y);
 		BINARY_READ(tmpVertex.z);
-		static_verticesList.push_back(tmpVertex);
+		BINARY_READ(tmpVertex.y);
+		vertexList.push_back(tmpVertex);
 	}
 
 }
@@ -713,10 +509,13 @@ void ParseFaceDescAndIndices()
 	uint16_t faceCount = 0;
 	BINARY_READ(faceCount);
 
-	static_indicesList.reserve(faceCount);
+
+	auto& indicesList = static_meshObjList.back().indicesList;
+	indicesList.reserve(indicesList.size()+3*faceCount);
+
+	//find the biggest index in this indices block to compute index offset for next block
 
 	//I want to combine various object into one 
-	uint16_t indexOffset = uint16_t(static_indicesList.size());
 	for (UINT i = 0;i < faceCount;i++)
 	{
 		//1 face for 3 indices
@@ -725,7 +524,7 @@ void ParseFaceDescAndIndices()
 		for (UINT i = 0;i < 3;i++)
 		{
 			BINARY_READ(tmpIndex);
-			static_indicesList.push_back(indexOffset + tmpIndex);
+			indicesList.push_back(tmpIndex);
 		}
 
 		uint16_t faceFlag = 0;
@@ -751,7 +550,7 @@ void ParseFacesAndMatName()
 	std::string matName("");
 
 	std::vector<N_MeshSubsetInfo> currMatSubsetList;//faces can be 
-	std::vector<uint16_t> static_indicesList;
+	std::vector<uint16_t> indicesList;
 
 	//material name
 	ReadStringFromFileA(matName);
@@ -761,15 +560,19 @@ void ParseFacesAndMatName()
 	BINARY_READ(faceCount);
 
 	//read FACE indices block
-	static_indicesList.reserve(faceCount);
+	indicesList.reserve(faceCount);
 	for (UINT i = 0;i < faceCount;i++)
 	{
 		uint16_t tmpFaceIndex = 0;
 		BINARY_READ(tmpFaceIndex);
-		static_indicesList.push_back(tmpFaceIndex);
+
+		//(vertex_index+1)/3 yields the primitive_index offset
+		//LastIndexOffset stores the idx offset before current chunk was read.
+		//while CurrIndexOffset means after.
+		indicesList.push_back(tmpFaceIndex);
 	}
 
-	if (static_indicesList.size() == 0)
+	if (indicesList.size() == 0)
 	{
 		DEBUG_MSG1( "face Material Info : no faces attached to this material!!");
 		return;
@@ -779,15 +582,15 @@ void ParseFacesAndMatName()
 	N_MeshSubsetInfo newSubset;
 	newSubset.matName = DecorateMatName(matName);
 	newSubset.primitiveCount = 0;
-	newSubset.startPrimitiveID = static_indicesList.at(0);
+	newSubset.startPrimitiveID = indicesList.at(0);
 	currMatSubsetList.push_back(newSubset);
-	for (UINT i = 0;i < static_indicesList.size();i++)
+	for (UINT i = 0;i < indicesList.size();i++)
 	{
 		UINT startTriangleID = currMatSubsetList.back().startPrimitiveID;
 		UINT endTriangleID = startTriangleID + currMatSubsetList.back().primitiveCount - 1;
 		//region growing (extend subset region)
 		//if next index is adjacent to current region ,then grow
-		if (endTriangleID + 1 == static_indicesList[i])
+		if (endTriangleID + 1 == indicesList[i])
 		{
 			currMatSubsetList.back().primitiveCount += 1;
 		}
@@ -797,15 +600,16 @@ void ParseFacesAndMatName()
 			//so create a new region
 			newSubset.matName = matName;
 			newSubset.primitiveCount = 1;
-			newSubset.startPrimitiveID = static_indicesList.at(i);
+			newSubset.startPrimitiveID = indicesList.at(i);
 			currMatSubsetList.push_back(newSubset);
 		}
 	}
 
 	//add to global subset list
+	auto& subsetList = static_meshObjList.back().subsetList;
 	for (auto subset : currMatSubsetList)
 	{
-		static_subsetList.push_back(subset);
+		subsetList.push_back(subset);
 	}
 
 }
@@ -821,12 +625,13 @@ void ParseTextureCoordinate()
 	uint16_t texcoordCount = 0;
 	BINARY_READ(texcoordCount);
 
+	auto& texcoordList = static_meshObjList.back().texcoordList;
 	for (UINT i = 0;i < texcoordCount;i++)
 	{
 		NVECTOR2 tmpTexCoord(0, 0);
 		BINARY_READ(tmpTexCoord.x);
 		BINARY_READ(tmpTexCoord.y);
-		static_texcoordList.push_back(tmpTexCoord);
+		texcoordList.push_back(tmpTexCoord);
 	}
 
 }
@@ -941,6 +746,3 @@ void ParseSpecularMap()
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
-
-
-std::string DecorateMatName(std::string name) { return c_defaultMatNamePrefix + name + std::to_string(static_MeshIndex); };

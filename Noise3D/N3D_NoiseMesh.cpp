@@ -669,8 +669,6 @@ BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
 	ReleaseCOM(m_pIB_Gpu);
 	m_pIB_Mem->clear();
 
-
-	std::string								objectName;
 	std::vector<NVECTOR3>		verticesList;
 	std::vector<NVECTOR2>		texCoordList;
 	std::vector<UINT>				indicesList;
@@ -682,7 +680,6 @@ BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
 	BOOL importSucceeded = FALSE;
 	importSucceeded= NoiseFileManager::ImportFile_3DS(
 		pFilePath,
-		objectName, 
 		verticesList, 
 		texCoordList,
 		indicesList, 
@@ -700,22 +697,24 @@ BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
 
 	//to compute vertex normal ,we should generate adjacent information of vertices first.
 	//thus "vertexNormalList" holds the sum of face normal (the triangle is adjacent to corresponding vertex)
-	std::vector<NVECTOR3>	vertexNormalList(verticesList.size());
-	std::vector<NVECTOR3>	vertexTangentList(verticesList.size());
+	std::vector<NVECTOR3>	vertexNormalList(verticesList.size(),NVECTOR3(0,0,0));
+	std::vector<NVECTOR3>	vertexTangentList;
 
 	//1. compute vertex normal of faces
 	for (UINT i = 0;i < indicesList.size();i += 3)
 	{
 		//compute face normal
-		UINT idx1 = indicesList.at(i);
-		UINT idx2 = indicesList.at(i + 1);
-		UINT idx3 = indicesList.at(i + 2);
+		uint16_t idx1 = indicesList.at(i);
+		uint16_t idx2 = indicesList.at(i + 1);//change the rotation order
+		uint16_t idx3 = indicesList.at(i + 2);
 		NVECTOR3 v1 = verticesList.at(idx1);
 		NVECTOR3 v2 = verticesList.at(idx2);
 		NVECTOR3 v3 = verticesList.at(idx3);
 		NVECTOR3 vec1 = v2 - v1;
 		NVECTOR3 vec2 = v3 - v1;
-		NVECTOR3 faceNormal(0,1.0f,0);
+		NVECTOR3 faceNormal(0,0.0f,0);
+		//D3DXVec3Normalize(&vec1, &vec1);
+		//D3DXVec3Normalize(&vec2, &vec2);
 		D3DXVec3Cross(&faceNormal, &vec1, &vec2);
 
 		//add face normal to vertex normal
@@ -750,7 +749,7 @@ BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
 
 		try
 		{
-			tmpCompleteVertex.Color = NVECTOR4(0.3f, 0.3f, 0.3f, 1.0f);
+			tmpCompleteVertex.Color = NVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 			tmpCompleteVertex.Normal = vertexNormalList.at(i);
 			tmpCompleteVertex.Pos = verticesList.at(i);
 			tmpCompleteVertex.Tangent = vertexTangentList.at(i);

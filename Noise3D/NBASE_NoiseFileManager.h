@@ -6,13 +6,6 @@
 
 #pragma once
 
-struct N_Load3ds_TexName_FilePath_Mapping
-{
-	std::string textureName;
-	std::string FilePath;
-};
-
-
 class _declspec(dllexport) NoiseFileManager
 {
 public:
@@ -24,7 +17,6 @@ public:
 
 		BOOL ImportFile_3DS(
 			NFilePath pFilePath,
-			std::string& outObjectName,
 			std::vector<NVECTOR3>& outVertexBuffer,
 			std::vector<NVECTOR2>& outTexCoordList,
 			std::vector<UINT>& outIndexBuffer,

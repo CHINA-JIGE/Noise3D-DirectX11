@@ -150,6 +150,9 @@
     <ClInclude Include="NBASE_Noise2DBasicTextInfo.h">
       <Filter>N2D_NoiseFont&amp;Text\NBASE_Noise2DBasicTextInfo</Filter>
     </ClInclude>
+    <ClInclude Include="NBASE_NoiseFileManager_3DS.h">
+      <Filter>NBASE_NoiseFileManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="N3D_NoiseScene.cpp">

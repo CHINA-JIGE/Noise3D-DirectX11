@@ -99,6 +99,7 @@
     <ClInclude Include="NBASE_NoiseClassLifeCycle.h" />
     <ClInclude Include="NBASE_NoiseFileManager.h" />
     <ClInclude Include="N2D_NoiseFontManager.h" />
+    <ClInclude Include="NBASE_NoiseFileManager_3DS.h" />
     <ClInclude Include="NUT_NoiseUtInputEngine.h" />
     <ClInclude Include="N3D_NoiseLightManager.h" />
     <ClInclude Include="N2D_NoiseGraphicObject.h" />
