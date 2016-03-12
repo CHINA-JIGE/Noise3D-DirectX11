@@ -30,7 +30,7 @@ Some simple features are implemented:
 
 --Text Rendering
 
---Mesh File Loading : STL , OBJ
+--Mesh File Loading : STL , OBJ，3DS(mesh,material)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
