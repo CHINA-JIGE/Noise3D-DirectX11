@@ -42,6 +42,7 @@
 #include "NBASE_Noise2DBasicContainerInfo.h"
 #include "NBASE_NoiseFileManager.h"
 #include "NBASE_Noise2DBasicTextInfo.h"
+#include "NBASE_NoiseGeometryMeshGenerator.h"
 #include "N3D_NoiseEngine.h"
 #include "N3D_NoiseMesh.h"
 #include "N3D_NoiseCamera.h"

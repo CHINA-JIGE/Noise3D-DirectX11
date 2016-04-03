@@ -262,13 +262,19 @@ void	TransformCoord_XYZ_TBN(float3 inVectorXYZ,float3 TangentW,float3 NormalW,ou
 	float3 BinormalW = normalize(cross(NormalW,TangentW));
 	
 	//x - Binormal , Y-Normal ,Z - tangent
-	float4x4 transformMatrix;
+	/*float4x4 transformMatrix;
 	transformMatrix[0] = float4(BinormalW.x,NormalW.x,TangentW.x,0);
 	transformMatrix[1] = float4(BinormalW.y,NormalW.y,TangentW.y,0);
 	transformMatrix[2] = float4(BinormalW.z,NormalW.z,TangentW.z,0);
+	transformMatrix[3] = float4(0,0,0,1.0f);*/
+	float4x4 transformMatrix;
+	transformMatrix[0] = float4(TangentW.x,NormalW.x,BinormalW.x,0);
+	transformMatrix[1] = float4(TangentW.y,NormalW.y,BinormalW.y,0);
+	transformMatrix[2] = float4(TangentW.z,NormalW.z,BinormalW.z,0);
 	transformMatrix[3] = float4(0,0,0,1.0f);
-
+	
 	outVectorTBN = mul(float4(inVectorXYZ,1.0f),transformMatrix).xyz;
+
 }
 
 
@@ -291,13 +297,19 @@ void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,
 	float3 BinormalW = normalize(cross(NormalW,TangentW));
 	
 	//x - Binormal , Y-Normal ,Z - tangent
-	float4x4 transformMatrix;
+	/*float4x4 transformMatrix;
 	transformMatrix[0] = float4(BinormalW.xyz,0);
 	transformMatrix[1] = float4(NormalW.xyz,0);
 	transformMatrix[2] = float4(TangentW.xyz,0);
+	transformMatrix[3] = float4(0,0,0,1.0f);*/
+	float4x4 transformMatrix;
+	transformMatrix[0] = float4(TangentW.xyz,0);
+	transformMatrix[1] = float4(NormalW.xyz,0);
+	transformMatrix[2] = float4(BinormalW.xyz,0);
 	transformMatrix[3] = float4(0,0,0,1.0f);
 
-	outVectorXYZ = mul(float4(inVectorTBN,1.0f),transformMatrix).xyz;
+	//outVectorXYZ = mul(float4(inVectorTBN,1.0f),transformMatrix).xyz;
+	outVectorXYZ = mul(transformMatrix,float4(inVectorTBN,1.0f)).xyz;
 }
 
 

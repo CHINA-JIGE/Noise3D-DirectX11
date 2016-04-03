@@ -11,8 +11,6 @@
 
 #define NOISE_DLL_EXPORT _declspec(dllexport)
 
-
-
 const UINT					g_VertexDesc_Default_ElementCount = 5;
 
 const UINT					g_VertexDesc_Simple_ElementCount = 3;

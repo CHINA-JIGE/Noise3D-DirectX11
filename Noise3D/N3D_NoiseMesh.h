@@ -17,7 +17,7 @@ public:
 	//¹¹Ôìº¯Êý
 	NoiseMesh();
 
-	void	CreatePlane(float fWidth,float fHeight,UINT iRowCount =5,UINT iColumnCount =5);
+	void	CreatePlane(float fWidth,float fDepth,UINT iRowCount =5,UINT iColumnCount =5);
 
 	void CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthStep=3,UINT iWidthStep =3,UINT iHeightStep= 3);
 
@@ -68,9 +68,6 @@ private:
 	//the Parameter "iVertexCount" remind me to update the VertexCount in different Creating Method
 	BOOL	mFunction_CreateGpuBuffers(D3D11_SUBRESOURCE_DATA* pVertexDataInMem,int iVertexCount,D3D11_SUBRESOURCE_DATA* pIndexDataInMem,int iIndexCount);
 
-	//help creating a box or plane
-	void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex);
-
 	//invoked by NoiseRenderer
 	void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateWorldMatrix();
 	
@@ -83,6 +80,9 @@ private:
 
 private:
 	NoiseScene* m_pFatherScene;
+
+	//internal mesh generator
+	NoiseGeometryMeshGenerator mMeshGenerator;
 
 	UINT										mVertexCount;
 	UINT										mIndexCount;

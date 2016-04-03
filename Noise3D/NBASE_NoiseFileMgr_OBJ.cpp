@@ -157,10 +157,16 @@ BOOL NoiseFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_Default
 		tmpVertex.TexCoord = texcoordList.at(indicesCombination.texcoordID);
 		tmpVertex.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
 		//tangent
-		NVECTOR3 tmpVec(-tmpVertex.Normal.z, 0, tmpVertex.Normal.x);
-		D3DXVec3Cross(&tmpVertex.Tangent, &tmpVertex.Normal, &tmpVec);
-		D3DXVec3Normalize(&tmpVertex.Tangent, &tmpVertex.Tangent);
-
+		if (tmpVertex.Normal==NVECTOR3(0,1.0f,0) || tmpVertex.Normal == NVECTOR3(0, -1.0f, 0))
+		{
+			tmpVertex.Tangent = NVECTOR3(1.0f, 0, 0);
+		}
+		else
+		{
+			NVECTOR3 tmpVec(-tmpVertex.Normal.z, 0, tmpVertex.Normal.x);
+			D3DXVec3Cross(&tmpVertex.Tangent, &tmpVertex.Normal, &tmpVec);
+			D3DXVec3Normalize(&tmpVertex.Tangent, &tmpVertex.Tangent);
+		}
 		//.......
 		refVertexBuffer.at(i) = (tmpVertex);
 	}

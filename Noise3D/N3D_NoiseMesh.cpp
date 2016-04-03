@@ -10,8 +10,8 @@
 
 #include "Noise3D.h"
 
-static UINT VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
-static UINT VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
+static UINT c_VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+static UINT c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 NoiseMesh::NoiseMesh()
 {
@@ -43,7 +43,7 @@ void NoiseMesh::Destroy()
 	ReleaseCOM(m_pIB_Gpu);
 };
 
-void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColumnCount)
+void	NoiseMesh::CreatePlane(float fWidth,float fDepth,UINT iRowCount,UINT iColumnCount)
 {
 	//check if the input "Step Count" is illegal
 	if(iColumnCount <= 2)	{iColumnCount =2;}
@@ -54,15 +54,9 @@ void	NoiseMesh::CreatePlane(float fWidth,float fHeight,UINT iRowCount,UINT iColu
 	ReleaseCOM(m_pIB_Gpu);
 	m_pIB_Mem->clear();
 
-	//this function can generate a Quad according to basis
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth/2,0,-fHeight/2),
-		NVECTOR3(0,0,fHeight/(float)(iRowCount-1)),
-		NVECTOR3(fWidth/(float)(iColumnCount-1),0,0),
-		iRowCount,
-		iColumnCount,0);
+	//delegate vert/idx creation duty to MeshGenerator 
+	mMeshGenerator.CreatePlane(fWidth, fDepth, iRowCount, iColumnCount, *m_pVB_Mem, *m_pIB_Mem);
 
-	
 	//Prepare to update to GPU
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
@@ -90,89 +84,8 @@ void NoiseMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthSte
 	ReleaseCOM(m_pIB_Gpu);
 	m_pIB_Mem->clear();
 
-	/*
-	Y  |
-		|      /  Z
-		|	 /
-		|  /
-		|/___________ X
-
-	*/
-
-	//Build 6 Quad
-	int tmpBaseIndex;
-	//BOTTOM- NORMAL√
-	float tmpStep1 = fWidth/(float)(iWidthStep-1);
-	float tmpStep2 = fDepth/(float)(iDepthStep-1)	;
-	tmpBaseIndex = 0;
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth/2,		-fHeight/2,		-fDepth/2),
-		NVECTOR3(tmpStep1,0,0),
-		NVECTOR3(0,0,	tmpStep2),
-		iWidthStep,
-		iDepthStep,
-		tmpBaseIndex);
-
-	//TOP- NORMAL√
-	tmpStep1 = fDepth/(float)(iDepthStep-1)	;
-	tmpStep2 = fWidth/(float)(iWidthStep-1);
-	tmpBaseIndex = m_pVB_Mem->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth/2,		fHeight/2,		-fDepth/2),
-		NVECTOR3(0,0,tmpStep1),
-		NVECTOR3(tmpStep2,0,0),
-		iDepthStep,
-		iWidthStep,
-		tmpBaseIndex);
-
-	//LEFT- NORMAL√
-	tmpStep1 = fDepth/(float)(iDepthStep-1)	;
-	tmpStep2 = fHeight/(float)(iHeightStep-1);
-	tmpBaseIndex = m_pVB_Mem->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth/2,	-fHeight/2,	-fDepth/2),
-		NVECTOR3(0,0,tmpStep1),
-		NVECTOR3(0,tmpStep2,0),
-		iDepthStep,
-		iHeightStep,
-		tmpBaseIndex);
-
-	//RIGHT- NORMAL √
-	tmpStep1 = fHeight/(float)(iHeightStep-1);
-	tmpStep2 = fDepth/(float)(iDepthStep-1)	;
-	tmpBaseIndex = m_pVB_Mem->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth/2,	-fHeight/2,	-fDepth/2),
-		NVECTOR3(0,tmpStep1,0),
-		NVECTOR3(0,0,tmpStep2),
-		iHeightStep,
-		iDepthStep,
-		tmpBaseIndex);
-
-
-	//FRONT- NORMAL√
-	tmpStep1 = fHeight/(float)(iHeightStep-1);
-	tmpStep2 = fWidth/(float)(iWidthStep-1)	;
-	tmpBaseIndex = m_pVB_Mem->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth/2,	-fHeight/2,	-fDepth/2),
-		NVECTOR3(0,tmpStep1,0),
-		NVECTOR3(tmpStep2,0,0),
-		iHeightStep,
-		iWidthStep,
-		tmpBaseIndex);
-
-	//BACK- NORMAL √
-	tmpStep1 = fHeight/(float)(iHeightStep-1);
-	tmpStep2 = -fWidth/(float)(iWidthStep-1)	;
-	tmpBaseIndex = m_pVB_Mem->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth/2,	-fHeight/2,	fDepth/2),
-		NVECTOR3(0,tmpStep1,0),
-		NVECTOR3(tmpStep2,0,0),
-		iHeightStep,
-		iWidthStep,
-		tmpBaseIndex);
+	//mesh creation delegate to MeshGenerator
+	mMeshGenerator.CreateBox(fWidth, fHeight, fDepth, iDepthStep, iWidthStep, iHeightStep, *m_pVB_Mem, *m_pIB_Mem);
 
 	//Prepare to Create Gpu Buffers
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
@@ -203,146 +116,18 @@ void	NoiseMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
 	ReleaseCOM(m_pIB_Gpu);
 	m_pIB_Mem->clear();
 
-	#pragma region GenerateVertex
-
-	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
-	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
-	//the "+2" refers to the TOP/BOTTOM vertex
-	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
-	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
-	UINT tmpVertexCount = (iColumnCount+1) * iRingCount +2;
-	tmpV			  = new NVECTOR3[tmpVertexCount];
-	tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount-2] = NVECTOR3(NVECTOR3(0,fRadius,0));			//TOP vertex
-	tmpV[tmpVertexCount-1] = NVECTOR3(NVECTOR3(0,-fRadius,0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount-2] = NVECTOR2(0.5f,0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount-1] = NVECTOR2(0.5f,1.0f);			//BOTTOM vertex
-
-
-
-
-
-	//i,j will be used for iterating , and k will be the subscript
-	UINT 	i=0,j=0, k=0;
-	float	tmpX,tmpY,tmpZ,tmpRingRadius;
-
-
-	//Calculate the Step length (步长)
-	float	StepLength_AngleY =		MATH_PI / (iRingCount +1); // distances between each level (ring)
-	float StepLength_AngleXZ =		2*MATH_PI / iColumnCount;
-
-
-	//start to iterate
-	for(i = 0;i < iRingCount ;i++)
-	{
-		//Generate Vertices ring By ring ( from top to down )
-		//the first column will be duplicated to achieve adequate texture mapping
-		for( j = 0; j <	iColumnCount+1 ; j++)
-		{
-			//the Y coord of  current ring 
-			tmpY = fRadius *sin( MATH_PI/2 - (i+1) *StepLength_AngleY);
-
-			////Pythagoras theorem(勾股定理)
-			tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY); 
-
-			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos( j*StepLength_AngleXZ);
-
-			//...
-			tmpZ = tmpRingRadius * sin( j*StepLength_AngleXZ);
-
-			//...
-			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-
-			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount),(float)i /(iRingCount-1));
-
-			k++;
-		}
-	}
-
-
-	//add to Memory
-	N_DefaultVertex tmpCompleteV;
-	for(i =0;i<tmpVertexCount;i++)
-	{
-
-		tmpCompleteV.Pos			= tmpV[i];
-		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
-		tmpCompleteV.Color		= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
-		tmpCompleteV.TexCoord	= tmpTexCoord[i];
-		NVECTOR3 tmpTangent(-tmpV[i].z, 0, tmpV[i].x);
-		D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpTangent, &tmpCompleteV.Normal);//tangent
-		m_pVB_Mem->push_back(tmpCompleteV);
-	}
+	//mesh creation delegate to MeshGenerator
+	mMeshGenerator.CreateSphere(fRadius, iColumnCount, iRingCount, *m_pVB_Mem, *m_pIB_Mem);
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = tmpVertexCount;
-
-	#pragma endregion GenerateVertex
-	
-	#pragma region GenerateIndex
-
-	//Generate Indices of a ball
-	//deal with the middle
-	//every Ring grows a triangle net with lower level ring
-	for( i=0; i<iRingCount-1; i++)
-	{
-		for( j=0; j<iColumnCount; j++)
-		{
-			/*	
-					k	_____ k+1
-						|    /
-						|  /
-						|/		k+2
-		
-			*/
-			//+1是因为复制了第一列，比原来设好的列数多出一列
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+0);
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount	+1)		+j		+0);
-
-			/*
-						k+3
-					    /|
-					  /  |
-			k+5	/___|	k+4
-
-			*/
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
-			
-		}
-	}
-
-
-	//deal with the TOP/BOTTOM
-	
-	for(j =0;j<iColumnCount;j++)
-	{
-		m_pIB_Mem->push_back(j+1);
-		m_pIB_Mem->push_back(j) ;
-		m_pIB_Mem->push_back(tmpVertexCount-2);	//index of top vertex
-
-		m_pIB_Mem->push_back((iColumnCount+1)* (iRingCount-1) + j);
-		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount-1) + j+1);
-		m_pIB_Mem->push_back(tmpVertexCount -1); //index of bottom vertex
-	}
-	
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	//a single Triangle
 	mIndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
-
-	#pragma endregion GenerateIndex
-
 
 	//最后
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
@@ -362,187 +147,21 @@ void NoiseMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UIN
 	ReleaseCOM(m_pIB_Gpu);
 	m_pIB_Mem->clear();
 
-	#pragma region GenerateVertex
+	//mesh creation delegate to MeshGenerator
+	mMeshGenerator.CreateCylinder(fRadius,fHeight, iColumnCount, iRingCount, *m_pVB_Mem, *m_pIB_Mem);
 
-	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
-	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
-	//the last "+2" refers to the TOP/BOTTOM vertex
-	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
-	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
-	UINT tmpVertexCount = (iColumnCount+1) * (iRingCount+2) +2;
-	tmpV				= new NVECTOR3[tmpVertexCount];
-	tmpTexCoord	= new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount-2] = NVECTOR3(NVECTOR3(0,fHeight/2,0));		//TOP vertex
-	tmpV[tmpVertexCount-1] = NVECTOR3(NVECTOR3(0,-fHeight/2,0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount-2] = NVECTOR2(0.5f,0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount-1] = NVECTOR2(0.5f,1.0f);			//BOTTOM vertex
-
-
-
-
-	//i,j will be used for iterating , and k will be the subscript
-	UINT 	i=0,j=0, k=0;
-	float	tmpX,tmpY,tmpZ;
-
-	//Calculate the Step length (步长)
-	//the RINGS include "the top ring" and "the bottom ring"
-	float	StepLength_Y =			fHeight / (iRingCount-1); // distances between each level (ring)
-	float StepLength_Angle =		2*MATH_PI / iColumnCount;
-
-
-	//start to iterate
-	for(i = 0;i < iRingCount ;i++)
-	{
-		//Generate Vertices ring By ring ( from top to down )
-		//the first column will be duplicated to achieve adequate texture mapping
-		for( j = 0; j <	iColumnCount+1 ; j++)
-		{
-			tmpY = (fHeight/2) - i *StepLength_Y;	
-			tmpX = fRadius * cos( j*StepLength_Angle);
-			tmpZ = fRadius * sin( j*StepLength_Angle);
-			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-
-			//TexCoord generation, look for more detail in tech doc
-			tmpTexCoord[k] = NVECTOR2((float) j/(iColumnCount-1), tmpY/ (fRadius*2+fHeight) );
-
-			k++;
-		}
-	}
-
-	//要增加TOP/BOTTOM两个RING，因为NORMAL不一样
-	for( j = 0; j <	iColumnCount+1 ; j++)
-	{
-		tmpY = (fHeight/2);	
-		tmpX = fRadius * cos( j*StepLength_Angle);
-		tmpZ = fRadius * sin( j*StepLength_Angle);
-		tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-		tmpTexCoord[k] = NVECTOR2((float)j/(iColumnCount-1), tmpY/ (fRadius*2+fHeight) );
-		k++;
-	}
-	for( j = 0; j <	iColumnCount+1 ; j++)
-	{
-		tmpY = (-fHeight/2);	
-		tmpX = fRadius * cos( j*StepLength_Angle);
-		tmpZ = fRadius * sin( j*StepLength_Angle);
-		tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-		tmpTexCoord[k] = NVECTOR2((float)j/(iColumnCount-1), tmpY/ (fRadius*2+fHeight) );
-		k++;
-	}
-
-
-
-
-	//侧面(side Face) along with their normals
-	N_DefaultVertex tmpCompleteV;
-	for(i =0;i<(iColumnCount+1)*iRingCount;i++)
-	{
-		tmpCompleteV.Pos = tmpV[i];
-		tmpCompleteV.Normal =  NVECTOR3(tmpV[i].x/fRadius,0,tmpV[i].z/fRadius);
-		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
-		tmpCompleteV.Color =NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
-		tmpCompleteV.TexCoord = tmpTexCoord[i];
-		m_pVB_Mem->push_back(tmpCompleteV);
-	}
-	//TOP/BOTTOM face along with their normals
-	for(i =(iColumnCount+1)*iRingCount;i<(iColumnCount+1)*(iRingCount+2);i++)
-	{
-		tmpCompleteV.Pos = tmpV[i];
-
-		//set the normal according the sign of Y coord
-		tmpCompleteV.Normal =  NVECTOR3(0,(tmpV[i].y>0?1.0f:-1.0f) ,0);
-		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
-		tmpCompleteV.Color =NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
-		tmpCompleteV.TexCoord = tmpTexCoord[i];
-		m_pVB_Mem->push_back(tmpCompleteV);
-	}
-
-
-
-	//TOP/BOTTOM Vertex
-	tmpCompleteV.Pos =tmpV[tmpVertexCount-2];
-	tmpCompleteV.Normal = NVECTOR3(0,1.0f,0);
-	tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
-	tmpCompleteV.Color    =NVECTOR4(1.0f,1.0f,1.0f,1.0f);
-	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount-2];
-	m_pVB_Mem->push_back(tmpCompleteV);
-
-	tmpCompleteV.Pos =tmpV[tmpVertexCount-1];
-	tmpCompleteV.Normal = NVECTOR3(0,-1.0f,0);
-	tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
-	tmpCompleteV.Color    =NVECTOR4(1.0f,1.0f,1.0f,1.0f);
-	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount-1];
-	m_pVB_Mem->push_back(tmpCompleteV);
-
-	//,........
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();//tmpVertexCount;
-
-	#pragma endregion GenerateVertex
-	
-
-	#pragma region GenerateIndex
-
-	//Generate Indices of a ball
-	//deal with the middle
-	//every Ring grows a triangle net with lower level ring
-	for( i=0; i<iRingCount-1; i++)
-	{
-		for( j=0; j<iColumnCount; j++)
-		{
-			
-			/*	
-					k	_____ k+1
-						|    /
-						|  /
-						|/		k+2
-		
-			*/
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+0);
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
-
-			/*
-						k+3
-					    /|
-					  /  |
-			k+5	/___|	k+4
-
-			*/
-			m_pIB_Mem->push_back(	i*			(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+1);
-			m_pIB_Mem->push_back(	(i+1)*	(iColumnCount+1)		+j		+0);
-		}
-	}
-
-
-	//deal with the TOP/BOTTOM
-	for( j =0;j<iColumnCount;j++)
-	{
-		m_pIB_Mem->push_back((iColumnCount+1)*iRingCount+j);
-		m_pIB_Mem->push_back((iColumnCount+1)*iRingCount+j+1) ;
-		m_pIB_Mem->push_back(tmpVertexCount-2);	//index of top vertex
-
-		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount+1) + j);
-		m_pIB_Mem->push_back((iColumnCount+1) * (iRingCount+1) + j +1);
-		m_pIB_Mem->push_back(tmpVertexCount -1); //index of bottom vertex
-
-	}
-
+	mVertexCount = m_pVB_Mem->size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	//a single Triangle
-	mIndexCount = m_pIB_Mem->size();//iColumnCount * iRingCount * 2 *3
-
-	#pragma endregion GenerateIndex
+	mIndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
 
 
-	//最后
+	//...
 	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
 	//user-set material
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
@@ -636,7 +255,7 @@ BOOL NoiseMesh::LoadFile_OBJ(NFilePath pFilePath)
 	fileLoadSucceeded = NoiseFileManager::ImportFile_OBJ(pFilePath, *m_pVB_Mem, *m_pIB_Mem);
 	if (!fileLoadSucceeded)
 	{
-		DEBUG_MSG1("Noise Mesh : Load STL failed!");
+		DEBUG_MSG1("Noise Mesh : Load OBJ failed!");
 		return FALSE;
 	}
 
@@ -705,7 +324,7 @@ BOOL NoiseMesh::LoadFile_3DS(NFilePath pFilePath)
 	{
 		//compute face normal
 		uint16_t idx1 = indicesList.at(i);
-		uint16_t idx2 = indicesList.at(i + 1);//change the rotation order
+		uint16_t idx2 = indicesList.at(i + 1);
 		uint16_t idx3 = indicesList.at(i + 2);
 		NVECTOR3 v1 = verticesList.at(idx1);
 		NVECTOR3 v2 = verticesList.at(idx2);
@@ -961,7 +580,6 @@ NVECTOR3 NoiseMesh::ComputeBoundingBoxMin()
 }
 
 
-
 /***********************************************************************
 								PRIVATE					                    
 ***********************************************************************/
@@ -1000,55 +618,6 @@ BOOL NoiseMesh::mFunction_CreateGpuBuffers
 	return TRUE;
 }
 	
-void	NoiseMesh::mFunction_Build_A_Quad
-	(NVECTOR3 vOriginPoint,NVECTOR3 vBasisVector1,NVECTOR3 vBasisVector2,UINT StepCount1,UINT StepCount2,UINT iBaseIndex)
-{
-	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
-
-	#pragma region GenerateVertex
-
-	UINT i=0,j=0;
-	NVECTOR3 tmpNormal;
-	N_DefaultVertex tmpCompleteV;
-	D3DXVec3Cross(&tmpNormal,&vBasisVector1,&vBasisVector2);
-	D3DXVec3Normalize(&tmpNormal,&tmpNormal);
-
-	for(i=0;i<StepCount1;i++ )
-		for(j=0;j<StepCount2;j++)
-		{
-				tmpCompleteV.Normal = tmpNormal;
-				tmpCompleteV.Pos		= NVECTOR3(vOriginPoint+(float)i*vBasisVector1+(float)j*vBasisVector2);
-				tmpCompleteV.Color	= NVECTOR4(((float)i/StepCount1),((float)j/StepCount2),0.5f,1.0f);
-				tmpCompleteV.Tangent = vBasisVector2;
-				tmpCompleteV.TexCoord=NVECTOR2( (float)i/(StepCount1-1) , ( (float)j/StepCount2));
-				m_pVB_Mem->push_back(tmpCompleteV);
-		}
-
-	#pragma endregion GenerateVertex
-
-
-	#pragma region GenerateIndex
-		i=0;j=0;
-	for(i=0;i<StepCount1-1;i++)
-	{
-		for(j=0;j<StepCount2-1;j++)
-		{
-			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
-			//thus inde offset is needed
-			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j		);
-			m_pIB_Mem->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
-			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j +1);
-
-			m_pIB_Mem->push_back(iBaseIndex+i *		StepCount2 + j +1);
-			m_pIB_Mem->push_back(iBaseIndex+(i+1) *StepCount2 + j	);
-			m_pIB_Mem->push_back(iBaseIndex+(i+1)* StepCount2 + j+1	);
-		}
-	}
-
-	#pragma endregion GenerateIndex
-
-};
-
 void	NoiseMesh::mFunction_UpdateWorldMatrix()
 {
 

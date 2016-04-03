@@ -11,20 +11,21 @@
 #include "Noise3D.h"
 
 NoiseAtmosphere::NoiseAtmosphere()
+	: mFogEnabled(FALSE),
+	mSkyDomeRadiusXZ(100),
+	mSkyDomeHeight(100),
+	mSkyType(NOISE_ATMOSPHERE_SKYTYPE_INVALID),
+	m_pVB_Gpu_Sky (nullptr),
+	m_pIB_Gpu_Sky(nullptr),
+	mFogCanUpdateToGpu(FALSE),
+	m_pFogColor(new NVECTOR3(1.0f, 1.0f, 1.0f)),
+	mFogNear (10),
+	mFogFar (100),
+	m_pVB_Mem_Sky(new std::vector<N_SimpleVertex>),
+	m_pIB_Mem_Sky(new std::vector<UINT>),
+	m_pSkyBoxCubeTexName(new std::string),
+	m_pSkyDomeTexName(new std::string)
 {
-	mFogEnabled = FALSE;
-	mFogCanUpdateToGpu = FALSE;
-	m_pFogColor = new NVECTOR3(1.0f, 1.0f, 1.0f);
-	mFogNear = 10;
-	mFogFar = 100;
-	m_pVB_Mem_Sky	= new std::vector<N_SimpleVertex>;
-	m_pIB_Mem_Sky = new std::vector<UINT>;
-	m_pVB_Gpu_Sky	= nullptr;
-	m_pIB_Gpu_Sky		= nullptr;
-	mSkyDomeRadiusXZ =100;
-	mSkyDomeHeight = 100;
-	mSkyDomeTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
-	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_INVALID;
 
 }
 
@@ -61,7 +62,7 @@ void NoiseAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 colo
 	mFogCanUpdateToGpu = TRUE;
 }
 
-BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
+BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight, std::string texName)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount		= 30;
@@ -86,152 +87,25 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	}
 
 	//set built-in var
-	mSkyDomeTextureID = texID;
+	*m_pSkyDomeTexName = texName;
 	mSkyDomeRadiusXZ = fRadiusXZ;
 	mSkyDomeHeight = fHeight;
 
-
-#pragma region GenerateVertex
-
-	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
-	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
-	//the "+2" refers to the TOP/BOTTOM vertex
-	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
-	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
-	tmpVertexCount = (iColumnCount + 1) * iRingCount + 2;
-	tmpV = new NVECTOR3[tmpVertexCount];
-	tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount - 2] = NVECTOR3(NVECTOR3(0, fHeight, 0));			//TOP vertex
-	tmpV[tmpVertexCount - 1] = NVECTOR3(NVECTOR3(0, -fHeight, 0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount - 2] = NVECTOR2(0.5f, 0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount - 1] = NVECTOR2(0.5f, 1.0f);			//BOTTOM vertex
-
-	//i,j will be used for iterating , and k will be the subscript
-	UINT 	i = 0, j = 0, k = 0;
-	float	tmpX, tmpY, tmpZ, tmpRingRadius;
-
-
-	//Calculate the Step length (步长)
-	float	StepLength_AngleY = MATH_PI / (iRingCount + 1); // distances between each level (ring)
-	float StepLength_AngleXZ = 2 * MATH_PI / iColumnCount;
-
-
-	//start to iterate
-	for (i = 0;i < iRingCount;i++)
-	{
-		//Generate Vertices ring By ring ( from top to down )
-		//the first column will be duplicated to achieve adequate texture mapping
-		for (j = 0; j < iColumnCount + 1; j++)
-		{
-			//the Y coord of  current ring 
-			tmpY = fHeight *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
-
-			// radius of current horizontal ring 
-			tmpRingRadius = fRadiusXZ* sqrtf(1 - (tmpY * tmpY)/(fHeight*fHeight));
-
-			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos(j*StepLength_AngleXZ);
-
-			//...
-			tmpZ = tmpRingRadius * sin(j*StepLength_AngleXZ);
-
-			//...
-			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
-
-			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)i / (iRingCount - 1));
-
-			k++;
-		}
-	}
-
-
-	//add to Memory
-	N_SimpleVertex tmpCompleteV;
-	for (i = 0;i<tmpVertexCount;i++)
-	{
-		tmpCompleteV.Pos = tmpV[i];
-		tmpCompleteV.Color = NVECTOR4(tmpV[i].x / fRadiusXZ, tmpV[i].y / fHeight, tmpV[i].z / fRadiusXZ, 1.0f);
-		tmpCompleteV.TexCoord = tmpTexCoord[i];
-		m_pVB_Mem_Sky->push_back(tmpCompleteV);
-	}
+	//delegate vert/idx creation duty to MeshGenerator 
+	mMeshGenerator.CreateSkyDome(fRadiusXZ, fHeight, iColumnCount, iRingCount, *m_pVB_Mem_Sky, *m_pIB_Mem_Sky);
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &m_pVB_Mem_Sky->at(0);
 
-
-#pragma endregion GenerateVertex
-
-#pragma region GenerateIndex
-
-	//Generate Indices of a ball
-	//deal with the middle
-	//every Ring grows a triangle net with lower level ring
-	for (i = 0; i<iRingCount - 1; i++)
-	{
-		for (j = 0; j<iColumnCount; j++)
-		{
-			/*
-			k	_____ k+1
-			|    /
-			|  /
-			|/		k+2
-
-			*/
-			//rotating order is different from the one in mesh ,because sky dome face inside
-			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 0);
-			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
-			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 1);
-
-
-			/*
-			k+3
-			/|
-			/  |
-			k+5	/___|	k+4
-
-			*/
-			m_pIB_Mem_Sky->push_back(i*			(iColumnCount + 1) + j + 1);
-			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
-			m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 1);
-			//m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
-
-		}
-	}
-
-
-	//deal with the TOP/BOTTOM
-
-	for (j = 0;j<iColumnCount;j++)
-	{
-		m_pIB_Mem_Sky->push_back(j + 1);
-		m_pIB_Mem_Sky->push_back(tmpVertexCount - 2);	//index of top vertex
-		m_pIB_Mem_Sky->push_back(j);
-		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 2);	//index of top vertex
-
-		m_pIB_Mem_Sky->push_back((iColumnCount + 1)* (iRingCount - 1) + j);
-		m_pIB_Mem_Sky->push_back(tmpVertexCount - 1); //index of bottom vertex
-		m_pIB_Mem_Sky->push_back((iColumnCount + 1) * (iRingCount - 1) + j + 1);
-		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 1); //index of bottom vertex
-	}
-
-
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
 	tmpInitData_Index.pSysMem = &m_pIB_Mem_Sky->at(0);
-	//a single Triangle
-	tmpIndexCount = m_pIB_Mem_Sky->size();//(iColumnCount+1) * iRingCount * 2 *3
-
-#pragma endregion GenerateIndex
-
 
 
 	 //Create VERTEX BUFFER (GPU)
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_SimpleVertex)* tmpVertexCount;
+	vbd.ByteWidth = sizeof(N_SimpleVertex)* m_pVB_Mem_Sky->size();
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -243,7 +117,7 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 
 	//create index buffer
 	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(UINT) * tmpIndexCount;
+	ibd.ByteWidth = sizeof(UINT) * m_pIB_Mem_Sky->size();
 	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -260,13 +134,13 @@ BOOL NoiseAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight,UINT texID)
 	return TRUE;
 }
 
-void		NoiseAtmosphere::SetSkyDomeTexture(UINT texID)
+void		NoiseAtmosphere::SetSkyDomeTexture(std::string texName)
 {
 	//validation will be done in NoiseRenderer
-	mSkyDomeTextureID = texID;
-};
+	*m_pSkyDomeTexName = texName;
+}
 
-BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UINT cubeMapTexID)
+BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth, std::string cubeMapTexName)
 {
 
 	UINT tmpVertexCount = 0, tmpIndexCount = 0;
@@ -290,83 +164,8 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 		m_pIB_Mem_Sky->clear();
 	}
 
-	//Build 6 Quad
-	int tmpBaseIndex;
-	UINT iWidthStep = 3, iDepthStep = 3, iHeightStep = 3;
-
-	//BOTTOM- NORMAL√
-	float tmpStep1 = fWidth / (float)(iWidthStep - 1);
-	float tmpStep2 = fDepth / (float)(iDepthStep - 1);
-	tmpBaseIndex = 0;
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(tmpStep1, 0, 0),
-		NVECTOR3(0, 0, tmpStep2),
-		iWidthStep,
-		iDepthStep,
-		tmpBaseIndex);
-
-	//TOP- NORMAL√
-	tmpStep1 = fDepth / (float)(iDepthStep - 1);
-	tmpStep2 = fWidth / (float)(iWidthStep - 1);
-	tmpBaseIndex = m_pVB_Mem_Sky->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, 0, tmpStep1),
-		NVECTOR3(tmpStep2, 0, 0),
-		iDepthStep,
-		iWidthStep,
-		tmpBaseIndex);
-
-	//LEFT- NORMAL√
-	tmpStep1 = fDepth / (float)(iDepthStep - 1);
-	tmpStep2 = fHeight / (float)(iHeightStep - 1);
-	tmpBaseIndex = m_pVB_Mem_Sky->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, 0, tmpStep1),
-		NVECTOR3(0, tmpStep2, 0),
-		iDepthStep,
-		iHeightStep,
-		tmpBaseIndex);
-
-	//RIGHT- NORMAL √
-	tmpStep1 = fHeight / (float)(iHeightStep - 1);
-	tmpStep2 = fDepth / (float)(iDepthStep - 1);
-	tmpBaseIndex = m_pVB_Mem_Sky->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(0, 0, tmpStep2),
-		iHeightStep,
-		iDepthStep,
-		tmpBaseIndex);
-
-
-	//FRONT- NORMAL√
-	tmpStep1 = fHeight / (float)(iHeightStep - 1);
-	tmpStep2 = fWidth / (float)(iWidthStep - 1);
-	tmpBaseIndex = m_pVB_Mem_Sky->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(tmpStep2, 0, 0),
-		iHeightStep,
-		iWidthStep,
-		tmpBaseIndex);
-
-	//BACK- NORMAL √
-	tmpStep1 = fHeight / (float)(iHeightStep - 1);
-	tmpStep2 = -fWidth / (float)(iWidthStep - 1);
-	tmpBaseIndex = m_pVB_Mem_Sky->size();
-	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(tmpStep2, 0, 0),
-		iHeightStep,
-		iWidthStep,
-		tmpBaseIndex);
-
+	//.......
+	mMeshGenerator.CreateSkyBox(fWidth, fHeight, fDepth, *m_pVB_Mem_Sky, *m_pIB_Mem_Sky);
 
 
 	//prepare to update to GPU
@@ -405,7 +204,7 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 
 
 	//set texture ID
-	mSkyBoxCubeTextureID = cubeMapTexID;
+	*m_pSkyBoxCubeTexName = cubeMapTexName;
 	mSkyBoxWidth = fWidth;
 	mSkyBoxHeight = fHeight;
 	mSkyBoxDepth = fDepth;
@@ -416,66 +215,12 @@ BOOL NoiseAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth,UIN
 	return TRUE;
 }
 
-void NoiseAtmosphere::SetSkyBoxTexture(UINT cubeMapTexID)
+void NoiseAtmosphere::SetSkyBoxTexture(std::string cubeMapTexName)
 {
-	mSkyBoxCubeTextureID = cubeMapTexID;
+	*m_pSkyBoxCubeTexName = cubeMapTexName;
 }
-
-
 
 
 /***************************************************************
 									PRIVATE
 *****************************************************************/
-
-void	NoiseAtmosphere::mFunction_Build_A_Quad
-(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex)
-{
-	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
-
-#pragma region GenerateVertex
-
-	UINT i = 0, j = 0;
-	NVECTOR3 tmpNormal;
-	N_SimpleVertex tmpCompleteV;
-	D3DXVec3Cross(&tmpNormal, &vBasisVector1, &vBasisVector2);
-	D3DXVec3Normalize(&tmpNormal, &tmpNormal);
-
-	for (i = 0;i<StepCount1;i++)
-		for (j = 0;j<StepCount2;j++)
-		{
-			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
-			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
-			tmpCompleteV.TexCoord = NVECTOR2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
-			m_pVB_Mem_Sky->push_back(tmpCompleteV);
-		}
-
-#pragma endregion GenerateVertex
-
-
-#pragma region GenerateIndex
-	i = 0;j = 0;
-	for (i = 0;i<StepCount1 - 1;i++)
-	{
-		for (j = 0;j<StepCount2 - 1;j++)
-		{
-			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
-			//thus inde offset is needed
-			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j);
-			//m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
-
-			m_pIB_Mem_Sky->push_back(iBaseIndex + i *		StepCount2 + j + 1);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j + 1);
-			m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1) *StepCount2 + j);
-			//m_pIB_Mem_Sky->push_back(iBaseIndex + (i + 1)* StepCount2 + j + 1);
-		}
-	}
-
-#pragma endregion GenerateIndex
-
-};
-
-
-

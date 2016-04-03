@@ -2,7 +2,7 @@
 /***********************************************************************
 
                            h：NoiseRenderer3D
-						desc: use gpu to render
+						desc: assemble data and use gpu to render
 
 ************************************************************************/
 
@@ -76,6 +76,13 @@ struct N_CbDrawText2D
 	NVECTOR4	mTextGlowColor;
 };
 
+namespace NGlobal
+{
+	const UINT c_VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+	const UINT c_VBstride_Simple = sizeof(N_SimpleVertex);
+	const UINT c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
+}
+
 
 class _declspec(dllexport) NoiseRenderer : 
 	private NoiseFileManager, 
@@ -138,32 +145,34 @@ private:
 
 	BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
 
-	//..........
+	//--------------------BASIC OPERATION---------------------
+	void				mFunction_AddToRenderList_GraphicObj(NoiseGraphicObject* pGraphicObj, std::vector<NoiseGraphicObject*>* pList);
+
+	void				mFunction_AddToRenderList_Text(Noise2DBasicTextInfo* pText, std::vector<Noise2DBasicTextInfo*>* pList);
+
 	void				mFunction_SetRasterState(NOISE_FILLMODE iFillMode,NOISE_CULLMODE iCullMode);
 
 	void				mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode);
 
-	void				mFunction_CameraMatrix_Update();
+	void				mFunction_CameraMatrix_Update(NoiseCamera* const pCamera);
 
-	void				mFunction_RenderMeshInList_UpdateCbPerObject();
 
-	void				mFunction_RenderMeshInList_UpdateCbPerFrame();
+	//----------------MESHES-----------------------
+	void				mFunction_RenderMeshInList_UpdateCbPerObject(NoiseMesh* const pMesh);
 
-	void				mFunction_RenderMeshInList_UpdateCbPerSubset(UINT subsetID);//return subset primitive count
+	void				mFunction_RenderMeshInList_UpdateCbPerFrame(NoiseCamera*const pCamera);
+
+	void				mFunction_RenderMeshInList_UpdateCbPerSubset(NoiseMesh* const pMesh,UINT subsetID);//return subset primitive count
 
 	void				mFunction_RenderMeshInList_UpdateCbRarely();
 
-	//--------------------ADD TO RENDER LIST----------------------
-	void				mFunction_AddToRenderList_GraphicObj(NoiseGraphicObject* pGraphicObj, std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_AddToRenderList_Text(Noise2DBasicTextInfo* pText, std::vector<Noise2DBasicTextInfo*>* pList);
-	
-	//----------------UPDATE & RENDER-----------------------
+	//----------------GRAPHIC OBJECT-----------------------
 	void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
 
-	void				mFunction_GraphicObj_RenderLine3DInList(std::vector<NoiseGraphicObject*>* pList);
+	void				mFunction_GraphicObj_RenderLine3DInList(NoiseCamera*const pCamera,std::vector<NoiseGraphicObject*>* pList);
 
-	void				mFunction_GraphicObj_RenderPoint3DInList(std::vector<NoiseGraphicObject*>* pList);
+	void				mFunction_GraphicObj_RenderPoint3DInList(NoiseCamera*const pCamera,std::vector<NoiseGraphicObject*>* pList);
 
 	void				mFunction_GraphicObj_RenderLine2DInList(std::vector<NoiseGraphicObject*>* pList);
 
@@ -171,17 +180,21 @@ private:
 
 	void				mFunction_GraphicObj_RenderTriangle2DInList(std::vector<NoiseGraphicObject*>* pList);
 
+
+	//----------------TEXT-----------------------
 	void				mFunction_TextGraphicObj_Update_TextInfo(UINT texID,NoiseTextureManager* pTexMgr,N_CbDrawText2D& cbText);
 	
 	void				mFunction_TextGraphicObj_Render(std::vector<Noise2DBasicTextInfo*>* pList);
 
-	void				mFunction_Atmosphere_Fog_Update();
 
-	void				mFunction_Atmosphere_SkyDome_Update();
+	//----------------ATMOSPHERE-----------------------
+	void				mFunction_Atmosphere_Fog_Update(NoiseAtmosphere*const pAtmo);
 
-	void				mFunction_Atmosphere_SkyBox_Update();
+	void				mFunction_Atmosphere_SkyDome_Update(NoiseAtmosphere*const pAtmo,UINT& outSkyDomeTexID);
 
-	void				mFunction_Atmosphere_UpdateCbAtmosphere();
+	void				mFunction_Atmosphere_SkyBox_Update(NoiseAtmosphere*const pAtmo, UINT& outSkyBoxTexID);
+
+	void				mFunction_Atmosphere_UpdateCbAtmosphere(NoiseAtmosphere*const pAtmo, UINT skyDomeTexID,UINT skyBoxTexID);
 
 private:
 	std::vector <NoiseMesh*>*				m_pRenderList_Mesh;

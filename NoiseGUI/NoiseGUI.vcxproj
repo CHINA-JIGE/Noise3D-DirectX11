@@ -79,6 +79,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>NoiseGUISystem.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -133,12 +135,22 @@
     <ClInclude Include="NoiseGUISystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="N2D_NoiseGUIButton.cpp" />
-    <ClCompile Include="N2D_NoiseGUIManager.cpp" />
+    <ClCompile Include="N2D_NoiseGUIButton.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUIManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="N2D_NoiseGUIOscilloscope.cpp" />
-    <ClCompile Include="N2D_NoiseGUIScrollBar.cpp" />
-    <ClCompile Include="N2D_NoiseGUITextBox.cpp" />
-    <ClCompile Include="NBASE_NoiseGUIComponentBase.cpp" />
+    <ClCompile Include="N2D_NoiseGUIScrollBar.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="N2D_NoiseGUITextBox.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseGUIComponentBase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Noise3D\NoiseEngine.vcxproj">

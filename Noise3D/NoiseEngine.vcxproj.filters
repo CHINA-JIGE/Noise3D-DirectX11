@@ -70,6 +70,9 @@
     <Filter Include="N2D_NoiseFont&amp;Text\NBASE_Noise2DBasicTextInfo">
       <UniqueIdentifier>{de740894-6a5f-409c-9c04-bdf91a8eaa88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NBASE_NoiseGeometryMeshGenerator">
+      <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="N3D_NoiseScene.h">
@@ -153,6 +156,9 @@
     <ClInclude Include="NBASE_NoiseFileManager_3DS.h">
       <Filter>NBASE_NoiseFileManager</Filter>
     </ClInclude>
+    <ClInclude Include="NBASE_NoiseGeometryMeshGenerator.h">
+      <Filter>NBASE_NoiseGeometryMeshGenerator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="N3D_NoiseScene.cpp">
@@ -187,9 +193,6 @@
     </ClCompile>
     <ClCompile Include="N3D_NoiseEngine.cpp">
       <Filter>N3D_NoiseEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_NoiseRenderer.cpp">
-      <Filter>N3D_NoiseRenderer</Filter>
     </ClCompile>
     <ClCompile Include="N3D_NoiseAtmosphere.cpp">
       <Filter>N3D_NoiseAtmosphere</Filter>
@@ -226,6 +229,24 @@
     </ClCompile>
     <ClCompile Include="NBASE_NoiseFileMgr_3DS.cpp">
       <Filter>NBASE_NoiseFileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer_GraphicObj.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer_Text.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer_Mesh.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer_Atmosphere.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="N3D_NoiseRenderer.cpp">
+      <Filter>N3D_NoiseRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="NBASE_NoiseGeometryMeshGenerator.cpp">
+      <Filter>NBASE_NoiseGeometryMeshGenerator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

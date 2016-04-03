@@ -1,6 +1,6 @@
 /***********************************************************************
 
-						h : NoiseAtmo
+								h : NoiseAtmo
 
 ************************************************************************/
 
@@ -20,28 +20,24 @@ public:
 
 	void		SetFogParameter(float fogNear, float fogFar, NVECTOR3 color);
 
-	BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, UINT texID);
+	BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, std::string texName);
 
-	void		SetSkyDomeTexture(UINT texID);
+	void		SetSkyDomeTexture(std::string texName);
 
-	BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, UINT cubeMapTexID);
+	BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, std::string texName);
 
-	void		SetSkyBoxTexture(UINT cubeMapTexID);
+	void		SetSkyBoxTexture(std::string texName);
 
 
 protected:
 
 	void	Destroy();
 
-private:
-
-	//used to build box
-	void	mFunction_Build_A_Quad(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex);
-
 
 private:
 	NoiseScene*		m_pFatherScene;
 
+	NoiseGeometryMeshGenerator mMeshGenerator;
 	//only after atmosphere was added to render list can we  apply fog effect
 	BOOL				mFogHasBeenAddedToRenderList;
 	BOOL				mFogCanUpdateToGpu;//we dont need update fog param frequently
@@ -54,11 +50,11 @@ private:
 	NOISE_ATMOSPHERE_SKYTYPE		mSkyType;
 	float												mSkyDomeRadiusXZ;
 	float												mSkyDomeHeight;
-	UINT												mSkyDomeTextureID;
+	std::string*									m_pSkyDomeTexName;
 	float												mSkyBoxWidth;
 	float												mSkyBoxHeight;
 	float												mSkyBoxDepth;
-	UINT												mSkyBoxCubeTextureID;
+	std::string*									m_pSkyBoxCubeTexName;
 	std::vector<UINT>*						m_pIB_Mem_Sky;
 	std::vector<N_SimpleVertex>*		m_pVB_Mem_Sky;
 	ID3D11Buffer*								m_pIB_Gpu_Sky;

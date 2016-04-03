@@ -65,7 +65,6 @@ BOOL Init3D(HWND hwnd)
 	TexMgr.ConvertHeightMapToNormalMap(TexMgr.GetTextureID("JadeNormalMap"), 5.0f);
 
 
-
 	//create font texture
 	fontMgr.CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
 	fontMgr.InitDynamicTextA(0, "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0, myText_fps);
@@ -74,25 +73,29 @@ BOOL Init3D(HWND hwnd)
 	myText_fps.SetFont(0);
 
 	Renderer.SetFillMode(NOISE_FILLMODE_SOLID);
-	Renderer.SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
+	Renderer.SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
 
 	//------------------MESH INITIALIZATION----------------
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
 	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
 	//Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
 	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
-	Mesh1.LoadFile_3DS("model/treeScene/treeScene2.3ds");
+	//Mesh1.LoadFile_3DS("model/treeScene/treeScene3.3ds");
+	//Mesh1.LoadFile_OBJ("model/cylinder.obj");
 	//Mesh1.CreateSphere(5.0f, 30, 30);
-	Mesh1.SetPosition(0, 0, 0);
+	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
+	//Mesh1.CreatePlane(50.0f, 50.0f);
+	Mesh1.CreateCylinder(20.0f, 30.0f,10,10);
+	//Mesh1.SetPosition(0, 0, 0);
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
 	
-	/*std::vector<N_DefaultVertex> tmpVB;
+	std::vector<N_DefaultVertex> tmpVB;
 	Mesh1.GetVertexBuffer(tmpVB);
 	for (auto v : tmpVB)
 	{
-		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-	}*/
+		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+		GraphicObjBuffer.AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	}
 	
 	//----------------------------------------------------------
 
@@ -109,16 +112,16 @@ BOOL Init3D(HWND hwnd)
 
 	Atmos.SetFogEnabled(FALSE);
 	Atmos.SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	Atmos.CreateSkyDome(4.0f, 4.0f, TexMgr.GetTextureID("Universe"));
+	Atmos.CreateSkyDome(4.0f, 4.0f, "Universe");
 	//Atmos.CreateSkyBox(100.0f, 100.0f, 100.0f, TexMgr.GetTextureID("AtmoTexture"));
 
 	//！！！！！！菊高！！！！！！！！
 	DirLight1.mAmbientColor = NVECTOR3(0.0f,0.0f, 0.0f);
 	DirLight1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	DirLight1.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	DirLight1.mDirection = NVECTOR3(-1.0f,-1.0f, 0);
+	//DirLight1.mDirection = NVECTOR3(-1.0f,1.0f, 0);
 	DirLight1.mSpecularIntensity = 1.0f;
-	DirLight1.mDiffuseIntensity =2.0f;
+	DirLight1.mDiffuseIntensity =1.0f;
 	LightMgr.AddDynamicDirLight(DirLight1);
 
 
@@ -135,7 +138,7 @@ BOOL Init3D(HWND hwnd)
 	UINT	 Mat1_ID = MatMgr.CreateMaterial(Mat1);
 
 	//set material
-	//Mesh1.SetMaterial("myDefaultMaterial");
+	Mesh1.SetMaterial("myDefaultMaterial");
 
 	GraphicObjBuffer.AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), TexMgr.GetTextureID("BottomRightTitle"));
 
@@ -145,6 +148,10 @@ BOOL Init3D(HWND hwnd)
 
 void MainLoop()
 {
+	static double incrNum = 0.0;;
+	incrNum += 0.001;
+	DirLight1.mDirection = NVECTOR3(sin(incrNum),-1,cos(incrNum));
+
 	//GUIMgr.Update();
 	InputProcess();
 	Renderer.ClearBackground();
