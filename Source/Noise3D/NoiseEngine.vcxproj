@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{989DEC98-69C7-4F44-AEFC-D5D4BBF57B90}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Noise3D</RootNamespace>
+    <ProjectName>Noise3d</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)Include;$(SOLUTIONDIR)ExternalLib\FreeType\include;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)ExternalLib\FreeType\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <OutDir>$(SolutionDir)Lib\(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)temp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)ExternalLib\FreeType\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(DXSDK_DIR)Include;$(SOLUTIONDIR)ExternalLib\FreeType\include;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$Lib\(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)temp\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>
+      </ProgramDatabaseFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAsManaged>true</CompileAsManaged>
+      <ExceptionHandling>Async</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="NBASE_IFactory.h" />
+    <ClInclude Include="N2D_GUIButton.h" />
+    <ClInclude Include="N2D_GUIManager.h" />
+    <ClInclude Include="N2D_GUIOscilloscope.h" />
+    <ClInclude Include="N2D_GUIScrollBar.h" />
+    <ClInclude Include="N2D_GUITextBox.h" />
+    <ClInclude Include="NBASE_GUIComponentBase.h" />
+    <ClInclude Include="NBASE_2DBasicTextInfo.h" />
+    <ClInclude Include="N2D_TextStatic.h" />
+    <ClInclude Include="N2D_TextDynamic.h" />
+    <ClInclude Include="N3D_Camera.h" />
+    <ClInclude Include="N3D_Root.h" />
+    <ClInclude Include="NBASE_FileManager.h" />
+    <ClInclude Include="N2D_FontManager.h" />
+    <ClInclude Include="NBASE_FileManager_3DS.h" />
+    <ClInclude Include="NBASE_GeometryMeshGenerator.h" />
+    <ClInclude Include="NoiseGUISystem.h" />
+    <ClInclude Include="NUT_NoiseUtInputEngine.h" />
+    <ClInclude Include="N3D_LightManager.h" />
+    <ClInclude Include="N2D_GraphicObject.h" />
+    <ClInclude Include="N3D_MaterialManager.h" />
+    <ClInclude Include="N3D_Mesh.h" />
+    <ClInclude Include="N3D_Renderer.h" />
+    <ClInclude Include="N3D_Scene.h" />
+    <ClInclude Include="N3D_TextureManager.h" />
+    <ClInclude Include="Noise3D.h" />
+    <ClInclude Include="N3D_Atmosphere.h" />
+    <ClInclude Include="NoiseFlag.h" />
+    <ClInclude Include="NoiseGlobal.h" />
+    <ClInclude Include="NoiseMacro.h" />
+    <ClInclude Include="NoiseTypes.h" />
+    <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h" />
+    <ClInclude Include="NUT_NoiseUtSlicer.h" />
+    <ClInclude Include="NUT_NoiseUtTimer.h" />
+    <ClInclude Include="NBASE_2DBasicContainerInfo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="N2D_GUIButton.cpp" />
+    <ClCompile Include="N2D_GUIManager.cpp" />
+    <ClCompile Include="N2D_GUIOscilloscope.cpp" />
+    <ClCompile Include="N2D_GUIScrollBar.cpp" />
+    <ClCompile Include="N2D_GUITextBox.cpp" />
+    <ClCompile Include="N2D_TextDynamic.cpp" />
+    <ClCompile Include="N2D_TextStatic.cpp" />
+    <ClCompile Include="N3D_Camera.cpp" />
+    <ClCompile Include="N3D_Root.cpp" />
+    <ClCompile Include="N2D_FontManager.cpp" />
+    <ClCompile Include="N3D_Renderer_Atmosphere.cpp" />
+    <ClCompile Include="N3D_Renderer_GraphicObj.cpp" />
+    <ClCompile Include="N3D_Renderer_Mesh.cpp" />
+    <ClCompile Include="N3D_Renderer_Text.cpp" />
+    <ClCompile Include="NBASE_2DBasicContainerInfo.cpp" />
+    <ClCompile Include="NBASE_2DBasicTextInfo.cpp" />
+    <ClCompile Include="NBASE_FileManager_Basic.cpp" />
+    <ClCompile Include="NBASE_FileMgr_3DS.cpp" />
+    <ClCompile Include="NBASE_FileMgr_OBJ.cpp" />
+    <ClCompile Include="NBASE_FileMgr_STL.cpp" />
+    <ClCompile Include="NBASE_GeometryMeshGenerator.cpp" />
+    <ClCompile Include="NBASE_GUIComponentBase.cpp" />
+    <ClCompile Include="NUT_NoiseUtInputEngine.cpp" />
+    <ClCompile Include="N3D_LightManager.cpp" />
+    <ClCompile Include="N2D_GraphicObject.cpp" />
+    <ClCompile Include="N3D_MaterialManager.cpp" />
+    <ClCompile Include="N3D_Mesh.cpp" />
+    <ClCompile Include="N3D_Renderer.cpp" />
+    <ClCompile Include="N3D_Scene.cpp" />
+    <ClCompile Include="N3D_TextureManager.cpp" />
+    <ClCompile Include="N3D_Atmosphere.cpp" />
+    <ClCompile Include="NoiseGlobal.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="NUT_NoiseUtSlicer.cpp" />
+    <ClCompile Include="NUT_NoiseUtTimer.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
