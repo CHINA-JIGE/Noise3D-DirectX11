@@ -1,6 +1,6 @@
 
 #include "Main3D.h"
-
+using namespace Noise3D;
 IRoot IRoot;
 IRenderer Renderer;
 IScene IScene;

@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class _declspec(dllexport) IMesh : private IFileManager
+	class /*_declspec(dllexport)*/ IMesh : private IFileManager
 	{
 		friend  class IScene;
 		friend  class IRenderer;
@@ -36,6 +36,8 @@ namespace Noise3D
 
 		void		SetPosition(float x, float y, float z);
 
+		void		SetPosition(const NVECTOR3& pos);
+
 		void		SetRotation(float angleX, float angleY, float angleZ);
 
 		void		SetRotationX_Pitch(float angleX);
@@ -58,9 +60,9 @@ namespace Noise3D
 
 		void		GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
 
-		NVECTOR3		ComputeBoundingBoxMax();
+		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
 
-		NVECTOR3		ComputeBoundingBoxMin();
+		N_Box		ComputeBoundingBox();
 
 	private:
 
@@ -70,7 +72,7 @@ namespace Noise3D
 		BOOL	mFunction_CreateGpuBuffers(D3D11_SUBRESOURCE_DATA* pVertexDataInMem, int iVertexCount, D3D11_SUBRESOURCE_DATA* pIndexDataInMem, int iIndexCount);
 
 		//invoked by NoiseRenderer
-		void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateWorldMatrix();
+		void		mFunction_UpdateWorldMatrix();
 
 		//this function use the vertex list of vector<N_DefaultVertex>
 		void		mFunction_ComputeBoundingBox();
@@ -98,8 +100,8 @@ namespace Noise3D
 		float										mScaleZ;
 
 		NVECTOR3*							m_pPosition;
-		NVECTOR3*							m_pBoundingBox_Min;
-		NVECTOR3*							m_pBoundingBox_Max;
+		N_Box									mBoundingBox;
+
 		NMATRIX*										m_pMatrixWorld;
 		NMATRIX*										m_pMatrixWorldInvTranspose;
 		std::vector<N_DefaultVertex>*			m_pVB_Mem;//vertex in CPU memory

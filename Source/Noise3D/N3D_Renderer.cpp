@@ -525,12 +525,10 @@ inline void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 	if (mCanUpdateCbCameraMatrix)
 	{
 		//update proj matrix
-		pCamera->mFunction_UpdateProjMatrix();
-		m_CbCameraMatrix.mProjMatrix = *(pCamera->m_pMatrixProjection);
+		pCamera->GetProjMatrix(m_CbCameraMatrix.mProjMatrix);
 
 		// update view matrix
-		pCamera->mFunction_UpdateViewMatrix();
-		m_CbCameraMatrix.mViewMatrix = *(pCamera->m_pMatrixView);
+		pCamera->GetViewMatrix(m_CbCameraMatrix.mViewMatrix);
 
 		//！！！！！！厚仟欺GPU！！！！！！
 		m_pFX_CbSolid3D->SetRawValue(&m_CbCameraMatrix, 0, sizeof(m_CbCameraMatrix));

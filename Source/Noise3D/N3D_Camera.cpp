@@ -63,6 +63,11 @@ NVECTOR3	ICamera::GetLookAt()
 	return  *m_pLookat;
 };
 
+NVECTOR3 	ICamera::GetDirection()
+{
+	return *m_pLookat-*m_pPosition;
+}
+
 void	ICamera::SetPosition(NVECTOR3 vPos)
 {
 	//lookat和位置不能重合啊
@@ -232,7 +237,21 @@ void ICamera::fps_MoveUp(float fSignedDistance)
 {
 	*m_pPosition += NVECTOR3(0, fSignedDistance, 0);
 	*m_pLookat += NVECTOR3(0, fSignedDistance, 0);
+}
+
+void Noise3D::ICamera::GetViewMatrix(NMATRIX & outMat)
+{
+	mFunction_UpdateViewMatrix();
+	outMat = *m_pMatrixView;
+}
+
+void Noise3D::ICamera::GetProjMatrix(NMATRIX & outMat)
+{
+	mFunction_UpdateProjMatrix();
+	outMat = *m_pMatrixProjection;
 };
+
+
 
 
 void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
@@ -272,8 +291,8 @@ void	ICamera::mFunction_UpdateProjMatrix()
 void	ICamera::mFunction_UpdateViewMatrix()
 {
 
-	D3DXMATRIX	tmpMatrixTranslation;
-	D3DXMATRIX	tmpMatrixRotation;
+	NMATRIX	tmpMatrixTranslation;
+	NMATRIX	tmpMatrixRotation;
 	//先对齐原点
 	D3DXMatrixTranslation(&tmpMatrixTranslation, -m_pPosition->x, -m_pPosition->y, -m_pPosition->z);
 	//然后用yawpitchroll的逆阵转到view空间
@@ -283,6 +302,8 @@ void	ICamera::mFunction_UpdateViewMatrix()
 	//先平移，再旋转
 	D3DXMatrixMultiply(m_pMatrixView,&tmpMatrixTranslation,&tmpMatrixRotation);
 	//要更新到GPU，TM居然要先转置
+	//(2016.4.11)楼上貌似有点不对啊，他妈的shader居然一直写的是矩阵右乘！！！！
+	//一直是用行向量！！！但是奇怪的是
 	D3DXMatrixTranspose(m_pMatrixView,m_pMatrixView);
 
 };

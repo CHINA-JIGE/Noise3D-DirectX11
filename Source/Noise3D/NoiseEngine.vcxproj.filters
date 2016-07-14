@@ -97,6 +97,9 @@
     <Filter Include="NoiseGraphic\Root">
       <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneralBasicClass\_Factory">
+      <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -202,7 +205,7 @@
       <Filter>NoiseGraphic\Root</Filter>
     </ClInclude>
     <ClInclude Include="NBASE_IFactory.h">
-      <Filter>GeneralBasicClass</Filter>
+      <Filter>GeneralBasicClass\_Factory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

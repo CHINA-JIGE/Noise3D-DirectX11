@@ -160,7 +160,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCame
 		m_CbPerFrame.mDirLightCount_Dynamic = tmpLight_Dir_Count;
 		m_CbPerFrame.mPointLightCount_Dynamic = tmpLight_Point_Count;
 		m_CbPerFrame.mSpotLightCount_Dynamic = tmpLight_Spot_Count;
-		m_CbPerFrame.mCamPos = *(pCamera->m_pPosition);
+		m_CbPerFrame.mCamPos = pCamera->GetPosition();
 
 		int i = 0;
 
@@ -265,9 +265,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerObject(IMesh* const pMesh)
 {
 	//！！！！厚仟World Matrix！！！！
-	pMesh->mFunction_UpdateWorldMatrix();
-	m_CbPerObject.mWorldMatrix = *(pMesh->m_pMatrixWorld);
-	m_CbPerObject.mWorldInvTransposeMatrix = *(pMesh->m_pMatrixWorldInvTranspose);
+	pMesh->GetWorldMatrix(m_CbPerObject.mWorldMatrix, m_CbPerObject.mWorldInvTransposeMatrix);
 	
 	//！！！！！！厚仟欺GPU！！！！！！
 	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject, 0, sizeof(m_CbPerObject));

@@ -11,13 +11,14 @@
 ************************************************************************/
 
 #pragma once
+
 namespace Noise3D
 {
 		//a base class that encapsulate basic information of a container 
-		class  _declspec(dllexport)  IBasicContainerInfo
+		class  /*_declspec(dllexport)*/  CBasicContainerInfo
 		{
 		public:
-			IBasicContainerInfo();
+			CBasicContainerInfo();
 
 			void  SetDiagonal(float x_topLeft, float y_topLeft, float x_bottomRight, float y_bottomRight);
 

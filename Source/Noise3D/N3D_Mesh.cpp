@@ -29,8 +29,8 @@ IMesh::IMesh()
 	m_pMatrixWorld = new NMATRIX;
 	m_pMatrixWorldInvTranspose = new NMATRIX;
 	m_pPosition = new NVECTOR3(0, 0, 0);
-	m_pBoundingBox_Min = new NVECTOR3(0, 0, 0);
-	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
+	mBoundingBox.min = NVECTOR3(0, 0, 0);
+	mBoundingBox.max = NVECTOR3(0, 0, 0);
 	D3DXMatrixIdentity(m_pMatrixWorld);
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
 
@@ -199,9 +199,9 @@ BOOL IMesh::LoadFile_STL(NFilePath pFilePath)
 
 	//计算包围盒中心点
 	tmpBoundingBoxCenter = NVECTOR3(
-		(m_pBoundingBox_Max->x + m_pBoundingBox_Min->x) / 2.0f,
-		(m_pBoundingBox_Max->y + m_pBoundingBox_Min->y) / 2.0f,
-		(m_pBoundingBox_Max->z + m_pBoundingBox_Min->z) / 2.0f);
+		(mBoundingBox.max.x + mBoundingBox.min.x) / 2.0f,
+		(mBoundingBox.max.y + mBoundingBox.min.y) / 2.0f,
+		(mBoundingBox.max.z + mBoundingBox.min.z) / 2.0f);
 
 
 
@@ -496,6 +496,11 @@ void IMesh::SetPosition(float x,float y,float z)
 	m_pPosition->z =z;
 }
 
+void Noise3D::IMesh::SetPosition(const NVECTOR3 & pos)
+{
+	*m_pPosition = pos;
+}
+
 void IMesh::SetRotation(float angleX, float angleY, float angleZ)
 {
 	mRotationX_Pitch	= angleX;
@@ -561,26 +566,19 @@ void IMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
 	outBuff.assign(iterBegin,iterLast);
 }
 
-NVECTOR3 IMesh::ComputeBoundingBoxMax()
+void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTMat)
 {
-	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
-	{
-		mFunction_ComputeBoundingBox();
-	}
-
-	return *m_pBoundingBox_Max;
-};
-
-NVECTOR3 IMesh::ComputeBoundingBoxMin()
-{
-	if (*m_pBoundingBox_Max == *m_pBoundingBox_Min)
-	{
-		mFunction_ComputeBoundingBox();
-	}
-
-	return *m_pBoundingBox_Min;
+	mFunction_UpdateWorldMatrix();
+	outWorldMat = *m_pMatrixWorld;
+	outWorldInvTMat = *m_pMatrixWorldInvTranspose;
 }
 
+N_Box IMesh::ComputeBoundingBox()
+{
+	mFunction_ComputeBoundingBox();
+
+	return mBoundingBox;
+};
 
 /***********************************************************************
 								PRIVATE					                    
@@ -664,20 +662,28 @@ void IMesh::mFunction_ComputeBoundingBox()
 
 	UINT i = 0;
 	NVECTOR3 tmpV;
+
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
 	for (i = 0;i < m_pVB_Mem->size();i++)
 	{
+		if (i == 0)
+		{
+			//initialization
+			mBoundingBox.min = m_pVB_Mem->at(0).Pos;
+			mBoundingBox.max = m_pVB_Mem->at(0).Pos;
+		}
 		//N_DEFAULT_VERTEX
 		tmpV = m_pVB_Mem->at(i).Pos;
-		if (tmpV.x <( m_pBoundingBox_Min->x)) { m_pBoundingBox_Min->x = tmpV.x; }
-		if (tmpV.y <(m_pBoundingBox_Min->y)) { m_pBoundingBox_Min->y = tmpV.y; }
-		if (tmpV.z <(m_pBoundingBox_Min->z)) { m_pBoundingBox_Min->z = tmpV.z; }
+		if (tmpV.x <( mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
+		if (tmpV.y <(mBoundingBox.min.y)) { mBoundingBox.min.y = tmpV.y; }
+		if (tmpV.z <(mBoundingBox.min.z)) { mBoundingBox.min.z = tmpV.z; }
 
-		if (tmpV.x >(m_pBoundingBox_Max->x)) { m_pBoundingBox_Max->x = tmpV.x; }
-		if (tmpV.y >(m_pBoundingBox_Max->y)) { m_pBoundingBox_Max->y = tmpV.y; }
-		if (tmpV.z >(m_pBoundingBox_Max->z)) { m_pBoundingBox_Max->z = tmpV.z; }
+		if (tmpV.x >(mBoundingBox.max.x)) { mBoundingBox.max.x = tmpV.x; }
+		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
+		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-
+	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, m_pPosition);
+	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, m_pPosition);
 }
 
 void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
@@ -689,16 +695,25 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
 	for (i = 0;i < pVertexBuffer->size();i++)
 	{
+		if (i == 0)
+		{
+			//initialization
+			mBoundingBox.min = m_pVB_Mem->at(0).Pos;
+			mBoundingBox.max = m_pVB_Mem->at(0).Pos;
+		}
 		tmpV = pVertexBuffer->at(i);
-		if (tmpV.x <(m_pBoundingBox_Min->x)) { m_pBoundingBox_Min->x = tmpV.x; }
-		if (tmpV.y <(m_pBoundingBox_Min->y)) { m_pBoundingBox_Min->y = tmpV.y; }
-		if (tmpV.z <(m_pBoundingBox_Min->z)) { m_pBoundingBox_Min->z = tmpV.z; }
+		//N_DEFAULT_VERTEX
+		tmpV = m_pVB_Mem->at(i).Pos;
+		if (tmpV.x <(mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
+		if (tmpV.y <(mBoundingBox.min.y)) { mBoundingBox.min.y = tmpV.y; }
+		if (tmpV.z <(mBoundingBox.min.z)) { mBoundingBox.min.z = tmpV.z; }
 
-		if (tmpV.x >(m_pBoundingBox_Max->x)) { m_pBoundingBox_Max->x = tmpV.x; }
-		if (tmpV.y >(m_pBoundingBox_Max->y)) { m_pBoundingBox_Max->y = tmpV.y; }
-		if (tmpV.z >(m_pBoundingBox_Max->z)) { m_pBoundingBox_Max->z = tmpV.z; }
+		if (tmpV.x >(mBoundingBox.max.x)) { mBoundingBox.max.x = tmpV.x; }
+		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
+		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-
+	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, m_pPosition);
+	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, m_pPosition);
 }
 
 inline NVECTOR2 IMesh::mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint)

@@ -1,9 +1,7 @@
 
 /***********************************************************************
 
-							*全局元素定义区
-
-				简述：在NoiseGlobal.h声明的全局元素在此定义   
+							Global Variables
 
 ***********************************************************************/
 
@@ -63,7 +61,7 @@ using namespace Noise3D;
 
 	/*------------------------------全局函数--------------------------*/
 
-NOISE_DLL_EXPORT  HRESULT Noise3D::gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+/*_declspec(dllexport)*/  HRESULT Noise3D::gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
 	{
 
 		HRESULT hr = S_OK;
@@ -92,7 +90,7 @@ NOISE_DLL_EXPORT  HRESULT Noise3D::gFunction_CompileShaderFromFile(WCHAR* szFile
 		return S_OK;
 	};
 
-NOISE_DLL_EXPORT	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+/*_declspec(dllexport)*/	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
 	{
 		if (v.x >= vTopLeft.x &&
 			v.x <= vBottomRight.x &&
@@ -105,7 +103,7 @@ NOISE_DLL_EXPORT	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vT
 		return FALSE;
 	}
 
-NOISE_DLL_EXPORT int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
+/*_declspec(dllexport)*/ int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
 	{
 		//!!!!!!the return type is signed INT ,because  top left might go beyond the upper boundary
 
@@ -147,7 +145,7 @@ NOISE_DLL_EXPORT int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT bounda
 		return 0;
 	}
 
-NOISE_DLL_EXPORT UINT Noise3D::gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital)
+/*_declspec(dllexport)*/ UINT Noise3D::gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital)
 	{
 #define returnChar(UCase,LCase) if(isCapital){return UCase;}else {return LCase;} break;
 
@@ -204,7 +202,7 @@ NOISE_DLL_EXPORT UINT Noise3D::gFunction_MapDInputScanCodeToAscii(UINT scanCode,
 		}
 	};
 
-NOISE_DLL_EXPORT std::string Noise3D::GetFileDirectory(std::string completeFilePath)
+/*_declspec(dllexport)*/ std::string Noise3D::GetFileDirectory(std::string completeFilePath)
 	{
 		//Get the directory which the file lies on 
 		std::string outDir = completeFilePath;
@@ -222,22 +220,22 @@ NOISE_DLL_EXPORT std::string Noise3D::GetFileDirectory(std::string completeFileP
 		return "";
 	};
 
-NOISE_DLL_EXPORT inline float Noise3D::gFunction_Lerp(float a, float b, float t)
+/*_declspec(dllexport)*/ inline float Noise3D::gFunction_Lerp(float a, float b, float t)
 	{
 		return(a + (b - a)*t);
 	};
 
-NOISE_DLL_EXPORT inline float Noise3D::gFunction_Clampf(float val, float min, float max)
+/*_declspec(dllexport)*/ inline float Noise3D::gFunction_Clampf(float val, float min, float max)
 	{
 		return (val >= min ? (val <= max ? val : max) : min);
 	};
 
-NOISE_DLL_EXPORT inline int	Noise3D::gFunction_Clamp(int val, int min, int max)
+/*_declspec(dllexport)*/ inline int	Noise3D::gFunction_Clamp(int val, int min, int max)
 	{
 		return (val >= min ? (val <= max ? val : max) : min);
 	};
 
-NOISE_DLL_EXPORT inline void Noise3D::DEBUG_MSG1(std::string msg)
+/*_declspec(dllexport)*/ inline void Noise3D::DEBUG_MSG1(std::string msg)
 	{
 		std::ostringstream debugMsg;
 		debugMsg << msg << std::endl;
@@ -247,3 +245,42 @@ NOISE_DLL_EXPORT inline void Noise3D::DEBUG_MSG1(std::string msg)
 		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
 		debugMsg.clear();
 	};
+
+/*_declspec(dllexport)*/ IRoot* Noise3D::GetRoot()
+{
+	class IRootCreation :public IFactory<IRoot>
+	{
+	public:
+
+		IRootCreation() :IFactory<IRoot>(1) {};
+
+		~IRootCreation() { delete m_pRoot; }
+
+		IRoot* CreateRoot()
+		{
+			static int rootCount = 0;
+			//if a Root was never created, create one
+			if (rootCount == 0)
+			{
+				rootCount++;
+				m_pRoot = IFactory<IRoot>::CreateObject("Root");
+				return m_pRoot;
+			}
+			else
+			{
+				//return the existed IRoot
+				return m_pRoot;
+			}
+
+		};
+
+	private:
+		friend class IFactory<IRoot>;
+
+		IRoot* m_pRoot;
+	};
+
+	static IRootCreation rootCreationFactory;
+	static IRoot* ptr = rootCreationFactory.CreateRoot();
+	return  ptr;
+};

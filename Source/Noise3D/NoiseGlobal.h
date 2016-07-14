@@ -9,7 +9,7 @@
 #pragma once
 #include "Noise3D.h"
 
-#define NOISE_DLL_EXPORT _declspec(dllexport)
+//#define NOISE_DLL_EXPORT /*_declspec(dllexport)*/
 
 namespace Noise3D
 {
@@ -54,22 +54,24 @@ namespace Noise3D
 	extern ID3D11InputLayout*			g_pVertexLayout_Simple;
 
 	//！！！！！！！！！！畠蕉痕方！！！！！！！！！！！！
-	extern NOISE_DLL_EXPORT HRESULT gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+	extern /*_declspec(dllexport)*/ HRESULT gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-	extern NOISE_DLL_EXPORT BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
+	extern /*_declspec(dllexport)*/ BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
-	extern NOISE_DLL_EXPORT int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
+	extern /*_declspec(dllexport)*/ int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
-	extern NOISE_DLL_EXPORT UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital);
+	extern /*_declspec(dllexport)*/ UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital);
 
-	extern NOISE_DLL_EXPORT std::string GetFileDirectory(std::string completeFilePath);
+	extern /*_declspec(dllexport)*/ std::string GetFileDirectory(std::string completeFilePath);
 
-	extern NOISE_DLL_EXPORT float gFunction_Lerp(float a, float b, float t);
+	extern /*_declspec(dllexport)*/ float gFunction_Lerp(float a, float b, float t);
 
-	extern NOISE_DLL_EXPORT float gFunction_Clampf(float val, float min, float max);
+	extern /*_declspec(dllexport)*/ float gFunction_Clampf(float val, float min, float max);
 
-	extern NOISE_DLL_EXPORT int	gFunction_Clamp(int val, int min, int max);
+	extern /*_declspec(dllexport)*/ int	gFunction_Clamp(int val, int min, int max);
 
-	extern NOISE_DLL_EXPORT void DEBUG_MSG1(std::string msg);
+	extern /*_declspec(dllexport)*/ void DEBUG_MSG1(std::string msg);
+
+	extern /*_declspec(dllexport)*/ IRoot* GetRoot();
 
 }

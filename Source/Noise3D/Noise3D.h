@@ -43,7 +43,6 @@
 #include "NBASE_FileManager.h"
 #include "NBASE_2DBasicTextInfo.h"
 #include "NBASE_GeometryMeshGenerator.h"
-#include "N3D_Root.h"
 #include "N3D_Mesh.h"
 #include "N3D_Camera.h"
 #include "N3D_LightManager.h"
@@ -58,6 +57,7 @@
 //-------------Core Class-------------
 #include "N3D_Renderer.h"
 #include "N3D_Scene.h"
+#include "N3D_Root.h"
 
 //-----------Noise Ut -----------
 #include "NUT_NoiseUtTimer.h"

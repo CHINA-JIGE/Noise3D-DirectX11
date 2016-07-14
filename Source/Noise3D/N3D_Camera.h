@@ -9,11 +9,10 @@
 
 namespace Noise3D
 {
-	class _declspec(dllexport) ICamera 
+	class /*_declspec(dllexport)*/ ICamera 
 	{
 	public:
 		friend  class IScene;
-		friend  class IRenderer;
 
 		ICamera();
 
@@ -23,13 +22,15 @@ namespace Noise3D
 
 		void				SetLookAt(float x, float y, float z);//要更新旋转角
 
-		NVECTOR3	GetLookAt();
+		NVECTOR3			GetLookAt();
 
 		void				SetPosition(NVECTOR3 vPos);
 
 		void				SetPosition(float x, float y, float z);
 
-		NVECTOR3	GetPosition();
+		NVECTOR3			GetPosition();
+		
+		NVECTOR3			GetDirection();
 
 		void				Move(NVECTOR3 vRelativePos);//pos and lookat
 
@@ -64,6 +65,10 @@ namespace Noise3D
 		void				fps_MoveRight(float fSignedDistance, BOOL enableYAxisMovement = FALSE);
 
 		void				fps_MoveUp(float fSignedDistance);
+
+		void				GetViewMatrix(NMATRIX& outMat);
+
+		void				GetProjMatrix(NMATRIX& outMat);
 
 		/*
 		void				sm_Update();

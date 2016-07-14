@@ -8,17 +8,31 @@
 
 namespace Noise3D
 {
-	struct N_TextureObject
+	class N_TextureObject
 	{
-		N_TextureObject() { ZeroMemory(this, sizeof(*this)); }
-		std::string			mTexName;
+	public:
+
+		//std::string			mTexName;
 		std::vector<NVECTOR4>	mPixelBuffer;
 		BOOL	mIsPixelBufferInMemValid;
 		ID3D11ShaderResourceView*	m_pSRV;
 		NOISE_TEXTURE_TYPE mTextureType;
+
+	private:
+		friend class IFactory<N_TextureObject>;
+
+		N_TextureObject() { ZeroMemory(this, sizeof(*this)); }
+
+		~N_TextureObject()
+		{
+			//safe_release SRV  interface
+			ReleaseCOM(m_pSRV);
+			mPixelBuffer.clear();
+		}
 	};
 
-	class _declspec(dllexport) ITextureManager 
+	class /*_declspec(dllexport)*/ ITextureManager : 
+		public IFactory<N_TextureObject>
 	{
 	public:
 		friend class IScene;
@@ -37,55 +51,55 @@ namespace Noise3D
 		//--------upload the pixel matrix (in memory) to GPU
 		BOOL	UpdateTextureDataToGraphicMemory(UINT texID);
 
-		BOOL	UpdateTextureDataToGraphicMemory(std::string texName);
+		BOOL	UpdateTextureDataToGraphicMemory(N_UID texName);
 
 		//--------
-		UINT		CreatePureColorTexture(std::string texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
+		UINT		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
 
 		//--------
-		UINT		CreateTextureFromFile(NFilePath filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory = FALSE);
+		UINT		CreateTextureFromFile(NFilePath filePath, N_UID texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory = FALSE);
 
 		//--------
-		UINT		CreateCubeMapFromFiles(NFilePath fileName[6], std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+		UINT		CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 
 		//--------
-		UINT		CreateCubeMapFromDDS(NFilePath dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+		UINT		CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 
 		//--------
 		BOOL	ConvertTextureToGreyMap(UINT texID);
 
-		BOOL	ConvertTextureToGreyMap(std::string texName);
+		BOOL	ConvertTextureToGreyMap(N_UID texName);
 
 		//--------
 		BOOL	ConvertTextureToGreyMapEx(UINT texID, float factorR, float factorG, float factorB);
 
-		BOOL	ConvertTextureToGreyMapEx(std::string texName, float factorR, float factorG, float factorB);
+		BOOL	ConvertTextureToGreyMapEx(N_UID texName, float factorR, float factorG, float factorB);
 
 		//--------
 		BOOL	ConvertHeightMapToNormalMap(UINT texID, float heightFieldScaleFactor = 10.0f);
 
-		BOOL	ConvertHeightMapToNormalMap(std::string texName, float heightFieldScaleFactor = 10.0f);
+		BOOL	ConvertHeightMapToNormalMap(N_UID texName, float heightFieldScaleFactor = 10.0f);
 
 		//--------
 		BOOL	SaveTextureToFile(UINT texID, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
 
-		BOOL	SaveTextureToFile(std::string texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
+		BOOL	SaveTextureToFile(N_UID texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
 
 		//--------
-		UINT		GetTextureID(std::string texName);
+		UINT		GetTextureID(N_UID texName);
 
 		//--------
-		void		GetTextureName(UINT index, std::string& outTextureName);
+		N_UID	GetTextureName(UINT index);
 
 		//--------
 		UINT		GetTextureWidth(UINT texID);
 
-		UINT		GetTextureWidth(std::string texName);
+		UINT		GetTextureWidth(N_UID texName);
 
 		//--------
 		UINT		GetTextureHeight(UINT texID);
 
-		UINT		GetTextureHeight(std::string texName);
+		UINT		GetTextureHeight(N_UID texName);
 
 		//--------
 		UINT		GetTextureCount();
@@ -93,7 +107,9 @@ namespace Noise3D
 		//--------
 		BOOL	DeleteTexture(UINT texID);
 
-		BOOL	DeleteTexture(std::string texName);
+		BOOL	DeleteTexture(N_UID texName);
+
+		void		DeleteAllTexture();
 
 		//--------return original index if valid, return INVALID_ID otherwise
 		UINT		ValidateIndex(UINT texID);
@@ -104,20 +120,14 @@ namespace Noise3D
 
 		void		Destroy();
 
-		void		mFunction_RefreshHashTableAfterDeletion(UINT deletedTexID_threshold, UINT indexDecrement);
+		UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
-		UINT		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
-
-		UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+		UINT		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
 		UINT		mFunction_GetPixelIndexFromXY(UINT x, UINT y, UINT width);
 
 	private:
 		IScene*								m_pFatherScene;
-		std::vector<N_TextureObject>*	m_pTextureObjectList;
-		//using index to access resource is inevitable, but only
-		//NAME STRING can uniquely identify a resource, optimization must be 
-		//implemented.
-		std::unordered_map<std::string, UINT>*	m_pTextureObjectHashTable;
+
 	};
 }

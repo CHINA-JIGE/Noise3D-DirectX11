@@ -91,4 +91,12 @@ namespace Noise3D
 		std::string		matName;
 	};
 
-}
+	struct N_Box
+	{
+		N_Box() { max = min = { 0,0,0 }; };
+		N_Box(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
+		NVECTOR3 max;
+		NVECTOR3 min;
+	};
+
+};

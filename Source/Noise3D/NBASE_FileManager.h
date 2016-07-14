@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-		class _declspec(dllexport) IFileManager
+		class /*_declspec(dllexport)*/ IFileManager
 		{
 		public:
 			IFileManager();

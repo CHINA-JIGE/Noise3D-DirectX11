@@ -9,7 +9,9 @@
 
 namespace Noise3D
 {
-	class _declspec(dllexport) IRoot
+	class /*_declspec(dllexport)*/ IRoot
+		:public IFactory<IScene>
+
 	{
 	public:
 
@@ -56,11 +58,9 @@ namespace Noise3D
 		UINT					mRenderWindowPixelWidth;
 		UINT					mRenderWindowPixelHeight;
 
-		//用于储存主循环的函数指针 因为要封装消息循环 所以只能这样了
+		//function pointer used to encapsule the "Main Loop" into the framwork
 		void(*m_pMainLoopFunction)(void);
 		NOISE_MAINLOOP_STATUS		mMainLoopStatus;
-
-		IFactory<IScene, 1000>			mFactory_Scene;
 
 	private:
 

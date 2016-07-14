@@ -22,8 +22,8 @@ namespace Noise3D
 
 
 		//a base class that provide general life cycle management
-		class _declspec(dllexport) IComponentBase :
-			public IBasicContainerInfo
+		class /*_declspec(dllexport)*/ IComponentBase :
+			public CBasicContainerInfo
 		{
 			friend class IComponentManager;
 

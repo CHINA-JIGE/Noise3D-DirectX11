@@ -94,7 +94,7 @@ namespace Noise3D
 	};
 
 
-	class _declspec(dllexport) ILightManager
+	class /*_declspec(dllexport)*/ ILightManager
 	{
 	public:
 		friend class IScene;
