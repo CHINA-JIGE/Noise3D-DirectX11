@@ -11,15 +11,20 @@
 
 using namespace Noise3D;
 
-ITextureManager::ITextureManager():
-	IFactory<N_TextureObject>(20000)//maxCount of Textures
+ITextureManager::ITextureManager()
 {
 	m_pFatherScene = NULL;
+	m_pTextureObjectList = new std::vector<N_TextureObject>;
+	m_pTextureObjectHashTable = new std::unordered_map<std::string, UINT>;
 };
 
 void	 ITextureManager::Destroy()
 {
-	DeleteAllTexture();
+	for (auto texObj : *m_pTextureObjectList)
+	{
+		texObj.mPixelBuffer.clear();
+		ReleaseCOM(texObj.m_pSRV);
+	}
 }
 
 BOOL ITextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4& color)
@@ -29,8 +34,7 @@ BOOL ITextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4
 	if (validatedTexID!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		//this texture is not created with a SysMem Copy
-		N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(validatedTexID);
-		if (!pTexObj->mIsPixelBufferInMemValid)
+		if (!m_pTextureObjectList->at(validatedTexID).mIsPixelBufferInMemValid)
 		{
 			DEBUG_MSG1("Set Pixel : Texture didn't have a copy in memory!!");
 			return FALSE;
@@ -44,7 +48,7 @@ BOOL ITextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4
 		if(x>=0 && x<textureWidth && y>=0 && y<textureHeight)
 		{
 			UINT pixelIndex = mFunction_GetPixelIndexFromXY(x, y, GetTextureWidth(validatedTexID));
-			pTexObj->mPixelBuffer.at(pixelIndex) = color;
+			m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(pixelIndex) = color;
 			return TRUE;
 		}
 		else//X,Y Invalid or Out Of Range
@@ -69,7 +73,7 @@ NVECTOR4 ITextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		//this texture is not created with a SysMem Copy
-		if (!IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->mIsPixelBufferInMemValid)
+		if (!m_pTextureObjectList->at(validatedTexID).mIsPixelBufferInMemValid)
 		{
 			DEBUG_MSG1("GetPixel : Texture didn't have a copy in memory!!");
 			return outColor;
@@ -83,7 +87,7 @@ NVECTOR4 ITextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 		if (x >= 0 && x < textureWidth && y >= 0 && y < textureHeight)
 		{
 			UINT pixelIndex = mFunction_GetPixelIndexFromXY(x, y, GetTextureWidth(validatedTexID));
-			outColor = IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->mPixelBuffer.at(pixelIndex);
+			outColor = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(pixelIndex);
 		}
 		else//X,Y Invalid or Out Of Range
 		{
@@ -106,7 +110,7 @@ BOOL ITextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 
 	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		if (IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->mIsPixelBufferInMemValid)
+		if (m_pTextureObjectList->at(validatedTexID).mIsPixelBufferInMemValid)
 		{
 			UINT picWidth = GetTextureWidth(validatedTexID);
 
@@ -114,14 +118,14 @@ BOOL ITextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 			ID3D11Resource* pTmpRes;
 			//resource reference count will increase ,so remember to release
 			//so getResource() actually gets a interface to the resource BOUND to the view.
-			IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->m_pSRV->GetResource(&pTmpRes);
+			m_pTextureObjectList->at(validatedTexID).m_pSRV->GetResource(&pTmpRes);
 
 			//update resource which is bound to the corresponding SRV
 			g_pImmediateContext->UpdateSubresource(
 				pTmpRes,
 				0,
 				NULL,
-				&IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->mPixelBuffer.at(0),
+				&m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(0),
 				picWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
 				NULL);
 
@@ -144,17 +148,18 @@ BOOL ITextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 	return TRUE;
 }
 
-inline BOOL ITextureManager::UpdateTextureDataToGraphicMemory(N_UID texName)
+inline BOOL ITextureManager::UpdateTextureDataToGraphicMemory(std::string texName)
 {
 	return UpdateTextureDataToGraphicMemory(GetTextureID(texName));
 }
 
 //--------------------------------TEXTURE CREATION-----------------------------
-UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory)
+UINT ITextureManager::CreatePureColorTexture(std::string texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory)
 {
 	//create New Texture Object
 	HRESULT hr = S_OK;
 	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
+	std::string tmpStringTextureName(texName);
 
 	//we must check if new name has been used
 	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
@@ -166,14 +171,14 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 #pragma region CreateTex2D&SRV
 
 	//a temporary Texture Object
-	/*N_TextureObject tmpTexObj;
+	N_TextureObject tmpTexObj;
 	tmpTexObj.mIsPixelBufferInMemValid = keepCopyInMemory;
 	tmpTexObj.mTexName = tmpStringTextureName;
-	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;*/
+	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;
 
-	//assign a lot of same NVECTOR4 color to vector
-	std::vector<NVECTOR4> initPixelBuffer(pixelWidth*pixelHeight, color);
-
+	//assign a the same NVECTOR4 to vector
+	tmpTexObj.mPixelBuffer.resize(pixelWidth*pixelHeight,color);
+	//tmpTexObj.mPixelBuffer.assign(pixelHeight*pixelWidth, color);????
 
 	//texture2D desc (create a default usage texture)
 	D3D11_TEXTURE2D_DESC texDesc;
@@ -199,7 +204,7 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 
 	//init data
 	D3D11_SUBRESOURCE_DATA texInitDataDesc;
-	texInitDataDesc.pSysMem = &initPixelBuffer.at(0);
+	texInitDataDesc.pSysMem = &tmpTexObj.mPixelBuffer.at(0);
 	texInitDataDesc.SysMemPitch = (texDesc.Width) * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE;//bytesize for 1 row
 	texInitDataDesc.SysMemSlicePitch = 0;//available for tex3D
 
@@ -215,8 +220,7 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	}
 
 	//Create SRV from texture 2D (to a tmp textureObject)
-	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmp_pSRV);
+	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmpTexObj.m_pSRV);
 	//ReleaseCOM(g_pd3dDevice11);
 	if (FAILED(hr))
 	{
@@ -230,23 +234,21 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	ReleaseCOM(pTmpTexture2D);
 
 	//clear Memory of the picture
-	if (!keepCopyInMemory)initPixelBuffer.clear();
+	if (!keepCopyInMemory)tmpTexObj.mPixelBuffer.clear();
 
 #pragma endregion CreateTex2D&SRV
 
 	//at last push back a new texture object
-	N_TextureObject* pTexObj= IFactory<N_TextureObject>::CreateObject(texName);
-	pTexObj->mIsPixelBufferInMemValid = keepCopyInMemory;
-	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_COMMON;
-	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer = std::move(initPixelBuffer);//rvalue ref (fast swap)
+	m_pTextureObjectList->push_back(tmpTexObj);
+	newTexIndex = m_pTextureObjectList->size() - 1;
 
-	newTexIndex = IFactory<N_TextureObject>::GetObjectID(texName);
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
 	return newTexIndex;
 };
 
-UINT ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
+UINT ITextureManager::CreateTextureFromFile(NFilePath filePath, std::string texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
 {
 	if (keepCopyInMemory)
 	{
@@ -259,10 +261,10 @@ UINT ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texName, B
 	return NOISE_MACRO_INVALID_TEXTURE_ID;
 }
 
-UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	HRESULT hr = S_OK;
-
+	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
 
 #pragma region LoadDataToBufferArray
 	//create temporary textures , so we should mark the ID to delete it later
@@ -321,7 +323,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 	std::vector<NVECTOR4> pixelBuffer[6];
 	for (UINT i = 0;i < 6;i++)
 	{
-		auto srcPartialBuffer = IFactory<N_TextureObject>::GetObjectPtr(tmpTexID[i])->mPixelBuffer;
+		auto srcPartialBuffer = m_pTextureObjectList->at(tmpTexID[i]).mPixelBuffer;
 		//assign values for each buffer
 		pixelBuffer[i].assign(srcPartialBuffer.begin(), srcPartialBuffer.end());
 	}
@@ -338,7 +340,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 
 #pragma region CreateCubeMap
 	//we must check if new texture name has been used
-	/*std::string cubemapNameString(cubeTextureName);
+	std::string cubemapNameString(cubeTextureName);
 	for (auto t : *m_pTextureObjectList)
 	{
 		if (t.mTexName == cubemapNameString)
@@ -346,7 +348,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 			DEBUG_MSG1("NoiseTexMgr:CreateCubeMapFromFiles : Texture name has been used!!");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 		}
-	}*/
+	}
 
 
 	//cube map is similar to texture arrays
@@ -392,16 +394,16 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 
 	
 	//we disable texture modification of Cube Map for the time being...
-	/*N_TextureObject tmpTexObj;
+	N_TextureObject tmpTexObj;
+	tmpTexObj.mTexName = cubemapNameString;
 	tmpTexObj.mIsPixelBufferInMemValid = FALSE;
-	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;*/
+	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;
 
 	//create SRV from texture2D
-	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 	hr = g_pd3dDevice11->CreateShaderResourceView(
 		pCubeMapTexture2D,
 		&SRViewDesc,
-		&tmp_pSRV);
+		&tmpTexObj.m_pSRV);
 
 	if (FAILED(hr))
 	{
@@ -412,19 +414,18 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 
 #pragma endregion CreateCubeMap
 
-	//Create a new Texture object
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::CreateObject(cubeTextureName);
-	pTexObj->mIsPixelBufferInMemValid = FALSE;
-	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;
-	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer.clear();
 
-	UINT newTexIndex = IFactory<N_TextureObject>::GetObjectID(cubeTextureName);
+	//by now ,we have successfully created a cube map Texture Object
+	m_pTextureObjectList->push_back(tmpTexObj);
+	newTexIndex = m_pTextureObjectList->size() - 1;
+
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
 	return newTexIndex;
 }
 
-UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, std::string cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
 	BOOL isFileNameValid;
 	for (UINT i = 0; i < 6;i++)
@@ -478,15 +479,26 @@ UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTex
 
 	//create New Texture Object
 	HRESULT hr = S_OK;
+	N_TextureObject tmpTexObj;
+	std::string tmpString(cubeTextureName);
+
+	//we must check if new name has been used
+	for (auto t : *m_pTextureObjectList)
+	{
+		if (t.mTexName == tmpString)
+		{
+			DEBUG_MSG1("CreateCubeMapFromDDS : Texture name has been used!!");
+			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
+		}
+	}
 
 	//then endow a pointer to new SRV
-	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 	D3DX11CreateShaderResourceViewFromFileA(
 		g_pd3dDevice11,
 		dds_FileName.c_str(),
 		&loadInfo,
 		nullptr,
-		&tmp_pSRV,
+		&tmpTexObj.m_pSRV,
 		&hr
 		);
 	//ReleaseCOM(g_pd3dDevice11);
@@ -498,18 +510,21 @@ UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTex
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
+	//set texture object attribute
+	tmpTexObj.mTexName = tmpString;
+	tmpTexObj.mIsPixelBufferInMemValid = FALSE;
+	tmpTexObj.mTexName = tmpString;
+	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;
 
 #pragma endregion CreateSRVFromDDS
 
-	//Create a new Texture object
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::CreateObject(cubeTextureName);
-	pTexObj->mIsPixelBufferInMemValid = FALSE;
-	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;
-	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer.clear();
 
-	//return new texObj index
-	UINT newTexIndex = IFactory<N_TextureObject>::GetObjectID(cubeTextureName);
+	//by now ,we have successfully created a cube map Texture Object
+	m_pTextureObjectList->push_back(tmpTexObj);
+	UINT newTexIndex = m_pTextureObjectList->size()-1;
+
+	//don't forget to add "name-index" map to hash table to accelerate element searching
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
 	return newTexIndex;
 }
@@ -522,7 +537,7 @@ BOOL ITextureManager::ConvertTextureToGreyMap(UINT texID)
 	return ConvertTextureToGreyMapEx(texID,0.3f,0.59f,0.11f);
 }
 
-BOOL ITextureManager::ConvertTextureToGreyMap(N_UID texName)
+BOOL ITextureManager::ConvertTextureToGreyMap(std::string texName)
 {
 	return ConvertTextureToGreyMap(GetTextureID(texName));
 }
@@ -538,8 +553,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the copy in mem will be modified)
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(validatedTexID);
-	if (!pTexObj->mIsPixelBufferInMemValid)
+	if (!m_pTextureObjectList->at(validatedTexID).mIsPixelBufferInMemValid)
 	{
 		DEBUG_MSG1("ConvertTextureToGreyMap:Only Textures that keep a copy in memory can be converted ! ");
 		return FALSE;
@@ -548,7 +562,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 	//Get Dimension info
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ID3D11Texture2D* pTex2D;
-	pTexObj->m_pSRV->GetResource((ID3D11Resource**)&pTex2D);
+	m_pTextureObjectList->at(validatedTexID).m_pSRV->GetResource((ID3D11Resource**)&pTex2D);
 	pTex2D->GetDesc(&textureDesc);
 
 	UINT picWidth = textureDesc.Width;
@@ -558,7 +572,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 
 	//for every pixel of the copy in memory ,
 	//convert their RGBs to same value under some rules
-	for (auto& c : pTexObj->mPixelBuffer)
+	for (auto& c : m_pTextureObjectList->at(validatedTexID).mPixelBuffer)
 	{
 		float greyScale = factorR *c.x + factorG*c.y + factorB*c.z;
 		c = NVECTOR4(greyScale, greyScale, greyScale, c.w);
@@ -568,14 +582,14 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 	ID3D11Resource* pTmpRes;
 	//resource reference count will increase ,so remember to release
 	//so getResource() actually gets a interface to the resource BOUND to the view.
-	pTexObj->m_pSRV->GetResource(&pTmpRes);
+	m_pTextureObjectList->at(validatedTexID).m_pSRV->GetResource(&pTmpRes);
 
 	//update resource which is bound to the corresponding SRV
 	g_pImmediateContext->UpdateSubresource(
 		pTmpRes,
 		0,
 		NULL,
-		&pTexObj->mPixelBuffer.at(0),
+		&m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(0),
 		picWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
 		NULL);
 
@@ -584,7 +598,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 	return TRUE;
 }
 
-BOOL ITextureManager::ConvertTextureToGreyMapEx(N_UID texName, float factorR, float factorG, float factorB)
+BOOL ITextureManager::ConvertTextureToGreyMapEx(std::string texName, float factorR, float factorG, float factorB)
 {
 	return ConvertTextureToGreyMapEx(GetTextureID(texName),factorR,factorG,factorB);
 }
@@ -600,8 +614,7 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the copy in mem will be modified)
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texID);
-	if (!pTexObj->mIsPixelBufferInMemValid)
+	if (!m_pTextureObjectList->at(validatedTexID).mIsPixelBufferInMemValid)
 	{
 		DEBUG_MSG1("ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted ! ");
 		return FALSE;
@@ -610,7 +623,7 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	//Get Dimension info
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ID3D11Texture2D* pTex2D;
-	pTexObj->m_pSRV->GetResource((ID3D11Resource**)&pTex2D);
+	m_pTextureObjectList->at(validatedTexID).m_pSRV->GetResource((ID3D11Resource**)&pTex2D);
 	pTex2D->GetDesc(&textureDesc);
 
 	UINT picWidth = textureDesc.Width;
@@ -621,7 +634,6 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	//every pixel of the height field stands for a 3D point
 	//and we can use cross product to generate a pixel matrix of (n-1)x(n-1) dimension
 	//the last 1 row & column need to be dealt with specially
-	auto & pixelBuffer = pTexObj->mPixelBuffer;
 
 	for (UINT j = 0;j < picHeight-1;j++)
 	{
@@ -634,16 +646,16 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 			vertexID1 = mFunction_GetPixelIndexFromXY(i, j, picWidth);
 			vertexID2 = mFunction_GetPixelIndexFromXY(i + 1, j, picWidth);
 			vertexID3 = mFunction_GetPixelIndexFromXY(i, j+1, picWidth);
-			color1 = pTexObj->mPixelBuffer.at(vertexID1);
-			color2 = pTexObj->mPixelBuffer.at(vertexID2);
-			color3 = pTexObj->mPixelBuffer.at(vertexID3);
+			color1 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID1);
+			color2 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID2);
+			color3 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID3);
 			//because it's grey map , so we can only use one color channel
 			v1 = NVECTOR3(1.0f, 0,bumpScaleFactor* (color2.x - color1.x));
 			v2 = NVECTOR3(0, 1.0f, bumpScaleFactor* (color3.x - color1.x));
 			D3DXVec3Cross(&currentNormal, &v1, &v2);
 
 			//convert normal to Normal Map Color
-			pTexObj->mPixelBuffer.at(vertexID1) =
+			m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID1) =
 				NVECTOR4((currentNormal.x + 1) / 2, (currentNormal.y + 1) / 2, (currentNormal.z + 1) / 2, 1.0f);
 		}
 	}
@@ -657,11 +669,11 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 		vertexID2 = mFunction_GetPixelIndexFromXY(i,0, picWidth);
 		NVECTOR4 color1, color2;
 		//the row (n-1) and row 0
-		color1 = pTexObj->mPixelBuffer.at(vertexID1);
-		color2 = pTexObj->mPixelBuffer.at(vertexID2);
+		color1 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID1);
+		color2 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID2);
 
 		//compute average color
-		pTexObj->mPixelBuffer.at(currentVertexID) =(color1 + color2) / 2;
+		m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(currentVertexID) =(color1 + color2) / 2;
 	}
 
 	//last colomn
@@ -673,11 +685,11 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 		vertexID2 = mFunction_GetPixelIndexFromXY(0,i, picWidth);
 		NVECTOR4 color1, color2;
 		//the row (n-1) and row 0
-		color1 = pTexObj->mPixelBuffer.at(vertexID1);
-		color2 = pTexObj->mPixelBuffer.at(vertexID2);
+		color1 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID1);
+		color2 = m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(vertexID2);
 
 		//compute average color
-		pTexObj->mPixelBuffer.at(currentVertexID) = (color1 + color2) / 2;
+		m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(currentVertexID) = (color1 + color2) / 2;
 	}
 
 
@@ -685,14 +697,14 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	ID3D11Resource* pTmpRes;
 	//resource reference count will increase ,so remember to release
 	//so getResource() actually gets a interface to the resource BOUND to the view.
-	pTexObj->m_pSRV->GetResource(&pTmpRes);
+	m_pTextureObjectList->at(validatedTexID).m_pSRV->GetResource(&pTmpRes);
 
 	//update resource which is bound to the corresponding SRV
 	g_pImmediateContext->UpdateSubresource(
 		pTmpRes,
 		0,
 		NULL,
-		&pTexObj->mPixelBuffer.at(0),
+		&m_pTextureObjectList->at(validatedTexID).mPixelBuffer.at(0),
 		picWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
 		NULL);
 
@@ -701,20 +713,18 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	return TRUE;
 }
 
-BOOL ITextureManager::ConvertHeightMapToNormalMap(N_UID texName, float heightFieldScaleFactor)
+BOOL ITextureManager::ConvertHeightMapToNormalMap(std::string texName, float heightFieldScaleFactor)
 {
 	return ConvertHeightMapToNormalMap(GetTextureID(texName),heightFieldScaleFactor);
 }
 
 BOOL ITextureManager::SaveTextureToFile(UINT texID, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
 {
-	auto pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texID);
-	//if texID valid
-	if(pTexObj!=nullptr)
+	if (texID >= 0 && texID < m_pTextureObjectList->size())
 	{
 		HRESULT hr = S_OK;
 		ID3D11Texture2D* tmp_pResource;
-		pTexObj->m_pSRV->GetResource((ID3D11Resource**)&tmp_pResource);
+		 m_pTextureObjectList->at(texID).m_pSRV->GetResource((ID3D11Resource**)&tmp_pResource);
 		 //use d3dx11
 		 hr= D3DX11SaveTextureToFileA(
 			g_pImmediateContext, 
@@ -730,32 +740,42 @@ BOOL ITextureManager::SaveTextureToFile(UINT texID, NFilePath filePath, NOISE_TE
 	return TRUE;
 }
 
-BOOL ITextureManager::SaveTextureToFile(N_UID texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+BOOL ITextureManager::SaveTextureToFile(std::string texName, NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
 {
 	return SaveTextureToFile(GetTextureID(texName),filePath,picFormat);
 };
 
-UINT	 ITextureManager::GetTextureID(N_UID texName)
+UINT	ITextureManager::GetTextureID(std::string texName)
 {
-	return IFactory<N_TextureObject>::GetObjectID(texName);
+	auto nameIndexPairIter = m_pTextureObjectHashTable->find(texName);
+	if (nameIndexPairIter != m_pTextureObjectHashTable->end())
+	{
+		return nameIndexPairIter->second;//string-UINT pair
+	}
+	else
+	{
+		return NOISE_MACRO_INVALID_TEXTURE_ID;//Invalid texture Name
+	}
 }
 
-N_UID	 ITextureManager::GetTextureName(UINT index)
+void	 ITextureManager::GetTextureName(UINT index, std::string& outTextureName)
 {
-	return IFactory<N_TextureObject>::GetUID(index);
+	//if index is valid, return an std::string name
+	if (index < m_pTextureObjectList->size())
+	{
+		outTextureName = m_pTextureObjectList->at(index).mTexName;
+	}
 }
 
 UINT ITextureManager::GetTextureWidth(UINT texID)
 {
 	
-	auto pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texID);
-	//if texID valid
-	if (pTexObj != nullptr)
+	if (texID >=0 && texID<m_pTextureObjectList->size())
 	{
 		ID3D11Texture2D* pTmpRes;
 		D3D11_TEXTURE2D_DESC texDesc;
 		//get resource from SRV, then get description from texture2D
-		pTexObj->m_pSRV->GetResource((ID3D11Resource**)&pTmpRes);
+		m_pTextureObjectList->at(texID).m_pSRV->GetResource((ID3D11Resource**)&pTmpRes);
 		pTmpRes->GetDesc(&texDesc);
 		ReleaseCOM(pTmpRes);
 		return texDesc.Width;
@@ -764,21 +784,19 @@ UINT ITextureManager::GetTextureWidth(UINT texID)
 	return 0;
 }
 
-UINT ITextureManager::GetTextureWidth(N_UID texName)
+UINT ITextureManager::GetTextureWidth(std::string texName)
 {
 	return GetTextureWidth(GetTextureID(texName));
 }
 
 UINT ITextureManager::GetTextureHeight(UINT texID)
 {
-	auto pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texID);
-	//if texID valid
-	if (pTexObj != nullptr)
+	if (texID >= 0 && texID < m_pTextureObjectList->size())
 	{
 		ID3D11Texture2D* pTmpRes;
 		D3D11_TEXTURE2D_DESC texDesc;
 		//get resource from SRV, then get description from texture2D
-		pTexObj->m_pSRV->GetResource((ID3D11Resource**)&pTmpRes);
+		m_pTextureObjectList->at(texID).m_pSRV->GetResource((ID3D11Resource**)&pTmpRes);
 		pTmpRes->GetDesc(&texDesc);
 		ReleaseCOM(pTmpRes);
 		return texDesc.Height;
@@ -787,43 +805,86 @@ UINT ITextureManager::GetTextureHeight(UINT texID)
 	return 0;
 }
 
-UINT ITextureManager::GetTextureHeight(N_UID texName)
+UINT ITextureManager::GetTextureHeight(std::string texName)
 {
 	return GetTextureHeight(GetTextureID(texName));
 }
 
 UINT	 ITextureManager::GetTextureCount()
 {
-	return IFactory<N_TextureObject>::GetObjectCount();
+	return m_pTextureObjectList->size();
 }
 
 
 BOOL ITextureManager::DeleteTexture(UINT texID)
 {
-	auto texturePtr = IFactory<N_TextureObject>::GetObjectPtr(texID);
-	//in addition to common elimination job, SRV must be released too.
-	texturePtr->mPixelBuffer.clear();
-	ReleaseCOM(texturePtr->m_pSRV);
-	return IFactory<N_TextureObject>::DestroyObject(texID);
+	auto iter = m_pTextureObjectList->begin();
+
+	//validate index 
+	UINT validatedTexID = ValidateIndex(texID, m_pTextureObjectList->at(texID).mTextureType);
+	if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+	{
+		//delete name-index pair
+		std::string deleteTexName = m_pTextureObjectList->at(validatedTexID).mTexName;
+		auto nameIndexPairIter = m_pTextureObjectHashTable->find(deleteTexName);
+		//..............(the check might be useless...)
+		if (nameIndexPairIter != m_pTextureObjectHashTable->end())
+		{
+			m_pTextureObjectHashTable->erase(nameIndexPairIter);
+		}
+
+		//clear TextureObject Data
+		iter += texID;
+		//safe_release SRV  interface
+		ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
+		m_pTextureObjectList->at(texID).mPixelBuffer.clear();
+		m_pTextureObjectList->erase(iter);
+
+		//update name-index pair (decrease the "val")
+		mFunction_RefreshHashTableAfterDeletion(validatedTexID, 1);
+	}
+	else
+	{
+		DEBUG_MSG1("Delete Texture : texID invalid!!");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
-BOOL ITextureManager::DeleteTexture(N_UID uid)
+BOOL ITextureManager::DeleteTexture(std::string texName)
 {
-	auto texturePtr = IFactory<N_TextureObject>::GetObjectPtr(uid);
-	//in addition to common elimination job, SRV must be released too.
-	texturePtr->mPixelBuffer.clear();
-	ReleaseCOM(texturePtr->m_pSRV);
-	return IFactory<N_TextureObject>::DestroyObject(uid);
-}
+	auto nameIndexPairIter = m_pTextureObjectHashTable->find(texName);
+	//..............(the check might be useless...)
+	if (nameIndexPairIter != m_pTextureObjectHashTable->end())
+	{
+		UINT deleteTexID = nameIndexPairIter->second;
+		UINT validatedTexID = ValidateIndex(deleteTexID);//only check the ID boundary
+		//delete the real data
+		if (validatedTexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+		{
+			//delete real Texture Data
+			auto tmpIter = m_pTextureObjectList->begin() + validatedTexID;
+			m_pTextureObjectList->erase(tmpIter);
+		}
 
-void ITextureManager::DeleteAllTexture()
-{
-	IFactory<N_TextureObject>::DestroyAllObject();
+		//delete string-index pair
+		m_pTextureObjectHashTable->erase(nameIndexPairIter);
+
+		//update name-index pair (decrease the "val")
+		mFunction_RefreshHashTableAfterDeletion(validatedTexID,1);
+	}
+	else
+	{
+		DEBUG_MSG1("Delete Texture : texture Name not found!!");
+		return FALSE;
+	}
+	return TRUE;
 }
 
 UINT ITextureManager::ValidateIndex(UINT texID)
 {
-	if (texID <IFactory<N_TextureObject>::GetObjectCount())
+	if (texID < m_pTextureObjectList->size())
 	{
 		return texID;
 	}
@@ -838,14 +899,14 @@ UINT ITextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
 	//validate if texID is within range of vector , and if the TextureType of this texture match the given 'texType'
 
 	//if texID is invalid , an invalid flag should be returned
-	if (texID == NOISE_MACRO_INVALID_TEXTURE_ID || texID >= IFactory<N_TextureObject>::GetObjectCount())
+	if (texID == NOISE_MACRO_INVALID_TEXTURE_ID || texID >= m_pTextureObjectList->size())
 	{
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
 	//then check the texture type : common / cubemap / volumn
 	D3D11_SHADER_RESOURCE_VIEW_DESC tmpSRViewDesc;
-	IFactory<N_TextureObject>::GetObjectPtr(texID)->m_pSRV->GetDesc(&tmpSRViewDesc);
+	m_pTextureObjectList->at(texID).m_pSRV->GetDesc(&tmpSRViewDesc);
 
 	switch (tmpSRViewDesc.ViewDimension)
 	{
@@ -881,8 +942,17 @@ UINT ITextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
 							P R I V A T E
 *************************************************************/
 
+inline void ITextureManager::mFunction_RefreshHashTableAfterDeletion(UINT deletedTexID_threshold, UINT indexDecrement)
+{
+	//deletions always happen in the middle of a list , so elements after it 
+	//will be affected.
+	for (auto& pair : *m_pTextureObjectHashTable)
+	{
+		if (pair.second>deletedTexID_threshold)pair.second -= indexDecrement;
+	}
+};
 
-UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -921,41 +991,46 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePat
 
 	//create New Texture Object
 	HRESULT hr = S_OK;
+	UINT newTexIndex = m_pTextureObjectList->size();
+	N_TextureObject tmpTexObj;
 
 	//we must check if new name has been used
-	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
+	if(GetTextureID(textureName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
 	//then endow a pointer to new SRV
-	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
+
 	D3DX11CreateShaderResourceViewFromFileA(
 		g_pd3dDevice11,
 		filePath.c_str(),
 		&loadInfo,
 		nullptr,
-		&tmp_pSRV,
+		&tmpTexObj.m_pSRV,
 		&hr
 		);
 		
 	//................
 	HR_DEBUG_CREATETEX(hr, "CreateTextureFromFile : Create SRV failed ! ; keepCopyInMem:false");
 
-	//at last create  a new texture object
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::CreateObject(texName);
-	pTexObj->mIsPixelBufferInMemValid = FALSE;
-	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_COMMON;
-	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer.clear();
+	//endow the tex obj a name
+	tmpTexObj.mTexName = textureName;
+	tmpTexObj.mIsPixelBufferInMemValid = FALSE;
+	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;
+	m_pTextureObjectList->push_back(tmpTexObj);
 
-	UINT newTexIndex = IFactory<N_TextureObject>::GetObjectCount() - 1;
+	//new texture index
+	newTexIndex = m_pTextureObjectList->size() - 1;
+
+	//---------------ADD NAME-INDEX PAIR-----------------
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
 	return newTexIndex;//invalid file or sth else
 }
 
-UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& textureName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -974,11 +1049,17 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//we must check if new name has been used
 	//count() will return 0 if given key dont exists
-	if (GetTextureID(texName) != NOISE_MACRO_INVALID_TEXTURE_ID)
+	if (GetTextureID(textureName) != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
+
+	//a temporary Texture Object
+	N_TextureObject tmpTexObj;
+	tmpTexObj.mIsPixelBufferInMemValid = TRUE;
+	tmpTexObj.mTexName = textureName;
+	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;
 
 
 #pragma region LoadPixelMatrix
@@ -1035,11 +1116,9 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//I DONT KNOW WHY CreateTextureFromFile() WILL CHANGE THE SIZE OF TEXTURE !!
 	//it seems that the width will be scaled to ..... round off....
-	//(it's some kind of optimization that will round off to some value)
-	std::vector<NVECTOR4> pixelBuffer(loadedTexWidth*loadedTexHeight);
-	pixelBuffer.assign(
+	(tmpTexObj.mPixelBuffer.assign(
 		(NVECTOR4*)mappedSubresource.pData,
-		(NVECTOR4*)mappedSubresource.pData + loadedTexWidth*loadedTexHeight);
+		(NVECTOR4*)mappedSubresource.pData + loadedTexWidth*loadedTexHeight));
 
 
 
@@ -1076,7 +1155,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//init data
 	D3D11_SUBRESOURCE_DATA texInitDataDesc;
-	texInitDataDesc.pSysMem = &pixelBuffer.at(0);
+	texInitDataDesc.pSysMem = &tmpTexObj.mPixelBuffer.at(0);
 	texInitDataDesc.SysMemPitch = (texDesc.Width) * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE;//bytesize for 1 row
 	texInitDataDesc.SysMemSlicePitch = 0;//available for tex3D
 
@@ -1091,8 +1170,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	}
 
 	//Create SRV from texture 2D (to a tmp textureObject)
-	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmp_pSRV);
+	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmpTexObj.m_pSRV);
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
@@ -1105,15 +1183,13 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	//clear tmp interfaces
 	ReleaseCOM(pTmpTexture2D);
 
+	//at last push back a new texture object
+	m_pTextureObjectList->push_back(tmpTexObj);
+	newTexIndex = m_pTextureObjectList->size()-1;
 
-	//at last create  a new texture object
-	N_TextureObject* pTexObj = IFactory<N_TextureObject>::CreateObject(texName);
-	pTexObj->mIsPixelBufferInMemValid = FALSE;
-	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_COMMON;
-	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer.clear();
+	//---------------ADD NAME-INDEX PAIR-----------------
+	m_pTextureObjectHashTable->insert(std::make_pair(tmpTexObj.mTexName, newTexIndex));
 
-	UINT newTexIndex = IFactory<N_TextureObject>::GetObjectID(texName);
 
 	return newTexIndex;
 }

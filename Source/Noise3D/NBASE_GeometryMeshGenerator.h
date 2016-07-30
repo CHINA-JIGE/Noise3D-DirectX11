@@ -3,7 +3,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/  IGeometryMeshGenerator
+	class _declspec(dllexport)  IGeometryMeshGenerator
 	{
 	public:
 

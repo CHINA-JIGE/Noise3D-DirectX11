@@ -31,6 +31,8 @@
 
 #define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT 16U
 
+#define NOISE_MACRO_DLL_EXPORT _declspec(dllexport)
+
 //释放一个COM对象
 #define ReleaseCOM(ComPointer)\
 				if(ComPointer!=nullptr)\

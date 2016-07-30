@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IMaterialManager
+	class _declspec(dllexport) IMaterialManager
 	{
 	public:
 		friend  IScene;

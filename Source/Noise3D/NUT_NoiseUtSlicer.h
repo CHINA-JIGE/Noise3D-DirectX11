@@ -67,7 +67,7 @@ namespace Noise3D
 
 
 
-		class /*_declspec(dllexport)*/ IMeshSlicer : private IFileManager
+		class _declspec(dllexport) IMeshSlicer : private IFileManager
 		{
 
 		public:

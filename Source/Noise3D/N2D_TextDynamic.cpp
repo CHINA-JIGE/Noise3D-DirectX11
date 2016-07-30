@@ -21,7 +21,7 @@ void IDynamicText::SetWidth(float w)
 {
 	if (w != GetWidth())
 	{
-		CBasicContainerInfo::SetWidth(w);
+		IBasicContainerInfo::SetWidth(w);
 		mIsSizeChanged = TRUE;
 	}
 }
@@ -30,7 +30,7 @@ void IDynamicText::SetHeight(float h)
 {
 	if (h != GetHeight())
 	{
-		CBasicContainerInfo::SetHeight(h);
+		IBasicContainerInfo::SetHeight(h);
 		mIsSizeChanged = TRUE;
 	}
 };
@@ -115,8 +115,8 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 	std::string str;
 	GetTextAscii(str);
 
-	UINT stringBoundaryWidth = UINT(CBasicContainerInfo::GetWidth());
-	UINT stringBoundaryHeight = UINT(CBasicContainerInfo::GetHeight());
+	UINT stringBoundaryWidth = UINT(IBasicContainerInfo::GetWidth());
+	UINT stringBoundaryHeight = UINT(IBasicContainerInfo::GetHeight());
 
 	NVECTOR2	posTopLeftOffset(0, 0);
 
@@ -165,8 +165,8 @@ void IDynamicText::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVEC
 
 	*m_pTextColor = color;
 	*m_pTextGlowColor = color;
-	CBasicContainerInfo::SetWidth(float(pxWidth));
-	CBasicContainerInfo::SetHeight(float(pxHeight));
+	IBasicContainerInfo::SetWidth(float(pxWidth));
+	IBasicContainerInfo::SetHeight(float(pxHeight));
 };
 
 void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
@@ -194,8 +194,8 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 		return;
 
 
-	UINT stringBoundaryWidth = UINT(CBasicContainerInfo::GetWidth());
-	UINT stringBoundaryHeight = UINT(CBasicContainerInfo::GetHeight());
+	UINT stringBoundaryWidth = UINT(IBasicContainerInfo::GetWidth());
+	UINT stringBoundaryHeight = UINT(IBasicContainerInfo::GetHeight());
 	const UINT tableRowCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
 	const UINT tableColumnCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
 	//texcoord offset for 1 char bitmap ( char bitmap might be much smaller than the boundary)
@@ -299,7 +299,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				i,
 				NVECTOR2(0, 0),
 				NVECTOR2(0, 0),
-				CBasicContainerInfo::GetBasicColor(),
+				IBasicContainerInfo::GetBasicColor(),
 				mStringTextureID
 				);
 		}
@@ -310,7 +310,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				i,
 				tmpRectTopLeft,
 				tmpRectBottomRight,
-				CBasicContainerInfo::GetBasicColor(),
+				IBasicContainerInfo::GetBasicColor(),
 				mStringTextureID
 				);
 		}

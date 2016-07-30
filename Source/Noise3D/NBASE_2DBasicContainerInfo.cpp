@@ -12,7 +12,7 @@
 
 using namespace Noise3D;
 
-CBasicContainerInfo::CBasicContainerInfo()
+IBasicContainerInfo::IBasicContainerInfo()
 {
 	mPosZ = 1.0f;//the deepest
 	mIsEnabled = TRUE;
@@ -22,7 +22,7 @@ CBasicContainerInfo::CBasicContainerInfo()
 	m_pBasicColor = new NVECTOR4(0.3f,0.3f,1.0f,1.0f);
 }
 
-void CBasicContainerInfo::SetDiagonal(float x_topLeft, float y_topLeft,float x_bottomRight,float y_bottomRight)
+void IBasicContainerInfo::SetDiagonal(float x_topLeft, float y_topLeft,float x_bottomRight,float y_bottomRight)
 {
 	//should I check the sign of (posX-x) and (posY - y) ????
 	if (x_bottomRight > x_topLeft && y_bottomRight > y_topLeft)
@@ -34,72 +34,72 @@ void CBasicContainerInfo::SetDiagonal(float x_topLeft, float y_topLeft,float x_b
 	}
 };
 
-void CBasicContainerInfo::SetDiagonal(NVECTOR2 v_topLeft, NVECTOR2 v_bottomRight)
+void IBasicContainerInfo::SetDiagonal(NVECTOR2 v_topLeft, NVECTOR2 v_bottomRight)
 {
 	//use another overloaded function
 	SetDiagonal(v_topLeft.x, v_topLeft.y, v_bottomRight.x, v_bottomRight.y);
 }
 
-NVECTOR2 CBasicContainerInfo::GetTopLeft()
+NVECTOR2 IBasicContainerInfo::GetTopLeft()
 {
 	return (*m_pPositionCenter)-NVECTOR2(mWidth/2,mHeight/2);
 }
 
-NVECTOR2 CBasicContainerInfo::GetBottomRight()
+NVECTOR2 IBasicContainerInfo::GetBottomRight()
 {
 	return  (*m_pPositionCenter) + NVECTOR2(mWidth / 2, mHeight / 2);
 };
 
-void CBasicContainerInfo::SetCenterPos(float x, float y)
+void IBasicContainerInfo::SetCenterPos(float x, float y)
 {
 	m_pPositionCenter->x = x;
 	m_pPositionCenter->y = y;
 };
 
-void CBasicContainerInfo::SetCenterPos(NVECTOR2 v)
+void IBasicContainerInfo::SetCenterPos(NVECTOR2 v)
 {
 	*(m_pPositionCenter) = v;
 }
 
-void CBasicContainerInfo::Move(float relativeX, float relativeY)
+void IBasicContainerInfo::Move(float relativeX, float relativeY)
 {
 	SetCenterPos(m_pPositionCenter->x + relativeX, m_pPositionCenter->y + relativeY);
 }
 
-void CBasicContainerInfo::Move(NVECTOR2 relativePos)
+void IBasicContainerInfo::Move(NVECTOR2 relativePos)
 {
 	Move(relativePos.x, relativePos.y);
 }
 
-NVECTOR2 CBasicContainerInfo::GetCenterPos()
+NVECTOR2 IBasicContainerInfo::GetCenterPos()
 {
 	return *m_pPositionCenter;
 }
 
-void CBasicContainerInfo::SetWidth(float w)
+void IBasicContainerInfo::SetWidth(float w)
 {
 	//well , a button can't be that big
 	if (w > 1 && w < 4096) mWidth = w;
 };
 
-void CBasicContainerInfo::SetHeight(float h)
+void IBasicContainerInfo::SetHeight(float h)
 {
 	//well , a button can't be that big
 	if (h > 1 && h < 4096)	mHeight = h;
 }
 
-float CBasicContainerInfo::GetWidth()
+float IBasicContainerInfo::GetWidth()
 {
 	return mWidth;
 }
 
-float CBasicContainerInfo::GetHeight()
+float IBasicContainerInfo::GetHeight()
 {
 	return mHeight;
 }
 
 
-BOOL CBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
+BOOL IBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 {
 	return gFunction_IsPointInRect2D(
 		v,
@@ -108,33 +108,33 @@ BOOL CBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 		);
 };
 
-void CBasicContainerInfo::SetBasicColor(NVECTOR4 c)
+void IBasicContainerInfo::SetBasicColor(NVECTOR4 c)
 {
 	*m_pBasicColor = c;
 }
 
-NVECTOR4 CBasicContainerInfo::GetBasicColor()
+NVECTOR4 IBasicContainerInfo::GetBasicColor()
 {
 	return *m_pBasicColor;
 }
 
-void CBasicContainerInfo::SetEnabled(BOOL isEnabled)
+void IBasicContainerInfo::SetEnabled(BOOL isEnabled)
 {
 	mIsEnabled = isEnabled;
 }
 
-BOOL CBasicContainerInfo::IsEnabled()
+BOOL IBasicContainerInfo::IsEnabled()
 {
 	return mIsEnabled;
 }
 
-void CBasicContainerInfo::SetPosZ(float posZ)
+void IBasicContainerInfo::SetPosZ(float posZ)
 {
 	//clamp to 0~1
 	mPosZ = posZ >= 0.0 ? (posZ <= 1.0f ? posZ : 1.0f) : 0.0f;
 }
 
-float CBasicContainerInfo::GetPosZ()
+float IBasicContainerInfo::GetPosZ()
 {
 	return mPosZ;
 }

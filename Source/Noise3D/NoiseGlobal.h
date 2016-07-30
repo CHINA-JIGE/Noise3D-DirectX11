@@ -7,7 +7,6 @@
 
 
 #pragma once
-#include "Noise3D.h"
 
 //#define NOISE_DLL_EXPORT /*_declspec(dllexport)*/
 
@@ -60,8 +59,6 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
-	extern /*_declspec(dllexport)*/ UINT gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital);
-
 	extern /*_declspec(dllexport)*/ std::string GetFileDirectory(std::string completeFilePath);
 
 	extern /*_declspec(dllexport)*/ float gFunction_Lerp(float a, float b, float t);
@@ -72,6 +69,6 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ void DEBUG_MSG1(std::string msg);
 
-	extern /*_declspec(dllexport)*/ IRoot* GetRoot();
+
 
 }

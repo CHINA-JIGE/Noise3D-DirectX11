@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	namespace GUI
 	{
-		class /*_declspec(dllexport)*/ ITextBox :
+		class _declspec(dllexport) ITextBox :
 			public IComponentBase
 		{
 		public:

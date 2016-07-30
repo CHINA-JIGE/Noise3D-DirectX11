@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ ICamera 
+	class _declspec(dllexport) ICamera 
 	{
 	public:
 		friend  class IScene;

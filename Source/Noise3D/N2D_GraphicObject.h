@@ -23,7 +23,7 @@ namespace Noise3D
 	};
 
 
-	class /*_declspec(dllexport)*/ IGraphicObject
+	class _declspec(dllexport) IGraphicObject
 	{
 		friend  IRenderer;
 

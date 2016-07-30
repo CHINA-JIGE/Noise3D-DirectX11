@@ -145,62 +145,6 @@ using namespace Noise3D;
 		return 0;
 	}
 
-/*_declspec(dllexport)*/ UINT Noise3D::gFunction_MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital)
-	{
-#define returnChar(UCase,LCase) if(isCapital){return UCase;}else {return LCase;} break;
-
-		switch (scanCode)
-		{
-		case NOISE_KEY_0:	returnChar(')', '0');
-		case NOISE_KEY_1:	returnChar('!', '1');
-		case NOISE_KEY_2:	returnChar('@', '2');
-		case NOISE_KEY_3:	returnChar('#', '3');
-		case NOISE_KEY_4:	returnChar('$', '4');
-		case NOISE_KEY_5:	returnChar('%', '5');
-		case NOISE_KEY_6:	 returnChar('^', '6');
-		case NOISE_KEY_7:	returnChar('&', '7');
-		case NOISE_KEY_8:	returnChar('*', '8');
-		case NOISE_KEY_9:	returnChar('(', '9');
-		case NOISE_KEY_A:	returnChar('A', 'a');
-		case NOISE_KEY_B:	returnChar('B', 'b');
-		case NOISE_KEY_C:	returnChar('C', 'c');
-		case NOISE_KEY_D:	returnChar('D', 'd');
-		case NOISE_KEY_E:	returnChar('E', 'e');
-		case NOISE_KEY_F:	returnChar('F', 'f');
-		case NOISE_KEY_G:	returnChar('G', 'g');
-		case NOISE_KEY_H:	returnChar('H', 'h');
-		case NOISE_KEY_I:	returnChar('I', 'i');
-		case NOISE_KEY_J:	returnChar('J', 'j');
-		case NOISE_KEY_K:	returnChar('K', 'k');
-		case NOISE_KEY_L:	returnChar('L', 'l');
-		case NOISE_KEY_M:	returnChar('M', 'm');
-		case NOISE_KEY_N:	returnChar('N', 'n');
-		case NOISE_KEY_O:	returnChar('O', 'o');
-		case NOISE_KEY_P:	returnChar('P', 'p');
-		case NOISE_KEY_Q:	returnChar('Q', 'q');
-		case NOISE_KEY_R:	returnChar('R', 'r');
-		case NOISE_KEY_S:	returnChar('S', 's');
-		case NOISE_KEY_T:	returnChar('T', 't');
-		case NOISE_KEY_U:	returnChar('U', 'u');
-		case NOISE_KEY_V:	returnChar('V', 'v');
-		case NOISE_KEY_W:	returnChar('W', 'w');
-		case NOISE_KEY_X:	returnChar('X', 'x');
-		case NOISE_KEY_Y:	returnChar('Y', 'y');
-		case NOISE_KEY_Z:	returnChar('Z', 'z');
-		case NOISE_KEY_COMMA:	returnChar('<', ',');
-		case NOISE_KEY_PERIOD:		returnChar('>', '.');
-		case NOISE_KEY_LBRACKET:	returnChar('{', '[');
-		case NOISE_KEY_RBRACKET:	returnChar('}', ']');
-		case NOISE_KEY_MINUS:		returnChar('_', '-');
-		case NOISE_KEY_EQUALS:	returnChar('+', '=');
-		case NOISE_KEY_SEMICOLON: returnChar(':', ';');
-		case NOISE_KEY_SLASH: returnChar('?', '/');
-		case NOISE_KEY_BACKSLASH: returnChar('|', '\\');
-		case NOISE_KEY_APOSTROPHE: returnChar('"', '\'');
-		case NOISE_KEY_SPACE: return ' ';break;
-		default:return 0;break;
-		}
-	};
 
 /*_declspec(dllexport)*/ std::string Noise3D::GetFileDirectory(std::string completeFilePath)
 	{
@@ -245,42 +189,3 @@ using namespace Noise3D;
 		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
 		debugMsg.clear();
 	};
-
-/*_declspec(dllexport)*/ IRoot* Noise3D::GetRoot()
-{
-	class IRootCreation :public IFactory<IRoot>
-	{
-	public:
-
-		IRootCreation() :IFactory<IRoot>(1) {};
-
-		~IRootCreation() { delete m_pRoot; }
-
-		IRoot* CreateRoot()
-		{
-			static int rootCount = 0;
-			//if a Root was never created, create one
-			if (rootCount == 0)
-			{
-				rootCount++;
-				m_pRoot = IFactory<IRoot>::CreateObject("Root");
-				return m_pRoot;
-			}
-			else
-			{
-				//return the existed IRoot
-				return m_pRoot;
-			}
-
-		};
-
-	private:
-		friend class IFactory<IRoot>;
-
-		IRoot* m_pRoot;
-	};
-
-	static IRootCreation rootCreationFactory;
-	static IRoot* ptr = rootCreationFactory.CreateRoot();
-	return  ptr;
-};

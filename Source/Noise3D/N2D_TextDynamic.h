@@ -8,8 +8,8 @@
 
 namespace Noise3D
 {
-		class /*_declspec(dllexport)*/ IDynamicText :
-			public  CBasicContainerInfo,
+		class _declspec(dllexport) IDynamicText :
+			public  IBasicContainerInfo,
 			public	IBasicTextInfo
 		{
 		public:

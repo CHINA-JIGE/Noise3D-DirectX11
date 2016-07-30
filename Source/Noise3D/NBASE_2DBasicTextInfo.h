@@ -17,7 +17,7 @@ namespace Noise3D
 	class IGraphicObject;
 
 	//a base class that abstract common text attribute and op
-		class /*_declspec(dllexport)*/ IBasicTextInfo
+		class _declspec(dllexport) IBasicTextInfo
 		{
 			friend class IRenderer;
 

@@ -19,9 +19,9 @@ IDynamicText myText_fps;
 
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 NoiseUtInputEngine inputE;
-IDirectionalLight DirLight1;
-IPointLight	 PointLight1;
-ISpotLight	SpotLight1;
+IDirLightD DirLight1;
+IPointLightD	 PointLight1;
+ISpotLightD	SpotLight1;
 
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
@@ -122,7 +122,7 @@ BOOL Init3D(HWND hwnd)
 	//DirLight1.mDirection = NVECTOR3(-1.0f,1.0f, 0);
 	DirLight1.mSpecularIntensity = 1.0f;
 	DirLight1.mDiffuseIntensity =1.0f;
-	LightMgr.AddDynamicDirLight(DirLight1);
+	LightMgr.CreateDynamicDirLight(DirLight1);
 
 
 	N_Material Mat1;

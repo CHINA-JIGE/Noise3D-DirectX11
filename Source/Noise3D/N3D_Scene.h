@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IScene
+	class _declspec(dllexport) IScene
 	{
 		friend class IMesh;
 		friend class IRenderer;

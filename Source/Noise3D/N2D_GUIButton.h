@@ -12,7 +12,7 @@ namespace Noise3D
 	namespace GUI
 	{
 		//A button ; can be embbed into other GUI object
-		class /*_declspec(dllexport)*/ IButton :
+		class _declspec(dllexport) IButton :
 			public	IComponentBase
 		{
 		public:

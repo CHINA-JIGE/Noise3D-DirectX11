@@ -34,40 +34,14 @@ namespace Noise3D
 		N_UID	  _uid;
 	};
 
-	/*
-	IFactory should be inherited by those classes which wants to 
-	create certain kinds of products,
-
-	for example:
-	ITextureManager should be inherited from IFactory<ITexture>
-
-	the reason why I don't use cohesion to integrate a factory (but inheritance), 
-	is that cohesion requires CreateObject method to be Public, which
-	sabotage encapsulation and authorized user to create product by their own.
-
-	the reason I use such "Factory Mode" is that controlling the life cycle (produce and
-	destroy) of interfaces will cause less chaos, more stability, more information is in control.
-	
-	this is like CENTRALISM, objects must be created and monitored by certain
-	manager class.
-
-
-	NOTE that product class T should make some adjustments:
-		1,constructor/destructor should be PRIVATE
-		2,T should friend IFactory<T> (IFactory should have access to its constructor)
-	*/
-
-
 	//maxCount is the max count of child that can be created.
-	template<typename objType>
-	class /*_declspec(dllexport)*/ IFactory
+	template<typename objType,const UINT maxCount>
+	class _declspec(dllexport) IFactory
 	{
 	public:
-		IFactory() = delete;
-
 		//constructor
-		IFactory(const UINT maxCount) {
-			mMaxObjectCount = maxCount;
+		IFactory()
+		{
 			m_pChildObjectList = new std::vector<N_ChildObjectInfo<objType>>;
 			m_pUidToIndexHashTable = new std::unordered_map<N_UID, UINT>;
 		};
@@ -81,12 +55,10 @@ namespace Noise3D
 			delete m_pUidToIndexHashTable;
 		};
 
-	protected:
 		//runtime creation of objects, of which the max count is limited
 		objType*	CreateObject(N_UID objUID)
 		{
-			//the count of child object is  limited
-			if (m_pChildObjectList->size() < mMaxObjectCount)
+			if (m_pChildObjectList->size() < maxCount)
 			{
 				auto iter = m_pUidToIndexHashTable->find(objUID);
 
@@ -95,27 +67,25 @@ namespace Noise3D
 				{
 					objType* pNewObject = new objType;
 					m_pChildObjectList->push_back(N_ChildObjectInfo<objType>(pNewObject, objUID));
-					m_pUidToIndexHashTable->insert(std::make_pair(objUID, m_pChildObjectList->size() - 1));
+					m_pUidToIndexHashTable->insert(std::make_pair(objUID, m_pChildObjectList->size() - 1);
 					return pNewObject;
 				}
 				else
 				{
-					DEBUG_MSG("IFactory:Object UID existed");
 					return nullptr;
 				}
 			}
 			else
 			{
-				DEBUG_MSG("IFactory:Object Count Exceeded Limit");
 				return nullptr;
 			}
 		};
 
-		inline objType*	GetObjectPtr(UINT objIndex)
+		objType*	GetObject(UINT objIndex)
 		{
 			if (objIndex < m_pChildObjectList->size())
 			{
-				return m_pChildObjectList->at(objIndex)->_pObjPtr;
+				return m_pChildObjectList[objIndex];
 			}
 			else
 			{
@@ -123,16 +93,15 @@ namespace Noise3D
 			}
 		}
 
-		inline objType*	GetObjectPtr(N_UID objUID)
+		objType*	GetObject(N_UID objUID)
 		{
-			//get number index from UID-index hash map
 			auto iter = m_pUidToIndexHashTable->find(objUID);
 			if (iter != m_pUidToIndexHashTable->cend())
 			{
 				UINT objIndex = iter->second;
 				if (objIndex < m_pChildObjectList->size())
 				{
-					return m_pChildObjectList->at(objIndex)->_pObjPtr;
+					return m_pChildObjectList[objIndex];
 				}
 				else
 				{
@@ -143,34 +112,6 @@ namespace Noise3D
 			{
 				return nullptr;
 			}
-		}
-
-		inline UINT	GetObjectID(N_UID uid)
-		{
-			auto iter = m_pUidToIndexHashTable->find(objUID);
-			//need to assure that UID don't conflict
-			if (iter == m_pUidToIndexHashTable->cend())
-			{
-				return iter->second;//index
-			}
-			else
-			{
-				return NOISE_MACRO_INVALID_TEXTURE_ID;
-			}
-		}
-
-		inline N_UID	GetUID(UINT index)
-		{
-			for (auto& pair : *m_pUidToIndexHashTable)
-			{
-				//if index match , return UID (name)
-				if (pair.second == index)return pair.first;
-			}
-		}
-
-		inline UINT	GetObjectCount() 
-		{
-			return m_pChildObjectList->size();
 		}
 
 		BOOL	DestroyObject(UINT objIndex)
@@ -181,28 +122,20 @@ namespace Noise3D
 
 			//delete name-index pair
 			N_UID deleteObjUID = m_pChildObjectList->at(objIndex)._uid;
-			auto uidIndexPairIter = m_pUidToIndexHashTable->find(deleteObjUID);
-			//..............(the check might be useless under such strict management...
-			//in case that I made mistakes
-			if (uidIndexPairIter != m_pUidToIndexHashTable->end())
+			auto uidIndexPairIter = m_pTextureObjectHashTable->find(deleteObjUID);
+			//..............(the check might be useless...)
+			if (uidIndexPairIter != m_pTextureObjectHashTable->end())
 			{
-				m_pUidToIndexHashTable->erase(uidIndexPairIter);
+				m_pTextureObjectHashTable->erase(uidIndexPairIter);
 			}
 
-			//deletions always happen in the middle of a list , so elements after it 
-			//will be affected.
-			for (auto& pair : *m_pUidToIndexHashTable)
-			{
-				if (pair.second>objIndex)--pair.second;//uid-index pair
-			}
-
-			//move delete iterator to target position
-			iter += objIndex;
+			//clear TextureObject Data
+			iter += texID;
 			//safe_release SRV  interface
-			//ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
-			//m_pTextureObjectList->at(texID).mPixelBuffer.clear();
-			m_pChildObjectList->erase(iter);
-			return TRUE;
+			ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
+			m_pTextureObjectList->at(texID).mPixelBuffer.clear();
+			m_pTextureObjectList->erase(iter);
+
 		}
 
 		BOOL	DestroyObject(N_UID objUID)
@@ -224,9 +157,9 @@ namespace Noise3D
 
 				//deletions always happen in the middle of a list , so elements after it 
 				//will be affected.
-				for (auto& pair : *m_pUidToIndexHashTable)
+				for (auto& pair : *m_pTextureObjectHashTable)
 				{
-					if (pair.second>objIndex)--pair.second;//uid-index pair
+					if (pair.second>deletedTexID_threshold)--pair.second;
 				}
 
 				return TRUE;
@@ -238,22 +171,15 @@ namespace Noise3D
 		}
 
 		//it will be set to nullptr no matter the deletion finish
-		BOOL	DestroyObject(objType* pObject)
+		BOOL	DestroyObject(objType** ppObject)
 		{
-			if (pObject != nullptr)
+			if (ppObject != nullptr)
 			{
-				for (UINT i = 0;i < m_pChildObjectList->size(); i++)
-				{
-					//uid-ptr pair
-					auto childObjInfo = m_pChildObjectList->at(i);
-					if (childObjInfo._pObjPtr == pObject)
-					{
-						//invoke another overload (which use index to delete)
-						return DestroyObject(UINT(i));
-					}
-				}
-				//deletion failed
-				return FALSE;
+				auto iter = std::find(
+					m_pChildObjectList->begin(),
+					m_pChildObjectList->end(),
+					ppObject
+					);
 			}
 			else
 			{
@@ -261,26 +187,20 @@ namespace Noise3D
 			}
 		};
 
-		void		DestroyAllObject()
+		void		DestroyAllObject() 
 		{
-			for (auto childObjInfo : *m_pChildObjectList)
+			for (auto ptr : *m_pChildObjectList)
 			{
-				//delete child object pointers
-				delete childObjInfo._pObjPtr;
+				delete ptr;
 			}
 
-			//then clear the list
 			m_pChildObjectList->clear();
 			m_pUidToIndexHashTable->clear();
 		};
 
-	private:
-		UINT mMaxObjectCount;
-
-		//uid-ptr pair(not mapping)
+	private :
+		const UINT mMaxObjectCount = maxCount;
 		std::vector<N_ChildObjectInfo<objType>>*			m_pChildObjectList;
-
-		//UID - index mapping, the UINT is index for vector
 		std::unordered_map<N_UID, UINT>*					m_pUidToIndexHashTable;
 	};
 

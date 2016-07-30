@@ -25,9 +25,9 @@ IDynamicText	myText_fps;
 NoiseUtTimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 MeshSlicer Slicer;
 NoiseUtInputEngine inputE;
-IDirectionalLight DirLight1;
-IPointLight	 PointLight1;
-ISpotLight	SpotLight1;
+IDirLightD DirLight1;
+IPointLightD	 PointLight1;
+ISpotLightD	SpotLight1;
 
 float moveForwardVelocity;
 std::vector<NVECTOR3>	 lineSegmentBuffer;
@@ -127,7 +127,7 @@ BOOL Init3D(HWND hwnd)
 	DirLight1.mDirection = NVECTOR3(0.0f, -0.5f, 1.0f);
 	DirLight1.mSpecularIntensity	=1.5f;
 	DirLight1.mDiffuseIntensity = 1.0f;
-	LightMgr.AddDynamicDirLight(DirLight1);
+	LightMgr.CreateDynamicDirLight(DirLight1);
 
 	N_Material Mat1;
 	Mat1.baseMaterial.mBaseAmbientColor	= NVECTOR3(0.1f,  0.1f,0.1f);

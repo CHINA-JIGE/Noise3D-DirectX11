@@ -19,7 +19,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
@@ -68,6 +68,7 @@
       <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,6 +86,9 @@
 copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
 </Command>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -97,6 +101,7 @@ copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAsManaged>true</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,41 +121,37 @@ copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="NBASE_IFactory.h" />
-    <ClInclude Include="N2D_GUIButton.h" />
-    <ClInclude Include="N2D_GUIManager.h" />
-    <ClInclude Include="N2D_GUIOscilloscope.h" />
-    <ClInclude Include="N2D_GUIScrollBar.h" />
-    <ClInclude Include="N2D_GUITextBox.h" />
-    <ClInclude Include="NBASE_GUIComponentBase.h" />
-    <ClInclude Include="NBASE_2DBasicTextInfo.h" />
-    <ClInclude Include="N2D_TextStatic.h" />
-    <ClInclude Include="N2D_TextDynamic.h" />
-    <ClInclude Include="N3D_Camera.h" />
-    <ClInclude Include="N3D_Root.h" />
-    <ClInclude Include="NBASE_FileManager.h" />
-    <ClInclude Include="N2D_FontManager.h" />
-    <ClInclude Include="NBASE_FileManager_3DS.h" />
-    <ClInclude Include="NBASE_GeometryMeshGenerator.h" />
-    <ClInclude Include="NoiseGUISystem.h" />
-    <ClInclude Include="NUT_NoiseUtInputEngine.h" />
-    <ClInclude Include="N3D_LightManager.h" />
-    <ClInclude Include="N2D_GraphicObject.h" />
-    <ClInclude Include="N3D_MaterialManager.h" />
-    <ClInclude Include="N3D_Mesh.h" />
-    <ClInclude Include="N3D_Renderer.h" />
-    <ClInclude Include="N3D_Scene.h" />
-    <ClInclude Include="N3D_TextureManager.h" />
+    <ClInclude Include="GraphicObjMgr.h" />
+    <ClInclude Include="Lights.h" />
+    <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="IFactory.h" />
+    <ClInclude Include="Text_2DBasicTextInfo.h" />
+    <ClInclude Include="Text_FontManager.h" />
+    <ClInclude Include="Text_TextDynamic.h" />
+    <ClInclude Include="Text_TextStatic.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Root.h" />
+    <ClInclude Include="FileManager.h" />
+    <ClInclude Include="FileManager_3DS.h" />
+    <ClInclude Include="GeometryMeshGenerator.h" />
+    <ClInclude Include="Ut_InputEngine.h" />
+    <ClInclude Include="LightManager.h" />
+    <ClInclude Include="GraphicObject.h" />
+    <ClInclude Include="MaterialManager.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Noise3D.h" />
-    <ClInclude Include="N3D_Atmosphere.h" />
+    <ClInclude Include="Atmosphere.h" />
     <ClInclude Include="NoiseFlag.h" />
     <ClInclude Include="NoiseGlobal.h" />
     <ClInclude Include="NoiseMacro.h" />
     <ClInclude Include="NoiseTypes.h" />
-    <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h" />
-    <ClInclude Include="NUT_NoiseUtSlicer.h" />
-    <ClInclude Include="NUT_NoiseUtTimer.h" />
-    <ClInclude Include="NBASE_2DBasicContainerInfo.h" />
+    <ClInclude Include="Ut_InputEngine_KeyDef.h" />
+    <ClInclude Include="Ut_MeshSlicer.h" />
+    <ClInclude Include="Ut_Timer.h" />
+    <ClInclude Include="_2DBasicContainerInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -162,42 +163,39 @@ copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
     <ClCompile Include="AssemblyInfo.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="N2D_GUIButton.cpp" />
-    <ClCompile Include="N2D_GUIManager.cpp" />
-    <ClCompile Include="N2D_GUIOscilloscope.cpp" />
-    <ClCompile Include="N2D_GUIScrollBar.cpp" />
-    <ClCompile Include="N2D_GUITextBox.cpp" />
-    <ClCompile Include="N2D_TextDynamic.cpp" />
-    <ClCompile Include="N2D_TextStatic.cpp" />
-    <ClCompile Include="N3D_Camera.cpp" />
-    <ClCompile Include="N3D_Root.cpp" />
-    <ClCompile Include="N2D_FontManager.cpp" />
-    <ClCompile Include="N3D_Renderer_Atmosphere.cpp" />
-    <ClCompile Include="N3D_Renderer_GraphicObj.cpp" />
-    <ClCompile Include="N3D_Renderer_Mesh.cpp" />
-    <ClCompile Include="N3D_Renderer_Text.cpp" />
-    <ClCompile Include="NBASE_2DBasicContainerInfo.cpp" />
-    <ClCompile Include="NBASE_2DBasicTextInfo.cpp" />
-    <ClCompile Include="NBASE_FileManager_Basic.cpp" />
-    <ClCompile Include="NBASE_FileMgr_3DS.cpp" />
-    <ClCompile Include="NBASE_FileMgr_OBJ.cpp" />
-    <ClCompile Include="NBASE_FileMgr_STL.cpp" />
-    <ClCompile Include="NBASE_GeometryMeshGenerator.cpp" />
-    <ClCompile Include="NBASE_GUIComponentBase.cpp" />
-    <ClCompile Include="NUT_NoiseUtInputEngine.cpp" />
-    <ClCompile Include="N3D_LightManager.cpp" />
-    <ClCompile Include="N2D_GraphicObject.cpp" />
-    <ClCompile Include="N3D_MaterialManager.cpp" />
-    <ClCompile Include="N3D_Mesh.cpp" />
-    <ClCompile Include="N3D_Renderer.cpp" />
-    <ClCompile Include="N3D_Scene.cpp" />
-    <ClCompile Include="N3D_TextureManager.cpp" />
-    <ClCompile Include="N3D_Atmosphere.cpp" />
+    <ClCompile Include="GraphicObjMgr.cpp" />
+    <ClCompile Include="Lights.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Text_FontManager.cpp" />
+    <ClCompile Include="Text_TextDynamic.cpp" />
+    <ClCompile Include="Text_TextStatic.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Root.cpp" />
+    <ClCompile Include="Renderer_Atmosphere.cpp" />
+    <ClCompile Include="Renderer_GraphicObj.cpp" />
+    <ClCompile Include="Renderer_Mesh.cpp" />
+    <ClCompile Include="Renderer_Text.cpp" />
+    <ClCompile Include="_2DBasicContainerInfo.cpp" />
+    <ClCompile Include="Text_2DBasicTextInfo.cpp" />
+    <ClCompile Include="FileManager_Basic.cpp" />
+    <ClCompile Include="FileMgr_3DS.cpp" />
+    <ClCompile Include="FileMgr_OBJ.cpp" />
+    <ClCompile Include="FileMgr_STL.cpp" />
+    <ClCompile Include="GeometryMeshGenerator.cpp" />
+    <ClCompile Include="Ut_InputEngine.cpp" />
+    <ClCompile Include="LightManager.cpp" />
+    <ClCompile Include="GraphicObject.cpp" />
+    <ClCompile Include="MaterialManager.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="NoiseGlobal.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="NUT_NoiseUtSlicer.cpp" />
-    <ClCompile Include="NUT_NoiseUtTimer.cpp" />
+    <ClCompile Include="Ut_MeshSlicer.cpp" />
+    <ClCompile Include="Ut_Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

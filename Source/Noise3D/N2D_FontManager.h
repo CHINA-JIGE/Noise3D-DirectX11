@@ -28,7 +28,7 @@ namespace Noise3D
 		};
 
 
-		class /*_declspec(dllexport)*/ IFontManager
+		class _declspec(dllexport) IFontManager
 		{
 		public:
 			friend   class IRenderer;

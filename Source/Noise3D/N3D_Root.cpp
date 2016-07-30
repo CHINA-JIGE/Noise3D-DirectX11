@@ -256,7 +256,7 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	//g_pImmediateContext->Flush();
 	//g_pImmediateContext->ClearState();
 
-	m_pS.DeleteObject();
+	mFactory_Scene.DeleteObject();
 
 	ReleaseCOM(g_pRenderTargetView);
 	ReleaseCOM(g_pSwapChain);

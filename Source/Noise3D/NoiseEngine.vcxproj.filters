@@ -16,27 +16,6 @@
     <Filter Include="NoiseUtility\NUT_NoiseUtTimer">
       <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGUI">
-      <UniqueIdentifier>{0006850f-5044-4f33-88ee-0607ec018b5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\TextBox">
-      <UniqueIdentifier>{a525421b-ed57-464f-91e1-a1d88310d430}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\ScrollBar">
-      <UniqueIdentifier>{df4b0bbb-f1c7-4eba-ba2d-243263115756}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\Oscilloscope">
-      <UniqueIdentifier>{004a4291-7164-4a0d-9064-e83f3a7b6c03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\Button">
-      <UniqueIdentifier>{a6f548dd-63a7-4334-bcdb-868641b61e5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\Manager">
-      <UniqueIdentifier>{22dcc3d0-0ab9-469e-81a4-e83c50d68aa5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGUI\_ComponentBase">
-      <UniqueIdentifier>{c50b8de4-1943-4ec3-a86e-b916f49bd85e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic">
       <UniqueIdentifier>{52ea6c49-24be-4007-997e-20e050bf5eed}</UniqueIdentifier>
     </Filter>
@@ -117,95 +96,83 @@
     <ClInclude Include="Noise3D.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="NUT_NoiseUtTimer.h">
-      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
-    </ClInclude>
-    <ClInclude Include="NUT_NoiseUtSlicer.h">
-      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
-    </ClInclude>
-    <ClInclude Include="NUT_NoiseUtInputEngine.h">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="NUT_NoiseUtInputEngine_KeyDef.h">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GUIButton.h">
-      <Filter>NoiseGUI\Button</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GUIManager.h">
-      <Filter>NoiseGUI\Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GUIOscilloscope.h">
-      <Filter>NoiseGUI\Oscilloscope</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GUIScrollBar.h">
-      <Filter>NoiseGUI\ScrollBar</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GUITextBox.h">
-      <Filter>NoiseGUI\TextBox</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_GUIComponentBase.h">
-      <Filter>NoiseGUI\_ComponentBase</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseGUISystem.h">
-      <Filter>NoiseGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_2DBasicContainerInfo.h">
-      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_FileManager.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_FileManager_3DS.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClInclude>
-    <ClInclude Include="NBASE_GeometryMeshGenerator.h">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_Atmosphere.h">
-      <Filter>NoiseGraphic\Atmosphere</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_Camera.h">
-      <Filter>NoiseGraphic\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="N2D_GraphicObject.h">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_LightManager.h">
-      <Filter>NoiseGraphic\LightManager</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_MaterialManager.h">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
-    </ClInclude>
-    <ClInclude Include="N3D_Mesh.h">
+    <ClInclude Include="MeshManager.h">
       <Filter>NoiseGraphic\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="N3D_Renderer.h">
+    <ClInclude Include="Mesh.h">
+      <Filter>NoiseGraphic\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="N3D_Scene.h">
-      <Filter>NoiseGraphic\Scene</Filter>
+    <ClInclude Include="FileManager.h">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
     </ClInclude>
-    <ClInclude Include="N3D_TextureManager.h">
-      <Filter>NoiseGraphic\TextureManager</Filter>
+    <ClInclude Include="FileManager_3DS.h">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
     </ClInclude>
-    <ClInclude Include="N2D_TextDynamic.h">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
+    <ClInclude Include="GeometryMeshGenerator.h">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClInclude>
-    <ClInclude Include="N2D_TextStatic.h">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
+    <ClInclude Include="Atmosphere.h">
+      <Filter>NoiseGraphic\Atmosphere</Filter>
     </ClInclude>
-    <ClInclude Include="N2D_FontManager.h">
-      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
+    <ClInclude Include="Camera.h">
+      <Filter>NoiseGraphic\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="NBASE_2DBasicTextInfo.h">
-      <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
+    <ClInclude Include="GraphicObject.h">
+      <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClInclude>
-    <ClInclude Include="N3D_Root.h">
+    <ClInclude Include="LightManager.h">
+      <Filter>NoiseGraphic\LightManager</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>NoiseGraphic\MaterialManger</Filter>
+    </ClInclude>
+    <ClInclude Include="Root.h">
       <Filter>NoiseGraphic\Root</Filter>
     </ClInclude>
-    <ClInclude Include="NBASE_IFactory.h">
+    <ClInclude Include="Scene.h">
+      <Filter>NoiseGraphic\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>NoiseGraphic\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_MeshSlicer.h">
+      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_InputEngine.h">
+      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_InputEngine_KeyDef.h">
+      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_Timer.h">
+      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="_2DBasicContainerInfo.h">
+      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="IFactory.h">
       <Filter>GeneralBasicClass\_Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_2DBasicTextInfo.h">
+      <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_TextDynamic.h">
+      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_TextStatic.h">
+      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_FontManager.h">
+      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Lights.h">
+      <Filter>NoiseGraphic\LightManager</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicObjMgr.h">
+      <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -215,104 +182,95 @@
     <ClCompile Include="NoiseGlobal.cpp">
       <Filter>Global</Filter>
     </ClCompile>
-    <ClCompile Include="NUT_NoiseUtTimer.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
-    </ClCompile>
-    <ClCompile Include="NUT_NoiseUtSlicer.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
-    </ClCompile>
-    <ClCompile Include="NUT_NoiseUtInputEngine.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GUIButton.cpp">
-      <Filter>NoiseGUI\Button</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GUIManager.cpp">
-      <Filter>NoiseGUI\Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GUIOscilloscope.cpp">
-      <Filter>NoiseGUI\Oscilloscope</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GUIScrollBar.cpp">
-      <Filter>NoiseGUI\ScrollBar</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GUITextBox.cpp">
-      <Filter>NoiseGUI\TextBox</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_2DBasicContainerInfo.cpp">
-      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_FileManager_Basic.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_FileMgr_3DS.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_FileMgr_OBJ.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_FileMgr_STL.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_GeometryMeshGenerator.cpp">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_Atmosphere.cpp">
-      <Filter>NoiseGraphic\Atmosphere</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_Camera.cpp">
-      <Filter>NoiseGraphic\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_GraphicObject.cpp">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_LightManager.cpp">
-      <Filter>NoiseGraphic\LightManager</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_MaterialManager.cpp">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
-    </ClCompile>
-    <ClCompile Include="N3D_Mesh.cpp">
+    <ClCompile Include="Mesh.cpp">
       <Filter>NoiseGraphic\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Renderer.cpp">
+    <ClCompile Include="MeshManager.cpp">
+      <Filter>NoiseGraphic\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Renderer_Atmosphere.cpp">
+    <ClCompile Include="Renderer_Atmosphere.cpp">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Renderer_GraphicObj.cpp">
+    <ClCompile Include="Renderer_GraphicObj.cpp">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Renderer_Mesh.cpp">
+    <ClCompile Include="Renderer_Mesh.cpp">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Renderer_Text.cpp">
+    <ClCompile Include="Renderer_Text.cpp">
       <Filter>NoiseGraphic\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Scene.cpp">
+    <ClCompile Include="FileManager_Basic.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMgr_3DS.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMgr_OBJ.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMgr_STL.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryMeshGenerator.cpp">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Atmosphere.cpp">
+      <Filter>NoiseGraphic\Atmosphere</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>NoiseGraphic\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicObject.cpp">
+      <Filter>NoiseGraphic\GraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="LightManager.cpp">
+      <Filter>NoiseGraphic\LightManager</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>NoiseGraphic\MaterialManger</Filter>
+    </ClCompile>
+    <ClCompile Include="Root.cpp">
+      <Filter>NoiseGraphic\Root</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>NoiseGraphic\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_TextureManager.cpp">
-      <Filter>NoiseGraphic\TextureManager</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_TextDynamic.cpp">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_TextStatic.cpp">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
-    </ClCompile>
-    <ClCompile Include="N2D_FontManager.cpp">
-      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
-    </ClCompile>
-    <ClCompile Include="NBASE_2DBasicTextInfo.cpp">
+    <ClCompile Include="Text_2DBasicTextInfo.cpp">
       <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
     </ClCompile>
-    <ClCompile Include="NBASE_GUIComponentBase.cpp">
-      <Filter>NoiseGUI\_ComponentBase</Filter>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>NoiseGraphic\TextureManager</Filter>
     </ClCompile>
-    <ClCompile Include="N3D_Root.cpp">
-      <Filter>NoiseGraphic\Root</Filter>
+    <ClCompile Include="Ut_MeshSlicer.cpp">
+      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_InputEngine.cpp">
+      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_Timer.cpp">
+      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
+    </ClCompile>
+    <ClCompile Include="_2DBasicContainerInfo.cpp">
+      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_TextDynamic.cpp">
+      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_TextStatic.cpp">
+      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_FontManager.cpp">
+      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights.cpp">
+      <Filter>NoiseGraphic\LightManager</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicObjMgr.cpp">
+      <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

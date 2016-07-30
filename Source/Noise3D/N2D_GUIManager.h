@@ -11,7 +11,7 @@ namespace Noise3D
 	namespace GUI
 	{
 		//the main GUI management class
-		class /*_declspec(dllexport)*/ IComponentManager
+		class _declspec(dllexport) IComponentManager
 		{
 		public:
 

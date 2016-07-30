@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	namespace GUI
 	{
-		class /*_declspec(dllexport)*/ IScrollBar :
+		class _declspec(dllexport) IScrollBar :
 			public IComponentBase
 		{
 		public:
