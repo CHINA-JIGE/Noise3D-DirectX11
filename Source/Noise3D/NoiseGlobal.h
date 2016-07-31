@@ -61,11 +61,13 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ std::string GetFileDirectory(std::string completeFilePath);
 
-	extern /*_declspec(dllexport)*/ float gFunction_Lerp(float a, float b, float t);
+	extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
-	extern /*_declspec(dllexport)*/ float gFunction_Clampf(float val, float min, float max);
+	extern /*_declspec(dllexport)*/ float Clamp(float val, float min, float max);
 
-	extern /*_declspec(dllexport)*/ int	gFunction_Clamp(int val, int min, int max);
+	extern /*_declspec(dllexport)*/ int	Clamp(int val, int min, int max);
+
+	extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
 	extern /*_declspec(dllexport)*/ void DEBUG_MSG1(std::string msg);
 

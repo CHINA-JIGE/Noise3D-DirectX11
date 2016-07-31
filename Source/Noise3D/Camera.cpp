@@ -135,7 +135,7 @@ void	ICamera::SetRotationY_Yaw(float angleY)
 void	ICamera::SetRotationX_Pitch(float AngleX)
 {
 	//clamp to [-pi/2,pi/2]
-	mRotateX_Pitch = gFunction_Clamp(AngleX, -MATH_PI / 2.0f, MATH_PI / 2.0f);
+	mRotateX_Pitch = Clamp(AngleX, -MATH_PI / 2.0f, MATH_PI / 2.0f);
 
 	mFunction_UpdateDirection();
 };

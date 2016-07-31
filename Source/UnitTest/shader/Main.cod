@@ -247,11 +247,11 @@ fxgroup
                 //       float3 mAmbientColor;          // Offset:  640
                 //       float mSpecularIntensity;      // Offset:  652
                 //       float3 mDiffuseColor;          // Offset:  656
-                //       float mLightingRange;          // Offset:  668
+                //       float mDiffuseIntensity;       // Offset:  668
                 //       float3 mSpecularColor;         // Offset:  672
                 //       float mAttenuationFactor;      // Offset:  684
                 //       float3 mPosition;              // Offset:  688
-                //       float mDiffuseIntensity;       // Offset:  700
+                //       float mLightingRange;          // Offset:  700
                 //
                 //   } gPointLight_Dynamic[10];         // Offset:  640 Size:   640
                 //   
@@ -261,13 +261,13 @@ fxgroup
                 //       float3 mAmbientColor;          // Offset: 1280
                 //       float mSpecularIntensity;      // Offset: 1292
                 //       float3 mDiffuseColor;          // Offset: 1296
-                //       float mLightingRange;          // Offset: 1308
+                //       float mDiffuseIntensity;       // Offset: 1308
                 //       float3 mSpecularColor;         // Offset: 1312
                 //       float mAttenuationFactor;      // Offset: 1324
                 //       float3 mLitAt;                 // Offset: 1328
                 //       float mLightingAngle;          // Offset: 1340
                 //       float3 mPosition;              // Offset: 1344
-                //       float mDiffuseIntensity;       // Offset: 1356
+                //       float mLightingRange;          // Offset: 1356
                 //
                 //   } gSpotLight_Dynamic[10];          // Offset: 1280 Size:   800
                 //   int gDirectionalLightCount_Dynamic;// Offset: 2080 Size:     4
@@ -323,11 +323,11 @@ fxgroup
                 //       float3 mAmbientColor;          // Offset: 3200
                 //       float mSpecularIntensity;      // Offset: 3212
                 //       float3 mDiffuseColor;          // Offset: 3216
-                //       float mLightingRange;          // Offset: 3228
+                //       float mDiffuseIntensity;       // Offset: 3228
                 //       float3 mSpecularColor;         // Offset: 3232
                 //       float mAttenuationFactor;      // Offset: 3244
                 //       float3 mPosition;              // Offset: 3248
-                //       float mDiffuseIntensity;       // Offset: 3260
+                //       float mLightingRange;          // Offset: 3260
                 //
                 //   } gPointLight_Static[50];          // Offset: 3200 Size:  3200
                 //   
@@ -337,13 +337,13 @@ fxgroup
                 //       float3 mAmbientColor;          // Offset: 6400
                 //       float mSpecularIntensity;      // Offset: 6412
                 //       float3 mDiffuseColor;          // Offset: 6416
-                //       float mLightingRange;          // Offset: 6428
+                //       float mDiffuseIntensity;       // Offset: 6428
                 //       float3 mSpecularColor;         // Offset: 6432
                 //       float mAttenuationFactor;      // Offset: 6444
                 //       float3 mLitAt;                 // Offset: 6448
                 //       float mLightingAngle;          // Offset: 6460
                 //       float3 mPosition;              // Offset: 6464
-                //       float mDiffuseIntensity;       // Offset: 6476
+                //       float mLightingRange;          // Offset: 6476
                 //
                 //   } gSpotLight_Static[50];           // Offset: 6400 Size:  4000
                 //   int gDirectionalLightCount_Static; // Offset: 10400 Size:     4
@@ -793,7 +793,7 @@ fxgroup
                   div r4.w, l(1.000000), r4.w  // Attenuation<0:NaN:Inf>
                 
                 #line 388
-                  lt r3.w, r3.w, r6.w
+                  lt r3.y, r3.y, r6.w
                 
                 #line 201
                   ine r6.w, l(0, 0, 0, 0), cb1[3].y
@@ -876,14 +876,14 @@ fxgroup
                   sample_indexable(texturecube)(float,float,float,float) r11.xyz, r11.xyzx, t2.xyzw, s0  // outEnvMapColor4<0:Inf,1:Inf,2:Inf>
                 
                 #line 396
-                  if_z r3.w
+                  if_z r3.y
                 
                 #line 404
                     nop 
                 
                 #line 191
-                    ine r3.w, l(0, 0, 0, 0), cb1[3].x
-                    if_nz r3.w
+                    ine r3.y, l(0, 0, 0, 0), cb1[3].x
+                    if_nz r3.y
                       sample_indexable(texture2d)(float,float,float,float) r15.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -894,8 +894,8 @@ fxgroup
                     endif 
                 
                 #line 215
-                    ine r3.w, l(0, 0, 0, 0), cb1[3].z
-                    if_nz r3.w
+                    ine r3.y, l(0, 0, 0, 0), cb1[3].z
+                    if_nz r3.y
                       sample_indexable(texture2d)(float,float,float,float) r16.xyz, v4.xyxx, t0.xyzw, s0  // outSpecColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -913,12 +913,12 @@ fxgroup
                     nop 
                 
                 #line 232
-                    ine r3.w, l(0, 0, 0, 0), cb1[3].w
-                    if_nz r3.w
+                    ine r3.y, l(0, 0, 0, 0), cb1[3].w
+                    if_nz r3.y
                 
                 #line 235
-                      max r3.w, cb1[2].w, l(0.000000)
-                      min r11.w, r3.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
+                      max r3.y, cb1[2].w, l(0.000000)
+                      min r11.w, r3.y, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
                 
                 #line 232
                     else 
@@ -936,21 +936,21 @@ fxgroup
                 #line 260
                     mul r17.xyz, r6.wwww, r10.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r18.xyz, r17.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r3.w, r18.yzxy, r13.xyzx
-                    mul r19.xyz, r18.yzxy, r3.wwww
+                    dp3 r3.y, r18.yzxy, r13.xyzx
+                    mul r19.xyz, r18.yzxy, r3.yyyy
                     mov r19.xyz, -r19.xyzx
                     add r19.xyz, r13.xyzx, r19.xyzx
-                    dp3 r3.w, r19.xyzx, r19.xyzx
-                    rsq r3.w, r3.w
-                    mul r19.xyz, r3.wwww, r19.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r3.y, r19.xyzx, r19.xyzx
+                    rsq r3.y, r3.y
+                    mul r19.xyz, r3.yyyy, r19.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r20.xyz, r19.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r21.xyz, r18.zxyz, r20.yzxy
                     mul r18.xyz, r18.xyzx, r20.xyzx
                     mov r18.xyz, -r18.xyzx
                     add r18.xyz, r18.xyzx, r21.xyzx
-                    dp3 r3.w, r18.xyzx, r18.xyzx
-                    rsq r3.w, r3.w
-                    mul r18.xyz, r3.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r3.y, r18.xyzx, r18.xyzx
+                    rsq r3.y, r3.y
+                    mul r18.xyz, r3.yyyy, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r20.xyz, r4.xyzx
@@ -969,21 +969,21 @@ fxgroup
                 #line 260
                     mul r17.xyz, r6.wwww, r10.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r18.xyz, r17.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r3.w, r18.yzxy, r13.xyzx
-                    mul r20.xyz, r18.yzxy, r3.wwww
+                    dp3 r3.y, r18.yzxy, r13.xyzx
+                    mul r20.xyz, r18.yzxy, r3.yyyy
                     mov r20.xyz, -r20.xyzx
                     add r13.xyz, r13.xyzx, r20.xyzx
-                    dp3 r3.w, r13.xyzx, r13.xyzx
-                    rsq r3.w, r3.w
-                    mul r13.xyz, r3.wwww, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r3.y, r13.xyzx, r13.xyzx
+                    rsq r3.y, r3.y
+                    mul r13.xyz, r3.yyyy, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r20.xyz, r13.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r21.xyz, r18.zxyz, r20.yzxy
                     mul r18.xyz, r18.xyzx, r20.xyzx
                     mov r18.xyz, -r18.xyzx
                     add r18.xyz, r18.xyzx, r21.xyzx
-                    dp3 r3.w, r18.xyzx, r18.xyzx
-                    rsq r3.w, r3.w
-                    mul r18.xyz, r3.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r3.y, r18.xyzx, r18.xyzx
+                    rsq r3.y, r3.y
+                    mul r18.xyz, r3.yyyy, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r9.w, l(1.000000)
@@ -999,8 +999,8 @@ fxgroup
                 
                 #line 411
                     mov r9.xyz, -r12.xyzx
-                    dp3 r3.w, r9.xyzx, r10.xyzx
-                    mul r3.y, r3.w, r3.y  // diffuseCosFactor<0:NaN:Inf>
+                    dp3 r3.y, r9.xyzx, r10.xyzx
+                    mul r3.y, r3.y, r3.w  // diffuseCosFactor<0:NaN:Inf>
                 
                 #line 417
                     nop 
@@ -1137,10 +1137,11 @@ fxgroup
                   dp3 r8.x, r12.xyzx, r8.xyzx  // Cos_Theta<0:NaN:Inf>
                 
                 #line 453
-                  lt r7.w, r7.w, r10.w
-                  sincos null, r8.y, r9.w
+                  lt r5.x, r5.x, r10.w
+                  div r8.y, r9.w, l(2.000000)
+                  sincos null, r8.y, r8.y
                   lt r8.x, r8.x, r8.y
-                  or r7.w, r7.w, r8.x
+                  or r5.x, r5.x, r8.x
                 
                 #line 201
                   ine r8.x, l(0, 0, 0, 0), cb1[3].y
@@ -1223,14 +1224,14 @@ fxgroup
                   sample_indexable(texturecube)(float,float,float,float) r11.xyz, r11.xyzx, t2.xyzw, s0  // outEnvMapColor4<0:Inf,1:Inf,2:Inf>
                 
                 #line 461
-                  if_z r7.w
+                  if_z r5.x
                 
                 #line 469
                     nop 
                 
                 #line 191
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].x
-                    if_nz r7.w
+                    ine r5.x, l(0, 0, 0, 0), cb1[3].x
+                    if_nz r5.x
                       sample_indexable(texture2d)(float,float,float,float) r14.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -1241,8 +1242,8 @@ fxgroup
                     endif 
                 
                 #line 215
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].z
-                    if_nz r7.w
+                    ine r5.x, l(0, 0, 0, 0), cb1[3].z
+                    if_nz r5.x
                       sample_indexable(texture2d)(float,float,float,float) r15.xyz, v4.xyxx, t0.xyzw, s0  // outSpecColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -1260,12 +1261,12 @@ fxgroup
                     nop 
                 
                 #line 232
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].w
-                    if_nz r7.w
+                    ine r5.x, l(0, 0, 0, 0), cb1[3].w
+                    if_nz r5.x
                 
                 #line 235
-                      max r7.w, cb1[2].w, l(0.000000)
-                      min r11.w, r7.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
+                      max r5.x, cb1[2].w, l(0.000000)
+                      min r11.w, r5.x, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
                 
                 #line 232
                     else 
@@ -1283,21 +1284,21 @@ fxgroup
                 #line 260
                     mul r16.xyz, r8.xxxx, r10.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r8.xyz, r16.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r7.w, r8.yzxy, r13.xyzx
-                    mul r17.xyz, r8.yzxy, r7.wwww
+                    dp3 r5.x, r8.yzxy, r13.xyzx
+                    mul r17.xyz, r8.yzxy, r5.xxxx
                     mov r17.xyz, -r17.xyzx
                     add r13.xyz, r13.xyzx, r17.xyzx
-                    dp3 r7.w, r13.xyzx, r13.xyzx
-                    rsq r7.w, r7.w
-                    mul r13.xyz, r7.wwww, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r5.x, r13.xyzx, r13.xyzx
+                    rsq r5.x, r5.x
+                    mul r13.xyz, r5.xxxx, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r17.xyz, r13.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r18.xyz, r8.zxyz, r17.yzxy
                     mul r8.xyz, r8.xyzx, r17.xyzx
                     mov r8.xyz, -r8.xyzx
                     add r8.xyz, r8.xyzx, r18.xyzx
-                    dp3 r7.w, r8.xyzx, r8.xyzx
-                    rsq r7.w, r7.w
-                    mul r17.xyz, r7.wwww, r8.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r5.x, r8.xyzx, r8.xyzx
+                    rsq r5.x, r5.x
+                    mul r17.xyz, r5.xxxx, r8.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r18.xyz, r4.xyzx
@@ -1315,7 +1316,7 @@ fxgroup
                 
                 #line 476
                     mov r13.xyz, -r12.xyzx
-                    dp3 r7.w, r13.xyzx, r10.xyzx
+                    dp3 r5.x, r13.xyzx, r10.xyzx
                     mul r5.x, r5.x, r7.w  // diffuseCosFactor<0:NaN:Inf>
                 
                 #line 479
@@ -1752,7 +1753,7 @@ fxgroup
                   div r8.w, l(1.000000), r8.w  // Attenuation<0:NaN:Inf>
                 
                 #line 388
-                  lt r7.w, r7.w, r9.w
+                  lt r4.w, r4.w, r9.w
                 
                 #line 201
                   ine r9.w, l(0, 0, 0, 0), cb1[3].y
@@ -1835,14 +1836,14 @@ fxgroup
                   sample_indexable(texturecube)(float,float,float,float) r11.xyz, r11.xyzx, t2.xyzw, s0  // outEnvMapColor4<0:Inf,1:Inf,2:Inf>
                 
                 #line 396
-                  if_z r7.w
+                  if_z r4.w
                 
                 #line 404
                     nop 
                 
                 #line 191
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].x
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].x
+                    if_nz r4.w
                       sample_indexable(texture2d)(float,float,float,float) r15.xyz, v4.xyxx, t0.xyzw, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -1853,8 +1854,8 @@ fxgroup
                     endif 
                 
                 #line 215
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].z
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].z
+                    if_nz r4.w
                       sample_indexable(texture2d)(float,float,float,float) r16.xyz, v4.xyxx, t0.xyzw, s0  // outSpecColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -1872,12 +1873,12 @@ fxgroup
                     nop 
                 
                 #line 232
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].w
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].w
+                    if_nz r4.w
                 
                 #line 235
-                      max r7.w, cb1[2].w, l(0.000000)
-                      min r11.w, r7.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
+                      max r4.w, cb1[2].w, l(0.000000)
+                      min r11.w, r4.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
                 
                 #line 232
                     else 
@@ -1895,21 +1896,21 @@ fxgroup
                 #line 260
                     mul r17.xyz, r9.wwww, r10.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r18.xyz, r17.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r7.w, r18.yzxy, r13.xyzx
-                    mul r19.xyz, r18.yzxy, r7.wwww
+                    dp3 r4.w, r18.yzxy, r13.xyzx
+                    mul r19.xyz, r18.yzxy, r4.wwww
                     mov r19.xyz, -r19.xyzx
                     add r19.xyz, r13.xyzx, r19.xyzx
-                    dp3 r7.w, r19.xyzx, r19.xyzx
-                    rsq r7.w, r7.w
-                    mul r19.xyz, r7.wwww, r19.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r19.xyzx, r19.xyzx
+                    rsq r4.w, r4.w
+                    mul r19.xyz, r4.wwww, r19.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r20.xyz, r19.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r21.xyz, r18.zxyz, r20.yzxy
                     mul r18.xyz, r18.xyzx, r20.xyzx
                     mov r18.xyz, -r18.xyzx
                     add r18.xyz, r18.xyzx, r21.xyzx
-                    dp3 r7.w, r18.xyzx, r18.xyzx
-                    rsq r7.w, r7.w
-                    mul r18.xyz, r7.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r18.xyzx, r18.xyzx
+                    rsq r4.w, r4.w
+                    mul r18.xyz, r4.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r20.xyz, r4.xyzx
@@ -1928,21 +1929,21 @@ fxgroup
                 #line 260
                     mul r17.xyz, r9.wwww, r10.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r18.xyz, r17.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r7.w, r18.yzxy, r13.xyzx
-                    mul r20.xyz, r18.yzxy, r7.wwww
+                    dp3 r4.w, r18.yzxy, r13.xyzx
+                    mul r20.xyz, r18.yzxy, r4.wwww
                     mov r20.xyz, -r20.xyzx
                     add r13.xyz, r13.xyzx, r20.xyzx
-                    dp3 r7.w, r13.xyzx, r13.xyzx
-                    rsq r7.w, r7.w
-                    mul r13.xyz, r7.wwww, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r13.xyzx, r13.xyzx
+                    rsq r4.w, r4.w
+                    mul r13.xyz, r4.wwww, r13.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r20.xyz, r13.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r21.xyz, r18.zxyz, r20.yzxy
                     mul r18.xyz, r18.xyzx, r20.xyzx
                     mov r18.xyz, -r18.xyzx
                     add r18.xyz, r18.xyzx, r21.xyzx
-                    dp3 r7.w, r18.xyzx, r18.xyzx
-                    rsq r7.w, r7.w
-                    mul r18.xyz, r7.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r18.xyzx, r18.xyzx
+                    rsq r4.w, r4.w
+                    mul r18.xyz, r4.wwww, r18.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r12.w, l(1.000000)
@@ -1958,7 +1959,7 @@ fxgroup
                 
                 #line 411
                     mov r9.xyz, -r9.xyzx
-                    dp3 r7.w, r9.xyzx, r10.xyzx
+                    dp3 r4.w, r9.xyzx, r10.xyzx
                     mul r4.w, r4.w, r7.w  // diffuseCosFactor<0:NaN:Inf>
                 
                 #line 417
@@ -2094,10 +2095,11 @@ fxgroup
                   dp3 r9.x, r13.xyzx, r9.xyzx  // Cos_Theta<0:NaN:Inf>
                 
                 #line 453
-                  lt r7.w, r7.w, r10.w
-                  sincos null, r9.y, r9.w
+                  lt r4.w, r4.w, r10.w
+                  div r9.y, r9.w, l(2.000000)
+                  sincos null, r9.y, r9.y
                   lt r9.x, r9.x, r9.y
-                  or r7.w, r7.w, r9.x
+                  or r4.w, r4.w, r9.x
                 
                 #line 201
                   ine r9.x, l(0, 0, 0, 0), cb1[3].y
@@ -2180,14 +2182,14 @@ fxgroup
                   sample_indexable(texturecube)(float,float,float,float) r12.xyz, r10.yzwy, t2.xyzw, s0  // outEnvMapColor4<0:Inf,1:Inf,2:Inf>
                 
                 #line 461
-                  if_z r7.w
+                  if_z r4.w
                 
                 #line 469
                     nop 
                 
                 #line 191
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].x
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].x
+                    if_nz r4.w
                       sample_indexable(texture2d)(float,float,float,float) r10.yzw, v4.xyxx, t0.wxyz, s0  // outDiffColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -2198,8 +2200,8 @@ fxgroup
                     endif 
                 
                 #line 215
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].z
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].z
+                    if_nz r4.w
                       sample_indexable(texture2d)(float,float,float,float) r15.xyz, v4.xyxx, t0.xyzw, s0  // outSpecColor3<0:Inf,1:Inf,2:Inf>
                     else 
                 
@@ -2217,12 +2219,12 @@ fxgroup
                     nop 
                 
                 #line 232
-                    ine r7.w, l(0, 0, 0, 0), cb1[3].w
-                    if_nz r7.w
+                    ine r4.w, l(0, 0, 0, 0), cb1[3].w
+                    if_nz r4.w
                 
                 #line 235
-                      max r7.w, cb1[2].w, l(0.000000)
-                      min r12.w, r7.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
+                      max r4.w, cb1[2].w, l(0.000000)
+                      min r12.w, r4.w, l(1.000000)  // outEnvMapColor4<3:[0f,1f]>
                 
                 #line 232
                     else 
@@ -2240,21 +2242,21 @@ fxgroup
                 #line 260
                     mul r16.xyz, r10.xxxx, r11.xyzx  // NormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r17.xyz, r16.zxyz  // NormalW<2:NaN:Inf,0:NaN:Inf,1:NaN:Inf>
-                    dp3 r7.w, r17.yzxy, r14.xyzx
-                    mul r18.xyz, r17.yzxy, r7.wwww
+                    dp3 r4.w, r17.yzxy, r14.xyzx
+                    mul r18.xyz, r17.yzxy, r4.wwww
                     mov r18.xyz, -r18.xyzx
                     add r14.xyz, r14.xyzx, r18.xyzx
-                    dp3 r7.w, r14.xyzx, r14.xyzx
-                    rsq r7.w, r7.w
-                    mul r14.xyz, r7.wwww, r14.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r14.xyzx, r14.xyzx
+                    rsq r4.w, r4.w
+                    mul r14.xyz, r4.wwww, r14.xyzx  // TangentW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r18.xyz, r14.yzxy  // TangentW<1:NaN:Inf,2:NaN:Inf,0:NaN:Inf>
                     mul r19.xyz, r17.zxyz, r18.yzxy
                     mul r17.xyz, r17.xyzx, r18.xyzx
                     mov r17.xyz, -r17.xyzx
                     add r17.xyz, r17.xyzx, r19.xyzx
-                    dp3 r7.w, r17.xyzx, r17.xyzx
-                    rsq r7.w, r7.w
-                    mul r17.xyz, r7.wwww, r17.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                    dp3 r4.w, r17.xyzx, r17.xyzx
+                    rsq r4.w, r4.w
+                    mul r17.xyz, r4.wwww, r17.xyzx  // BinormalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 276
                     mov r18.xyz, r4.xyzx
@@ -2272,7 +2274,7 @@ fxgroup
                 
                 #line 476
                     mov r16.xyz, -r13.xyzx
-                    dp3 r7.w, r16.xyzx, r11.xyzx
+                    dp3 r4.w, r16.xyzx, r11.xyzx
                     mul r4.w, r4.w, r7.w  // diffuseCosFactor<0:NaN:Inf>
                 
                 #line 479
@@ -2396,7 +2398,7 @@ fxgroup
                 #line 120
                 mov o0.xyzw, r3.xyzw  // PS_DefaultDraw<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
                 ret 
-                // Approximately 1376 instruction slots used
+                // Approximately 1378 instruction slots used
                             
             };
         }

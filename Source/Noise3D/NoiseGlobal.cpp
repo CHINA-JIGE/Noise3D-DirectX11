@@ -164,20 +164,26 @@ using namespace Noise3D;
 		return "";
 	};
 
-/*_declspec(dllexport)*/ inline float Noise3D::gFunction_Lerp(float a, float b, float t)
+/*_declspec(dllexport)*/ inline float Noise3D::Lerp(float a, float b, float t)
 	{
 		return(a + (b - a)*t);
 	};
 
-/*_declspec(dllexport)*/ inline float Noise3D::gFunction_Clampf(float val, float min, float max)
+/*_declspec(dllexport)*/ inline float Noise3D::Clamp(float val, float min, float max)
 	{
 		return (val >= min ? (val <= max ? val : max) : min);
 	};
 
-/*_declspec(dllexport)*/ inline int	Noise3D::gFunction_Clamp(int val, int min, int max)
-	{
-		return (val >= min ? (val <= max ? val : max) : min);
-	};
+/*_declspec(dllexport)*/ inline int	Noise3D::Clamp(int val, int min, int max)
+{
+	return (val >= min ? (val <= max ? val : max) : min);
+}
+
+/*_declspec(dllexport)*/ NVECTOR3 Noise3D::Clamp(const NVECTOR3 & target, const NVECTOR3 & min, const NVECTOR3 & max)
+{
+	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
+};
+
 
 /*_declspec(dllexport)*/ inline void Noise3D::DEBUG_MSG1(std::string msg)
 	{

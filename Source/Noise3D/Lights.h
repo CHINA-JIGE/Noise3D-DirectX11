@@ -7,64 +7,98 @@
 
 namespace Noise3D
 {
+	//LIGHT description : just combination of data
+	//LIGHT interfaces : provide interfaces for the user to interact
 
-	struct N_DirLightDesc
+
+	struct N_CommonLightDesc
 	{
-		N_DirLightDesc(){ZeroMemory(this, sizeof(*this));};
-
-		NVECTOR3 mAmbientColor;	 float		mSpecularIntensity;
-		NVECTOR3 mDiffuseColor;		float			mDiffuseIntensity;
-		NVECTOR3 mSpecularColor;	 float		mPad2;//memory alignment
-		NVECTOR3 mDirection;			 float		mPad3;//memory alignment
+		N_CommonLightDesc() { ZeroMemory(this, sizeof(*this)); }
+		NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
+		NVECTOR3	mDiffuseColor;			float				mDiffuseIntensity;
+		NVECTOR3	mSpecularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
 	};
 
 
-	struct N_PointLightDesc
+	//don't forget graphic memory's 128 bit alignment
+	struct N_DirLightDesc
+		:public N_CommonLightDesc
+	{
+		N_DirLightDesc() { ZeroMemory(this, sizeof(*this)); };
+
+		/*NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
+		NVECTOR3	mDiffuseColor;				float				mDiffuseIntensity;
+		NVECTOR3	mSpecularColor;*/		float		mPad2;
+		NVECTOR3 mDirection;					float		mPad3;
+	};
+
+
+	//don't forget graphic memory's 128 bit alignment
+	struct N_PointLightDesc 
+		:public N_CommonLightDesc
 	{
 		N_PointLightDesc() {ZeroMemory(this, sizeof(*this));}
 
-		NVECTOR3 mAmbientColor;		float mSpecularIntensity;
-		NVECTOR3 mDiffuseColor;			float mLightingRange;
-		NVECTOR3 mSpecularColor;		float mAttenuationFactor;
-		NVECTOR3 mPosition;					float mDiffuseIntensity;
+		/*NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
+		NVECTOR3	mDiffuseColor;				float				mDiffuseIntensity;
+		NVECTOR3	mSpecularColor;*/		float		mAttenuationFactor;
+		NVECTOR3 mPosition;						float		mLightingRange;
 
 	};
 
 
+	//don't forget graphic memory's 128 bit alignment
 	struct N_SpotLightDesc
+		:public N_CommonLightDesc
 	{
 		N_SpotLightDesc(){ZeroMemory(this, sizeof(*this));}
 
-		NVECTOR3 mAmbientColor;	float mSpecularIntensity;
-		NVECTOR3 mDiffuseColor;		float mLightingRange;
-		NVECTOR3 mSpecularColor;	float mAttenuationFactor;
-		NVECTOR3 mLitAt;					float mLightingAngle;
-		NVECTOR3 mPosition;				float mDiffuseIntensity;
+		/*NVECTOR3 mAmbientColor;		float mSpecularIntensity;
+		NVECTOR3 mDiffuseColor;			float mDiffuseIntensity;
+		NVECTOR3 mSpecularColor;*/	float mAttenuationFactor;
+		NVECTOR3 mLitAt;						float mLightingAngle;
+		NVECTOR3 mPosition;					float mLightingRange;
 	};
 
 
-	//--------Dynamic Directional Light-------
-	class IDirLightD
+	//----------------------BASE LIGHT-------------------------------
+	class IBaseLight
 	{
 	public:
 
-		/*void SetAmbientColor(const NVECTOR3& color);
+		void SetAmbientColor(const NVECTOR3& color);
 
 		void SetDiffuseColor(const NVECTOR3& color);
 
 		void SetSpecularColor(const NVECTOR3& color);
 
-		void SetDirection(const NVECTOR3& dir);
-
 		void SetSpecularIntensity(float specInt);
 
-		void SetDiffuseIntensity(float diffInt);*/
+		void SetDiffuseIntensity(float diffInt);
 
-		void SetDesc(const N_DirLightDesc& desc);
+	protected:
+
+		//invoked by derived Light,not by user
+		void	SetDesc(const N_CommonLightDesc& desc);
+
+		//invoked by derived Light,not by user
+		N_CommonLightDesc GetDesc();
+
+	private:
+		N_CommonLightDesc mLightDesc;
+	};
+
+
+	//---------------------Dynamic Directional Light------------------
+	class IDirLightD : public IBaseLight
+	{
+	public:
+
+		void	SetDirection(const NVECTOR3& dir);
+
+		void SetDesc(const N_DirLightDesc& desc);//many CLAMP op happens in this
 
 		N_DirLightDesc GetDesc();
-
-		void Destroy();
 
 
 	private:
@@ -79,16 +113,20 @@ namespace Noise3D
 	};
 
 
-	//--------Dynamic Point Light-------
-	class IPointLightD
+	//-----------------------Dynamic Point Light--------------------
+	class IPointLightD : public IBaseLight
 	{
 	public:
 
-		void SetDesc(const N_PointLightDesc& desc);
+		void SetPosition(const NVECTOR3& pos);
+
+		void SetAttenuationFactor(float attFactor);
+
+		void	SetLightingRange(float range);
+
+		void SetDesc(const N_PointLightDesc& desc);//many CLAMP op happens in this
 
 		N_PointLightDesc GetDesc();
-
-		void Destroy();
 
 	private:
 
@@ -102,16 +140,24 @@ namespace Noise3D
 	};
 
 
-	//--------Dynamic Spot Light-------
-	class ISpotLightD
+	//-----------------------Dynamic Spot Light------------------
+	class ISpotLightD:public IBaseLight
 	{
 	public:
 
-		void SetDesc(const N_SpotLightDesc& desc);
+		void SetPosition(const NVECTOR3& pos);
+
+		void SetAttenuationFactor(float attFactor);
+
+		void	SetLitAt(const NVECTOR3& vLitAt);
+
+		void	SetLightingAngle(float coneAngle_Rad);
+
+		void	SetLightingRange(float range);
+
+		void SetDesc(const N_SpotLightDesc& desc);//many CLAMP op happens in this
 
 		N_SpotLightDesc GetDesc();
-
-		void Destroy();
 
 	private:
 
@@ -126,7 +172,9 @@ namespace Noise3D
 	};
 
 
-	//--------Static Directional Light-------
+
+
+	//------------------Static Directional Light------------------
 	//immutable after initialization (so that pre-render can be applied)
 	class IDirLightS
 	{
@@ -134,27 +182,26 @@ namespace Noise3D
 
 		N_DirLightDesc GetDesc();
 
-		void Destroy();
-
 	private:
+
 		friend IFactory<IDirLightS>;
 
 		IDirLightS();
 
 		~IDirLightS();
 
+		void	SetDesc(const N_DirLightDesc& desc);
+
 		N_DirLightDesc mLightDesc;
 	};
 
 
-	//--------Static Point Light-------
+	//----------------------Static Point Light------------------
 	class IPointLightS
 	{
 	public:
 
 		N_PointLightDesc GetDesc();
-
-		void Destroy();
 
 	private:
 		friend IFactory<IPointLightS>;
@@ -163,18 +210,18 @@ namespace Noise3D
 
 		~IPointLightS();
 
+		void	SetDesc(const N_PointLightDesc& desc);
+
 		N_PointLightDesc mLightDesc;
 	};
 
 
-	//--------Static Spot Light-------
+	//------------------Static Spot Light--------------------
 	class ISpotLightS
 	{
 	public:
 
 		N_SpotLightDesc GetDesc();
-
-		void Destroy();
 
 	private:
 		friend IFactory<ISpotLightS>;
@@ -182,6 +229,8 @@ namespace Noise3D
 		ISpotLightS();
 
 		~ISpotLightS();
+
+		void	SetDesc(const N_SpotLightDesc& desc);
 
 		N_SpotLightDesc mLightDesc;
 	};

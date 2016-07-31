@@ -1,4 +1,4 @@
-/**********************************************************************
+/**********************************************************************
 
 	File:3D Function.fx
 	Author: Jige
@@ -15,27 +15,27 @@
 struct N_DirectionalLight
 {
 	 float3 mAmbientColor;		float		mSpecularIntensity;
-	 float3 mDiffuseColor;		float		mDiffuseIntensity;//memory alignment
-	 float3 mSpecularColor;		float		mPad2;//memory alignment
-	 float3 mDirection;			float		mPad3;//memory alignment
+	 float3 mDiffuseColor;		float		mDiffuseIntensity;
+	 float3 mSpecularColor;		float		mPad2;
+	 float3 mDirection;			float		mPad3;
 
 };
 
 struct N_PointLight
 {
 	float3 mAmbientColor;			float mSpecularIntensity;
-	float3 mDiffuseColor;			float mLightingRange;
+	float3 mDiffuseColor;			float mDiffuseIntensity;
 	float3 mSpecularColor;			float mAttenuationFactor;
-	float3 mPosition;				float mDiffuseIntensity;//memory alignment
+	float3 mPosition;				float mLightingRange;
 };
 
 struct N_SpotLight
 {
 	float3 mAmbientColor;			float mSpecularIntensity;
-	float3 mDiffuseColor;			float mLightingRange;
+	float3 mDiffuseColor;			float mDiffuseIntensity;
 	float3 mSpecularColor;			float mAttenuationFactor;
 	float3 mLitAt;					float mLightingAngle;
-	float3 mPosition;				float mDiffuseIntensity;//memory alignment
+	float3 mPosition;				float mLightingRange;
 };
 
 struct N_Material_Basic
@@ -450,11 +450,11 @@ void	ComputeSpotLightColor(N_SpotLight Light,float3 NormalW,float2 TexCoord,floa
 	float Cos_Theta = dot(Unit_LightVec,normalize(Light.mLitAt - Light.mPosition));
 	
 	//to check if this point is out of lighting range
-	if((disFromLight > Light.mLightingRange)||(Cos_Theta < cos(Light.mLightingAngle)))
+	if((disFromLight > Light.mLightingRange)||(Cos_Theta < cos(Light.mLightingAngle/2.0f)))
 	{
 		outColor4 = float4(0,0,0,1.0f);
 		return;
-	}
+	}		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Should I add a fade-out region for the edge of spot-light??? I just directly & violently set it to black???
 
 	
 	//sample colors / normal  from textures
