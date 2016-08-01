@@ -25,7 +25,7 @@ BOOL IFileManager::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& re
 
 	if (!tmpFile.good())
 	{
-		DEBUG_MSG1("Load STL : file Open Failed!!");
+		ERROR_MSG("Load STL : file Open Failed!!");
 		return FALSE;
 	}
 
@@ -34,7 +34,7 @@ BOOL IFileManager::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& re
 	std::streamoff static_fileSize = tmpFile.tellg();
 	if (static_fileSize < 84L)
 	{
-		DEBUG_MSG1("Load STL : file Damaged!!File Size is Too Small!!");
+		ERROR_MSG("Load STL : file Damaged!!File Size is Too Small!!");
 		return FALSE;
 	}
 	tmpFile.seekg(0);
@@ -67,7 +67,7 @@ BOOL localFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTO
 
 	if (!fileIn.good())
 	{
-		DEBUG_MSG1("Load STL Binary : Open File Failed!");
+		ERROR_MSG("Load STL Binary : Open File Failed!");
 		return FALSE;
 	}
 
@@ -96,7 +96,7 @@ BOOL localFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTO
 	//which starts with "solid"
 	if (headerInfo[0] == 's')
 	{
-		DEBUG_MSG1("Load STL Binary : File Damaged!! It's not binary STL file!");
+		ERROR_MSG("Load STL Binary : File Damaged!! It's not binary STL file!");
 		return FALSE;
 	}
 
@@ -118,7 +118,7 @@ BOOL localFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTO
 
 	if (triangleCount > 500000)
 	{
-		DEBUG_MSG1("Load STL Binary : Triangle Count is larger than 500000 / Data Damamged!!");
+		ERROR_MSG("Load STL Binary : Triangle Count is larger than 500000 / Data Damamged!!");
 		fileIn.close();
 		return FALSE;
 	}
@@ -176,7 +176,7 @@ BOOL localFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR
 
 	if (!fileIn.good())
 	{
-		DEBUG_MSG1("Load STL Ascii : Open File Failed!!");
+		ERROR_MSG("Load STL Ascii : Open File Failed!!");
 		return FALSE;
 	}
 
@@ -203,7 +203,7 @@ BOOL localFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR
 	}
 	else
 	{
-		DEBUG_MSG1("Load STL Ascii : file damaged!!");
+		ERROR_MSG("Load STL Ascii : file damaged!!");
 		return FALSE;
 	}
 

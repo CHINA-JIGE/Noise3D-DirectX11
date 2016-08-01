@@ -70,7 +70,7 @@ IRenderer * IScene::GetRenderer()
 		else
 		{
 			IFactory<IRenderer>::DestroyObject(uid);
-			DEBUG_MSG1("IScene: Renderer Initialization failed.");
+			ERROR_MSG("IScene: Renderer Initialization failed.");
 			return nullptr;
 		}
 	}

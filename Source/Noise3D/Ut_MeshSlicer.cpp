@@ -66,7 +66,7 @@ BOOL IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 	//assert
 	if (!isLoadSTLsucceeded)
 	{
-		DEBUG_MSG1("NoiseUtSliceGenerator: Load STL file failed!!");
+		ERROR_MSG("NoiseUtSliceGenerator: Load STL file failed!!");
 		return FALSE;
 	}
 
@@ -83,7 +83,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 
 	if (iLayerCount < 2)
 	{
-		DEBUG_MSG1("MeshSlicer : Layer Count is too little !!");
+		ERROR_MSG("MeshSlicer : Layer Count is too little !!");
 	}
 
 	//top/bottom y of the bounding box (AABB)
@@ -675,7 +675,7 @@ BOOL IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vect
 
 	if (!fileIn.is_open())
 	{
-		DEBUG_MSG1("FileManager : Cannot Open File !!");
+		ERROR_MSG("FileManager : Cannot Open File !!");
 		return FALSE;
 	}
 
@@ -773,7 +773,7 @@ BOOL IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vect
 	//check if we have successfully opened the file
 	if (!fileOut.good())
 	{
-		DEBUG_MSG1("FileManager : Cannot Open File !!");
+		ERROR_MSG("FileManager : Cannot Open File !!");
 		return FALSE;
 	}
 

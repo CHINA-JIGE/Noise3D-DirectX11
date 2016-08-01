@@ -42,7 +42,7 @@ UINT IMaterialManager::CreateMaterial(N_Material newMat)
 	if (newMat.mMatName == std::string(""))
 	{
 		//material name empty
-		DEBUG_MSG1("Noise Material Mgr: material name empty!! At least 1 char !");
+		ERROR_MSG("Noise Material Mgr: material name empty!! At least 1 char !");
 		return NOISE_MACRO_INVALID_MATERIAL_ID;
 	}
 
@@ -51,7 +51,7 @@ UINT IMaterialManager::CreateMaterial(N_Material newMat)
 	if(GetMatID(newMat.mMatName) != NOISE_MACRO_INVALID_MATERIAL_ID)
 	{
 		//material name conflict
-			DEBUG_MSG1("Noise Material Mgr: material name existed!!It must be unique.");
+			ERROR_MSG("Noise Material Mgr: material name existed!!It must be unique.");
 			return NOISE_MACRO_INVALID_MATERIAL_ID;
 	}
 
@@ -150,7 +150,7 @@ BOOL IMaterialManager::DeleteMaterial(UINT matID)
 	}
 	else
 	{
-		DEBUG_MSG1("Delete Material : material Index invalid!!");
+		ERROR_MSG("Delete Material : material Index invalid!!");
 		return FALSE;
 	}
 
@@ -184,7 +184,7 @@ BOOL IMaterialManager::DeleteMaterial(std::string matName)
 	else
 	{
 		//material not found
-		DEBUG_MSG1("delete Material : material not found!!!");
+		ERROR_MSG("delete Material : material not found!!!");
 		return FALSE;
 	}
 

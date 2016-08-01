@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-                           ¿‡£∫ Light Mgr
+								class£∫Light Mgr
 
-			desc: store light resources data
+					desc: store light resources data
 
 ************************************************************************/
 
@@ -44,19 +44,61 @@ ISpotLightD* ILightManager::CreateDynamicSpotLight(N_UID lightName)
 	return IFactory<ISpotLightD>::CreateObject(lightName);
 }
 
-IDirLightS * ILightManager::CreateStaticDirLight(N_UID lightName)
+IDirLightS * ILightManager::CreateStaticDirLight(N_UID lightName, const N_DirLightDesc& desc)
 {
-	return IFactory<IDirLightS>::CreateObject(lightName);
+	IDirLightS* pLight = IFactory<IDirLightS>::CreateObject(lightName);
+
+	//init could fail and we must check
+	BOOL isSucceeded  = pLight->mFunction_Init(desc);
+	
+	if (isSucceeded)
+	{
+		return pLight;
+	}
+	else
+	{
+		//clear invalid ptr
+		IFactory<IDirLightS>::DestroyObject(lightName);
+		return nullptr;
+	}
+};
+
+IPointLightS * ILightManager::CreateStaticPointLight(N_UID lightName, const N_PointLightDesc& desc)
+{
+	IPointLightS* pLight = IFactory<IPointLightS>::CreateObject(lightName);
+
+	//init could fail and we must check
+	BOOL isSucceeded = pLight->mFunction_Init(desc);
+
+	if (isSucceeded)
+	{
+		return pLight;
+	}
+	else
+	{
+		//clear invalid ptr
+		IFactory<IPointLightS>::DestroyObject(lightName);
+		return nullptr;
+	}
 }
 
-IPointLightS * ILightManager::CreateStaticPointLight(N_UID lightName)
+ISpotLightS * ILightManager::CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc)
 {
-	return IFactory<IPointLightS>::CreateObject(lightName);
-}
+	ISpotLightS* pLight = IFactory<ISpotLightS>::CreateObject(lightName);
 
-ISpotLightS * ILightManager::CreateStaticSpotLight(N_UID lightName)
-{
-	return IFactory<ISpotLightS>::CreateObject(lightName);
+	//init could fail and we must check
+	BOOL isSucceeded = pLight->mFunction_Init(desc);
+
+	if (isSucceeded)
+	{
+		return pLight;
+	}
+	else
+	{
+		//clear invalid ptr
+		IFactory<ISpotLightS>::DestroyObject(lightName);
+		return nullptr;
+	}
 }
 
 //--------Dynamic Light Deletion------------
@@ -94,31 +136,37 @@ BOOL ILightManager::DeleteSpotLightD(ISpotLightD * pLight)
 //---------Static Light Deletion---------------
 BOOL ILightManager::DeleteDirLightS(N_UID lightName)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<IDirLightS>::DestroyObject(lightName);
 }
 
 BOOL  ILightManager::DeleteDirLightS(IDirLightS * pLight)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<IDirLightS>::DestroyObject(pLight);
 }
 
 BOOL ILightManager::DeletePointLightS(N_UID lightName)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<IPointLightS>::DestroyObject(lightName);
 }
 
 BOOL ILightManager::DeletePointLightS(IPointLightS * pLight)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<IPointLightS>::DestroyObject(pLight);
 }
 
 BOOL ILightManager::DeleteSpotLightS(N_UID lightName)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<ISpotLightS>::DestroyObject(lightName);
 }
 
 BOOL ILightManager::DeleteSpotLightS(ISpotLightS * pLight)
 {
+	mCanUpdateStaticLights = TRUE;
 	return IFactory<ISpotLightS>::DestroyObject(pLight);
 }
 
@@ -134,7 +182,7 @@ void	ILightManager::SetStaticLightingEnabled(BOOL isEnabled)
 };
 
 
-UINT	 ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
+UINT	ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
 {
 	switch(lightType)
 	{
@@ -153,18 +201,18 @@ UINT	 ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
 	return 0;
 }
 
-UINT ILightManager::GetDynamicLightCount()
+UINT	ILightManager::GetDynamicLightCount()
 {
 	return IFactory<IDirLightD>::GetObjectCount() + IFactory<IPointLightD>::GetObjectCount() + IFactory<ISpotLightD>::GetObjectCount();
 };
 
-UINT Noise3D::ILightManager::GetStaticLightCount()
+UINT	ILightManager::GetStaticLightCount()
 {
 	return IFactory<IDirLightS>::GetObjectCount() + IFactory<IPointLightS>::GetObjectCount() + IFactory<ISpotLightS>::GetObjectCount();
 };
 
 
-UINT	 ILightManager::GetTotalLightCount()
+UINT	ILightManager::GetTotalLightCount()
 {
 	return GetDynamicLightCount() + GetStaticLightCount();
 };

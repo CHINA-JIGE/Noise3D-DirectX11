@@ -399,7 +399,7 @@ BOOL	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		DEBUG_MSG1("Noise Renderer : Shader Compilation Failed !!");
+		ERROR_MSG("Noise Renderer : Shader Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 

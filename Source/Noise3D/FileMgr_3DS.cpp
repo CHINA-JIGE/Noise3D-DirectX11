@@ -52,7 +52,7 @@ BOOL IFileManager::ImportFile_3DS(
 
 	if (!fileIn.good())
 	{
-		DEBUG_MSG1("Noise File Manager : Import .3ds file failed!!");
+		ERROR_MSG("Noise File Manager : Import .3ds file failed!!");
 		return FALSE;
 	}
 
@@ -74,7 +74,7 @@ BOOL IFileManager::ImportFile_3DS(
 	auto& vertexList = static_meshObjList.back().verticesList;
 	if (vertexList.size() == 0 || vertexList.size() == 0)
 	{
-		DEBUG_MSG1("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
+		ERROR_MSG("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
 		return FALSE;
 	}
 
@@ -135,7 +135,7 @@ void ReadChunk()
 	{
 		static_currentChunkFileEndPos = static_fileSize - 1;
 		fileIn.seekg(0, std::ios::end);
-		DEBUG_MSG1("Load 3ds File : chunk is too long ! 3ds file might be damaged!!!");
+		ERROR_MSG("Load 3ds File : chunk is too long ! 3ds file might be damaged!!!");
 		return;
 	}
 
@@ -576,7 +576,7 @@ void ParseFacesAndMatName()
 
 	if (indicesList.size() == 0)
 	{
-		DEBUG_MSG1( "face Material Info : no faces attached to this material!!");
+		ERROR_MSG( "face Material Info : no faces attached to this material!!");
 		return;
 	}
 

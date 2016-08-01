@@ -90,7 +90,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	//窗体类注册
 	if (mFunction_InitWindowClass(&wndclass) == FALSE)
 	{
-		DEBUG_MSG1("Window Class 创建失败");
+		ERROR_MSG("Window Class 创建失败");
 		return FALSE;
 	};
 
@@ -99,7 +99,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	outHWND = mFunction_InitWindow();
 	if (outHWND == 0)
 	{
-		DEBUG_MSG1("窗体创建失败");
+		ERROR_MSG("窗体创建失败");
 		return FALSE;
 	};
 

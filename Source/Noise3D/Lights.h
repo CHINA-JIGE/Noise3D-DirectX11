@@ -82,10 +82,10 @@ namespace Noise3D
 		void	SetDesc(const N_CommonLightDesc& desc);
 
 		//invoked by derived Light,not by user
-		N_CommonLightDesc GetDesc();
+		void GetDesc(N_CommonLightDesc& outDesc);
 
 	private:
-		N_CommonLightDesc mLightDesc;
+		N_CommonLightDesc mBaseLightDesc;
 	};
 
 
@@ -184,13 +184,17 @@ namespace Noise3D
 
 	private:
 
+		friend class ILightManager;
+
 		friend IFactory<IDirLightS>;
 
 		IDirLightS();
 
 		~IDirLightS();
 
-		void	SetDesc(const N_DirLightDesc& desc);
+		//the IFactory<> didn't accept constructor with parameters... 
+		//thus an additional Init() func should be implemented and invoked by lightMgr
+		BOOL	mFunction_Init(const N_DirLightDesc& desc);
 
 		N_DirLightDesc mLightDesc;
 	};
@@ -204,13 +208,16 @@ namespace Noise3D
 		N_PointLightDesc GetDesc();
 
 	private:
+
+		friend class ILightManager;
+
 		friend IFactory<IPointLightS>;
 
 		IPointLightS();
 
 		~IPointLightS();
 
-		void	SetDesc(const N_PointLightDesc& desc);
+		BOOL	mFunction_Init(const N_PointLightDesc& desc);
 
 		N_PointLightDesc mLightDesc;
 	};
@@ -224,13 +231,16 @@ namespace Noise3D
 		N_SpotLightDesc GetDesc();
 
 	private:
+
+		friend class ILightManager;
+
 		friend IFactory<ISpotLightS>;
 
 		ISpotLightS();
 
 		~ISpotLightS();
 
-		void	SetDesc(const N_SpotLightDesc& desc);
+		BOOL	mFunction_Init(const N_SpotLightDesc& desc);
 
 		N_SpotLightDesc mLightDesc;
 	};

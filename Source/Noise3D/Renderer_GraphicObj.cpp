@@ -14,7 +14,7 @@ void IRenderer::RenderGUIObjects()
 	//validation before rendering
 	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
 	{
-		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
 		return;
 	};
 
@@ -39,7 +39,7 @@ void IRenderer::RenderGraphicObjects()
 	//validation before rendering
 	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
 	{
-		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
 		return;
 	};
 

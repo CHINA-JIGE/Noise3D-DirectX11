@@ -46,7 +46,7 @@
 #define HR_DEBUG(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\
-				DEBUG_MSG1(MsgText);\
+				ERROR_MSG(MsgText);\
 				return FALSE;\
 				};\
 
@@ -54,7 +54,7 @@
 #define HR_DEBUG_CREATETEX(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\
-				DEBUG_MSG1(MsgText);\
+				ERROR_MSG(MsgText);\
 				return NOISE_MACRO_INVALID_TEXTURE_ID;\
 				};\
 

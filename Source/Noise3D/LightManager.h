@@ -25,11 +25,11 @@ namespace Noise3D
 
 		ISpotLightD*		CreateDynamicSpotLight(N_UID lightName);
 
-		IDirLightS*			CreateStaticDirLight(N_UID lightName);
+		IDirLightS*			CreateStaticDirLight(N_UID lightName,const N_DirLightDesc& desc);
 
-		IPointLightS*		CreateStaticPointLight(N_UID lightName);
+		IPointLightS*		CreateStaticPointLight(N_UID lightName, const N_PointLightDesc& desc);
 
-		ISpotLightS*			CreateStaticSpotLight(N_UID lightName);
+		ISpotLightS*			CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc);
 
 
 		BOOL		DeleteDirLightD(N_UID lightName);
@@ -58,9 +58,9 @@ namespace Noise3D
 		BOOL		DeleteSpotLightS(ISpotLightS* pLight);
 
 
-		void		SetDynamicLightingEnabled(BOOL isEnabled);
+		void			SetDynamicLightingEnabled(BOOL isEnabled);
 
-		void		SetStaticLightingEnabled(BOOL isEnabled);
+		void			SetStaticLightingEnabled(BOOL isEnabled);
 
 		UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
 
@@ -73,7 +73,7 @@ namespace Noise3D
 
 	private:
 
-		friend  IRenderer;
+		friend  IRenderer;//access to 'CanUpdateStaticLights'
 
 		friend IFactory<ILightManager>;
 
@@ -81,15 +81,6 @@ namespace Noise3D
 		ILightManager();
 
 		~ILightManager();
-
-		template <typename T>
-		void mFunction_AddLight(std::vector<T>* pList, T iLight, UINT maxElementCount);
-
-		template <typename T>
-		void mFunction_RemoveLight_ByAddr(std::vector<T>* pList, T DelLight);
-
-		template <typename T>
-		void mFunction_RemoveLight_ByIndex(std::vector<T>* pList, UINT lightIndex);
 
 		BOOL		mIsDynamicLightingEnabled;
 		BOOL		mIsStaticLightingEnabled;

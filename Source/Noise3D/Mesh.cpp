@@ -190,7 +190,7 @@ BOOL IMesh::LoadFile_STL(NFilePath pFilePath)
 	fileLoadSucceeded=IFileManager::ImportFile_STL(pFilePath, tmpVertexList, *m_pIB_Mem, tmpNormalList, tmpInfo);
 	if (!fileLoadSucceeded)
 	{
-		DEBUG_MSG1("Noise Mesh : Load STL failed!");
+		ERROR_MSG("Noise Mesh : Load STL failed!");
 		return FALSE;
 	}
 
@@ -257,7 +257,7 @@ BOOL IMesh::LoadFile_OBJ(NFilePath pFilePath)
 	fileLoadSucceeded = IFileManager::ImportFile_OBJ(pFilePath, *m_pVB_Mem, *m_pIB_Mem);
 	if (!fileLoadSucceeded)
 	{
-		DEBUG_MSG1("Noise Mesh : Load OBJ failed!");
+		ERROR_MSG("Noise Mesh : Load OBJ failed!");
 		return FALSE;
 	}
 
@@ -310,7 +310,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 
 	if (!importSucceeded)
 	{
-		DEBUG_MSG1("Load 3ds : Import Operation Failed!!");
+		ERROR_MSG("Load 3ds : Import Operation Failed!!");
 		return FALSE;
 	}
 
@@ -382,7 +382,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 		{
 			//theoretically , all buffer should have the same total elements count
 			//but if shit happens,we must stop this.
-			DEBUG_MSG1("Load File 3DS: WARNING : data could be damaged!!");
+			ERROR_MSG("Load File 3DS: WARNING : data could be damaged!!");
 			break;
 		}
 	}
@@ -412,7 +412,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 			//----------Create Material-----------
 			UINT matReturnID = pMatMgr->CreateMaterial(materialList.at(i));
 			if(matReturnID==NOISE_MACRO_INVALID_MATERIAL_ID)
-				DEBUG_MSG1("WARNING : Load 3ds : Material Creation Failed!!");
+				ERROR_MSG("WARNING : Load 3ds : Material Creation Failed!!");
 
 			//----------Create Texture Maps----------
 			std::string& diffMapName = materialList.at(i).diffuseMapName;
@@ -438,7 +438,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 							TRUE, 0, 0, FALSE);
 
 						if (textureReturnID == NOISE_MACRO_INVALID_TEXTURE_ID)
-							DEBUG_MSG1("WARNING : Load 3ds : texture Creation Failed!!");
+							ERROR_MSG("WARNING : Load 3ds : texture Creation Failed!!");
 					}
 				}
 			};

@@ -32,7 +32,7 @@ BOOL ITextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4
 		N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(validatedTexID);
 		if (!pTexObj->mIsPixelBufferInMemValid)
 		{
-			DEBUG_MSG1("Set Pixel : Texture didn't have a copy in memory!!");
+			ERROR_MSG("Set Pixel : Texture didn't have a copy in memory!!");
 			return FALSE;
 		}
 
@@ -49,13 +49,13 @@ BOOL ITextureManager::SetPixel_SysMem(UINT texID, UINT x, UINT y,const  NVECTOR4
 		}
 		else//X,Y Invalid or Out Of Range
 		{
-			DEBUG_MSG1("SetPixel : Point out of range!");
+			ERROR_MSG("SetPixel : Point out of range!");
 			return FALSE;
 		}
 	}
 	else
 	{
-		DEBUG_MSG1("SetPixel : Texture ID or Texture Type invalid !!");
+		ERROR_MSG("SetPixel : Texture ID or Texture Type invalid !!");
 		return FALSE;
 	}
 }
@@ -71,7 +71,7 @@ NVECTOR4 ITextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 		//this texture is not created with a SysMem Copy
 		if (!IFactory<N_TextureObject>::GetObjectPtr(validatedTexID)->mIsPixelBufferInMemValid)
 		{
-			DEBUG_MSG1("GetPixel : Texture didn't have a copy in memory!!");
+			ERROR_MSG("GetPixel : Texture didn't have a copy in memory!!");
 			return outColor;
 		}
 
@@ -87,13 +87,13 @@ NVECTOR4 ITextureManager::GetPixel_SysMem(UINT texID, UINT x, UINT y)
 		}
 		else//X,Y Invalid or Out Of Range
 		{
-			DEBUG_MSG1("GetPixel : Point out of range!");
+			ERROR_MSG("GetPixel : Point out of range!");
 			return outColor;
 		}
 	}
 	else
 	{
-		DEBUG_MSG1("GetPixel : Texture ID or Texture Type invalid !!");
+		ERROR_MSG("GetPixel : Texture ID or Texture Type invalid !!");
 		return outColor;
 	}
 
@@ -130,14 +130,14 @@ BOOL ITextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 		else
 		{
 			//mIsPixelBufferInMemValid==FALSE
-			DEBUG_MSG1("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
+			ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
 			return FALSE;
 		}
 	}
 	else
 	{
 		//texID = ==Noise_macro_invalid_Texture_ID
-		DEBUG_MSG1("UpdateTextureToGraphicMemory : Texture ID invalid!!");
+		ERROR_MSG("UpdateTextureToGraphicMemory : Texture ID invalid!!");
 		return FALSE;
 	}
 
@@ -159,7 +159,7 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	//we must check if new name has been used
 	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-			DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
+			ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
@@ -210,7 +210,7 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
-		DEBUG_MSG1("CreateTextureFromFile : Create ID3D11Texture2D failed!");
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11Texture2D failed!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -221,7 +221,7 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
-		DEBUG_MSG1("CreateTextureFromFile : Create ID3D11SRV failed!");
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11SRV failed!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -311,7 +311,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 				DeleteTexture(tmpTexID[j]);
 			}
 
-			DEBUG_MSG1("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
+			ERROR_MSG("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;
 		}
 	}
@@ -386,7 +386,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 	hr = g_pd3dDevice11->CreateTexture2D(&texDesc, &texInitDataDesc[0], &pCubeMapTexture2D);
 	if (FAILED(hr))
 	{
-		DEBUG_MSG1("NoiseTexMgr:CreateCubeMapFromFiles : Create new cube map failed!!");
+		ERROR_MSG("NoiseTexMgr:CreateCubeMapFromFiles : Create new cube map failed!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -406,7 +406,7 @@ UINT ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTe
 	if (FAILED(hr))
 	{
 		//new temporary tex obj should be dumped
-		DEBUG_MSG1("NoiseTexMgr:CreateCubeMapFromFiles : Create SRV failed!!");
+		ERROR_MSG("NoiseTexMgr:CreateCubeMapFromFiles : Create SRV failed!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -435,7 +435,7 @@ UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTex
 		//check if  one of the texture id is illegal
 		if (!isFileNameValid)
 		{
-			DEBUG_MSG1("Noise Tex Mgr :CreateCubeTextureFromDDS : file not exist!! ; Index : ");
+			ERROR_MSG("Noise Tex Mgr :CreateCubeTextureFromDDS : file not exist!! ; Index : ");
 			return NOISE_MACRO_INVALID_TEXTURE_ID;
 		}
 	}
@@ -494,7 +494,7 @@ UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTex
 	//................
 	if (FAILED(hr))
 	{
-		DEBUG_MSG1("CreateCubeMapFromDDS : Create SRV failed!");
+		ERROR_MSG("CreateCubeMapFromDDS : Create SRV failed!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -532,7 +532,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 	if (validatedTexID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("ConvertTextureToGreyMap:texID Out of Range or Type Invalid!");
+		ERROR_MSG("ConvertTextureToGreyMap:texID Out of Range or Type Invalid!");
 		return FALSE;
 	}
 
@@ -541,7 +541,7 @@ BOOL ITextureManager::ConvertTextureToGreyMapEx(UINT texID, float factorR, float
 	N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(validatedTexID);
 	if (!pTexObj->mIsPixelBufferInMemValid)
 	{
-		DEBUG_MSG1("ConvertTextureToGreyMap:Only Textures that keep a copy in memory can be converted ! ");
+		ERROR_MSG("ConvertTextureToGreyMap:Only Textures that keep a copy in memory can be converted ! ");
 		return FALSE;
 	}
 
@@ -594,7 +594,7 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	UINT validatedTexID = ValidateIndex(texID, NOISE_TEXTURE_TYPE_COMMON);
 	if (validatedTexID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("ConvertTextureToNormalMap:texID Out of Range or Type Invalid!");
+		ERROR_MSG("ConvertTextureToNormalMap:texID Out of Range or Type Invalid!");
 		return FALSE;
 	}
 
@@ -603,7 +603,7 @@ BOOL ITextureManager::ConvertHeightMapToNormalMap(UINT texID, float bumpScaleFac
 	N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texID);
 	if (!pTexObj->mIsPixelBufferInMemValid)
 	{
-		DEBUG_MSG1("ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted ! ");
+		ERROR_MSG("ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted ! ");
 		return FALSE;
 	}
 
@@ -889,7 +889,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePat
 	std::fstream tmpFile(filePath, std::ios::binary | std::ios::in);
 	if (tmpFile.bad())
 	{
-		DEBUG_MSG1("Texture file not found!!");
+		ERROR_MSG("Texture file not found!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
@@ -924,7 +924,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePat
 	//we must check if new name has been used
 	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
+		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
@@ -962,7 +962,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	std::fstream tmpFile(filePath, std::ios::binary | std::ios::in);
 	if (tmpFile.bad())
 	{
-		DEBUG_MSG1("CreateTextureFromFile : Texture file not found!!");
+		ERROR_MSG("CreateTextureFromFile : Texture file not found!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
@@ -975,7 +975,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	//count() will return 0 if given key dont exists
 	if (GetTextureID(texName) != NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("CreateTextureFromFile : Texture name has been used!!");
+		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
 	}
 
@@ -1085,7 +1085,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
-		DEBUG_MSG1("CreateTextureFromFile : Create ID3D11Texture2D failed!");
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11Texture2D failed!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 
@@ -1095,7 +1095,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
-		DEBUG_MSG1("CreateTextureFromFile : Create ID3D11SRV failed!");
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11SRV failed!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;
 	}
 

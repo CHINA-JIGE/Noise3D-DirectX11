@@ -238,7 +238,7 @@ void	IGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 co
 {
 	if (index > GetLine3DCount())
 	{
-		DEBUG_MSG1("Line 3D index invalid!!");
+		ERROR_MSG("Line 3D index invalid!!");
 		return;
 	}
 
@@ -256,7 +256,7 @@ void	IGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 co
 {
 	if (index >=GetLine2DCount())
 	{
-		DEBUG_MSG1("Line 2D index invalid!!");
+		ERROR_MSG("Line 2D index invalid!!");
 		return;
 	}
 
@@ -277,7 +277,7 @@ void	IGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 {
 	if (index > GetPoint3DCount())
 	{
-		DEBUG_MSG1("Point 3D index invalid!!");
+		ERROR_MSG("Point 3D index invalid!!");
 		return;
 	}
 
@@ -295,7 +295,7 @@ void	IGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 {
 	if (index > GetPoint2DCount())
 	{
-		DEBUG_MSG1("Point 2D index invalid!!");
+		ERROR_MSG("Point 2D index invalid!!");
 		return;
 	}
 
@@ -314,7 +314,7 @@ void	IGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 {
 	if (index >= GetTriangle2DCount())
 	{
-		DEBUG_MSG1("Rectangle Index Invalid !!");
+		ERROR_MSG("Rectangle Index Invalid !!");
 		return;
 	}
 
@@ -338,7 +338,7 @@ void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBotto
 
 	if (index >= GetRectCount())
 	{
-		DEBUG_MSG1("Rectangle Index Invalid !!");
+		ERROR_MSG("Rectangle Index Invalid !!");
 		return;
 	}
 
@@ -391,7 +391,7 @@ void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,N
 
 	if (index >=GetRectCount())
 	{
-		DEBUG_MSG1("Rectangle Index Invalid !!");
+		ERROR_MSG("Rectangle Index Invalid !!");
 		return;
 	}
 
@@ -430,7 +430,7 @@ void	IGraphicObject::SetRectangleDepth(UINT index, float posZ)
 	//index mean the 'index'th rectangle
 
 	if (index >= GetRectCount())
-	{DEBUG_MSG1("Rectangle Index Invalid !!");return;}
+	{ERROR_MSG("Rectangle Index Invalid !!");return;}
 
 	//depth unchanged
 	float& tmpPosZ = m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6).Pos.z;
@@ -540,7 +540,7 @@ void	IGraphicObject::DeleteRectangle(UINT index)
 	}
 	else
 	{
-		DEBUG_MSG1("delete rectangle : Rectangle Index Invalid!!");
+		ERROR_MSG("delete rectangle : Rectangle Index Invalid!!");
 		return;
 	}
 
@@ -568,7 +568,7 @@ void IGraphicObject::DeleteRectangle(UINT startID, UINT endID)
 	}
 	else
 	{
-		DEBUG_MSG1("delete rectangle : Rectangle Index Invalid!!");
+		ERROR_MSG("delete rectangle : Rectangle Index Invalid!!");
 		return;
 	}
 }
@@ -739,7 +739,7 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
 	{
-		DEBUG_MSG1("Noise Graphic Object : Vertex ID Out of boundary!");
+		ERROR_MSG("Noise Graphic Object : Vertex ID Out of boundary!");
 		return;
 	}
 	
@@ -788,7 +788,7 @@ void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
 	{
-		DEBUG_MSG1("Noise Graphic Object : Vertex ID Out of boundary!");
+		ERROR_MSG("Noise Graphic Object : Vertex ID Out of boundary!");
 		return;
 	}
 
@@ -829,7 +829,7 @@ void		IGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if ((iVertexStartID + iVertexCount) > pList->size())
 	{
-		DEBUG_MSG1("Noise Graphic Object : Vertex ID Out of boundary!");
+		ERROR_MSG("Noise Graphic Object : Vertex ID Out of boundary!");
 		return;
 	}
 

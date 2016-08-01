@@ -36,7 +36,7 @@ BOOL IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteB
 	//文件不存在就return
 	if (!fileIn.is_open()) 
 	{
-		DEBUG_MSG1("FileManager : Cannot Open File !!");
+		ERROR_MSG("FileManager : Cannot Open File !!");
 		return FALSE;
 	}
 
@@ -90,7 +90,7 @@ BOOL IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFile
 	//check if we have successfully opened the file
 	if (!fileOut.good())
 	{
-		DEBUG_MSG1("FileManager : Cannot Open File !!");
+		ERROR_MSG("FileManager : Cannot Open File !!");
 		return FALSE;
 	}
 

@@ -50,7 +50,7 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 	std::fstream fileIn(pFilePath);
 	if (!fileIn.good())
 	{
-		DEBUG_MSG1("Import OBJ : Open File failed!!");
+		ERROR_MSG("Import OBJ : Open File failed!!");
 		return FALSE;
 	}
 

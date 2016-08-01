@@ -185,13 +185,28 @@ using namespace Noise3D;
 };
 
 
-/*_declspec(dllexport)*/ inline void Noise3D::DEBUG_MSG1(std::string msg)
+/*_declspec(dllexport)*/  void Noise3D::ERROR_MSG(std::string msg)
 	{
 		std::ostringstream debugMsg;
+		debugMsg << "ERROR:" << std::endl;
 		debugMsg << msg << std::endl;
 		debugMsg << "file: " << __FILE__ << std::endl;
 		debugMsg << "line: " << __LINE__ << std::endl;
 		debugMsg << "function:" << __func__ << std::endl;
 		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
 		debugMsg.clear();
-	};
+	}
+
+
+/*_declspec(dllexport)*/  void Noise3D::WARNING_MSG(std::string msg)
+{
+	std::ostringstream debugMsg;
+	debugMsg << "WARNING:" << std::endl;
+	debugMsg << msg << std::endl;
+	debugMsg << "file: " << __FILE__ << std::endl;
+	debugMsg << "line: " << __LINE__ << std::endl;
+	debugMsg << "function:" << __func__ << std::endl;
+	MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
+	debugMsg.clear();
+};
+

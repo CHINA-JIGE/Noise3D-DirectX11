@@ -8,6 +8,46 @@
 
 namespace Noise3D
 {
+
+	struct N_Material_Basic
+	{
+		N_Material_Basic()
+		{
+			ZeroMemory(this, sizeof(*this));
+			mBaseAmbientColor = NVECTOR3(0, 0, 0);
+			mBaseDiffuseColor = NVECTOR3(0.3f, 1.0f, 0.3f);
+			mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+			mSpecularSmoothLevel = 10;
+			mNormalMapBumpIntensity = 0.1f;
+			mEnvironmentMapTransparency = 0.3f;
+		}
+
+		//base attribute offset that will be added to final color
+		NVECTOR3	mBaseAmbientColor;	INT32	mSpecularSmoothLevel;
+		NVECTOR3	mBaseDiffuseColor;		float		mNormalMapBumpIntensity;
+		NVECTOR3	mBaseSpecularColor;	float		mEnvironmentMapTransparency;
+
+	};
+
+	struct N_Material
+	{
+		N_Material() :
+			mMatName(""),
+			diffuseMapName(""),
+			normalMapName(""),
+			specularMapName(""),
+			environmentMapName("")
+		{ };
+
+		N_UID	 mMatName;
+		N_Material_Basic baseMaterial;
+		N_UID diffuseMapName;
+		N_UID normalMapName;
+		N_UID specularMapName;
+		N_UID environmentMapName;
+	};
+
+
 	class /*_declspec(dllexport)*/ IMaterialManager
 	{
 	public:

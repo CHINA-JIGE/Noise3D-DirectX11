@@ -46,7 +46,7 @@ BOOL IFontManager::Initialize()
 	BOOL isFTInitSucceeded=mFunction_InitFreeType();
 	if (!isFTInitSucceeded)
 	{
-		DEBUG_MSG1("Font Manager Initialize failed!!");
+		ERROR_MSG("Font Manager Initialize failed!!");
 		return FALSE;
 	}
 
@@ -83,7 +83,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 		//failed re-init
 		if (!initSuccessful)
 		{
-			DEBUG_MSG1("FontMgr : Re-initialized failed!");
+			ERROR_MSG("FontMgr : Re-initialized failed!");
 			return NOISE_MACRO_INVALID_ID;
 		}
 	}
@@ -91,7 +91,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 	std::fstream tmpFile(filePath);
 	if (!tmpFile.is_open())
 	{
-		DEBUG_MSG1("CreateFont : file path not exist..");
+		ERROR_MSG("CreateFont : file path not exist..");
 	}
 
 	//font name must not be used
@@ -100,7 +100,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 		//string cmp
 		if (fontObj.mFontName == std::string(fontName))
 		{
-			DEBUG_MSG1("CreateFont : Font Name has been used!");
+			ERROR_MSG("CreateFont : Font Name has been used!");
 			return NOISE_MACRO_INVALID_ID;
 		}
 	}
@@ -121,7 +121,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 
 		if (ftCreateNewFaceErr)
 	{
-		DEBUG_MSG1("FontMgr : Create Font failed!");
+		ERROR_MSG("FontMgr : Create Font failed!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 	else
@@ -156,7 +156,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 
 	if (bitmapTableTexID == NOISE_MACRO_INVALID_ID)
 	{
-		DEBUG_MSG1("CreateFont : create bitmap table failed!!");
+		ERROR_MSG("CreateFont : create bitmap table failed!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -196,7 +196,7 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	//dynamic text use bitmap table & texture coordinate to  render text
 	if (refText.IsInitialized())
 	{
-		DEBUG_MSG1("Object Has Been Initialized!");
+		ERROR_MSG("Object Has Been Initialized!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -207,7 +207,7 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
 		refText.Destroy();
-		DEBUG_MSG1("InitStaticTextW:Font ID Invalid!!");
+		ERROR_MSG("InitStaticTextW:Font ID Invalid!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -229,7 +229,7 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		refText.Destroy();
-		DEBUG_MSG1("InitStaticTextW : Create Bitmap Table Texture failed!");
+		ERROR_MSG("InitStaticTextW : Create Bitmap Table Texture failed!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -257,7 +257,7 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	if (!UpdateToGMSuccess)
 	{
 		refText.Destroy();
-		DEBUG_MSG1("InitStaticTextW : Create Text Bitmap failed!!");
+		ERROR_MSG("InitStaticTextW : Create Text Bitmap failed!!");
 		m_pTexMgr->DeleteTexture(stringTextureID);
 		return NOISE_MACRO_INVALID_ID;
 	}
@@ -283,7 +283,7 @@ UINT	 IFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT
 	//dynamic text use bitmap table & texture coordinate to  render text
 	if (refText.IsInitialized())
 	{
-		DEBUG_MSG1("Object Has Been Initialized!");
+		ERROR_MSG("Object Has Been Initialized!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -293,7 +293,7 @@ UINT	 IFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT
 	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
 		refText.Destroy();
-		DEBUG_MSG1("CreateDynamicText:Font ID Invalid!!");
+		ERROR_MSG("CreateDynamicText:Font ID Invalid!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
@@ -370,7 +370,7 @@ BOOL IFontManager::mFunction_InitFreeType()
 
 	if (ftInitError)
 	{
-		DEBUG_MSG1("FontLoader init failed!");
+		ERROR_MSG("FontLoader init failed!");
 		m_FTLibrary = nullptr;
 		return FALSE;
 	}
@@ -402,7 +402,7 @@ void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targ
 	FT_Glyph glyph;
 	if (FT_Get_Glyph(fontObj.mFtFace->glyph, &glyph))
 	{
-		DEBUG_MSG1("FreeType:GetGlyph Failed");
+		ERROR_MSG("FreeType:GetGlyph Failed");
 		return;
 	}
 
@@ -569,7 +569,7 @@ UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	//check if texture creation success
 	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		DEBUG_MSG1("CreateFontFromFile : Create Bitmap Table Texture failed!");
+		ERROR_MSG("CreateFontFromFile : Create Bitmap Table Texture failed!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 	

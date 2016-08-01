@@ -69,7 +69,9 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
-	extern /*_declspec(dllexport)*/ void DEBUG_MSG1(std::string msg);
+	extern /*_declspec(dllexport)*/ void ERROR_MSG(std::string msg);
+
+	extern /*_declspec(dllexport)*/ void WARNING_MSG(std::string msg);
 
 
 

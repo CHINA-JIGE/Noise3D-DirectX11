@@ -57,7 +57,7 @@ void IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 	{
 		mFogNear	= 10;
 		mFogFar		= 100;
-		DEBUG_MSG1("SetFog : fog Near/Far invalid");
+		ERROR_MSG("SetFog : fog Near/Far invalid");
 	};
 
 	//set color

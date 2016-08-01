@@ -19,12 +19,12 @@ void IRenderer::RenderAtmosphere()
 	//validation before rendering
 	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
 	{
-		DEBUG_MSG1("Noise Renderer : Material Mgr has not been created");
+		ERROR_MSG("Noise Renderer : Material Mgr has not been created");
 		return;
 	};
 	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
 	{
-		DEBUG_MSG1("Noise Renderer : Texture Mgr has not been created");
+		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
 		return;
 	};
 
