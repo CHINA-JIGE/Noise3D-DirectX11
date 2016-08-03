@@ -13,11 +13,15 @@ IStaticText::IStaticText()
 	m_pFontName = new N_UID;
 }
 
+IStaticText::~IStaticText()
+{
+}
+
 NVECTOR2 IStaticText::GetFontSize()
 {
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
-	IFontManager* pFontMgr = GetRoot()->GetScene()->GetFontMgr();
+	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
 	return pFontMgr->GetFontSize(*m_pFontName);
 }
 

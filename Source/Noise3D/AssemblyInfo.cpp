@@ -1,7 +1,7 @@
 
 #include "Noise3D.h"
 
-#define NOISE_CLR_ENABLE
+//#define NOISE_CLR_ENABLE
 #ifdef NOISE_CLR_ENABLE
 using namespace System;
 using namespace System::Reflection;

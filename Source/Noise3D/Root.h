@@ -10,9 +10,6 @@
 namespace Noise3D
 {
 
-	extern /*_declspec(dllexport)*/ IRoot* GetRoot();
-
-
 	class /*_declspec(dllexport)*/ IRoot
 	:public IFactory<IScene>
 	{
@@ -70,4 +67,9 @@ namespace Noise3D
 		//创建渲染窗口的子函数
 		HWND mFunction_InitWindow();
 	};
+
+
+	extern /*_declspec(dllexport)*/ IRoot* GetRoot();
+
+
 }

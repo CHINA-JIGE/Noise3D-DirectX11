@@ -11,10 +11,15 @@ IDynamicText::IDynamicText()
 {
 	mWordSpacingOffset = 0;
 	mLineSpacingOffset = 0;
-	m_pTextureName = new std::string;
+	m_pTextureName = new N_UID;
+	m_pFontName = new N_UID;
 	m_pTextContent	= new std::string;
 	mIsTextContentChanged=TRUE;
 	mIsSizeChanged=TRUE;
+}
+
+IDynamicText::~IDynamicText()
+{
 }
 
 void IDynamicText::SetWidth(float w)
@@ -36,41 +41,38 @@ void IDynamicText::SetHeight(float h)
 };
 
 
-void IDynamicText::Destroy()
+void IDynamicText::SetFont(N_UID fontName)
 {
-	m_pGraphicObj->SelfDestruction();
-};
+	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
 
-void IDynamicText::SetFont(UINT fontID)
-{
-	if (m_pFatherFontMgr->mFunction_ValidateFontID(fontID) != NOISE_MACRO_INVALID_ID)
+	if (pFontMgr->IsFontExisted(fontName)==TRUE)
 	{
-		mFontID = fontID;
-		auto fontObj =m_pFatherFontMgr->m_pFontObjectList->at(fontID);
+		*m_pFontName = fontName;
+		N_FontObject* pfontObj = pFontMgr->IFactory< N_FontObject>::GetObjectPtr(fontName);
 		
 		//boundary size of 1 Char
-		mCharBoundarySizeY = UINT(fontObj.mFontSize);
-		mCharBoundarySizeX = UINT(mCharBoundarySizeY*fontObj.mAspectRatio);
+		mCharBoundarySizeY = UINT(pfontObj->mFontSize);
+		mCharBoundarySizeX = UINT(mCharBoundarySizeY*pfontObj->mAspectRatio);
 
-		//update Texture ID using name "AsciiBitmapTable" + number
-		mStringTextureID = m_pFatherFontMgr->m_pTexMgr->GetTextureID(fontObj.mInternalTextureName);
+		//update Texture ID using name "AsciiBitmapTable" + fontName
+		*m_pTextureName = pfontObj->mInternalTextureName;
 
 	}
 }
 
-UINT IDynamicText::GetFontID()
+N_UID IDynamicText::GetFontName()
 {
-	return mFontID;
+	return *m_pFontName;
 }
 
 NVECTOR2 IDynamicText::GetFontSize(UINT fontID)
 {
-	if (!IsInitialized())return NVECTOR2(0, 0);
-	return m_pFatherFontMgr->GetFontSize(fontID);
+	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	return pFontMgr->GetFontSize(*m_pFontName);
 };
 
 
-void IDynamicText::SetTextAscii(std::string newText)
+void IDynamicText::SetTextAscii(const std::string& newText)
 {
 	//std::hash<std::string>() can hash a key
 	//if (std::hash<std::string>()(newText) != std::hash<std::string>()(*m_pTextContent))
@@ -108,6 +110,7 @@ int IDynamicText::GetWordSpacingOffset()
 	return mWordSpacingOffset;
 }
 
+//pixel coordinate , position offset of specific word
 NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 {
 
@@ -143,8 +146,8 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 
 inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
 {
-
-	NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(wordIndex);
+	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(*m_pFontName)->mAsciiCharSizeList.at(wordIndex);
 	return realCharBitmapPixelSize;
 };
 
@@ -152,15 +155,16 @@ inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
 /************************************************************************
 										P R I V A T E
 ************************************************************************/
-void IDynamicText::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVECTOR4 color, UINT texID)
+void IDynamicText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName)
 {
+	m_pGraphicObj = pCreatedObj;
 
 	m_pGraphicObj->AddRectangle(
 		NVECTOR2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
 		float(pxWidth),
 		float(pxHeight),
 		color,
-		texID
+		texName
 		);
 
 	*m_pTextColor = color;
@@ -171,16 +175,12 @@ void IDynamicText::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVEC
 
 void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
 {
+	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
 
-	mFontID = m_pFatherFontMgr->mFunction_ValidateFontID(mFontID);
-	//.....we must clear the graphic objects 
-	if (mFontID == NOISE_MACRO_INVALID_ID)
+	//if font is invalid (deleted??), we must clear the graphic objects 
+	if (pFontMgr->IsFontExisted(*m_pFontName)==FALSE)
 	{
-		for (UINT i = 0;i< m_pGraphicObj->GetRectCount();i++)
-		{
-			//delete from pos '0'
-			m_pGraphicObj->DeleteRectangle(0);
-		}
+		m_pGraphicObj->DeleteRectangle(0, m_pGraphicObj->GetRectCount()-1);
 		return;
 	};
 
@@ -221,7 +221,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 		{
 			//delete redundant
 			NVECTOR2 tmpZeroVec2(0, 0);NVECTOR4 tmpZeroVec4(0, 0, 0, 0);
-			m_pGraphicObj->AddRectangle(tmpZeroVec2, tmpZeroVec2, tmpZeroVec4, mStringTextureID);
+			m_pGraphicObj->AddRectangle(tmpZeroVec2, tmpZeroVec2, tmpZeroVec4, *m_pTextureName);
 		}
 	}
 	else
@@ -272,7 +272,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 #pragma endregion UpdateTexcoord
 
 
-		NVECTOR2 realCharBitmapPixelSize = m_pFatherFontMgr->m_pFontObjectList->at(mFontID).mAsciiCharSizeList.at(currentChar);
+		NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(*m_pFontName)->mAsciiCharSizeList.at(currentChar);
 
 
 #pragma region UpdatePositionOfSubRects
@@ -300,7 +300,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				NVECTOR2(0, 0),
 				NVECTOR2(0, 0),
 				CBasicContainerInfo::GetBasicColor(),
-				mStringTextureID
+				*m_pTextureName
 				);
 		}
 		else
@@ -311,7 +311,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				tmpRectTopLeft,
 				tmpRectBottomRight,
 				CBasicContainerInfo::GetBasicColor(),
-				mStringTextureID
+				*m_pTextureName
 				);
 		}
 

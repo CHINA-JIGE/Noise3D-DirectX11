@@ -24,9 +24,9 @@ N_FontObject::~N_FontObject()
 
 
 IFontManager::IFontManager():
-	IFactory<N_FontObject>(1000),
-	IFactory<IDynamicText>(10000),
-	IFactory<IStaticText>(10000)
+	IFactory<N_FontObject>(5000),
+	IFactory<IDynamicText>(100000),
+	IFactory<IStaticText>(100000)
 {
 	mIsFTInitialized = FALSE;
 	m_FTLibrary		= nullptr;
@@ -35,17 +35,17 @@ IFontManager::IFontManager():
 
 IFontManager::~IFontManager()
 {
-	//FT faces will be deleted
+	//FT faces will be deleted, then erase font objects
 	IFactory<N_FontObject>::DestroyAllObject();
 	FT_Done_FreeType(m_FTLibrary);
 	m_pTexMgr->DeleteAllTexture();//font texture
 	m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
 
-	IFactory<IDynamicText>::DestroyAllObject();
 	IFactory<IStaticText>::DestroyAllObject();
+	IFactory<IDynamicText>::DestroyAllObject();
 }
 
-UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
+BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
 {
 
 	//open font file (.ttf ,etc.)
@@ -59,7 +59,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	if(IFactory<N_FontObject>::FindUid(fontName)==TRUE)
 	{
 			ERROR_MSG("CreateFont : Font Name has been used!");
-			return NOISE_MACRO_INVALID_ID;
+			return FALSE;
 	}
 
 
@@ -76,7 +76,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	if (ftCreateNewFaceErr)
 	{
 		ERROR_MSG("FontMgr : Create Font failed!");
-		return NOISE_MACRO_INVALID_ID;
+		return FALSE;
 	}
 	else
 	{
@@ -114,7 +114,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	if (createBitmapTableSucceed == FALSE)
 	{
 		ERROR_MSG("CreateFont : create bitmap table failed!!");
-		return NOISE_MACRO_INVALID_ID;
+		return FALSE;
 	}
 
 	//create a font obj and initialize
@@ -125,9 +125,7 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	pFontObj->mAsciiCharSizeList = std::move(tmpFontObj.mAsciiCharSizeList);
 	pFontObj->mInternalTextureName = std::move(tmpFontObj.mInternalTextureName);
 
-	UINT newFontIndex = IFactory<N_FontObject>::GetObjectID(pFontObj->mInternalTextureName);
-
-	return newFontIndex;
+	return TRUE;
 }
 
 BOOL	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
@@ -147,6 +145,11 @@ BOOL	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 	return FALSE;
 }
 
+BOOL IFontManager::IsFontExisted(N_UID fontName)
+{
+	return IFactory<N_FontObject>::FindUid(fontName);
+}
+
 IStaticText*	 IFontManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//conver WString to AsciiString
@@ -159,15 +162,21 @@ IStaticText*	 IFontManager::CreateStaticTextA(N_UID fontName, N_UID textObjectNa
 IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//check fontName if it repeats
-	if (IFactory<IStaticText>::FindUid(fontName) == TRUE)
+	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
 	{
 		ERROR_MSG("CreateStaticTextW:Font Name Invalid!!");
 		return nullptr;
 	}
 
+	if (IFactory<IStaticText>::FindUid(textObjectName) == TRUE)
+	{
+		ERROR_MSG("CreateStaticTextW: static Text UID existed!");
+		return nullptr;
+	}
+
+
 	//texture name in TexMgr
 	N_UID tmpTextureName="Internal_Static_Tex" +textObjectName;
-
 
 	//Create a pure color Texture
 	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
@@ -206,7 +215,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 
 	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
 	BOOL UpdateToGMSuccess = FALSE;
-	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
+	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(tmpTextureName);
 	if (!UpdateToGMSuccess)
 	{
 		ERROR_MSG("CreateStaticTextW : Create Text Bitmap failed!!");
@@ -218,7 +227,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	//------------initialize the graphic object of the TEXT------------
 	IStaticText* pText = IFactory<IStaticText>::CreateObject(textObjectName);
 
-	//create internal GObj for static Text
+	//create internal GraphicObj for static Text
 	N_UID tmpGraphicObjectName = "Internal_Static_GObj" + textObjectName;
 	IGraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
 	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
@@ -236,49 +245,52 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
 
-	//validate font ID
-	UINT validatedFontID = mFunction_ValidateFontID(fontID);
-	if (validatedFontID == NOISE_MACRO_INVALID_ID)
+	//check fontName if it repeats
+	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
 	{
-
-		ERROR_MSG("CreateDynamicText:Font ID Invalid!!");
+		ERROR_MSG("CreateDynamicTextA:Font Name Invalid!!");
 		return nullptr;
 	}
 
-	//Get texID of bitmap table (ID may change, but not name)
-	//UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mFontName);
-	UINT stringTextureID = m_pTexMgr->GetTextureID(m_pFontObjectList->at(fontID).mInternalTextureName);
 
+	if (IFactory<IDynamicText>::FindUid(textObjectName) == TRUE)
+	{
+		ERROR_MSG("CreateDynamicTextA: dynamic Text UID existed!");
+		return nullptr;
+	}
 
-	refText.mLineSpacingOffset = lineSpacingOffset;
-	refText.mWordSpacingOffset = wordSpacingOffset;
+	//create a dynamic text
+	IDynamicText* pText = IFactory<IDynamicText>::CreateObject(textObjectName);
+	if (pText == nullptr)
+	{
+		ERROR_MSG("CreateDynamicTextA: text ptr creation failed.");
+		return nullptr;
+	}
+
+	pText->mLineSpacingOffset = lineSpacingOffset;
+	pText->mWordSpacingOffset = wordSpacingOffset;
 
 	//use the internal init func of TEXT 
-	refText.mFontID = fontID;
-	refText.mCharBoundarySizeY= UINT(m_pFontObjectList->at(fontID).mFontSize);
-	refText.mCharBoundarySizeX= UINT(refText.mCharBoundarySizeY* m_pFontObjectList->at(fontID).mAspectRatio);
+	*(pText->m_pFontName) = fontName;
+	pText->mCharBoundarySizeY= UINT(IFactory<N_FontObject>::GetObjectPtr(fontName)->mFontSize);
+	pText->mCharBoundarySizeX= UINT(pText->mCharBoundarySizeY* IFactory<N_FontObject>::GetObjectPtr(fontName)->mAspectRatio);
 
 	//update TEXT content
-	*(refText.m_pTextContent) = contentString;
+	*(pText->m_pTextContent) = contentString;
 
 	//(the texture has been created for each font
 	//texture name in	TexMgr
-	std::stringstream tmpTextureName;
-	tmpTextureName << "AsciiBitmapTable" << fontID;//texture name generated with font ID
-	*(refText.m_pTextureName)= tmpTextureName.str();
+	std::string tmpTextureName= "AsciiBitmapTable" + fontName;//texture name generated with font ID
+	*(pText->m_pTextureName)= tmpTextureName;
 
 
 	//------------initialize the graphic object of the TEXT------------
-	//m_pFatherScene->CreateGraphicObject(*refText.m_pGraphicObj);
-	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
+	N_UID tmpGraphicObjectName = "Internal_Dyn_GObj" + textObjectName;
+	IGraphicObject* pObj = m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
-	//bind Text_Dynamic to MGR
-	m_pChildTextDynamic->push_back(&refText);
-	refText.m_pFatherFontMgr = this;
-	refText.SetStatusToBeInitialized();//life cycle
-
-	return m_pChildTextDynamic->size()-1;
+	return pText;
 }
 
 NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
@@ -301,6 +313,100 @@ BOOL IFontManager::DeleteFont(N_UID fontName)
 void IFontManager::DeleteAllFont()
 {
 	IFactory<N_FontObject>::DestroyAllObject();
+}
+
+BOOL IFontManager::DeleteStaticText(N_UID textName)
+{
+	// delete internal graphicObj and corresponding texture
+	IStaticText* pText=  IFactory<IStaticText>::GetObjectPtr(textName);
+	if (pText != nullptr)
+	{
+		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		IFactory<IStaticText>::DestroyObject(textName);
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+BOOL IFontManager::DeleteStaticText(IStaticText * pText)
+{
+	// delete internal graphicObj
+	if (pText != nullptr)
+	{
+		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		IFactory<IStaticText>::DestroyObject(pText);
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+BOOL IFontManager::DeleteDynamicText(N_UID textName)
+{
+	// delete internal graphicObj and corresponding texture
+	IDynamicText* pText = IFactory<IDynamicText>::GetObjectPtr(textName);
+	if (pText != nullptr)
+	{
+		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		IFactory<IDynamicText>::DestroyObject(textName);
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+BOOL IFontManager::DeleteDynamicText(IDynamicText * pText)
+{
+	// delete internal graphicObj and corresponding texture
+	if (pText != nullptr)
+	{
+		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		IFactory<IDynamicText>::DestroyObject(pText);
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+void IFontManager::DeleteAllTexts()
+{
+	//all texts own a private GObject
+	m_pGraphicObjMgr->DestroyAllGraphicObj();
+
+	for (UINT i = 0;i < IFactory<IStaticText>::GetObjectCount();++i)
+	{
+		//static text didn't use a public font texture(ascii bitmap table),instead,
+		//a new texture is created for each static text
+		IStaticText* pText = IFactory<IStaticText>::GetObjectPtr(i);
+		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		IFactory<IStaticText>::DestroyObject(pText);
+	}
+
+	IFactory<IDynamicText>::DestroyAllObject();
+
+}
+
+void IFontManager::DeleteAllFonts()
+{
+	for (UINT i = 0;i < IFactory<N_FontObject>::GetObjectCount();++i)
+	{
+		N_FontObject* pFontObj = IFactory<N_FontObject>::GetObjectPtr(i);
+		m_pTexMgr->DeleteTexture(pFontObj->mInternalTextureName);
+	}
+	IFactory<N_FontObject>::DestroyAllObject();
+
 }
 
 

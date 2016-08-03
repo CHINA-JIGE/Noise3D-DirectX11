@@ -399,8 +399,8 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 
 	//!!!!!materials have not been created. The Creation of materials will be done
 	//by current Scene Tex&Mat Manager	
-	IMaterialManager* pMatMgr = GetRoot()->GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
-	ITextureManager* pTexMgr = GetRoot()->GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
+	IMaterialManager* pMatMgr = GetRoot()->GetScenePtr()->GetMaterialMgr(); //m_pChildMaterialMgr;
+	ITextureManager* pTexMgr = GetRoot()->GetScenePtr()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
 
 	//Get the directory where the file locates
 	std::string modelFileDirectory = GetFileDirectory(pFilePath);

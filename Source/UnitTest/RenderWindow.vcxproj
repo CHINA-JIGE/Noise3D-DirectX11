@@ -45,7 +45,7 @@
     <IncludePath>$(SolutionDir)Source\Noise3D\;$(SolutionDir)ExternalLib\FreeType\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(ConfigurationName)\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Exec\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)temp\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Exec\$(Configuration)\</OutDir>

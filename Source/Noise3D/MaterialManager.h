@@ -51,8 +51,8 @@ namespace Noise3D
 	class /*_declspec(dllexport)*/ IMaterialManager
 	{
 	public:
-		friend  IScene;
-		friend  IRenderer;
+		friend  class IScene;
+		friend  class IRenderer;
 
 		//¹¹Ôìº¯Êý
 		IMaterialManager();

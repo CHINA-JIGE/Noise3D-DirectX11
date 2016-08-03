@@ -85,7 +85,6 @@ namespace Noise3D
 		NVECTOR2	mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint);
 
 	private:
-		IScene* m_pFatherScene;
 
 		//internal mesh generator
 		IGeometryMeshGenerator mMeshGenerator;

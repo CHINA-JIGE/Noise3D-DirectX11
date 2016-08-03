@@ -17,7 +17,6 @@ using namespace Noise3D;
 
 ICamera::ICamera()
 {
-	m_pFatherScene = NULL;
 	mRotateX_Pitch=0;
 	mRotateY_Yaw=0;
 	mRotateZ_Roll=0;

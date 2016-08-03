@@ -38,12 +38,13 @@ namespace Noise3D
 		public:
 			friend	class IScene;//create internal object
 			friend  class IRenderer;
-			//friend	class IDynamicText;
-			//friend	class IStaticText;
+			friend  IDynamicText;
 
-			UINT		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
+			BOOL		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
 
 			BOOL		SetFontSize(N_UID fontName, UINT  fontSize);
+
+			BOOL		IsFontExisted(N_UID fontName);
 
 			IStaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
 
@@ -51,7 +52,7 @@ namespace Noise3D
 
 			IDynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
 
-			NVECTOR2 GetFontSize(N_UID fontName);
+			NVECTOR2		GetFontSize(N_UID fontName);
 
 			BOOL		DeleteFont(N_UID fontName);
 
@@ -66,6 +67,8 @@ namespace Noise3D
 			BOOL		DeleteDynamicText(IDynamicText* pText);
 
 			void			DeleteAllTexts();
+
+			void			DeleteAllFonts();
 
 		private:
 			//init freetype library and internal objects , invoked by IScene

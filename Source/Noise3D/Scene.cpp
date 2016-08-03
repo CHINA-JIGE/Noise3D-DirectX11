@@ -43,6 +43,7 @@ void	IScene::ReleaseAllChildObject()
 	IFactory<ITextureManager>::DestroyAllObject();
 	IFactory<IMaterialManager>::DestroyAllObject();
 	IFactory<IAtmosphere>::DestroyAllObject();
+	IFactory<IGraphicObjectManager>::DestroyAllObject();
 }
 
 IMeshManager * IScene::GetMeshMgr()

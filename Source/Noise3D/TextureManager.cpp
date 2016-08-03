@@ -969,7 +969,6 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//create New Texture Object
 	HRESULT hr = S_OK;
-	UINT newTexIndex = NOISE_MACRO_INVALID_TEXTURE_ID;
 
 	//we must check if new name has been used
 	//count() will return 0 if given key dont exists

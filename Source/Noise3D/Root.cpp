@@ -11,7 +11,7 @@
 
 using namespace Noise3D;
 
-/*_declspec(dllexport)*/ Noise3D::IRoot* Noise3D::GetRoot()
+/*_declspec(dllexport)*/ IRoot* GetRoot()
 {
 	class IRootCreation :public IFactory<IRoot>
 	{

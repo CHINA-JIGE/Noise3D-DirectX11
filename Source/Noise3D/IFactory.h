@@ -100,13 +100,13 @@ namespace Noise3D
 				}
 				else
 				{
-					DEBUG_MSG("IFactory:Object UID existed");
+					ERROR_MSG("IFactory:Object UID existed");
 					return nullptr;
 				}
 			}
 			else
 			{
-				DEBUG_MSG("IFactory:Object Count Exceeded Limit");
+				ERROR_MSG("IFactory:Object Count Exceeded Limit");
 				return nullptr;
 			}
 		};
@@ -115,7 +115,7 @@ namespace Noise3D
 		{
 			if (objIndex < m_pChildObjectList->size())
 			{
-				return m_pChildObjectList->at(objIndex)->_pObjPtr;
+				return m_pChildObjectList->at(objIndex)._pObjPtr;
 			}
 			else
 			{
@@ -132,7 +132,7 @@ namespace Noise3D
 				UINT objIndex = iter->second;
 				if (objIndex < m_pChildObjectList->size())
 				{
-					return m_pChildObjectList->at(objIndex)->_pObjPtr;
+					return m_pChildObjectList->at(objIndex)._pObjPtr;
 				}
 				else
 				{
@@ -147,7 +147,7 @@ namespace Noise3D
 
 		inline UINT		GetObjectID(N_UID uid)
 		{
-			auto iter = m_pUidToIndexHashTable->find(objUID);
+			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
 			if (iter == m_pUidToIndexHashTable->cend())
 			{

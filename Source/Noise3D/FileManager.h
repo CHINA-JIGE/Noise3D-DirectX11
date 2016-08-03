@@ -8,6 +8,8 @@
 
 namespace Noise3D
 {
+	struct N_Material;
+
 		class /*_declspec(dllexport)*/ IFileManager
 		{
 		public:

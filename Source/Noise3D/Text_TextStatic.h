@@ -17,12 +17,16 @@ namespace Noise3D
 			friend class IRenderer;
 			friend class IFontManager;
 
-			IStaticText();
-
 			NVECTOR2 GetFontSize();
 
 
 		private:
+
+			friend IFactory<IStaticText>;
+
+			IStaticText();
+
+			~IStaticText();
 
 			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
 

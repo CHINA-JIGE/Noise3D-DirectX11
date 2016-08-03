@@ -16,17 +16,15 @@ namespace Noise3D
 			friend class IRenderer;
 			friend class IFontManager;
 
-			IDynamicText();
-
 			void		SetWidth(float w);
 
 			void		SetHeight(float h);
 
-			void		SetFont(UINT fontID);
+			void		SetFont(N_UID fontName);
 
-			UINT		GetFontID();
+			N_UID		GetFontName();
 
-			void		SetTextAscii(std::string newText);
+			void		SetTextAscii(const std::string& newText);
 
 			void		GetTextAscii(std::string& outString);
 
@@ -46,21 +44,24 @@ namespace Noise3D
 
 		private:
 
-			void	Destroy();
+			friend IFactory<IDynamicText>;
 
-			void	mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVECTOR4 color, UINT texID);
+			IDynamicText();
+
+			~IDynamicText();
+
+			void	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(IGraphicObject* pCreatedObj, UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
 
 			void  NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//by renderer
 
 		private:
 
-			UINT					mFontID;
-			UINT					mStringTextureID;
+			N_UID*					m_pFontName;
 			UINT					mCharBoundarySizeX;//updated when SetFontID
 			UINT					mCharBoundarySizeY;
 			int					mWordSpacingOffset;
 			int					mLineSpacingOffset;
-			std::string*		m_pTextureName;//which bitmap texture to refer to
+			N_UID*				m_pTextureName;//which bitmap texture to refer to
 			std::string*		m_pTextContent;//the target "string"
 			BOOL				mIsTextContentChanged;
 			BOOL				mIsSizeChanged;
