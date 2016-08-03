@@ -40,9 +40,9 @@ namespace Noise3D
 
 		BOOL		DeletePointLightD(IPointLightD* pLight);
 
-		BOOL		DeleteSpotLightD(ISpotLightD* pLight);
-
 		BOOL		DeleteSpotLightD(N_UID lightName);
+
+		BOOL		DeleteSpotLightD(ISpotLightD* pLight);
 
 
 		BOOL		DeleteDirLightS(N_UID lightName);

@@ -17,14 +17,9 @@ namespace Noise3D
 		public IFactory<ITextureManager>,
 		public IFactory<IMaterialManager>,
 		public IFactory<IGraphicObjectManager>,
-		public IFactory<IAtmosphere>
+		public IFactory<IAtmosphere>,
+		public IFactory<IFontManager>
 	{
-		/*friend class IMesh;
-		friend class IRenderer;
-		friend class ICamera;
-		friend class IMaterialManager;
-		friend class ITextureManager;
-		friend class IAtmosphere;*/
 
 	public:
 
@@ -46,6 +41,8 @@ namespace Noise3D
 
 		IGraphicObjectManager*		GetGraphicObjMgr();
 
+		IFontManager*				GetFontMgr();
+
 	private:
 
 		friend class IFactory<IScene>;
@@ -53,6 +50,11 @@ namespace Noise3D
 		IScene();
 
 		~IScene();
+
+		//a font manager has a texMgr/GObjMgr as internal objects
+		ITextureManager*				mFunction_GetTexMgrInsideFontMgr();
+
+		IGraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
 
 	};
 

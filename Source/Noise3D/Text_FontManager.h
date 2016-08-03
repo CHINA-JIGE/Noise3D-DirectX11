@@ -17,63 +17,79 @@ namespace Noise3D
 
 		struct N_FontObject
 		{
+			N_FontObject();
+
+			~N_FontObject();
+
 			FT_Face		mFtFace;
-			UINT				mFontSize;
+			UINT			mFontSize;
 			float				mAspectRatio;
-			std::string		mFontName;//used by GetFontID;
-			std::string		mInternalTextureName;//name in texture mgr
+			std::string		mInternalTextureName;//name in font mgr texture mgr
 			std::vector	<NVECTOR2>	mAsciiCharSizeList;//elements will be added in GetBitmapOfChar
 
-			//UINT				mAsciiBitmapTableTextureID; should be updated by TexMgr:GetTextureID
 		};
 
 
 		class /*_declspec(dllexport)*/ IFontManager
+			:public IFactory<N_FontObject>,
+			public IFactory<IDynamicText>,
+			public IFactory<IStaticText>
 		{
 		public:
-			friend   class IRenderer;
-			friend	class IDynamicText;
-			friend	class IStaticText;
+			friend	class IScene;//create internal object
+			friend  class IRenderer;
+			//friend	class IDynamicText;
+			//friend	class IStaticText;
 
+			UINT		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
 
-			BOOL	Initialize();
+			BOOL		SetFontSize(N_UID fontName, UINT  fontSize);
 
-			UINT		CreateFontFromFile(NFilePath filePath, const char* fontName, UINT fontSize, float fontAspectRatio = 0.707f);
+			IStaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
 
-			BOOL	SetFontSize(UINT fontID, UINT  fontSize);
+			IStaticText*			CreateStaticTextW(N_UID fontName,  N_UID textObjectName,std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
 
-			UINT		InitStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, IStaticText& pText);
+			IDynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
 
-			UINT		InitStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, IStaticText& pText);
+			NVECTOR2 GetFontSize(N_UID fontName);
 
-			UINT		InitDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, IDynamicText& pText);
+			BOOL		DeleteFont(N_UID fontName);
 
-			UINT		GetFontID(std::string fontName);
+			void			DeleteAllFont();
 
-			NVECTOR2 GetFontSize(UINT fontID);
+			BOOL		DeleteStaticText(N_UID textName);
+
+			BOOL		DeleteStaticText(IStaticText* pText);
+
+			BOOL		DeleteDynamicText(N_UID textName);
+
+			BOOL		DeleteDynamicText(IDynamicText* pText);
+
+			void			DeleteAllTexts();
 
 		private:
-			//init freetype library
-			BOOL	mFunction_InitFreeType();
-			//didn't validate fontID
-			void		mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
-			//used for creating Bitmap Table
-			void		mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
-			//......
-			UINT		mFunction_ValidateFontID(UINT fontID);
+			//init freetype library and internal objects , invoked by IScene
+			BOOL	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
+			//get bitmap of a single WCHAR
+			void			mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
+			//used for creating Bitmap Table (combining char pixel blocks)
+			void			mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
 			//Use GetBitmapOfString() to create ascii bitmap table
-			UINT		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj, UINT charWidth, UINT charHeight);
+			BOOL		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 
 		private:
+
+			friend IFactory<IFontManager>;
+
 			IFontManager();
 
 			~IFontManager();
 
-			Noise3D::ITextureManager*		m_pTexMgr;//internal texture manager (ascii bitmap table/static Bitmap)
-			FT_Library			m_FTLibrary;
-			BOOL				mIsFTInitialized;
-			std::vector<N_FontObject>*					m_pFontObjectList;
-			std::vector<IDynamicText*>*		m_pChildTextDynamic;
-			std::vector<IStaticText*>*			m_pChildTextStatic;
+			ITextureManager*				m_pTexMgr;//created by IScene, internal texture manager (ascii bitmap table/static Bitmap)
+			IGraphicObjectManager*	m_pGraphicObjMgr;//Created by IScene, assign GObj to every TextObj
+
+			FT_Library					m_FTLibrary;
+			BOOL							mIsFTInitialized;
+
 		};
 }

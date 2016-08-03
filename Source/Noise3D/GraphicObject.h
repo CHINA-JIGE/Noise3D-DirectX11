@@ -16,8 +16,8 @@ namespace Noise3D
 
 	struct N_GraphicObject_SubsetInfo
 	{
-		N_GraphicObject_SubsetInfo() { ZeroMemory(this, sizeof(*this));texID = NOISE_MACRO_INVALID_TEXTURE_ID; }
-		UINT texID;
+		N_GraphicObject_SubsetInfo() {startID=vertexCount=0; }
+		N_UID texName;
 		UINT startID;
 		UINT vertexCount;
 	};
@@ -42,9 +42,9 @@ namespace Noise3D
 
 		UINT		AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT		AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+		UINT		AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName = "");
 
-		UINT		AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+		UINT		AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName = "");
 
 		void		AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount);
 
@@ -58,9 +58,9 @@ namespace Noise3D
 
 		void		SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+		void		SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName);
 
-		void		SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID = NOISE_MACRO_INVALID_TEXTURE_ID);
+		void		SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName);
 
 		void		SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft, NVECTOR2 texCoordBottomRight);
 
@@ -142,7 +142,7 @@ namespace Noise3D
 
 	private:
 
-		UINT						mVB_ByteSize_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
+		UINT					mVB_ByteSize_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
 		ID3D11Buffer*		m_pVB_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
@@ -153,7 +153,7 @@ namespace Noise3D
 		NVECTOR2*			m_pBaseScreenSpacePosOffset;
 
 		//used to store TexID of rectangles
-		std::vector<UINT>*			m_pTextureList_Rect;
+		std::vector<N_UID>*			m_pTextureUidList_Rect;
 
 		std::vector<N_GraphicObject_SubsetInfo>*	m_pRectSubsetInfoList;
 

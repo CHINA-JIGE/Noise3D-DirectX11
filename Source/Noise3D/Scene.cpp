@@ -22,7 +22,8 @@ IScene::IScene():
 	 IFactory<ITextureManager>(1),
 	 IFactory<IMaterialManager>(1),
 	IFactory<IGraphicObjectManager>(1),
-	 IFactory<IAtmosphere>(1)
+	 IFactory<IAtmosphere>(1),
+	IFactory<IFontManager>(1)
 {
 
 }
@@ -31,6 +32,7 @@ IScene::~IScene()
 {
 	ReleaseAllChildObject();
 }
+
 
 void	IScene::ReleaseAllChildObject()
 {
@@ -45,8 +47,8 @@ void	IScene::ReleaseAllChildObject()
 
 IMeshManager * IScene::GetMeshMgr()
 {
-	static const N_UID uid = "myMeshMgr";
-	if (IFactory<IMeshManager>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneMeshMgr";
+	if (IFactory<IMeshManager>::FindUid(uid) == FALSE)
 	{
 		IFactory<IMeshManager>::CreateObject(uid);
 	}
@@ -56,8 +58,8 @@ IMeshManager * IScene::GetMeshMgr()
 
 IRenderer * IScene::GetRenderer()
 {
-	static const N_UID uid = "myRenderer";
-	if (IFactory<IRenderer>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneRenderer";
+	if (IFactory<IRenderer>::FindUid(uid) == FALSE)
 	{
 		IRenderer* pRd = IFactory<IRenderer>::CreateObject(uid);
 
@@ -79,8 +81,8 @@ IRenderer * IScene::GetRenderer()
 
 ICamera * IScene::GetCamera()
 {
-	static const N_UID uid = "myCamera";
-	if (IFactory<ICamera>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneCamera";
+	if (IFactory<ICamera>::FindUid(uid) == FALSE)
 	{
 		IFactory<ICamera>::CreateObject(uid);
 	}
@@ -89,8 +91,8 @@ ICamera * IScene::GetCamera()
 
 ILightManager * IScene::GetLightMgr()
 {
-	static const N_UID uid = "myLightMgr";
-	if (IFactory<ILightManager>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneLightMgr";
+	if (IFactory<ILightManager>::FindUid(uid) == FALSE)
 	{
 		IFactory<ILightManager>::CreateObject(uid);
 	}
@@ -99,8 +101,8 @@ ILightManager * IScene::GetLightMgr()
 
 ITextureManager * IScene::GetTextureMgr()
 {
-	static const N_UID uid = "myTexMgr";
-	if (IFactory<ITextureManager>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneTexMgr";
+	if (IFactory<ITextureManager>::FindUid(uid) == FALSE)
 	{
 		IFactory<ITextureManager>::CreateObject(uid);
 	}
@@ -109,8 +111,8 @@ ITextureManager * IScene::GetTextureMgr()
 
 IMaterialManager * IScene::GetMaterialMgr()
 {
-	static const N_UID uid = "myMatMgr";
-	if (IFactory<IMaterialManager>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneMatMgr";
+	if (IFactory<IMaterialManager>::FindUid(uid) == FALSE)
 	{
 		IFactory<IMaterialManager>::CreateObject(uid);
 	}
@@ -119,8 +121,8 @@ IMaterialManager * IScene::GetMaterialMgr()
 
 IAtmosphere * IScene::GetAtmosphere()
 {
-	static const N_UID uid = "myAtmos";
-	if (IFactory<IAtmosphere>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneAtmos";
+	if (IFactory<IAtmosphere>::FindUid(uid) == FALSE)
 	{
 		IFactory<IAtmosphere>::CreateObject(uid);
 	}
@@ -129,12 +131,38 @@ IAtmosphere * IScene::GetAtmosphere()
 
 IGraphicObjectManager * IScene::GetGraphicObjMgr()
 {
-	static const N_UID uid = "myGObjMgr";
-	if (IFactory<IGraphicObjectManager>::GetObjectCount() == 0)
+	static const N_UID uid = "sceneGObjMgr";
+	if (IFactory<IGraphicObjectManager>::FindUid(uid) == FALSE)
 	{
 		IFactory<IGraphicObjectManager>::CreateObject(uid);
 	}
 	return IFactory<IGraphicObjectManager>::GetObjectPtr(uid);
+}
+
+IFontManager * IScene::GetFontMgr()
+{
+	static const N_UID uid = "sceneFontMgr";
+	if (IFactory<IFontManager>::FindUid(uid) == FALSE)
+	{
+		IFontManager* pFontMgr = IFactory<IFontManager>::CreateObject(uid);
+
+		//init of FreeType, internal TexMgr,GraphicObjMgr
+		auto pTexMgr = mFunction_GetTexMgrInsideFontMgr();
+		auto pGObjMgr = mFunction_GetGObjMgrInsideFontMgr();
+
+		BOOL isSucceeded = pFontMgr->mFunction_Init(pTexMgr,pGObjMgr);
+		if (isSucceeded)
+		{
+			return pFontMgr;
+		}
+		else
+		{
+			IFactory<IFontManager>::DestroyObject(uid);
+			ERROR_MSG("IScene: Renderer Initialization failed.");
+			return nullptr;
+		}
+	}
+	return IFactory<IFontManager>::GetObjectPtr(uid);
 }
 
 
@@ -142,3 +170,25 @@ IGraphicObjectManager * IScene::GetGraphicObjMgr()
 /************************************************************************
                                           P R I V A T E                       
 ************************************************************************/
+
+ITextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
+{
+	//get internal texMgr singleton instance
+	static const N_UID uid = "TexMgrOfFont";
+	if (IFactory<ITextureManager>::FindUid(uid) == FALSE)
+	{
+		IFactory<ITextureManager>::CreateObject(uid);
+	}
+	return IFactory<ITextureManager>::GetObjectPtr(uid);
+}
+
+IGraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
+{
+	//get internal GObjMgr singleton instance
+	static const N_UID uid = "GObjMgrOfFont";
+	if (IFactory<IGraphicObjectManager>::FindUid(uid) == FALSE)
+	{
+		IFactory<IGraphicObjectManager>::CreateObject(uid);
+	}
+	return IFactory<IGraphicObjectManager>::GetObjectPtr(uid);
+}

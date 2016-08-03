@@ -37,7 +37,7 @@ IGraphicObject::IGraphicObject()
 	}
 
 	m_pBaseScreenSpacePosOffset = new NVECTOR2(0, 0);
-	m_pTextureList_Rect = new std::vector<UINT>;
+	m_pTextureUidList_Rect = new std::vector<N_UID>;
 	m_pRectSubsetInfoList= new std::vector<N_GraphicObject_SubsetInfo>;
 }
 
@@ -168,7 +168,7 @@ UINT IGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTO
 	return GetTriangle2DCount() - 1;
 }
 
-UINT IGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color,UINT texID)
+UINT IGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
@@ -187,17 +187,17 @@ UINT IGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTO
 	);
 
 	//add TextureID
-	m_pTextureList_Rect->push_back(texID);
+	m_pTextureUidList_Rect->push_back(texName);
 
 	//return ID of Rectangle
 	return GetRectCount()-1;
 }
 
-UINT IGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
+UINT IGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	UINT newRectID = NOISE_MACRO_INVALID_ID;
-	newRectID = AddRectangle(vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color, texID);
+	newRectID = AddRectangle(vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color, texName);
 	return newRectID;
 }
 
@@ -332,7 +332,7 @@ void	IGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 	);
 }
 
-void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, UINT texID)
+void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName)
 {
 	//index mean the 'index'th rectangle
 
@@ -352,9 +352,9 @@ void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBotto
 	NVECTOR2 vBottomLeft = NVECTOR2(vTopLeft.x, vBottomRight.y);
 
 	//modify TextureID
-	if (texID != m_pTextureList_Rect->at(index))
+	if (texName != m_pTextureUidList_Rect->at(index))
 	{
-		m_pTextureList_Rect->at(index) = texID;
+		m_pTextureUidList_Rect->at(index) = texName;
 		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
 	}
 
@@ -377,10 +377,10 @@ void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBotto
 
 }
 
-void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, UINT texID)
+void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
-	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texID);
+	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texName);
 }
 
 void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
@@ -535,8 +535,8 @@ void	IGraphicObject::DeleteRectangle(UINT index)
  		mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D, vertexStartIndex, vertexCount);
 
 		//erase texture info
-		auto tmpIter = m_pTextureList_Rect->begin()+index;
-		m_pTextureList_Rect->erase(tmpIter);
+		auto tmpIter = m_pTextureUidList_Rect->begin()+index;
+		m_pTextureUidList_Rect->erase(tmpIter);
 	}
 	else
 	{
@@ -562,9 +562,9 @@ void IGraphicObject::DeleteRectangle(UINT startID, UINT endID)
 		mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D, vertexStartIndex, vertexCount);
 
 		//erase texture info
-		auto iterStart = m_pTextureList_Rect->begin() + startID;
-		auto iterEnd = m_pTextureList_Rect->begin() + endID;
-		m_pTextureList_Rect->erase(iterStart,iterEnd);
+		auto iterStart = m_pTextureUidList_Rect->begin() + startID;
+		auto iterEnd = m_pTextureUidList_Rect->begin() + endID;
+		m_pTextureUidList_Rect->erase(iterStart,iterEnd);
 	}
 	else
 	{
@@ -979,21 +979,21 @@ void		IGraphicObject::mFunction_GenerateRectSubsetInfo()
 	m_pRectSubsetInfoList->clear();
 
 	//ignore empty vertex buffer
-	if (m_pTextureList_Rect->size() == 0)return;
+	if (m_pTextureUidList_Rect->size() == 0)return;
 
 
 	//init the first subset (at least 1 element)
 	N_GraphicObject_SubsetInfo newSubset;
 	newSubset.vertexCount = 6;//6 ver for 1 rect
 	newSubset.startID = 0;
-	newSubset.texID = m_pTextureList_Rect->at(0);
+	newSubset.texName = m_pTextureUidList_Rect->at(0);
 	m_pRectSubsetInfoList->push_back(newSubset);
 
 	//1 UINT for 1 Rect,6 vertices
-	for (UINT i = 1;i < m_pTextureList_Rect->size();i++)
+	for (UINT i = 1;i < m_pTextureUidList_Rect->size();i++)
 	{
 		//region growing
-		if (m_pTextureList_Rect->at(i) == m_pRectSubsetInfoList->back().texID)
+		if (m_pTextureUidList_Rect->at(i) == m_pRectSubsetInfoList->back().texName)
 		{
 			m_pRectSubsetInfoList->back().vertexCount+=6;
 		}
@@ -1001,7 +1001,7 @@ void		IGraphicObject::mFunction_GenerateRectSubsetInfo()
 		{
 			newSubset.startID = i*6;
 			newSubset.vertexCount = 6;
-			newSubset.texID = m_pTextureList_Rect->at(i);
+			newSubset.texName = m_pTextureUidList_Rect->at(i);
 			m_pRectSubsetInfoList->push_back(newSubset);
 		}
 

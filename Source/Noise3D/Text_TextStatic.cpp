@@ -9,37 +9,37 @@ using namespace Noise3D;
 
 IStaticText::IStaticText()
 {
-	m_pTextureName = new std::string;
-
+	m_pTextureName = new N_UID;
+	m_pFontName = new N_UID;
 }
 
-NVECTOR2 IStaticText::GetFontSize(UINT fontID)
+NVECTOR2 IStaticText::GetFontSize()
 {
-	if (!IsInitialized())return NVECTOR2(0, 0);
-	return m_pFatherFontMgr->GetFontSize(fontID);
+	//this is static text, font size is fixed when created. font name was recorded,
+	//thus we can query font size from FontMgr
+	IFontManager* pFontMgr = GetRoot()->GetScene()->GetFontMgr();
+	return pFontMgr->GetFontSize(*m_pFontName);
 }
 
-void IStaticText::Destroy()
-{
-	m_pGraphicObj->SelfDestruction();
-};
 
 /************************************************************************
 											P R I V A T E
 ************************************************************************/
 
-void IStaticText::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight,NVECTOR4 color,UINT texID)
+void IStaticText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight,NVECTOR4 color,N_UID texName)
 {
+
+	m_pGraphicObj = pCreatedObj;
+	*m_pTextureName = texName;
 
 	m_pGraphicObj->AddRectangle(
 		NVECTOR2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
 		float(pxWidth),
 		float(pxHeight),
 		color,
-		texID
+		texName
 		);
 
-	mStringTextureID = texID;
 	*m_pTextColor = color;
 	*m_pTextGlowColor = color;
 	CBasicContainerInfo::SetWidth(float(pxWidth));
@@ -48,16 +48,14 @@ void IStaticText::mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight,NVECTO
 
 void IStaticText::mFunction_UpdateGraphicObject()
 {
-
 	//in case other font has been deleted 
-	UINT stringTexID = mStringTextureID;
 
 	m_pGraphicObj->SetRectangle(
 		0,
 		CBasicContainerInfo::GetTopLeft(),
 		CBasicContainerInfo::GetBottomRight(),
 		NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f),
-		stringTexID
+		*m_pTextureName
 		);
 
 	//rectangle depth,used for 2D overlapping

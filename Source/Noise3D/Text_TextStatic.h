@@ -19,20 +19,18 @@ namespace Noise3D
 
 			IStaticText();
 
-			NVECTOR2 GetFontSize(UINT fontID);
+			NVECTOR2 GetFontSize();
 
 
 		private:
 
-			void		Destroy();
+			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
 
-			void		mFunction_InitGraphicObject(UINT pxWidth, UINT pxHeight, NVECTOR4 color, UINT texID);
-
-			void		NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//extern call by renderer
+			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();//extern call by renderer
 
 		private:
 
-			UINT					mStringTextureID;//to avoid performance overhead caused by GetTextureID;
-			std::string*		m_pTextureName;//which bitmap texture to refer to
+			N_UID*				m_pTextureName;//which bitmap texture to refer to
+			N_UID*				m_pFontName;
 		};
 }

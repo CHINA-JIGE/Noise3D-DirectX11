@@ -211,7 +211,6 @@ UINT	ILightManager::GetStaticLightCount()
 	return IFactory<IDirLightS>::GetObjectCount() + IFactory<IPointLightS>::GetObjectCount() + IFactory<ISpotLightS>::GetObjectCount();
 };
 
-
 UINT	ILightManager::GetTotalLightCount()
 {
 	return GetDynamicLightCount() + GetStaticLightCount();

@@ -145,7 +145,7 @@ namespace Noise3D
 			}
 		}
 
-		inline UINT	GetObjectID(N_UID uid)
+		inline UINT		GetObjectID(N_UID uid)
 		{
 			auto iter = m_pUidToIndexHashTable->find(objUID);
 			//need to assure that UID don't conflict
@@ -168,10 +168,22 @@ namespace Noise3D
 			}
 		}
 
-		inline UINT	GetObjectCount() 
+		inline UINT		GetObjectCount() 
 		{
 			return m_pChildObjectList->size();
 		}
+
+		inline BOOL		FindUid(N_UID uid)
+		{
+			if (m_pUidToIndexHashTable->find(uid) != m_pUidToIndexHashTable->end())
+			{
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		};
 
 		BOOL	DestroyObject(UINT objIndex)
 		{

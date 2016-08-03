@@ -35,7 +35,6 @@ namespace Noise3D
 		public IFactory<N_TextureObject>
 	{
 	public:
-		friend class IScene;
 		friend class IRenderer;
 		friend class IFontManager;//Let it Create\Access bitmap table Texture
 

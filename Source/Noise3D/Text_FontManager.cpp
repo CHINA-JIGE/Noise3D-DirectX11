@@ -10,84 +10,45 @@
 
 using namespace Noise3D;
 
-IFontManager::IFontManager()
+N_FontObject::N_FontObject()
+{
+	mFontSize = 10;
+	mAspectRatio= 1.0f / 1.414f;
+}
+
+N_FontObject::~N_FontObject()
+{
+	FT_Done_Face(mFtFace);
+	mAsciiCharSizeList.clear();
+};
+
+
+IFontManager::IFontManager():
+	IFactory<N_FontObject>(1000),
+	IFactory<IDynamicText>(10000),
+	IFactory<IStaticText>(10000)
 {
 	mIsFTInitialized = FALSE;
 	m_FTLibrary		= nullptr;
 	m_pTexMgr = new ITextureManager;
-	m_pFontObjectList = new std::vector<N_FontObject>;
-	m_pChildTextDynamic = new std::vector<IDynamicText*>;
-	m_pChildTextStatic = new std::vector<IStaticText*>;
 }
 
 IFontManager::~IFontManager()
 {
-
-	for (auto face : *m_pFontObjectList)
-	{
-		FT_Done_Face(face.mFtFace);
-	}
-
+	//FT faces will be deleted
+	IFactory<N_FontObject>::DestroyAllObject();
 	FT_Done_FreeType(m_FTLibrary);
-	m_pTexMgr->SelfDestruction();
+	m_pTexMgr->DeleteAllTexture();//font texture
+	m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
 
-	for (auto text : *m_pChildTextDynamic)
-	{
-		text->SelfDestruction();
-	}
-	for (auto text : *m_pChildTextStatic)
-	{
-		text->SelfDestruction();
-	}
+	IFactory<IDynamicText>::DestroyAllObject();
+	IFactory<IStaticText>::DestroyAllObject();
 }
 
-BOOL IFontManager::Initialize()
-{
-	BOOL isFTInitSucceeded=mFunction_InitFreeType();
-	if (!isFTInitSucceeded)
-	{
-		ERROR_MSG("Font Manager Initialize failed!!");
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-void IFontManager::Destroy()
+UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
 {
 
-		for (auto face : *m_pFontObjectList)
-		{
-			FT_Done_Face(face.mFtFace);
-		}
-
-		FT_Done_FreeType(m_FTLibrary);
-		m_pTexMgr->SelfDestruction();
-
-		for (auto text : *m_pChildTextDynamic)
-		{
-			text->SelfDestruction();
-		}
-		for (auto text : *m_pChildTextStatic)
-		{
-			text->SelfDestruction();
-		}
-};
-
-
-UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName, UINT fontSize, float fontAspectRatio)
-{
-	if (!mIsFTInitialized)
-	{
-		BOOL initSuccessful = mFunction_InitFreeType();
-		//failed re-init
-		if (!initSuccessful)
-		{
-			ERROR_MSG("FontMgr : Re-initialized failed!");
-			return NOISE_MACRO_INVALID_ID;
-		}
-	}
-
+	//open font file (.ttf ,etc.)
 	std::fstream tmpFile(filePath);
 	if (!tmpFile.is_open())
 	{
@@ -95,22 +56,15 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 	}
 
 	//font name must not be used
-	for (auto fontObj : *m_pFontObjectList)
+	if(IFactory<N_FontObject>::FindUid(fontName)==TRUE)
 	{
-		//string cmp
-		if (fontObj.mFontName == std::string(fontName))
-		{
 			ERROR_MSG("CreateFont : Font Name has been used!");
 			return NOISE_MACRO_INVALID_ID;
-		}
 	}
 
 
-		//....
-		N_FontObject	tmpFontObj;
-		tmpFontObj.mFontName = fontName;
-		tmpFontObj.mFontSize = fontSize;
-		tmpFontObj.mAspectRatio = fontAspectRatio;
+	//temporary font object
+	N_FontObject tmpFontObj;//too many thing to pass down, so pass a ref of fontObj might be a good idea
 
 	//Create a FT_Face (to store font/char  info)
 	FT_Error ftCreateNewFaceErr = FT_New_Face(
@@ -119,18 +73,19 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 		0,		//which style	,	regular/italic/bold/italic_bold (maybe available)
 		&tmpFontObj.mFtFace);
 
-		if (ftCreateNewFaceErr)
+	if (ftCreateNewFaceErr)
 	{
 		ERROR_MSG("FontMgr : Create Font failed!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 	else
 	{
+		//
 		mIsFTInitialized = TRUE;
 	};
 
-	//font size should be multiplied by 64 .... I don't know why but it's how it works
 	FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
+	//font size should be multiplied by 64 .... I don't know why but it's how it works
 	//FT_Set_Char_Size(tmpFontObj.mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
 
 
@@ -147,34 +102,44 @@ UINT	 IFontManager::CreateFontFromFile(NFilePath filePath, const char * fontName
 	FT_Set_Transform(tmpFontObj.mFtFace, &fontTransMatrix, &pen);
 
 
+
 	//------------new Font Object--------------
 	//Create Bitmap Table
-	UINT bitmapTableTexID = mFunction_CreateTexture_AsciiBitmapTable(
+	BOOL createBitmapTableSucceed = mFunction_CreateTexture_AsciiBitmapTable(
 		tmpFontObj,
+		fontName,
 		UINT(fontSize*fontAspectRatio),
 		fontSize);//bitmap size (height) for 1 ascii char
 
-	if (bitmapTableTexID == NOISE_MACRO_INVALID_ID)
+	if (createBitmapTableSucceed == FALSE)
 	{
 		ERROR_MSG("CreateFont : create bitmap table failed!!");
 		return NOISE_MACRO_INVALID_ID;
 	}
 
-	m_pFontObjectList->push_back(tmpFontObj);
-	UINT newFontIndex = m_pFontObjectList->size() - 1;
+	//create a font obj and initialize
+	N_FontObject* pFontObj = IFactory<N_FontObject>::CreateObject(fontName);
+	pFontObj->mFontSize = fontSize;
+	pFontObj->mAspectRatio = fontAspectRatio;
+	pFontObj->mFtFace = tmpFontObj.mFtFace;
+	pFontObj->mAsciiCharSizeList = std::move(tmpFontObj.mAsciiCharSizeList);
+	pFontObj->mInternalTextureName = std::move(tmpFontObj.mInternalTextureName);
+
+	UINT newFontIndex = IFactory<N_FontObject>::GetObjectID(pFontObj->mInternalTextureName);
 
 	return newFontIndex;
 }
 
-BOOL IFontManager::SetFontSize(UINT fontID, UINT  fontSize)
+BOOL	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 {
-	if (mFunction_ValidateFontID(fontID) != NOISE_MACRO_INVALID_ID)
+	if (IFactory<N_FontObject>::FindUid(fontName)==FALSE)
 	{
 		if (fontSize < 4)fontSize = 4;
-		m_pFontObjectList->at(fontID).mFontSize = fontSize;
+		auto pFontObj = IFactory<N_FontObject>::GetObjectPtr(fontName);
+		pFontObj->mFontSize = fontSize;
 		//font size should be multiplied by 64 .... I don't know why but it's how it works
 		//FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
-		FT_Set_Char_Size(m_pFontObjectList->at(fontID).mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
+		FT_Set_Char_Size(pFontObj->mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
 
 
 		return TRUE;
@@ -182,43 +147,32 @@ BOOL IFontManager::SetFontSize(UINT fontID, UINT  fontSize)
 	return FALSE;
 }
 
-UINT	 IFontManager::InitStaticTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, IStaticText & refText)
+IStaticText*	 IFontManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
-	UINT returnedTextID = NOISE_MACRO_INVALID_ID;
+	//conver WString to AsciiString
 	std::wstring tmpWString;
-	tmpWString.assign(targetString.begin(), targetString.end());
-	returnedTextID = InitStaticTextW(fontID, tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset, refText);
-	return returnedTextID;
+	tmpWString.assign(contentString.begin(), contentString.end());
+	IStaticText* pText = CreateStaticTextW(fontName, textObjectName,tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset);
+	return pText;
 };
 
-UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset, IStaticText& refText)
+IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
-	//dynamic text use bitmap table & texture coordinate to  render text
-	if (refText.IsInitialized())
+	//check fontName if it repeats
+	if (IFactory<IStaticText>::FindUid(fontName) == TRUE)
 	{
-		ERROR_MSG("Object Has Been Initialized!");
-		return NOISE_MACRO_INVALID_ID;
+		ERROR_MSG("CreateStaticTextW:Font Name Invalid!!");
+		return nullptr;
 	}
 
+	//texture name in TexMgr
+	N_UID tmpTextureName="Internal_Static_Tex" +textObjectName;
 
-
-	//validate font ID
-	UINT validatedFontID = mFunction_ValidateFontID(fontID);
-	if (validatedFontID == NOISE_MACRO_INVALID_ID)
-	{
-		refText.Destroy();
-		ERROR_MSG("InitStaticTextW:Font ID Invalid!!");
-		return NOISE_MACRO_INVALID_ID;
-	}
-
-	//texture name in	TexMgr
-	std::stringstream tmpTextureName;
-	tmpTextureName << "Internal_StaticTextTexture" << (m_pTexMgr->m_pTextureObjectList->size()-1);//texture name generated with font ID
 
 	//Create a pure color Texture
 	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
 	stringTextureID = m_pTexMgr->CreatePureColorTexture(
-		tmpTextureName.str().c_str(),
+		tmpTextureName,
 		boundaryWidth,
 		boundaryHeight,
 		NVECTOR4(0, 0, 0, 0),
@@ -228,16 +182,15 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	//check if texture creation success
 	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
-		refText.Destroy();
-		ERROR_MSG("InitStaticTextW : Create Bitmap Table Texture failed!");
-		return NOISE_MACRO_INVALID_ID;
+		ERROR_MSG("CreateStaticTextW : Create Bitmap Table Texture failed!");
+		return nullptr;
 	}
 
 	//now get the whole bitmap from user-input string
 	N_Font_Bitmap tmpFontBitmap;
 	mFunction_GetBitmapOfString(
-		m_pFontObjectList->at(fontID),//font ID validated
-		targetString,
+		*IFactory<N_FontObject>::GetObjectPtr(fontName),//font ID validated
+		contentString,
 		boundaryWidth,
 		boundaryHeight,
 		textColor,
@@ -246,7 +199,7 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 		0);
 
 	//copy bitmap to texture 
-	m_pTexMgr->m_pTextureObjectList->at(stringTextureID).mPixelBuffer.assign(
+	m_pTexMgr->GetObjectPtr(tmpTextureName)->mPixelBuffer.assign(
 		tmpFontBitmap.bitmapBuffer.begin(),
 		tmpFontBitmap.bitmapBuffer.end()
 		);
@@ -256,45 +209,40 @@ UINT	 IFontManager::InitStaticTextW(UINT fontID, std::wstring targetString, UINT
 	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
 	if (!UpdateToGMSuccess)
 	{
-		refText.Destroy();
-		ERROR_MSG("InitStaticTextW : Create Text Bitmap failed!!");
-		m_pTexMgr->DeleteTexture(stringTextureID);
-		return NOISE_MACRO_INVALID_ID;
+		ERROR_MSG("CreateStaticTextW : Create Text Bitmap failed!!");
+		m_pTexMgr->DeleteTexture(tmpTextureName);
+		return nullptr;
 	}
 
 
 	//------------initialize the graphic object of the TEXT------------
-	//m_pFatherScene->CreateGraphicObject(*refText.m_pGraphicObj);
-	refText.mFunction_InitGraphicObject(boundaryWidth, boundaryHeight, textColor, stringTextureID);
+	IStaticText* pText = IFactory<IStaticText>::CreateObject(textObjectName);
+
+	//create internal GObj for static Text
+	N_UID tmpGraphicObjectName = "Internal_Static_GObj" + textObjectName;
+	IGraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
 	//....only after all init work was done can we bind mgr/object together
 
-	*(refText.m_pTextureName)=tmpTextureName.str();
-	m_pChildTextStatic->push_back(&refText);
-	refText.m_pFatherFontMgr = this;
-	refText.SetStatusToBeInitialized();
+	*(pText->m_pTextureName)=tmpTextureName;
+	*(pText->m_pFontName) = fontName;
 
-	return m_pChildTextStatic->size() - 1;
+	return pText;
 }
 
-UINT	 IFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset,IDynamicText& refText)
+IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
-	if (refText.IsInitialized())
-	{
-		ERROR_MSG("Object Has Been Initialized!");
-		return NOISE_MACRO_INVALID_ID;
-	}
-
 
 	//validate font ID
 	UINT validatedFontID = mFunction_ValidateFontID(fontID);
 	if (validatedFontID == NOISE_MACRO_INVALID_ID)
 	{
-		refText.Destroy();
+
 		ERROR_MSG("CreateDynamicText:Font ID Invalid!!");
-		return NOISE_MACRO_INVALID_ID;
+		return nullptr;
 	}
 
 	//Get texID of bitmap table (ID may change, but not name)
@@ -311,7 +259,7 @@ UINT	 IFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT
 	refText.mCharBoundarySizeX= UINT(refText.mCharBoundarySizeY* m_pFontObjectList->at(fontID).mAspectRatio);
 
 	//update TEXT content
-	*(refText.m_pTextContent) = targetString;
+	*(refText.m_pTextContent) = contentString;
 
 	//(the texture has been created for each font
 	//texture name in	TexMgr
@@ -333,29 +281,26 @@ UINT	 IFontManager::InitDynamicTextA(UINT fontID, std::string targetString, UINT
 	return m_pChildTextDynamic->size()-1;
 }
 
-UINT	 IFontManager::GetFontID(std::string fontName)
-{
-	for (UINT i = 0;i < m_pFontObjectList->size();i++)
-	{
-		N_FontObject fontObj = m_pFontObjectList->at(i);
-		if (fontName == fontObj.mFontName)
-		{
-			return i;
-		}
-	}
-
-	return NOISE_MACRO_INVALID_ID;
-}
-
-NVECTOR2 IFontManager::GetFontSize(UINT fontID)
+NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
 {
 	float fontWidth = 0.0f; float fontHeight = 0.0f;
-	if (fontID < m_pFontObjectList->size())
+	if (IFactory<N_FontObject>::FindUid(fontName)==TRUE)
 	{
-		fontHeight = float(m_pFontObjectList->at(fontID).mFontSize);
-		fontWidth = fontHeight*m_pFontObjectList->at(fontID).mAspectRatio;
+		auto pObj = IFactory<N_FontObject>::GetObjectPtr(fontName);
+		fontHeight = float(pObj->mFontSize);
+		fontWidth = fontHeight*pObj->mAspectRatio;
 	}
 	return NVECTOR2(fontWidth,fontHeight);
+}
+
+BOOL IFontManager::DeleteFont(N_UID fontName)
+{
+	return IFactory<N_FontObject>::DestroyObject(fontName);
+}
+
+void IFontManager::DeleteAllFont()
+{
+	IFactory<N_FontObject>::DestroyAllObject();
 }
 
 
@@ -363,20 +308,34 @@ NVECTOR2 IFontManager::GetFontSize(UINT fontID)
 										P R I V A T E
 ************************************************************************/
 
-BOOL IFontManager::mFunction_InitFreeType()
+BOOL IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
 {
 	//Init FreeType Library
 	FT_Error ftInitError = FT_Init_FreeType(&m_FTLibrary);
 
 	if (ftInitError)
 	{
-		ERROR_MSG("FontLoader init failed!");
+		ERROR_MSG("FontMgr: FreeType init failed!");
 		m_FTLibrary = nullptr;
 		return FALSE;
 	}
 	else
 	{
-		mIsFTInitialized = TRUE;
+		if (in_created_pGObjMgr != nullptr && in_created_pGObjMgr != nullptr)
+		{
+			m_pGraphicObjMgr = in_created_pGObjMgr;
+			m_pTexMgr = in_created_pTexMgr;
+			mIsFTInitialized = TRUE;
+			return TRUE;
+		}
+		else
+		{
+			mIsFTInitialized = FALSE;
+			ERROR_MSG("Font Mgr: internal TexMgr / GraphicObjectManager init failed");
+			return FALSE;
+		}
+
+
 	};
 
 	return TRUE;
@@ -449,8 +408,6 @@ void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targ
 
 void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
 {
-
-
 	//arbitrarily get a wchar to Get the basic size of char
 	N_Font_Bitmap singleCharBitmap;
 	UINT CharBoundarySizeY = fontObj.mFontSize;
@@ -531,20 +488,8 @@ void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstri
 	outFontBitmap.height = boundaryHeight;
 }
 
-inline UINT IFontManager::mFunction_ValidateFontID(UINT fontID)
+BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
 {
-	if (!(fontID >= 0 && fontID < m_pFontObjectList->size()))
-	{
-		return NOISE_MACRO_INVALID_ID;
-	}
-
-	//default return 
-	return fontID;
-}
-
-UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj, UINT charWidth, UINT charHeight)
-{
-
 	//define the width /height of bitmap Table , Ascii code 0~127
 	UINT tablePxWidth = charWidth*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
 	UINT tablePxHeight = charHeight*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
@@ -552,14 +497,11 @@ UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	UINT tableColumnCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
 
 	//try to create a new pure color texture to be modified
-	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
-	std::stringstream tmpTextureName;
-	tmpTextureName << "AsciiBitmapTable" << (m_pFontObjectList->size());//"AsciiBitmapTable"+font ID
-	fontObj.mInternalTextureName = tmpTextureName.str();//not same with the public FONT NAME
+	fontObj.mInternalTextureName = "AsciiBitmapTable" + fontName;//not same with the public FONT NAME
 
 	//Create a pure color Texture
-	stringTextureID = m_pTexMgr->CreatePureColorTexture(
-		tmpTextureName.str().c_str(),
+	 UINT stringTextureID = m_pTexMgr->CreatePureColorTexture(
+		 fontObj.mInternalTextureName,
 		tablePxWidth,
 		tablePxHeight,
 		NVECTOR4(0, 0, 0, 0),
@@ -570,12 +512,12 @@ UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
 	{
 		ERROR_MSG("CreateFontFromFile : Create Bitmap Table Texture failed!");
-		return NOISE_MACRO_INVALID_ID;
+		return FALSE;
 	}
 	
 	//-----Up to now,the texture is still a pure color bitmap-------
 	//-----we are gonna write an ASCII bitmap table to it (code 0~127)--
-	auto& pixelBuff= m_pTexMgr->m_pTextureObjectList->at(stringTextureID).mPixelBuffer;
+	auto& pixelBuff= m_pTexMgr->GetObjectPtr(stringTextureID)->mPixelBuffer;
 
 	for (UINT rowID = 0;rowID < tableRowCount;rowID++)
 	{
@@ -583,7 +525,7 @@ UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		{
 
 			N_Font_Bitmap tmpFontBitmap;
-			mFunction_GetBitmapOfChar(fontObj, rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
+			mFunction_GetBitmapOfChar(fontObj,rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
 			for (UINT localY = 0;localY < charHeight;localY++)
 			{
 				for (UINT localX = 0;localX < charWidth;localX++)
@@ -603,7 +545,6 @@ UINT IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	//update a texture to Graphic Memory
 	m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
 
-
-	return stringTextureID;
+	return TRUE;
 }
 

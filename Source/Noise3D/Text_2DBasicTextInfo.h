@@ -13,8 +13,6 @@
 
 namespace Noise3D
 {
-	class IFontManager;
-	class IGraphicObject;
 
 	//a base class that abstract common text attribute and op
 	class /*_declspec(dllexport)*/ IBasicTextInfo
