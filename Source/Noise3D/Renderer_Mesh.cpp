@@ -11,21 +11,8 @@ using namespace Noise3D;
 
 void	IRenderer::RenderMeshes()
 {
-	//validation before rendering
-	if (m_pFatherScene->m_pChildMaterialMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Material Mgr has not been created");
-		return;
-	};
-	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
-		return;
-	};
 
-
-	UINT i = 0, j = 0, k = 0;
-	ICamera* const tmp_pCamera = m_pFatherScene->GetCamera();
+	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
 	//更新ConstantBuffer:修改过就更新(cbRarely)
 	mFunction_RenderMeshInList_UpdateCbRarely();
@@ -40,7 +27,7 @@ void	IRenderer::RenderMeshes()
 
 #pragma region Render Mesh
 	//for every mesh
-	for (i = 0; i<(m_pRenderList_Mesh->size()); i++)
+	for (UINT i = 0; i<(m_pRenderList_Mesh->size()); i++)
 	{
 		//取出渲染列表中的mesh指针
 		IMesh* const tmp_pMesh = m_pRenderList_Mesh->at(i);
@@ -69,7 +56,7 @@ void	IRenderer::RenderMeshes()
 
 		//for every subset
 		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
-		for (j = 0;j < meshSubsetCount;j++)
+		for (UINT j = 0;j < meshSubsetCount;j++)
 		{
 			//subset info
 			UINT currSubsetIndicesCount = tmp_pMesh->m_pSubsetInfoList->at(j).primitiveCount * 3;
@@ -81,7 +68,7 @@ void	IRenderer::RenderMeshes()
 			//遍历所用tech的所有pass ---- index starts from 1
 			D3DX11_TECHNIQUE_DESC tmpTechDesc;
 			m_pFX_Tech_Default->GetDesc(&tmpTechDesc);
-			for (k = 0;k < tmpTechDesc.Passes; k++)
+			for (UINT k = 0;k < tmpTechDesc.Passes; k++)
 			{
 				m_pFX_Tech_Default->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
 				g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
@@ -104,34 +91,34 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 	BOOL tmpCanUpdateCbRarely = FALSE;
 
 	//————更新Static Light——————
-	ILightManager* tmpLightMgr = m_pFatherScene->m_pChildLightMgr;
+	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
 	if ((tmpLightMgr != NULL) && (tmpLightMgr->mCanUpdateStaticLights))
 	{
-		int tmpLight_Dir_Count = tmpLightMgr->m_pLightList_Dir_Static->size();
-		int tmpLight_Point_Count = tmpLightMgr->m_pLightList_Point_Static->size();
-		int tmpLight_Spot_Count = tmpLightMgr->m_pLightList_Spot_Static->size();
+		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_DIR);
+		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_POINT);
+		UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_SPOT);
 
 		m_CbRarely.mIsLightingEnabled_Static = tmpLightMgr->mIsDynamicLightingEnabled;
 		m_CbRarely.mDirLightCount_Static = tmpLight_Dir_Count;
 		m_CbRarely.mPointLightCount_Static = tmpLight_Point_Count;
 		m_CbRarely.mSpotLightCount_Static = tmpLight_Spot_Count;
 
-		int i = 0;
 
-		for (i = 0; i<(tmpLight_Dir_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
-			m_CbRarely.mDirectionalLight_Static[i] = (tmpLightMgr->m_pLightList_Dir_Static->at(i));
+			//static directional light description
+			m_CbRarely.mDirectionalLight_Static[i] = (tmpLightMgr->GetDirLightS(i)->GetDesc());
 		}
 
-		for (i = 0; i<(tmpLight_Point_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Point_Count); i++)
 		{
-			m_CbRarely.mPointLight_Static[i] = (tmpLightMgr->m_pLightList_Point_Static->at(i));
+			m_CbRarely.mPointLight_Static[i] = (tmpLightMgr->GetPointLightS(i)->GetDesc());
 		}
 
-		for (i = 0; i<(tmpLight_Spot_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
 		{
-			m_CbRarely.mSpotLight_Static[i] = (tmpLightMgr->m_pLightList_Spot_Static->at(i));
+			m_CbRarely.mSpotLight_Static[i] = (tmpLightMgr->GetSpotLightS(i)->GetDesc());
 		}
 
 		//更新 “可更新”状态，保证static light 只进行初始化
@@ -149,12 +136,12 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCamera)
 {
 	//————更新Dynamic Light————
-	ILightManager* tmpLightMgr = m_pFatherScene->m_pChildLightMgr;
+	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 	if (tmpLightMgr != NULL)
 	{
-		int tmpLight_Dir_Count = tmpLightMgr->m_pLightList_Dir_Dynamic->size();
-		int tmpLight_Point_Count = tmpLightMgr->m_pLightList_Point_Dynamic->size();
-		int tmpLight_Spot_Count = tmpLightMgr->m_pLightList_Spot_Dynamic->size();
+		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
+		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
+		UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
 
 		m_CbPerFrame.mIsLightingEnabled_Dynamic = tmpLightMgr->mIsDynamicLightingEnabled;
 		m_CbPerFrame.mDirLightCount_Dynamic = tmpLight_Dir_Count;
@@ -162,21 +149,19 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCame
 		m_CbPerFrame.mSpotLightCount_Dynamic = tmpLight_Spot_Count;
 		m_CbPerFrame.mCamPos = pCamera->GetPosition();
 
-		int i = 0;
-
-		for (i = 0; i<(tmpLight_Dir_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
-			m_CbPerFrame.mDirectionalLight_Dynamic[i] = *(tmpLightMgr->m_pLightList_Dir_Dynamic->at(i));
+			m_CbPerFrame.mDirectionalLight_Dynamic[i] = tmpLightMgr->GetDirLightD(i)->GetDesc();
 		}
 
-		for (i = 0; i<(tmpLight_Point_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Point_Count); i++)
 		{
-			m_CbPerFrame.mPointLight_Dynamic[i] = *(tmpLightMgr->m_pLightList_Point_Dynamic->at(i));
+			m_CbPerFrame.mPointLight_Dynamic[i] = tmpLightMgr->GetPointLightD(i)->GetDesc();
 		}
 
-		for (i = 0; i<(tmpLight_Spot_Count); i++)
+		for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
 		{
-			m_CbPerFrame.mSpotLight_Dynamic[i] = *(tmpLightMgr->m_pLightList_Spot_Dynamic->at(i));
+			m_CbPerFrame.mSpotLight_Dynamic[i] = tmpLightMgr->GetSpotLightD(i)->GetDesc();
 		}
 
 	}
@@ -189,42 +174,44 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCame
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
-	ITextureManager*		pSceneTexMgr = m_pFatherScene->m_pChildTextureMgr;
-	IMaterialManager*	pSceneMatMgr = m_pFatherScene->m_pChildMaterialMgr;
+	ITextureManager*		pTexMgr = GetScene()->GetTextureMgr();
+	IMaterialManager*		pMatMgr = GetScene()->GetMaterialMgr();
 
 	//Get Material ID by unique name
-	UINT	 currSubsetMatID = pSceneMatMgr->GetMatID(pMesh->m_pSubsetInfoList->at(subsetID).matName);
+	N_UID	 currSubsetMatName = pMesh->m_pSubsetInfoList->at(subsetID).matName;
+	BOOL  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
-	N_Material tmpMat;
-	if (currSubsetMatID == NOISE_MACRO_INVALID_MATERIAL_ID)
+	N_MaterialDesc tmpMat;
+	if (IsMatNameValid==FALSE)
 	{
-		pSceneMatMgr->GetDefaultMaterial(tmpMat);
+		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
 	}
 	else
 	{
-		pSceneMatMgr->GetMaterial(currSubsetMatID, tmpMat);
+		pMatMgr->GetMaterial(currSubsetMatName)->GetDesc(tmpMat);
 	}
 
 
 	//Validate Indices of MATERIALS/TEXTURES
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
+	//m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
+	m_CbPerSubset.SetBaseMat(tmpMat);
 
-	UINT diffMapIndex = pSceneTexMgr->GetTextureID(tmpMat.diffuseMapName);
-	UINT normalMapIndex = pSceneTexMgr->GetTextureID(tmpMat.normalMapName);
-	UINT specularMapIndex = pSceneTexMgr->GetTextureID(tmpMat.specularMapName);
-	UINT envMapIndex = pSceneTexMgr->GetTextureID(tmpMat.environmentMapName);
+	UINT diffMapIndex = pTexMgr->GetTextureID(tmpMat.diffuseMapName);
+	UINT normalMapIndex = pTexMgr->GetTextureID(tmpMat.normalMapName);
+	UINT specularMapIndex = pTexMgr->GetTextureID(tmpMat.specularMapName);
+	UINT envMapIndex = pTexMgr->GetTextureID(tmpMat.environmentMapName);
 
 	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	m_CbPerSubset.IsDiffuseMapValid = (pSceneTexMgr->ValidateIndex(diffMapIndex, NOISE_TEXTURE_TYPE_COMMON)
+	m_CbPerSubset.IsDiffuseMapValid = (pTexMgr->ValidateIndex(diffMapIndex, NOISE_TEXTURE_TYPE_COMMON)
 		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsNormalMapValid = (pSceneTexMgr->ValidateIndex(normalMapIndex, NOISE_TEXTURE_TYPE_COMMON)
+	m_CbPerSubset.IsNormalMapValid = (pTexMgr->ValidateIndex(normalMapIndex, NOISE_TEXTURE_TYPE_COMMON)
 		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsSpecularMapValid = (pSceneTexMgr->ValidateIndex(specularMapIndex, NOISE_TEXTURE_TYPE_COMMON)
+	m_CbPerSubset.IsSpecularMapValid = (pTexMgr->ValidateIndex(specularMapIndex, NOISE_TEXTURE_TYPE_COMMON)
 		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsEnvironmentMapValid = (pSceneTexMgr->ValidateIndex(envMapIndex, NOISE_TEXTURE_TYPE_CUBEMAP)
+	m_CbPerSubset.IsEnvironmentMapValid = (pTexMgr->ValidateIndex(envMapIndex, NOISE_TEXTURE_TYPE_CUBEMAP)
 		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
 
 
@@ -232,28 +219,28 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	//if tetxure is  valid ,then set diffuse map
 	if (m_CbPerSubset.IsDiffuseMapValid)
 	{
-		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(diffMapIndex).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(diffMapIndex)->m_pSRV;
 		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set normal map
 	if (m_CbPerSubset.IsNormalMapValid)
 	{
-		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(normalMapIndex).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(normalMapIndex)->m_pSRV;
 		m_pFX_Texture_Normal->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set specular map
 	if (m_CbPerSubset.IsSpecularMapValid)
 	{
-		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(specularMapIndex).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(specularMapIndex)->m_pSRV;
 		m_pFX_Texture_Specular->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set environment map (cube map)
 	if (m_CbPerSubset.IsEnvironmentMapValid)
 	{
-		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(envMapIndex).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(envMapIndex)->m_pSRV;
 		m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
 	}
 

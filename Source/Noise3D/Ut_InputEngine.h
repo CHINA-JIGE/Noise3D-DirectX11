@@ -10,6 +10,7 @@
 
 namespace Noise3D
 {
+
 	namespace Ut
 	{
 		class /*_declspec(dllexport)*/ IInputEngine

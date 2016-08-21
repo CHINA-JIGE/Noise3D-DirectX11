@@ -26,12 +26,12 @@
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -82,9 +82,8 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>md $(SolutionDir)Exec\$(Configuration)
-copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <Lib>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -115,14 +114,14 @@ copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>md $(SolutionDir)Exec\$(Configuration)
-copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="GraphicObjMgr.h" />
     <ClInclude Include="Lights.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
@@ -165,6 +164,7 @@ copy $(TargetPath) $(SolutionDir)Exec\$(Configuration)\
     </ClCompile>
     <ClCompile Include="GraphicObjMgr.cpp" />
     <ClCompile Include="Lights.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Text_FontManager.cpp" />
     <ClCompile Include="Text_TextDynamic.cpp" />

@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	struct N_Material;
+	struct N_MaterialDesc;
 
 		class /*_declspec(dllexport)*/ IFileManager
 		{
@@ -25,7 +25,8 @@ namespace Noise3D
 				std::vector<NVECTOR2>& outTexCoordList,
 				std::vector<UINT>& outIndexBuffer,
 				std::vector<N_MeshSubsetInfo>& outSubsetList,
-				std::vector<N_Material>& outMaterialList,
+				std::vector<N_MaterialDesc>& outMaterialList,
+				std::vector<std::string>& outMatNameList,
 				std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList);
 
 			BOOL ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& outVertexBuffer, std::vector<UINT>& outIndexBuffer);

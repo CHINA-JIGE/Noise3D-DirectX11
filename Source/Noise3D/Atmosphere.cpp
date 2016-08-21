@@ -25,8 +25,8 @@ IAtmosphere::IAtmosphere()
 	mFogFar (100),
 	m_pVB_Mem_Sky(new std::vector<N_SimpleVertex>),
 	m_pIB_Mem_Sky(new std::vector<UINT>),
-	m_pSkyBoxCubeTexName(new std::string),
-	m_pSkyDomeTexName(new std::string)
+	m_pSkyBoxCubeTexName(new N_UID),
+	m_pSkyDomeTexName(new N_UID)
 {
 
 }
@@ -66,7 +66,7 @@ void IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 	mFogCanUpdateToGpu = TRUE;
 }
 
-BOOL IAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight, std::string texName)
+BOOL IAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight, N_UID texName)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount		= 30;
@@ -144,7 +144,7 @@ void		IAtmosphere::SetSkyDomeTexture(N_UID texName)
 	*m_pSkyDomeTexName = texName;
 }
 
-BOOL IAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth, std::string cubeMapTexName)
+BOOL IAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth, N_UID cubeMapTexName)
 {
 
 	UINT tmpVertexCount = 0, tmpIndexCount = 0;

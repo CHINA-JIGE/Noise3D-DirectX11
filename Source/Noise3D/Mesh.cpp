@@ -294,7 +294,8 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 	std::vector<NVECTOR2>		texCoordList;
 	std::vector<UINT>				indicesList;
 	std::vector<N_MeshSubsetInfo> subsetList;
-	std::vector<N_Material>		materialList;
+	std::vector<N_MaterialDesc>		materialList;
+	std::vector<std::string>				matNameList;
 	std::unordered_map<std::string, std::string> texName2FilePathMap;
 
 	//import data
@@ -306,6 +307,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 		indicesList, 
 		subsetList, 
 		materialList,
+		matNameList,
 		texName2FilePathMap);
 
 	if (!importSucceeded)
@@ -399,8 +401,8 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 
 	//!!!!!materials have not been created. The Creation of materials will be done
 	//by current Scene Tex&Mat Manager	
-	IMaterialManager* pMatMgr = GetRoot()->GetScenePtr()->GetMaterialMgr(); //m_pChildMaterialMgr;
-	ITextureManager* pTexMgr = GetRoot()->GetScenePtr()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
+	IMaterialManager* pMatMgr = GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
 
 	//Get the directory where the file locates
 	std::string modelFileDirectory = GetFileDirectory(pFilePath);
@@ -410,8 +412,8 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 		for (UINT i = 0;i < materialList.size();i++)
 		{
 			//----------Create Material-----------
-			UINT matReturnID = pMatMgr->CreateMaterial(materialList.at(i));
-			if(matReturnID==NOISE_MACRO_INVALID_MATERIAL_ID)
+			IMaterial* pMat = pMatMgr->CreateMaterial(matNameList.at(i),materialList.at(i));
+			if(pMat==nullptr)
 				ERROR_MSG("WARNING : Load 3ds : Material Creation Failed!!");
 
 			//----------Create Texture Maps----------
@@ -422,7 +424,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 			//Define a temp lambda function for texture creations
 			auto lambdaFunc_CreateTexture = [&](std::string& texName)
 			{
-				if (pTexMgr->GetTextureID(texName) == NOISE_MACRO_INVALID_TEXTURE_ID)
+				if (pTexMgr->ValidateUID(texName) == FALSE)
 				{
 					if (texName != "")
 					{

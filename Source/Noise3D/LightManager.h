@@ -31,6 +31,31 @@ namespace Noise3D
 
 		ISpotLightS*			CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc);
 
+		IDirLightD*			GetDirLightD(N_UID lightName);
+
+		IDirLightD*			GetDirLightD(UINT index);
+
+		IPointLightD*		GetPointLightD(N_UID lightName);
+		
+		IPointLightD*		GetPointLightD(UINT index);
+
+		ISpotLightD*		GetSpotLightD(N_UID lightName);
+		
+		ISpotLightD*		GetSpotLightD(UINT index);
+
+		IDirLightS*			GetDirLightS(N_UID lightName);
+		
+		IDirLightS*			GetDirLightS(UINT index);
+
+		IPointLightS*		GetPointLightS(N_UID lightName);
+		
+		IPointLightS*		GetPointLightS(UINT index);
+
+		ISpotLightS*		GetSpotLightS(N_UID lightName);
+		
+		ISpotLightS*		GetSpotLightS(UINT index);
+
+
 
 		BOOL		DeleteDirLightD(N_UID lightName);
 
@@ -44,7 +69,7 @@ namespace Noise3D
 
 		BOOL		DeleteSpotLightD(ISpotLightD* pLight);
 
-
+		NOISE_LIGHT_TYPE a;
 		BOOL		DeleteDirLightS(N_UID lightName);
 
 		BOOL		DeleteDirLightS(IDirLightS* pLight);

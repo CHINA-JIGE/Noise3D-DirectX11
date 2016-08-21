@@ -16,12 +16,6 @@ const UINT c_VBoffset = 0;				//VertexBuffer¶¥µãÐòºÅÆ«ÒÆ ÒòÎª´ÓÍ·¿ªÊ¼ËùÒÔoffsetÊ
 
 void IRenderer::RenderTexts()
 {
-	//validation before rendering
-	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
-		return;
-	};
 
 	//CLEAR DEPTH!! to implement component overlapping
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
@@ -42,7 +36,7 @@ void IRenderer::RenderTexts()
 									P R I V A T E
 ************************************************************************/
 
-void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID, ITextureManager* pTexMgr, N_CbDrawText2D& cbText)
+void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, N_CbDrawText2D& cbText)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
@@ -50,7 +44,7 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID, ITextureMa
 	//......
 	//texID = mFunction_ValidateTextureID_UsingTexMgr(texID, NOISE_TEXTURE_TYPE_TEXT,NOISE_TEXTURE_ACCESS_PERMISSION_FONTMGR);
 
-	if (texID != NOISE_MACRO_INVALID_TEXTURE_ID)
+	if (pTexMgr->ValidateUID(uid)==TRUE)
 	{
 		HRESULT hr = S_OK;
 		m_CbDrawText2D = (N_CbDrawText2D)cbText;
@@ -58,7 +52,7 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(UINT texID, ITextureMa
 		m_pFX_CbDrawText2D->SetRawValue(&m_CbDrawText2D, 0, sizeof(m_CbDrawText2D));
 
 		//update textures
-		tmp_pSRV = pTexMgr->m_pTextureObjectList->at(texID).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
 		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 }
@@ -88,14 +82,14 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 		//---------------------draw rectangles---------------------
 		for (auto tmpRegion : *(pList->at(i)->m_pGraphicObj->m_pRectSubsetInfoList))
 		{
-			if (pList->at(i)->m_pFatherFontMgr == nullptr)continue;
+			IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr
-			tmpRegion.texID = pList->at(i)->m_pFatherFontMgr->m_pTexMgr->ValidateIndex(tmpRegion.texID, NOISE_TEXTURE_TYPE_COMMON);
+			BOOL texUidValid = pFontMgr->m_pTexMgr->ValidateUID(tmpRegion.texName, NOISE_TEXTURE_TYPE_COMMON);
 
 			//if current Rectangle disable Texture ,then draw in a solid way
-			if (tmpRegion.texID == NOISE_MACRO_INVALID_TEXTURE_ID)
+			if (texUidValid==FALSE)
 			{
 				m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
@@ -108,7 +102,7 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 				tmpCbText.mTextGlowColor = *(pList->at(i)->m_pTextGlowColor);
 
 				//update colors of text(cb & srv)
-				mFunction_TextGraphicObj_Update_TextInfo(tmpRegion.texID, pList->at(i)->m_pFatherFontMgr->m_pTexMgr, tmpCbText);
+				mFunction_TextGraphicObj_Update_TextInfo(tmpRegion.texName, pFontMgr->m_pTexMgr, tmpCbText);
 				m_pFX_Tech_DrawText2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 

@@ -47,6 +47,9 @@ IGraphicObject::~IGraphicObject()
 	{
 		ReleaseCOM(m_pVB_GPU[i]);
 	}
+	delete m_pBaseScreenSpacePosOffset;
+	delete m_pTextureUidList_Rect;
+	delete m_pRectSubsetInfoList;
 }
 
 void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)

@@ -9,6 +9,7 @@
 
 namespace Noise3D
 {
+
 		class /*_declspec(dllexport)*/ IScene:
 		public IFactory<IRenderer>,
 		public IFactory<ICamera>,
@@ -59,5 +60,6 @@ namespace Noise3D
 	};
 
 
+		extern IScene* GetScene();
 
 }

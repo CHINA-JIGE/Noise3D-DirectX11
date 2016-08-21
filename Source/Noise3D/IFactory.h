@@ -85,6 +85,12 @@ namespace Noise3D
 		//runtime creation of objects, of which the max count is limited
 		objType*	CreateObject(N_UID objUID)
 		{
+			if (objUID == N_UID(""))
+			{
+				ERROR_MSG("IFactory: UID invalid, can't be empty.");
+				return nullptr;
+			}
+
 			//the count of child object is  limited
 			if (m_pChildObjectList->size() < mMaxObjectCount)
 			{
@@ -166,6 +172,7 @@ namespace Noise3D
 				//if index match , return UID (name)
 				if (pair.second == index)return pair.first;
 			}
+			return "";//index invalid
 		}
 
 		inline UINT		GetObjectCount() 

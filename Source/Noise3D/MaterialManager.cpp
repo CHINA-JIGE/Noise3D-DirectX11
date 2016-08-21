@@ -1,228 +1,109 @@
 
 /***********************************************************************
 
-								类：NOISE Material Manger
+								class：NOISE Material Manger
 
-							简述：主要负责管理材质
+							desc：manager material
 
 ************************************************************************/
+
+//a DEFAULT MAERIAL will be created with DEFAULT NAME soon as the constructor was invoked
+//(because a valid render of a mesh should have some basic default material params)
+//and it is invisible in user-created material list ( actually they share the same unorder_map & vector)...
 
 #include "Noise3D.h"
 
 using namespace Noise3D;
 
+ const N_UID IMaterialManager::mDefaultMatName = "N3d_DeFaUlT_MaT";
+
 IMaterialManager::IMaterialManager()
+	:IFactory<IMaterial>(100000)
 {
-	m_pFatherScene = nullptr;
-	m_pMaterialList = new std::vector<N_Material>;
-	m_pDefaultMaterial = new N_Material;
-	m_pMaterialHashTable = new std::unordered_map<std::string, UINT>;
-
-	m_pDefaultMaterial->baseMaterial.mBaseAmbientColor = NVECTOR3(0, 0, 0);
-	m_pDefaultMaterial->baseMaterial.mBaseDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	m_pDefaultMaterial->baseMaterial.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	m_pDefaultMaterial->baseMaterial.mEnvironmentMapTransparency = 0.0f;
-	m_pDefaultMaterial->baseMaterial.mNormalMapBumpIntensity = 0.1f;
-	m_pDefaultMaterial->baseMaterial.mSpecularSmoothLevel = 10;
-	m_pDefaultMaterial->mMatName = std::string(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-	m_pDefaultMaterial->diffuseMapName = "";
-	m_pDefaultMaterial->specularMapName = "";
-	m_pDefaultMaterial->environmentMapName = "";
-	m_pDefaultMaterial->normalMapName = "";
-
-	//well...all objects with invalid mat ID will use default material 
-	m_pMaterialHashTable->insert(std::make_pair(NOISE_MACRO_DEFAULT_MATERIAL_NAME, NOISE_MACRO_INVALID_MATERIAL_ID));
+	mFunction_CreateDefaultMaterial();
 }
 
-UINT IMaterialManager::CreateMaterial(N_Material newMat)
+IMaterialManager::~IMaterialManager()
 {
-
-	UINT newMatID = m_pMaterialList->size();
-
-	if (newMat.mMatName == std::string(""))
-	{
-		//material name empty
-		ERROR_MSG("Noise Material Mgr: material name empty!! At least 1 char !");
-		return NOISE_MACRO_INVALID_MATERIAL_ID;
-	}
-
-
-	//GetMatID() will return DEFAULT_MAT_ID if material with new name has been found
-	if(GetMatID(newMat.mMatName) != NOISE_MACRO_INVALID_MATERIAL_ID)
-	{
-		//material name conflict
-			ERROR_MSG("Noise Material Mgr: material name existed!!It must be unique.");
-			return NOISE_MACRO_INVALID_MATERIAL_ID;
-	}
-
-	//we can finally add a new material
-	m_pMaterialList->push_back(newMat);
-
-	//don't forget to add "name-index" map to hash table to accelerate element searching
-	m_pMaterialHashTable->insert(std::make_pair(newMat.mMatName, newMatID));
-
-	return newMatID;
+	IFactory<IMaterial>::DestroyAllObject();
 }
 
-UINT IMaterialManager::GetMatID(std::string  matName)
+IMaterial* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
 {
-	auto stringIndexPairIter = m_pMaterialHashTable->find(matName);
-	//if material not found
-	if (stringIndexPairIter != m_pMaterialHashTable->end())
+	if (matName == mDefaultMatName)
 	{
-		return stringIndexPairIter->second;//string-index pair, return UINT index for accessing vector
+		ERROR_MSG("CreateMaterial: uid occupied (by default material, how lucky you are- -.)");
+		return nullptr;
 	}
-	else
-	{
-		return NOISE_MACRO_INVALID_MATERIAL_ID;//invalid vertex Name
-	}
+
+	IMaterial* pMat = IFactory<IMaterial>::CreateObject(matName);
+	pMat->SetDesc(matDesc);
+	return pMat;
 }
 
-void IMaterialManager::GetNameByIndex(UINT index, std::string&  outMatName)
-{
-	if (index < m_pMaterialList->size())
-	{
-		//return the name of corresponding material
-		outMatName = m_pMaterialList->at(index).mMatName;
-	}
-}
-
-void IMaterialManager::SetMaterial(UINT matIndex, N_Material newMat)
-{
-	if (matIndex < m_pMaterialList->size())
-	{
-		m_pMaterialList->at(matIndex) = newMat;
-	}
-};
-
-void IMaterialManager::SetMaterial(std::string  matName, N_Material newMat)
-{
-	UINT matID = GetMatID(matName);
-	if (matID != NOISE_MACRO_INVALID_MATERIAL_ID)
-	{
-		SetMaterial(matID, newMat);
-	}
-
-};
 
 UINT IMaterialManager::GetMaterialCount()
 {
-	return m_pMaterialList->size();
+	//minus 1 means ruling out default mat
+	return  IFactory<IMaterial>::GetObjectCount() - 1;
 }
 
-void IMaterialManager::GetDefaultMaterial(N_Material & outMat)
+IMaterial*		IMaterialManager::GetDefaultMaterial()
 {
-	outMat = *m_pDefaultMaterial;
+	return IFactory<IMaterial>::GetObjectPtr(mDefaultMatName);
 }
 
-void IMaterialManager::GetMaterial(UINT matID,N_Material& outMat)
+IMaterial* IMaterialManager::GetMaterial(N_UID matName)
 {
-	UINT validatedMatID = mFunction_ValidateMaterialID(matID);
-	if (validatedMatID != NOISE_MACRO_INVALID_MATERIAL_ID)
-	{
-		outMat = m_pMaterialList->at(matID);
-	}
+	if (matName == mDefaultMatName)return nullptr;
+	return IFactory<IMaterial>::GetObjectPtr(matName);
 };
 
-
-BOOL IMaterialManager::DeleteMaterial(UINT matID)
+BOOL IMaterialManager::DeleteMaterial(N_UID matName)
 {
-	UINT validatedID = mFunction_ValidateMaterialID(matID);
-	if (validatedID != NOISE_MACRO_INVALID_MATERIAL_ID)
+	if (matName == mDefaultMatName)
 	{
-		//not only the real data in std::vector should be erased, but also
-		//the NAME-INDEX mapping in hash table
-		std::string deleteMatName = m_pMaterialList->at(validatedID).mMatName;
-		auto nameIndexMapIter = m_pMaterialHashTable->find(deleteMatName);
-		//..............(the check might be useless...)
-		if (nameIndexMapIter != m_pMaterialHashTable->end())
-		{
-			m_pMaterialHashTable->erase(nameIndexMapIter);
-		}
-
-		//delete real Material data in std::Vector
-		auto tmpIter = m_pMaterialList->begin();
-		tmpIter += validatedID;
-		m_pMaterialList->erase(tmpIter);
-
-		//update hash table (string-index pair, index should be updated)
-		mFunction_RefreshHashTableAfterDeletion(validatedID, 1);
-	}
-	else
-	{
-		ERROR_MSG("Delete Material : material Index invalid!!");
+		ERROR_MSG("DeleteMaterial: default material can't be deleted...(how lucky you are- -.)");
 		return FALSE;
 	}
-
-	return TRUE;
-};
-
-BOOL IMaterialManager::DeleteMaterial(std::string matName)
-{
-	auto nameIndexMapIter = m_pMaterialHashTable->find(matName);
-
-	//if material name is found
-	if (nameIndexMapIter != m_pMaterialHashTable->end())
-	{
-		//string-UINT pair
-		UINT matIndex = nameIndexMapIter->second;
-
-		//delete material data in vector
-		UINT validatedID = mFunction_ValidateMaterialID(matIndex);
-		if (validatedID != NOISE_MACRO_INVALID_MATERIAL_ID)
-		{
-			auto tmpIter = m_pMaterialList->begin() + validatedID;
-			m_pMaterialList->erase(tmpIter);
-		}
-
-		//delete name-index pair
-		m_pMaterialHashTable->erase(nameIndexMapIter);
-
-		//update hash table (string-index pair, index should be updated)
-		mFunction_RefreshHashTableAfterDeletion(validatedID,1);
-	}
-	else
-	{
-		//material not found
-		ERROR_MSG("delete Material : material not found!!!");
-		return FALSE;
-	}
-
-	return TRUE;
+	return IFactory<IMaterial>::DestroyObject(matName);
 }
 
-inline UINT IMaterialManager::ValidateIndex(UINT index)
+void IMaterialManager::DeleteAllMaterial()
 {
-	return mFunction_ValidateMaterialID(index);
+	IFactory<IMaterial>::DestroyAllObject();
+	//we delete user-created material, not the internal default one
+	mFunction_CreateDefaultMaterial();
+}
+
+inline BOOL IMaterialManager::ValidateUID(N_UID matName)
+{
+	return IFactory<IMaterial>::FindUid(matName);
 };
 
 /**********************************************************
 							P R I V A T E
 *************************************************************/
 
-void IMaterialManager::Destroy()
+
+void IMaterialManager::mFunction_CreateDefaultMaterial()
 {
-	m_pFatherScene = nullptr;
+	//only with a material can a object be rendered  (even without a texture)
+	//thus a default material is needed when an object was rendered with invalid material
+
+	N_MaterialDesc defaultMatDesc;
+	defaultMatDesc.mBaseAmbientColor = NVECTOR3(0.0f, 0.0f, 0.0f);
+	defaultMatDesc.mBaseDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	defaultMatDesc.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	defaultMatDesc.mEnvironmentMapTransparency = 0.0f;
+	defaultMatDesc.mNormalMapBumpIntensity = 0.1f;
+	defaultMatDesc.mSpecularSmoothLevel = 10;
+	defaultMatDesc.diffuseMapName = "";
+	defaultMatDesc.specularMapName = "";
+	defaultMatDesc.environmentMapName = "";
+	defaultMatDesc.normalMapName = "";
+
+	
+	IMaterial* pMat = IFactory<IMaterial>::CreateObject(mDefaultMatName);
+	pMat->SetDesc(defaultMatDesc);
 }
-
-inline UINT IMaterialManager::mFunction_ValidateMaterialID(UINT matID)
-{
-	if (matID < m_pMaterialList->size())
-	{
-		return matID;
-	}
-	else
-	{
-		return NOISE_MACRO_INVALID_MATERIAL_ID;
-	}
-}
-
-inline void IMaterialManager::mFunction_RefreshHashTableAfterDeletion(UINT deletedMatID_threshold, UINT indexDecrement)
-{
-	for (auto& pair : *m_pMaterialHashTable)
-	{
-		if (pair.second>deletedMatID_threshold)pair.second -= indexDecrement;
-	}
-};
-
-

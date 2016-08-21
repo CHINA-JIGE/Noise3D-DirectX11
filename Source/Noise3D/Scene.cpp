@@ -193,3 +193,8 @@ IGraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
 	}
 	return IFactory<IGraphicObjectManager>::GetObjectPtr(uid);
 }
+
+ IScene * Noise3D::GetScene()
+{
+	return GetRoot()->GetScenePtr();
+}

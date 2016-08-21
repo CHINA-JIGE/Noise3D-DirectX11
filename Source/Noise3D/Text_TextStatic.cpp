@@ -21,7 +21,7 @@ NVECTOR2 IStaticText::GetFontSize()
 {
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
-	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 	return pFontMgr->GetFontSize(*m_pFontName);
 }
 

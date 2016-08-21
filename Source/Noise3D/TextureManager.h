@@ -113,6 +113,10 @@ namespace Noise3D
 
 		UINT		ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType);
 
+		BOOL		ValidateUID(N_UID texName);
+
+		BOOL		ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
+
 	private:
 
 		friend IFactory<ITextureManager>;

@@ -16,11 +16,11 @@ namespace Noise3D
 
 		void		SetFogParameter(float fogNear, float fogFar, NVECTOR3 color);
 
-		BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, std::string texName);
+		BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, N_UID texName);
 
 		void		SetSkyDomeTexture(N_UID texName);
 
-		BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, std::string texName);
+		BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, N_UID texName);
 
 		void		SetSkyBoxTexture(std::string texName);
 
@@ -48,11 +48,11 @@ namespace Noise3D
 		NOISE_ATMOSPHERE_SKYTYPE		mSkyType;
 		float												mSkyDomeRadiusXZ;
 		float												mSkyDomeHeight;
-		std::string*									m_pSkyDomeTexName;
+		N_UID*									m_pSkyDomeTexName;
 		float												mSkyBoxWidth;
 		float												mSkyBoxHeight;
 		float												mSkyBoxDepth;
-		std::string*									m_pSkyBoxCubeTexName;
+		N_UID*									m_pSkyBoxCubeTexName;
 		std::vector<UINT>*						m_pIB_Mem_Sky;
 		std::vector<N_SimpleVertex>*		m_pVB_Mem_Sky;
 		ID3D11Buffer*								m_pIB_Gpu_Sky;

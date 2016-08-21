@@ -45,6 +45,7 @@
 #include "Mesh.h"
 #include "Lights.h"
 #include "Camera.h"
+#include "Material.h"
 #include "MeshManager.h"
 #include "LightManager.h"
 #include "TextureManager.h"
@@ -59,13 +60,14 @@
 #include "Text_FontManager.h"
 //-------------Core Class-------------
 #include "Renderer.h"
-#include "Scene.h"
 #include "Root.h"
+#include "Scene.h"
 
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"
 #include "Ut_MeshSlicer.h"
 #include "Ut_InputEngine.h"
+
 
 //-----------Noise GUI-------------
 //#include "NoiseGUISystem.h"

@@ -30,9 +30,20 @@ namespace Noise3D
 		NMATRIX	mWorldInvTransposeMatrix;
 	};
 
-	struct N_CbPerSubset
+	struct N_CbPerSubset:public  N_BasicMaterialDesc
 	{
-		N_Material_Basic	basicMaterial;
+		void SetBaseMat(const N_MaterialDesc& mat)
+		{
+			mBaseAmbientColor = mat.mBaseAmbientColor;
+			mBaseDiffuseColor = mat.mBaseDiffuseColor;
+			mBaseSpecularColor = mat.mBaseSpecularColor;
+			mSpecularSmoothLevel = mat.mSpecularSmoothLevel;
+			mNormalMapBumpIntensity = mat.mNormalMapBumpIntensity;
+			mEnvironmentMapTransparency = mat.mEnvironmentMapTransparency;
+		}
+
+		//only update these SWTICHES var to GPU, 
+		//cos' texture show up as a shaderResource(update in another way)
 		BOOL			IsDiffuseMapValid;
 		BOOL			IsNormalMapValid;
 		BOOL			IsSpecularMapValid;
@@ -86,7 +97,6 @@ namespace Noise3D
 
 	public:
 
-
 		void			RenderMeshes();
 
 		void			RenderGraphicObjects();
@@ -95,19 +105,19 @@ namespace Noise3D
 
 		void			RenderTexts();
 
-		void			RenderGUIObjects();//this function will render if Noise GUI is involved
+		//void			RenderGUIObjects();//this function will render if Noise GUI is involved
 
-		void			AddObjectToRenderList(IMesh& obj);
+		void			AddObjectToRenderList(IMesh* obj);
 
-		void			AddObjectToRenderList(IGraphicObject& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
+		void			AddObjectToRenderList(IGraphicObject* obj);
 
-		void			AddObjectToRenderList(IAtmosphere& obj);
+		void			AddObjectToRenderList(IAtmosphere* obj);
 
-		void			AddObjectToRenderList(IDynamicText& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
+		void			AddObjectToRenderList(IDynamicText* obj);
 
-		void			AddObjectToRenderList(IStaticText& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType = NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT);
+		void			AddObjectToRenderList(IStaticText* obj);
 
-		void			ClearBackground(NVECTOR4 color = NVECTOR4(0, 0, 0, 0.0f));
+		void			ClearBackground(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
 		void			RenderToScreen();
 
@@ -126,6 +136,8 @@ namespace Noise3D
 		const UINT	c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 	private:
+
+		//--------------------INITIALIZATION---------------------
 
 		BOOL			mFunction_Init();
 
@@ -164,7 +176,7 @@ namespace Noise3D
 
 
 		//----------------GRAPHIC OBJECT-----------------------
-		void				mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID);
+		void				mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName);
 
 		void				mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera, std::vector<IGraphicObject*>* pList);
 
@@ -178,19 +190,19 @@ namespace Noise3D
 
 
 		//----------------TEXT-----------------------
-		void				mFunction_TextGraphicObj_Update_TextInfo(UINT texID, ITextureManager* pTexMgr, N_CbDrawText2D& cbText);
+		void				mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, N_CbDrawText2D& cbText);
 
 		void				mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList);
 
 
 		//----------------ATMOSPHERE-----------------------
-		void				mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo);
+		void				mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextureManager* const pTexMgr);
 
-		void				mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, UINT& outSkyDomeTexID);
+		void				mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr,N_UID& outSkyDomeTexName);
 
-		void				mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, UINT& outSkyBoxTexID);
+		void				mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName);
 
-		void				mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, UINT skyDomeTexID, UINT skyBoxTexID);
+		void				mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName);
 
 	private:
 
@@ -202,12 +214,10 @@ namespace Noise3D
 		~IRenderer();
 
 		std::vector <IMesh*>*				m_pRenderList_Mesh;
-		std::vector	<IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
-		std::vector<IGraphicObject*>*	m_pRenderList_GUIGraphicObj;//for GUI common object rendering
-		std::vector<IBasicTextInfo*>*	m_pRenderList_GUIText;//internal Text Object
-		std::vector<IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
-		std::vector<IBasicTextInfo*>*	m_pRenderList_TextStatic;//for static Text Rendering(including other info)
-		std::vector	<IAtmosphere*>*		m_pRenderList_Atmosphere;
+		std::vector <IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
+		std::vector <IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
+		std::vector <IBasicTextInfo*>*	m_pRenderList_TextStatic;//for static Text Rendering(including other info)
+		std::vector <IAtmosphere*>*		m_pRenderList_Atmosphere;
 
 		//Raster State
 		ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
@@ -216,17 +226,16 @@ namespace Noise3D
 		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullFront;
 		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullNone;
 		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullBack;
-		ID3D11BlendState*						m_pBlendState_Opaque;
-		ID3D11BlendState*						m_pBlendState_AlphaTransparency;
-		ID3D11BlendState*						m_pBlendState_ColorAdd;
-		ID3D11BlendState*						m_pBlendState_ColorMultiply;
+		ID3D11BlendState*							m_pBlendState_Opaque;
+		ID3D11BlendState*							m_pBlendState_AlphaTransparency;
+		ID3D11BlendState*							m_pBlendState_ColorAdd;
+		ID3D11BlendState*							m_pBlendState_ColorMultiply;
 		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
-		ID3D11SamplerState*					m_pSamplerState_FilterAnis;
+		ID3D11SamplerState*						m_pSamplerState_FilterAnis;
 
-		IScene*									m_pFatherScene;
 		NOISE_FILLMODE							m_FillMode;//填充模式
-		NOISE_CULLMODE						m_CullMode;//剔除模式
+		NOISE_CULLMODE							m_CullMode;//剔除模式
 		NOISE_BLENDMODE						m_BlendMode;
 
 		//在App中先定义好所有Struct再一次更新
@@ -247,7 +256,7 @@ namespace Noise3D
 		ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_DrawText2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;
-		ID3DX11EffectConstantBuffer* m_pFX_CbPerObject;
+		ID3DX11EffectConstantBuffer*	m_pFX_CbPerObject;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbPerFrame;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbPerSubset;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;

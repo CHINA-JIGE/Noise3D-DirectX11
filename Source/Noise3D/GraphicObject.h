@@ -117,7 +117,7 @@ namespace Noise3D
 
 		BOOL		mFunction_CreateVB(UINT objType_ID);
 
-		void			NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateVerticesToGpu(UINT objType_ID);//by renderer
+		void			NOISE_MACRO_FUNCTION_EXTERN_CALL 	mFunction_UpdateVerticesToGpu(UINT objType_ID);//by renderer
 
 		//set/add/delete  using initializer_list
 		void			mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
@@ -155,6 +155,7 @@ namespace Noise3D
 		//used to store TexID of rectangles
 		std::vector<N_UID>*			m_pTextureUidList_Rect;
 
+		//this subset list is generated for renderer
 		std::vector<N_GraphicObject_SubsetInfo>*	m_pRectSubsetInfoList;
 
 	};

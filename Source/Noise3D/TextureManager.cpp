@@ -144,9 +144,48 @@ BOOL ITextureManager::UpdateTextureDataToGraphicMemory(UINT texID)
 	return TRUE;
 }
 
-inline BOOL ITextureManager::UpdateTextureDataToGraphicMemory(N_UID texName)
+BOOL ITextureManager::UpdateTextureDataToGraphicMemory(N_UID texName)
 {
-	return UpdateTextureDataToGraphicMemory(GetTextureID(texName));
+
+	if (ValidateUID(texName)==TRUE)
+	{
+		N_TextureObject* pTexObj = IFactory<N_TextureObject>::GetObjectPtr(texName);
+		if (pTexObj->mIsPixelBufferInMemValid)
+		{
+			UINT picWidth = GetTextureWidth(texName);
+
+			//after modifying buffer in memory, update to GPU
+			ID3D11Resource* pTmpRes;
+			//resource reference count will increase ,so remember to release
+			//so getResource() actually gets a interface to the resource BOUND to the view.
+			pTexObj->m_pSRV->GetResource(&pTmpRes);
+
+			//update resource which is bound to the corresponding SRV
+			g_pImmediateContext->UpdateSubresource(
+				pTmpRes,
+				0,
+				NULL,
+				&pTexObj->mPixelBuffer.at(0),
+				picWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
+				NULL);
+
+			ReleaseCOM(pTmpRes);
+		}
+		else
+		{
+			//mIsPixelBufferInMemValid==FALSE
+			ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
+			return FALSE;
+		}
+	}
+	else
+	{
+		//texID = ==Noise_macro_invalid_Texture_ID
+		ERROR_MSG("UpdateTextureToGraphicMemory : Texture UID(unique Identifier) invalid!!");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 //--------------------------------TEXTURE CREATION-----------------------------
@@ -821,7 +860,7 @@ void ITextureManager::DeleteAllTexture()
 	IFactory<N_TextureObject>::DestroyAllObject();
 }
 
-UINT ITextureManager::ValidateIndex(UINT texID)
+inline UINT ITextureManager::ValidateIndex(UINT texID)
 {
 	if (texID <IFactory<N_TextureObject>::GetObjectCount())
 	{
@@ -833,7 +872,7 @@ UINT ITextureManager::ValidateIndex(UINT texID)
 	}
 }
 
-UINT ITextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
+inline UINT ITextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
 {
 	//validate if texID is within range of vector , and if the TextureType of this texture match the given 'texType'
 
@@ -874,6 +913,59 @@ UINT ITextureManager::ValidateIndex(UINT texID, NOISE_TEXTURE_TYPE texType)
 
 	//a no-problem texID
 	return texID;
+}
+
+inline BOOL ITextureManager::ValidateUID(N_UID texName)
+{
+	if (IFactory<N_TextureObject>::FindUid(texName) == FALSE)
+	{
+		return FALSE;
+	}
+	else
+	{
+		return TRUE;
+	}
+
+}
+
+BOOL ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
+{
+	if (IFactory<N_TextureObject>::FindUid(texName) == FALSE)
+	{
+		return FALSE;
+	}
+
+	//then check the texture type : common / cubemap / volumn
+	D3D11_SHADER_RESOURCE_VIEW_DESC tmpSRViewDesc;
+	IFactory<N_TextureObject>::GetObjectPtr(texName)->m_pSRV->GetDesc(&tmpSRViewDesc);
+
+	switch (tmpSRViewDesc.ViewDimension)
+	{
+	case D3D11_SRV_DIMENSION_TEXTURECUBE:
+		if (texType != NOISE_TEXTURE_TYPE_CUBEMAP)
+		{
+			return FALSE;
+		}
+		break;
+
+	case D3D11_SRV_DIMENSION_TEXTURE3D:
+		if (texType != NOISE_TEXTURE_TYPE_VOLUMN)
+		{
+			return FALSE;
+		}
+		break;
+
+	case D3D11_SRV_DIMENSION_TEXTURE2D:
+		if (texType != NOISE_TEXTURE_TYPE_COMMON)
+		{
+			return FALSE;
+		}
+		break;
+
+	}
+
+	//a no-problem texID
+	return TRUE;
 }
 
 

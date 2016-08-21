@@ -5,7 +5,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
-#include  "NBASE_FileManager_3DS.h"
+#include  "FileManager_3DS.h"
 
 using namespace Noise3D;
 
@@ -29,7 +29,8 @@ static UINT static_textureMapIndex = 0;
 //of NoiseMesh, meshes will be integrated as a whole.
 static std::vector<N_Load3ds_MeshObject> static_meshObjList;
 //Material Lists
-std::vector<N_Material> static_materialList;
+std::vector<N_MaterialDesc> static_materialList;
+std::vector<std::string> static_matNameList;
 //string as UID, FilePath is used to load file
 std::unordered_map<std::string, NFilePath>  static_TexName2FilePathPairList;
 
@@ -41,12 +42,14 @@ BOOL IFileManager::ImportFile_3DS(
 	std::vector<NVECTOR2>& outTexCoordList, 
 	std::vector<UINT>& outIndexBuffer, 
 	std::vector<N_MeshSubsetInfo>& outSubsetList, 
-	std::vector<N_Material>& outMaterialList,
+	std::vector<N_MaterialDesc>& outMaterialList,
+	std::vector<std::string>& outMatNameList,
 	std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList)
 {
 	static_meshObjList.clear();
 	static_materialList.clear();
 	static_TexName2FilePathPairList.clear();
+	static_matNameList.clear();
 
 	fileIn.open(pFilePath, std::ios::binary);
 
@@ -87,6 +90,7 @@ BOOL IFileManager::ImportFile_3DS(
 	outTexCoordList = std::move(finalMeshObj.texcoordList);
 	outSubsetList = std::move(finalMeshObj.subsetList);
 	outMaterialList = std::move(static_materialList);
+	outMatNameList = std::move(static_matNameList);
 	out_TexName2FilePathPairList = std::move(static_TexName2FilePathPairList);
 
 	//used to generate unique name
@@ -652,7 +656,7 @@ void ParseMaterialBlock()
 	//Data:None
 
 	//but this identifier signify creation a new material
-	N_Material tmpMat;
+	N_MaterialDesc tmpMat;
 	static_materialList.push_back(tmpMat);
 }
 
@@ -664,7 +668,7 @@ void ParseMaterialName()
 	//data: material name
 	std::string orginalMatName;
 	ReadStringFromFileA(orginalMatName);
-	static_materialList.back().mMatName = DecorateMatName(orginalMatName);
+	static_matNameList.push_back(DecorateMatName(orginalMatName));
 }
 
 //*************************************************
@@ -677,7 +681,7 @@ void ParseAmbientColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseAmbientColor);
+		ReadAndParseColorChunk(static_materialList.back().mBaseAmbientColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
@@ -689,7 +693,7 @@ void ParseDiffuseColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseDiffuseColor);
+		ReadAndParseColorChunk(static_materialList.back().mBaseDiffuseColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
@@ -701,7 +705,7 @@ void ParseSpecularColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().baseMaterial.mBaseSpecularColor);
+		ReadAndParseColorChunk(static_materialList.back().mBaseSpecularColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }

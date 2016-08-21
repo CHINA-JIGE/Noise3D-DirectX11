@@ -101,7 +101,68 @@ ISpotLightS * ILightManager::CreateStaticSpotLight(N_UID lightName, const N_Spot
 	}
 }
 
-//--------Dynamic Light Deletion------------
+//-----------Interface GETTER----------------------------
+IDirLightD * ILightManager::GetDirLightD(N_UID lightName)
+{
+	return IFactory<IDirLightD>::GetObjectPtr(lightName);
+}
+
+IDirLightD * Noise3D::ILightManager::GetDirLightD(UINT index)
+{
+	return IFactory<IDirLightD>::GetObjectPtr(index);
+}
+
+IPointLightD * ILightManager::GetPointLightD(N_UID lightName)
+{
+	return  IFactory<IPointLightD>::GetObjectPtr(lightName);
+}
+
+IPointLightD * ILightManager::GetPointLightD(UINT index)
+{
+	return IFactory<IPointLightD>::GetObjectPtr(index);
+}
+
+ISpotLightD * Noise3D::ILightManager::GetSpotLightD(N_UID lightName)
+{
+	return IFactory<ISpotLightD>::GetObjectPtr(lightName);
+}
+
+ISpotLightD * ILightManager::GetSpotLightD(UINT index)
+{
+	return IFactory<ISpotLightD>::GetObjectPtr(index);
+}
+
+IDirLightS * ILightManager::GetDirLightS(N_UID lightName)
+{
+	return IFactory<IDirLightS>::GetObjectPtr(lightName);
+}
+
+IDirLightS * ILightManager::GetDirLightS(UINT index)
+{
+	return IFactory<IDirLightS>::GetObjectPtr(index);
+}
+
+IPointLightS * Noise3D::ILightManager::GetPointLightS(N_UID lightName)
+{
+	return IFactory<IPointLightS>::GetObjectPtr(lightName);
+}
+
+IPointLightS * ILightManager::GetPointLightS(UINT index)
+{
+	return IFactory<IPointLightS>::GetObjectPtr(index);
+}
+
+ISpotLightS * ILightManager::GetSpotLightS(N_UID lightName)
+{
+	return IFactory<ISpotLightS>::GetObjectPtr(lightName);
+}
+
+ISpotLightS * ILightManager::GetSpotLightS(UINT index)
+{
+	return  IFactory<ISpotLightS>::GetObjectPtr(index);
+}
+
+//-----------Dynamic Light Deletion-------------
 BOOL ILightManager::DeleteDirLightD(N_UID lightName)
 {
 	return IFactory<IDirLightD>::DestroyObject(lightName);
@@ -186,15 +247,30 @@ UINT	ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
 {
 	switch(lightType)
 	{
-	case NOISE_LIGHT_TYPE_DIRECTIONAL :
-		return (IFactory<IDirLightD>::GetObjectCount()+ IFactory<IDirLightS>::GetObjectCount());
+	case NOISE_LIGHT_TYPE_DYNAMIC_DIR :
+		return IFactory<IDirLightD>::GetObjectCount();
 		break;
-	case NOISE_LIGHT_TYPE_POINT :
-		return (IFactory<IPointLightD>::GetObjectCount() + IFactory<IPointLightS>::GetObjectCount());
+	
+	case NOISE_LIGHT_TYPE_STATIC_DIR:
+		return IFactory<IDirLightS>::GetObjectCount();
 		break;
-	case NOISE_LIGHT_TYPE_SPOT :
-		return (IFactory<ISpotLightD>::GetObjectCount() + IFactory<ISpotLightS>::GetObjectCount());
+
+	case NOISE_LIGHT_TYPE_DYNAMIC_POINT :
+		return IFactory<IPointLightD>::GetObjectCount();
 		break;
+
+	case NOISE_LIGHT_TYPE_STATIC_POINT:
+		return IFactory<IPointLightS>::GetObjectCount();
+		break;
+	
+	case NOISE_LIGHT_TYPE_DYNAMIC_SPOT :
+		return IFactory<ISpotLightD>::GetObjectCount(); 
+		break;
+
+	case NOISE_LIGHT_TYPE_STATIC_SPOT:
+		return IFactory<ISpotLightS>::GetObjectCount();
+		break;
+
 	default:
 		return 0;
 	}

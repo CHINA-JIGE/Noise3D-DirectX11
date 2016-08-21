@@ -18,14 +18,13 @@ static D3DX11_TECHNIQUE_DESC	tmp_pTechDesc;
 
 IRenderer::IRenderer()
 {
-	m_pFatherScene								= nullptr;
 	mCanUpdateCbCameraMatrix			= FALSE;
 	m_pRenderList_Mesh						= new std::vector <IMesh*>;
 	m_pRenderList_CommonGraphicObj	= new std::vector<IGraphicObject*>;
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_TextStatic					= new std::vector<IBasicTextInfo*>;//for Text Rendering
-	m_pRenderList_GUIText						= new std::vector<IBasicTextInfo*>;//for GUI Text Rendering
-	m_pRenderList_GUIGraphicObj			= new std::vector<IGraphicObject*>;//for GUI common object rendering
+	//m_pRenderList_GUIText						= new std::vector<IBasicTextInfo*>;//for GUI Text Rendering
+	//m_pRenderList_GUIGraphicObj			= new std::vector<IGraphicObject*>;//for GUI common object rendering
 	m_pRenderList_Atmosphere				= new std::vector<IAtmosphere*>;
 	m_pFX = nullptr;
 	m_pFX_Tech_Default = nullptr;
@@ -57,55 +56,34 @@ IRenderer::~IRenderer()
 };
 
 
-void IRenderer::AddObjectToRenderList(IMesh& obj)
+void IRenderer::AddObjectToRenderList(IMesh* obj)
 {
-	m_pRenderList_Mesh->push_back(&obj);
+	m_pRenderList_Mesh->push_back(obj);
 };
 
-void IRenderer::AddObjectToRenderList(IAtmosphere& obj)
+void IRenderer::AddObjectToRenderList(IAtmosphere* obj)
 {
-	m_pRenderList_Atmosphere->push_back(&obj);
+	m_pRenderList_Atmosphere->push_back(obj);
 	//fog color will only be rendered after ADDTORENDERLIST();
-	obj.mFogHasBeenAddedToRenderList = TRUE;
+	obj->mFogHasBeenAddedToRenderList = TRUE;
 };
 
-void IRenderer::AddObjectToRenderList(IGraphicObject& obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
+void IRenderer::AddObjectToRenderList(IGraphicObject* obj)
 {
-	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
-	{
-		mFunction_AddToRenderList_GraphicObj(&obj, m_pRenderList_CommonGraphicObj);
-	}
-	else
-	{
-		mFunction_AddToRenderList_GraphicObj(&obj, m_pRenderList_GUIGraphicObj);
-	}
+	mFunction_AddToRenderList_GraphicObj(obj, m_pRenderList_CommonGraphicObj);
 }
 
-void IRenderer::AddObjectToRenderList(IDynamicText & obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
+void IRenderer::AddObjectToRenderList(IDynamicText* obj)
 {
-	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
-	{
-		mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextDynamic);
-	}
-	else
-	{
-		mFunction_AddToRenderList_Text(&obj, m_pRenderList_GUIText);
-	}
+	mFunction_AddToRenderList_Text(obj, m_pRenderList_TextDynamic);
 }
 
-void IRenderer::AddObjectToRenderList(IStaticText & obj, NOISE_RENDERER_ADDTOLIST_OBJ_TYPE objType)
+void IRenderer::AddObjectToRenderList(IStaticText* obj)
 {
-	if (objType == NOISE_RENDERER_ADDTOLIST_OBJ_TYPE_COMMON_OBJECT)
-	{
-		mFunction_AddToRenderList_Text(&obj, m_pRenderList_TextStatic);
-	}
-	else
-	{
-		mFunction_AddToRenderList_Text(&obj, m_pRenderList_GUIText);
-	}
+	mFunction_AddToRenderList_Text(obj, m_pRenderList_TextStatic);
 };
 
-void	IRenderer::ClearBackground(NVECTOR4 color)
+void	IRenderer::ClearBackground(const NVECTOR4& color)
 {
 	float ClearColor[4] = { color.x,color.y,color.z,color.w };
 	g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, ClearColor );
@@ -520,7 +498,7 @@ void		IRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 	}
 }
 
-inline void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
+void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 {
 	if (mCanUpdateCbCameraMatrix)
 	{

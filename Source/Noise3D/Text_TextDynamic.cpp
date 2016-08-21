@@ -43,7 +43,7 @@ void IDynamicText::SetHeight(float h)
 
 void IDynamicText::SetFont(N_UID fontName)
 {
-	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
 	if (pFontMgr->IsFontExisted(fontName)==TRUE)
 	{
@@ -67,7 +67,7 @@ N_UID IDynamicText::GetFontName()
 
 NVECTOR2 IDynamicText::GetFontSize(UINT fontID)
 {
-	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 	return pFontMgr->GetFontSize(*m_pFontName);
 };
 
@@ -146,7 +146,7 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 
 inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
 {
-	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(*m_pFontName)->mAsciiCharSizeList.at(wordIndex);
 	return realCharBitmapPixelSize;
 };
@@ -175,7 +175,7 @@ void IDynamicText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT 
 
 void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
 {
-	IFontManager* pFontMgr = GetRoot()->GetScenePtr()->GetFontMgr();
+	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
 	//if font is invalid (deleted??), we must clear the graphic objects 
 	if (pFontMgr->IsFontExisted(*m_pFontName)==FALSE)

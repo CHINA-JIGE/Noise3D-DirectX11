@@ -9,7 +9,7 @@
 
 using namespace Noise3D;;
 
-void IRenderer::RenderGUIObjects()
+/*void IRenderer::RenderGUIObjects()
 {
 	//validation before rendering
 	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
@@ -32,18 +32,13 @@ void IRenderer::RenderGUIObjects()
 	mFunction_GraphicObj_RenderLine2DInList(m_pRenderList_GUIGraphicObj);
 	mFunction_GraphicObj_RenderTriangle2DInList(m_pRenderList_GUIGraphicObj);
 	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
-}
+}*/
 
 void IRenderer::RenderGraphicObjects()
 {
-	//validation before rendering
-	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
-		return;
-	};
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
-	ICamera* const pCamera = m_pFatherScene->GetCamera();
+	ICamera* const pCamera = GetScene()->GetCamera();
 
 	//set fillmode & cullmode
 	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
@@ -69,18 +64,20 @@ void IRenderer::RenderGraphicObjects()
 									P R I V A T E
 ************************************************************************/
 
-
-void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(UINT TexID)
+//invoked by RenderTriangle(when needed)
+void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 {
 	//Get Shader Resource View
 	ID3D11ShaderResourceView* tmp_pSRV = NULL;
 
-	//......
-	TexID = m_pFatherScene->m_pChildTextureMgr->ValidateIndex(TexID, NOISE_TEXTURE_TYPE_COMMON);
 
-	if (TexID != NOISE_MACRO_INVALID_TEXTURE_ID)
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	//......
+	BOOL IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
+
+	if (IsUidValid)
 	{
-		tmp_pSRV = m_pFatherScene->m_pChildTextureMgr->m_pTextureObjectList->at(TexID).m_pSRV;
+		tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
 		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 }
@@ -203,8 +200,9 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = NULL;
 
-	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
+	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 
 	for (UINT i = 0;i < pList->size();i++)
 	{
@@ -233,14 +231,16 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		for (auto tmpRegion : *(pList->at(i)->m_pRectSubsetInfoList))
 		{
 			//if current Rectangle disable Texture ,then draw in a solid way
-			if (tmpRegion.texID == NOISE_MACRO_INVALID_TEXTURE_ID)
+			//thus validate the UID first
+			if (pTexMgr->FindUid(tmpRegion.texName)==FALSE)
 			{
+				//draw with solid texture
 				m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 			else
 			{
 				//------Draw 2D Common Texture-----
-				mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texID);
+				mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texName);
 				m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 
