@@ -58,7 +58,7 @@ IRoot::IRoot() :
 {
 	mRenderWindowTitle = L"Noise 3D - Render Window";
 	m_pMainLoopFunction = nullptr;
-
+	mMainLoopStatus = NOISE_MAINLOOP_STATUS_BUSY;
 }
 
 IRoot::~IRoot()
@@ -69,7 +69,7 @@ IRoot::~IRoot()
 
 IScene* IRoot::GetScenePtr()
 {
-	static const N_UID sceneUID = "myScene";
+	const N_UID sceneUID = "myScene";
 	//first time to get a ScenePtr,Create one
 	if (IFactory<IScene>::GetObjectCount() == 0)
 	{
@@ -159,7 +159,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 			&g_pd3dDevice11,		//返回D3D设备指针
 			&g_Device_featureLevel,	//返回最终使用的特性的版本
 			&g_pImmediateContext//返回
-			);
+		);
 		//创建成功了就不用继续尝试创建
 		if (SUCCEEDED(hr))
 		{
@@ -199,14 +199,14 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	SwapChainParam.SampleDesc.Count = (g_Device_MSAA4xEnabled = TRUE ? 4 : 1);//多重采样倍数
 	SwapChainParam.SampleDesc.Quality = (g_Device_MSAA4xEnabled = TRUE ? g_Device_MSAA4xQuality - 1 : 0);//quality之前获取了
 
-	 //下面的COM的QueryInterface 用一个接口查询另一个接口
+																										 //下面的COM的QueryInterface 用一个接口查询另一个接口
 	IDXGIDevice *dxgiDevice = 0;
 	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	IDXGIAdapter *dxgiAdapter = 0;
 	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
 	IDXGIFactory *dxgiFactory = 0;
 	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
-	
+
 	//终于创建了一个交换链
 	hr = dxgiFactory->CreateSwapChain(
 		g_pd3dDevice11,		//设备的指针
@@ -236,7 +236,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 
 	pBackBuffer->Release();		//已经用完了的临时接口- -
 
-	//ReleaseCOM(g_pd3dDevice11);
+								//ReleaseCOM(g_pd3dDevice11);
 
 	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
 
@@ -263,7 +263,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 		0,
 		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
 
-	//ReleaseCOM(g_pd3dDevice11);
+								//ReleaseCOM(g_pd3dDevice11);
 	pDepthStencilBuffer->Release();
 
 	if (FAILED(hr))
@@ -320,16 +320,21 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	//check live object
 #if defined(DEBUG) || defined(_DEBUG)
 	ID3D11Debug *d3dDebug;
-	HRESULT hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
-	if (SUCCEEDED(hr))
+	HRESULT hr = S_OK;
+	if (g_pd3dDevice11 != nullptr)
 	{
-		hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
+		if (SUCCEEDED(hr))
+		{
+			hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		}
+
+		if (d3dDebug != nullptr)d3dDebug->Release();
+		if(g_pd3dDevice11!=nullptr)g_pd3dDevice11->Release();
 	}
-	if (d3dDebug != nullptr)			d3dDebug->Release();
+
 #endif
 
-
-	ReleaseCOM(g_pd3dDevice11);	
 
 }
 

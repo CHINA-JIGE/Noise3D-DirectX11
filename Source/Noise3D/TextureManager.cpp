@@ -528,7 +528,6 @@ UINT ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTex
 		&tmp_pSRV,
 		&hr
 		);
-	//ReleaseCOM(g_pd3dDevice11);
 
 	//................
 	if (FAILED(hr))

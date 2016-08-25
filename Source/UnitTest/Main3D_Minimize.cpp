@@ -1,52 +1,67 @@
 
 #include "Main3D.h"
+
 using namespace Noise3D;
-IRoot IRoot;
-IRenderer Renderer;
-IScene IScene;
+
+IRoot* pRoot;
+IRenderer* pRenderer;
+IScene* pScene;
 
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
+	//Get the only ROOT of Noise3D
+	pRoot = GetRoot();
+
+
+	//use internal windows creation function
 	HWND windowHWND;
-	windowHWND = IRoot.CreateRenderWindow(640, 480, L"Hahaha Render Window", hInstance);
-	Init3D(windowHWND);
-	IRoot.SetMainLoopFunction(MainLoop);
-	IRoot.Mainloop();
+	windowHWND = pRoot->CreateRenderWindow(640, 480, L"Hahaha Render Window", hInstance);
+
+	const UINT bufferWidth = 640;
+	const UINT bufferHeight = 480;
+	pRoot->InitD3D(windowHWND, bufferWidth, bufferHeight, TRUE);
+
+	//Get the only SCENE of Noise3D::Root
+	pScene = pRoot->GetScenePtr();
+	pRenderer = pScene->GetRenderer();
+
+	//renderer init failed
+	if (pRenderer == nullptr)return FALSE;
+
+	//register MAINLOOP function (it will be called every frame)
+	pRoot->SetMainLoopFunction(MainLoop);
+
+	//do some customized init stuff
+	Init3D();
+
+	//start main loop
+	pRoot->Mainloop();
+
+	//terminate cleaning
 	Cleanup();
 	return 0;
 }
 
-BOOL Init3D(HWND hwnd)
+BOOL Init3D()
 {
-	const UINT bufferWidth = 640;
-	const UINT bufferHeight = 480;
 
-	//³õÊ¼»¯Ê§°Ü
-	if (!IRoot.InitD3D(hwnd, bufferWidth, bufferHeight, TRUE))return FALSE;
-	IScene.CreateRenderer(Renderer);
 	return TRUE;
 };
 
 
 void MainLoop()
 {
-	Renderer.ClearBackground();
+	pRenderer->ClearBackground();
 
 	//present
-	Renderer.RenderToScreen();
+	pRenderer->RenderToScreen();
 };
 
 
 void Cleanup()
 {
-	IRoot.ReleaseAll();
-	IScene.ReleaseAllChildObject();
+	pRoot->ReleaseAll();
 };
 
-
-
-
-
-UINT Button1MsgProc(UINT msg) { return TRUE; };
 void	InputProcess() {};

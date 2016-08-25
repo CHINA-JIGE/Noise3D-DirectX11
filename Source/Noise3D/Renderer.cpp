@@ -103,6 +103,8 @@ void	IRenderer::RenderToScreen()
 		m_pRenderList_CommonGraphicObj->clear();
 		m_pRenderList_Mesh->clear();
 		m_pRenderList_Atmosphere->clear();
+		m_pRenderList_TextDynamic->clear();
+		m_pRenderList_TextStatic->clear();
 };
 
 void IRenderer::SetFillMode(NOISE_FILLMODE iMode)

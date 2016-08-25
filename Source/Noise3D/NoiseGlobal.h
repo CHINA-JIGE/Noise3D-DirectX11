@@ -69,10 +69,36 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
-	extern /*_declspec(dllexport)*/ void ERROR_MSG(std::string msg);
+	//extern /*_declspec(dllexport)*/ void ERROR_MSG(std::string msg);
 
-	extern /*_declspec(dllexport)*/ void WARNING_MSG(std::string msg);
+	//extern /*_declspec(dllexport)*/ void WARNING_MSG(std::string msg);
 
+	//implementing these 2 op with functions is not acceptable because pre-processed
+	//data will be wiped out.
+	#define ERROR_MSG(msg)\
+	{\
+		std::ostringstream debugMsg;\
+		debugMsg << "ERROR:" << std::endl;\
+		debugMsg << msg << std::endl;\
+		debugMsg << "file: " << __FILE__ << std::endl;\
+		debugMsg << "line: " << __LINE__ << std::endl;\
+		debugMsg << "function:" << __func__ << std::endl;\
+		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		debugMsg.clear();\
+	}\
+
+
+	#define WARNING_MSG(msg)\
+	{\
+		std::ostringstream debugMsg;\
+		debugMsg << "WARNING:" << std::endl;\
+		debugMsg << msg << std::endl;\
+		debugMsg << "file: " << __FILE__ << std::endl;\
+		debugMsg << "line: " << __LINE__ << std::endl;\
+		debugMsg << "function:" << __func__ << std::endl;\
+		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		debugMsg.clear();\
+	};\
 
 
 }

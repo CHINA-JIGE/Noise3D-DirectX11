@@ -53,9 +53,6 @@ namespace Noise3D
 		HINSTANCE		mRenderWindowHINSTANCE;
 		HWND				mRenderWindowHWND;
 
-		UINT					mRenderWindowPixelWidth;
-		UINT					mRenderWindowPixelHeight;
-
 		//function pointer used to encapsule the "Main Loop" into the framwork
 		void(*m_pMainLoopFunction)(void);
 		NOISE_MAINLOOP_STATUS		mMainLoopStatus;

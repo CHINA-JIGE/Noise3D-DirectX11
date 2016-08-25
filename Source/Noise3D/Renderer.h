@@ -213,6 +213,8 @@ namespace Noise3D
 
 		~IRenderer();
 
+		HWND mRenderWindowHWND;
+
 		std::vector <IMesh*>*				m_pRenderList_Mesh;
 		std::vector <IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
 		std::vector <IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)

@@ -184,27 +184,4 @@ using namespace Noise3D;
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 };
 
-/*_declspec(dllexport)*/  void Noise3D::ERROR_MSG(std::string msg)
-	{
-		std::ostringstream debugMsg;
-		debugMsg << "ERROR:" << std::endl;
-		debugMsg << msg << std::endl;
-		debugMsg << "file: " << __FILE__ << std::endl;
-		debugMsg << "line: " << __LINE__ << std::endl;
-		debugMsg << "function:" << __func__ << std::endl;
-		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
-		debugMsg.clear();
-	}
-
-/*_declspec(dllexport)*/  void Noise3D::WARNING_MSG(std::string msg)
-{
-	std::ostringstream debugMsg;
-	debugMsg << "WARNING:" << std::endl;
-	debugMsg << msg << std::endl;
-	debugMsg << "file: " << __FILE__ << std::endl;
-	debugMsg << "line: " << __LINE__ << std::endl;
-	debugMsg << "function:" << __func__ << std::endl;
-	MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
-	debugMsg.clear();
-};
 

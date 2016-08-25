@@ -616,7 +616,6 @@ BOOL IMesh::mFunction_CreateGpuBuffers
 	hr = g_pd3dDevice11->CreateBuffer(&ibd,pIndexDataInMem,&m_pIB_Gpu);
 	HR_DEBUG(hr,"INDEX BUFFER´´½¨Ê§°Ü");
 
-	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 	
