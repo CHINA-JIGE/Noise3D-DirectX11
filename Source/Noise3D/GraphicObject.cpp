@@ -640,7 +640,7 @@ BOOL	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
 	//Create Buffers
 	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
-	////ReleaseCOM(g_pd3dDevice11);
+
 	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
 
 	return TRUE;

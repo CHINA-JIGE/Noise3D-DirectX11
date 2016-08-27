@@ -18,7 +18,7 @@ N_FontObject::N_FontObject()
 
 N_FontObject::~N_FontObject()
 {
-	FT_Done_Face(mFtFace);
+	//FT_Done_Face(mFtFace);
 	mAsciiCharSizeList.clear();
 };
 
@@ -38,8 +38,10 @@ IFontManager::~IFontManager()
 	//FT faces will be deleted, then erase font objects
 	IFactory<N_FontObject>::DestroyAllObject();
 	FT_Done_FreeType(m_FTLibrary);
-	m_pTexMgr->DeleteAllTexture();//font texture
-	m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
+
+	//don't need these 2 GC statement, Scene garbage collection will do that
+	//m_pTexMgr->DeleteAllTexture();//font texture
+	//m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
 
 	IFactory<IStaticText>::DestroyAllObject();
 	IFactory<IDynamicText>::DestroyAllObject();

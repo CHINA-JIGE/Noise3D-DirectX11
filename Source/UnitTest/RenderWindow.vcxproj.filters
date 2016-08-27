@@ -14,13 +14,10 @@
     <ClCompile Include="Main3D.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTest_Oscilloscope.cpp">
-      <Filter>Main3D</Filter>
-    </ClCompile>
-    <ClCompile Include="UnitTest_GUI.cpp">
-      <Filter>Main3D</Filter>
-    </ClCompile>
     <ClCompile Include="Main3D_Minimize.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTest_Mesh.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,10 +25,5 @@
     <ClInclude Include="Main3D.h">
       <Filter>Main3D</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="UnitTest_Mesh.cpp">
-      <Filter>Main3D</Filter>
-    </None>
   </ItemGroup>
 </Project>

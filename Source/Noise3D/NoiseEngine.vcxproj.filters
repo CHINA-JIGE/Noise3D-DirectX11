@@ -7,15 +7,6 @@
     <Filter Include="NoiseUtility">
       <UniqueIdentifier>{b9fd6203-deb2-48ae-bfee-d60937fd5bd8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseUtility\NUT_NoiseUtInputEngine">
-      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\NUT_NoiseUtSlicer">
-      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\NUT_NoiseUtTimer">
-      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic">
       <UniqueIdentifier>{52ea6c49-24be-4007-997e-20e050bf5eed}</UniqueIdentifier>
     </Filter>
@@ -79,6 +70,15 @@
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseUtility\UtInputEngine">
+      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\UtSlicer">
+      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\UtTimer">
+      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -139,16 +139,16 @@
       <Filter>NoiseGraphic\TextureManager</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MeshSlicer.h">
-      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
+      <Filter>NoiseUtility\UtSlicer</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine.h">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+      <Filter>NoiseUtility\UtInputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine_KeyDef.h">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+      <Filter>NoiseUtility\UtInputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_Timer.h">
-      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
+      <Filter>NoiseUtility\UtTimer</Filter>
     </ClInclude>
     <ClInclude Include="_2DBasicContainerInfo.h">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
@@ -249,13 +249,13 @@
       <Filter>NoiseGraphic\TextureManager</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtSlicer</Filter>
+      <Filter>NoiseUtility\UtSlicer</Filter>
     </ClCompile>
     <ClCompile Include="Ut_InputEngine.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtInputEngine</Filter>
+      <Filter>NoiseUtility\UtInputEngine</Filter>
     </ClCompile>
     <ClCompile Include="Ut_Timer.cpp">
-      <Filter>NoiseUtility\NUT_NoiseUtTimer</Filter>
+      <Filter>NoiseUtility\UtTimer</Filter>
     </ClCompile>
     <ClCompile Include="_2DBasicContainerInfo.cpp">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>

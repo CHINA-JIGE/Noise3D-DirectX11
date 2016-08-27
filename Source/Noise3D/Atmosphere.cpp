@@ -134,7 +134,6 @@ BOOL IAtmosphere::CreateSkyDome(float fRadiusXZ, float fHeight, N_UID texName)
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
 
-	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 
@@ -215,7 +214,6 @@ BOOL IAtmosphere::CreateSkyBox(float fWidth, float fHeight, float fDepth, N_UID 
 	//set current sky type
 	mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
 
-	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 }
 

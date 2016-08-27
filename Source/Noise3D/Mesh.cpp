@@ -37,6 +37,9 @@ IMesh::IMesh()
 	m_pVB_Mem		= new std::vector<N_DefaultVertex>;
 	m_pIB_Mem			= new std::vector<UINT>;
 	m_pSubsetInfoList		= new std::vector<N_MeshSubsetInfo>;//store [a,b] of a subset
+
+	m_pVB_Gpu = nullptr;
+	m_pIB_Gpu = nullptr;
 };
 
 IMesh::~IMesh()
@@ -498,9 +501,14 @@ void IMesh::SetPosition(float x,float y,float z)
 	m_pPosition->z =z;
 }
 
-void Noise3D::IMesh::SetPosition(const NVECTOR3 & pos)
+void IMesh::SetPosition(const NVECTOR3 & pos)
 {
 	*m_pPosition = pos;
+}
+
+NVECTOR3 Noise3D::IMesh::GetPosition()
+{
+	return *m_pPosition;
 }
 
 void IMesh::SetRotation(float angleX, float angleY, float angleZ)
@@ -523,6 +531,36 @@ void IMesh::SetRotationY_Yaw(float angleY)
 void IMesh::SetRotationZ_Roll(float angleZ)
 {
 	mRotationZ_Roll = angleZ;
+}
+
+void IMesh::RotateX_Pitch(float angleX)
+{
+	mRotationX_Pitch += angleX;
+}
+
+void IMesh::RotateY_Yaw(float angleY)
+{
+	mRotationY_Yaw += angleY;
+}
+
+void IMesh::RotateZ_Roll(float angleZ)
+{
+	mRotationZ_Roll += angleZ;
+}
+
+float IMesh::GetRotationX_Pitch()
+{
+	return mRotationX_Pitch;
+}
+
+float IMesh::GetRotationY_Yaw()
+{
+	return mRotationY_Yaw;
+}
+
+float IMesh::GetRotationZ_Roll()
+{
+	return mRotationZ_Roll;
 }
 
 void IMesh::SetScale(float scaleX, float scaleY, float scaleZ)

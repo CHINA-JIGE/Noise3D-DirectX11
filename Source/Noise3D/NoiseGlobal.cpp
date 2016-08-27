@@ -179,6 +179,11 @@ using namespace Noise3D;
 	return (val >= min ? (val <= max ? val : max) : min);
 }
 
+/*_declspec(dllexport)*/ inline double Noise3D::Clamp(double val, double min, double max)
+{
+	return (val >= min ? (val <= max ? val : max) : min);
+}
+
 /*_declspec(dllexport)*/ NVECTOR3 Noise3D::Clamp(const NVECTOR3 & target, const NVECTOR3 & min, const NVECTOR3 & max)
 {
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));

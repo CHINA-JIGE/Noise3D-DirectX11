@@ -155,13 +155,13 @@ namespace Noise3D
 		{
 			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
-			if (iter == m_pUidToIndexHashTable->cend())
+			if (iter != m_pUidToIndexHashTable->end())
 			{
 				return iter->second;//index
 			}
 			else
 			{
-				return NOISE_MACRO_INVALID_TEXTURE_ID;
+				return NOISE_MACRO_INVALID_ID;
 			}
 		}
 
@@ -175,7 +175,7 @@ namespace Noise3D
 			return "";//index invalid
 		}
 
-		inline UINT		GetObjectCount() 
+	  UINT		GetObjectCount() 
 		{
 			return m_pChildObjectList->size();
 		}
@@ -286,6 +286,7 @@ namespace Noise3D
 			{
 				//delete child object pointers
 				delete childObjInfo._pObjPtr;
+				childObjInfo._pObjPtr = nullptr;
 			}
 
 			//then clear the list

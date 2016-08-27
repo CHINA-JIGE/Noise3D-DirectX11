@@ -178,8 +178,6 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 		g_Device_MSAA4xEnabled = TRUE;	//4x抗锯齿可以开了
 	};
 
-	//ReleaseCOM(g_pd3dDevice11);
-
 
 	/*填充交换链的属性
 	交换链，用于管理BUFEER的交换，主要处理back与front
@@ -236,7 +234,6 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 
 	pBackBuffer->Release();		//已经用完了的临时接口- -
 
-								//ReleaseCOM(g_pd3dDevice11);
 
 	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
 
@@ -263,7 +260,6 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 		0,
 		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
 
-								//ReleaseCOM(g_pd3dDevice11);
 	pDepthStencilBuffer->Release();
 
 	if (FAILED(hr))
@@ -297,7 +293,6 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 
 #pragma endregion CreateViewPort
 
-	//ReleaseCOM(g_pd3dDevice11);
 	return TRUE;
 
 };
@@ -330,7 +325,7 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 		}
 
 		if (d3dDebug != nullptr)d3dDebug->Release();
-		if(g_pd3dDevice11!=nullptr)g_pd3dDevice11->Release();
+		if (g_pd3dDevice11!=nullptr)g_pd3dDevice11->Release();
 	}
 
 #endif

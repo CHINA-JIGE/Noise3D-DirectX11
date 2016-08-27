@@ -35,6 +35,8 @@ namespace Noise3D
 
 		void		SetPosition(const NVECTOR3& pos);
 
+		NVECTOR3 GetPosition();
+
 		void		SetRotation(float angleX, float angleY, float angleZ);
 
 		void		SetRotationX_Pitch(float angleX);
@@ -42,6 +44,18 @@ namespace Noise3D
 		void		SetRotationY_Yaw(float angleY);
 
 		void		SetRotationZ_Roll(float angleZ);
+
+		void		RotateX_Pitch(float angleX);//relatively
+
+		void		RotateY_Yaw(float angleY);//relatively
+
+		void		RotateZ_Roll(float angleZ);//relatively
+
+		float		GetRotationX_Pitch();
+
+		float		GetRotationY_Yaw();
+
+		float		GetRotationZ_Roll();
 
 		void		SetScale(float scaleX, float scaleY, float scaleZ);
 

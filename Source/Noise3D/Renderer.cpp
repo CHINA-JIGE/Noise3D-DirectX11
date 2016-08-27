@@ -151,7 +151,7 @@ BOOL	IRenderer::mFunction_Init()
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Default);
-	//ReleaseCOM(g_pd3dDevice11);
+
 	HR_DEBUG(hr, "创建input Layout失败！");
 
 	//simple vertex input layout
@@ -162,7 +162,7 @@ BOOL	IRenderer::mFunction_Init()
 		passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Simple);
-	//ReleaseCOM(g_pd3dDevice11);
+
 	HR_DEBUG(hr, "创建input Layout失败！");
 #pragma endregion Create Input Layout
 
@@ -194,8 +194,6 @@ BOOL	IRenderer::mFunction_Init()
 	if (!mFunction_Init_CreateSamplerState())return FALSE;
 	if (!mFunction_Init_CreateDepthStencilState())return FALSE;
 
-	//ReleaseCOM(g_pd3dDevice11);
-
 	return TRUE;
 }
 
@@ -217,7 +215,6 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_Opaque);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create blend state(opaque) failed!!");
 
 	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
@@ -231,7 +228,6 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorAdd);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create blend state(Color Add) failed!!");
 
 	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
@@ -245,7 +241,6 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorMultiply);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create blend state(Color Filter) failed!!");
 
 	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
@@ -259,7 +254,6 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	tmpBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	tmpBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create blend state(Transparency) failed!!");
 
 	return TRUE;
@@ -276,37 +270,31 @@ BOOL	IRenderer::mFunction_Init_CreateRasterState()
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullNone);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullNone failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullNone);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullNone failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullBack);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullBack failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_BACK;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullBack);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create m_pRasterState_WireFrame_CullBack failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullFront);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create m_pRasterState_Solid_CullFront failed");
 
 	tmpRasterStateDesc.CullMode = D3D11_CULL_FRONT;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Createm_pRasterState_WireFrame_CullFront failed");
 
 	return TRUE;
@@ -326,7 +314,6 @@ BOOL	IRenderer::mFunction_Init_CreateSamplerState()
 	samDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samDesc.MaxAnisotropy = 4;
 	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterAnis);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create Sampler State failed!!");
 
 	return TRUE;
@@ -343,7 +330,6 @@ BOOL	IRenderer::mFunction_Init_CreateDepthStencilState()
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.StencilEnable = FALSE;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
 
 
@@ -351,7 +337,6 @@ BOOL	IRenderer::mFunction_Init_CreateDepthStencilState()
 	dssDesc.DepthEnable = FALSE;
 	dssDesc.StencilEnable = FALSE;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
-	//ReleaseCOM(g_pd3dDevice11);
 	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
 
 	return TRUE;

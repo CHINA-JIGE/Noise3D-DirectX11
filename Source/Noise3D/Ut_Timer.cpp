@@ -18,6 +18,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	mMilliSecondsPerCount	= 0.0;
 	mDeltaTime				= 0.0;
 	mTotalTime				= 0.0;
+	mMaxInterval			= 1000.0f;//milli second
 	mIsPaused				= FALSE;
 
 	//每秒可以数多少次
@@ -29,10 +30,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 
 }
 
-void ITimer::SelfDestruction()
-{
-};
-
+//elapse time . and time interval will be scaled
 void ITimer::NextTick()
 {
 	if(mIsPaused)
@@ -59,17 +57,17 @@ void ITimer::NextTick()
 		};
 
 		//没暂停就更新总时间 单位：ms
-		mTotalTime += mDeltaTime;
+		mTotalTime += mDeltaTime *mTimeScaleFactor;
 
-		//...to compute FPS
+		//accumulate ticks count within one sec
 		++mCurrentSecondTickCount;
 
-		//compute FPS(check if we had fallen into next second)
-
+		//check if total time had round down to a bigger integer,then compute FPS of last second
 		if (mCurrentSecondInteger != UINT(mTotalTime/1000.0))
 		{
 			mFPS = mCurrentSecondTickCount;
 			mCurrentSecondTickCount = 0;//reset
+			//current second integer = total fractional time round down to integer
 			mCurrentSecondInteger = UINT(mTotalTime / 1000.0);
 		};
 		
@@ -81,8 +79,8 @@ UINT ITimer::GetFPS() const
 	return mFPS;
 };
 
-
-double ITimer::GetTotalTime()const
+//scaled elapsed time is counted in
+double ITimer::GetTotalTimeElapsed()const
 {
 	switch(mTimeUnit)
 	{
@@ -96,20 +94,22 @@ double ITimer::GetTotalTime()const
 	return 0;
 };
 
+//return time is scaled
 double ITimer::GetInterval()const
 {
 	switch(mTimeUnit)
 	{
 	case NOISE_TIMER_TIMEUNIT_MILLISECOND:
-		return mDeltaTime; 
+		return Clamp(mDeltaTime,0.0,mMaxInterval)*mTimeScaleFactor;
 		break;
 	case NOISE_TIMER_TIMEUNIT_SECOND:
-		return (mDeltaTime/1000); 
+		return Clamp(mDeltaTime/1000.0, 0.0, mMaxInterval/1000.0)*mTimeScaleFactor;
 		break;
 	};
 	return 0;
 };
 
+//select milli-sec or second
 void ITimer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
 {
 	if (timeUnit ==NOISE_TIMER_TIMEUNIT_SECOND||timeUnit==NOISE_TIMER_TIMEUNIT_MILLISECOND)
@@ -136,4 +136,24 @@ void ITimer::ResetAll()
 void ITimer::ResetTotalTime()
 {
 	mTotalTime = 0;
-};
+}
+
+void ITimer::SetTimeIntervalClamp(double maxInterval)
+{
+	if (maxInterval > 0.0f)
+	{
+		mMaxInterval = maxInterval;
+	}
+}
+
+void ITimer::SetTimeScale(double scaleFactor)
+{
+	mTimeScaleFactor = scaleFactor;//could be neg/0/pos
+}
+
+double ITimer::GetTimeScale() const
+{
+	return mTimeScaleFactor;
+}
+;
+

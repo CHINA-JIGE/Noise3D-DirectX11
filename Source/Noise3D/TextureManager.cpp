@@ -245,7 +245,6 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	 //create texture2D first 
 	ID3D11Texture2D* pTmpTexture2D;
 	hr = g_pd3dDevice11->CreateTexture2D(&texDesc, &texInitDataDesc, &pTmpTexture2D);
-	//ReleaseCOM(g_pd3dDevice11);
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
@@ -256,7 +255,6 @@ UINT ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UIN
 	//Create SRV from texture 2D (to a tmp textureObject)
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmp_pSRV);
-	//ReleaseCOM(g_pd3dDevice11);
 	if (FAILED(hr))
 	{
 		ReleaseCOM(pTmpTexture2D);
@@ -1013,7 +1011,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePat
 	HRESULT hr = S_OK;
 
 	//we must check if new name has been used
-	if(GetTextureID(texName)!=NOISE_MACRO_INVALID_TEXTURE_ID)
+	if(ValidateUID(texName)==TRUE)
 	{
 		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
@@ -1063,7 +1061,7 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//we must check if new name has been used
 	//count() will return 0 if given key dont exists
-	if (GetTextureID(texName) != NOISE_MACRO_INVALID_TEXTURE_ID)
+	if (ValidateUID(texName)==TRUE)
 	{
 		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
@@ -1197,10 +1195,10 @@ UINT ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePat
 
 	//at last create  a new texture object
 	N_TextureObject* pTexObj = IFactory<N_TextureObject>::CreateObject(texName);
-	pTexObj->mIsPixelBufferInMemValid = FALSE;
+	pTexObj->mIsPixelBufferInMemValid = TRUE;
 	pTexObj->mTextureType = NOISE_TEXTURE_TYPE_COMMON;
 	pTexObj->m_pSRV = tmp_pSRV;//created by D3D
-	pTexObj->mPixelBuffer.clear();
+	pTexObj->mPixelBuffer = std::move(pixelBuffer);//copy the read pixel array to texObj
 
 	UINT newTexIndex = IFactory<N_TextureObject>::GetObjectID(texName);
 

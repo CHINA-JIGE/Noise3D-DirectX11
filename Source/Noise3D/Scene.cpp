@@ -19,9 +19,9 @@ IScene::IScene():
 	 IFactory<ICamera>(1),
 	IFactory<IMeshManager>(1),
 	 IFactory<ILightManager>(1),
-	 IFactory<ITextureManager>(1),
+	 IFactory<ITextureManager>(2),//scene/font-internal
 	 IFactory<IMaterialManager>(1),
-	IFactory<IGraphicObjectManager>(1),
+	IFactory<IGraphicObjectManager>(2),//scene/font-internal
 	 IFactory<IAtmosphere>(1),
 	IFactory<IFontManager>(1)
 {

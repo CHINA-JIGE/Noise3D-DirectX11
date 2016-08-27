@@ -224,12 +224,12 @@ BOOL IInputEngine::Update()
 	return TRUE;
 }
 
-inline BOOL IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
+BOOL IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
 {
 	return IsKeyPressed(UINT(keyVal));
 }
 
-inline BOOL IInputEngine::IsKeyPressed(UINT keyVal)
+BOOL IInputEngine::IsKeyPressed(UINT keyVal)
 {
 	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
 	//according to the doc , only low byte of the dwData  matters, so apply "and" with 0x80
