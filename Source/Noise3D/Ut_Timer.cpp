@@ -19,6 +19,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	mDeltaTime				= 0.0;
 	mTotalTime				= 0.0;
 	mMaxInterval			= 1000.0f;//milli second
+	mTimeScaleFactor	= 1.0f;
 	mIsPaused				= FALSE;
 
 	//每秒可以数多少次
@@ -33,6 +34,9 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 //elapse time . and time interval will be scaled
 void ITimer::NextTick()
 {
+	//used to indicate that it's time to update FPS
+	static double normalTotalTime = 0.0;
+
 	if(mIsPaused)
 	{
 		mDeltaTime = 0.0;
@@ -56,19 +60,21 @@ void ITimer::NextTick()
 			mDeltaTime = 0.0;
 		};
 
-		//没暂停就更新总时间 单位：ms
+		//Update Scaled Total Time/Normal Total Time if not pause
 		mTotalTime += mDeltaTime *mTimeScaleFactor;
+		normalTotalTime += mDeltaTime;
 
 		//accumulate ticks count within one sec
 		++mCurrentSecondTickCount;
 
 		//check if total time had round down to a bigger integer,then compute FPS of last second
-		if (mCurrentSecondInteger != UINT(mTotalTime/1000.0))
+		//but we dont use scaled time (but normalTotalTime), because FPS is based on real time elapsed
+		if (mCurrentSecondInteger != UINT(normalTotalTime /1000.0))
 		{
 			mFPS = mCurrentSecondTickCount;
 			mCurrentSecondTickCount = 0;//reset
 			//current second integer = total fractional time round down to integer
-			mCurrentSecondInteger = UINT(mTotalTime / 1000.0);
+			mCurrentSecondInteger = UINT(normalTotalTime / 1000.0);
 		};
 		
 	};

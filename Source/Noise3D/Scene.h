@@ -19,7 +19,8 @@ namespace Noise3D
 		public IFactory<IMaterialManager>,
 		public IFactory<IGraphicObjectManager>,
 		public IFactory<IAtmosphere>,
-		public IFactory<IFontManager>
+		public IFactory<IFontManager>,
+		public IFactory<IModelLoader>
 	{
 
 	public:
@@ -43,6 +44,8 @@ namespace Noise3D
 		IGraphicObjectManager*		GetGraphicObjMgr();
 
 		IFontManager*				GetFontMgr();
+
+		IModelLoader*				GetModelLoader();
 
 	private:
 

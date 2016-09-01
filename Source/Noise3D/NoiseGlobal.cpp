@@ -16,10 +16,6 @@ using namespace Noise3D;
 	//主缓存的像素高度
 	UINT		Noise3D::gMainBufferPixelHeight = 480;
 
-	//抗锯齿品质
-	UINT				Noise3D::g_Device_MSAA4xQuality = 1;
-	//抗锯齿是否开启
-	BOOL				Noise3D::g_Device_MSAA4xEnabled = FALSE;
 	//只是初始化设定是这样而已
 	D3D_DRIVER_TYPE		Noise3D::g_Device_driverType = D3D_DRIVER_TYPE_SOFTWARE;
 	//

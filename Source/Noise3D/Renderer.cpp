@@ -131,7 +131,7 @@ BOOL	IRenderer::mFunction_Init()
 {
 	HRESULT hr = S_OK;
 
-	mFunction_Init_CreateEffectFromMemory("shader\\Main.fxo");
+	mFunction_Init_CreateEffectFromMemory("Resource\\Main.fxo");
 
 	//´´½¨Technique
 	m_pFX_Tech_Default =	m_pFX->GetTechniqueByName("DefaultDraw");

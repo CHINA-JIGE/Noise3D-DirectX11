@@ -46,11 +46,11 @@ namespace Noise3D
 
 			BOOL		IsFontExisted(N_UID fontName);
 
-			IStaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
+			IStaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor=NVECTOR4(0,0,0,0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
-			IStaticText*			CreateStaticTextW(N_UID fontName,  N_UID textObjectName,std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
+			IStaticText*			CreateStaticTextW(N_UID fontName,  N_UID textObjectName,std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor = NVECTOR4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
-			IDynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset);
+			IDynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor = NVECTOR4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
 			NVECTOR2		GetFontSize(N_UID fontName);
 

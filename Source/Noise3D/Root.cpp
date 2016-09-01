@@ -170,12 +170,16 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	HR_DEBUG(hr, "d3d设备创建失败");
 
 
-	//检测多重采样
+	//check multi-sample capability
+	UINT device_MSAA_Quality = 1;//bigger than 1
+	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
+	UINT device_MSAA_Enabled = FALSE;
+
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, 4, &g_Device_MSAA4xQuality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
-	if (g_Device_MSAA4xQuality > 0)
+		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
+	if (device_MSAA_Quality > 0)
 	{
-		g_Device_MSAA4xEnabled = TRUE;	//4x抗锯齿可以开了
+		device_MSAA_Enabled = TRUE;	//4x抗锯齿可以开了
 	};
 
 
@@ -194,10 +198,10 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	SwapChainParam.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//BACKBUFFER怎么被使用
 	SwapChainParam.OutputWindow = RenderHWND;
 	SwapChainParam.Windowed = IsWindowed;
-	SwapChainParam.SampleDesc.Count = (g_Device_MSAA4xEnabled = TRUE ? 4 : 1);//多重采样倍数
-	SwapChainParam.SampleDesc.Quality = (g_Device_MSAA4xEnabled = TRUE ? g_Device_MSAA4xQuality - 1 : 0);//quality之前获取了
+	SwapChainParam.SampleDesc.Count = (device_MSAA_Enabled == TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	SwapChainParam.SampleDesc.Quality = (device_MSAA_Enabled == TRUE ? device_MSAA_Quality - 1 : 0);//quality之前获取了
 
-																										 //下面的COM的QueryInterface 用一个接口查询另一个接口
+	 //下面的COM的QueryInterface 用一个接口查询另一个接口
 	IDXGIDevice *dxgiDevice = 0;
 	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	IDXGIAdapter *dxgiAdapter = 0;
@@ -246,8 +250,8 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
 	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (g_Device_MSAA4xEnabled = TRUE ? 4 : 1);
-	DSBufferDesc.SampleDesc.Quality = (g_Device_MSAA4xEnabled = TRUE ? g_Device_MSAA4xQuality - 1 : 0);
+	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = TRUE ? device_MSAA_Quality - 1 : 0);
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
 	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
 	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
@@ -316,6 +320,7 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 #if defined(DEBUG) || defined(_DEBUG)
 	ID3D11Debug *d3dDebug;
 	HRESULT hr = S_OK;
+
 	if (g_pd3dDevice11 != nullptr)
 	{
 		hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
@@ -324,8 +329,8 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 			hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 		}
 
-		if (d3dDebug != nullptr)d3dDebug->Release();
-		if (g_pd3dDevice11!=nullptr)g_pd3dDevice11->Release();
+		ReleaseCOM(d3dDebug);
+		ReleaseCOM(g_pd3dDevice11);
 	}
 
 #endif
@@ -413,9 +418,7 @@ int	IRoot::GetRenderWindowHeight()
 	RECT windowRect;
 	GetClientRect(mRenderWindowHWND, &windowRect);
 	return (int)(windowRect.bottom - windowRect.top);
-};
-
-
+}
 
 /************************************************************************
 										 PRIVATE                               

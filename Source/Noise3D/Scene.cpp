@@ -166,6 +166,16 @@ IFontManager * IScene::GetFontMgr()
 	return IFactory<IFontManager>::GetObjectPtr(uid);
 }
 
+IModelLoader * IScene::GetModelLoader()
+{
+	const N_UID uid = "sceneModelLoader";
+	if (IFactory<IModelLoader>::FindUid(uid) == FALSE)
+	{
+		IFactory<IModelLoader>::CreateObject(uid);
+	}
+	return IFactory<IModelLoader>::GetObjectPtr(uid);
+}
+
 
 
 /************************************************************************

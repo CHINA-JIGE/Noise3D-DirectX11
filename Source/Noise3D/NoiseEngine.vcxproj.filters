@@ -79,6 +79,12 @@
     <Filter Include="NoiseUtility\UtTimer">
       <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\ModelLoader">
+      <UniqueIdentifier>{85c6daf5-2ac5-4e89-8558-9d052cf46d9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{123f51c3-d695-48c1-8549-7eef67323849}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -176,6 +182,12 @@
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>NoiseGraphic\MaterialManger</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>NoiseGraphic\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -278,5 +290,19 @@
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\MaterialManger</Filter>
     </ClCompile>
+    <ClCompile Include="ModelLoader.cpp">
+      <Filter>NoiseGraphic\ModelLoader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Noise3d.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader1.bin" />
+    <None Include="..\..\Exec\Debug\shader\Main2.fxo">
+      <Filter>Resource</Filter>
+    </None>
   </ItemGroup>
 </Project>

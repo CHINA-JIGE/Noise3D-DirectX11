@@ -109,9 +109,9 @@ BOOL Init3D(HWND hwnd)
 	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
 	//Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
 	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
-	pMesh1->LoadFile_3DS("model/treeScene/treeScene3.3ds");
+	//pMesh1->LoadFile_3DS("model/treeScene/treeScene3.3ds");
 	//Mesh1.LoadFile_OBJ("model/cylinder.obj");
-	//pMesh1->CreateSphere(5.0f, 30, 30);
+	pMesh1->CreateSphere(5.0f, 30, 30);
 	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
 	//Mesh1.CreatePlane(50.0f, 50.0f);
 	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);
@@ -169,7 +169,7 @@ BOOL Init3D(HWND hwnd)
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
-	//pMesh1->SetMaterial("meshMat1");
+	pMesh1->SetMaterial("meshMat1");
 
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 

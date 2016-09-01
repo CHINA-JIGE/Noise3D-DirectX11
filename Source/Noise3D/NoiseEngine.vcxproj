@@ -127,6 +127,8 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
+    <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_FontManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -169,6 +171,7 @@
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="Text_FontManager.cpp" />
     <ClCompile Include="Text_TextDynamic.cpp" />
     <ClCompile Include="Text_TextStatic.cpp" />
@@ -199,6 +202,13 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Noise3d.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Exec\Debug\shader\Main2.fxo" />
+    <None Include="shader1.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

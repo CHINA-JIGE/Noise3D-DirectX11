@@ -46,132 +46,7 @@ IMesh::~IMesh()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
-};
-
-void	IMesh::CreatePlane(float fWidth,float fDepth,UINT iRowCount,UINT iColumnCount)
-{
-	//check if the input "Step Count" is illegal
-	if(iColumnCount <= 2)	{iColumnCount =2;}
-	if(iRowCount <= 2)		{iRowCount = 2;}
-
-	ReleaseCOM(m_pVB_Gpu);
-	m_pVB_Mem->clear();
-	ReleaseCOM(m_pIB_Gpu);
-	m_pIB_Mem->clear();
-
-	//delegate vert/idx creation duty to MeshGenerator 
-	mMeshGenerator.CreatePlane(fWidth, fDepth, iRowCount, iColumnCount, *m_pVB_Mem, *m_pIB_Mem);
-
-	//Prepare to update to GPU
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();
-
-	//最后
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
-
-	//user-set material
-	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-};
-
-void IMesh::CreateBox(float fWidth,float fHeight,float fDepth,UINT iDepthStep,UINT iWidthStep,UINT iHeightStep)
-{
-	//If the user has create sth before,then we will destroy the former
-	//VB in order to create a new size buffer
-	ReleaseCOM(m_pVB_Gpu);
-	m_pVB_Mem->clear();
-	ReleaseCOM(m_pIB_Gpu);
-	m_pIB_Mem->clear();
-
-	//mesh creation delegate to MeshGenerator
-	mMeshGenerator.CreateBox(fWidth, fHeight, fDepth, iDepthStep, iWidthStep, iHeightStep, *m_pVB_Mem, *m_pIB_Mem);
-
-	//Prepare to Create Gpu Buffers
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex,sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index,sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();
-
-	//transmit to gpu
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
-
-	//user-set material
-	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
-
-void	IMesh::CreateSphere(float fRadius,UINT iColumnCount, UINT iRingCount)
-{
-	//check if the input "Step Count" is illegal
-	if(iColumnCount <= 3)	{iColumnCount =3;}
-	if(iRingCount <= 1)		{iRingCount = 1;}
-
-	ReleaseCOM(m_pVB_Gpu);
-	m_pVB_Mem->clear();
-	ReleaseCOM(m_pIB_Gpu);
-	m_pIB_Mem->clear();
-
-	//mesh creation delegate to MeshGenerator
-	mMeshGenerator.CreateSphere(fRadius, iColumnCount, iRingCount, *m_pVB_Mem, *m_pIB_Mem);
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
-
-	//最后
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
-	//user-set material
-	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
-};
-
-void IMesh::CreateCylinder(float fRadius,float fHeight,UINT iColumnCount,UINT iRingCount)
-{
-		//check if the input "Step Count" is illegal
-	if(iColumnCount <= 3)	{iColumnCount =3;}
-	if(iRingCount <= 2)		{iRingCount = 2;}
-
-	ReleaseCOM(m_pVB_Gpu);
-	m_pVB_Mem->clear();
-	ReleaseCOM(m_pIB_Gpu);
-	m_pIB_Mem->clear();
-
-	//mesh creation delegate to MeshGenerator
-	mMeshGenerator.CreateCylinder(fRadius,fHeight, iColumnCount, iRingCount, *m_pVB_Mem, *m_pIB_Mem);
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();//(iColumnCount+1) * iRingCount * 2 *3
-
-
-	//...
-	mFunction_CreateGpuBuffers( &tmpInitData_Vertex ,mVertexCount,&tmpInitData_Index,mIndexCount);
-	//user-set material
-	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
-};
 
 BOOL IMesh::LoadFile_STL(NFilePath pFilePath)
 {
@@ -481,7 +356,7 @@ BOOL IMesh::LoadFile_3DS(NFilePath pFilePath)
 	return TRUE;
 }
 
-void IMesh::SetMaterial(std::string matName)
+void IMesh::SetMaterial(N_UID matName)
 {
 	N_MeshSubsetInfo tmpSubset;
 	tmpSubset.startPrimitiveID = 0;
@@ -506,7 +381,7 @@ void IMesh::SetPosition(const NVECTOR3 & pos)
 	*m_pPosition = pos;
 }
 
-NVECTOR3 Noise3D::IMesh::GetPosition()
+NVECTOR3 IMesh::GetPosition()
 {
 	return *m_pPosition;
 }
@@ -623,13 +498,35 @@ N_Box IMesh::ComputeBoundingBox()
 /***********************************************************************
 								PRIVATE					                    
 ***********************************************************************/
-
-BOOL IMesh::mFunction_CreateGpuBuffers
-	(	D3D11_SUBRESOURCE_DATA* pVertexDataInMem,int iVertexCount,D3D11_SUBRESOURCE_DATA* pIndexDataInMem,int iIndexCount)
+//this function could be externally invoked by ModelLoader..etc
+BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB)
 {
-	//Create VERTEX BUFFER
+	//check if buffers have been created
+	ReleaseCOM(m_pVB_Gpu);
+	m_pVB_Mem->clear();
+	ReleaseCOM(m_pIB_Gpu);
+	m_pIB_Mem->clear();
+
+	//this function could be externally invoked by ModelLoader..etc
+	*m_pVB_Mem = std::move(targetVB);
+	*m_pIB_Mem = std::move(targetIB);
+
+
+#pragma region CreateGpuBuffers
+	//Prepare to update to video memory, fill in SUBRESOURCE description structure
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	mVertexCount = m_pVB_Mem->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	mIndexCount = m_pIB_Mem->size();
+
+	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth =  sizeof(N_DefaultVertex)* iVertexCount;
+	vbd.ByteWidth = sizeof(N_DefaultVertex)* mVertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -637,13 +534,13 @@ BOOL IMesh::mFunction_CreateGpuBuffers
 	vbd.StructureByteStride = 0;
 
 	//Create Buffers
-	int hr =0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd,pVertexDataInMem,&m_pVB_Gpu);
-	HR_DEBUG(hr,"VERTEX BUFFER创建失败");
+	int hr = 0;
+	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
+	HR_DEBUG(hr, "VERTEX BUFFER创建失败");
 
 
 	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * iIndexCount;
+	ibd.ByteWidth = sizeof(int) * mIndexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -651,12 +548,14 @@ BOOL IMesh::mFunction_CreateGpuBuffers
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers
-	hr = g_pd3dDevice11->CreateBuffer(&ibd,pIndexDataInMem,&m_pIB_Gpu);
-	HR_DEBUG(hr,"INDEX BUFFER创建失败");
+	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
+	HR_DEBUG(hr, "INDEX BUFFER创建失败");
+
+#pragma endregion CreateGpuBuffers
 
 	return TRUE;
-}
-	
+};
+
 void	IMesh::mFunction_UpdateWorldMatrix()
 {
 
@@ -754,31 +653,3 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, m_pPosition);
 	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, m_pPosition);
 }
-
-inline NVECTOR2 IMesh::mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint)
-{
-	//额...这个函数做简单的纹理球形包裹
-
-	NVECTOR2 outTexCoord(0,0);
-	NVECTOR3 tmpP= vPoint - vBoxCenter;
-
-	//投影到单位球上
-	D3DXVec3Normalize(&tmpP, &tmpP);
-
-	//反三角函数算球坐标系坐标，然后角度值映射到[0,1]
-	float angleYaw = 0.0f;
-	float anglePitch = 0.0f;
-	float tmpLength = sqrtf(tmpP.x*tmpP.x + tmpP.z*tmpP.z);
-
-	// [ -PI/2 , PI/2 ]
-	anglePitch = atan2(tmpP.y,tmpLength);
-
-	// [ -PI	, PI ]
-	angleYaw =	atan2(tmpP.z, tmpP.x);	
-
-	//map to [0,1]
-	outTexCoord.x = (angleYaw +  MATH_PI) / (2.0f * MATH_PI);
-	outTexCoord.y = (anglePitch + (MATH_PI/2.0f) ) / MATH_PI;
-
-	return outTexCoord;
-};

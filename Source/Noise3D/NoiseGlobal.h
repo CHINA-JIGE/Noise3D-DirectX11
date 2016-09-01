@@ -22,11 +22,6 @@ namespace Noise3D
 
 	extern  UINT					gMainBufferPixelHeight;
 
-	//¿¹¾â³ÝÆ·ÖÊ
-	extern UINT						g_Device_MSAA4xQuality;
-	//¿¹¾â³ÝÊÇ·ñ¿ªÆô
-	extern BOOL						g_Device_MSAA4xEnabled;
-	//
 	extern D3D_DRIVER_TYPE			g_Device_driverType;
 	//
 	extern D3D_FEATURE_LEVEL		g_Device_featureLevel;

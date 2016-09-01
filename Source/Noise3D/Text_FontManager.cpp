@@ -54,7 +54,8 @@ BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	std::fstream tmpFile(filePath);
 	if (!tmpFile.is_open())
 	{
-		ERROR_MSG("CreateFont : file path not exist..");
+		ERROR_MSG("CreateFont : file path not exist... Path:" + filePath);
+		return FALSE;
 	}
 
 	//font name must not be used
@@ -126,6 +127,8 @@ BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	pFontObj->mFtFace = tmpFontObj.mFtFace;
 	pFontObj->mAsciiCharSizeList = std::move(tmpFontObj.mAsciiCharSizeList);
 	pFontObj->mInternalTextureName = std::move(tmpFontObj.mInternalTextureName);
+
+	tmpFile.close();
 
 	return TRUE;
 }
@@ -250,7 +253,7 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 	//check fontName if it repeats
 	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
 	{
-		ERROR_MSG("CreateDynamicTextA:Font Name Invalid!!");
+		ERROR_MSG("WARN : CreateDynamicTextA:Font Name Invalid!!");
 		return nullptr;
 	}
 

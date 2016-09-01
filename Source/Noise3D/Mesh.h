@@ -9,23 +9,14 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IMesh : private IFileManager
+	class /*_declspec(dllexport)*/ IMesh
 	{
 		friend  class IRenderer;
+		friend class IModelLoader;
 
 	public:
 
-		void	CreatePlane(float fWidth, float fDepth, UINT iRowCount = 5, UINT iColumnCount = 5);
-
-		void CreateBox(float fWidth, float fHeight, float fDepth, UINT iDepthStep = 3, UINT iWidthStep = 3, UINT iHeightStep = 3);
-
-		void	CreateSphere(float fRadius, UINT iColumnCount = 20, UINT iRingCount = 20);
-
-		void CreateCylinder(float fRadius, float fHeight, UINT iColumnCount = 40, UINT iRingCount = 8);
-
-		void	SetMaterial(std::string matName);
-
-		BOOL	LoadFile_STL(NFilePath pFilePath);
+		void	SetMaterial(N_UID matName);
 
 		BOOL	LoadFile_OBJ(NFilePath pFilePath);
 
@@ -84,10 +75,9 @@ namespace Noise3D
 
 		~IMesh();
 
-
-		//the Parameter "iVertexCount" remind me to update the VertexCount in different Creating Method
-		BOOL	mFunction_CreateGpuBuffers(D3D11_SUBRESOURCE_DATA* pVertexDataInMem, int iVertexCount, D3D11_SUBRESOURCE_DATA* pIndexDataInMem, int iIndexCount);
-
+		//this function could be externally invoked by ModelLoader..etc
+		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
+		
 		//invoked by NoiseRenderer
 		void		mFunction_UpdateWorldMatrix();
 
@@ -96,12 +86,9 @@ namespace Noise3D
 
 		void		mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer);
 
-		NVECTOR2	mFunction_ComputeTexCoord_SphericalWrap(NVECTOR3 vBoxCenter, NVECTOR3 vPoint);
-
 	private:
 
-		//internal mesh generator
-		IGeometryMeshGenerator mMeshGenerator;
+
 
 		UINT										mVertexCount;
 		UINT										mIndexCount;

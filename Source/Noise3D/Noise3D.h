@@ -42,6 +42,7 @@
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "GeometryMeshGenerator.h"
+#include "ModelLoader.h"
 #include "Mesh.h"
 #include "Lights.h"
 #include "Camera.h"

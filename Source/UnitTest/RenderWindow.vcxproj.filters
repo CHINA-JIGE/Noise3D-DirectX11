@@ -11,13 +11,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main3D.cpp">
-      <Filter>Main3D</Filter>
-    </ClCompile>
     <ClCompile Include="Main3D_Minimize.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
     <ClCompile Include="UnitTest_Mesh.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTest_Text.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
   </ItemGroup>
