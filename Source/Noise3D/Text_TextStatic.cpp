@@ -46,8 +46,8 @@ void IStaticText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT p
 
 	*m_pTextColor = color;
 	*m_pTextGlowColor = color;
-	CBasicContainerInfo::SetWidth(float(pxWidth));
-	CBasicContainerInfo::SetHeight(float(pxHeight));
+	IBasicContainerInfo::SetWidth(float(pxWidth));
+	IBasicContainerInfo::SetHeight(float(pxHeight));
 }
 
 void IStaticText::mFunction_UpdateGraphicObject()
@@ -56,8 +56,8 @@ void IStaticText::mFunction_UpdateGraphicObject()
 
 	m_pGraphicObj->SetRectangle(
 		0,
-		CBasicContainerInfo::GetTopLeft(),
-		CBasicContainerInfo::GetBottomRight(),
+		IBasicContainerInfo::GetTopLeft(),
+		IBasicContainerInfo::GetBottomRight(),
 		NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f),
 		*m_pTextureName
 		);

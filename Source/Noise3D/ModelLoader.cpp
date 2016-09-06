@@ -22,7 +22,7 @@ IModelLoader::~IModelLoader()
 
 BOOL IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
-	if (pTargetMesh == nullptr)return;
+	if (pTargetMesh == nullptr)return FALSE;
 
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 2) { iColumnCount = 2; }
@@ -181,4 +181,228 @@ BOOL IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
+}
+
+BOOL IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
+{
+	std::vector<N_DefaultVertex> tmpCompleteVertexList;
+	std::vector<UINT>	tmpIndexList;
+
+	//¼ÓÔØSTL
+	BOOL fileLoadSucceeded = FALSE;
+	fileLoadSucceeded = IFileManager::ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
+	if (!fileLoadSucceeded)
+	{
+		ERROR_MSG("Noise Mesh : Load OBJ failed!");
+		return FALSE;
+	}
+
+	//copy won't be overhead because std::move is used inside the function
+	BOOL isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpCompleteVertexList, tmpIndexList);
+
+	//user-set material
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+
+	return isUpdateOk;
+}
+
+BOOL IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
+{
+	std::vector<N_Load3ds_MeshObject>	meshList;
+	std::vector<N_MaterialDesc>					materialList;
+	std::vector<std::string>							matNameList;
+	std::unordered_map<std::string, std::string> texName2FilePathMap;
+
+	//import data
+	BOOL importSucceeded = FALSE;
+	importSucceeded = IFileManager::ImportFile_3DS(
+		pFilePath,
+		meshList,
+		materialList,
+		matNameList,
+		texName2FilePathMap);
+
+	if (!importSucceeded)
+	{
+		ERROR_MSG("Load 3ds : Import File Failed!!");
+		return FALSE;
+	}
+
+#pragma region MeshCreation
+
+	IMeshManager* pMeshMgr = GetScene()->GetMeshMgr();
+
+	for (auto currentMesh:meshList)
+	{
+		//mesh names in .3ds file are customized in modeling software,
+		//but I afraid that the name in 3ds will conflict with current Mesh Names
+		N_UID currentMeshFinalName= currentMesh.meshName;
+		UINT suffixIndex = 0;
+		while (pMeshMgr->IsMeshExisted(currentMeshFinalName))
+		{
+			//add suffix _1 _2 _3 _4 etc. (if existed name found£©
+			currentMeshFinalName= currentMesh.meshName+"_"+std::to_string(suffixIndex);
+			suffixIndex++;
+		}
+		suffixIndex = 0;
+
+		//then use unique name to create IMesh Object
+		IMesh* pCreatedMesh = pMeshMgr->CreateMesh(currentMeshFinalName);
+
+		//to compute vertex normal ,we should generate adjacent information of vertices first.
+		//thus "vertexNormalList" holds the sum of face normal (the triangle is adjacent to corresponding vertex)
+		std::vector<NVECTOR3>	vertexNormalList(currentMesh.verticesList.size(), NVECTOR3(0, 0, 0));
+		std::vector<NVECTOR3>	vertexTangentList;
+
+		//1. compute vertex normal of faces
+		for (UINT i = 0;i < currentMesh.indicesList.size();i += 3)
+		{
+			//compute face normal
+			uint16_t idx1 = currentMesh.indicesList.at(i);
+			uint16_t idx2 = currentMesh.indicesList.at(i + 1);
+			uint16_t idx3 = currentMesh.indicesList.at(i + 2);
+			NVECTOR3 v1 = currentMesh.verticesList.at(idx1);
+			NVECTOR3 v2 = currentMesh.verticesList.at(idx2);
+			NVECTOR3 v3 = currentMesh.verticesList.at(idx3);
+			NVECTOR3 vec1 = v2 - v1;
+			NVECTOR3 vec2 = v3 - v1;
+			NVECTOR3 faceNormal(0, 0.0f, 0);
+			//D3DXVec3Normalize(&vec1, &vec1);
+			//D3DXVec3Normalize(&vec2, &vec2);
+			D3DXVec3Cross(&faceNormal, &vec1, &vec2);
+
+			//add face normal to vertex normal
+			vertexNormalList.at(idx1) += faceNormal;
+			vertexNormalList.at(idx2) += faceNormal;
+			vertexNormalList.at(idx3) += faceNormal;
+		}
+
+		//2.normalize all vertex normal
+		//3.by the way, compute vertex tangent
+		vertexTangentList.reserve(currentMesh.verticesList.size());
+		for (auto& vn : vertexNormalList)
+		{
+			D3DXVec3Normalize(&vn, &vn);
+
+			//compute Tangent
+			NVECTOR3 tmpTangent(1, 0, 0);
+			NVECTOR3 tmpVec(-vn.z, 0, vn.x);
+			D3DXVec3Cross(&tmpTangent, &vn, &tmpVec);
+			D3DXVec3Normalize(&tmpTangent, &tmpTangent);
+
+			//one vertex for one tangent
+			vertexTangentList.push_back(tmpTangent);
+		}
+
+		//generate complete vertices
+		std::vector<N_DefaultVertex> completeVertexList;
+		completeVertexList.reserve(currentMesh.verticesList.size());
+		for (UINT i = 0;i < currentMesh.verticesList.size();i++)
+		{
+			N_DefaultVertex tmpCompleteVertex;
+
+			try
+			{
+				tmpCompleteVertex.Color = NVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+				tmpCompleteVertex.Normal = vertexNormalList.at(i);
+				tmpCompleteVertex.Pos = currentMesh.verticesList.at(i);
+				tmpCompleteVertex.Tangent = vertexTangentList.at(i);
+				tmpCompleteVertex.TexCoord = currentMesh.texcoordList.at(i);
+
+				completeVertexList.push_back(tmpCompleteVertex);
+			}
+			catch (std::out_of_range)
+			{
+				//theoretically , all buffer should have the same total elements count
+				//but if shit happens,we must stop this.
+				ERROR_MSG("Load File 3DS: WARNING : data could be damaged!!");
+				break;
+			}
+		}
+
+		//.....................
+		//copy won't be overhead because std::move is used inside the function
+		pCreatedMesh->mFunction_UpdateDataToVideoMem(completeVertexList, currentMesh.indicesList);
+
+		//copy SUBSET lists
+		*pCreatedMesh->m_pSubsetInfoList = std::move(currentMesh.subsetList);
+
+		//push_back IMesh ptr info for user
+		if (pCreatedMesh != nullptr)
+		{
+			outMeshPtrList.push_back(pCreatedMesh);
+			outMeshNameList.push_back(currentMeshFinalName);
+		}
+		else
+		{
+			WARNING_MSG("Load 3ds : One of the mesh(es) fail to create, name:" + currentMesh.meshName);
+		}
+
+	}
+#pragma endregion MeshCreation
+
+#pragma region material&TextureData
+
+
+	//!!!!!materials have not been created. The Creation of materials will be done
+	//by current Scene Tex&Mat Manager	
+	IMaterialManager* pMatMgr = GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
+
+														   //Get the directory where the file locates
+	std::string modelFileDirectory = GetFileDirectory(pFilePath);
+
+	if (pTexMgr != nullptr && pMatMgr != nullptr)
+	{
+		for (UINT i = 0;i < materialList.size();i++)
+		{
+			//----------Create Material-----------
+			IMaterial* pMat = pMatMgr->CreateMaterial(matNameList.at(i), materialList.at(i));
+			if (pMat == nullptr)
+				WARNING_MSG("WARNING : Load 3ds : Material Creation Failed!!");
+
+			//----------Create Texture Maps----------
+			std::string& diffMapName = materialList.at(i).diffuseMapName;
+			std::string& normalMapName = materialList.at(i).normalMapName;
+			std::string& specMapName = materialList.at(i).specularMapName;
+
+			//Define a temp lambda function for texture creations
+			auto lambdaFunc_CreateTexture = [&](std::string& texName)
+			{
+				if (pTexMgr->ValidateUID(texName) == FALSE)
+				{
+					if (texName != "")
+					{
+						UINT textureReturnID = NOISE_MACRO_INVALID_TEXTURE_ID;
+
+						//locate the directory to generate file path
+						std::string mapPath = modelFileDirectory + texName2FilePathMap.at(texName);
+
+						//Try to create texture
+						textureReturnID = pTexMgr->CreateTextureFromFile(
+							mapPath.c_str(),
+							texName,
+							TRUE, 0, 0, FALSE);
+
+						if (textureReturnID == NOISE_MACRO_INVALID_TEXTURE_ID)
+							WARNING_MSG("WARNING : Load 3ds : texture Creation Failed!!");
+					}
+				}
+			};
+
+			//DIFFUSE MAP
+			lambdaFunc_CreateTexture(diffMapName);
+
+			//NORMAL MAP
+			lambdaFunc_CreateTexture(normalMapName);
+
+			//SPECULAR MAP
+			lambdaFunc_CreateTexture(specMapName);
+		}
+	}
+
+#pragma endregion
+
+
+	return TRUE;
 }

@@ -18,10 +18,6 @@ namespace Noise3D
 
 		void	SetMaterial(N_UID matName);
 
-		BOOL	LoadFile_OBJ(NFilePath pFilePath);
-
-		BOOL	LoadFile_3DS(NFilePath pFilePath);
-
 		void		SetPosition(float x, float y, float z);
 
 		void		SetPosition(const NVECTOR3& pos);

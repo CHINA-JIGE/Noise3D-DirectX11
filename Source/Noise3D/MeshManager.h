@@ -28,6 +28,7 @@ namespace Noise3D
 
 		UINT					GetMeshCount();
 
+		BOOL					IsMeshExisted(N_UID meshName);
 
 	private:
 

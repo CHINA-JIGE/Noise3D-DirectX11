@@ -10,6 +10,7 @@ IRenderer* pRenderer;
 IScene* pScene;
 ICamera* pCamera;
 IAtmosphere* pAtmos;
+IModelLoader* pModelLoader;
 IMeshManager* pMeshMgr;
 IMesh* pMesh1;
 IMaterialManager*	pMatMgr;
@@ -105,13 +106,14 @@ BOOL Init3D(HWND hwnd)
 	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
 
 	//------------------MESH INITIALIZATION----------------
+	pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
 	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
 	//Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
 	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
 	//pMesh1->LoadFile_3DS("model/treeScene/treeScene3.3ds");
 	//Mesh1.LoadFile_OBJ("model/cylinder.obj");
-	pMesh1->CreateSphere(5.0f, 30, 30);
+	//pMesh1->CreateSphere(5.0f, 30, 30);
 	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
 	//Mesh1.CreatePlane(50.0f, 50.0f);
 	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);

@@ -1,55 +1,53 @@
 /***********************************************************************
 
-						Description: 3ds File Operation
+							CLASS: IFileLoader_3ds
+
+				Description: 3ds file loading implementation
 
 ************************************************************************/
 
 #include "Noise3D.h"
-#include  "FileManager_3DS.h"
 
 using namespace Noise3D;
 
-/*******************************************************************
 
-								IMPLEMENTATION
-
-*********************************************************************/
+//-----------------file & file operation----------------
+#define BINARY_READ(var) \
+fileIn.read((char*)&var,sizeof(var));
 
 static std::ifstream fileIn;
 static uint64_t static_fileSize = 0;
 static uint64_t static_currentChunkFileEndPos = 0;
+static std::string static_objectBlockParsedName;
 
-//used in generating unique Mat Name. One Mesh Loading for one unique Mesh Index
-static UINT static_MeshIndex = 0;
-//used in generating unique tex name
-static UINT static_textureMapIndex = 0;
-
-//--------Data From File--------
-//there might be many Mesh Object in one .3ds scene,but when considering the structure
-//of NoiseMesh, meshes will be integrated as a whole.
-static std::vector<N_Load3ds_MeshObject> static_meshObjList;
-//Material Lists
-std::vector<N_MaterialDesc> static_materialList;
-std::vector<std::string> static_matNameList;
-//string as UID, FilePath is used to load file
-std::unordered_map<std::string, NFilePath>  static_TexName2FilePathPairList;
+//----------------static var of 3ds loader---------------
+const std::string	IFileLoader_3ds::c_defaultTexNamePrefix = std::string("T_");
+const std::string	IFileLoader_3ds::c_defaultMatNamePrefix = std::string("M_");
+const UINT			IFileLoader_3ds::c_chunkHeadByteLength = 6;
+UINT					IFileLoader_3ds::mMeshIndex = 0;
+UINT					IFileLoader_3ds::mTextureMapIndex = 0;
 
 
-//-------------------------INTERFACE------------------------
-BOOL IFileManager::ImportFile_3DS(
+IFileLoader_3ds::IFileLoader_3ds()
+{
+	m_pMeshObjList		= new	std::vector<N_Load3ds_MeshObject>;	
+	m_pMaterialList		= new	std::vector<N_MaterialDesc>	;
+	m_pMatNameList	= new	std::vector<std::string>;
+	m_pTexName2FilePathPairList=new std::unordered_map<std::string, NFilePath>;	//string as UID, FilePath is used to load file
+
+}
+
+BOOL IFileLoader_3ds::ImportFile_3DS(
 	NFilePath pFilePath,
-	std::vector<NVECTOR3>& outVertexBuffer, 
-	std::vector<NVECTOR2>& outTexCoordList, 
-	std::vector<UINT>& outIndexBuffer, 
-	std::vector<N_MeshSubsetInfo>& outSubsetList, 
+	std::vector<N_Load3ds_MeshObject>& outMeshInfoList,
 	std::vector<N_MaterialDesc>& outMaterialList,
 	std::vector<std::string>& outMatNameList,
 	std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList)
 {
-	static_meshObjList.clear();
-	static_materialList.clear();
-	static_TexName2FilePathPairList.clear();
-	static_matNameList.clear();
+	m_pMeshObjList->clear();
+	m_pMaterialList->clear();
+	m_pTexName2FilePathPairList->clear();
+	m_pMatNameList->clear();
 
 	fileIn.open(pFilePath, std::ios::binary);
 
@@ -74,7 +72,7 @@ BOOL IFileManager::ImportFile_3DS(
 	fileIn.close();
 
 	//Finish Parsing,check if Vertices/Indices had been loaded
-	auto& vertexList = static_meshObjList.back().verticesList;
+	auto& vertexList = m_pMeshObjList->back().verticesList;
 	if (vertexList.size() == 0 || vertexList.size() == 0)
 	{
 		ERROR_MSG("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
@@ -83,28 +81,27 @@ BOOL IFileManager::ImportFile_3DS(
 
 
 	//std::move transform lval into rval to avoid copying happens
-	N_Load3ds_MeshObject finalMeshObj;
-	IntegratePartialMeshIntoOnePiece(finalMeshObj);
-	outIndexBuffer = std::move(finalMeshObj.indicesList);
-	outVertexBuffer = std::move(finalMeshObj.verticesList);
-	outTexCoordList = std::move(finalMeshObj.texcoordList);
-	outSubsetList = std::move(finalMeshObj.subsetList);
-	outMaterialList = std::move(static_materialList);
-	outMatNameList = std::move(static_matNameList);
-	out_TexName2FilePathPairList = std::move(static_TexName2FilePathPairList);
+	outMeshInfoList = std::move(*m_pMeshObjList);
+	outMaterialList = std::move(*m_pMaterialList);
+	outMatNameList = std::move(*m_pMatNameList);
+	out_TexName2FilePathPairList = std::move(*m_pTexName2FilePathPairList);
 
-	//used to generate unique name
-	++static_MeshIndex;
 
 	return TRUE;
 }
 
 
 
-//----------------------------------------------------------------------------
+/************************************************************************
+
+										P R I V A T E
+
+*************************************************************************/
+
+
 
 //when encountering not interested chunk, use absolute end file pos of the chunk to skip
-void SkipCurrentChunk()
+void IFileLoader_3ds::SkipCurrentChunk()
 {
 	//sometimes we will encounter error / corrupted data , we must shutdown the reading 
 	//of this chunk
@@ -119,7 +116,7 @@ void SkipCurrentChunk()
 }
 
 //Linearly read chunks
-void ReadChunk()
+void IFileLoader_3ds::ReadChunk()
 {
 	//because 3DS file stores data with a tree topology, so i do have considered 
 	//recursive/tree-like reading...but there is some mysterious chunks which might vary
@@ -226,7 +223,7 @@ void ReadChunk()
 }
 
 //orderly read a string from file at current position
-void ReadStringFromFileA(std::string & outString)
+void IFileLoader_3ds::ReadStringFromFileA(std::string & outString)
 {
 	do
 	{
@@ -245,7 +242,7 @@ void ReadStringFromFileA(std::string & outString)
 }
 
 //Read String(Wide Char Version)
-void	ReadStringFromFileW(std::wstring& outString)
+void	IFileLoader_3ds::ReadStringFromFileW(std::wstring& outString)
 {
 	do
 	{
@@ -264,7 +261,7 @@ void	ReadStringFromFileW(std::wstring& outString)
 }
 
 //integrate several meshes into one big mesh
-void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
+/*void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
 {
 	N_Load3ds_MeshObject tmpMesh;
 
@@ -272,7 +269,7 @@ void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
 	UINT totalIndicesCount = 0;
 	UINT totalVerticesCount = 0;
 	UINT totalSubsetCount = 0;
-	for (auto& partialMesh : static_meshObjList)
+	for (auto& partialMesh : mMeshObjList)
 	{
 		totalIndicesCount += partialMesh.indicesList.size();
 		totalVerticesCount += partialMesh.verticesList.size();
@@ -285,7 +282,7 @@ void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
 
 
 	//start to compute OFFSET and combine into one mesh
-	for (auto& partialMesh : static_meshObjList)
+	for (auto& partialMesh : mMeshObjList)
 	{
 		UINT indexOffset = tmpMesh.verticesList.size();
 		UINT primitiveIndexOffset = 0;
@@ -335,10 +332,11 @@ void IntegratePartialMeshIntoOnePiece(N_Load3ds_MeshObject & outCombinedMesh)
 
 	outCombinedMesh = std::move(tmpMesh);
 }
+*/
 
 //father: xxx color chunk
 //child:none
-void ReadAndParseColorChunk(NVECTOR3 & outColor)
+void IFileLoader_3ds::ReadAndParseColorChunk(NVECTOR3 & outColor)
 {
 	//please refer to project "Assimp" for more chunk information
 
@@ -394,7 +392,7 @@ void ReadAndParseColorChunk(NVECTOR3 & outColor)
 
 //father: xxx map chunk
 //child:none
-void ReadAndParseMapChunk(std::string& outGeneratedTextureName)
+void IFileLoader_3ds::ReadAndParseMapChunk(std::string& outGeneratedTextureName)
 {
 	//please refer to project "Assimp" for more chunk information
 
@@ -418,14 +416,14 @@ void ReadAndParseMapChunk(std::string& outGeneratedTextureName)
 	{
 		std::string texFilePath;
 		//back() can retrieve the current processing material
-		std::string texName=c_defaultTexNamePrefix + std::to_string(static_textureMapIndex);
-		++static_textureMapIndex;
+		std::string texName=c_defaultTexNamePrefix + std::to_string(mTextureMapIndex);
+		++mTextureMapIndex;
 
 		//...Read File Path From File
 		ReadStringFromFileA(texFilePath);
 
 		//texName-filePath pair,so that texture creation could be done
-		static_TexName2FilePathPairList.insert(std::make_pair(texName,texFilePath.c_str()));
+		m_pTexName2FilePathPairList->insert(std::make_pair(texName,texFilePath.c_str()));
 
 		outGeneratedTextureName = std::move(texName);
 	}
@@ -440,7 +438,10 @@ void ReadAndParseMapChunk(std::string& outGeneratedTextureName)
 }
 
 //to generate unique mat Name
-std::string DecorateMatName(std::string name) { return c_defaultMatNamePrefix + name + std::to_string(static_MeshIndex); };
+std::string IFileLoader_3ds::DecorateMatName(std::string name) 
+{ 
+	return c_defaultMatNamePrefix + name + std::to_string(mMeshIndex); 
+};
 
 
 //*****************************************************************
@@ -448,7 +449,7 @@ std::string DecorateMatName(std::string name) { return c_defaultMatNamePrefix + 
 //*************************************************
 //father : none
 //child : 3D Editor Chunk
-void ParseMainChunk()
+void IFileLoader_3ds::ParseMainChunk()
 {
 	//no data in this chunk ,only need to go into sub-chunks
 };
@@ -457,7 +458,7 @@ void ParseMainChunk()
 //father : Main3D
 //child :	3D EDITOR CHUNK 0x3D3D
 //			MATERIAL BLOCK 0xAFFF
-void Parse3DEditorChunk()
+void IFileLoader_3ds::Parse3DEditorChunk()
 {
 	//no data in this chunk ,only need to go into sub-chunks
 };
@@ -465,35 +466,38 @@ void Parse3DEditorChunk()
 //*************************************************
 //father : 3D Editor Chunk
 //child : TriangularMesh,  (Light , Camera)
-void ParseObjectBlock()
+void IFileLoader_3ds::ParseObjectBlock()
 {
 	//data: object name (could be mesh,light,camera)
-	std::string rubbishStr;
-	ReadStringFromFileA(rubbishStr);
+	ReadStringFromFileA(static_objectBlockParsedName);
 	//SkipCurrentChunk();
 };
 
 //*************************************************
 //father : Object Block
 //child : VerticesChunk, FaceDescription(Indices) , TextureCoordinate
-void ParseTriangularMeshChunk()
+void IFileLoader_3ds::ParseTriangularMeshChunk()
 {
 	//create a new mesh
 	N_Load3ds_MeshObject tmpMesh;
-	static_meshObjList.push_back(tmpMesh);
+	tmpMesh.meshName = "3ds_Mesh" +std::to_string(mMeshIndex) +"_" + static_objectBlockParsedName;
+	m_pMeshObjList->push_back(tmpMesh);
+
+	//used to generate unique name
+	++mMeshIndex;
 
 }
 
 //*************************************************
 //father::Triangular Mesh Chunk
 //child: none
-void ParseVerticesChunk()
+void IFileLoader_3ds::ParseVerticesChunk()
 {
 	//data: Vertices List:
 	uint16_t verticesCount = 0;//unsigned short
 	BINARY_READ(verticesCount);
 
-	auto& vertexList = static_meshObjList.back().verticesList;
+	auto& vertexList = m_pMeshObjList->back().verticesList;
 	vertexList.reserve(vertexList.size()+verticesCount);
 	for (UINT i = 0;i < verticesCount;i++)
 	{
@@ -509,14 +513,14 @@ void ParseVerticesChunk()
 //*************************************************
 //father::Triangular Mesh Chunk
 //child: FACES MATERIAL 0x4130
-void ParseFaceDescAndIndices()
+void IFileLoader_3ds::ParseFaceDescAndIndices()
 {
 	//data:faces count + n * (3*indices+faceDesc)
 	uint16_t faceCount = 0;
 	BINARY_READ(faceCount);
 
 
-	auto& indicesList = static_meshObjList.back().indicesList;
+	auto& indicesList = m_pMeshObjList->back().indicesList;
 	indicesList.reserve(indicesList.size()+3*faceCount);
 
 	//find the biggest index in this indices block to compute index offset for next block
@@ -543,7 +547,7 @@ void ParseFaceDescAndIndices()
 //*************************************************
 //father::FACES DESCRIPTION 0x4120
 //child: none
-void ParseFacesAndMatName()
+void IFileLoader_3ds::ParseFacesAndMatName()
 {
 	//i guess one indices(faces) block can
 	//possess several this kind of FaceMaterial Block ...
@@ -612,7 +616,7 @@ void ParseFacesAndMatName()
 	}
 
 	//add to global subset list
-	auto& subsetList = static_meshObjList.back().subsetList;
+	auto& subsetList = m_pMeshObjList->back().subsetList;
 	for (auto subset : currMatSubsetList)
 	{
 		subsetList.push_back(subset);
@@ -623,7 +627,7 @@ void ParseFacesAndMatName()
 //*************************************************
 //father::Triangular Mesh
 //child: smoothing group
-void ParseTextureCoordinate()
+void IFileLoader_3ds::ParseTextureCoordinate()
 {
 	//data: 
 	//1.texcoord count (2byte)
@@ -631,7 +635,7 @@ void ParseTextureCoordinate()
 	uint16_t texcoordCount = 0;
 	BINARY_READ(texcoordCount);
 
-	auto& texcoordList = static_meshObjList.back().texcoordList;
+	auto& texcoordList = m_pMeshObjList->back().texcoordList;
 	for (UINT i = 0;i < texcoordCount;i++)
 	{
 		NVECTOR2 tmpTexCoord(0, 0);
@@ -651,68 +655,68 @@ void ParseTextureCoordinate()
 //			TEXTURE MAP 1 0xA200
 //			BUMP MAP 0xA230
 //			REFLECTION MAP 0xA220
-void ParseMaterialBlock()
+void IFileLoader_3ds::ParseMaterialBlock()
 {
 	//Data:None
 
 	//but this identifier signify creation a new material
 	N_MaterialDesc tmpMat;
-	static_materialList.push_back(tmpMat);
+	m_pMaterialList->push_back(tmpMat);
 }
 
 //*************************************************
 //father:Material block
 //child:  none
-void ParseMaterialName()
+void IFileLoader_3ds::ParseMaterialName()
 {
 	//data: material name
 	std::string orginalMatName;
 	ReadStringFromFileA(orginalMatName);
-	static_matNameList.push_back(DecorateMatName(orginalMatName));
+	m_pMatNameList->push_back(DecorateMatName(orginalMatName));
 }
 
 //*************************************************
 //father:Material Block
 //child	: sub color chunk
-void ParseAmbientColor()
+void IFileLoader_3ds::ParseAmbientColor()
 {
 	//data:sub chunks
 
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().mBaseAmbientColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().mBaseAmbientColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
 //child	: sub color chunk
-void ParseDiffuseColor()
+void IFileLoader_3ds::ParseDiffuseColor()
 {
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().mBaseDiffuseColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().mBaseDiffuseColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
 //child	: sub color chunk
-void ParseSpecularColor()
+void IFileLoader_3ds::ParseSpecularColor()
 {
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(static_materialList.back().mBaseSpecularColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().mBaseSpecularColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
 //child	: Mapping File Path  (Map option) 
-void ParseDiffuseMap()
+void IFileLoader_3ds::ParseDiffuseMap()
 {
 	//data:sub chunks
 	uint64_t filePos = 0;
@@ -720,35 +724,35 @@ void ParseDiffuseMap()
 	{
 		std::string texName;
 		//mapName-mapFilePath pair will be added in this function
-		ReadAndParseMapChunk(static_materialList.back().diffuseMapName);
+		ReadAndParseMapChunk(m_pMaterialList->back().diffuseMapName);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
 //child	: Mapping File Path  (Map option) 
-void ParseBumpMap()
+void IFileLoader_3ds::ParseBumpMap()
 {
 	//data:sub chunks
 	uint64_t filePos = 0;
 	do
 	{
 		//mapName-mapFilePath pair will be added in this function
-		ReadAndParseMapChunk(static_materialList.back().normalMapName);
+		ReadAndParseMapChunk(m_pMaterialList->back().normalMapName);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
 
 //father:Material Block
 //child	: Mapping File Path  (Map option) 
-void ParseSpecularMap()
+void IFileLoader_3ds::ParseSpecularMap()
 {
 	//data:sub chunks
 	uint64_t filePos = 0;
 	do
 	{
 		//mapName-mapFilePath pair will be added in this function
-		ReadAndParseMapChunk(static_materialList.back().specularMapName);
+		ReadAndParseMapChunk(m_pMaterialList->back().specularMapName);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }

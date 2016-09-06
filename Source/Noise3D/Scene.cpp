@@ -23,7 +23,8 @@ IScene::IScene():
 	 IFactory<IMaterialManager>(1),
 	IFactory<IGraphicObjectManager>(2),//scene/font-internal
 	 IFactory<IAtmosphere>(1),
-	IFactory<IFontManager>(1)
+	IFactory<IFontManager>(1),
+	IFactory<IModelLoader>(1)
 {
 
 }

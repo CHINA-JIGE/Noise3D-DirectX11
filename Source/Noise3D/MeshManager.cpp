@@ -45,6 +45,11 @@ UINT IMeshManager::GetMeshCount()
 	return IFactory<IMesh>::GetObjectCount();
 }
 
+BOOL Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
+{
+	return IFactory<IMesh>::FindUid(meshName);
+}
+
 /***********************************************************************
 								P R I V A T E					                    
 ***********************************************************************/

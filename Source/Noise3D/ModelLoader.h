@@ -27,7 +27,7 @@ namespace Noise3D
 
 		BOOL		LoadFile_OBJ(IMesh* pTargetMesh, NFilePath pFilePath);
 
-		BOOL		LoadFile_3DS(IMesh* pTargetMesh, NFilePath pFilePath);
+		BOOL		LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
 
 	private:
 

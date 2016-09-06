@@ -151,7 +151,7 @@ namespace Noise3D
 
 		BOOL			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
-		BOOL			mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath);
+		BOOL			mFunction_Init_CreateEffectFromMemory();
 
 		//--------------------BASIC OPERATION---------------------
 		void				mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList);

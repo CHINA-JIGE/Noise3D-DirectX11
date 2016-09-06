@@ -122,13 +122,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="GetResource.h" />
     <ClInclude Include="GraphicObjMgr.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_FontManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -136,7 +137,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Root.h" />
     <ClInclude Include="FileManager.h" />
-    <ClInclude Include="FileManager_3DS.h" />
+    <ClInclude Include="FileMgr_3DS.h" />
     <ClInclude Include="GeometryMeshGenerator.h" />
     <ClInclude Include="Ut_InputEngine.h" />
     <ClInclude Include="LightManager.h" />
@@ -183,7 +184,7 @@
     <ClCompile Include="Renderer_Text.cpp" />
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
-    <ClCompile Include="FileManager_Basic.cpp" />
+    <ClCompile Include="FileMgrc.cpp" />
     <ClCompile Include="FileMgr_3DS.cpp" />
     <ClCompile Include="FileMgr_OBJ.cpp" />
     <ClCompile Include="FileMgr_STL.cpp" />
@@ -202,13 +203,14 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
+    <ClCompile Include="GetResource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Noise3d.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Exec\Debug\shader\Main2.fxo" />
-    <None Include="shader1.bin" />
+    <None Include="..\..\Exec\Debug\shader\Main.fxo" />
+    <None Include="shader2.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

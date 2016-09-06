@@ -131,7 +131,8 @@ BOOL	IRenderer::mFunction_Init()
 {
 	HRESULT hr = S_OK;
 
-	mFunction_Init_CreateEffectFromMemory("Resource\\Main.fxo");
+	//mFunction_Init_CreateEffectFromMemory("Shader\\Main.fxo");
+	mFunction_Init_CreateEffectFromMemory();
 
 	//创建Technique
 	m_pFX_Tech_Default =	m_pFX->GetTechniqueByName("DefaultDraw");
@@ -378,19 +379,21 @@ BOOL	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 	return TRUE;
 };
 
-BOOL	IRenderer::mFunction_Init_CreateEffectFromMemory(char* compiledShaderPath)
+BOOL	IRenderer::mFunction_Init_CreateEffectFromMemory()
 {
-	std::vector<char> compiledShader;
+	/*std::vector<char> compiledShader;
 
 	//加载fxo文件
 	if (!IFileManager::ImportFile_PURE(compiledShaderPath, compiledShader))
 	{
 		return FALSE; 
-	}
+	}*/
+
+	N_InternalResourceInfo shaderInResource = Noise3D::GetInternalResource(NOISE_INTERNAL_RESOURCE_MAINSHADER);
 
 	//创建fx特效框架
 	HRESULT hr = S_OK;
-	hr = D3DX11CreateEffectFromMemory(&compiledShader[0], compiledShader.size(), 0, g_pd3dDevice11, &m_pFX);
+	hr = D3DX11CreateEffectFromMemory(shaderInResource.pBuff, shaderInResource.buffSize, 0, g_pd3dDevice11, &m_pFX);
 	HR_DEBUG(hr,"load compiled shader failed");
 
 	return TRUE;
