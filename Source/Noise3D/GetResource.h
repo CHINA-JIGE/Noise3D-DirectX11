@@ -8,6 +8,8 @@
 ************************************************************************/
 #pragma once
 
+#include "NoiseBinaryResource.h"
+
 namespace Noise3D
 {
 	//.rc file memory block info

@@ -88,6 +88,9 @@
     <Lib>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
+    <ResourceCompile>
+      <ShowProgress>true</ShowProgress>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -129,7 +132,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="resource1.h" />
+    <ClInclude Include="NoiseBinaryResource.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_FontManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -204,13 +207,6 @@
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
     <ClCompile Include="GetResource.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Noise3d.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Exec\Debug\shader\Main.fxo" />
-    <None Include="shader2.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

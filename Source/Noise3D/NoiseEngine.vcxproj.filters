@@ -189,7 +189,7 @@
     <ClInclude Include="GetResource.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
+    <ClInclude Include="NoiseBinaryResource.h">
       <Filter>Shader</Filter>
     </ClInclude>
   </ItemGroup>
@@ -299,16 +299,5 @@
     <ClCompile Include="GetResource.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Noise3d.rc">
-      <Filter>Shader</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Exec\Debug\shader\Main.fxo">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="shader2.bin" />
   </ItemGroup>
 </Project>

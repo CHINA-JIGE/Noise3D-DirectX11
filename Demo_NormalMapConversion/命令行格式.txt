@@ -1,1 +1,0 @@
-<exe名> <图片名> <heightField的缩放因子> <转灰度图时的R权重> <G权重> <B权重> <格式,有bmp,jpg,png可选>
