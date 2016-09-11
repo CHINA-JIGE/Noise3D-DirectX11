@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="GetResource.h" />
     <ClInclude Include="GraphicObjMgr.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
@@ -172,6 +173,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="GraphicObjMgr.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />

@@ -49,6 +49,7 @@
 #include "Lights.h"
 #include "Camera.h"
 #include "Material.h"
+#include "Texture.h"
 #include "MeshManager.h"
 #include "LightManager.h"
 #include "TextureManager.h"

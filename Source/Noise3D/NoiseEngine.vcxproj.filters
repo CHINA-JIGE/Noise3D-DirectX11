@@ -16,23 +16,14 @@
     <Filter Include="NoiseGraphic\Camera">
       <UniqueIdentifier>{1cdc6592-cae8-449f-ba8b-73a46043aab8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\LightManager">
-      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene">
       <UniqueIdentifier>{f84a9eaa-b39b-4a45-aaad-c93b72948637}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\MaterialManger">
-      <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseGraphic\Mesh">
       <UniqueIdentifier>{66319d1c-340d-4bf9-887d-e02737f05f6a}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseGraphic\Renderer">
       <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\TextureManager">
-      <UniqueIdentifier>{ecd2bea3-4811-48d5-ab48-e1370b027679}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseGraphic\_GeometryMeshGenerator">
       <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
@@ -85,6 +76,15 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{ff092c15-2f34-4861-be94-df2f8e903ae5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Texture">
+      <UniqueIdentifier>{ecd2bea3-4811-48d5-ab48-e1370b027679}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Material">
+      <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Lights">
+      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -127,10 +127,10 @@
       <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>NoiseGraphic\LightManager</Filter>
+      <Filter>NoiseGraphic\Lights</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
+      <Filter>NoiseGraphic\Material</Filter>
     </ClInclude>
     <ClInclude Include="Root.h">
       <Filter>NoiseGraphic\Root</Filter>
@@ -139,7 +139,7 @@
       <Filter>NoiseGraphic\Scene</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>NoiseGraphic\TextureManager</Filter>
+      <Filter>NoiseGraphic\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MeshSlicer.h">
       <Filter>NoiseUtility\UtSlicer</Filter>
@@ -172,13 +172,13 @@
       <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
-      <Filter>NoiseGraphic\LightManager</Filter>
+      <Filter>NoiseGraphic\Lights</Filter>
     </ClInclude>
     <ClInclude Include="GraphicObjMgr.h">
       <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
+      <Filter>NoiseGraphic\Material</Filter>
     </ClInclude>
     <ClInclude Include="ModelLoader.h">
       <Filter>NoiseGraphic\ModelLoader</Filter>
@@ -191,6 +191,9 @@
     </ClInclude>
     <ClInclude Include="NoiseBinaryResource.h">
       <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>NoiseGraphic\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -243,10 +246,10 @@
       <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="LightManager.cpp">
-      <Filter>NoiseGraphic\LightManager</Filter>
+      <Filter>NoiseGraphic\Lights</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
+      <Filter>NoiseGraphic\Material</Filter>
     </ClCompile>
     <ClCompile Include="Root.cpp">
       <Filter>NoiseGraphic\Root</Filter>
@@ -258,7 +261,7 @@
       <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
-      <Filter>NoiseGraphic\TextureManager</Filter>
+      <Filter>NoiseGraphic\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp">
       <Filter>NoiseUtility\UtSlicer</Filter>
@@ -282,13 +285,13 @@
       <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
     </ClCompile>
     <ClCompile Include="Lights.cpp">
-      <Filter>NoiseGraphic\LightManager</Filter>
+      <Filter>NoiseGraphic\Lights</Filter>
     </ClCompile>
     <ClCompile Include="GraphicObjMgr.cpp">
       <Filter>NoiseGraphic\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>NoiseGraphic\MaterialManger</Filter>
+      <Filter>NoiseGraphic\Material</Filter>
     </ClCompile>
     <ClCompile Include="ModelLoader.cpp">
       <Filter>NoiseGraphic\ModelLoader</Filter>
@@ -298,6 +301,9 @@
     </ClCompile>
     <ClCompile Include="GetResource.cpp">
       <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>NoiseGraphic\Texture</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

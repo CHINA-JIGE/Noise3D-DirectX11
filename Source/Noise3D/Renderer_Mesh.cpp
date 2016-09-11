@@ -199,48 +199,43 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	//m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
 	m_CbPerSubset.SetBaseMat(tmpMat);
 
-	UINT diffMapIndex = pTexMgr->GetTextureID(tmpMat.diffuseMapName);
-	UINT normalMapIndex = pTexMgr->GetTextureID(tmpMat.normalMapName);
-	UINT specularMapIndex = pTexMgr->GetTextureID(tmpMat.specularMapName);
-	UINT envMapIndex = pTexMgr->GetTextureID(tmpMat.environmentMapName);
+	ITexture* pDiffMap = pTexMgr->GetTexture(tmpMat.diffuseMapName);
+	ITexture* pNormalMap = pTexMgr->GetTexture(tmpMat.normalMapName);
+	ITexture* pSpecMap = pTexMgr->GetTexture(tmpMat.specularMapName);
+	ITexture* pEnvMap = pTexMgr->GetTexture(tmpMat.environmentMapName);
 
 	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	m_CbPerSubset.IsDiffuseMapValid = (pTexMgr->ValidateIndex(diffMapIndex, NOISE_TEXTURE_TYPE_COMMON)
-		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsNormalMapValid = (pTexMgr->ValidateIndex(normalMapIndex, NOISE_TEXTURE_TYPE_COMMON)
-		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsSpecularMapValid = (pTexMgr->ValidateIndex(specularMapIndex, NOISE_TEXTURE_TYPE_COMMON)
-		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-	m_CbPerSubset.IsEnvironmentMapValid = (pTexMgr->ValidateIndex(envMapIndex, NOISE_TEXTURE_TYPE_CUBEMAP)
-		== NOISE_MACRO_INVALID_TEXTURE_ID ? FALSE : TRUE);
-
+	m_CbPerSubset.IsDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+	m_CbPerSubset.IsNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+	m_CbPerSubset.IsSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+	m_CbPerSubset.IsEnvironmentMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
 
 	//update textures, bound corresponding ShaderResourceView to the pipeline
 	//if tetxure is  valid ,then set diffuse map
 	if (m_CbPerSubset.IsDiffuseMapValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(diffMapIndex)->m_pSRV;
+		tmp_pSRV = pDiffMap->m_pSRV;
 		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set normal map
 	if (m_CbPerSubset.IsNormalMapValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(normalMapIndex)->m_pSRV;
+		tmp_pSRV = pNormalMap->m_pSRV;
 		m_pFX_Texture_Normal->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set specular map
 	if (m_CbPerSubset.IsSpecularMapValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(specularMapIndex)->m_pSRV;
+		tmp_pSRV = pSpecMap->m_pSRV;
 		m_pFX_Texture_Specular->SetResource(tmp_pSRV);
 	}
 
 	//if tetxure is  valid ,then set environment map (cube map)
 	if (m_CbPerSubset.IsEnvironmentMapValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(envMapIndex)->m_pSRV;
+		tmp_pSRV = pEnvMap->m_pSRV;
 		m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
 	}
 

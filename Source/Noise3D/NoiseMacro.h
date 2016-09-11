@@ -55,7 +55,7 @@
 				if(FAILED(hr)) \
 				{\
 				ERROR_MSG(MsgText);\
-				return NOISE_MACRO_INVALID_TEXTURE_ID;\
+				return nullptr;\
 				};\
 
 
