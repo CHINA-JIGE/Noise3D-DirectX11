@@ -84,14 +84,14 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âş·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("media/Earth.jpg", "Earth", TRUE, 0, 0, FALSE);
+	pTexMgr->CreateTextureFromFile("media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("media/Jade.jpg", "JadeNormalMap", FALSE, 256, 256, TRUE);
 	pTexMgr->CreateTextureFromFile("media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
-	pTexMgr->ConvertTextureToGreyMap(pTexMgr->GetTextureID("JadeNormalMap"));
-	pTexMgr->ConvertHeightMapToNormalMap(pTexMgr->GetTextureID("JadeNormalMap"), 5.0f);
+	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	pNormalMap->ConvertTextureToGreyMap();
+	pNormalMap->ConvertHeightMapToNormalMap(10.0f);
 
 
 	//create font texture
@@ -106,14 +106,14 @@ BOOL Init3D(HWND hwnd)
 	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
 
 	//------------------MESH INITIALIZATION----------------
-	pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
+	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
 	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
-	//Mesh1.LoadFile_3DS("model/box/TexturedBox.3ds");
+	//pModelLoader->LoadFile_3DS("model/box/TexturedBox.3ds",);
 	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
 	//pMesh1->LoadFile_3DS("model/treeScene/treeScene3.3ds");
 	//Mesh1.LoadFile_OBJ("model/cylinder.obj");
-	//pMesh1->CreateSphere(5.0f, 30, 30);
+	pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
 	//Mesh1.CreatePlane(50.0f, 50.0f);
 	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);
@@ -164,10 +164,10 @@ BOOL Init3D(HWND hwnd)
 	Mat1.mBaseDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.mSpecularSmoothLevel = 40;
-	Mat1.mNormalMapBumpIntensity = 0.1f;
+	Mat1.mNormalMapBumpIntensity = 0.2f;
 	Mat1.mEnvironmentMapTransparency = 0.05f;
-	Mat1.diffuseMapName ="Jade";//"Earth");
-	Mat1.normalMapName ="JadeNormalMap";
+	Mat1.diffuseMapName = "Earth";//"Earth");
+	Mat1.normalMapName ="EarthNormalMap";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material

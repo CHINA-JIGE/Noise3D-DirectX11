@@ -10,6 +10,7 @@
 #pragma warning (disable : 4005)//宏重定义 WIN8 SDK和DXSDK
 #define NDEBUG //禁止调用assert
 #define DIRECTINPUT_VERSION 0x0800
+#define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
 #include "d3d11.h"
 #include "D3DX11.h"

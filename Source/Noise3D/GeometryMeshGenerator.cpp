@@ -126,7 +126,6 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 
-
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
 	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
 	//the "+2" refers to the TOP/BOTTOM vertex
@@ -193,8 +192,9 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
 		tmpCompleteV.Color		= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
 		tmpCompleteV.TexCoord	= tmpTexCoord[i];
-		NVECTOR3 tmpTangent(-tmpV[i].z, 0, tmpV[i].x);
-		D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpTangent, &tmpCompleteV.Normal);//tangent
+		NVECTOR3 tmpTangent = tmpV[i].z>0 ? NVECTOR3(-tmpV[i].z, 0, tmpV[i].x) : NVECTOR3(tmpV[i].z, 0, -tmpV[i].x);
+		//D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpTangent, &tmpCompleteV.Normal);//tangent
+		tmpCompleteV.Tangent = tmpTangent;
 		outVerticeList.push_back(tmpCompleteV);
 	}
 

@@ -8,35 +8,13 @@
 
 namespace Noise3D
 {
-	/*class N_TextureObject
-	{
-	public:
-
-		//std::string			mTexName;
-		std::vector<NVECTOR4>	mPixelBuffer;
-		BOOL	mIsPixelBufferInMemValid;
-		ID3D11ShaderResourceView*	m_pSRV;
-		NOISE_TEXTURE_TYPE mTextureType;
-
-	private:
-		friend class IFactory<N_TextureObject>;
-
-		N_TextureObject() { ZeroMemory(this, sizeof(*this)); }
-
-		~N_TextureObject()
-		{
-			//safe_release SRV  interface
-			ReleaseCOM(m_pSRV);
-			mPixelBuffer.clear();
-		}
-	};*/
 
 	class /*_declspec(dllexport)*/ ITextureManager :
 		public IFactory<ITexture>
 	{
 	public:
 		friend class IRenderer;
-		friend class IFontManager;//Let it Create\Access bitmap table Texture
+		//friend class IFontManager;//Let it Create\Access bitmap table Texture
 
 		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
 

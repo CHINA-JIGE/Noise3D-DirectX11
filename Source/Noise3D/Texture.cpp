@@ -104,7 +104,63 @@ NVECTOR4 ITexture::GetPixel(UINT x, UINT y)
 	}
 	else
 	{
-		ERROR_MSG("GetPixel : Texture ID or Texture Type invalid !!");
+		ERROR_MSG("GetPixel :Texture Type invalid !!");
+	}
+	return NVECTOR4(0, 0, 0, 0);
+}
+
+BOOL ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
+{
+	if (mIsPixelBufferInMemValid)
+	{
+		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		{
+			//check if the array size matches
+			if (in_ColorArray.size() == mPixelBuffer.size())
+			{
+				mPixelBuffer.assign(in_ColorArray.begin(), in_ColorArray.end());
+				return TRUE;
+			}
+			else
+			{
+				ERROR_MSG("SetPixelArray : array size didn't match.");
+			}
+		}
+	}
+	return FALSE;
+}
+
+BOOL ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
+{
+	if (mIsPixelBufferInMemValid)
+	{
+		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		{
+			//check if the array size matches
+			if (in_ColorArray.size() == mPixelBuffer.size())
+			{
+				mPixelBuffer = std::move(in_ColorArray);
+				return TRUE;
+			}
+			else
+			{
+				ERROR_MSG("SetPixelArray : array size didn't match.");
+			}
+		}
+	}
+	return FALSE;
+}
+
+BOOL ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
+{
+	if (IsSysMemPixelBufferValid())
+	{
+		outColorArray = mPixelBuffer;
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
 	}
 }
 
@@ -143,7 +199,7 @@ BOOL ITexture::UpdateToVideoMemory()
 	else
 	{
 		//texID = ==Noise_macro_invalid_Texture_ID
-		ERROR_MSG("UpdateTextureToGraphicMemory : Texture ID invalid!!");
+		ERROR_MSG("UpdateTextureToGraphicMemory : Texture Type invalid!!");
 		return FALSE;
 	}
 
@@ -172,15 +228,15 @@ BOOL ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float fac
 	}
 
 	//Get Dimension info
-	D3D11_TEXTURE2D_DESC textureDesc;
+	/*D3D11_TEXTURE2D_DESC textureDesc;
 	ID3D11Texture2D* pTex2D;
 	m_pSRV->GetResource((ID3D11Resource**)&pTex2D);
-	pTex2D->GetDesc(&textureDesc);
+	pTex2D->GetDesc(&textureDesc);*/
 
-	UINT picWidth = textureDesc.Width;
-	UINT picHeight = textureDesc.Height;
+	UINT picWidth = GetWidth();//textureDesc.Width;
+	UINT picHeight = GetWidth();//textureDesc.Height;
 
-	ReleaseCOM(pTex2D);
+	//ReleaseCOM(pTex2D);
 
 	//for every pixel of the copy in memory ,
 	//convert their RGBs to same value under some rules
@@ -240,23 +296,25 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	};
 
 	//loop to generate normal map
-	for (UINT j = 0;j < picHeight - 1;j++)
+	for (UINT j = 0;j < picHeight;j++)
 	{
-		for (UINT i = 0;i < picWidth - 1;i++)
+		for (UINT i = 0;i < picWidth;i++)
 		{
 			NVECTOR3	currentNormal(0, 0, 0);
 
 			UINT vertexID1=0, vertexID2=0, vertexID3=0;
 
 			//the LSB to indicate if (j==height-1), the 2nd LSB indicate if i==(width-1)
-			UINT caseID = ((i == (picWidth-1)) << 1) | (j ==( picHeight-1));
+			UINT caseID = (((i == (picWidth-1))) << 1) | (j ==( picHeight-1));
 			switch (caseID)
 			{
+			default:
 			case 0://common situation
 				{
 				vertexID1 = ComputeIndex(i, j);
 				vertexID2 = ComputeIndex(i + 1, j);//i+1,j
 				vertexID3 = ComputeIndex(i, j + 1);//i, j+1
+				break;
 				}
 
 			case 1://the most bottom row(j==height-1)
@@ -264,6 +322,7 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 				vertexID1 = ComputeIndex(i, j);
 				vertexID2 = ComputeIndex(i+1,j);//i+1,j
 				vertexID3 = ComputeIndex(i, 0);//i, j+1
+				break;
 				}
 
 			case 2://the most right column (i==width-1)
@@ -271,6 +330,7 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 				vertexID1 = ComputeIndex(i, j);
 				vertexID2 = ComputeIndex(0, j);//i+1,j
 				vertexID3 = ComputeIndex(i, j + 1);//i, j+1
+				break;
 				}
 
 			case 3://right bottom corner pixel
@@ -278,6 +338,7 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 				vertexID1 = ComputeIndex(i, j);
 				vertexID2 = ComputeIndex(0, j);//i+1,j
 				vertexID3 = ComputeIndex(i, 0);//i, j+1
+				break;
 				}
 
 			}
@@ -302,14 +363,14 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	ID3D11Resource* pTmpRes;
 	//resource reference count will increase ,so remember to release
 	//so getResource() actually gets a interface to the resource BOUND to the view.
-	pTexObj->m_pSRV->GetResource(&pTmpRes);
+	m_pSRV->GetResource(&pTmpRes);
 
 	//update resource which is bound to the corresponding SRV
 	g_pImmediateContext->UpdateSubresource(
 		pTmpRes,
 		0,
 		NULL,
-		&pTexObj->mPixelBuffer.at(0),
+		&mPixelBuffer.at(0),
 		picWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
 		NULL);
 
@@ -330,7 +391,7 @@ BOOL ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT p
 		D3DX11_IMAGE_FILE_FORMAT(picFormat),
 		filePath.c_str()
 	);
-	HR_DEBUG(hr, "ITexture £º Save Texture Failed!");
+	HR_DEBUG(hr, "ITexture£ºSave Texture Failed!");
 	ReleaseCOM(tmp_pResource);
 
 	return TRUE;

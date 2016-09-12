@@ -379,12 +379,12 @@ BOOL IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 						std::string mapPath = modelFileDirectory + texName2FilePathMap.at(texName);
 
 						//Try to create texture
-						textureReturnID = pTexMgr->CreateTextureFromFile(
+						ITexture* pTex= pTexMgr->CreateTextureFromFile(
 							mapPath.c_str(),
 							texName,
 							TRUE, 0, 0, FALSE);
 
-						if (textureReturnID == NOISE_MACRO_INVALID_TEXTURE_ID)
+						if (pTex==nullptr)
 							WARNING_MSG("WARNING : Load 3ds : texture Creation Failed!!");
 					}
 				}

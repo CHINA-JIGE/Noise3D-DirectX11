@@ -30,7 +30,6 @@ IFontManager::IFontManager():
 {
 	mIsFTInitialized = FALSE;
 	m_FTLibrary		= nullptr;
-	m_pTexMgr = new ITextureManager;
 }
 
 IFontManager::~IFontManager()
@@ -184,8 +183,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	N_UID tmpTextureName="Internal_Static_Tex" +textObjectName;
 
 	//Create a pure color Texture
-	UINT stringTextureID = NOISE_MACRO_INVALID_TEXTURE_ID;
-	stringTextureID = m_pTexMgr->CreatePureColorTexture(
+	ITexture* pTexture= m_pTexMgr->CreatePureColorTexture(
 		tmpTextureName,
 		boundaryWidth,
 		boundaryHeight,
@@ -194,7 +192,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		);
 
 	//check if texture creation success
-	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
+	if (pTexture==nullptr)
 	{
 		ERROR_MSG("CreateStaticTextW : Create Bitmap Table Texture failed!");
 		return nullptr;
@@ -213,14 +211,11 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		0);
 
 	//copy bitmap to texture 
-	m_pTexMgr->GetObjectPtr(tmpTextureName)->mPixelBuffer.assign(
-		tmpFontBitmap.bitmapBuffer.begin(),
-		tmpFontBitmap.bitmapBuffer.end()
-		);
+	pTexture->SetPixelArray(std::move(tmpFontBitmap.bitmapBuffer));
 
 	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
 	BOOL UpdateToGMSuccess = FALSE;
-	UpdateToGMSuccess = m_pTexMgr->UpdateTextureDataToGraphicMemory(tmpTextureName);
+	UpdateToGMSuccess = pTexture->UpdateToVideoMemory();
 	if (!UpdateToGMSuccess)
 	{
 		ERROR_MSG("CreateStaticTextW : Create Text Bitmap failed!!");
@@ -250,7 +245,7 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
 
-	//check fontName if it repeats
+	//check fontName if it existed
 	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
 	{
 		ERROR_MSG("WARN : CreateDynamicTextA:Font Name Invalid!!");
@@ -611,7 +606,7 @@ BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	fontObj.mInternalTextureName = "AsciiBitmapTable" + fontName;//not same with the public FONT NAME
 
 	//Create a pure color Texture
-	 UINT stringTextureID = m_pTexMgr->CreatePureColorTexture(
+	 ITexture* pTexture = m_pTexMgr->CreatePureColorTexture(
 		 fontObj.mInternalTextureName,
 		tablePxWidth,
 		tablePxHeight,
@@ -620,7 +615,7 @@ BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		);
 
 	//check if texture creation success
-	if (stringTextureID == NOISE_MACRO_INVALID_TEXTURE_ID)
+	if (pTexture==nullptr)
 	{
 		ERROR_MSG("CreateFontFromFile : Create Bitmap Table Texture failed!");
 		return FALSE;
@@ -628,7 +623,7 @@ BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	
 	//-----Up to now,the texture is still a pure color bitmap-------
 	//-----we are gonna write an ASCII bitmap table to it (code 0~127)--
-	auto& pixelBuff= m_pTexMgr->GetObjectPtr(stringTextureID)->mPixelBuffer;
+	std::vector<NVECTOR4> pixelBuff(tablePxWidth*tablePxHeight);
 
 	for (UINT rowID = 0;rowID < tableRowCount;rowID++)
 	{
@@ -653,8 +648,10 @@ BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 
 		}
 	}
+
+	pTexture->SetPixelArray(pixelBuff);
 	//update a texture to Graphic Memory
-	m_pTexMgr->UpdateTextureDataToGraphicMemory(stringTextureID);
+	pTexture->UpdateToVideoMemory();
 
 	return TRUE;
 }

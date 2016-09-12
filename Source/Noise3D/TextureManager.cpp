@@ -29,9 +29,9 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 	HRESULT hr = S_OK;
 
 	//we must check if new name has been used
-	if(ValidateUID(texName)==FALSE)
+	if(ValidateUID(texName)==TRUE)
 	{
-			ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
+			ERROR_MSG("CreateTextureFromFile : Texture name has been used!! name: " + texName);
 			return nullptr;//invalid
 	}
 
@@ -132,7 +132,7 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 
 #pragma region LoadDataToBufferArray
 	//create temporary textures , so we should mark the ID to delete it later
-	UINT tmpTexID[6];
+	std::string tmpTexName[6];
 	UINT cubeMapWidth = 0;
 
 	//...what size to use
@@ -158,27 +158,26 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 	//create temporary textures
 	for (UINT i = 0; i < 6;i++)
 	{
-		std::stringstream texName;
-		texName << "cubeMapTmpTexure" << i;
-		tmpTexID[i] = CreateTextureFromFile(
+		 tmpTexName[i] = "cubeMapTmpTexure" +std::to_string(i);
+		ITexture* pTexture = CreateTextureFromFile(
 			fileName[i], 
-			texName.str().c_str(), 
+			tmpTexName[i].c_str(),
 			FALSE,
 			cubeMapWidth, 
 			cubeMapWidth, 
 			TRUE);
 
 		//one of the texture failed loading
-		if (tmpTexID[i] == NOISE_MACRO_INVALID_TEXTURE_ID)
+		if (pTexture==nullptr)
 		{
 			for (UINT j = 0;j <= i;j++)
 			{
 				//delete previously created temporary textures
-				DeleteTexture(tmpTexID[j]);
+				DeleteTexture(tmpTexName[j]);
 			}
 
 			ERROR_MSG("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
-			return NOISE_MACRO_INVALID_TEXTURE_ID;
+			return nullptr;
 		}
 	}
 
@@ -187,18 +186,14 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 	std::vector<NVECTOR4> pixelBuffer[6];
 	for (UINT i = 0;i < 6;i++)
 	{
-		auto srcPartialBuffer = IFactory<N_TextureObject>::GetObjectPtr(tmpTexID[i])->mPixelBuffer;
+		auto srcPartialBuffer = IFactory<ITexture>::GetObjectPtr(tmpTexName[i])->mPixelBuffer;
 		//assign values for each buffer
 		pixelBuffer[i].assign(srcPartialBuffer.begin(), srcPartialBuffer.end());
 	}
 
 	//delete temporary textures after copying data to pixelBuffer(s)
-	DeleteTexture(tmpTexID[5]);
-	DeleteTexture(tmpTexID[4]);
-	DeleteTexture(tmpTexID[3]);
-	DeleteTexture(tmpTexID[2]);
-	DeleteTexture(tmpTexID[1]);
-	DeleteTexture(tmpTexID[0]);
+	for (UINT k = 0;k < 6;k++)DeleteTexture(tmpTexName[k]);
+
 #pragma endregion LoadDataToBufferArray
 
 
@@ -567,7 +562,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 	}
 
 	//we must create a texture with  STAGING / DYNAMIC or whatever not default   usage
-	loadInfo.Filter = D3DX11_FILTER_NONE;//D3DX11_FILTER_LINEAR;
+	loadInfo.Filter = D3DX11_FILTER_LINEAR;
 	loadInfo.MiscFlags = D3DX11_DEFAULT;
 	loadInfo.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	loadInfo.BindFlags = NULL;// D3D11_BIND_SHADER_RESOURCE;

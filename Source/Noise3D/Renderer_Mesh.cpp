@@ -205,10 +205,17 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	ITexture* pEnvMap = pTexMgr->GetTexture(tmpMat.environmentMapName);
 
 	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	m_CbPerSubset.IsDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-	m_CbPerSubset.IsNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-	m_CbPerSubset.IsSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-	m_CbPerSubset.IsEnvironmentMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
+	if(pDiffMap)			m_CbPerSubset.IsDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	m_CbPerSubset.IsDiffuseMapValid = FALSE;
+
+	if (pNormalMap)	m_CbPerSubset.IsNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	m_CbPerSubset.IsNormalMapValid = FALSE;
+
+	if (pSpecMap)		m_CbPerSubset.IsSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	m_CbPerSubset.IsSpecularMapValid = FALSE;
+
+	if (pEnvMap)		m_CbPerSubset.IsEnvironmentMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
+						else	m_CbPerSubset.IsEnvironmentMapValid = FALSE;
 
 	//update textures, bound corresponding ShaderResourceView to the pipeline
 	//if tetxure is  valid ,then set diffuse map

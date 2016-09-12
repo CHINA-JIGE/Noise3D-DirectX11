@@ -31,9 +31,11 @@ namespace Noise3D
 
 		NVECTOR4		GetPixel(UINT x, UINT y);
 
-		void					SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+		BOOL				SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		void					GetPixelArray(std::vector<NVECTOR4>& outColorArray);
+		BOOL				SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+
+		BOOL				GetPixelArray(std::vector<NVECTOR4>& outColorArray);
 
 		BOOL				UpdateToVideoMemory();
 
