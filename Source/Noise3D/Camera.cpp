@@ -340,26 +340,9 @@ void	ICamera::mFunction_UpdateRotation()
 	NVECTOR3 radiusDir(m_pDirection->x, 0, m_pDirection->z);
 	//always positive
 	float radiusLength = D3DXVec3Length(&radiusDir);
-	//atan2(x,y) , radiusLength is constantly positive, pitch angle will range [-pi/2,pi/2] 
-	mRotateX_Pitch = atan2(radiusLength, m_pDirection->y);
-
-	/*if((m_pDirection->x==0) && (m_pDirection->z==0))
-	{
-		//是否在原点的正上下方
-		if(m_pDirection->y>=0)
-		{mRotateX_Pitch=-MATH_PI/2.0f;}
-		else
-		{mRotateX_Pitch=MATH_PI/2.0f;}
-	}
-	else
-	{
-		//去你的 难道y负的时候是正角————对的没错，DX用左手系，左手系旋转正方向用左手决定
-		//用大拇指指着旋转轴正向，四指指向正旋转方向
-		tmpRatio =-m_pDirection->y /  sqrt(pow(m_pDirection->x,2.0f)+pow(m_pDirection->z,2.0f));
-		mRotateX_Pitch = atan(tmpRatio);//返回[-0.5pi,0.5pi]
-	}*/
-
-
+	//atan2(y,x) , radiusLength is constantly positive, pitch angle will range [-pi/2,pi/2] 
+	//pitch : rotate downside is positive (the definition of rotation in left-handed frame)
+	mRotateX_Pitch = atan2(-m_pDirection->y,radiusLength );
 
 	//yaw角： tan = -x/z
 	mRotateY_Yaw = atan2(m_pDirection->x,m_pDirection->z);//俯视图yaw是顺时针正角

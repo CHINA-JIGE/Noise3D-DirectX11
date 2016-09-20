@@ -18,7 +18,7 @@ void IRenderer::RenderTexts()
 {
 
 	//CLEAR DEPTH!! to implement component overlapping
-	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
+	g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);

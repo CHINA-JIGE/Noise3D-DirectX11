@@ -105,8 +105,6 @@ namespace Noise3D
 
 		void			RenderTexts();
 
-		//void			RenderGUIObjects();//this function will render if Noise GUI is involved
-
 		void			AddObjectToRenderList(IMesh* obj);
 
 		void			AddObjectToRenderList(IGraphicObject* obj);
@@ -119,13 +117,17 @@ namespace Noise3D
 
 		void			ClearBackground(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
-		void			RenderToScreen();
+		void			PresentToScreen();
 
 		void			SetFillMode(NOISE_FILLMODE iMode);
 
 		void			SetCullMode(NOISE_CULLMODE iMode);
 
 		void			SetBlendingMode(NOISE_BLENDMODE iMode);
+
+		UINT		GetMainBufferWidth();
+
+		UINT		GetMainBufferHeight();
 
 	private:
 
@@ -139,7 +141,9 @@ namespace Noise3D
 
 		//--------------------INITIALIZATION---------------------
 
-		BOOL			mFunction_Init();
+		BOOL			mFunction_Init(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
+
+		BOOL			mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);//render target view, depth stencil view
 
 		BOOL			mFunction_Init_CreateBlendState();
 
@@ -213,15 +217,19 @@ namespace Noise3D
 
 		~IRenderer();
 
-		HWND mRenderWindowHWND;
+		UINT				mMainBufferWidth;
+		UINT				mMainBufferHeight;
 
-		std::vector <IMesh*>*				m_pRenderList_Mesh;
+
+		std::vector <IMesh*>*					m_pRenderList_Mesh;
 		std::vector <IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
 		std::vector <IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
 		std::vector <IBasicTextInfo*>*	m_pRenderList_TextStatic;//for static Text Rendering(including other info)
 		std::vector <IAtmosphere*>*		m_pRenderList_Atmosphere;
 
-		//Raster State
+		IDXGISwapChain*							m_pSwapChain;
+		ID3D11RenderTargetView*				m_pRenderTargetView;//RTV
+		ID3D11DepthStencilView*				m_pDepthStencilView;//DSV
 		ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
 		ID3D11RasterizerState*					m_pRasterState_Solid_CullBack;
 		ID3D11RasterizerState*					m_pRasterState_Solid_CullFront;
@@ -241,12 +249,12 @@ namespace Noise3D
 		NOISE_BLENDMODE						m_BlendMode;
 
 		//在App中先定义好所有Struct再一次更新
-		BOOL										mCanUpdateCbCameraMatrix;
+		BOOL											mCanUpdateCbCameraMatrix;
 		N_CbPerFrame							m_CbPerFrame;
 		N_CbPerObject							m_CbPerObject;
 		N_CbPerSubset							m_CbPerSubset;
-		N_CbRarely								m_CbRarely;
-		N_CbCameraMatrix					m_CbCameraMatrix;
+		N_CbRarely									m_CbRarely;
+		N_CbCameraMatrix						m_CbCameraMatrix;
 		N_CbAtmosphere						m_CbAtmosphere;
 		N_CbDrawText2D						m_CbDrawText2D;
 

@@ -36,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	//create a window (using default window creation function)
 	HWND windowHWND;
-	windowHWND = pRoot->CreateRenderWindow(640, 480, L"Hahaha Render Window", hInstance);
+	windowHWND = pRoot->CreateRenderWindow(1280, 720, L"Hahaha Render Window", hInstance);
 
 	//initialize input engine (detection for keyboard and mouse input)
 	inputE.Initialize(hInstance, windowHWND);
@@ -59,11 +59,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 640;
-	const UINT bufferHeight = 480;
+	const UINT bufferWidth = 1280;
+	const UINT bufferHeight = 720;
 
 	//³õÊ¼»¯Ê§°Ü
-	if (!pRoot->InitD3D(hwnd, bufferWidth, bufferHeight, TRUE))return FALSE;
+	if (!pRoot->InitD3D(hwnd))return FALSE;
 	
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
@@ -74,7 +74,8 @@ BOOL Init3D(HWND hwnd)
 	//use "myMesh1" string to initialize UID (unique-Identifier)
 	pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
-	pRenderer = pScene->GetRenderer();
+
+	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
 	pCamera = pScene->GetCamera();
 	pLightMgr=pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
@@ -140,7 +141,7 @@ BOOL Init3D(HWND hwnd)
 	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
 	float rotateY = meshAABB.max.y*1.3f;
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
-	pCamera->SetLookAt(0, rotateY / 2, 0);
+	pCamera->SetLookAt(0, 0, 0);
 
 	pAtmos->SetFogEnabled(FALSE);
 	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
@@ -213,7 +214,7 @@ void MainLoop()
 	pRenderer->RenderTexts();
 
 	//present
-	pRenderer->RenderToScreen();
+	pRenderer->PresentToScreen();
 };
 
 void InputProcess()

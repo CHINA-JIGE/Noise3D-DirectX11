@@ -47,18 +47,8 @@ void	IScene::ReleaseAllChildObject()
 	IFactory<IGraphicObjectManager>::DestroyAllObject();
 }
 
-IMeshManager * IScene::GetMeshMgr()
-{
-	static const N_UID uid = "sceneMeshMgr";
-	if (IFactory<IMeshManager>::FindUid(uid) == FALSE)
-	{
-		IFactory<IMeshManager>::CreateObject(uid);
-	}
-	return IFactory<IMeshManager>::GetObjectPtr(uid);
-};
-
 //first time to init RENDERER
-IRenderer * IScene::GetRenderer()
+IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
 {
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<IRenderer>::FindUid(uid) == FALSE)
@@ -66,7 +56,7 @@ IRenderer * IScene::GetRenderer()
 		IRenderer* pRd = IFactory<IRenderer>::CreateObject(uid);
 
 		//init of shaders/RV/states/....
-		BOOL isSucceeded =pRd->mFunction_Init();
+		BOOL isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight,IsWindowed);
 		if (isSucceeded)
 		{
 			return pRd;
@@ -79,7 +69,34 @@ IRenderer * IScene::GetRenderer()
 		}
 	}
 	return IFactory<IRenderer>::GetObjectPtr(uid);
+}
+
+IRenderer * IScene::GetRenderer()
+{
+	static const N_UID uid = "sceneRenderer";
+	if (IFactory<IRenderer>::FindUid(uid) == FALSE)
+	{
+		ERROR_MSG("IScene: GetRenderer() : Renderer must be initialized by CreateRenderer() method.");
+		return nullptr;
+	}
+	else
+	{
+		//return initialized renderer ptr
+		return IFactory<IRenderer>::GetObjectPtr(uid);
+	}
 };
+
+
+IMeshManager * IScene::GetMeshMgr()
+{
+	static const N_UID uid = "sceneMeshMgr";
+	if (IFactory<IMeshManager>::FindUid(uid) == FALSE)
+	{
+		IFactory<IMeshManager>::CreateObject(uid);
+	}
+	return IFactory<IMeshManager>::GetObjectPtr(uid);
+};
+
 
 ICamera * IScene::GetCamera()
 {

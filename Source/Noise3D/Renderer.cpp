@@ -19,12 +19,10 @@ static D3DX11_TECHNIQUE_DESC	tmp_pTechDesc;
 IRenderer::IRenderer()
 {
 	mCanUpdateCbCameraMatrix			= FALSE;
-	m_pRenderList_Mesh						= new std::vector <IMesh*>;
+	m_pRenderList_Mesh							= new std::vector <IMesh*>;
 	m_pRenderList_CommonGraphicObj	= new std::vector<IGraphicObject*>;
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_TextStatic					= new std::vector<IBasicTextInfo*>;//for Text Rendering
-	//m_pRenderList_GUIText						= new std::vector<IBasicTextInfo*>;//for GUI Text Rendering
-	//m_pRenderList_GUIGraphicObj			= new std::vector<IGraphicObject*>;//for GUI common object rendering
 	m_pRenderList_Atmosphere				= new std::vector<IAtmosphere*>;
 	m_pFX = nullptr;
 	m_pFX_Tech_Default = nullptr;
@@ -53,6 +51,15 @@ IRenderer::~IRenderer()
 	ReleaseCOM(m_pDepthStencilState_EnableDepthTest);
 	ReleaseCOM(m_pSamplerState_FilterAnis);
 	ReleaseCOM(m_pFX);
+	ReleaseCOM(m_pDepthStencilView);
+	ReleaseCOM(m_pRenderTargetView);
+	ReleaseCOM(m_pSwapChain);
+
+	delete m_pRenderList_Atmosphere;
+	delete m_pRenderList_CommonGraphicObj;
+	delete m_pRenderList_Mesh;
+	delete m_pRenderList_TextDynamic;
+	delete m_pRenderList_TextStatic;
 };
 
 
@@ -86,15 +93,15 @@ void IRenderer::AddObjectToRenderList(IStaticText* obj)
 void	IRenderer::ClearBackground(const NVECTOR4& color)
 {
 	float ClearColor[4] = { color.x,color.y,color.z,color.w };
-	g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, ClearColor );
+	g_pImmediateContext->ClearRenderTargetView( m_pRenderTargetView, ClearColor );
 	//我擦！！！纠结这么久原来是要clearDepth!!!!!!
-	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
+	g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView,
 		D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL,1.0f,0);
 };
 
-void	IRenderer::RenderToScreen()
+void	IRenderer::PresentToScreen()
 {
-		g_pSwapChain->Present(0, 0 );
+		m_pSwapChain->Present(0, 0 );
 
 		//reset some state
 		mCanUpdateCbCameraMatrix = TRUE;
@@ -120,15 +127,34 @@ void IRenderer::SetCullMode(NOISE_CULLMODE iMode)
 void IRenderer::SetBlendingMode(NOISE_BLENDMODE iMode)
 {
 	m_BlendMode = iMode;
+}
+
+UINT IRenderer::GetMainBufferWidth()
+{
+	return mMainBufferWidth;
 };
+
+UINT IRenderer::GetMainBufferHeight()
+{
+	return mMainBufferHeight;
+};
+
 
 
 
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-BOOL	IRenderer::mFunction_Init()
+BOOL	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
 {
+	//init d3d infrastructure
+	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, IsWindowed))
+	{
+		ERROR_MSG("IRenderer : Init D3D Infrastructure failed.");
+		return FALSE;
+	};
+
+
 	HRESULT hr = S_OK;
 
 	//mFunction_Init_CreateEffectFromMemory("Shader\\Main.fxo");
@@ -153,7 +179,7 @@ BOOL	IRenderer::mFunction_Init()
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Default);
 
-	HR_DEBUG(hr, "创建input Layout失败！");
+	HR_DEBUG(hr, "create default input Layout failed！");
 
 	//simple vertex input layout
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
@@ -164,7 +190,7 @@ BOOL	IRenderer::mFunction_Init()
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Simple);
 
-	HR_DEBUG(hr, "创建input Layout失败！");
+	HR_DEBUG(hr, "create simple input Layout failed！");
 #pragma endregion Create Input Layout
 
 #pragma region Create Fx Variable
@@ -195,7 +221,127 @@ BOOL	IRenderer::mFunction_Init()
 	if (!mFunction_Init_CreateSamplerState())return FALSE;
 	if (!mFunction_Init_CreateDepthStencilState())return FALSE;
 
+	mMainBufferWidth = BufferWidth;
+	mMainBufferHeight = BufferHeight;
+
 	return TRUE;
+}
+
+BOOL IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
+{
+	//check multi-sample capability
+	UINT device_MSAA_Quality = 1;//bigger than 1
+	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
+	UINT device_MSAA_Enabled = FALSE;
+
+	g_pd3dDevice11->CheckMultisampleQualityLevels(
+		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
+	if (device_MSAA_Quality > 0)
+	{
+		device_MSAA_Enabled = TRUE;	//4x抗锯齿可以开了
+	};
+
+	//-----------------------------------SWAP CHAIN--------------------------------
+	//Swap Chain description
+	DXGI_SWAP_CHAIN_DESC SwapChainParam;
+	ZeroMemory(&SwapChainParam, sizeof(SwapChainParam));
+	SwapChainParam.BufferCount = 1;
+	SwapChainParam.BufferDesc.Width = BufferWidth;
+	SwapChainParam.BufferDesc.Height = BufferHeight;
+	SwapChainParam.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	SwapChainParam.BufferDesc.RefreshRate.Numerator = 60;//	分子= =？
+	SwapChainParam.BufferDesc.RefreshRate.Denominator = 1;//分母
+	SwapChainParam.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//BACKBUFFER怎么被使用
+	SwapChainParam.OutputWindow = GetRoot()->GetRenderWindowHWND();
+	SwapChainParam.Windowed = IsWindowed;
+	SwapChainParam.SampleDesc.Count = (device_MSAA_Enabled == TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	SwapChainParam.SampleDesc.Quality = (device_MSAA_Enabled == TRUE ? device_MSAA_Quality - 1 : 0);//quality之前获取了
+
+	//下面的COM的QueryInterface 用一个接口查询另一个接口
+	IDXGIDevice *dxgiDevice = 0;
+	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+	IDXGIAdapter *dxgiAdapter = 0;
+	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
+	IDXGIFactory *dxgiFactory = 0;
+	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
+
+	//Create Swap chain
+	HRESULT hr = dxgiFactory->CreateSwapChain(
+	g_pd3dDevice11,		//设备的指针
+	&SwapChainParam,	//交换链的描述
+	&m_pSwapChain);		//返回的交换链指针
+	HR_DEBUG(hr, "SwapChain创建失败！");
+
+	dxgiFactory->Release();
+	dxgiDevice->Release();
+	dxgiAdapter->Release();
+
+	//------------------------------RTV---------------------
+	ID3D11Texture2D* pBackBuffer = NULL;
+	hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	if (FAILED(hr))
+		return FALSE;
+
+	hr = g_pd3dDevice11->CreateRenderTargetView(
+		pBackBuffer,
+		NULL,					//可以填充一个D3D11_RENDERTARGETVIEW_DESC
+		&m_pRenderTargetView);	//返回一个渲染视口
+
+	pBackBuffer->Release();		//已经用完了的临时接口- -
+
+
+	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
+
+
+	//------------------------------------------DSV--------------------------
+	//创建depth/stencil view
+	D3D11_TEXTURE2D_DESC DSBufferDesc;
+	DSBufferDesc.Width = BufferWidth;
+	DSBufferDesc.Height = BufferHeight;
+	DSBufferDesc.MipLevels = 1;
+	DSBufferDesc.ArraySize = 1;
+	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = TRUE ? device_MSAA_Quality - 1 : 0);
+	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
+	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
+	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
+	DSBufferDesc.MiscFlags = 0;
+
+	ID3D11Texture2D* pDepthStencilBuffer;
+	g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);//创建一个缓冲区
+	hr = g_pd3dDevice11->CreateDepthStencilView(
+		pDepthStencilBuffer,
+		0,
+		&m_pDepthStencilView);	//返回一个depth/stencil视口指针
+
+	pDepthStencilBuffer->Release();
+
+	if (FAILED(hr))
+	{
+		return FALSE;
+	};
+
+	//-------------------Set RTV/DSV------------------
+	g_pImmediateContext->OMSetRenderTargets(
+		1,
+		&m_pRenderTargetView,
+		m_pDepthStencilView);
+
+
+	//-------------------------------------------VIEWPORT--------------------------------
+	//XY都是-1到1，深度Z是0到1，DX11不会默认创建视口，DX9就会
+
+	D3D11_VIEWPORT vp;
+	vp.Width = (FLOAT)BufferWidth;		//视口WIDTH 跟后缓冲区一样
+	vp.Height = (FLOAT)BufferHeight;	//视口Height
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	//SetViewport 参数1：视口的个数 参数2：视口数组的首地址
+	g_pImmediateContext->RSSetViewports(1, &vp);
+
 }
 
 BOOL	IRenderer::mFunction_Init_CreateBlendState()

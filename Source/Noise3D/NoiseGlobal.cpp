@@ -11,13 +11,8 @@ using namespace Noise3D;
 
 	/*--------------------------全局变量----------------------------*/
 
-	//主缓存的像素宽度
-	UINT		Noise3D::gMainBufferPixelWidth = 640;
-	//主缓存的像素高度
-	UINT		Noise3D::gMainBufferPixelHeight = 480;
-
 	//只是初始化设定是这样而已
-	D3D_DRIVER_TYPE		Noise3D::g_Device_driverType = D3D_DRIVER_TYPE_SOFTWARE;
+	D3D_DRIVER_TYPE		Noise3D::g_Device_driverType = D3D_DRIVER_TYPE_HARDWARE;
 	//
 	D3D_FEATURE_LEVEL	Noise3D::g_Device_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
@@ -45,12 +40,7 @@ using namespace Noise3D;
 	ID3D11Device*           Noise3D::g_pd3dDevice11 = NULL;
 
 	ID3D11DeviceContext*		Noise3D::g_pImmediateContext = NULL;
-	//交换链
-	IDXGISwapChain*				Noise3D::g_pSwapChain = NULL;
-	//渲染视口 可以是数组 用于和pipeline绑定
-	ID3D11RenderTargetView* Noise3D::g_pRenderTargetView = NULL;
-	//深度&模版 只能有一个
-	ID3D11DepthStencilView*	 Noise3D::g_pDepthStencilView = NULL;
+
 	//顶点布局
 	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Default = NULL;
 	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Simple = NULL;

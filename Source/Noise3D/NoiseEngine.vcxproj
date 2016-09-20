@@ -69,6 +69,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,7 +190,7 @@
     <ClCompile Include="Renderer_Text.cpp" />
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
-    <ClCompile Include="FileMgrc.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="FileMgr_3DS.cpp" />
     <ClCompile Include="FileMgr_OBJ.cpp" />
     <ClCompile Include="FileMgr_STL.cpp" />

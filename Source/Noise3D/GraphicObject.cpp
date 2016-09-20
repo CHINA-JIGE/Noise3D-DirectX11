@@ -65,8 +65,12 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	//				   |		SCR SPACE
 	//				   |
 	
-	pixelOffset.x = pixelOffset.x * 2.0f / float(gMainBufferPixelWidth);
-	pixelOffset.y = -pixelOffset.y*2.0f  / float(gMainBufferPixelHeight);
+	IRenderer* pRenderer = GetScene()->GetRenderer();
+	UINT mainWidth = pRenderer->GetMainBufferWidth();
+	UINT mainHeight = pRenderer->GetMainBufferHeight();
+
+	pixelOffset.x = pixelOffset.x * 2.0f / float(mainWidth);
+	pixelOffset.y = -pixelOffset.y*2.0f  / float(mainHeight);
 
 	//vector difference
 	NVECTOR2 offsetV = pixelOffset - (*m_pBaseScreenSpacePosOffset);
@@ -92,12 +96,15 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 
 NVECTOR2 IGraphicObject::GetBasePosOffset()
 {
-	//Position Offset
+	IRenderer* pRenderer = GetScene()->GetRenderer();
+	UINT mainWidth = pRenderer->GetMainBufferWidth();
+	UINT mainHeight = pRenderer->GetMainBufferHeight();
 
+	//Position Offset
 	NVECTOR2 outBaseTopLeftPixel = *m_pBaseScreenSpacePosOffset;
 	//mFunction_ConvertFloatVec2PixelVec(outBaseTopLeftPixel);
-	outBaseTopLeftPixel.x = outBaseTopLeftPixel.x *float(gMainBufferPixelWidth) / 2.0f;
-	outBaseTopLeftPixel.y = - outBaseTopLeftPixel.y * float(gMainBufferPixelHeight) / 2.0f;
+	outBaseTopLeftPixel.x = outBaseTopLeftPixel.x *float(mainWidth) / 2.0f;
+	outBaseTopLeftPixel.y = - outBaseTopLeftPixel.y * float(mainHeight) / 2.0f;
 	return outBaseTopLeftPixel;
 }
 
@@ -860,8 +867,12 @@ void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 	//		--------|--------->
 	//				   |		SCR SPACE
 	//				   |
-	in_out_vec.x = float(gMainBufferPixelWidth) *((in_out_vec.x + 1.0f) / 2.0f);
-	in_out_vec.y = float(gMainBufferPixelHeight)*((1.0f - in_out_vec.y) / 2.0f);
+	IRenderer* pRenderer = GetScene()->GetRenderer();
+	UINT mainWidth = pRenderer->GetMainBufferWidth();
+	UINT mainHeight = pRenderer->GetMainBufferHeight();
+
+	in_out_vec.x = float(mainWidth) *((in_out_vec.x + 1.0f) / 2.0f);
+	in_out_vec.y = float(mainHeight)*((1.0f - in_out_vec.y) / 2.0f);
 };
 
 inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
@@ -876,10 +887,13 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 	//		--------|--------->
 	//				   |		SCR SPACE
 	//				   |
+	IRenderer* pRenderer = GetScene()->GetRenderer();
+	UINT mainWidth = pRenderer->GetMainBufferWidth();
+	UINT mainHeight = pRenderer->GetMainBufferHeight();
 
 	//PIXEL SPACE TO [-1,1] SCR SPACE
-	float halfW= (float)gMainBufferPixelWidth / 2.0f;
-	float halfH = (float)gMainBufferPixelHeight / 2.0f;
+	float halfW= (float)mainWidth / 2.0f;
+	float halfH = (float)mainHeight / 2.0f;
 	vec.x = (vec.x / halfW)- 1.0f;	
 	vec.y=1.0f - (vec.y / halfH);
 	//vec -= *m_pBaseScreenSpacePosOffset;
@@ -887,15 +901,19 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 
 inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
 {
+	IRenderer* pRenderer = GetScene()->GetRenderer();
+	UINT mainWidth = pRenderer->GetMainBufferWidth();
+	UINT mainHeight = pRenderer->GetMainBufferHeight();
+
 	float outLength = 0;
 	//PIXEL SPACE TO [-1,1] SCR SPACE
 	if (isWidth)
 	{
-		outLength = pxLen*2.0f / (float)gMainBufferPixelWidth;
+		outLength = pxLen*2.0f / (float)mainWidth;
 	}
 	else
 	{
-		outLength = pxLen * 2.0f / (float)gMainBufferPixelHeight;
+		outLength = pxLen * 2.0f / (float)mainHeight;
 	}
 	return outLength;
 }

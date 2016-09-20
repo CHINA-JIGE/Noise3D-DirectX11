@@ -46,7 +46,7 @@
 #define HR_DEBUG(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\
-				ERROR_MSG(MsgText);\
+				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
 				return FALSE;\
 				};\
 

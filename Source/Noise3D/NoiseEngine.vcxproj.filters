@@ -296,14 +296,14 @@
     <ClCompile Include="ModelLoader.cpp">
       <Filter>NoiseGraphic\ModelLoader</Filter>
     </ClCompile>
-    <ClCompile Include="FileMgrc.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
     <ClCompile Include="GetResource.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>NoiseGraphic\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

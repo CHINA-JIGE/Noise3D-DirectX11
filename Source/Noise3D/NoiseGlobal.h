@@ -18,9 +18,6 @@ namespace Noise3D
 	const UINT					g_VertexDesc_Simple_ElementCount = 3;
 
 	//主渲染缓存的像素尺寸
-	extern  UINT					gMainBufferPixelWidth;
-
-	extern  UINT					gMainBufferPixelHeight;
 
 	extern D3D_DRIVER_TYPE			g_Device_driverType;
 	//
@@ -36,12 +33,7 @@ namespace Noise3D
 	extern ID3D11Device*					g_pd3dDevice11;
 
 	extern ID3D11DeviceContext*		g_pImmediateContext;
-	//交换链
-	extern IDXGISwapChain*				g_pSwapChain;
-	//渲染视口 可以是数组 用于和pipeline绑定
-	extern ID3D11RenderTargetView* g_pRenderTargetView;
-	//深度&模版 只能有一个
-	extern ID3D11DepthStencilView*	g_pDepthStencilView;
+
 	//顶点布局
 	extern ID3D11InputLayout*			g_pVertexLayout_Default;
 

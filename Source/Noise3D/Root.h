@@ -19,7 +19,7 @@ namespace Noise3D
 
 		HWND	CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 
-		BOOL	InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
+		BOOL	InitD3D(HWND RenderHWND);
 
 		void	ReleaseAll();
 
@@ -47,6 +47,9 @@ namespace Noise3D
 		//destructor
 		~IRoot();
 
+		UINT mMainBackBufferWidth;
+		UINT mMainBackBufferHeight;
+
 		//this is for built-in window creation function
 		LPCWSTR			mRenderWindowTitle;
 		LPCWSTR			mRenderWindowClassName;
@@ -62,7 +65,7 @@ namespace Noise3D
 		//创建渲染窗口的子函数
 		BOOL	mFunction_InitWindowClass(WNDCLASS* wc);
 		//创建渲染窗口的子函数
-		HWND mFunction_InitWindow();
+		HWND mFunction_InitWindow(UINT windowWidth, UINT windowHeight);
 	};
 
 

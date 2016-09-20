@@ -59,6 +59,8 @@ IRoot::IRoot() :
 	mRenderWindowTitle = L"Noise 3D - Render Window";
 	m_pMainLoopFunction = nullptr;
 	mMainLoopStatus = NOISE_MAINLOOP_STATUS_BUSY;
+	mMainBackBufferHeight = 0;
+	mMainBackBufferWidth = 0;
 }
 
 IRoot::~IRoot()
@@ -96,7 +98,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 
 	//创建窗体
 
-	outHWND = mFunction_InitWindow();
+	outHWND = mFunction_InitWindow(pixelWidth,pixelHeight);
 	if (outHWND == 0)
 	{
 		ERROR_MSG("窗体创建失败");
@@ -106,11 +108,9 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	return outHWND;
 };
 
-BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
+BOOL IRoot::InitD3D(HWND RenderHWND)
 {
 	mRenderWindowHWND = RenderHWND;
-	gMainBufferPixelWidth = BufferWidth;
-	gMainBufferPixelHeight = BufferHeight;
 
 	HRESULT hr = S_OK;
 #pragma region InitDevice11
@@ -128,10 +128,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	//D3D特性的版本
 	D3D_FEATURE_LEVEL featureLevels[] =
 	{
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_11_0
 	};
 	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
@@ -167,9 +164,9 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 		};
 	};
 	//尝试创建设备失败
-	HR_DEBUG(hr, "d3d设备创建失败");
+	HR_DEBUG(hr, "d3d设备创建失败:/n DriverType"+std::to_string(g_Device_driverType));
 
-
+/*
 	//check multi-sample capability
 	UINT device_MSAA_Quality = 1;//bigger than 1
 	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
@@ -186,12 +183,12 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	/*填充交换链的属性
 	交换链，用于管理BUFEER的交换，主要处理back与front
 	可以用于多窗口渲染
-	DESC = Description*/
+	DESC = Description
 	DXGI_SWAP_CHAIN_DESC SwapChainParam;
 	ZeroMemory(&SwapChainParam, sizeof(SwapChainParam));
 	SwapChainParam.BufferCount = 1;
-	SwapChainParam.BufferDesc.Width = gMainBufferPixelWidth;
-	SwapChainParam.BufferDesc.Height = gMainBufferPixelHeight;
+	SwapChainParam.BufferDesc.Width = BufferWidth;
+	SwapChainParam.BufferDesc.Height = BufferHeight;
 	SwapChainParam.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	SwapChainParam.BufferDesc.RefreshRate.Numerator = 60;//	分子= =？
 	SwapChainParam.BufferDesc.RefreshRate.Denominator = 1;//分母
@@ -219,11 +216,13 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 	dxgiFactory->Release();
 	dxgiDevice->Release();
 	dxgiAdapter->Release();
+
+	*/
 #pragma endregion InitDevice11
 
 	//创建缓冲区和渲染视口，深度/模版 视口
 	//这些Views是用来绑定到pipeline上
-#pragma region CreateViews
+/*#pragma region CreateViews
 
 	// 创建一个(可以多个)渲染视图RENDER TARGET VIEW
 	ID3D11Texture2D* pBackBuffer = NULL;
@@ -279,23 +278,8 @@ BOOL IRoot::InitD3D(HWND RenderHWND, UINT BufferWidth, UINT BufferHeight, BOOL I
 		&g_pRenderTargetView,
 		g_pDepthStencilView);
 
-#pragma endregion CreateViews
+#pragma endregion CreateViews*/
 
-
-	//XY都是-1到1，深度Z是0到1，DX11不会默认创建视口，DX9就会
-#pragma region CreateViewPort
-
-	D3D11_VIEWPORT vp;
-	vp.Width = (FLOAT)BufferWidth;		//视口WIDTH 跟后缓冲区一样
-	vp.Height = (FLOAT)BufferHeight;	//视口Height
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-	//SetViewport 参数1：视口的个数 参数2：视口数组的首地址
-	g_pImmediateContext->RSSetViewports(1, &vp);
-
-#pragma endregion CreateViewPort
 
 	return TRUE;
 
@@ -309,12 +293,8 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	pScene->ReleaseAllChildObject();
 	IFactory<IScene>::DestroyAllObject();//delete the only scene
 
-
-	ReleaseCOM(g_pRenderTargetView);
-	ReleaseCOM(g_pSwapChain);
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);
-	ReleaseCOM(g_pDepthStencilView);
 	ReleaseCOM(g_pImmediateContext);
 	//check live object
 #if defined(DEBUG) || defined(_DEBUG)
@@ -469,7 +449,7 @@ BOOL IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 
 };
 
-HWND IRoot::mFunction_InitWindow()
+HWND IRoot::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
 {
 	UINT scrWidth = GetSystemMetrics(SM_CXSCREEN);
 	UINT scrHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -482,8 +462,8 @@ HWND IRoot::mFunction_InitWindow()
 		//WS_POPUP, // window style ------WS_OVERLAPPEDWINDOW/WS_POPUP
 		scrWidth/6,// initial x position ---------CW_USEDEFAULT
 		scrHeight/6,// initial y position
-		640,// initial x size
-		480,// initial y size
+		windowWidth,// initial x size
+		windowHeight,// initial y size
 		NULL, // parent window handle
 		NULL, // window menu handle
 		mRenderWindowHINSTANCE, // program instance handle
