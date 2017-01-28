@@ -12,8 +12,8 @@
 
 using namespace Noise3D;
 
-static UINT c_VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
-static UINT c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
+static UINT g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+static UINT g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 IMesh::IMesh()
 {
@@ -165,12 +165,14 @@ void IMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 	}
 }
 
-void IMesh::GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff)
+const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()
 {
-	std::vector<N_DefaultVertex>::iterator iterBegin, iterLast;
-	iterBegin = m_pVB_Mem->begin();
-	iterLast = m_pVB_Mem->end();
-	outBuff.assign(iterBegin,iterLast);
+	return m_pVB_Mem;
+}
+
+const std::vector<UINT>* IMesh::GetIndexBuffer()
+{
+	return m_pIB_Mem;
 }
 
 void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTMat)
@@ -228,7 +230,7 @@ BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	//Create Buffers
 	int hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
-	HR_DEBUG(hr, "VERTEX BUFFER创建失败");
+	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
 
 
 	D3D11_BUFFER_DESC ibd;
@@ -241,7 +243,7 @@ BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 
 	//Create Buffers
 	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
-	HR_DEBUG(hr, "INDEX BUFFER创建失败");
+	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
 
 #pragma endregion CreateGpuBuffers
 
@@ -299,6 +301,7 @@ void IMesh::mFunction_ComputeBoundingBox()
 		if (i == 0)
 		{
 			//initialization
+			tmpV = m_pVB_Mem->at(i).Pos;
 			mBoundingBox.min = m_pVB_Mem->at(0).Pos;
 			mBoundingBox.max = m_pVB_Mem->at(0).Pos;
 		}

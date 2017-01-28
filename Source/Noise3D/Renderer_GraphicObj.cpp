@@ -7,7 +7,7 @@
 
 #include "Noise3D.h"
 
-using namespace Noise3D;;
+using namespace Noise3D;
 
 /*void IRenderer::RenderGUIObjects()
 {
@@ -47,7 +47,7 @@ void IRenderer::RenderGraphicObjects()
 	mFunction_SetBlendState(m_BlendMode);
 
 	//set samplerState
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 
 	//set depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -97,7 +97,7 @@ void		IRenderer::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera,s
 		//settings
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -128,7 +128,7 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera,
 		//settings
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
@@ -155,7 +155,7 @@ void		IRenderer::mFunction_GraphicObj_RenderLine2DInList(std::vector<IGraphicObj
 		//settings
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -181,7 +181,7 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint2DInList(std::vector<IGraphicOb
 		//settings
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
@@ -209,7 +209,7 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		//----------------------1,draw common triangle----------------------
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -224,7 +224,7 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		//---------------------2,draw rectangles---------------------
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

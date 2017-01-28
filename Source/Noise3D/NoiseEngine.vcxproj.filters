@@ -10,26 +10,11 @@
     <Filter Include="NoiseGraphic">
       <UniqueIdentifier>{52ea6c49-24be-4007-997e-20e050bf5eed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Atmosphere">
-      <UniqueIdentifier>{a4edb57a-80b9-4330-bc5e-5e1a8a4dc3fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Camera">
-      <UniqueIdentifier>{1cdc6592-cae8-449f-ba8b-73a46043aab8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene">
       <UniqueIdentifier>{f84a9eaa-b39b-4a45-aaad-c93b72948637}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Mesh">
-      <UniqueIdentifier>{66319d1c-340d-4bf9-887d-e02737f05f6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Renderer">
-      <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\_GeometryMeshGenerator">
       <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\GraphicObject">
-      <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
     </Filter>
     <Filter Include="GeneralBasicClass">
       <UniqueIdentifier>{33b8c1e0-39dc-4df0-88cc-9156de4f0922}</UniqueIdentifier>
@@ -39,24 +24,6 @@
     </Filter>
     <Filter Include="GeneralBasicClass\_2DBasicContainerInfo">
       <UniqueIdentifier>{6aedf65b-3f88-4575-8baa-565ef35e2138}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Text">
-      <UniqueIdentifier>{ebd85bdd-2495-430a-b695-d2366c4e956d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Text\N2D_NoiseFontManager">
-      <UniqueIdentifier>{3787f85f-89b3-4d08-bebe-0ec9b031684c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Text\N2D_Noise2DTextStatic">
-      <UniqueIdentifier>{abc9eaee-b441-43bd-8dca-0bffd27091f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Text\N2D_Noise2DTextDynamic">
-      <UniqueIdentifier>{558f2fbd-3c86-415d-9dc4-bc344f646c54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Text\_BasicTextInfo">
-      <UniqueIdentifier>{de740894-6a5f-409c-9c04-bdf91a8eaa88}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Root">
-      <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
@@ -70,20 +37,56 @@
     <Filter Include="NoiseUtility\UtTimer">
       <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\ModelLoader">
-      <UniqueIdentifier>{85c6daf5-2ac5-4e89-8558-9d052cf46d9a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{ff092c15-2f34-4861-be94-df2f8e903ae5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Texture">
-      <UniqueIdentifier>{ecd2bea3-4811-48d5-ab48-e1370b027679}</UniqueIdentifier>
+    <Filter Include="NoiseGraphic\Scene\Root">
+      <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Material">
+    <Filter Include="NoiseGraphic\Scene\Renderer">
+      <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\ModelLoader">
+      <UniqueIdentifier>{85c6daf5-2ac5-4e89-8558-9d052cf46d9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Mesh">
+      <UniqueIdentifier>{66319d1c-340d-4bf9-887d-e02737f05f6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Material">
       <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Lights">
+    <Filter Include="NoiseGraphic\Scene\Lights">
       <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\GraphicObject">
+      <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Camera">
+      <UniqueIdentifier>{1cdc6592-cae8-449f-ba8b-73a46043aab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Atmosphere">
+      <UniqueIdentifier>{a4edb57a-80b9-4330-bc5e-5e1a8a4dc3fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text">
+      <UniqueIdentifier>{ebd85bdd-2495-430a-b695-d2366c4e956d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\N2D_NoiseFontManager">
+      <UniqueIdentifier>{3787f85f-89b3-4d08-bebe-0ec9b031684c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic">
+      <UniqueIdentifier>{abc9eaee-b441-43bd-8dca-0bffd27091f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic">
+      <UniqueIdentifier>{558f2fbd-3c86-415d-9dc4-bc344f646c54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\_BasicTextInfo">
+      <UniqueIdentifier>{de740894-6a5f-409c-9c04-bdf91a8eaa88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Texture">
+      <UniqueIdentifier>{ecd2bea3-4811-48d5-ab48-e1370b027679}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\CollisionTestor">
+      <UniqueIdentifier>{f5ddb252-e47d-43e6-8a20-ede3c221af43}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,13 +106,13 @@
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="MeshManager.h">
-      <Filter>NoiseGraphic\Mesh</Filter>
+      <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>NoiseGraphic\Mesh</Filter>
+      <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>GeneralBasicClass\_FileManager</Filter>
@@ -118,28 +121,28 @@
       <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClInclude>
     <ClInclude Include="Atmosphere.h">
-      <Filter>NoiseGraphic\Atmosphere</Filter>
+      <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>NoiseGraphic\Camera</Filter>
+      <Filter>NoiseGraphic\Scene\Camera</Filter>
     </ClInclude>
     <ClInclude Include="GraphicObject.h">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>NoiseGraphic\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
-      <Filter>NoiseGraphic\Material</Filter>
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
     <ClInclude Include="Root.h">
-      <Filter>NoiseGraphic\Root</Filter>
+      <Filter>NoiseGraphic\Scene\Root</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>NoiseGraphic\Scene</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>NoiseGraphic\Texture</Filter>
+      <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MeshSlicer.h">
       <Filter>NoiseUtility\UtSlicer</Filter>
@@ -160,28 +163,28 @@
       <Filter>GeneralBasicClass\_Factory</Filter>
     </ClInclude>
     <ClInclude Include="Text_2DBasicTextInfo.h">
-      <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
+      <Filter>NoiseGraphic\Scene\Text\_BasicTextInfo</Filter>
     </ClInclude>
     <ClInclude Include="Text_TextDynamic.h">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic</Filter>
     </ClInclude>
     <ClInclude Include="Text_TextStatic.h">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
     </ClInclude>
     <ClInclude Include="Text_FontManager.h">
-      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
-      <Filter>NoiseGraphic\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights</Filter>
     </ClInclude>
     <ClInclude Include="GraphicObjMgr.h">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>NoiseGraphic\Material</Filter>
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
     <ClInclude Include="ModelLoader.h">
-      <Filter>NoiseGraphic\ModelLoader</Filter>
+      <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
     </ClInclude>
     <ClInclude Include="FileMgr_3DS.h">
       <Filter>GeneralBasicClass\_FileManager</Filter>
@@ -193,36 +196,36 @@
       <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>NoiseGraphic\Texture</Filter>
+      <Filter>NoiseGraphic\Scene\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionTestor.h">
+      <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AssemblyInfo.cpp">
-      <Filter>Global</Filter>
-    </ClCompile>
     <ClCompile Include="NoiseGlobal.cpp">
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>NoiseGraphic\Mesh</Filter>
+      <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="MeshManager.cpp">
-      <Filter>NoiseGraphic\Mesh</Filter>
+      <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_Atmosphere.cpp">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_GraphicObj.cpp">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_Mesh.cpp">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_Text.cpp">
-      <Filter>NoiseGraphic\Renderer</Filter>
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="FileMgr_3DS.cpp">
       <Filter>GeneralBasicClass\_FileManager</Filter>
@@ -237,31 +240,31 @@
       <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp">
-      <Filter>NoiseGraphic\Atmosphere</Filter>
+      <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>NoiseGraphic\Camera</Filter>
+      <Filter>NoiseGraphic\Scene\Camera</Filter>
     </ClCompile>
     <ClCompile Include="GraphicObject.cpp">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="LightManager.cpp">
-      <Filter>NoiseGraphic\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
-      <Filter>NoiseGraphic\Material</Filter>
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
     <ClCompile Include="Root.cpp">
-      <Filter>NoiseGraphic\Root</Filter>
+      <Filter>NoiseGraphic\Scene\Root</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>NoiseGraphic\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Text_2DBasicTextInfo.cpp">
-      <Filter>NoiseGraphic\Text\_BasicTextInfo</Filter>
+      <Filter>NoiseGraphic\Scene\Text\_BasicTextInfo</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
-      <Filter>NoiseGraphic\Texture</Filter>
+      <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp">
       <Filter>NoiseUtility\UtSlicer</Filter>
@@ -276,34 +279,40 @@
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextDynamic.cpp">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextDynamic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextStatic.cpp">
-      <Filter>NoiseGraphic\Text\N2D_Noise2DTextStatic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
     </ClCompile>
     <ClCompile Include="Text_FontManager.cpp">
-      <Filter>NoiseGraphic\Text\N2D_NoiseFontManager</Filter>
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClCompile>
     <ClCompile Include="Lights.cpp">
-      <Filter>NoiseGraphic\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights</Filter>
     </ClCompile>
     <ClCompile Include="GraphicObjMgr.cpp">
-      <Filter>NoiseGraphic\GraphicObject</Filter>
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>NoiseGraphic\Material</Filter>
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
     <ClCompile Include="ModelLoader.cpp">
-      <Filter>NoiseGraphic\ModelLoader</Filter>
+      <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
     </ClCompile>
     <ClCompile Include="GetResource.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>NoiseGraphic\Texture</Filter>
+      <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="pchGen.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionTestor.cpp">
+      <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

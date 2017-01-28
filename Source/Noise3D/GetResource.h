@@ -8,6 +8,9 @@
 ************************************************************************/
 #pragma once
 
+//ONLY release mode will use internal shader bytecode
+#ifndef NOISE_MACRO_DEBUG_MODE
+
 #include "NoiseBinaryResource.h"
 
 namespace Noise3D
@@ -26,3 +29,5 @@ namespace Noise3D
 
 	N_InternalResourceInfo GetInternalResource(NOISE_INTERNAL_RESOURCE resType);
 };
+
+#endif

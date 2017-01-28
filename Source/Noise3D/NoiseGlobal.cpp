@@ -37,44 +37,17 @@ using namespace Noise3D;
 
 	/*-----------------------------全局接口-----------------------------*/
 
-	ID3D11Device*           Noise3D::g_pd3dDevice11 = NULL;
+	ID3D11Device*					Noise3D::g_pd3dDevice11 = nullptr;
 
-	ID3D11DeviceContext*		Noise3D::g_pImmediateContext = NULL;
+	ID3D11DeviceContext*		Noise3D::g_pImmediateContext = nullptr;
+
+	ID3DX11Effect*					Noise3D::g_pFX = nullptr;
 
 	//顶点布局
-	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Default = NULL;
-	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Simple = NULL;
+	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Default = nullptr;
+	ID3D11InputLayout*			Noise3D::g_pVertexLayout_Simple = nullptr;
 
-	/*------------------------------全局函数--------------------------*/
-
-/*_declspec(dllexport)*/  HRESULT Noise3D::gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
-	{
-
-		HRESULT hr = S_OK;
-
-		DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-		// Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-		// Setting this flag improves the shader debugging experience, but still allows 
-		// the shaders to be optimized and to run exactly the way they will run in 
-		// the release configuration of this program.
-		dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-		ID3DBlob* pErrorBlob;
-		hr = D3DX11CompileFromFile(szFileName, NULL, NULL, szEntryPoint, szShaderModel,
-			dwShaderFlags, 0, NULL, ppBlobOut, &pErrorBlob, NULL);
-		if (FAILED(hr))
-		{
-			if (pErrorBlob != NULL)
-				OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-			if (pErrorBlob) pErrorBlob->Release();
-			return hr;
-		}
-		if (pErrorBlob) pErrorBlob->Release();
-
-		return S_OK;
-	};
+	/*------------------------------Global Function--------------------------*/
 
 /*_declspec(dllexport)*/	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
 	{

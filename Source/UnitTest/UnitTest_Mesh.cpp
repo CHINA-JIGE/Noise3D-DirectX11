@@ -31,6 +31,7 @@ Ut::IInputEngine inputE;
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
+
 	//get Root interface
 	pRoot = GetRoot();
 
@@ -105,7 +106,7 @@ BOOL Init3D(HWND hwnd)
 
 	pRenderer->SetFillMode(NOISE_FILLMODE_SOLID);
 	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
-
+	
 	//------------------MESH INITIALIZATION----------------
 	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
 	//Mesh1.LoadFile_STL("model/teapot7.stl");
@@ -121,8 +122,8 @@ BOOL Init3D(HWND hwnd)
 	//Mesh1.SetPosition(0, 0, 0);
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
 	
-	std::vector<N_DefaultVertex> tmpVB;
-	pMesh1->GetVertexBuffer(tmpVB);
+	const std::vector<N_DefaultVertex>* pTmpVB;
+	pTmpVB = pMesh1->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
 	/*for (auto v : tmpVB)
 	{
@@ -174,7 +175,8 @@ BOOL Init3D(HWND hwnd)
 	//set material
 	pMesh1->SetMaterial("meshMat1");
 
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(340.0f, 430.0f), NVECTOR2(640.0f, 480.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
+	//bottom right
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(1050.0f, 640.0f), NVECTOR2(1280.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 
 	return TRUE;
 };

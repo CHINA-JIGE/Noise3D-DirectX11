@@ -20,34 +20,37 @@ namespace Noise3D
 		public IFactory<IGraphicObjectManager>,
 		public IFactory<IAtmosphere>,
 		public IFactory<IFontManager>,
-		public IFactory<IModelLoader>
+		public IFactory<IModelLoader>,
+		public IFactory<ICollisionTestor>
 	{
 
 	public:
 
-		void				ReleaseAllChildObject();
+		void								ReleaseAllChildObject();
 
-		IRenderer*				CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
+		IRenderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
 
-		IRenderer*				GetRenderer();
+		IRenderer*					GetRenderer();
 
-		ICamera*					GetCamera();
+		ICamera*						GetCamera();
 
-		IMeshManager*		GetMeshMgr();
+		IMeshManager*			GetMeshMgr();
 
 		ILightManager*			GetLightMgr();
 
 		ITextureManager*		GetTextureMgr();
 
-		IMaterialManager*	GetMaterialMgr();
+		IMaterialManager*		GetMaterialMgr();
 
-		IAtmosphere*			GetAtmosphere();
+		IAtmosphere*				GetAtmosphere();
 
 		IGraphicObjectManager*		GetGraphicObjMgr();
 
 		IFontManager*				GetFontMgr();
 
 		IModelLoader*				GetModelLoader();
+
+		ICollisionTestor*				GetCollisionTestor();
 
 	private:
 

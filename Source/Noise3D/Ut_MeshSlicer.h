@@ -1,6 +1,6 @@
 /***********************************************************************
 
-										h£ºFile Manager
+										h£ºMesh Slicer
 
 ************************************************************************/
 
@@ -73,8 +73,6 @@ namespace Noise3D
 		public:
 
 			IMeshSlicer();
-
-			void		SelfDestruction();
 
 			BOOL	Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer);
 

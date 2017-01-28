@@ -22,7 +22,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -46,14 +46,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DXSDK_DIR)Include;$(SOLUTIONDIR)ExternalLib\FreeType\include;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)ExternalLib\FreeType\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FreeType\lib;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(SolutionDir)ExternalLib\FreeType\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FreeType\lib;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <IncludePath>$(DXSDK_DIR)Include;$(SOLUTIONDIR)ExternalLib\FreeType\include;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
@@ -70,6 +70,7 @@
       </AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,7 +88,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11d.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <ShowProgress>true</ShowProgress>
@@ -96,8 +97,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -105,6 +105,9 @@
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
       <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(SolutionDir)Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,11 +125,14 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11-release-clr.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;Effects11.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="GetResource.h" />
+    <ClInclude Include="CollisionTestor.h" />
+    <ClInclude Include="GetResource.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="GraphicObjMgr.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Lights.h" />
@@ -134,7 +140,9 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="NoiseBinaryResource.h" />
+    <ClInclude Include="NoiseBinaryResource.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_FontManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -170,8 +178,13 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AssemblyInfo.cpp">
+    <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="pchGen.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Noise3D.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="GraphicObjMgr.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -209,7 +222,9 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
-    <ClCompile Include="GetResource.cpp" />
+    <ClCompile Include="GetResource.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

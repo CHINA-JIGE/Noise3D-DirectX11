@@ -1,5 +1,12 @@
+#pragma once
+#include "Noise3D.h"
 
-#include "Main3D.h"
+BOOL Init3D();
+void MainLoop();
+void Cleanup();
+void	InputProcess();
+
+
 
 using namespace Noise3D;
 
@@ -20,12 +27,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	const UINT bufferWidth = 640;
 	const UINT bufferHeight = 480;
-	BOOL initSucceed = pRoot->InitD3D(windowHWND, bufferWidth, bufferHeight, TRUE);
+	BOOL initSucceed = pRoot->InitD3D(windowHWND);
 	if (!initSucceed)return FALSE;
 
 	//Get the only SCENE of Noise3D::Root
 	pScene = pRoot->GetScenePtr();
-	pRenderer = pScene->GetRenderer();
+	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
 
 	//register MAINLOOP function (it will be called every frame)
 	pRoot->SetMainLoopFunction(MainLoop);
@@ -53,7 +60,7 @@ void MainLoop()
 	pRenderer->ClearBackground();
 
 	//present
-	pRenderer->RenderToScreen();
+	pRenderer->PresentToScreen();
 };
 
 

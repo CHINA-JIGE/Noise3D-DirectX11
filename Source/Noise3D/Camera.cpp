@@ -267,7 +267,21 @@ void ICamera::GetProjMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateProjMatrix();
 	outMat = *m_pMatrixProjection;
+}
+
+void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
+{
+	mFunction_UpdateViewMatrix();
+	D3DXMatrixInverse(&outMat, nullptr, m_pMatrixView);
+}
+
+void Noise3D::ICamera::GetInvProjMatrix(NMATRIX & outMat)
+{
+	mFunction_UpdateProjMatrix();
+	D3DXMatrixInverse(&outMat, nullptr, m_pMatrixProjection);
 };
+
+
 
 
 

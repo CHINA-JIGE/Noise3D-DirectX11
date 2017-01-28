@@ -177,7 +177,7 @@ IFontManager * IScene::GetFontMgr()
 		else
 		{
 			IFactory<IFontManager>::DestroyObject(uid);
-			ERROR_MSG("IScene: Renderer Initialization failed.");
+			ERROR_MSG("IScene: Font Manager Initialization failed.");
 			return nullptr;
 		}
 	}
@@ -192,6 +192,30 @@ IModelLoader * IScene::GetModelLoader()
 		IFactory<IModelLoader>::CreateObject(uid);
 	}
 	return IFactory<IModelLoader>::GetObjectPtr(uid);
+}
+
+ICollisionTestor * IScene::GetCollisionTestor()
+{
+	const N_UID uid = "sceneCollisionTestor";
+	if (IFactory<ICollisionTestor>::FindUid(uid) == FALSE)
+	{
+		ICollisionTestor* pCT = IFactory<ICollisionTestor>::CreateObject(uid);
+
+		//init of FreeType, internal TexMgr,GraphicObjMgr
+
+		BOOL isSucceeded = pCT->mFunction_Init();
+		if (isSucceeded)
+		{
+			return pCT;
+		}
+		else
+		{
+			IFactory<ICollisionTestor>::DestroyObject(uid);
+			ERROR_MSG("IScene: Collision Testor Initialization failed.");
+			return nullptr;
+		}
+	}
+	return IFactory<ICollisionTestor>::GetObjectPtr(uid);
 }
 
 

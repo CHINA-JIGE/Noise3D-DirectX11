@@ -9,11 +9,6 @@
 
 using namespace Noise3D;
 
-const UINT c_VBstride_Default = sizeof(N_DefaultVertex);	
-const UINT c_VBstride_Simple = sizeof(N_SimpleVertex);
-const UINT c_VBoffset = 0;				
-
-
 void IRenderer::RenderAtmosphere()
 {
 	//...................
@@ -37,14 +32,14 @@ void IRenderer::RenderAtmosphere()
 #pragma region Draw Sky
 
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &pAtmo->m_pVB_Gpu_Sky, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &pAtmo->m_pVB_Gpu_Sky, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(pAtmo->m_pIB_Gpu_Sky, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//......Set States
 		mFunction_SetRasterState(m_FillMode, m_CullMode);
 		mFunction_SetBlendState(m_BlendMode);
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 

@@ -51,12 +51,12 @@ BOOL Init3D(HWND hwnd)
 	const UINT bufferHeight = 480;
 
 	//³õÊ¼»¯Ê§°Ü
-	if (!pRoot->InitD3D(hwnd, bufferWidth, bufferHeight, TRUE))return FALSE;
+	if (!pRoot->InitD3D(hwnd))return FALSE;
 
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
 
-	pRenderer = pScene->GetRenderer();
+	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
@@ -106,7 +106,7 @@ void MainLoop()
 	pRenderer->RenderTexts();
 
 	//present
-	pRenderer->RenderToScreen();
+	pRenderer->PresentToScreen();
 };
 
 void InputProcess()

@@ -13,9 +13,16 @@
 namespace Noise3D
 {
 
-	const UINT					g_VertexDesc_Default_ElementCount = 5;
+	//g_cXXX for Global Const XXX 
+	const  UINT g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+	
+	const  UINT g_cVBstride_Simple = sizeof(N_SimpleVertex);
+	
+	const  UINT g_cVBoffset = 0;				//VertexBuffer index offset ( 0 for start from the beginning)
 
-	const UINT					g_VertexDesc_Simple_ElementCount = 3;
+	const UINT	g_VertexDesc_Default_ElementCount = 5;
+
+	const UINT	g_VertexDesc_Simple_ElementCount = 3;
 
 	//主渲染缓存的像素尺寸
 
@@ -32,7 +39,9 @@ namespace Noise3D
 
 	extern ID3D11Device*					g_pd3dDevice11;
 
-	extern ID3D11DeviceContext*		g_pImmediateContext;
+	extern ID3D11DeviceContext*	g_pImmediateContext;
+
+	extern ID3DX11Effect*				g_pFX;//shader management framework's interface ,could be used by multiple classes
 
 	//顶点布局
 	extern ID3D11InputLayout*			g_pVertexLayout_Default;
@@ -40,7 +49,6 @@ namespace Noise3D
 	extern ID3D11InputLayout*			g_pVertexLayout_Simple;
 
 	//——————————全局函数————————————
-	extern /*_declspec(dllexport)*/ HRESULT gFunction_CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
 	extern /*_declspec(dllexport)*/ BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
@@ -58,9 +66,6 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
-	//extern /*_declspec(dllexport)*/ void ERROR_MSG(std::string msg);
-
-	//extern /*_declspec(dllexport)*/ void WARNING_MSG(std::string msg);
 
 	//implementing these 2 op with functions is not acceptable because pre-processed
 	//data will be wiped out.

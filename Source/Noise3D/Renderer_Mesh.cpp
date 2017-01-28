@@ -14,7 +14,7 @@ void	IRenderer::RenderMeshes()
 
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
-	//更新ConstantBuffer:修改过就更新(cbRarely)
+	//更新ConstantBuffer: Only update when modified(cbRarely)
 	mFunction_RenderMeshInList_UpdateCbRarely();
 
 
@@ -37,7 +37,7 @@ void	IRenderer::RenderMeshes()
 
 		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pMesh->m_pVB_Gpu, &c_VBstride_Default, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -48,7 +48,7 @@ void	IRenderer::RenderMeshes()
 		mFunction_SetBlendState(m_BlendMode);
 
 		//设置samplerState
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 
 		//设置depth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -135,7 +135,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCamera)
 {
-	//————更新Dynamic Light————
+	//————Update Dynamic Light————
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 	if (tmpLightMgr != NULL)
 	{
@@ -147,7 +147,6 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCame
 		m_CbPerFrame.mDirLightCount_Dynamic = tmpLight_Dir_Count;
 		m_CbPerFrame.mPointLightCount_Dynamic = tmpLight_Point_Count;
 		m_CbPerFrame.mSpotLightCount_Dynamic = tmpLight_Spot_Count;
-		m_CbPerFrame.mCamPos = pCamera->GetPosition();
 
 		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
@@ -167,7 +166,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCame
 	}
 
 
-	//————更新到GPU——————
+	//————Update to GPU——————
 	m_pFX_CbPerFrame->SetRawValue(&m_CbPerFrame, 0, sizeof(m_CbPerFrame));
 };
 

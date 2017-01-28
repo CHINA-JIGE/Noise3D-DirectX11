@@ -117,7 +117,7 @@ namespace Noise3D
 			}
 		};
 
-		 objType*	GetObjectPtr(UINT objIndex)
+		 objType*	GetObjectPtr(UINT objIndex) const
 		{
 			if (objIndex < m_pChildObjectList->size())
 			{
@@ -129,7 +129,7 @@ namespace Noise3D
 			}
 		}
 
-		 objType*	GetObjectPtr(N_UID objUID)
+		 objType*	GetObjectPtr(N_UID objUID) const
 		{
 			//get number index from UID-index hash map
 			auto iter = m_pUidToIndexHashTable->find(objUID);
@@ -151,7 +151,7 @@ namespace Noise3D
 			}
 		}
 
-		 UINT		GetObjectID(N_UID uid)
+		 UINT		GetObjectID(N_UID uid) const
 		{
 			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
@@ -165,22 +165,25 @@ namespace Noise3D
 			}
 		}
 
-		 N_UID	GetUID(UINT index)
+		 N_UID	GetUID(UINT index) const
 		{
-			for (auto& pair : *m_pUidToIndexHashTable)
-			{
-				//if index match , return UID (name)
-				if (pair.second == index)return pair.first;
-			}
-			return "";//index invalid
+			 if (index < m_pChildObjectList->size())
+			 {
+				 auto& obj = m_pChildObjectList->at(index);
+				 return obj._uid;
+			 }
+			 else
+			 {
+				 return "";//index invalid
+			 }
 		}
 
-	  UINT		GetObjectCount() 
+	  UINT		GetObjectCount()  const
 		{
 			return m_pChildObjectList->size();
 		}
 
-		 BOOL		FindUid(N_UID uid)
+		 BOOL		FindUid(N_UID uid) const
 		{
 			if (m_pUidToIndexHashTable->find(uid) != m_pUidToIndexHashTable->end())
 			{

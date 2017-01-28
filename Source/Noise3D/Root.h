@@ -10,8 +10,8 @@
 namespace Noise3D
 {
 
-	class /*_declspec(dllexport)*/ IRoot
-	:public IFactory<IScene>
+	class /*_declspec(dllexport)*/ IRoot 
+	: private IFileManager, public IFactory<IScene>
 	{
 	public:
 
@@ -62,10 +62,14 @@ namespace Noise3D
 
 	private:
 
-		//创建渲染窗口的子函数
+		//invoked by RenderWindows Creation function
 		BOOL	mFunction_InitWindowClass(WNDCLASS* wc);
-		//创建渲染窗口的子函数
+
+		//invoked by RenderWindows Creation function
 		HWND mFunction_InitWindow(UINT windowWidth, UINT windowHeight);
+
+		//Create Effect Interface From fxo file
+		BOOL	mFunction_CreateEffectFromMemory();
 	};
 
 

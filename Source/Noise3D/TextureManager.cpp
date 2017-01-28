@@ -508,7 +508,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFi
 		);
 		
 	//................
-	HR_DEBUG_CREATETEX(hr, "CreateTextureFromFile : Create SRV failed ! ; keepCopyInMem:false");
+	HR_DEBUG_CREATETEX(hr, "CreateTextureFromFile : Create SRV failed ! keepCopyInMem:false");
 
 	//at last create  a new texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(texName);

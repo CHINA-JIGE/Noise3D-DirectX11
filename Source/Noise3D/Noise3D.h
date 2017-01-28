@@ -8,18 +8,18 @@
 #pragma once
 
 #pragma warning (disable : 4005)//宏重定义 WIN8 SDK和DXSDK
-#define NDEBUG //禁止调用assert
+//#define NDEBUG //禁止调用assert
 #define DIRECTINPUT_VERSION 0x0800
 #define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
-#include "d3d11.h"
+#include <D3D11.h>
 #include "D3DX11.h"
 #include "d3dx11effect.h"
-#include "dinput.h"
+#include <dinput.h>
 #include "DxErr.h"
 #include "D3DX10math.h"
-#include "D3Dcompiler.h"
-#include "D3D11SDKLayers.h"
+#include <D3Dcompiler.h>
+#include <D3D11SDKLayers.h>
 #include <vector>
 #include <stdexcept>
 #include <sstream>
@@ -51,13 +51,15 @@
 #include "Camera.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Atmosphere.h"
+#include "GraphicObject.h"
 #include "MeshManager.h"
 #include "LightManager.h"
 #include "TextureManager.h"
 #include "MaterialManager.h"
-#include "Atmosphere.h"
-#include "GraphicObject.h"
 #include "GraphicObjMgr.h"
+#include "CollisionTestor.h"
+
 //---------Font & Text-----------
 #include "Text_2DBasicTextInfo.h"
 #include "Text_TextDynamic.h"

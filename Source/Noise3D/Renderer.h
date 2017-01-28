@@ -14,14 +14,12 @@ namespace Noise3D
 	struct N_CbPerFrame
 	{
 		N_DirLightDesc		mDirectionalLight_Dynamic[10];//放心 已经对齐了
-		N_PointLightDesc		mPointLight_Dynamic[10];
+		N_PointLightDesc	mPointLight_Dynamic[10];
 		N_SpotLightDesc		mSpotLight_Dynamic[10];
 		int			mDirLightCount_Dynamic;
 		int			mPointLightCount_Dynamic;
 		int			mSpotLightCount_Dynamic;
 		BOOL		mIsLightingEnabled_Dynamic;
-		NVECTOR3	mCamPos;	float mPad1;
-
 	};
 
 	struct N_CbPerObject
@@ -62,10 +60,13 @@ namespace Noise3D
 		int		mIsLightingEnabled_Static;
 	};
 
-	struct N_CbCameraMatrix
+	struct N_CbCameraInfo
 	{
-		NMATRIX mProjMatrix;
-		NMATRIX	mViewMatrix;
+		NMATRIX projMatrix;
+		NMATRIX	viewMatrix;
+		NMATRIX invProjMatrix;
+		NMATRIX invViewMatrix;
+		NVECTOR3	camPos;	float mPad1;
 	};
 
 	struct N_CbAtmosphere
@@ -131,11 +132,11 @@ namespace Noise3D
 
 	private:
 
-		const UINT	c_VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
+		const UINT	g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
 
-		const UINT	c_VBstride_Simple = sizeof(N_SimpleVertex);
+		const UINT	g_cVBstride_Simple = sizeof(N_SimpleVertex);
 
-		const UINT	c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
+		const UINT	g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 	private:
 
@@ -154,8 +155,6 @@ namespace Noise3D
 		BOOL			mFunction_Init_CreateDepthStencilState();
 
 		BOOL			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
-
-		BOOL			mFunction_Init_CreateEffectFromMemory();
 
 		//--------------------BASIC OPERATION---------------------
 		void				mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList);
@@ -220,7 +219,6 @@ namespace Noise3D
 		UINT				mMainBufferWidth;
 		UINT				mMainBufferHeight;
 
-
 		std::vector <IMesh*>*					m_pRenderList_Mesh;
 		std::vector <IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
 		std::vector <IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
@@ -242,7 +240,7 @@ namespace Noise3D
 		ID3D11BlendState*							m_pBlendState_ColorMultiply;
 		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
-		ID3D11SamplerState*						m_pSamplerState_FilterAnis;
+		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
 
 		NOISE_FILLMODE							m_FillMode;//填充模式
 		NOISE_CULLMODE							m_CullMode;//剔除模式
@@ -254,12 +252,12 @@ namespace Noise3D
 		N_CbPerObject							m_CbPerObject;
 		N_CbPerSubset							m_CbPerSubset;
 		N_CbRarely									m_CbRarely;
-		N_CbCameraMatrix						m_CbCameraMatrix;
+		N_CbCameraInfo							m_CbCameraInfo;
 		N_CbAtmosphere						m_CbAtmosphere;
 		N_CbDrawText2D						m_CbDrawText2D;
 
 		//用于从app更新到Gpu的接口
-		ID3DX11Effect*							m_pFX;
+
 		ID3DX11EffectTechnique*			m_pFX_Tech_Default;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;

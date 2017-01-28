@@ -113,7 +113,8 @@ BOOL IRoot::InitD3D(HWND RenderHWND)
 	mRenderWindowHWND = RenderHWND;
 
 	HRESULT hr = S_OK;
-#pragma region InitDevice11
+
+
 	//用来做判断及返回结果
 
 	//硬件驱动类型
@@ -134,10 +135,10 @@ BOOL IRoot::InitD3D(HWND RenderHWND)
 
 	//设备创建标签 
 	UINT createDeviceFlags = 0;
-#if defined(DEBUG)||defined(_DEBUG)		//D3D调试模式
+
+#ifdef NOISE_MACRO_DEBUG_MODE	//D3D调试模式
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
 
 	//用列举出来的硬件方式 尝试初始化 直到成功
 	UINT driverTypeIndex = 0;
@@ -149,7 +150,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND)
 			NULL,				//null表示使用主显示器
 			g_Device_driverType,		//驱动类型 HAL/REF
 			NULL,
-			D3D11_CREATE_DEVICE_DEBUG,//createDeviceFlags,	//是不是调试模式	
+			createDeviceFlags,//createDeviceFlags,	//是不是调试模式	
 			featureLevels,		//让D3D选择的特性的版本
 			numFeatureLevels,
 			D3D11_SDK_VERSION,
@@ -164,122 +165,10 @@ BOOL IRoot::InitD3D(HWND RenderHWND)
 		};
 	};
 	//尝试创建设备失败
-	HR_DEBUG(hr, "d3d设备创建失败:/n DriverType"+std::to_string(g_Device_driverType));
+	HR_DEBUG(hr, "IRoot : D3D Device Creation failed /n DriverType"+std::to_string(g_Device_driverType));
 
-/*
-	//check multi-sample capability
-	UINT device_MSAA_Quality = 1;//bigger than 1
-	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
-	UINT device_MSAA_Enabled = FALSE;
-
-	g_pd3dDevice11->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
-	if (device_MSAA_Quality > 0)
-	{
-		device_MSAA_Enabled = TRUE;	//4x抗锯齿可以开了
-	};
-
-
-	/*填充交换链的属性
-	交换链，用于管理BUFEER的交换，主要处理back与front
-	可以用于多窗口渲染
-	DESC = Description
-	DXGI_SWAP_CHAIN_DESC SwapChainParam;
-	ZeroMemory(&SwapChainParam, sizeof(SwapChainParam));
-	SwapChainParam.BufferCount = 1;
-	SwapChainParam.BufferDesc.Width = BufferWidth;
-	SwapChainParam.BufferDesc.Height = BufferHeight;
-	SwapChainParam.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	SwapChainParam.BufferDesc.RefreshRate.Numerator = 60;//	分子= =？
-	SwapChainParam.BufferDesc.RefreshRate.Denominator = 1;//分母
-	SwapChainParam.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//BACKBUFFER怎么被使用
-	SwapChainParam.OutputWindow = RenderHWND;
-	SwapChainParam.Windowed = IsWindowed;
-	SwapChainParam.SampleDesc.Count = (device_MSAA_Enabled == TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	SwapChainParam.SampleDesc.Quality = (device_MSAA_Enabled == TRUE ? device_MSAA_Quality - 1 : 0);//quality之前获取了
-
-	 //下面的COM的QueryInterface 用一个接口查询另一个接口
-	IDXGIDevice *dxgiDevice = 0;
-	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
-	IDXGIAdapter *dxgiAdapter = 0;
-	dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgiAdapter);
-	IDXGIFactory *dxgiFactory = 0;
-	dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
-
-	//终于创建了一个交换链
-	hr = dxgiFactory->CreateSwapChain(
-		g_pd3dDevice11,		//设备的指针
-		&SwapChainParam,	//交换链的描述
-		&g_pSwapChain);		//返回的交换链指针
-	HR_DEBUG(hr, "SwapChain创建失败！");
-
-	dxgiFactory->Release();
-	dxgiDevice->Release();
-	dxgiAdapter->Release();
-
-	*/
-#pragma endregion InitDevice11
-
-	//创建缓冲区和渲染视口，深度/模版 视口
-	//这些Views是用来绑定到pipeline上
-/*#pragma region CreateViews
-
-	// 创建一个(可以多个)渲染视图RENDER TARGET VIEW
-	ID3D11Texture2D* pBackBuffer = NULL;
-	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	if (FAILED(hr))
-		return FALSE;
-
-	hr = g_pd3dDevice11->CreateRenderTargetView(
-		pBackBuffer,
-		NULL,					//可以填充一个D3D11_RENDERTARGETVIEW_DESC
-		&g_pRenderTargetView);	//返回一个渲染视口
-
-	pBackBuffer->Release();		//已经用完了的临时接口- -
-
-
-	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
-
-
-
-	//创建depth/stencil view
-	D3D11_TEXTURE2D_DESC DSBufferDesc;
-	DSBufferDesc.Width = BufferWidth;
-	DSBufferDesc.Height = BufferHeight;
-	DSBufferDesc.MipLevels = 1;
-	DSBufferDesc.ArraySize = 1;
-	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = TRUE ? device_MSAA_Quality - 1 : 0);
-	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
-	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
-	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
-	DSBufferDesc.MiscFlags = 0;
-
-	ID3D11Texture2D* pDepthStencilBuffer;
-	g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);//创建一个缓冲区
-	hr = g_pd3dDevice11->CreateDepthStencilView(
-		pDepthStencilBuffer,
-		0,
-		&g_pDepthStencilView);	//返回一个depth/stencil视口指针
-
-	pDepthStencilBuffer->Release();
-
-	if (FAILED(hr))
-	{
-		return FALSE;
-	};
-
-
-	//设置渲染对象：刚刚创建的渲染视口和depth/stencil的
-	//这就是绑定到pipeline
-	g_pImmediateContext->OMSetRenderTargets(
-		1,
-		&g_pRenderTargetView,
-		g_pDepthStencilView);
-
-#pragma endregion CreateViews*/
-
+	
+	if(!mFunction_CreateEffectFromMemory())return FALSE;
 
 	return TRUE;
 
@@ -432,7 +321,7 @@ BOOL IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 	wc->hInstance = mRenderWindowHINSTANCE;//窗体实例名，由windows自动分发
 	wc->hIcon = LoadIcon(NULL, IDI_APPLICATION);//显示上面的图标titlte
 	wc->hCursor = LoadCursor(NULL, IDC_ARROW);//窗口光标
-	wc->hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);//背景刷
+	wc->hbrBackground = NULL;// (HBRUSH)GetStockObject(WHITE_BRUSH);//背景刷
 	wc->lpszMenuName = NULL;
 	wc->lpfnWndProc = WndProc;//设置窗体接收windws消息函数
 	wc->lpszClassName = mRenderWindowClassName;//窗体类名
@@ -483,3 +372,29 @@ HWND IRoot::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
 	};
 
 };
+
+BOOL	IRoot::mFunction_CreateEffectFromMemory()
+{
+	std::vector<char> compiledShader;
+	HRESULT hr = S_OK;
+
+	//Load FXO file
+//#ifdef NOISE_MACRO_DEBUG_MODE
+	if (!IFileManager::ImportFile_PURE("shader\\Main.fxo", compiledShader))return FALSE;
+	//Create Effect Framework
+	hr = D3DX11CreateEffectFromMemory(&compiledShader.at(0), compiledShader.size(), 0, g_pd3dDevice11, &g_pFX);
+//#else
+
+	//N_InternalResourceInfo shaderInResource = Noise3D::GetInternalResource(NOISE_INTERNAL_RESOURCE_MAINSHADER);
+	//Create Effect Framework
+	//hr = D3DX11CreateEffectFromMemory(shaderInResource.pBuff, shaderInResource.size(), 0, g_pd3dDevice11, &g_pFX);
+
+//#endif
+
+
+	HR_DEBUG(hr, "IRoot : load compiled shader failed");
+
+	return TRUE;
+}
+
+

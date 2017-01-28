@@ -11,12 +11,13 @@ namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ IMesh
 	{
-		friend  class IRenderer;
+		friend class IRenderer;
 		friend class IModelLoader;
+		friend class ICollisionTestor;
 
 	public:
 
-		void	SetMaterial(N_UID matName);
+		void		SetMaterial(N_UID matName);
 
 		void		SetPosition(float x, float y, float z);
 
@@ -56,10 +57,13 @@ namespace Noise3D
 
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
-		void		GetVertexBuffer(std::vector<N_DefaultVertex>& outBuff);
+		const std::vector<N_DefaultVertex>*		GetVertexBuffer();
+
+		const std::vector<UINT>*	GetIndexBuffer();
 
 		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
 
+		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
 		N_Box		ComputeBoundingBox();
 
 	private:

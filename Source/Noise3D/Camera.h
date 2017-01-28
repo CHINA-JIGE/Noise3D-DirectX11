@@ -20,15 +20,15 @@ namespace Noise3D
 
 		void				SetLookAt(float x, float y, float z);//要更新旋转角
 
-		NVECTOR3			GetLookAt();
+		NVECTOR3	GetLookAt();
 
 		void				SetPosition(NVECTOR3 vPos);
 
 		void				SetPosition(float x, float y, float z);
 
-		NVECTOR3			GetPosition();
+		NVECTOR3	GetPosition();
 		
-		NVECTOR3			GetDirection();
+		NVECTOR3	GetDirection();
 
 		void				Move(NVECTOR3 vRelativePos);//pos and lookat
 
@@ -67,6 +67,10 @@ namespace Noise3D
 		void				GetViewMatrix(NMATRIX& outMat);
 
 		void				GetProjMatrix(NMATRIX& outMat);
+
+		void				GetInvViewMatrix(NMATRIX& outMat);
+
+		void				GetInvProjMatrix(NMATRIX& outMat);
 
 		/*
 		void				sm_Update();

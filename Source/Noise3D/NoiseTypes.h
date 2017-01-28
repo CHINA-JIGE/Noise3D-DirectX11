@@ -45,6 +45,11 @@ namespace Noise3D
 		NVECTOR2 TexCoord;
 	};
 
+	struct N_MinizedVertex 
+	{
+		NVECTOR4 pos;
+	};
+
 
 	//correspond to one draw call of MESH
 	struct N_MeshSubsetInfo

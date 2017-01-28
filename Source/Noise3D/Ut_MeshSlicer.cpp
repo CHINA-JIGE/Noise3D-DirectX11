@@ -22,10 +22,6 @@ IMeshSlicer::IMeshSlicer()
 	m_pLayerList = new std::vector<N_Layer>;
 }
 
-void IMeshSlicer::SelfDestruction()
-{
-};
-
 BOOL IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
 {
 	UINT i = 0;
@@ -389,14 +385,14 @@ void IMeshSlicer::GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer)
 		outBuffer.push_back(m_pLineSegmentBuffer->at(i).v2);
 	}
 
-	for (i = 0;i < m_pLineStripBuffer->size();i++)
+	/*for (i = 0;i < m_pLineStripBuffer->size();i++)
 	{
 		for (j = 0;j < m_pLineStripBuffer->at(i).pointList.size()-1;j++)
 		{
 			outBuffer.push_back(m_pLineStripBuffer->at(i).pointList.at(j));
 			outBuffer.push_back(m_pLineStripBuffer->at(i).pointList.at(j+1));
 		}
-	}
+	}*/
 
 }
 

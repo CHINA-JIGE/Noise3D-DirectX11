@@ -9,11 +9,6 @@
 
 using namespace Noise3D;
 
-const UINT c_VBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
-const UINT c_VBstride_Simple = sizeof(N_SimpleVertex);
-const UINT c_VBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
-
-
 void IRenderer::RenderTexts()
 {
 
@@ -23,7 +18,7 @@ void IRenderer::RenderTexts()
 
 	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 	mFunction_SetBlendState(m_BlendMode);
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
+	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_DisableDepthTest, 0xffffffff);
 
 	//render TEXT
@@ -69,12 +64,22 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 	{
 		tmp_pVB = pList->at(i)->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &c_VBstride_Simple, &c_VBoffset);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//设置fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+
+		//设置blend state
+		mFunction_SetBlendState(m_BlendMode);
+
+		//设置samplerState
+		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+
+		//设置depth/Stencil State
+		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
+
 
 		UINT j = 0, vCount = 0;
 		//traverse all region list , to decide use which tech to draw (textured or not)
