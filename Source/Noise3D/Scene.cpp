@@ -8,6 +8,11 @@
 
 ************************************************************************/
 
+//!!!!!!!!!IMPORTANT : when a new class need to be bound to IScene,remember to modify
+// 1. Inheritance
+// 2. Destructor
+// 3. Corresponding Creation method
+
 #include "Noise3D.h"
 #include "Scene.h"
 
@@ -24,7 +29,8 @@ IScene::IScene():
 	IFactory<IGraphicObjectManager>(2),//scene/font-internal
 	 IFactory<IAtmosphere>(1),
 	IFactory<IFontManager>(1),
-	IFactory<IModelLoader>(1)
+	IFactory<IModelLoader>(1),
+	IFactory<ICollisionTestor>(1)
 {
 
 }
@@ -45,6 +51,7 @@ void	IScene::ReleaseAllChildObject()
 	IFactory<IMaterialManager>::DestroyAllObject();
 	IFactory<IAtmosphere>::DestroyAllObject();
 	IFactory<IGraphicObjectManager>::DestroyAllObject();
+	IFactory<ICollisionTestor>::DestroyAllObject();
 }
 
 //first time to init RENDERER
@@ -197,7 +204,7 @@ IModelLoader * IScene::GetModelLoader()
 ICollisionTestor * IScene::GetCollisionTestor()
 {
 	const N_UID uid = "sceneCollisionTestor";
-	if (IFactory<ICollisionTestor>::FindUid(uid) == FALSE)
+	if (IFactory<ICollisionTestor>::FindUid(uid) == false)
 	{
 		ICollisionTestor* pCT = IFactory<ICollisionTestor>::CreateObject(uid);
 

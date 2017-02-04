@@ -1,14 +1,14 @@
 
 /**********************************************************************
 
-			File:Input Struct.fx
+							File:Input Struct.fx
 			input struct used by main.fx by VS/PS/xxx main shader functions
 
 **************************************************************************/
 
 
 /**********************************************************************
-					INPUT   STRUCTURE    DEFINITION
+							INPUT   STRUCTURE    DEFINITION
 **************************************************************************/
 struct VS_INPUT_DEFAULT
 {
@@ -51,7 +51,7 @@ struct GS_INPUT_MINIZED
 
 struct GS_OUTPUT_MINIZED
 {
-	float4  pos : POSITION;
+	float4  pos : POSITION0;
 };
 
 /**********************************************************************

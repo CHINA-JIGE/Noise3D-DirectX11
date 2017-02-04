@@ -60,9 +60,11 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 	//I didn't use template because this function is type-dependent
 	//i dont want it to be type-unsafe
 
+
 	for (UINT i = 0;i < pList->size();i++)
 	{
 		tmp_pVB = pList->at(i)->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
+
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);

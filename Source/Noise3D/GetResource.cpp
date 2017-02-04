@@ -9,6 +9,7 @@
 
 #include "Noise3D.h"
 
+#ifndef _DEBUG
 using namespace Noise3D;
 
 /*N_InternalResourceInfo Noise3D::GetInternalResource(NOISE_INTERNAL_RESOURCE resType)
@@ -85,3 +86,5 @@ N_InternalResourceInfo Noise3D::GetInternalResource(NOISE_INTERNAL_RESOURCE resT
 	}
 	return outInfo;
 }
+
+#endif

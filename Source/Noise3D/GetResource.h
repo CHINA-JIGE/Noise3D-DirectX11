@@ -9,7 +9,7 @@
 #pragma once
 
 //ONLY release mode will use internal shader bytecode
-#ifndef NOISE_MACRO_DEBUG_MODE
+#ifndef _DEBUG
 
 #include "NoiseBinaryResource.h"
 

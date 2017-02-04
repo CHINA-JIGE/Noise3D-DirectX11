@@ -14,12 +14,12 @@ cbuffer cbPicking
 
 //----------------------PICKING : VS + GS-----------------------
 
-float4 VS_Picking(VS_INPUT_DEFAULT input):SV_POSITION//SV_POSITION is semantic
+GS_INPUT_MINIZED VS_Picking(VS_INPUT_DEFAULT input):SV_POSITION//SV_POSITION is semantic
 {
 	//initialize
-	float4 outputPosV = float4(0, 0, 0, 1.0f);
+	GS_INPUT_MINIZED outputPosV;
 	//World/View transformation
-	outputPosV = mul(mul(float4(input.posL, 1.0f), gWorldMatrix),gViewMatrix);
+	outputPosV.pos = mul(mul(float4(input.posL, 1.0f), gWorldMatrix),gViewMatrix);
 
 	return outputPosV;
 }
@@ -70,7 +70,6 @@ bool IntersectTriangle(float3 origin, float3 dir, float3 v0, float3 v1, float3 v
 void GS_Picking(triangle GS_INPUT_MINIZED  inputGeometry[3], inout PointStream<GS_OUTPUT_MINIZED> pointStream )
 {
 	//Intersection is performed in VIEW SPACE
-
 	float3 rayDir = float3(gPickingRayNormalizedDirXY.xy, 1.0f);
 
 	float u = 0.0f, v = 0.0f, t = 0.0f;

@@ -20,6 +20,9 @@
     <ClCompile Include="UnitTest_Text.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_Picking.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main3D.h">

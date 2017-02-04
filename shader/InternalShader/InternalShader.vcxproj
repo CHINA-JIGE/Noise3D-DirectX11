@@ -76,7 +76,8 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <CustomBuildStep>
-      <Command>fxc.exe /Fc /Od /Zi /T fx_5_0 /Fo "Main_d.fxo" "Main.fx"</Command>
+      <Command>fxc.exe /Fc /Od /Zi /T fx_5_0 /Fo "Main_d.fxo" "Main.fx"
+copy /B "Main_d.fxo" /B "..//..//Exec//Debug//shader//Main_d.fxo"</Command>
       <Outputs>$(SolutionDir)Main.fxo</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -100,7 +101,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>fxc.exe /Fc /T fx_5_0 /Fo "Main.fxo" "Main.fx"</Command>
+      <Command>fxc.exe /Fc /T fx_5_0 /Fo "Main.fxo" "Main.fx"
+copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
       <Outputs>$(SolutionDir)Main.fxo</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

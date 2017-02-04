@@ -135,7 +135,7 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera,
 		//设置fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
-		//draw line 一个pass就够了
+		//draw point 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}
@@ -188,7 +188,7 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint2DInList(std::vector<IGraphicOb
 		//设置fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
-		//draw line 一个pass就够了
+		//draw point 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 	}

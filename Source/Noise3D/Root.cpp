@@ -21,7 +21,7 @@ using namespace Noise3D;
 
 		~IRootCreation() {}
 
-		IRoot* CreateRoot()
+		IRoot* GetRoot()
 		{
 			static int rootCount = 0;
 			//if a Root was never created, create one
@@ -46,13 +46,13 @@ using namespace Noise3D;
 	};
 
 	static IRootCreation rootCreationFactory;
-	static IRoot* ptr = rootCreationFactory.CreateRoot();
+	static IRoot* ptr = rootCreationFactory.GetRoot();
 	return  ptr;
 };
 
 
 
-//构造函数
+//Constructor
 IRoot::IRoot() :
 	IFactory<IScene>(1)
 {
@@ -136,7 +136,7 @@ BOOL IRoot::InitD3D(HWND RenderHWND)
 	//设备创建标签 
 	UINT createDeviceFlags = 0;
 
-#ifdef NOISE_MACRO_DEBUG_MODE	//D3D调试模式
+#ifdef _DEBUG	//D3D调试模式
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -185,6 +185,7 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);
 	ReleaseCOM(g_pImmediateContext);
+	ReleaseCOM(g_pFX);
 	//check live object
 #if defined(DEBUG) || defined(_DEBUG)
 	ID3D11Debug *d3dDebug;
@@ -379,8 +380,20 @@ BOOL	IRoot::mFunction_CreateEffectFromMemory()
 	HRESULT hr = S_OK;
 
 	//Load FXO file
-//#ifdef NOISE_MACRO_DEBUG_MODE
-	if (!IFileManager::ImportFile_PURE("shader\\Main.fxo", compiledShader))return FALSE;
+#ifdef _DEBUG
+	if (!IFileManager::ImportFile_PURE("shader//Main_d.fxo", compiledShader))
+	{
+		ERROR_MSG("Root : critical error! Compiled shader (Debug mode) not found!!");
+		return FALSE;
+	}
+#else
+	if (!IFileManager::ImportFile_PURE("shader//Main.fxo", compiledShader))
+	{
+		ERROR_MSG("Root : critical error! Compiled shader(Release mode) not found!!");
+		return FALSE;
+	}
+#endif
+
 	//Create Effect Framework
 	hr = D3DX11CreateEffectFromMemory(&compiledShader.at(0), compiledShader.size(), 0, g_pd3dDevice11, &g_pFX);
 //#else

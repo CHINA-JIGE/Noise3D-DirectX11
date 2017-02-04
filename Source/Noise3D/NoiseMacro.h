@@ -10,9 +10,6 @@
 //宏名及一个空格后就是要替换的文本
 #pragma once
 
-
-//#define NOISE_MACRO_DEBUG_MODE //!!!!!!!!!!!
-
 #define NOISE_MACRO_INVALID_ID			UINT_MAX
 
 #define	 NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
@@ -31,9 +28,7 @@
 
 #define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT 16U
 
-#ifndef NOISE_MACRO_DEBUG_MODE
-	#define NOISE_MACRO_DLL_EXPORT _declspec(dllexport)
-#endif
+#define NOISE_MACRO_DLL_EXPORT _declspec(dllexport)
 
 
 #define MATH_PI 3.1415926f
@@ -63,4 +58,32 @@
 				return nullptr;\
 				};\
 
+
+
+//implementing these 2 op with functions is not acceptable because pre-processed
+//data will be wiped out.
+#define ERROR_MSG(msg)\
+	{\
+		std::ostringstream debugMsg;\
+		debugMsg << "ERROR:" << std::endl;\
+		debugMsg << msg << std::endl;\
+		debugMsg << "file: " << __FILE__ << std::endl;\
+		debugMsg << "line: " << __LINE__ << std::endl;\
+		debugMsg << "function:" << __func__ << std::endl;\
+		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		debugMsg.clear();\
+	}\
+
+
+#define WARNING_MSG(msg)\
+	{\
+		std::ostringstream debugMsg;\
+		debugMsg << "WARNING:" << std::endl;\
+		debugMsg << msg << std::endl;\
+		debugMsg << "file: " << __FILE__ << std::endl;\
+		debugMsg << "line: " << __LINE__ << std::endl;\
+		debugMsg << "function:" << __func__ << std::endl;\
+		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		debugMsg.clear();\
+	};\
 

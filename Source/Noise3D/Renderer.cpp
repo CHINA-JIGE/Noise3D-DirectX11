@@ -42,7 +42,6 @@ IRenderer::~IRenderer()
 	ReleaseCOM(m_pDepthStencilState_DisableDepthTest);
 	ReleaseCOM(m_pDepthStencilState_EnableDepthTest);
 	ReleaseCOM(m_pSamplerState_FilterLinear);
-	ReleaseCOM(g_pFX);
 	ReleaseCOM(m_pDepthStencilView);
 	ReleaseCOM(m_pRenderTargetView);
 	ReleaseCOM(m_pSwapChain);
@@ -467,14 +466,14 @@ BOOL	IRenderer::mFunction_Init_CreateDepthStencilState()
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.StencilEnable = FALSE;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
-	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
+	HR_DEBUG(hr, "Create Depth Stencil State #1 Failed!!!");
 
 
 	ZeroMemory(&dssDesc, sizeof(dssDesc));
 	dssDesc.DepthEnable = FALSE;
 	dssDesc.StencilEnable = FALSE;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
-	HR_DEBUG(hr, "Create Depth Stencil State Failed!!!");
+	HR_DEBUG(hr, "Create Depth Stencil State #2 Failed!!!");
 
 	return TRUE;
 };
