@@ -153,6 +153,11 @@ BOOL Init3D(HWND hwnd)
 
 void MainLoop()
 {
+	/*Sleep(300);
+	static int framesPassed = 0;
+	framesPassed++;*/
+
+	//variable for rotation
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
 	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1, cos(incrNum)));
@@ -168,9 +173,10 @@ void MainLoop()
 	pMyText_fps->SetTextAscii(tmpS.str());
 
 	//picking : collision test
-	std::vector<NVECTOR3> colResult;
-	pCT->Picking(pMesh1, { 0.0f,0.0f },colResult);
-	if(colResult.size()>0)ERROR_MSG("BENJOE!!");
+	static std::vector<NVECTOR3> colResult;
+	pCT->Picking(pMesh1, { 0.3f,-0.1f },colResult);
+	//if(pCT->Picking(pMesh1, { 0.0f,0.0f })==0)ERROR_MSG("BENJOE!!");;
+	//if(colResult.size()>0)ERROR_MSG("BENJOE!!");
 
 	//add to render list
 	pRenderer->AddObjectToRenderList(pMesh1);

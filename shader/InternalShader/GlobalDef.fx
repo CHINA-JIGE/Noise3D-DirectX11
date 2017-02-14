@@ -51,7 +51,7 @@ struct GS_INPUT_MINIZED
 
 struct GS_OUTPUT_MINIZED
 {
-	float4  pos : POSITION0;
+	float3  pos : POSITION0;
 };
 
 /**********************************************************************

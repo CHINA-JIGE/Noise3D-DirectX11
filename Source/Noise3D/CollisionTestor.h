@@ -47,7 +47,7 @@ namespace Noise3D
 
 		//-------PICKING-----------
 
-		static const UINT c_maxSOVertexCount = 100;
+		static const UINT c_maxSOVertexCount = 200;
 
 		ID3D11Buffer*			m_pSOGpuWriteableBuffer;
 		ID3D11Buffer*			m_pSOCpuReadableBuffer;//this buffer will be used only when concrete collision point pos is needed
@@ -55,6 +55,7 @@ namespace Noise3D
 		ID3DX11EffectTechnique*			m_pFX_Tech_Picking;//gpu acceleration picking intersection
 		ID3DX11EffectConstantBuffer*	m_pFX_CbPicking;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbCameraInfo;
+		ID3DX11EffectConstantBuffer*		m_pFX_CbPerObject;//for mesh world matrix
 		ID3D11DepthStencilState*			m_pDSS_DisableDepthTest;
 	};
 }

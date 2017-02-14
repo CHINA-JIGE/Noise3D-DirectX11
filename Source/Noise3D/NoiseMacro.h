@@ -85,5 +85,5 @@
 		debugMsg << "function:" << __func__ << std::endl;\
 		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
 		debugMsg.clear();\
-	};\
-
+	}\
+;

@@ -47,7 +47,7 @@ namespace Noise3D
 
 	struct N_MinizedVertex 
 	{
-		NVECTOR4 pos;
+		NVECTOR3 pos;
 	};
 
 

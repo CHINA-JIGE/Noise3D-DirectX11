@@ -272,13 +272,15 @@ void ICamera::GetProjMatrix(NMATRIX & outMat)
 void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
-	D3DXMatrixInverse(&outMat, nullptr, m_pMatrixView);
+	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, m_pMatrixView);
+	if(invPtr==nullptr)ERROR_MSG("Camera : Inverse of View Matrix not exist!")
 }
 
 void Noise3D::ICamera::GetInvProjMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateProjMatrix();
-	D3DXMatrixInverse(&outMat, nullptr, m_pMatrixProjection);
+	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, m_pMatrixProjection);
+	if (invPtr == nullptr)ERROR_MSG("Camera : Inverse of Proj Matrix not exist!")
 };
 
 

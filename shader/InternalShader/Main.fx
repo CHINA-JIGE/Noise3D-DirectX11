@@ -82,7 +82,7 @@ technique11 PickingIntersection
 	{
 	  SetVertexShader(CompileShader(vs_5_0,VS_Picking()));
 	  //SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0,GS_STREAMOUT()),"POSITION.xyz;NORMAL.xyz;TEXCOORD.xy") );
-	  SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0,GS_Picking()),"POSITION0"));//what is the use of this string....define the format of SO??
+	  SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_Picking()), "POSITION0.xyz"));//what is the use of this string....define the format of SO??
 	  SetPixelShader(NULL);
 
 	}

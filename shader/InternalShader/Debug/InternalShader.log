@@ -1,9 +1,0 @@
-﻿picking.fx(17,18): warning X3576: semantics in type overridden by variable/function or enclosing type
-picking.fx(42,6): warning X4000: Use of potentially uninitialized variable (IntersectTriangle)
-  
-  Microsoft (R) Direct3D Shader Compiler 9.29.952.3111
-  Copyright (C) Microsoft Corporation 2002-2009. All rights reserved.
-  
-  compilation succeeded; see Main.cod
-  compilation succeeded; see F:\1VS PROJECT\3D\Noise3D -(23)picking ray\shader\InternalShader\Main_d.fxo
-  已复制         1 个文件。

@@ -39,8 +39,8 @@ void ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCo
 	ICamera* pCamera = GetScene()->GetCamera();
 	pCamera->GetProjMatrix(CbCam.projMatrix);
 	pCamera->GetViewMatrix(CbCam.viewMatrix);
-	pCamera->GetInvProjMatrix(CbCam.invViewMatrix);
-	pCamera->GetInvViewMatrix(CbCam.invProjMatrix);
+	pCamera->GetInvProjMatrix(CbCam.invProjMatrix);
+	pCamera->GetInvViewMatrix(CbCam.invViewMatrix);
 	CbCam.camPos = pCamera->GetPosition();
 	m_pFX_CbCameraInfo->SetRawValue(&CbCam, 0, sizeof(CbCam));
 
@@ -48,6 +48,11 @@ void ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCo
 	N_CbPicking CbPicking;
 	CbPicking.pickingRayNormalizedDirXY = mouseNormalizedCoord;
 	m_pFX_CbPicking->SetRawValue(&CbPicking, 0, sizeof(CbPicking));
+
+	//update target mesh world Matrix
+	N_CbPerObject cbObj;
+	pMesh->GetWorldMatrix(cbObj.mWorldMatrix, cbObj.mWorldInvTransposeMatrix);
+	m_pFX_CbPerObject->SetRawValue(&cbObj, 0, sizeof(cbObj));
 
 
 	UINT offset = 0;
@@ -121,10 +126,10 @@ UINT ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCo
 	//update camera Info
 	N_CbCameraInfo CbCam;
 	ICamera* pCamera = GetScene()->GetCamera();
-	pCamera->GetProjMatrix(CbCam.projMatrix);
+	pCamera->GetProjMatrix(CbCam.projMatrix);//tangent of Fov can be retrieved in proj matrix 
 	pCamera->GetViewMatrix(CbCam.viewMatrix);
-	pCamera->GetInvProjMatrix(CbCam.invViewMatrix);
-	pCamera->GetInvViewMatrix(CbCam.invProjMatrix);
+	pCamera->GetInvProjMatrix(CbCam.invProjMatrix);
+	pCamera->GetInvViewMatrix(CbCam.invViewMatrix);
 	CbCam.camPos = pCamera->GetPosition();
 	m_pFX_CbCameraInfo->SetRawValue(&CbCam, 0, sizeof(CbCam));
 
@@ -132,6 +137,11 @@ UINT ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCo
 	N_CbPicking CbPicking;
 	CbPicking.pickingRayNormalizedDirXY = mouseNormalizedCoord;
 	m_pFX_CbPicking->SetRawValue(&CbPicking, 0, sizeof(CbPicking));
+
+	//update target mesh world Matrix
+	N_CbPerObject cbObj;
+	pMesh->GetWorldMatrix(cbObj.mWorldMatrix, cbObj.mWorldInvTransposeMatrix);
+	m_pFX_CbPerObject->SetRawValue(&cbObj, 0, sizeof(cbObj));
 
 
 	UINT offset =0;
@@ -222,6 +232,12 @@ bool ICollisionTestor::mFunction_Init()
 	m_pFX_Tech_Picking = g_pFX->GetTechniqueByName("PickingIntersection");
 	m_pFX_CbCameraInfo = g_pFX->GetConstantBufferByName("cbCameraInfo");
 	m_pFX_CbPicking = g_pFX->GetConstantBufferByName("cbPicking");
+	m_pFX_CbPerObject = g_pFX->GetConstantBufferByName("cbPerObject");
+
+	if (m_pFX_CbPicking == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
+	if (m_pFX_CbCameraInfo == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
+	if (m_pFX_CbPicking == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
+	if (m_pFX_CbPerObject == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
 
 	return TRUE;
 }
