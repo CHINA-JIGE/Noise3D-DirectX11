@@ -39,7 +39,6 @@
 #include "NoiseFlag.h"
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
-#include "GetResource.h"
 
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
