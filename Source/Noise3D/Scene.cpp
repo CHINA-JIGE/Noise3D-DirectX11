@@ -30,6 +30,7 @@ IScene::IScene():
 	 IFactory<IAtmosphere>(1),
 	IFactory<IFontManager>(1),
 	IFactory<IModelLoader>(1),
+	IFactory<IModelProcessor>(1),
 	IFactory<ICollisionTestor>(1)
 {
 
@@ -199,6 +200,16 @@ IModelLoader * IScene::GetModelLoader()
 		IFactory<IModelLoader>::CreateObject(uid);
 	}
 	return IFactory<IModelLoader>::GetObjectPtr(uid);
+}
+
+IModelProcessor * Noise3D::IScene::GetModelProcessor()
+{
+	const N_UID uid = "sceneModelProcessor";
+	if (IFactory<IModelProcessor>::FindUid(uid) == FALSE)
+	{
+		IFactory<IModelProcessor>::CreateObject(uid);
+	}
+	return IFactory<IModelProcessor>::GetObjectPtr(uid);
 }
 
 ICollisionTestor * IScene::GetCollisionTestor()

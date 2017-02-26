@@ -66,11 +66,11 @@ namespace Noise3D
 	};
 
 
-	class /*_declspec(dllexport)*/ IFileLoader_3ds
+	class /*_declspec(dllexport)*/ IFileIO_3DS
 	{
 	public:
 
-		IFileLoader_3ds();
+		IFileIO_3DS();
 
 		BOOL ImportFile_3DS(
 			NFilePath pFilePath,

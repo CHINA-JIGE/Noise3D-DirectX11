@@ -19,17 +19,17 @@ IMaterial::~IMaterial()
 
 void IMaterial::SetBaseAmbientColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseAmbientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.mAmbientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IMaterial::SetBaseDiffuseColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseDiffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.mDiffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IMaterial::SetBaseSpecularColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseSpecularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.mSpecularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IMaterial::SetSpecularSmoothLevel(int level)
@@ -69,9 +69,9 @@ void IMaterial::SetEnvMap(const N_UID & environmentMapName)
 
 void IMaterial::SetDesc(const N_MaterialDesc & desc)
 {
-	SetBaseAmbientColor(desc.mBaseAmbientColor);
-	SetBaseDiffuseColor(desc.mBaseDiffuseColor);
-	SetBaseSpecularColor(desc.mBaseSpecularColor);
+	SetBaseAmbientColor(desc.mAmbientColor);
+	SetBaseDiffuseColor(desc.mDiffuseColor);
+	SetBaseSpecularColor(desc.mSpecularColor);
 	SetSpecularSmoothLevel(desc.mSpecularSmoothLevel);
 	SetNormalMapBumpIntensity(desc.mNormalMapBumpIntensity);
 	SetEnvironmentMappingTransparency(desc.mEnvironmentMapTransparency);

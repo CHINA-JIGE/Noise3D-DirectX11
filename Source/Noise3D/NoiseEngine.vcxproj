@@ -130,19 +130,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CollisionTestor.h" />
-    <ClInclude Include="GetResource.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="FileIO_OBJ.h" />
+    <ClInclude Include="FileIO_STL.h" />
     <ClInclude Include="GraphicObjMgr.h" />
+    <ClInclude Include="ModelProcessor.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="NoiseBinaryResource.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_FontManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -150,7 +147,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Root.h" />
     <ClInclude Include="FileManager.h" />
-    <ClInclude Include="FileMgr_3DS.h" />
+    <ClInclude Include="FileIO_3DS.h" />
     <ClInclude Include="GeometryMeshGenerator.h" />
     <ClInclude Include="Ut_InputEngine.h" />
     <ClInclude Include="LightManager.h" />
@@ -179,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="ModelProcessor.cpp" />
     <ClCompile Include="pchGen.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -204,9 +202,9 @@
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
     <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="FileMgr_3DS.cpp" />
-    <ClCompile Include="FileMgr_OBJ.cpp" />
-    <ClCompile Include="FileMgr_STL.cpp" />
+    <ClCompile Include="FileIO_3DS.cpp" />
+    <ClCompile Include="FileIO_OBJ.cpp" />
+    <ClCompile Include="FileIO_STL.cpp" />
     <ClCompile Include="GeometryMeshGenerator.cpp" />
     <ClCompile Include="Ut_InputEngine.cpp" />
     <ClCompile Include="LightManager.cpp" />
@@ -222,9 +220,6 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
-    <ClCompile Include="GetResource.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

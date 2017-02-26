@@ -13,18 +13,18 @@ namespace Noise3D
 		N_BasicMaterialDesc()
 		{
 			ZeroMemory(this, sizeof(*this));
-			mBaseAmbientColor = NVECTOR3(0, 0, 0);
-			mBaseDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-			mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+			mAmbientColor = NVECTOR3(0, 0, 0);
+			mDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+			mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 			mSpecularSmoothLevel = 10;
 			mNormalMapBumpIntensity = 0.1f;
 			mEnvironmentMapTransparency = 0.1f;
 		}
 
 		//base attribute offset that will be added to final color
-		NVECTOR3	mBaseAmbientColor;	INT32	mSpecularSmoothLevel;
-		NVECTOR3	mBaseDiffuseColor;		float		mNormalMapBumpIntensity;
-		NVECTOR3	mBaseSpecularColor;	float		mEnvironmentMapTransparency;
+		NVECTOR3	mAmbientColor;		INT32	mSpecularSmoothLevel;
+		NVECTOR3	mDiffuseColor;		float		mNormalMapBumpIntensity;
+		NVECTOR3	mSpecularColor;		float		mEnvironmentMapTransparency;
 
 	};
 

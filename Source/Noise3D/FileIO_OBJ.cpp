@@ -8,46 +8,14 @@
 
 using namespace Noise3D;
 
-namespace Noise3D
-{
-	//in OBJ file ,vertex info is composed of indices
-	struct N_LoadOBJ_vertexInfoIndex
-	{
-		N_LoadOBJ_vertexInfoIndex()
-		{
-			vertexID = texcoordID = vertexNormalID = 0;
-		};
-
-		N_LoadOBJ_vertexInfoIndex(int vID, int texcID, int vnID)
-		{
-			vertexID = vID;
-			texcoordID = texcID;
-			vertexNormalID = vnID;
-		}
-
-		inline BOOL operator==(N_LoadOBJ_vertexInfoIndex const& v)const
-		{
-			if (vertexID == v.vertexID && texcoordID == v.texcoordID && vertexNormalID == v.vertexNormalID)
-			{
-				return TRUE;
-			}
-			return FALSE;
-		}
-
-		UINT vertexID;
-		UINT texcoordID;
-		UINT vertexNormalID;
-	};
-}
-
 /*******************************************************************
 
 										INTERFACE
 
 *********************************************************************/
-BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
+BOOL IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
 {
-	std::fstream fileIn(pFilePath);
+	std::ifstream fileIn(pFilePath);
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Import OBJ : Open File failed!!");
@@ -59,7 +27,7 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 	std::vector<NVECTOR3> VNormalList;//vertex normal buffer
 	std::vector<N_LoadOBJ_vertexInfoIndex> vertexInfoList;//indices combination
 
-														  //newly input string from file
+	 //newly input string from file
 	std::string currString;
 
 	//,...............
@@ -121,13 +89,14 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 				//non-existed element will be created
 				BOOL IsVertexExist = FALSE;
 				UINT  existedVertexIndex = 0;
-				for (UINT i = 0;i <vertexInfoList.size();i++)
+
+				for (UINT j = 0;j <vertexInfoList.size();j++)
 				{
 					//in DEBUG mode ,[] operator will be a big performance overhead
-					if (vertexInfoList[i] == currVertex)
+					if (vertexInfoList.at(j) == currVertex)
 					{
 						IsVertexExist = TRUE;
-						existedVertexIndex = i;
+						existedVertexIndex =j;
 						break;
 					}
 				}

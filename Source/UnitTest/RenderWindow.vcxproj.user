@@ -5,4 +5,9 @@
     <LocalDebuggerCommand>$(SolutionDir)Exec\$(Configuration)\$(TargetFileName)</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)Exec\$(Configuration)\</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommand>$(SolutionDir)Exec\$(Configuration)\$(TargetFileName)</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>$(SolutionDir)Exec\$(Configuration)\</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
 </Project>

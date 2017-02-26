@@ -1,7 +1,11 @@
 
-
-#include "Main3D.h"
+#include "Noise3D.h"
 #include <sstream>
+
+BOOL Init3D(HWND hwnd);
+void MainLoop();
+void Cleanup();
+void	InputProcess();
 
 using namespace Noise3D;
 

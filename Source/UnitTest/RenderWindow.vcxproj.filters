@@ -23,10 +23,11 @@
     <ClCompile Include="UnitTest_Picking.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Main3D.h">
+    <ClCompile Include="UnitTest_MC_ModelExport.cpp">
       <Filter>Main3D</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="UnitTest_ModelProcessor.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

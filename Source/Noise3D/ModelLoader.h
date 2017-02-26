@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-								h£ºScene Loader (mainly from file)
+								h£ºModel Loader (mainly from file)
 
 ************************************************************************/
 
@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class IMesh;
+	//class IMesh;
 
 	class /*_declspec(dllexport)*/ IModelLoader : private IFileManager
 	{

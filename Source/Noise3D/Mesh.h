@@ -13,6 +13,7 @@ namespace Noise3D
 	{
 		friend class IRenderer;
 		friend class IModelLoader;
+		friend class IModelProcessor;
 		friend class ICollisionTestor;
 
 	public:
@@ -53,7 +54,7 @@ namespace Noise3D
 
 		void		SetScaleZ(float scaleZ);
 
-		UINT		GetVertexCount();
+		UINT	GetVertexCount();
 
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
@@ -61,7 +62,7 @@ namespace Noise3D
 
 		const std::vector<UINT>*	GetIndexBuffer();
 
-		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
+		void			GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
 		N_Box		ComputeBoundingBox();
@@ -90,8 +91,8 @@ namespace Noise3D
 
 
 
-		UINT										mVertexCount;
-		UINT										mIndexCount;
+		UINT									mVertexCount;
+		UINT									mIndexCount;
 		ID3D11Buffer*						m_pVB_Gpu;
 		ID3D11Buffer*						m_pIB_Gpu;
 
@@ -107,9 +108,9 @@ namespace Noise3D
 
 		NMATRIX*										m_pMatrixWorld;
 		NMATRIX*										m_pMatrixWorldInvTranspose;
-		std::vector<N_DefaultVertex>*			m_pVB_Mem;//vertex in CPU memory
+		std::vector<N_DefaultVertex>*		m_pVB_Mem;//vertex in CPU memory
 		std::vector<UINT>*							m_pIB_Mem;//index in CPU memory
-		std::vector<N_MeshSubsetInfo>*		m_pSubsetInfoList;//store [a,b] of a subset
+		std::vector<N_MeshSubsetInfo>*	m_pSubsetInfoList;//store [a,b] of a subset
 
 	};
-}
+};

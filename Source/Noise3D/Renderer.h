@@ -32,9 +32,9 @@ namespace Noise3D
 	{
 		void SetBaseMat(const N_MaterialDesc& mat)
 		{
-			mBaseAmbientColor = mat.mBaseAmbientColor;
-			mBaseDiffuseColor = mat.mBaseDiffuseColor;
-			mBaseSpecularColor = mat.mBaseSpecularColor;
+			mAmbientColor = mat.mAmbientColor;
+			mDiffuseColor = mat.mDiffuseColor;
+			mSpecularColor = mat.mSpecularColor;
 			mSpecularSmoothLevel = mat.mSpecularSmoothLevel;
 			mNormalMapBumpIntensity = mat.mNormalMapBumpIntensity;
 			mEnvironmentMapTransparency = mat.mEnvironmentMapTransparency;

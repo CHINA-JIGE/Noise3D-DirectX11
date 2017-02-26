@@ -174,7 +174,6 @@ BOOL IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 	}
 
 
-	//copy won't be overhead because std::move is used inside the function
 	BOOL isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(completeVertexList, tmpIndexList);
 
 	//user-set material
