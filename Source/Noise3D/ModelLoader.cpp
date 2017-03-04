@@ -159,13 +159,24 @@ BOOL IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	UINT k = 0;
 	std::vector<N_DefaultVertex>  completeVertexList;
+	//fill vertex attribute
 	for (UINT i = 0;i < tmpVertexList.size();i++)
 	{
 		N_DefaultVertex	tmpCompleteV;
 		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
 		tmpCompleteV.Pos = tmpVertexList.at(i);
 		tmpCompleteV.Normal = tmpNormalList.at(k);
-		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);//mighty tangent algorithm= =
+		//tangent
+		if (tmpCompleteV.Normal.x==0.0f && tmpCompleteV.Normal.z==0.0f)
+		{
+			tmpCompleteV.Tangent = NVECTOR3(1.0f, 0, 0);
+		}
+		else
+		{
+			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
+			D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
+			D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
+		}
 		tmpCompleteV.TexCoord = ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
 		completeVertexList.push_back(tmpCompleteV);
 
@@ -283,11 +294,14 @@ BOOL IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 		{
 			D3DXVec3Normalize(&vn, &vn);
 
-			//compute Tangent
-			NVECTOR3 tmpTangent(1, 0, 0);
-			NVECTOR3 tmpVec(-vn.z, 0, vn.x);
-			D3DXVec3Cross(&tmpTangent, &vn, &tmpVec);
-			D3DXVec3Normalize(&tmpTangent, &tmpTangent);
+			//see if tangent is parallel with Y axis
+			NVECTOR3 tmpTangent(1.0f, 0, 0);
+			if (!(vn.x == 0 && vn.z == 0))
+			{
+				NVECTOR3 tmpVec(-vn.z, 0, vn.x);
+				D3DXVec3Cross(&tmpTangent, &vn, &tmpVec);
+				D3DXVec3Normalize(&tmpTangent, &tmpTangent);
+			}
 
 			//one vertex for one tangent
 			vertexTangentList.push_back(tmpTangent);

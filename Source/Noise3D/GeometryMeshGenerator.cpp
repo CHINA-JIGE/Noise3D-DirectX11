@@ -138,8 +138,8 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 	tmpTexCoord = new NVECTOR2[tmpVertexCount];
 	tmpV[tmpVertexCount-2] = NVECTOR3(NVECTOR3(0,fRadius,0));			//TOP vertex
 	tmpV[tmpVertexCount-1] = NVECTOR3(NVECTOR3(0,-fRadius,0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount-2] = NVECTOR2(0.5f,0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount-1] = NVECTOR2(0.5f,1.0f);			//BOTTOM vertex
+	tmpTexCoord[tmpVertexCount-2] = NVECTOR2(0.5f,1.0f);			//TOP vertex
+	tmpTexCoord[tmpVertexCount-1] = NVECTOR2(0.5f,0.0f);			//BOTTOM vertex
 
 
 #pragma region GenerateVertex

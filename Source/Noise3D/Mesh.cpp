@@ -248,7 +248,57 @@ BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 #pragma endregion CreateGpuBuffers
 
 	return TRUE;
+}
+
+BOOL IMesh::mFunction_UpdateDataToVideoMem()
+{
+	ReleaseCOM(m_pVB_Gpu);
+	ReleaseCOM(m_pIB_Gpu);
+
+#pragma region CreateGpuBuffers
+	//Prepare to update to video memory, fill in SUBRESOURCE description structure
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
+	mVertexCount = m_pVB_Mem->size();
+
+	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
+	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
+	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
+	mIndexCount = m_pIB_Mem->size();
+
+	//------Create VERTEX BUFFER
+	D3D11_BUFFER_DESC vbd;
+	vbd.ByteWidth = sizeof(N_DefaultVertex)* mVertexCount;
+	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
+	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	vbd.StructureByteStride = 0;
+
+	//Create Buffers
+	int hr = 0;
+	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
+	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
+
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.ByteWidth = sizeof(int) * mIndexCount;
+	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
+	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	ibd.StructureByteStride = 0;
+
+	//Create Buffers
+	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
+	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
+
+#pragma endregion CreateGpuBuffers
+
+	return TRUE;
 };
+
 
 void	IMesh::mFunction_UpdateWorldMatrix()
 {

@@ -89,8 +89,6 @@ namespace Noise3D
 		NVECTOR4	mTextGlowColor;
 	};
 
-
-
 	class /*_declspec(dllexport)*/ IRenderer :
 		private IFileManager
 	{

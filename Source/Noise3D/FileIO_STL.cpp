@@ -109,8 +109,8 @@ BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 
 		//a facet normal
 		REINTERPRET_WRITE(triNorm.x);
-		REINTERPRET_WRITE(triNorm.y);
 		REINTERPRET_WRITE(triNorm.z);
+		REINTERPRET_WRITE(triNorm.y);
 
 		//3 vertices
 		REINTERPRET_WRITE(v1.x);

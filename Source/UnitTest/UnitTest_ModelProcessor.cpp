@@ -104,14 +104,17 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetFont("myFont");
 
 	pRenderer->SetFillMode(NOISE_FILLMODE_SOLID);
-	pRenderer->SetCullMode(NOISE_CULLMODE_BACK);//NOISE_CULLMODE_BACK
+	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
 
-												//------------------MESH INITIALIZATION----------------
-	pModelLoader->LoadFile_STL(pMesh1, "model/liver3.stl");//这个破模型的法线YZ没有翻转
+	//------------------MESH INITIALIZATION----------------
+	pModelLoader->LoadFile_STL(pMesh1, "model/666.stl");//这个破模型的法线YZ没有翻转
+	//pModelLoader->LoadSphere(pMesh1, 5.0f);
+	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
 	pMesh1->SetPosition(0, 0, 0);
-	pMesh1->SetScale(5.0f, 5.0f, 5.0f);
+	//pMesh1->SetScale(5.0f, 5.0f, 5.0f);
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
 	pModelProc->WeldVertices(pMesh1);
+	//pModelProc->Smooth_Laplacian(pMesh1);
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB = pMesh1->GetVertexBuffer();

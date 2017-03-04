@@ -79,6 +79,8 @@ namespace Noise3D
 		//this function could be externally invoked by ModelLoader..etc
 		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
 		
+		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
+
 		//invoked by NoiseRenderer
 		void		mFunction_UpdateWorldMatrix();
 
