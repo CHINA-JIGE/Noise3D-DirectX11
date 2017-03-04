@@ -111,10 +111,9 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSphere(pMesh1, 5.0f);
 	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
 	pMesh1->SetPosition(0, 0, 0);
-	//pMesh1->SetScale(5.0f, 5.0f, 5.0f);
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
-	pModelProc->WeldVertices(pMesh1);
-	//pModelProc->Smooth_Laplacian(pMesh1);
+	pModelProc->WeldVertices(pMesh1,1.0f);
+	pModelProc->Smooth_Laplacian(pMesh1);
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB = pMesh1->GetVertexBuffer();
