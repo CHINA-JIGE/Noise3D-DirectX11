@@ -76,18 +76,19 @@ struct N_PointLight
 
 struct N_SpotLight
 {
-	float3 mAmbientColor;			float mSpecularIntensity;
+	float3 mAmbientColor;		float mSpecularIntensity;
 	float3 mDiffuseColor;			float mDiffuseIntensity;
-	float3 mSpecularColor;			float mAttenuationFactor;
-	float3 mLitAt;					float mLightingAngle;
-	float3 mPosition;				float mLightingRange;
+	float3 mSpecularColor;		float mAttenuationFactor;
+	float3 mLitAt;						float mLightingAngle;
+	float3 mPosition;					float mLightingRange;
 };
 
 struct N_Material_Basic
 {
-	float3	mAmbientColor;		int		mSpecularSmoothLevel;
+	float3	mAmbientColor;		int	mSpecularSmoothLevel;
 	float3	mDiffuseColor;		float	mNormalMapBumpIntensity;
 	float3	mSpecularColor;		float	mEnvironmentMapTransparency;
+	float		mTransparency;		int	pad1; int pad2; int pad3;
 };
 
 

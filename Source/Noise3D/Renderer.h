@@ -32,12 +32,7 @@ namespace Noise3D
 	{
 		void SetBaseMat(const N_MaterialDesc& mat)
 		{
-			mAmbientColor = mat.mAmbientColor;
-			mDiffuseColor = mat.mDiffuseColor;
-			mSpecularColor = mat.mSpecularColor;
-			mSpecularSmoothLevel = mat.mSpecularSmoothLevel;
-			mNormalMapBumpIntensity = mat.mNormalMapBumpIntensity;
-			mEnvironmentMapTransparency = mat.mEnvironmentMapTransparency;
+			memcpy_s(this, sizeof(N_BasicMaterialDesc), &mat, sizeof(N_BasicMaterialDesc));
 		}
 
 		//only update these SWTICHES var to GPU, 
@@ -268,7 +263,7 @@ namespace Noise3D
 		ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbSolid3D;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbAtmosphere;
-		ID3DX11EffectConstantBuffer* m_pFX_CbDrawText2D;
+		ID3DX11EffectConstantBuffer*	m_pFX_CbDrawText2D;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;

@@ -565,8 +565,6 @@ void		IRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CULLMO
 		}
 		break;
 
-
-
 	//render points
 	case 	NOISE_FILLMODE_POINT:
 		g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullNone);

@@ -685,7 +685,7 @@ void IFileIO_3DS::ParseAmbientColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(m_pMaterialList->back().mAmbientColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().ambientColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
@@ -697,7 +697,7 @@ void IFileIO_3DS::ParseDiffuseColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(m_pMaterialList->back().mDiffuseColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().diffuseColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
@@ -709,7 +709,7 @@ void IFileIO_3DS::ParseSpecularColor()
 	uint64_t filePos = 0;
 	do
 	{
-		ReadAndParseColorChunk(m_pMaterialList->back().mSpecularColor);
+		ReadAndParseColorChunk(m_pMaterialList->back().specularColor);
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }

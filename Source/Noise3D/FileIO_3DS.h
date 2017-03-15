@@ -11,6 +11,7 @@
 namespace Noise3D
 {
 	struct N_MaterialDesc;
+	struct N_MeshSubsetInfo;
 
 	enum NOISE_3DS_CHUNKID
 	{

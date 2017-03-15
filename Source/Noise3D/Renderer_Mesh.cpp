@@ -17,7 +17,6 @@ void	IRenderer::RenderMeshes()
 	//¸üÐÂConstantBuffer: Only update when modified(cbRarely)
 	mFunction_RenderMeshInList_UpdateCbRarely();
 
-
 	//Update ConstantBuffer: Once Per Frame (cbPerFrame)
 	mFunction_RenderMeshInList_UpdateCbPerFrame(tmp_pCamera);
 
@@ -104,7 +103,6 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 		m_CbRarely.mPointLightCount_Static = tmpLight_Point_Count;
 		m_CbRarely.mSpotLightCount_Static = tmpLight_Spot_Count;
 
-
 		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
 			//static directional light description
@@ -185,6 +183,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	N_MaterialDesc tmpMat;
 	if (IsMatNameValid==FALSE)
 	{
+		WARNING_MSG("IRenderer : material UID not valid when rendering mesh.");
 		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
 	}
 	else

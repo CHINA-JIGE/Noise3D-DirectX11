@@ -145,25 +145,26 @@ BOOL Init3D(HWND hwnd)
 	//------------------µÆ¹â-----------------
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.mAmbientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.mDirection = NVECTOR3(0, 0, 0);//just init
-	dirLightDesc.mSpecularIntensity = 1.0f;
-	dirLightDesc.mDiffuseIntensity = 1.0f;
+	dirLightDesc.specularIntensity = 1.0f;
+	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//-------------------²ÄÖÊ----------------
 	N_MaterialDesc Mat1;
-	Mat1.mAmbientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
-	Mat1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.mSpecularSmoothLevel = 40;
-	Mat1.mNormalMapBumpIntensity = 0.2f;
-	Mat1.mEnvironmentMapTransparency = 0.05f;
+	Mat1.ambientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
+	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.specularSmoothLevel = 40;
+	Mat1.normalMapBumpIntensity = 0.2f;
+	Mat1.environmentMapTransparency = 0.05f;
+	Mat1.transparency = 0.2f;
 	Mat1.diffuseMapName = "Red";
 	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
-
+	
 	//set material
 	pMesh1->SetMaterial("meshMat1");
 
@@ -179,6 +180,8 @@ void MainLoop()
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
 	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, cos(incrNum)));
+	IMaterial* pMat = pMatMgr->GetMaterial("meshMat1");
+	pMat->SetTransparency(0.5f* sin(incrNum) + 0.5f);
 
 	//GUIMgr.Update();
 	InputProcess();
@@ -198,10 +201,10 @@ void MainLoop()
 	pRenderer->AddObjectToRenderList(pMyText_fps);
 
 	//render
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
-	pRenderer->RenderMeshes();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
+	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	pRenderer->RenderAtmosphere();
+	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);
+	pRenderer->RenderMeshes();
 	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
 	pRenderer->RenderGraphicObjects();
 	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);

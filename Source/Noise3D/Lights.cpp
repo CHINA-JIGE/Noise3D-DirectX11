@@ -14,45 +14,45 @@ using namespace Noise3D;
 
 void IBaseLight::SetAmbientColor(const NVECTOR3 & color)
 {
-	mBaseLightDesc.mAmbientColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.ambientColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IBaseLight::SetDiffuseColor(const NVECTOR3 & color)
 {
-	mBaseLightDesc.mDiffuseColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.diffuseColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IBaseLight::SetSpecularColor(const NVECTOR3 & color)
 {
-	mBaseLightDesc.mSpecularColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.specularColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IBaseLight::SetSpecularIntensity(float specInt)
 {
-	mBaseLightDesc.mSpecularIntensity = Clamp(specInt, 0.0f, 100.0f);
+	mBaseLightDesc.specularIntensity = Clamp(specInt, 0.0f, 100.0f);
 }
 
 void IBaseLight::SetDiffuseIntensity(float diffInt)
 {
-	mBaseLightDesc.mDiffuseIntensity = Clamp(diffInt, 0.0f, 100.0f);
+	mBaseLightDesc.diffuseIntensity = Clamp(diffInt, 0.0f, 100.0f);
 }
 
 void IBaseLight::SetDesc(const N_CommonLightDesc & desc)
 {
-	SetDiffuseColor(desc.mDiffuseColor);
-	SetAmbientColor(desc.mAmbientColor);
-	SetSpecularColor(desc.mSpecularColor);
-	SetSpecularIntensity(desc.mSpecularIntensity);
-	SetDiffuseIntensity(desc.mDiffuseIntensity);
+	SetDiffuseColor(desc.diffuseColor);
+	SetAmbientColor(desc.ambientColor);
+	SetSpecularColor(desc.specularColor);
+	SetSpecularIntensity(desc.specularIntensity);
+	SetDiffuseIntensity(desc.diffuseIntensity);
 }
 
 void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 {
-	outDesc.mAmbientColor = mBaseLightDesc.mAmbientColor;
-	outDesc.mDiffuseColor = mBaseLightDesc.mDiffuseColor;
-	outDesc.mSpecularColor = mBaseLightDesc.mSpecularColor;
-	outDesc.mDiffuseIntensity = mBaseLightDesc.mDiffuseIntensity;
-	outDesc.mSpecularIntensity = mBaseLightDesc.mSpecularIntensity;
+	outDesc.ambientColor = mBaseLightDesc.ambientColor;
+	outDesc.diffuseColor = mBaseLightDesc.diffuseColor;
+	outDesc.specularColor = mBaseLightDesc.specularColor;
+	outDesc.diffuseIntensity = mBaseLightDesc.diffuseIntensity;
+	outDesc.specularIntensity = mBaseLightDesc.specularIntensity;
 }
 
 
@@ -61,9 +61,9 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 IDirLightD::IDirLightD()
 {
 	ZeroMemory(this, sizeof(*this));
-	mLightDesc.mSpecularIntensity = 1.0f;
+	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mDirection = NVECTOR3(1.0f, 0, 0);
-	mLightDesc.mDiffuseIntensity = 0.5;
+	mLightDesc.diffuseIntensity = 0.5;
 }
 
 IDirLightD::~IDirLightD()
@@ -98,10 +98,10 @@ N_DirLightDesc IDirLightD::GetDesc()
 //--------------------DYNAMIC POINT LIGHT------------------
 IPointLightD::IPointLightD()
 {
-	mLightDesc.mSpecularIntensity = 1.0f;
+	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 0.05f;
 	mLightDesc.mLightingRange = 100.0f;
-	mLightDesc.mDiffuseIntensity = 0.5;
+	mLightDesc.diffuseIntensity = 0.5;
 }
 
 IPointLightD::~IPointLightD()
@@ -144,11 +144,11 @@ N_PointLightDesc IPointLightD::GetDesc()
 
 ISpotLightD::ISpotLightD()
 {
-	mLightDesc.mSpecularIntensity = 1.0f;
+	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 1.0f;
 	mLightDesc.mLightingRange = 100.0f;
 	mLightDesc.mLightingAngle = MATH_PI / 4;
-	mLightDesc.mDiffuseIntensity = 0.5;
+	mLightDesc.diffuseIntensity = 0.5;
 	mLightDesc.mLitAt = NVECTOR3(1.0f, 0, 0);
 	mLightDesc.mPosition = NVECTOR3(0, 0, 0);
 }
@@ -232,11 +232,11 @@ IDirLightS::~IDirLightS()
 
 BOOL IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
 {
-	mLightDesc.mAmbientColor = Clamp(desc.mAmbientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mDiffuseColor = Clamp(desc.mDiffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularColor = Clamp(desc.mSpecularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularIntensity = Clamp(desc.mSpecularIntensity, 0.0f, 100.0f);
-	mLightDesc.mDiffuseIntensity = Clamp(desc.mDiffuseIntensity, 0.0f, 100.0f);
+	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
+	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
 
 	//the length of directional vector must be greater than 0
 	const NVECTOR3& dir = desc.mDirection;
@@ -271,11 +271,11 @@ IPointLightS::~IPointLightS()
 
 BOOL IPointLightS::mFunction_Init(const N_PointLightDesc & desc)
 {
-	mLightDesc.mAmbientColor = Clamp(desc.mAmbientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mDiffuseColor = Clamp(desc.mDiffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularColor = Clamp(desc.mSpecularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularIntensity = Clamp(desc.mSpecularIntensity, 0.0f, 100.0f);
-	mLightDesc.mDiffuseIntensity = Clamp(desc.mDiffuseIntensity, 0.0f, 100.0f);
+	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
+	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
 	mLightDesc.mPosition = desc.mPosition;
 	mLightDesc.mAttenuationFactor = Clamp(desc.mAttenuationFactor, 0.0f, 1.0f);
 	mLightDesc.mLightingRange = Clamp(desc.mAttenuationFactor, 0.0f, 10000000.0f);
@@ -300,11 +300,11 @@ ISpotLightS::~ISpotLightS()
 
 BOOL ISpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
 {
-	mLightDesc.mAmbientColor = Clamp(desc.mAmbientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mDiffuseColor = Clamp(desc.mDiffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularColor = Clamp(desc.mSpecularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.mSpecularIntensity = Clamp(desc.mSpecularIntensity, 0.0f, 100.0f);
-	mLightDesc.mDiffuseIntensity = Clamp(desc.mDiffuseIntensity, 0.0f, 100.0f);
+	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
+	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
 	mLightDesc.mPosition = desc.mPosition;
 	mLightDesc.mAttenuationFactor = Clamp(desc.mAttenuationFactor, 0.0f, 1.0f);
 	mLightDesc.mLightingRange = Clamp(desc.mAttenuationFactor, 0.0f, 10000000.0f);

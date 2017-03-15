@@ -9,6 +9,16 @@
 
 namespace Noise3D
 {
+	//correspond to one draw call of MESH
+	struct N_MeshSubsetInfo
+	{
+		N_MeshSubsetInfo() { ZeroMemory(this, sizeof(*this)); }
+		UINT		startPrimitiveID;
+		UINT		primitiveCount;
+		std::string		matName;
+	};
+
+
 	class /*_declspec(dllexport)*/ IMesh
 	{
 		friend class IRenderer;
