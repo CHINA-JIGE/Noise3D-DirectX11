@@ -148,7 +148,7 @@
     <ClInclude Include="Root.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="FileIO_3DS.h" />
-    <ClInclude Include="GeometryMeshGenerator.h" />
+    <ClInclude Include="_GeometryMeshGenerator.h" />
     <ClInclude Include="Ut_InputEngine.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GraphicObject.h" />
@@ -167,6 +167,7 @@
     <ClInclude Include="Ut_MeshSlicer.h" />
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
+    <ClInclude Include="_BasicRenderSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -205,7 +206,7 @@
     <ClCompile Include="FileIO_3DS.cpp" />
     <ClCompile Include="FileIO_OBJ.cpp" />
     <ClCompile Include="FileIO_STL.cpp" />
-    <ClCompile Include="GeometryMeshGenerator.cpp" />
+    <ClCompile Include="_GeometryMeshGenerator.cpp" />
     <ClCompile Include="Ut_InputEngine.cpp" />
     <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="GraphicObject.cpp" />

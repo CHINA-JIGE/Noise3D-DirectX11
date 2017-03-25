@@ -5,7 +5,6 @@
 
 			¼òÊö£ºCenter of many manager object£¨MESH,LIGHT,MATERIAL,TEXTURE...£©
 					
-
 ************************************************************************/
 
 //!!!!!!!!!IMPORTANT : when a new class need to be bound to IScene,remember to modify

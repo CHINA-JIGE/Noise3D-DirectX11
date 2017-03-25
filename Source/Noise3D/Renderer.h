@@ -113,12 +113,6 @@ namespace Noise3D
 
 		void			PresentToScreen();
 
-		void			SetFillMode(NOISE_FILLMODE iMode);
-
-		void			SetCullMode(NOISE_CULLMODE iMode);
-
-		void			SetBlendingMode(NOISE_BLENDMODE iMode);
-
 		UINT		GetMainBufferWidth();
 
 		UINT		GetMainBufferHeight();
@@ -234,10 +228,6 @@ namespace Noise3D
 		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
 		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
-
-		NOISE_FILLMODE							m_FillMode;//填充模式
-		NOISE_CULLMODE							m_CullMode;//剔除模式
-		NOISE_BLENDMODE						m_BlendMode;
 
 		//在App中先定义好所有Struct再一次更新
 		BOOL											mCanUpdateCbCameraMatrix;

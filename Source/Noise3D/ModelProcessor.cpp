@@ -128,8 +128,8 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 		inline float operator()(const N_DefaultVertex& v) const
 		{
 			//3 factors are arbitrarily 
-			constexpr float factor1 = 0.3568f;
-			constexpr float factor2 = 0.2479f;
+			constexpr float factor1 = 0.33333f;//0.3568f;
+			constexpr float factor2 = 0.33333f;//0.2479f;
 			constexpr float factor3 = 1.0f - factor1 - factor2;
 			const NVECTOR3& pos = v.Pos;
 			//return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
@@ -153,7 +153,7 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 
 
 	//hash-map, <vector , index>  pair
-	std::unordered_map<N_DefaultVertex, UINT, HashVertex, EqVertex2> point2IndexHashMap;
+	std::unordered_map<N_DefaultVertex, UINT, HashVertex, EqVertex2> point2IndexHashTable;
 	std::vector<N_DefaultVertex> uniqueVertexList;//it's been said that iterate an unordered_map isn't efficient
 	std::vector<UINT> indicesList;
 	std::vector<int> vertexRepeatCountList;
@@ -163,14 +163,14 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 	for (UINT i = 0; i < vb.size(); ++i)
 	{
 		//index is re-arranged
-		UINT newIndex = point2IndexHashMap.size();
-		point2IndexHashMap.insert(std::make_pair(vb.at(i), newIndex));
+		UINT newIndex = point2IndexHashTable.size();
+		point2IndexHashTable.insert(std::make_pair(vb.at(i), newIndex));
 
 	}
 
 	//Default_Vertex's memory is zero-ed
-	uniqueVertexList.resize(point2IndexHashMap.size(), N_DefaultVertex());
-	vertexRepeatCountList.resize(point2IndexHashMap.size(), 0);
+	uniqueVertexList.resize(point2IndexHashTable.size(), N_DefaultVertex());
+	vertexRepeatCountList.resize(point2IndexHashTable.size(), 0);
 
 	//2, traverse (original) index buffer to generate new indices,
 	//new indices is derived from unique-vertex-list
@@ -178,7 +178,7 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 	{
 		//new index now fit unique vertex list
 		const N_DefaultVertex& v = vb.at(index);
-		UINT newIndex = point2IndexHashMap.at(v);
+		UINT newIndex = point2IndexHashTable.at(v);
 		indicesList.push_back(newIndex);
 
 		//because all vertex attribute are cleared to zero initially,

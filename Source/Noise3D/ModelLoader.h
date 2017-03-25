@@ -38,7 +38,7 @@ namespace Noise3D
 		~IModelLoader();
 
 		//internal mesh generator
-		IGeometryMeshGenerator mMeshGenerator;
+		CGeometryMeshGenerator mMeshGenerator;
 
 	};
 

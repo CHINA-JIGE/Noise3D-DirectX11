@@ -80,7 +80,6 @@ BOOL Init3D(HWND hwnd)
 	pMesh1 = pMeshMgr->CreateMesh("liver");
 	pMesh2 = pMeshMgr->CreateMesh("cancer");
 
-
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, TRUE);
 	pCamera = pScene->GetCamera();
 	pLightMgr = pScene->GetLightMgr();
@@ -89,13 +88,11 @@ BOOL Init3D(HWND hwnd)
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
-
 	//漫反射贴图
 	pTexMgr->CreateTextureFromFile("media/red.jpg", "Red", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
@@ -104,23 +101,52 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(150, 60));
 	pMyText_fps->SetFont("myFont");
+	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-	pRenderer->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
+
+
+
+
+
+
+
 
 	//------------------MESH INITIALIZATION----------------
-	pModelLoader->LoadFile_STL(pMesh1, "model/liver_mc.stl");//这个破模型的法线YZ没有翻转
-	pModelLoader->LoadFile_STL(pMesh2, "model/liver_cancer_mc.stl");
-	//pModelLoader->LoadSphere(pMesh1, 5.0f);
-	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
-	pMesh1->SetPosition(10.8f, 0, 10.0f);
-	pMesh1->SetScale(1.1f, 1.1f, 1.1f);
-	pMesh2->SetPosition(10.0f, 0, 10.0f);
+	/*pModelLoader->LoadFile_STL(pMesh1, "model/liver_mc.stl");//这个破模型的法线YZ没有翻转
+	pModelLoader->LoadFile_STL(pMesh2, "model/liver_cancer_mc.stl");*/
+	//pModelLoader->LoadSphere(pMesh1, 10.0f);
+	pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f,50,50,50);
+	pMesh1->SetPosition(0,0,0);
+	UINT originVCount = pMesh1->GetVertexCount();
+	UINT resultVCount = 0;
+	Ut::ITimer tmpTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
+
+	//***********************************************************************
+	std::ofstream logFile("meshSimplification.txt", std::ios::app);
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
-	pModelProc->WeldVertices(pMesh1,1.0f);
-	pModelProc->Smooth_Laplacian(pMesh1);
-	pModelProc->WeldVertices(pMesh2, 1.0f);
-	pModelProc->Smooth_Laplacian(pMesh2);
+	tmpTimer.ResetAll();
+	tmpTimer.NextTick();
+	pModelProc->WeldVertices(pMesh1, 2.0f);
+	tmpTimer.NextTick();
+	//************************************************************************
+
+	resultVCount = pMesh1->GetVertexCount();
+
+	logFile << std::endl << "****** " << std::endl
+		<< "Time(ms) : " << std::to_string(tmpTimer.GetTotalTimeElapsed()) << std::endl
+		<< "Origin Vertex Count : " << std::to_string(originVCount) << std::endl
+		<< "Simplified Vertex Count : " << std::to_string(resultVCount) << std::endl
+		<< "Simplified Ratio : " << std::to_string(float(resultVCount )/ float(originVCount)) << std::endl;
+
+
+
+
+
+
+
+
+
+
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB = pMesh1->GetVertexBuffer();
@@ -128,6 +154,7 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 20.0f,0,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f,0,0,0 });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });
+	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	/*for (auto v : tmpVB)
 	{
 	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
@@ -147,8 +174,8 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	pCamera->SetLookAt(0, 0, 0);
 
-	pAtmos->SetFogEnabled(FALSE);
-	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogEnabled(TRUE);
+	pAtmos->SetFogParameter(1.0f, 2.0f, NVECTOR3(0, 0, 1.0f));
 	pAtmos->CreateSkyDome(4.0f, 4.0f, "Universe");
 
 
@@ -165,7 +192,6 @@ BOOL Init3D(HWND hwnd)
 
 	//-------------------材质----------------
 
-	//Material 1 : liver
 	N_MaterialDesc mat;
 	mat.ambientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
 	mat.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
@@ -178,19 +204,10 @@ BOOL Init3D(HWND hwnd)
 	pMatMgr->CreateMaterial("meshMat1", mat);
 	//set material
 	pMesh1->SetMaterial("meshMat1");
+	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMesh1->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
 
-	//Material 2: cancer
-	N_MaterialDesc mat2;
-	mat2.ambientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
-	mat2.diffuseColor = NVECTOR3(1.0f, 1.0f, 0.0f);
-	mat2.specularColor = NVECTOR3(1.0f, 1.0f, 0.0f);
-	mat2.specularSmoothLevel = 20;
-	mat2.normalMapBumpIntensity = 0.2f;
-	mat2.environmentMapTransparency = 0.05f;
-	mat2.transparency = 1.0f;
-	pMatMgr->CreateMaterial("cancerMat", mat2);
-	//set material
-	pMesh2->SetMaterial("cancerMat");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
@@ -204,6 +221,8 @@ void MainLoop()
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
 	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, cos(incrNum)));
+	IMaterial* pMat = pMatMgr->GetMaterial("meshMat1");
+	pMat->SetTransparency(0.5f* sin(incrNum) + 0.5f);
 
 	//GUIMgr.Update();
 	InputProcess();
@@ -217,20 +236,15 @@ void MainLoop()
 
 
 	//add to render list
-	pRenderer->AddObjectToRenderList(pMesh2);
 	pRenderer->AddObjectToRenderList(pMesh1);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);
 
 	//render
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	pRenderer->RenderAtmosphere();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	pRenderer->RenderMeshes();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
 	pRenderer->RenderGraphicObjects();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	pRenderer->RenderTexts();
 
 	//present

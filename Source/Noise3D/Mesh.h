@@ -20,6 +20,9 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ IMesh
+		: public CRenderSettingBlendMode,
+		public CRenderSettingCullMode,
+		public CRenderSettingFillMode
 	{
 		friend class IRenderer;
 		friend class IModelLoader;

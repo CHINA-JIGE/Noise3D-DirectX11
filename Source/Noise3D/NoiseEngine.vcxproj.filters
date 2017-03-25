@@ -88,6 +88,9 @@
     <Filter Include="NoiseGraphic\Scene\ModelProcessor">
       <UniqueIdentifier>{06180f0a-aa7f-475a-90e1-ce7438fa8eb7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\_RenderSetting">
+      <UniqueIdentifier>{8d72bd88-eda0-447f-9220-fa526c9da6cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -102,9 +105,6 @@
     <ClInclude Include="NoiseTypes.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="Noise3D.h">
-      <Filter>Global</Filter>
-    </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClInclude>
@@ -116,9 +116,6 @@
     </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometryMeshGenerator.h">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClInclude>
     <ClInclude Include="Atmosphere.h">
       <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
@@ -204,6 +201,13 @@
     <ClInclude Include="ModelProcessor.h">
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
     </ClInclude>
+    <ClInclude Include="Noise3D.h" />
+    <ClInclude Include="_GeometryMeshGenerator.h">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="_BasicRenderSettings.h">
+      <Filter>NoiseGraphic\_RenderSetting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -229,9 +233,6 @@
     </ClCompile>
     <ClCompile Include="Renderer_Text.cpp">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometryMeshGenerator.cpp">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp">
       <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
@@ -316,6 +317,9 @@
     </ClCompile>
     <ClCompile Include="ModelProcessor.cpp">
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="_GeometryMeshGenerator.cpp">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h：主头文件
+											 h：主头文件
 
 ************************************************************************/
 
@@ -44,7 +44,8 @@
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
-#include "GeometryMeshGenerator.h"
+#include "_GeometryMeshGenerator.h"
+#include "_BasicRenderSettings.h"
 #include "Mesh.h"
 #include "ModelLoader.h"
 #include "ModelProcessor.h"
