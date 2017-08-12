@@ -148,6 +148,8 @@
     <ClInclude Include="Root.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="FileIO_3DS.h" />
+    <ClInclude Include="Ut_VoxelizedModel.h" />
+    <ClInclude Include="Ut_Voxelizer.h" />
     <ClInclude Include="_GeometryMeshGenerator.h" />
     <ClInclude Include="Ut_InputEngine.h" />
     <ClInclude Include="LightManager.h" />
@@ -168,6 +170,7 @@
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
     <ClInclude Include="_BasicRenderSettings.h" />
+    <ClInclude Include="_SpatialHashTable.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -200,6 +203,7 @@
     <ClCompile Include="Renderer_GraphicObj.cpp" />
     <ClCompile Include="Renderer_Mesh.cpp" />
     <ClCompile Include="Renderer_Text.cpp" />
+    <ClCompile Include="Ut_VoxelizedModel.cpp" />
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
     <ClCompile Include="FileManager.cpp" />
@@ -221,6 +225,8 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
+    <ClCompile Include="_SpatialHashTable.cpp" />
+    <ClCompile Include="Ut_Voxelizer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,8 @@ namespace Noise3D
 
 		void WeldVertices(IMesh* pTargetMesh,float PositionEqualThreshold);//vertices will same position will be weld as one
 
+		void MeshSimplify(IMesh* pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold);
+
 		//vertices need to welded before smoothing.
 		//but this algorithm seems to be not robust enough...
 		void Smooth_Laplacian(IMesh* pTargetMesh);

@@ -25,6 +25,7 @@
 #include <sstream>
 #include <fstream>
 #include <functional>
+#include <algorithm>
 #include <unordered_map>
 #include <map>
 
@@ -43,6 +44,7 @@
 
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
+#include "_SpatialHashTable.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
@@ -76,6 +78,7 @@
 #include "Ut_Timer.h"
 #include "Ut_MeshSlicer.h"
 #include "Ut_InputEngine.h"
+#include "Ut_Voxelizer.h"
 
 
 //-----------Noise GUI-------------

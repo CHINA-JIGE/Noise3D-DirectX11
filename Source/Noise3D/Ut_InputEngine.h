@@ -47,23 +47,35 @@ namespace Noise3D
 			void			Destroy();
 
 			IDirectInput8*				m_pDirectInput;
-			IDirectInputDevice8*		m_pDeviceKeyboard;
-			IDirectInputDevice8*		m_pDeviceMouse;
+
+			IDirectInputDevice8*	m_pDeviceKeyboard;
+
+			IDirectInputDevice8*	m_pDeviceMouse;
 
 			BOOL							mHasBeenInitialized;
+
 			HWND							mResponsiveHWND;
 
-			unsigned char mKeyboardState[256];
+			unsigned char		mKeyboardState[256];
+
 			DIMOUSESTATE mMouseState;
+
 			int		mMousePosX;//with respect to screen
+
 			int		mMousePosY;
+
 			int		mMouseDiffX;//difference between this time and last time
+
 			int		mMouseDiffY;
+
 			int		mMouseDiffScroll;
 
 			int		mScreenWidth;
+
 			int		mScreenHeight;
+
 			int		mWindowWidth;
+
 			int		mWindowHeight;
 
 		};

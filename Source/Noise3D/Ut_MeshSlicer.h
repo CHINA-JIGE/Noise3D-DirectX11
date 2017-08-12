@@ -10,7 +10,14 @@ namespace Noise3D
 {
 	namespace Ut
 	{
-		const UINT CONST_LayerTileStepCount = 20;
+		struct N_LayeredLineSegment2D
+		{
+			N_LayeredLineSegment2D() { ZeroMemory(this, sizeof(*this)); }
+
+			NVECTOR2 v1;
+			NVECTOR2 v2;
+			UINT	layerID;
+		};
 
 		struct N_LineStrip
 		{
@@ -21,52 +28,7 @@ namespace Noise3D
 			UINT		LayerID;
 		};
 
-		struct N_LineSegment
-		{
-			N_LineSegment() { ZeroMemory(this, sizeof(*this)); }
-			NVECTOR3 v1;
-			NVECTOR3 v2;
-			UINT		LayerID;
-			NVECTOR3 normal;
-			BOOL	Dirty;//check if this line segment has been reviewed,this flag can be reused
-		};
-
-		struct N_IntersectionResult
-		{
-			N_IntersectionResult() { ZeroMemory(this, sizeof(*this));mIndexList = new std::vector<UINT>; }
-
-			UINT mVertexCount;
-			BOOL isPossibleToIntersectEdges;//this bool will be used when (mVertexCount ==0)
-			std::vector<UINT>* mIndexList;//which vertex (of a triangle) is on the layer
-		};
-
-		struct N_LineSegmentVertex
-		{
-			UINT lineSegmentID;
-			UINT vertexID;//v1==1 or v2==2
-		};
-
-		typedef std::vector<N_LineSegmentVertex> N_LayerTile;
-
-		struct N_Layer
-		{
-			//2D array, with element count of const_LayerTileStepCount^2
-			//layerTile[x][z]
-			N_Layer()
-			{
-				//create a new block with size of (const_LayerTileStepCount x const_LayerTileStepCount)
-				layerTile.resize(CONST_LayerTileStepCount);
-				for (UINT i = 0;i < CONST_LayerTileStepCount;i++)
-				{
-					layerTile.at(i).resize(CONST_LayerTileStepCount);
-				}
-			};
-
-			std::vector<std::vector<N_LayerTile>> layerTile;
-		};
-
-
-
+		//IFileManager is used to load .stl model
 		class /*_declspec(dllexport)*/ IMeshSlicer : private IFileManager
 		{
 
@@ -74,53 +36,103 @@ namespace Noise3D
 
 			IMeshSlicer();
 
-			BOOL	Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer);
+			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vertexBuffer,const std::vector<UINT>& indexBuffer);
 
-			BOOL	Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath);
+			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultVertex>& vertexBuffer);
+
+			bool		Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath);
 
 			void		Step2_Intersection(UINT iLayerCount);
 
 			void		Step3_GenerateLineStrip();
 
-			BOOL	Step3_LoadLineStripsFrom_NOISELAYER_File(char* filePath);
+			bool		Step3_LoadLineStripsFrom_NOISELAYER_File(char* filePath);
 
-			BOOL	Step4_SaveLayerDataToFile(NFilePath filePath);
+			bool		Step4_SaveLayerDataToFile(NFilePath filePath);
 
-			UINT		GetLineSegmentCount();
+			UINT	GetLineSegmentCount();
 
-			void		GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer);
+			void		GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outBuffer);
 
-			UINT		GetLineStripCount();
+			UINT	GetLineStripCount();
 
 			void		GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index);
 
+			N_Box	GetMeshAABB();
 
 		private:
 
+			static const UINT c_LayerTileStepCount = 20;
+
+			struct N_LayeredLineSegment
+			{
+				N_LayeredLineSegment() { ZeroMemory(this, sizeof(*this)); }
+				NVECTOR3 v1;
+				NVECTOR3 v2;
+				UINT		LayerID;
+				NVECTOR3 normal;
+				BOOL	Dirty;//check if this line segment has been reviewed,this flag can be reused
+			};
+
+			struct N_IntersectionResult
+			{
+				N_IntersectionResult() { ZeroMemory(this, sizeof(*this));}
+
+				UINT mVertexCount;
+				BOOL isPossibleToIntersectEdges;//this bool will be used when (mVertexCount ==0)
+				std::vector<UINT> mIndexList;//which vertex (of a triangle) is on the layer
+			};
+
+			struct N_LineSegmentVertex
+			{
+				UINT lineSegmentID;
+				UINT vertexID;//v1==1 or v2==2
+			};
+
+			typedef std::vector<N_LineSegmentVertex> N_LayerTile;
+
+			struct N_Layer
+			{
+				//2D array, with element count of const_LayerTileStepCount^2
+				//layerTile[x][z]
+				N_Layer()
+				{
+					//create a new block with size of (const_LayerTileStepCount x const_LayerTileStepCount)
+					layerTile.resize(c_LayerTileStepCount);
+					for (UINT i = 0; i < c_LayerTileStepCount; i++)
+					{
+						layerTile.at(i).resize(c_LayerTileStepCount);
+					}
+				};
+
+				std::vector<std::vector<N_LayerTile>> layerTile;
+			};
+
+
 			void		mFunction_ComputeBoundingBox();
 
-			BOOL	mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3* outIntersectPoint);
+			bool		mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3* outIntersectPoint);
 
 			void		mFunction_GenerateLayerTileInformation();
 
 			void		mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT& tileID_X, UINT& tileID_Z);
 
-			BOOL	mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip);
+			bool		mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip);
 
 			NVECTOR3 mFunction_Compute_Normal2D(NVECTOR3 triangleNormal);
 
 			N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3);
 
-			BOOL mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer);
+			bool		mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer);
 
-			BOOL mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld);
+			bool		mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld);
 
 
 			std::vector<NVECTOR3>*			m_pPrimitiveVertexBuffer;
 
 			std::vector<NVECTOR3>*			m_pTriangleNormalBuffer;
 
-			std::vector<N_LineSegment>*	m_pLineSegmentBuffer;
+			std::vector<N_LayeredLineSegment>*	m_pLineSegmentBuffer;
 
 			std::vector<N_Layer>*				m_pLayerList;	//for every N_Layer , there are an 2D layer tile array
 
@@ -130,6 +142,7 @@ namespace Noise3D
 
 			NVECTOR3*								m_pBoundingBox_Max;
 
+			int		mCurrentStep;
 		};
 	}
 }

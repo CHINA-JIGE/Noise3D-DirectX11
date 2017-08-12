@@ -28,15 +28,6 @@
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseUtility\UtInputEngine">
-      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\UtSlicer">
-      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\UtTimer">
-      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\Root">
       <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
@@ -91,6 +82,18 @@
     <Filter Include="NoiseGraphic\_RenderSetting">
       <UniqueIdentifier>{8d72bd88-eda0-447f-9220-fa526c9da6cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseUtility\InputEngine">
+      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\MeshSlicer">
+      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\Timer">
+      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\Voxelizer">
+      <UniqueIdentifier>{fcc730e9-856a-477d-863b-be202984143d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -142,16 +145,16 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MeshSlicer.h">
-      <Filter>NoiseUtility\UtSlicer</Filter>
+      <Filter>NoiseUtility\MeshSlicer</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine.h">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine_KeyDef.h">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_Timer.h">
-      <Filter>NoiseUtility\UtTimer</Filter>
+      <Filter>NoiseUtility\Timer</Filter>
     </ClInclude>
     <ClInclude Include="_2DBasicContainerInfo.h">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
@@ -208,6 +211,15 @@
     <ClInclude Include="_BasicRenderSettings.h">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
+    <ClInclude Include="_SpatialHashTable.h">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_Voxelizer.h">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_VoxelizedModel.h">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -262,13 +274,13 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp">
-      <Filter>NoiseUtility\UtSlicer</Filter>
+      <Filter>NoiseUtility\MeshSlicer</Filter>
     </ClCompile>
     <ClCompile Include="Ut_InputEngine.cpp">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClCompile>
     <ClCompile Include="Ut_Timer.cpp">
-      <Filter>NoiseUtility\UtTimer</Filter>
+      <Filter>NoiseUtility\Timer</Filter>
     </ClCompile>
     <ClCompile Include="_2DBasicContainerInfo.cpp">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
@@ -320,6 +332,15 @@
     </ClCompile>
     <ClCompile Include="_GeometryMeshGenerator.cpp">
       <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="_SpatialHashTable.cpp">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_Voxelizer.cpp">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_VoxelizedModel.cpp">
+      <Filter>NoiseUtility\Voxelizer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

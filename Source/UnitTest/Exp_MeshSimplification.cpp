@@ -35,7 +35,6 @@ Ut::IInputEngine inputE;
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
-
 	//get Root interface
 	pRoot = GetRoot();
 
@@ -117,6 +116,10 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSphere(pMesh1, 10.0f);
 	pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f,50,50,50);
 	pMesh1->SetPosition(0,0,0);
+	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMesh1->SetFillMode(NOISE_FILLMODE_WIREFRAME); //NOISE_FILLMODE_WIREFRAME
+	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
+
 	UINT originVCount = pMesh1->GetVertexCount();
 	UINT resultVCount = 0;
 	Ut::ITimer tmpTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
@@ -126,7 +129,7 @@ BOOL Init3D(HWND hwnd)
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
 	tmpTimer.ResetAll();
 	tmpTimer.NextTick();
-	pModelProc->WeldVertices(pMesh1, 2.0f);
+	pModelProc->MeshSimplify(pMesh1, 2.0f,10.0f);
 	tmpTimer.NextTick();
 	//************************************************************************
 
@@ -175,6 +178,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetLookAt(0, 0, 0);
 
 	pAtmos->SetFogEnabled(TRUE);
+	//pAtmos->SetFogEnabled(FALSE);
 	pAtmos->SetFogParameter(1.0f, 2.0f, NVECTOR3(0, 0, 1.0f));
 	pAtmos->CreateSkyDome(4.0f, 4.0f, "Universe");
 
@@ -204,9 +208,7 @@ BOOL Init3D(HWND hwnd)
 	pMatMgr->CreateMaterial("meshMat1", mat);
 	//set material
 	pMesh1->SetMaterial("meshMat1");
-	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pMesh1->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
+
 
 
 	//bottom right
