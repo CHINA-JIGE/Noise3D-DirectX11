@@ -35,9 +35,11 @@ namespace Noise3D
 
 			void	SetVoxel(bool b, UINT x, UINT y, UINT z);
 
-			bool	SaveToFile(NFilePath NVM_filePath);//Noise Voxelized Model
+			bool	SaveToFile_NVM(NFilePath NVM_filePath);//Noise Voxelized Model
 
-			bool LoadFromFile(NFilePath NVM_filePath); //Noise Voxelized Model
+			bool	SaveToFile_TXT(NFilePath TXT_filePath);//Noise Voxelized Model
+
+			bool LoadFromFile_NVM(NFilePath NVM_filePath);//Noise Voxelized Model
 
 		private:
 
