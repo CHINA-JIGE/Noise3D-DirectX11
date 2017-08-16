@@ -49,17 +49,17 @@ using namespace Noise3D;
 
 	/*------------------------------Global Function--------------------------*/
 
-/*_declspec(dllexport)*/	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+/*_declspec(dllexport)*/	bool Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
 	{
 		if (v.x >= vTopLeft.x &&
 			v.x <= vBottomRight.x &&
 			v.y >= vTopLeft.y &&
 			v.y <= vBottomRight.y)
 		{
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
 /*_declspec(dllexport)*/ int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)

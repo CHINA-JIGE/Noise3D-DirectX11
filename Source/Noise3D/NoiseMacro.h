@@ -12,7 +12,7 @@
 
 #define NOISE_MACRO_INVALID_ID			UINT_MAX
 
-#define	 NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
+#define NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
 
 #define NOISE_MACRO_INVALID_MATERIAL_ID		UINT_MAX
 
@@ -47,7 +47,7 @@
 				if(FAILED(hr)) \
 				{\
 				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
-				return FALSE;\
+				return false;\
 				};\
 
 //µ÷ÊÔ£ºµ÷ÊÔµ¯¿ò

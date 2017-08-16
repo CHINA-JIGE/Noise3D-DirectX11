@@ -14,14 +14,14 @@ using namespace Noise3D;
 									INTERFACE
 
 *********************************************************************/
-BOOL IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string & refFileInfo)
+bool IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string & refFileInfo)
 {
 	std::ifstream tmpFile(pFilePath, std::ios::binary);
 
 	if (!tmpFile.good())
 	{
 		ERROR_MSG("Load STL : file Open Failed!!");
-		return FALSE;
+		return false;
 	}
 
 	//move file cursor to the end
@@ -30,7 +30,7 @@ BOOL IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& ref
 	if (static_fileSize < 84L)
 	{
 		ERROR_MSG("Load STL : file Damaged!!File Size is Too Small!!");
-		return FALSE;
+		return false;
 	}
 	tmpFile.seekg(0);
 
@@ -49,14 +49,14 @@ BOOL IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& ref
 	}
 }
 
-BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer, const std::vector<UINT>& inIndexBuffer)
+bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer, const std::vector<UINT>& inIndexBuffer)
 {
 	std::ofstream fileOut(filePath, std::ios::binary);
 
 	if (!fileOut.is_open())
 	{
 		ERROR_MSG("Export STL Binary : Open/Create File Failed! File path :" + filePath);
-		return FALSE;
+		return false;
 	}
 
 	/*STL: Baidu encyclopedia
@@ -133,17 +133,17 @@ BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 
 	fileOut.close();
 
-	return TRUE;
+	return true;
 }
 
-BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer)
+bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer)
 {
 	std::ofstream fileOut(filePath, std::ios::binary);
 
 	if (!fileOut.is_open())
 	{
 		ERROR_MSG("Export STL Binary : Open/Create File Failed! File path :" + filePath);
-		return FALSE;
+		return false;
 	}
 
 	/*STL: Baidu encyclopedia
@@ -220,7 +220,7 @@ BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 
 	fileOut.close();
 
-	return TRUE;
+	return true;
 }
 
 
@@ -229,7 +229,7 @@ BOOL IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 								LOCAL FUNCTION
 
 *********************************************************************/
-BOOL IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer,
+bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer,
 	std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath, std::ios::binary);
@@ -237,7 +237,7 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Load STL Binary : Open File Failed!");
-		return FALSE;
+		return false;
 	}
 
 	/*STL: Baidu encyclopedia
@@ -266,7 +266,7 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 	if (headerInfo[0] == 's')
 	{
 		ERROR_MSG("Load STL Binary : File Damaged!! It's not binary STL file!");
-		return FALSE;
+		return false;
 	}
 
 	refFileInfo = headerInfo;
@@ -289,7 +289,7 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 	{
 		ERROR_MSG("Load STL Binary : Triangle Count is larger than 10000000 or Data was damamged!!");
 		fileIn.close();
-		return FALSE;
+		return false;
 	}
 
 	//then reserve spaces for vectors (optimization)
@@ -336,17 +336,17 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 
 	fileIn.close();
 
-	return TRUE;
+	return true;
 }
 
-BOOL IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
+bool IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath);
 
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Load STL Ascii : Open File Failed!!");
-		return FALSE;
+		return false;
 	}
 
 	//newly input string
@@ -373,7 +373,7 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vecto
 	else
 	{
 		ERROR_MSG("Load STL Ascii : file damaged!!");
-		return FALSE;
+		return false;
 	}
 
 	refFileInfo = objectName;
@@ -420,6 +420,6 @@ BOOL IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vecto
 		refIndexBuffer.at(i) = i;
 	}
 
-	return TRUE;
+	return true;
 }
 

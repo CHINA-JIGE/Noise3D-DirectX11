@@ -13,13 +13,13 @@ using namespace Noise3D;
 										INTERFACE
 
 *********************************************************************/
-BOOL IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
+bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
 {
 	std::ifstream fileIn(pFilePath);
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Import OBJ : Open File failed!!");
-		return FALSE;
+		return false;
 	}
 
 	std::vector<NVECTOR3> pointList;//xyz buffer
@@ -87,7 +87,7 @@ BOOL IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 
 				//this will be an n^2 searching....optimization will be needed
 				//non-existed element will be created
-				BOOL IsVertexExist = FALSE;
+				bool IsVertexExist = false;
 				UINT  existedVertexIndex = 0;
 
 				for (UINT j = 0;j <vertexInfoList.size();j++)
@@ -95,7 +95,7 @@ BOOL IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 					//in DEBUG mode ,[] operator will be a big performance overhead
 					if (vertexInfoList.at(j) == currVertex)
 					{
-						IsVertexExist = TRUE;
+						IsVertexExist = true;
 						existedVertexIndex =j;
 						break;
 					}
@@ -144,5 +144,5 @@ BOOL IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		refVertexBuffer.at(i) = (tmpCompleteV);
 	}
 
-	return TRUE;
+	return true;
 }

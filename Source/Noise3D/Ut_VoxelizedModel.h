@@ -21,7 +21,7 @@ namespace Noise3D
 
 			IVoxelizedModel(const IVoxelizedModel& model);//deep copy is required
 
-			bool	Resize(UINT x, UINT y, UINT z);
+			bool	Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ,float cubeWidth,float cubeHeight,float cubeDepth);
 
 			UINT GetVoxelCountX() const ;
 
@@ -49,11 +49,17 @@ namespace Noise3D
 			//std::vector<N_LayerBitmap> mLayerGroup;
 			std::vector<uint32_t>	mVoxelArray;
 
-			uint32_t	mCubeCountX;
+			float			mCubeWidth;//x
 
-			uint32_t	mCubeCountY;
+			float			mCubeHeight;//y
 
-			uint32_t	mCubeCountZ;
+			float			mCubeDepth;//z
+
+			uint16_t	mCubeCountX;
+
+			uint16_t	mCubeCountY;
+
+			uint16_t	mCubeCountZ;
 
 		};
 

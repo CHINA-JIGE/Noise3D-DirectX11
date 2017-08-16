@@ -25,9 +25,14 @@ namespace Noise3D
 
 		class /*_declspec(dllexport)*/ IVoxelizer
 		{
-			bool Init(NFilePath STLModelFile, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ);
 
-			bool Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ);
+		public:
+
+			IVoxelizer();
+
+			bool Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth);
+
+			bool Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth);
 
 			void Voxelize();
 
@@ -49,7 +54,7 @@ namespace Noise3D
 			void mFunction_PadInnerArea(N_IntersectXCoordList& layer,UINT layerID);
 
 
-
+			bool		mIsInitialized;
 			//intermediate data storing result of scanline-lineSegment intersection
 			std::vector<N_IntersectXCoordList> mIntersectXCoordLayers;
 

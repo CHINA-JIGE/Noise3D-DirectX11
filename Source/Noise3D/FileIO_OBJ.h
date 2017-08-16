@@ -23,13 +23,13 @@ namespace Noise3D
 			vertexNormalID = vnID;
 		}
 
-		inline BOOL operator==(N_LoadOBJ_vertexInfoIndex const& v)const
+		inline bool operator==(N_LoadOBJ_vertexInfoIndex const& v)const
 		{
 			if (vertexID == v.vertexID && texcoordID == v.texcoordID && vertexNormalID == v.vertexNormalID)
 			{
-				return TRUE;
+				return true;
 			}
-			return FALSE;
+			return false;
 		}
 
 		UINT vertexID;
@@ -41,7 +41,7 @@ namespace Noise3D
 	{
 	public:
 
-		BOOL ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& outVertexBuffer, std::vector<UINT>& outIndexBuffer);
+		bool ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& outVertexBuffer, std::vector<UINT>& outIndexBuffer);
 
 	private:
 

@@ -9,37 +9,56 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-bool IVoxelizer::Init(NFilePath STLModelFile, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ)
+IVoxelizer::IVoxelizer():
+	mIsInitialized(false)
 {
-	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ);
+}
+
+bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
+{
+	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ ,cubeWidth ,cubeHeight, cubeDepth);
+
+	mIntersectXCoordLayers.resize(cubeCountY);
+	for (auto& layer : mIntersectXCoordLayers)
+	{
+		layer.resize(cubeCountZ);
+	}
 
 	//step1 - load model
-	BOOL fileLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromSTLFile(STLModelFile);
+	bool fileLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromSTLFile(STLModelFile);
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("IVoxelizer: Init failed. Illegal file path");
 		return false;
 	}
+	mIsInitialized = true;
 	return true;
 }
 
-bool IVoxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ)
+bool IVoxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
 {
-	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ);
+	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ, cubeWidth, cubeHeight, cubeDepth);
 
 	//step1 - load model
-	BOOL modelLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromMemory(vertexList,indexList);
+	bool modelLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromMemory(vertexList,indexList);
 	if (!modelLoadSucceeded)
 	{
 		ERROR_MSG("IVoxelizer: Init failed. Input model data is corrupted.");
 		return false;
 	}
+	mIsInitialized = true;
 	return true;
 }
 
 
 void IVoxelizer::Voxelize()
 {
+	if (!mIsInitialized)
+	{
+		ERROR_MSG("IVoxelizer: not initialized!");
+		return;
+	}
+
 	//---------step2 - intersection---------------
 	UINT layerCount = mVoxelizedModel.GetVoxelCountY();
 	mSlicer.Step2_Intersection(layerCount);

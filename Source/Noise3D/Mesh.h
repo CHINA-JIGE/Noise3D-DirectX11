@@ -69,16 +69,18 @@ namespace Noise3D
 
 		UINT	GetVertexCount();
 
+		UINT	GetTriangleCount();
+
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
-		const std::vector<N_DefaultVertex>*		GetVertexBuffer();
+		const	std::vector<N_DefaultVertex>*		GetVertexBuffer();
 
-		const std::vector<UINT>*	GetIndexBuffer();
+		const	std::vector<UINT>*	GetIndexBuffer();
 
-		void			GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
+		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_Box		ComputeBoundingBox();
+		N_Box	ComputeBoundingBox();
 
 	private:
 
@@ -90,9 +92,9 @@ namespace Noise3D
 		~IMesh();
 
 		//this function could be externally invoked by ModelLoader..etc
-		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
 		
-		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
 
 		//invoked by NoiseRenderer
 		void		mFunction_UpdateWorldMatrix();

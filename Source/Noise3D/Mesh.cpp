@@ -157,6 +157,11 @@ UINT IMesh::GetVertexCount()
 	return m_pVB_Mem->size();
 }
 
+UINT IMesh::GetTriangleCount()
+{
+	return m_pIB_Mem->size()/3;
+}
+
 void IMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 {
 	if (iIndex < m_pVB_Mem->size())
@@ -193,7 +198,7 @@ N_Box IMesh::ComputeBoundingBox()
 								PRIVATE					                    
 ***********************************************************************/
 //this function could be externally invoked by ModelLoader..etc
-BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB)
+bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -247,10 +252,10 @@ BOOL IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 
 #pragma endregion CreateGpuBuffers
 
-	return TRUE;
+	return true;
 }
 
-BOOL IMesh::mFunction_UpdateDataToVideoMem()
+bool IMesh::mFunction_UpdateDataToVideoMem()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
@@ -296,7 +301,7 @@ BOOL IMesh::mFunction_UpdateDataToVideoMem()
 
 #pragma endregion CreateGpuBuffers
 
-	return TRUE;
+	return true;
 };
 
 

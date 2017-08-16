@@ -50,7 +50,7 @@ namespace Noise3D
 
 	//！！！！！！！！！！畠蕉痕方！！！！！！！！！！！！
 
-	extern /*_declspec(dllexport)*/ BOOL gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
+	extern /*_declspec(dllexport)*/ bool gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
 	extern /*_declspec(dllexport)*/ int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 

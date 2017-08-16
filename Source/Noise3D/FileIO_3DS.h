@@ -73,7 +73,7 @@ namespace Noise3D
 
 		IFileIO_3DS();
 
-		BOOL ImportFile_3DS(
+		bool ImportFile_3DS(
 			NFilePath pFilePath,
 			std::vector<N_Load3ds_MeshObject>& outMeshInfoList,
 			std::vector<N_MaterialDesc>& outMaterialList,

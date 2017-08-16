@@ -18,13 +18,17 @@ IVoxelizedModel::IVoxelizedModel():
 
 IVoxelizedModel::IVoxelizedModel(const IVoxelizedModel & model)
 {
+	mCubeWidth = model.mCubeWidth;
+	mCubeHeight = model.mCubeHeight;
+	mCubeDepth = model.mCubeDepth;
+
 	mCubeCountX = model.mCubeCountX;
 	mCubeCountY = model.mCubeCountY;
 	mCubeCountZ = model.mCubeCountZ;
 	mVoxelArray = model.mVoxelArray;
 }
 
-bool IVoxelizedModel::Resize(UINT x, UINT y, UINT z)
+bool IVoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
 {
 	//	  Y|        
 	//		|      /Z
@@ -35,27 +39,27 @@ bool IVoxelizedModel::Resize(UINT x, UINT y, UINT z)
 	//
 
 	//resolution overflow check
-	UINT tmpOverflowCheck=UINT32_MAX;
-	tmpOverflowCheck /= x;
-	if (y > tmpOverflowCheck)
+	uint32_t tmpOverflowCheck=UINT32_MAX;
+	tmpOverflowCheck /= cubeCountX;
+	if (cubeCountY > tmpOverflowCheck)
 	{
 		ERROR_MSG("VoxelizedModel: resize failure. Resolution exceed limit.");
 		return false;
 	}
-	tmpOverflowCheck /= y;
-	if (z > tmpOverflowCheck)
+	tmpOverflowCheck /= cubeCountY;
+	if (cubeCountZ > tmpOverflowCheck)
 	{
 		ERROR_MSG("VoxelizedModel: resize failure. Resolution exceed limit.");
 		return false;
 	}
 
 
-	mCubeCountX = x;
-	mCubeCountY = y;
-	mCubeCountZ = z;
+	mCubeCountX = cubeCountX;
+	mCubeCountY = cubeCountY;
+	mCubeCountZ = cubeCountZ;
 
 	//1 bit for each voxel
-	UINT uintCount = (GetVoxelCount() / sizeof(uint32_t))+1;
+	UINT uintCount = (GetVoxelCount() / 32)+1;
 	mVoxelArray.resize(uintCount, 0);
 
 	/*mLayerGroup.resize(y);//y layers
@@ -70,6 +74,7 @@ bool IVoxelizedModel::Resize(UINT x, UINT y, UINT z)
 			RowX.resize((x/8), 0);
 		}
 	}*/
+
 	return true;
 }
 
@@ -187,7 +192,7 @@ bool IVoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
 		{
 			for (uint32_t x = 0; x < mCubeCountZ; ++x)
 			{
-				outFile << IVoxelizedModel::GetVoxel(x, y, z);
+				outFile << int( IVoxelizedModel::GetVoxel(x, y, z));
 			}
 			outFile << std::endl;
 		}
@@ -218,7 +223,7 @@ bool IVoxelizedModel::LoadFromFile_NVM(NFilePath NVM_filePath)
 	READ(mCubeCountY);
 	READ(mCubeCountZ);
 
-	IVoxelizedModel::Resize(mCubeCountX, mCubeCountY, mCubeCountZ);
+	IVoxelizedModel::Resize(mCubeCountX, mCubeCountY, mCubeCountZ,1.0f,1.0f,1.0f);
 	inFile.read((char*)&mVoxelArray.at(0), mVoxelArray.size() * sizeof(uint32_t));
 	inFile.close();
 

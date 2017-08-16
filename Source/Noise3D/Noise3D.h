@@ -79,6 +79,7 @@
 #include "Ut_MeshSlicer.h"
 #include "Ut_InputEngine.h"
 #include "Ut_Voxelizer.h"
+#include "Ut_MCMeshReconstructor.h"
 
 
 //-----------Noise GUI-------------

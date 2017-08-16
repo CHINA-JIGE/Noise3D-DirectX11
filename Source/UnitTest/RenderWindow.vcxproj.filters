@@ -32,5 +32,8 @@
     <ClCompile Include="Exp_MeshSimplification.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="Exp_Voxelization.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

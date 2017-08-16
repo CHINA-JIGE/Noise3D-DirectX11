@@ -94,6 +94,9 @@
     <Filter Include="NoiseUtility\Voxelizer">
       <UniqueIdentifier>{fcc730e9-856a-477d-863b-be202984143d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseUtility\MCMeshReconstructor">
+      <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -220,6 +223,9 @@
     <ClInclude Include="Ut_VoxelizedModel.h">
       <Filter>NoiseUtility\Voxelizer</Filter>
     </ClInclude>
+    <ClInclude Include="Ut_MCMeshReconstructor.h">
+      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -341,6 +347,9 @@
     </ClCompile>
     <ClCompile Include="Ut_VoxelizedModel.cpp">
       <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_MCMeshReconstructor.cpp">
+      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

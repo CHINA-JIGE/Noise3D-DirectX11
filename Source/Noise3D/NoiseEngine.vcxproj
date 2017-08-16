@@ -133,6 +133,7 @@
     <ClInclude Include="FileIO_OBJ.h" />
     <ClInclude Include="FileIO_STL.h" />
     <ClInclude Include="GraphicObjMgr.h" />
+    <ClInclude Include="Ut_MCMeshReconstructor.h" />
     <ClInclude Include="ModelProcessor.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Lights.h" />
@@ -180,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="Ut_MCMeshReconstructor.cpp" />
     <ClCompile Include="ModelProcessor.cpp" />
     <ClCompile Include="pchGen.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
