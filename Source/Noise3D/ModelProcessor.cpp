@@ -148,7 +148,7 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 			const NVECTOR3& pos1 = v1.Pos;
 			const NVECTOR3& pos2 = v2.Pos;
 			//return (pos1.x == pos2.x && pos1.y == pos2.y && pos1.z == pos2.z);
-			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) < static_PositionEqualThreshold);
+			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) <= static_PositionEqualThreshold);
 		}
 	};
 
@@ -239,7 +239,7 @@ void IModelProcessor::MeshSimplify(IMesh * pTargetMesh, float PositionEqualThres
 			const NVECTOR3& pos1 = v1.Pos;
 			const NVECTOR3& pos2 = v2.Pos;
 			//return (pos1.x == pos2.x && pos1.y == pos2.y && pos1.z == pos2.z);
-			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) < static_PositionEqualThreshold);
+			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) <= static_PositionEqualThreshold);
 		}
 	};
 

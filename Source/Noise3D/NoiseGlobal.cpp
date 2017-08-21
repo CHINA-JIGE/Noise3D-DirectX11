@@ -126,7 +126,13 @@ using namespace Noise3D;
 /*_declspec(dllexport)*/ inline float Noise3D::Lerp(float a, float b, float t)
 	{
 		return(a + (b - a)*t);
-	};
+	}
+
+/*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Lerp(NVECTOR3 v1, NVECTOR3 v2, float t)
+{
+	return NVECTOR3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));
+}
+;
 
 /*_declspec(dllexport)*/ inline float Noise3D::Clamp(float val, float min, float max)
 	{

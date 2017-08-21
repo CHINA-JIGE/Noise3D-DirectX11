@@ -58,6 +58,8 @@ namespace Noise3D
 
 	extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
+	extern /*_declspec(dllexport)*/ NVECTOR3 Lerp(NVECTOR3 v1, NVECTOR3 v2, float t);
+
 	extern /*_declspec(dllexport)*/ float Clamp(float val, float min, float max);
 
 	extern /*_declspec(dllexport)*/ int	Clamp(int val, int min, int max);

@@ -53,7 +53,9 @@ bool IVoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t 
 		return false;
 	}
 
-
+	mCubeWidth = cubeWidth;
+	mCubeHeight = cubeHeight;
+	mCubeDepth = cubeDepth;
 	mCubeCountX = cubeCountX;
 	mCubeCountY = cubeCountY;
 	mCubeCountZ = cubeCountZ;
@@ -78,6 +80,21 @@ bool IVoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t 
 	return true;
 }
 
+float IVoxelizedModel::GetVoxelWidth() const
+{
+	return mCubeWidth;
+}
+
+float IVoxelizedModel::GetVoxelHeight() const
+{
+	return mCubeHeight;
+}
+
+float IVoxelizedModel::GetVoxelDepth() const
+{
+	return mCubeDepth;
+}
+
 UINT IVoxelizedModel::GetVoxelCountX() const
 {
 	return mCubeCountX;
@@ -98,8 +115,10 @@ UINT IVoxelizedModel::GetVoxelCount() const
 	return mCubeCountX * mCubeCountY * mCubeCountZ;
 }
 
-byte IVoxelizedModel::GetVoxel(UINT x, UINT y, UINT z)const
+byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
 {
+	if (x < 0 || y < 0 || z < 0)return 0;
+
 	//voxel bits are all packed into uint32_t 
 	if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
 	{
@@ -111,7 +130,7 @@ byte IVoxelizedModel::GetVoxel(UINT x, UINT y, UINT z)const
 	}
 	else
 	{
-		ERROR_MSG("VoxelizedModel: GetVoxel failure. index out of boundary");
+		//WARNING_MSG("VoxelizedModel: GetVoxel failure. index out of boundary");
 		return 0;
 	}
 }

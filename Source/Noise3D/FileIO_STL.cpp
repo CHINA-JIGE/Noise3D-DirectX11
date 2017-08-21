@@ -83,12 +83,9 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 
 	//write bit patterns, and reinterpret the data to interested type
 	//using decltype()
-#define REINTERPRET_WRITE(var) \
-	var=*(decltype(var)*)(void*)dataBlock;\
-	fileOut.write(dataBlock,sizeof(var));\
 
-	//a char array used to store bit pattern (used in REINTERPRET_WRITE)
-	char dataBlock[5] = {};
+#define REINTERPRET_WRITE(var) \
+	fileOut.write((char*)&var,sizeof(var));\
 
 	UINT triangleCount = inIndexBuffer.size()/3;
 	REINTERPRET_WRITE(triangleCount);
@@ -170,12 +167,13 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 
 	//write bit patterns, and reinterpret the data to interested type
 	//using decltype()
-#define REINTERPRET_WRITE(var) \
-	var=*(decltype(var)*)(void*)dataBlock;\
-	fileOut.write(dataBlock,sizeof(var));\
 
-	//a char array used to store bit pattern (used in REINTERPRET_WRITE)
-	char dataBlock[5] = {};
+/*(#define REINTERPRET_WRITE(var) \
+	var=*(decltype(var)*)(void*)dataBlock;\
+	fileOut.write(dataBlock,sizeof(var));\*/
+
+#define REINTERPRET_WRITE(var) \
+	fileOut.write((char*)&var,sizeof(var));\
 
 	UINT triangleCount = inVertexBuffer.size() / 3;
 	REINTERPRET_WRITE(triangleCount);
@@ -275,12 +273,7 @@ bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 
 	//read bit patterns, and reinterpret the data to interested type
 	//using decltype()
-#define REINTERPRET_READ(var) \
-	fileIn.read(dataBlock,sizeof(var));\
-	var=*(decltype(var)*)(void*)dataBlock;\
-
-	//a char array used to store bit pattern (used in REINTERPRET_READ)
-	char dataBlock[5] = {};
+#define REINTERPRET_READ(var) fileIn.read((char*)&var,sizeof(var));
 
 	uint32_t triangleCount = 0;
 	REINTERPRET_READ(triangleCount);

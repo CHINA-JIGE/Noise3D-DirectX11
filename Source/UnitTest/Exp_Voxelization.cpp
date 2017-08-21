@@ -76,8 +76,8 @@ bool Init3D(HWND hwnd)
 	pMeshMgr = pScene->GetMeshMgr();
 
 	//use "myMesh1" string to initialize UID (unique-Identifier)
-	pMesh1 = pMeshMgr->CreateMesh("liver");
-	pMesh2 = pMeshMgr->CreateMesh("cancer");
+	pMesh1 = pMeshMgr->CreateMesh("origin");
+	pMesh2 = pMeshMgr->CreateMesh("simplified");
 
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, true);
 	pCamera = pScene->GetCamera();
@@ -110,13 +110,15 @@ bool Init3D(HWND hwnd)
 
 
 
-	//------------------MESH INITIALIZATION----------------
+	//------------------INIT----------------
 	Ut::IVoxelizer voxer;
 	Ut::IVoxelizedModel voxModel;
-	voxer.Init("model/sphere.stl", 16, 16, 16);
+	Ut::IMarchingCubeMeshReconstructor mc;
+	const float aaa = 64.0f;
+	int sampleCount = 128;
+	voxer.Init("model/rabbit.stl", sampleCount, sampleCount, sampleCount, aaa/sampleCount,aaa/sampleCount,aaa/sampleCount);
 
-
-	pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f, 10, 10, 10);
+	pModelLoader->LoadFile_STL(pMesh1, "model/rabbit.stl");
 	pMesh1->SetPosition(0, 0, 0);
 	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMesh1->SetFillMode(NOISE_FILLMODE_WIREFRAME); //NOISE_FILLMODE_WIREFRAME
@@ -124,25 +126,55 @@ bool Init3D(HWND hwnd)
 
 
 	Ut::ITimer tmpTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
-
-	//***********************************************************************
 	std::ofstream logFile("VoxelizationExp.txt", std::ios::app);
+	//***********************************************************************
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
 	tmpTimer.ResetAll();
 	tmpTimer.NextTick();
 	voxer.Voxelize();
 	tmpTimer.NextTick();
+	double interval1 = tmpTimer.GetInterval();
 	//************************************************************************
 	voxer.GetVoxelizedModel(voxModel);
-	voxModel.SaveToFile_TXT("out.txt");
+	int downSampleRate = 30;
+	tmpTimer.NextTick();
+	mc.Compute(voxModel, downSampleRate, downSampleRate, downSampleRate);
+	tmpTimer.NextTick();
+	double interval2 = tmpTimer.GetInterval();
+	//************************************************************************
+
+	//save voxel model
+	//voxModel.SaveToFile_TXT("voxel.txt");
+
+	//visualize result 
+	std::vector<NVECTOR3>	vertexList;
+	mc.GetResult(vertexList);
+	IFileManager fm;
+	fm.ExportFile_STL_Binary("out.stl", "MyMCTest", vertexList);
+	
+	//load the output model (so that normals, tangents are automatically calculated)
+	pModelLoader->LoadFile_STL(pMesh2,"out.stl");
+	pMesh2->SetPosition(0, 0, 0);
+	pMesh2->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMesh2->SetFillMode(NOISE_FILLMODE_WIREFRAME); //NOISE_FILLMODE_WIREFRAME
+	pMesh2->SetCullMode(NOISE_CULLMODE_NONE);
+	pModelProc->WeldVertices(pMesh2, 0.01f);
 
 	logFile << std::endl << "****** " << std::endl
-		<< "Triangle Count : " << pMesh1->GetTriangleCount() << std::endl
+		<< "Input Triangle Count : " << pMesh1->GetTriangleCount() << std::endl
 		<< "Voxelize Resolution:" << voxModel.GetVoxelCountX()
-		<<"x"<< voxModel.GetVoxelCountY() 
-		<<"x"<< voxModel.GetVoxelCountZ() << std::endl
-		<< "Time(ms) : " << std::to_string(tmpTimer.GetInterval()) << std::endl;
+		<< "x" << voxModel.GetVoxelCountY()
+		<< "x" << voxModel.GetVoxelCountZ() << std::endl
+		<< "Time 1(ms) : " << interval1 << std::endl
+		<< "DownSample Resolution:" << downSampleRate
+		<< "x" << downSampleRate
+		<< "x" << downSampleRate << std::endl
+		<< "Time 2(ms) : " << interval2 << std::endl
+		<< "Output Triangle Count : " << vertexList.size()/3 << std::endl
+		<< "Total Time(ms) : " << interval1 + interval2 << std::endl;
 	logFile.close();
+
+
 
 
 
@@ -204,16 +236,18 @@ bool Init3D(HWND hwnd)
 	mat.specularSmoothLevel = 40;
 	mat.normalMapBumpIntensity = 0.2f;
 	mat.environmentMapTransparency = 0.05f;
-	mat.transparency = 0.2f;
+	mat.transparency = 1.0f;
 	mat.diffuseMapName = "Red";
 	pMatMgr->CreateMaterial("meshMat1", mat);
 	//set material
 	pMesh1->SetMaterial("meshMat1");
+	pMesh2->SetMaterial("meshMat1");
 
 
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 
 	return true;
 };
@@ -224,8 +258,6 @@ void MainLoop()
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
 	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, cos(incrNum)));
-	IMaterial* pMat = pMatMgr->GetMaterial("meshMat1");
-	pMat->SetTransparency(0.5f* sin(incrNum) + 0.5f);
 
 	//GUIMgr.Update();
 	InputProcess();
@@ -239,7 +271,8 @@ void MainLoop()
 
 
 	//add to render list
-	pRenderer->AddObjectToRenderList(pMesh1);
+	//pRenderer->AddObjectToRenderList(pMesh1);
+	pRenderer->AddObjectToRenderList(pMesh2);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

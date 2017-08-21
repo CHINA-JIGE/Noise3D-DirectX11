@@ -169,7 +169,7 @@ void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSeg
 
 }
 
-//currently not in use (2017.1.19)
+
 void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layerID)
 {
 	//Scan Line Padding , horizontal line scans from top to bottom

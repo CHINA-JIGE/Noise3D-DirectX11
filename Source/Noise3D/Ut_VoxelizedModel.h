@@ -23,6 +23,12 @@ namespace Noise3D
 
 			bool	Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ,float cubeWidth,float cubeHeight,float cubeDepth);
 
+			float GetVoxelWidth() const;
+
+			float GetVoxelHeight() const;
+
+			float GetVoxelDepth() const;
+
 			UINT GetVoxelCountX() const ;
 
 			UINT GetVoxelCountY()const;
@@ -31,7 +37,9 @@ namespace Noise3D
 
 			UINT GetVoxelCount()const;
 
-			byte GetVoxel(UINT x, UINT y, UINT z)const;
+			//1, those {x,y,z} out of boundary will yield a 0
+			//2, {y{z{x}}} nested loop access is more memory coherent
+			byte GetVoxel(int x, int y, int z)const;
 
 			void	SetVoxel(bool b, UINT x, UINT y, UINT z);
 
