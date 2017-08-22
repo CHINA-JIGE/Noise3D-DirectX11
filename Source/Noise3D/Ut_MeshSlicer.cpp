@@ -135,21 +135,17 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	}
 
 	//top/bottom y of the bounding box (AABB)
-	float Y_min = m_pBoundingBox_Min->y;
-	float Y_max = m_pBoundingBox_Max->y;
+	float modelMinY = m_pBoundingBox_Min->y;
+	float modelMaxY = m_pBoundingBox_Max->y;
 
 
 	//calculate  delta Y between layers , note that the TOP and BOTTOM are taken into consideration
 	//thus ,  minus 1
-	float  layerDeltaY = (Y_max - Y_min) / (float)(iLayerCount-1);
+	float  layerDeltaY = (modelMaxY - modelMinY) / (float)(iLayerCount-1);
 
 	//since in one intersection request , different thickness settings might be used for a Y region
 	//so we must accumulate LayerCount of ALL intersection mission;
 	UINT totalLayerCount = iLayerCount;
-
-	//...
-	UINT		currentLayerID = 0;
-	UINT		currentTriangleID = 0;
 
 	//the Y coord of current layer
 	float		currentLayerY = 0;
@@ -163,7 +159,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	UINT		totalTriangleCount = m_pTriangleNormalBuffer->size();
 
 	//........tmp var to store 3 vertex of triangle
-	NVECTOR3 v1 =NVECTOR3(0,0,0);		NVECTOR3 v2 = NVECTOR3(0,0,0);	NVECTOR3 v3 = NVECTOR3(0,0,0);
+
 
 	//.....
 	N_LayeredLineSegment tmpLineSegment;
@@ -174,19 +170,26 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	NVECTOR3 tmpPoint(0, 0, 0);
 
 
-
 	//start traverse all layers / triangles , and intersect
-	for (currentLayerID = 0; currentLayerID < iLayerCount;currentLayerID++)
+	//for (currentLayerID = 0; currentLayerID < iLayerCount;currentLayerID++)
+	for (UINT currentTriangleID = 0; currentTriangleID <totalTriangleCount; currentTriangleID++)
 	{
-		currentLayerY = Y_min + layerDeltaY * ((float)currentLayerID);
 
+		NVECTOR3 v1 = NVECTOR3(0, 0, 0),v2 = NVECTOR3(0, 0, 0),v3 = NVECTOR3(0, 0, 0);
+		v1 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 0);
+		v2 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 1);
+		v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
+
+		float triangleMinY = min(min(v1.y, v2.y), v3.y);
+		float triangleMaxY = max(max(v1.y, v2.y), v3.y);
+		UINT startLayer = UINT((triangleMinY - modelMinY) / layerDeltaY);
+		UINT endLayer = UINT((triangleMaxY - modelMinY) / layerDeltaY)+1;
 
 		//calculate how many vertex of this triangle are on this layer
-		for (currentTriangleID = 0;currentTriangleID <totalTriangleCount;  currentTriangleID++)
+		//for (currentTriangleID = 0;currentTriangleID <totalTriangleCount;  currentTriangleID++)
+		for (UINT currentLayerID = startLayer; currentLayerID < endLayer; currentLayerID++)
 		{
-			 v1 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 0);
-			 v2 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 1);
-			 v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
+			currentLayerY = modelMinY + layerDeltaY * ((float)currentLayerID);
 
 			// tmpResult:"N_IntersectionResult" 
 			tmpResult = mFunction_HowManyVertexOnThisLayer(currentLayerY,v1,v2,v3);
@@ -483,7 +486,7 @@ void IMeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT inde
 	}
 }
 
-N_Box IMeshSlicer::GetMeshAABB()
+N_Box IMeshSlicer::GetBoundingBox()
 {
 	return N_Box(*m_pBoundingBox_Min,*m_pBoundingBox_Max);
 }

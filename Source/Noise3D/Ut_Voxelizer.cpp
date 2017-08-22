@@ -14,9 +14,8 @@ IVoxelizer::IVoxelizer():
 {
 }
 
-bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
+bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ)
 {
-	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ ,cubeWidth ,cubeHeight, cubeDepth);
 
 	mIntersectXCoordLayers.resize(cubeCountY);
 	for (auto& layer : mIntersectXCoordLayers)
@@ -26,6 +25,11 @@ bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cube
 
 	//step1 - load model
 	bool fileLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromSTLFile(STLModelFile);
+	N_Box bbox = mSlicer.GetBoundingBox();
+	float width = bbox.max.x - bbox.min.x;
+	float height = bbox.max.y - bbox.min.y;
+	float depth = bbox.max.z - bbox.min.z;
+	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ,width/float(cubeCountX) , height / float(cubeCountY), depth / float(cubeCountZ));
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("IVoxelizer: Init failed. Illegal file path");
@@ -72,7 +76,7 @@ void IVoxelizer::Voxelize()
 
 	//----------step3 - layer rasterization-------------
 	//get bounding box to determine target voxelizing spatial area
-	N_Box bbox = mSlicer.GetMeshAABB();
+	N_Box bbox = mSlicer.GetBoundingBox();
 	mLayerPosMin = { bbox.min.x,bbox.min.z };
 	mLayerPosMax = { bbox.max.x,bbox.max.z };
 	mLayerRealWidth = mLayerPosMax.x - mLayerPosMin.x;
@@ -97,11 +101,18 @@ void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& 
 
 	for (auto& line : lineSegList)
 	{
-		UINT cubeCountY = mVoxelizedModel.GetVoxelCountY();
-		for (UINT i = 0; i < cubeCountY; ++i)
+		UINT cubeCountZ = mVoxelizedModel.GetVoxelCountZ();
+
+		//normalized y (on 2d plane)
+		float y1_2d = (line.v1.y - mLayerPosMin.y) / mLayerRealDepth ;
+		float y2_2d = (line.v2.y - mLayerPosMin.y) / mLayerRealDepth ;
+		UINT startY_2d = UINT((min(y1_2d, y2_2d)) * cubeCountZ);
+		UINT endY_2d = UINT((max(y1_2d, y2_2d)) * cubeCountZ) +1;
+
+		for (UINT i = startY_2d; i < endY_2d; ++i)
 		{
 			// layer pixel height = rows in a layer
-			float normalized_scanlineY = ((float(i) + 0.5f) / cubeCountY);
+			float normalized_scanlineY = ((float(i) + 0.5f) / cubeCountZ);
 			//scanline - lineSegment intersection
 			mFunction_LineSegment_Scanline_Intersect(line, i, normalized_scanlineY);
 		}
@@ -131,7 +142,7 @@ void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSeg
 	//v1,v2 are transformed into NORMALIZED space, valued in [0,1]
 	//the point with minimum x,y coord is the origin point
 	NVECTOR2 v1 = { (line.v1.x - mLayerPosMin.x) / mLayerRealWidth , (line.v1.y - mLayerPosMin.y) / mLayerRealDepth };
-	NVECTOR2 v2 = { (line.v2.x - mLayerPosMin.x) / mLayerRealWidth , (line.v2.y - mLayerPosMin.y) / mLayerRealDepth };
+	NVECTOR2 v2 = {(line.v2.x - mLayerPosMin.x) / mLayerRealWidth , (line.v2.y - mLayerPosMin.y) / mLayerRealDepth };
 
 
 	//line segment could come from any layer (with different Y coordinate)
@@ -192,7 +203,7 @@ void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layer
 
 
 			//scan line padding : pad from left to right
-			for (UINT x = startX; x <= endX; ++x)
+			for (UINT x = startX; x < endX; ++x)
 			{
 				mVoxelizedModel.SetVoxel(true,x, layerID, z);
 			}

@@ -122,7 +122,7 @@ byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
 	//voxel bits are all packed into uint32_t 
 	if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
 	{
-		uint32_t bitIndex = (y * mCubeCountX + z) * mCubeCountZ + x;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
+		uint32_t bitIndex = (y * mCubeCountZ + z) * mCubeCountX + x;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
 		uint32_t packedIndex = bitIndex  / 32;//index of uint32_t
 		uint32_t bitOffset = bitIndex - 32 * packedIndex;
 		byte val = (mVoxelArray.at(packedIndex) & (1 << bitOffset))>>bitOffset;
@@ -141,17 +141,18 @@ void IVoxelizedModel::SetVoxel(bool b, UINT x, UINT y, UINT z)
 	if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
 	{
 		int val = b ? 1 : 0;
-		uint32_t bitIndex =(y * mCubeCountX + z) * mCubeCountZ +x ;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
+		uint32_t bitIndex =(y * mCubeCountZ + z) * mCubeCountX +x ;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
 		uint32_t packedIndex = bitIndex / 32;//index of uint32_t
 		uint32_t bitOffset = bitIndex - 32 * packedIndex;
-		mVoxelArray.at(packedIndex) |= (val << bitOffset);
+		mVoxelArray.at(packedIndex) &=  ~(1 << bitOffset);//clear bit
+		mVoxelArray.at(packedIndex) |=  (val << bitOffset);
 	}
 	else
 	{
-		ERROR_MSG("VoxelizedModel: SetVoxel failure. index out of boundary");
+		throw std::exception("VoxelizedModel: SetVoxel failure.index out of boundary");
+		//ERROR_MSG("VoxelizedModel: SetVoxel failure. index out of boundary");
 	}
 
-	return;
 }
 
 bool IVoxelizedModel::SaveToFile_NVM(NFilePath NVM_filePath)

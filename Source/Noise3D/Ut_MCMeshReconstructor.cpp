@@ -181,7 +181,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 				//in this stage, vertices are re-sampled and have fractional weight (not binary anymore)
 				float resampledArray[8];
-				resampledArray[0] = mFunction_Sample(i,			j,			k);
+				resampledArray[0] = mFunction_Sample(i,			j,			k);//i,j,k will be scaled
 				resampledArray[1] = mFunction_Sample(i+1,	j,			k);
 				resampledArray[2] = mFunction_Sample(i+1,	j +1,		k);
 				resampledArray[3] = mFunction_Sample(i,			j+1,		k);
@@ -196,7 +196,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 				{
 					//though resampled vertices has non-binary weight,
 					//yet the calculation of triangle case index needs BINARY indicator
-					const float binaryThreshold = 0.7f;
+					const float binaryThreshold = 0.01f;
 					if (resampledArray[vertexID] >= binaryThreshold)
 					{
 						triangleCase |= (1 << vertexID);
@@ -214,19 +214,21 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 				//find the intersect point of edge and iso-surface
 				//yielding lerp ratio for 12 edges of the cube ( a-->b )
-				float step = .05f;
-				cube.arrayEdgeLerpRatio[0] = mFunction_ComputeEdgeLerpRatio(0, i,		j,		k,		step, .0f, .0f);
-				cube.arrayEdgeLerpRatio[1] = mFunction_ComputeEdgeLerpRatio(1, i+1,	j,		k,		.0f, step, .0f);
-				cube.arrayEdgeLerpRatio[2] = mFunction_ComputeEdgeLerpRatio(2, i,		j+1,	k,		step, .0f, .0f);
-				cube.arrayEdgeLerpRatio[3] = mFunction_ComputeEdgeLerpRatio(3, i,		j,		k,		.0f, step, .0f);
-				cube.arrayEdgeLerpRatio[4] = mFunction_ComputeEdgeLerpRatio(4, i,		j,		k+1, step, .0f, .0f);
-				cube.arrayEdgeLerpRatio[5] = mFunction_ComputeEdgeLerpRatio(5, i+1 ,	j,		k+1,	.0f, step, .0f);
-				cube.arrayEdgeLerpRatio[6] = mFunction_ComputeEdgeLerpRatio(6, i,		j+1,	k+1, step, .0f, .0f);
-				cube.arrayEdgeLerpRatio[7] = mFunction_ComputeEdgeLerpRatio(7, i,		j,		k+1,	.0f, step, .0f);
-				cube.arrayEdgeLerpRatio[8] = mFunction_ComputeEdgeLerpRatio(8, i,		j,		k,		.0f, .0f, step);
-				cube.arrayEdgeLerpRatio[9] = mFunction_ComputeEdgeLerpRatio(9, i+1 ,	j,		k,		.0f, .0f, step);
-				cube.arrayEdgeLerpRatio[10] = mFunction_ComputeEdgeLerpRatio(10, i,	j+1,	k,		.0f, .0f, step);
-				cube.arrayEdgeLerpRatio[11] = mFunction_ComputeEdgeLerpRatio(11, i+1,j+1,	k,		.0f, .0f, step);
+				float stepX = 1.0f / scaleX;
+				float stepY = 1.0f / scaleY;
+				float stepZ = 1.0f / scaleZ;
+				cube.arrayEdgeLerpRatio[0] = mFunction_ComputeEdgeLerpRatio(0, i,		j,		k,		stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[1] = mFunction_ComputeEdgeLerpRatio(1, i+1,	j,		k,		.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[2] = mFunction_ComputeEdgeLerpRatio(2, i,		j+1,	k,		stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[3] = mFunction_ComputeEdgeLerpRatio(3, i,		j,		k,		.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[4] = mFunction_ComputeEdgeLerpRatio(4, i,		j,		k+1, stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[5] = mFunction_ComputeEdgeLerpRatio(5, i+1 ,	j,		k+1,	.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[6] = mFunction_ComputeEdgeLerpRatio(6, i,		j+1,	k+1, stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[7] = mFunction_ComputeEdgeLerpRatio(7, i,		j,		k+1,	.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[8] = mFunction_ComputeEdgeLerpRatio(8, i,		j,		k,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[9] = mFunction_ComputeEdgeLerpRatio(9, i+1 ,	j,		k,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[10] = mFunction_ComputeEdgeLerpRatio(10, i,	j+1,	k,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[11] = mFunction_ComputeEdgeLerpRatio(11, i+1,j+1,	k,		.0f, .0f, stepZ);
 
 				//Generate new triangle for this NON-TRIVIAL CUBE
 				mFunction_MarchingCubeGenTriangles(cube);
@@ -266,7 +268,7 @@ float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID,
 	//find the intersect point of edge and iso-surface
 	//sample multiple time to rougly estimate the intersect position
 	float edgeStartVal = mFunction_Sample(start_i, start_j, start_k);
-	for (int stepCount=0; stepCount<20;++stepCount)
+	for (int stepCount=0; stepCount<10;++stepCount)
 	{
 		float val = mFunction_Sample(start_i + stepX * stepCount, start_j + stepY * stepCount, start_k + stepZ *stepCount);
 		if (val != edgeStartVal)
@@ -336,8 +338,8 @@ void IMarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_
 		//output to list 
 
 		mVertexList.push_back(pointOnEdge[triCase.index[i]] );
-		mVertexList.push_back(pointOnEdge[triCase.index[i + 1]]);
 		mVertexList.push_back(pointOnEdge[triCase.index[i + 2]]);
+		mVertexList.push_back(pointOnEdge[triCase.index[i + 1]]);
 	}
 }
 
