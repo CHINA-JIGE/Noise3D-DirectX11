@@ -16,6 +16,7 @@ namespace Noise3D
 
 	//a base class that abstract common text attribute and op
 	class /*_declspec(dllexport)*/ IBasicTextInfo
+		: public CRenderSettingBlendMode
 		{
 			friend class IRenderer;
 

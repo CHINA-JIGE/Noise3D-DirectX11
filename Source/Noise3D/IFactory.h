@@ -183,23 +183,23 @@ namespace Noise3D
 			return m_pChildObjectList->size();
 		}
 
-		 BOOL		FindUid(N_UID uid) const
+		bool		FindUid(N_UID uid) const
 		{
 			if (m_pUidToIndexHashTable->find(uid) != m_pUidToIndexHashTable->end())
 			{
-				return TRUE;
+				return true;
 			}
 			else
 			{
-				return FALSE;
+				return false;
 			}
 		};
 
-		BOOL	DestroyObject(UINT objIndex)
+		bool	DestroyObject(UINT objIndex)
 		{
 			auto iter = m_pChildObjectList->begin();
 
-			if (objIndex >= m_pChildObjectList->size())return FALSE;
+			if (objIndex >= m_pChildObjectList->size())return false;
 
 			//delete name-index pair
 			N_UID deleteObjUID = m_pChildObjectList->at(objIndex)._uid;
@@ -224,10 +224,10 @@ namespace Noise3D
 			//ReleaseCOM(m_pTextureObjectList->at(texID).m_pSRV);
 			//m_pTextureObjectList->at(texID).mPixelBuffer.clear();
 			m_pChildObjectList->erase(iter);
-			return TRUE;
+			return true;
 		}
 
-		BOOL	DestroyObject(N_UID objUID)
+		bool	DestroyObject(N_UID objUID)
 		{
 			auto iter = m_pUidToIndexHashTable->find(objUID);
 			//if UID of the object do exist
@@ -251,16 +251,16 @@ namespace Noise3D
 					if (pair.second>objIndex)--pair.second;//uid-index pair
 				}
 
-				return TRUE;
+				return true;
 			}
 			else
 			{
-				return FALSE;
+				return false;
 			}
 		}
 
 		//it will be set to nullptr no matter the deletion finish
-		BOOL	DestroyObject(objType* pObject)
+		bool	DestroyObject(objType* pObject)
 		{
 			if (pObject != nullptr)
 			{
@@ -275,11 +275,11 @@ namespace Noise3D
 					}
 				}
 				//deletion failed
-				return FALSE;
+				return false;
 			}
 			else
 			{
-				return FALSE;
+				return false;
 			}
 		};
 

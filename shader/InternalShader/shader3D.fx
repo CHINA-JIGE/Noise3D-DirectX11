@@ -105,16 +105,15 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 		} 
 	}
 
-	
-	
-	
-
 	//at last compute fog  ( point farther than gFogFar has been skipped
 	if(gFogEnabled)
 	{
 		float fogInterpolationFactor = max(0,(Dist_CurrPointToCam - gFogNear)/(gFogFar-gFogNear));
 		finalColor4 = lerp(finalColor4,float4(gFogColor3,1.0f),fogInterpolationFactor);
 	}
+
+	//set transparency component
+	finalColor4.w = saturate(gMaterial.mTransparency);
 
     return finalColor4;
 }
@@ -156,7 +155,7 @@ float4 PS_DrawSky(VS_OUTPUT_DEFAULT input) : SV_Target
 	}
 	if(gIsSkyBoxValid)
 	{
-		//what we need to intersect sky box is a world-space Vector , but we should map the irregular skybox to a standard normalized box
+		//what we used to intersect sky box  is a world-space Vector , but we should map the irregular skybox to a standard normalized box
 		outputColor = gCubeMap.Sample(samplerDefault,input.posW * float3(1/gSkyBoxWidth,1/gSkyBoxHeight,1/gSkyBoxDepth));
 		return outputColor;
 	}

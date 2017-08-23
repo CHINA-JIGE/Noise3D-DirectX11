@@ -49,17 +49,17 @@ using namespace Noise3D;
 
 	/*------------------------------Global Function--------------------------*/
 
-/*_declspec(dllexport)*/	BOOL Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+/*_declspec(dllexport)*/	bool Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
 	{
 		if (v.x >= vTopLeft.x &&
 			v.x <= vBottomRight.x &&
 			v.y >= vTopLeft.y &&
 			v.y <= vBottomRight.y)
 		{
-			return TRUE;
+			return true;
 		}
 
-		return FALSE;
+		return false;
 	}
 
 /*_declspec(dllexport)*/ int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
@@ -126,7 +126,13 @@ using namespace Noise3D;
 /*_declspec(dllexport)*/ inline float Noise3D::Lerp(float a, float b, float t)
 	{
 		return(a + (b - a)*t);
-	};
+	}
+
+/*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Lerp(NVECTOR3 v1, NVECTOR3 v2, float t)
+{
+	return NVECTOR3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));
+}
+;
 
 /*_declspec(dllexport)*/ inline float Noise3D::Clamp(float val, float min, float max)
 	{

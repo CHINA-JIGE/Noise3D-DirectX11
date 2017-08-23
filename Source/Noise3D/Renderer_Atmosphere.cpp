@@ -37,8 +37,8 @@ void IRenderer::RenderAtmosphere()
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//......Set States
-		mFunction_SetRasterState(m_FillMode, m_CullMode);
-		mFunction_SetBlendState(m_BlendMode);
+		mFunction_SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
+		mFunction_SetBlendState(NOISE_BLENDMODE_OPAQUE);
 		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 

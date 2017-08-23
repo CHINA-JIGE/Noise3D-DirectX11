@@ -17,7 +17,6 @@ void	IRenderer::RenderMeshes()
 	//更新ConstantBuffer: Only update when modified(cbRarely)
 	mFunction_RenderMeshInList_UpdateCbRarely();
 
-
 	//Update ConstantBuffer: Once Per Frame (cbPerFrame)
 	mFunction_RenderMeshInList_UpdateCbPerFrame(tmp_pCamera);
 
@@ -30,22 +29,22 @@ void	IRenderer::RenderMeshes()
 	for (UINT i = 0; i<(m_pRenderList_Mesh->size()); i++)
 	{
 		//取出渲染列表中的mesh指针
-		IMesh* const tmp_pMesh = m_pRenderList_Mesh->at(i);
+		IMesh* const pMesh = m_pRenderList_Mesh->at(i);
 
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
-		mFunction_RenderMeshInList_UpdateCbPerObject(tmp_pMesh);
+		mFunction_RenderMeshInList_UpdateCbPerObject(pMesh);
 
 		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
-		g_pImmediateContext->IASetIndexBuffer(tmp_pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
+		g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//设置fillmode和cullmode
-		mFunction_SetRasterState(m_FillMode, m_CullMode);
+		mFunction_SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
 
 		//设置blend state
-		mFunction_SetBlendState(m_BlendMode);
+		mFunction_SetBlendState(pMesh->GetBlendMode());
 
 		//设置samplerState
 		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
@@ -55,15 +54,15 @@ void	IRenderer::RenderMeshes()
 
 
 		//for every subset
-		UINT meshSubsetCount = tmp_pMesh->m_pSubsetInfoList->size();
+		UINT meshSubsetCount = pMesh->m_pSubsetInfoList->size();
 		for (UINT j = 0;j < meshSubsetCount;j++)
 		{
 			//subset info
-			UINT currSubsetIndicesCount = tmp_pMesh->m_pSubsetInfoList->at(j).primitiveCount * 3;
-			UINT currSubsetStartIndex = tmp_pMesh->m_pSubsetInfoList->at(j).startPrimitiveID * 3;
+			UINT currSubsetIndicesCount = pMesh->m_pSubsetInfoList->at(j).primitiveCount * 3;
+			UINT currSubsetStartIndex = pMesh->m_pSubsetInfoList->at(j).startPrimitiveID * 3;
 
 			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
-			mFunction_RenderMeshInList_UpdateCbPerSubset(tmp_pMesh,j);
+			mFunction_RenderMeshInList_UpdateCbPerSubset(pMesh,j);
 
 			//遍历所用tech的所有pass ---- index starts from 1
 			D3DX11_TECHNIQUE_DESC tmpTechDesc;
@@ -103,7 +102,6 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 		m_CbRarely.mDirLightCount_Static = tmpLight_Dir_Count;
 		m_CbRarely.mPointLightCount_Static = tmpLight_Point_Count;
 		m_CbRarely.mSpotLightCount_Static = tmpLight_Spot_Count;
-
 
 		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
@@ -185,6 +183,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	N_MaterialDesc tmpMat;
 	if (IsMatNameValid==FALSE)
 	{
+		WARNING_MSG("IRenderer : material UID not valid when rendering mesh.");
 		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
 	}
 	else

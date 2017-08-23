@@ -283,11 +283,6 @@ void Noise3D::ICamera::GetInvProjMatrix(NMATRIX & outMat)
 	if (invPtr == nullptr)ERROR_MSG("Camera : Inverse of Proj Matrix not exist!")
 };
 
-
-
-
-
-
 void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 {
 	if ( (iNearPlaneZ >0) && (iFarPlaneZ>iNearPlaneZ))

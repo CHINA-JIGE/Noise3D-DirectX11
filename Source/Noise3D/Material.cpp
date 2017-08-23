@@ -17,34 +17,39 @@ IMaterial::~IMaterial()
 {
 }
 
-void IMaterial::SetBaseAmbientColor(const NVECTOR3 & color)
+void IMaterial::SetAmbientColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseAmbientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.ambientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
-void IMaterial::SetBaseDiffuseColor(const NVECTOR3 & color)
+void IMaterial::SetDiffuseColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseDiffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.diffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
-void IMaterial::SetBaseSpecularColor(const NVECTOR3 & color)
+void IMaterial::SetSpecularColor(const NVECTOR3 & color)
 {
-	mMatDesc.mBaseSpecularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.specularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
 void IMaterial::SetSpecularSmoothLevel(int level)
 {
-	mMatDesc.mSpecularSmoothLevel = Clamp(level, 0, 100);
+	mMatDesc.specularSmoothLevel = Clamp(level, 0, 100);
 }
 
 void IMaterial::SetNormalMapBumpIntensity(float normalized_intensity)
 {
-	mMatDesc.mNormalMapBumpIntensity = Clamp(normalized_intensity, 0.0f, 1.0f);
+	mMatDesc.normalMapBumpIntensity = Clamp(normalized_intensity, 0.0f, 1.0f);
 }
 
 void IMaterial::SetEnvironmentMappingTransparency(float transparency)
 {
-	mMatDesc.mEnvironmentMapTransparency = Clamp(transparency, 0.0f, 1.0f);
+	mMatDesc.environmentMapTransparency = Clamp(transparency, 0.0f, 1.0f);
+}
+
+void IMaterial::SetTransparency(float transparency)
+{
+	mMatDesc.transparency = Clamp(transparency, 0.0f, 1.0f);
 }
 
 void IMaterial::SetDiffuseMap(const N_UID & diffMapName)
@@ -69,12 +74,13 @@ void IMaterial::SetEnvMap(const N_UID & environmentMapName)
 
 void IMaterial::SetDesc(const N_MaterialDesc & desc)
 {
-	SetBaseAmbientColor(desc.mBaseAmbientColor);
-	SetBaseDiffuseColor(desc.mBaseDiffuseColor);
-	SetBaseSpecularColor(desc.mBaseSpecularColor);
-	SetSpecularSmoothLevel(desc.mSpecularSmoothLevel);
-	SetNormalMapBumpIntensity(desc.mNormalMapBumpIntensity);
-	SetEnvironmentMappingTransparency(desc.mEnvironmentMapTransparency);
+	SetAmbientColor(desc.ambientColor);
+	SetDiffuseColor(desc.diffuseColor);
+	SetSpecularColor(desc.specularColor);
+	SetSpecularSmoothLevel(desc.specularSmoothLevel);
+	SetNormalMapBumpIntensity(desc.normalMapBumpIntensity);
+	SetEnvironmentMappingTransparency(desc.environmentMapTransparency);
+	SetTransparency(desc.transparency);
 
 	SetDiffuseMap(desc.diffuseMapName);
 	SetNormalMap(desc.normalMapName);

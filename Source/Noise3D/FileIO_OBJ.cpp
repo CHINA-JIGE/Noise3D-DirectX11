@@ -8,50 +8,18 @@
 
 using namespace Noise3D;
 
-namespace Noise3D
-{
-	//in OBJ file ,vertex info is composed of indices
-	struct N_LoadOBJ_vertexInfoIndex
-	{
-		N_LoadOBJ_vertexInfoIndex()
-		{
-			vertexID = texcoordID = vertexNormalID = 0;
-		};
-
-		N_LoadOBJ_vertexInfoIndex(int vID, int texcID, int vnID)
-		{
-			vertexID = vID;
-			texcoordID = texcID;
-			vertexNormalID = vnID;
-		}
-
-		inline BOOL operator==(N_LoadOBJ_vertexInfoIndex const& v)const
-		{
-			if (vertexID == v.vertexID && texcoordID == v.texcoordID && vertexNormalID == v.vertexNormalID)
-			{
-				return TRUE;
-			}
-			return FALSE;
-		}
-
-		UINT vertexID;
-		UINT texcoordID;
-		UINT vertexNormalID;
-	};
-}
-
 /*******************************************************************
 
 										INTERFACE
 
 *********************************************************************/
-BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
+bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVertex>& refVertexBuffer, std::vector<UINT>& refIndexBuffer)
 {
-	std::fstream fileIn(pFilePath);
+	std::ifstream fileIn(pFilePath);
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Import OBJ : Open File failed!!");
-		return FALSE;
+		return false;
 	}
 
 	std::vector<NVECTOR3> pointList;//xyz buffer
@@ -59,7 +27,7 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 	std::vector<NVECTOR3> VNormalList;//vertex normal buffer
 	std::vector<N_LoadOBJ_vertexInfoIndex> vertexInfoList;//indices combination
 
-														  //newly input string from file
+	 //newly input string from file
 	std::string currString;
 
 	//,...............
@@ -119,15 +87,16 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 
 				//this will be an n^2 searching....optimization will be needed
 				//non-existed element will be created
-				BOOL IsVertexExist = FALSE;
+				bool IsVertexExist = false;
 				UINT  existedVertexIndex = 0;
-				for (UINT i = 0;i <vertexInfoList.size();i++)
+
+				for (UINT j = 0;j <vertexInfoList.size();j++)
 				{
 					//in DEBUG mode ,[] operator will be a big performance overhead
-					if (vertexInfoList[i] == currVertex)
+					if (vertexInfoList.at(j) == currVertex)
 					{
-						IsVertexExist = TRUE;
-						existedVertexIndex = i;
+						IsVertexExist = true;
+						existedVertexIndex =j;
 						break;
 					}
 				}
@@ -152,28 +121,28 @@ BOOL IFileManager::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVert
 	refVertexBuffer.resize(vertexInfoList.size());
 	for (UINT i = 0;i < refVertexBuffer.size();++i)
 	{
-		N_DefaultVertex tmpVertex = {};
+		N_DefaultVertex tmpCompleteV = {};
 
 		//several indices which can retrieve vertex information
 		N_LoadOBJ_vertexInfoIndex& indicesCombination = vertexInfoList.at(i);
-		tmpVertex.Pos = pointList.at(indicesCombination.vertexID);
-		tmpVertex.Normal = VNormalList.at(indicesCombination.vertexNormalID);
-		tmpVertex.TexCoord = texcoordList.at(indicesCombination.texcoordID);
-		tmpVertex.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+		tmpCompleteV.Pos = pointList.at(indicesCombination.vertexID);
+		tmpCompleteV.Normal = VNormalList.at(indicesCombination.vertexNormalID);
+		tmpCompleteV.TexCoord = texcoordList.at(indicesCombination.texcoordID);
+		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
 		//tangent
-		if (tmpVertex.Normal==NVECTOR3(0,1.0f,0) || tmpVertex.Normal == NVECTOR3(0, -1.0f, 0))
+		if (tmpCompleteV.Normal.x == 0.0f && tmpCompleteV.Normal.z == 0.0f)
 		{
-			tmpVertex.Tangent = NVECTOR3(1.0f, 0, 0);
+			tmpCompleteV.Tangent = NVECTOR3(1.0f, 0, 0);
 		}
 		else
 		{
-			NVECTOR3 tmpVec(-tmpVertex.Normal.z, 0, tmpVertex.Normal.x);
-			D3DXVec3Cross(&tmpVertex.Tangent, &tmpVertex.Normal, &tmpVec);
-			D3DXVec3Normalize(&tmpVertex.Tangent, &tmpVertex.Tangent);
+			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
+			D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
+			D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
 		}
 		//.......
-		refVertexBuffer.at(i) = (tmpVertex);
+		refVertexBuffer.at(i) = (tmpCompleteV);
 	}
 
-	return TRUE;
+	return true;
 }

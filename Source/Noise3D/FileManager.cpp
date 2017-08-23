@@ -28,7 +28,7 @@ IFileManager::IFileManager()
 
 };
 
-BOOL IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
+bool IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
 {
 	//文件输入流
 	std::ifstream fileIn(pFilePath, std::ios::binary);
@@ -37,7 +37,7 @@ BOOL IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteB
 	if (!fileIn.is_open()) 
 	{
 		ERROR_MSG("FileManager : Cannot Open File !!");
-		return FALSE;
+		return false;
 	}
 
 	//指针移到文件尾
@@ -69,10 +69,10 @@ BOOL IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteB
 	fileIn.close();
 
 
-	return TRUE;
+	return true;
 }
 
-BOOL IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, BOOL canOverlapOld)
+bool IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, bool canOverlapOld)
 {
 
 	std::ofstream fileOut;
@@ -91,7 +91,7 @@ BOOL IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFile
 	if (!fileOut.good())
 	{
 		ERROR_MSG("FileManager : Cannot Open File !!");
-		return FALSE;
+		return false;
 	}
 
 	//...........
@@ -104,5 +104,5 @@ BOOL IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFile
 	//关闭文件
 	fileOut.close();
 
-	return TRUE;
+	return true;
 }

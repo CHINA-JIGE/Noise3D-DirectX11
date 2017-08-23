@@ -1,9 +1,14 @@
-#pragma once
+/***********************************************************************
 
+					h : Geometry Generator (basic logic/topology)
+
+************************************************************************/
+
+#pragma once
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/  IGeometryMeshGenerator
+	class /*_declspec(dllexport)*/  CGeometryMeshGenerator
 	{
 	public:
 

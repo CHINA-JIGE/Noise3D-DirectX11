@@ -21,7 +21,9 @@ namespace Noise3D
 		public IFactory<IAtmosphere>,
 		public IFactory<IFontManager>,
 		public IFactory<IModelLoader>,
+		public IFactory<IModelProcessor>,
 		public IFactory<ICollisionTestor>
+
 	{
 
 	public:
@@ -49,6 +51,8 @@ namespace Noise3D
 		IFontManager*				GetFontMgr();
 
 		IModelLoader*				GetModelLoader();
+
+		IModelProcessor*			GetModelProcessor();
 
 		ICollisionTestor*				GetCollisionTestor();
 

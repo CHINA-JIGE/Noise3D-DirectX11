@@ -20,6 +20,26 @@ namespace Noise3D
 	{
 		N_DefaultVertex() { ZeroMemory(this, sizeof(*this)); };
 
+		N_DefaultVertex& operator+=(const N_DefaultVertex& rhs)
+		{
+			Pos += rhs.Pos;
+			Color += rhs.Color;
+			Normal += rhs.Normal;
+			TexCoord += rhs.TexCoord;
+			Tangent += rhs.Tangent;
+			return *this;
+		};
+
+		N_DefaultVertex operator*=(float factor)
+		{
+			Pos *= factor;
+			Color *= factor;
+			Normal *= factor;
+			TexCoord *= factor;
+			Tangent *= factor;
+			return *this;
+		};
+
 		NVECTOR3 Pos;
 		NVECTOR4 Color;
 		NVECTOR3 Normal;
@@ -48,16 +68,6 @@ namespace Noise3D
 	struct N_MinizedVertex 
 	{
 		NVECTOR3 pos;
-	};
-
-
-	//correspond to one draw call of MESH
-	struct N_MeshSubsetInfo
-	{
-		N_MeshSubsetInfo() { ZeroMemory(this, sizeof(*this)); }
-		UINT		startPrimitiveID;
-		UINT		primitiveCount;
-		std::string		matName;
 	};
 
 	struct N_Box

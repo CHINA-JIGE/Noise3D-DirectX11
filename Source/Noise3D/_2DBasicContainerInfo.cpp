@@ -15,7 +15,7 @@ using namespace Noise3D;
 IBasicContainerInfo::IBasicContainerInfo()
 {
 	mPosZ = 1.0f;//the deepest
-	mIsEnabled = TRUE;
+	mIsEnabled = true;
 	m_pPositionCenter = new NVECTOR2(50,30);
 	mWidth = 100;
 	mHeight = 60;
@@ -99,7 +99,7 @@ float IBasicContainerInfo::GetHeight()
 }
 
 
-BOOL IBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
+bool IBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 {
 	return gFunction_IsPointInRect2D(
 		v,
@@ -118,12 +118,12 @@ NVECTOR4 IBasicContainerInfo::GetBasicColor()
 	return *m_pBasicColor;
 }
 
-void IBasicContainerInfo::SetEnabled(BOOL isEnabled)
+void IBasicContainerInfo::SetEnabled(bool isEnabled)
 {
 	mIsEnabled = isEnabled;
 }
 
-BOOL IBasicContainerInfo::IsEnabled()
+bool IBasicContainerInfo::IsEnabled()
 {
 	return mIsEnabled;
 }

@@ -24,6 +24,8 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ IGraphicObject
+		: public CRenderSettingBlendMode
+
 	{
 
 	public:

@@ -7,24 +7,33 @@
 
 namespace Noise3D
 {
+	//When structure of material is modified, several things should be carefully
+	//dealt with:
+	//1, Set methods of IMaterial
+	//2, SetDesc method of IMaterial
+	//3, N_CbPerSubset
+	//4, structure in shaders
+
 	//basic Desc (that can be upload to CONSTANT BUFFER
 	struct N_BasicMaterialDesc
 	{
 		N_BasicMaterialDesc()
 		{
 			ZeroMemory(this, sizeof(*this));
-			mBaseAmbientColor = NVECTOR3(0, 0, 0);
-			mBaseDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-			mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-			mSpecularSmoothLevel = 10;
-			mNormalMapBumpIntensity = 0.1f;
-			mEnvironmentMapTransparency = 0.1f;
+			ambientColor = NVECTOR3(0, 0, 0);
+			diffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+			specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+			specularSmoothLevel = 10;
+			normalMapBumpIntensity = 0.1f;
+			environmentMapTransparency = 0.1f;
+			transparency = 1.0f;
 		}
 
 		//base attribute offset that will be added to final color
-		NVECTOR3	mBaseAmbientColor;	INT32	mSpecularSmoothLevel;
-		NVECTOR3	mBaseDiffuseColor;		float		mNormalMapBumpIntensity;
-		NVECTOR3	mBaseSpecularColor;	float		mEnvironmentMapTransparency;
+		NVECTOR3	ambientColor;		int32_t	specularSmoothLevel;
+		NVECTOR3	diffuseColor;		float		normalMapBumpIntensity;
+		NVECTOR3	specularColor;		float		environmentMapTransparency;
+		float				transparency;		int32_t	pad1; int32_t pad2; int32_t pad3;
 
 	};
 
@@ -52,12 +61,14 @@ namespace Noise3D
 	{
 	public:
 
-		//BASE means that these constant color will be added to texture-based color
-		void	SetBaseAmbientColor(const NVECTOR3& color);
+		//name
+		void	SetAmbientColor(const NVECTOR3& color);
 
-		void	SetBaseDiffuseColor(const NVECTOR3& color);
+		//name
+		void	SetDiffuseColor(const NVECTOR3& color);
 
-		void	SetBaseSpecularColor(const NVECTOR3& color);
+		//name
+		void	SetSpecularColor(const NVECTOR3& color);
 
 		//0 to 100
 		void	SetSpecularSmoothLevel(int level);
@@ -68,12 +79,19 @@ namespace Noise3D
 		//0 to 1
 		void	SetEnvironmentMappingTransparency(float transparency);
 
+		//0 to 1
+		void SetTransparency(float transparency);
+
+		//string
 		void	SetDiffuseMap(const N_UID& diffMapName);
 
+		//string
 		void SetNormalMap(const N_UID& normMapName);
 
+		//string
 		void	SetSpecularMap(const N_UID& specMapName);
 
+		//string
 		void SetEnvMap(const N_UID& environmentMapName);
 
 		void SetDesc(const N_MaterialDesc& desc);

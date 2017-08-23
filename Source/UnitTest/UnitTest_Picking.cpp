@@ -1,7 +1,10 @@
-
-
-#include "Main3D.h"
+#include "Noise3D.h"
 #include <sstream>
+
+BOOL Init3D(HWND hwnd);
+void MainLoop();
+void Cleanup();
+void	InputProcess();
 
 using namespace Noise3D;
 
@@ -137,7 +140,7 @@ BOOL Init3D(HWND hwnd)
 
 	N_MaterialDesc Mat1;
 	Mat1.mBaseAmbientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	Mat1.mBaseDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.mSpecularSmoothLevel = 40;
 	Mat1.mNormalMapBumpIntensity = 0.2f;

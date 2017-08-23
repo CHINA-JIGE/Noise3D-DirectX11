@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h：主头文件
+											 h：主头文件
 
 ************************************************************************/
 
@@ -25,7 +25,9 @@
 #include <sstream>
 #include <fstream>
 #include <functional>
+#include <algorithm>
 #include <unordered_map>
+#include <map>
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
@@ -42,10 +44,13 @@
 
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
+#include "_SpatialHashTable.h"
 #include "FileManager.h"
-#include "GeometryMeshGenerator.h"
-#include "ModelLoader.h"
+#include "_GeometryMeshGenerator.h"
+#include "_BasicRenderSettings.h"
 #include "Mesh.h"
+#include "ModelLoader.h"
+#include "ModelProcessor.h"
 #include "Lights.h"
 #include "Camera.h"
 #include "Material.h"
@@ -73,6 +78,8 @@
 #include "Ut_Timer.h"
 #include "Ut_MeshSlicer.h"
 #include "Ut_InputEngine.h"
+#include "Ut_Voxelizer.h"
+#include "Ut_MCMeshReconstructor.h"
 
 
 //-----------Noise GUI-------------

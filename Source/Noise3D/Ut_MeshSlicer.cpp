@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-							类：NOISE UT SLicer
+										类：Ut::Slicer
 
-			简述：用于生成3D打印所需的 切层矢量数据
+				简述：用于生成3D打印所需的 切层矢量数据
 
 ************************************************************************/
 #include "Noise3D.h"
@@ -11,47 +11,93 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-IMeshSlicer::IMeshSlicer()
+IMeshSlicer::IMeshSlicer():
+	m_pPrimitiveVertexBuffer(new std::vector<NVECTOR3>),
+	m_pTriangleNormalBuffer(new std::vector<NVECTOR3>),
+	m_pLineSegmentBuffer(new std::vector<N_LayeredLineSegment>),
+	m_pLineStripBuffer(new std::vector<N_LineStrip>),
+	m_pBoundingBox_Min (new NVECTOR3(0, 0, 0)),
+	m_pBoundingBox_Max(new NVECTOR3(0, 0, 0)),
+	m_pLayerList (new std::vector<N_Layer>),
+	mCurrentStep(0)
 {
-	m_pPrimitiveVertexBuffer = new std::vector<NVECTOR3>;
-	m_pTriangleNormalBuffer = new std::vector<NVECTOR3>	;
-	m_pLineSegmentBuffer = new std::vector<N_LineSegment>;
-	m_pLineStripBuffer = new std::vector<N_LineStrip>;
-	m_pBoundingBox_Min = new NVECTOR3(0,0,0);
-	m_pBoundingBox_Max = new NVECTOR3(0, 0, 0);
-	m_pLayerList = new std::vector<N_Layer>;
+
 }
 
-BOOL IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(std::vector<N_DefaultVertex>* pVertexBuffer)
+bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vb, const std::vector<UINT>& ib)
 {
-	UINT i = 0;
+	mCurrentStep = 1;
 
-	if (pVertexBuffer->size() == 0)
+	m_pLayerList->clear();
+	m_pPrimitiveVertexBuffer->clear();
+	m_pTriangleNormalBuffer->clear();
+	m_pLineSegmentBuffer->clear();
+	m_pLineStripBuffer->clear();
+
+	if (vb.size() == 0)
 	{
-		return FALSE;
+		return false;
 	}
 
-	for (i = 0;i < pVertexBuffer->size();i++)
+	//convert ib&vb into a single triangle list
+	for (UINT i = 0; i < ib.size(); i++)
 	{
-		m_pPrimitiveVertexBuffer->push_back(pVertexBuffer->at(i).Pos);
+		UINT index = ib.at(i);
+		if (index >= vb.size())
+		{
+			ERROR_MSG("MeshSlicer : Illegal index found in index list!");
+			return false;
+		}
+
+		m_pPrimitiveVertexBuffer->push_back(vb.at(ib.at(i)));
+	}
+
+	//do it right after loading the file
+	mFunction_ComputeBoundingBox();
+
+	mCurrentStep = 2;
+	return true;
+}
+
+bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultVertex>& vb)
+{
+	mCurrentStep = 1;
+
+	m_pLayerList->clear();
+	m_pPrimitiveVertexBuffer->clear();
+	m_pTriangleNormalBuffer->clear();
+	m_pLineSegmentBuffer->clear();
+	m_pLineStripBuffer->clear();
+
+	if (vb.size() == 0)
+	{
+		return false;
+	}
+
+	for (UINT i = 0;i < vb.size();i++)
+	{
+		m_pPrimitiveVertexBuffer->push_back(vb.at(i).Pos);
 	}
 	
 	//do it right after loading the file
 	mFunction_ComputeBoundingBox();
 
-	return TRUE;
+	mCurrentStep = 2;
+	return true;
 }
 
-BOOL IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
+bool IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 {
+	mCurrentStep = 1;
+
 	// this function is used to load STL file , and Primitive Vertex Data has 3x more elements
 	//than Triangle Normal Buffer , this is because 1 triangle consists of 3 vertices.
 
 	std::vector<UINT>	tmpIndexBuffer;
 	std::string					tmpHeaderString;
-	BOOL isLoadSTLsucceeded = FALSE;
+	bool isLoadSTLsucceeded = false;
 
-	//we must check if the STL has been loaded successfully
+	//index buffer is dumped because there is actually no "index" in STL model file
 	isLoadSTLsucceeded =IFileManager::ImportFile_STL(
 		pFilePath, 
 		*m_pPrimitiveVertexBuffer, 
@@ -62,18 +108,24 @@ BOOL IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 	//assert
 	if (!isLoadSTLsucceeded)
 	{
-		ERROR_MSG("NoiseUtSliceGenerator: Load STL file failed!!");
-		return FALSE;
+		ERROR_MSG("MeshSlicer: Load STL file failed!!");
+		return false;
 	}
 
 	//do it right after loading the file
 	mFunction_ComputeBoundingBox();
 
-	return TRUE;
+	mCurrentStep = 2;
+	return true;
 }
 
 void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 {
+	if (mCurrentStep != 2)
+	{
+		ERROR_MSG("MeshSlicer : Model hasn't been initialized");
+		return;
+	}
 
 	//Objective of this function is GENERALLY  to generate Line segments ,sometimes directly add triangles
 
@@ -83,21 +135,17 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	}
 
 	//top/bottom y of the bounding box (AABB)
-	float Y_min = m_pBoundingBox_Min->y;
-	float Y_max = m_pBoundingBox_Max->y;
+	float modelMinY = m_pBoundingBox_Min->y;
+	float modelMaxY = m_pBoundingBox_Max->y;
 
 
 	//calculate  delta Y between layers , note that the TOP and BOTTOM are taken into consideration
 	//thus ,  minus 1
-	float  layerDeltaY = (Y_max - Y_min) / (float)(iLayerCount-1);
+	float  layerDeltaY = (modelMaxY - modelMinY) / (float)(iLayerCount-1);
 
 	//since in one intersection request , different thickness settings might be used for a Y region
 	//so we must accumulate LayerCount of ALL intersection mission;
 	UINT totalLayerCount = iLayerCount;
-
-	//...
-	UINT		currentLayerID = 0;
-	UINT		currentTriangleID = 0;
 
 	//the Y coord of current layer
 	float		currentLayerY = 0;
@@ -111,30 +159,37 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	UINT		totalTriangleCount = m_pTriangleNormalBuffer->size();
 
 	//........tmp var to store 3 vertex of triangle
-	NVECTOR3 v1 =NVECTOR3(0,0,0);		NVECTOR3 v2 = NVECTOR3(0,0,0);	NVECTOR3 v3 = NVECTOR3(0,0,0);
+
 
 	//.....
-	N_LineSegment tmpLineSegment;
+	N_LayeredLineSegment tmpLineSegment;
 
 	//...tmp var  : used in  "switch (tmpResult.mVertexCount)"
 	std::vector<NVECTOR3> tmpIntersectPointList;
-	BOOL canIntersect = FALSE;
+	bool canIntersect = false;
 	NVECTOR3 tmpPoint(0, 0, 0);
 
 
-
 	//start traverse all layers / triangles , and intersect
-	for (currentLayerID = 0; currentLayerID < iLayerCount;currentLayerID++)
+	//for (currentLayerID = 0; currentLayerID < iLayerCount;currentLayerID++)
+	for (UINT currentTriangleID = 0; currentTriangleID <totalTriangleCount; currentTriangleID++)
 	{
-		currentLayerY = Y_min + layerDeltaY * ((float)currentLayerID);
 
+		NVECTOR3 v1 = NVECTOR3(0, 0, 0),v2 = NVECTOR3(0, 0, 0),v3 = NVECTOR3(0, 0, 0);
+		v1 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 0);
+		v2 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 1);
+		v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
+
+		float triangleMinY = min(min(v1.y, v2.y), v3.y);
+		float triangleMaxY = max(max(v1.y, v2.y), v3.y);
+		UINT startLayer = UINT((triangleMinY - modelMinY) / layerDeltaY);
+		UINT endLayer = UINT((triangleMaxY - modelMinY) / layerDeltaY)+1;
 
 		//calculate how many vertex of this triangle are on this layer
-		for (currentTriangleID = 0;currentTriangleID <totalTriangleCount;  currentTriangleID++)
+		//for (currentTriangleID = 0;currentTriangleID <totalTriangleCount;  currentTriangleID++)
+		for (UINT currentLayerID = startLayer; currentLayerID < endLayer; currentLayerID++)
 		{
-			 v1 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 0);
-			 v2 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 1);
-			 v3 = m_pPrimitiveVertexBuffer->at(currentTriangleID * 3 + 2);
+			currentLayerY = modelMinY + layerDeltaY * ((float)currentLayerID);
 
 			// tmpResult:"N_IntersectionResult" 
 			tmpResult = mFunction_HowManyVertexOnThisLayer(currentLayerY,v1,v2,v3);
@@ -149,7 +204,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 				if (tmpResult.isPossibleToIntersectEdges)
 				{
 					//maybe some edges will intersect current Layer
-					BOOL canIntersect = FALSE;
+					bool canIntersect = false;
 					NVECTOR3 tmpPoint(0, 0, 0);
 
 					//proceed a line --- layer intersection ,and return a bool
@@ -166,11 +221,11 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 					//theoretically , intersectPoint will only got 2 members , but maybe shit happens ??
 					if (tmpIntersectPointList.size() == 2)
 					{
-						N_LineSegment tmpLineSegment;
+						N_LayeredLineSegment tmpLineSegment;
 						tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 						tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 						tmpLineSegment.LayerID = currentLayerID;
-						tmpLineSegment.Dirty = FALSE;
+						tmpLineSegment.Dirty = false;
 						//triangle normal projection , look for tech doc for more detail
 						tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 						m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
@@ -190,7 +245,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 
 				//if one point is on the layer ,then the line segment composed of other 2 points -
 				//will try to intersect the layer
-				switch (tmpResult.mIndexList->at(0))
+				switch (tmpResult.mIndexList.at(0))
 				{
 					//see which point is on this layer
 				case 0:
@@ -217,11 +272,11 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 				//2 intersect point will make up a line segment
 				if (tmpIntersectPointList.size() == 2)
 				{
-					N_LineSegment tmpLineSegment;
+					N_LayeredLineSegment tmpLineSegment;
 					tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 					tmpLineSegment.LayerID = currentLayerID;
-					tmpLineSegment.Dirty = FALSE;
+					tmpLineSegment.Dirty = false;
 					//triangle normal projection , look for tech doc for more detail
 					tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 					m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
@@ -240,7 +295,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 #pragma region VertexOnLayer : 2
 				//v1,v2 are on this layer ,so just directly add to line segment buffer
 				//....the first vertex
-				switch (tmpResult.mIndexList->at(0))
+				switch (tmpResult.mIndexList.at(0))
 				{
 				case 0:
 					tmpIntersectPointList.push_back(v1);
@@ -254,7 +309,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 				}
 
 				//...the second vertex (use  index to determine which vertex should we add)
-				switch (tmpResult.mIndexList->at(1))
+				switch (tmpResult.mIndexList.at(1))
 				{
 				case 0:
 					tmpIntersectPointList.push_back(v1);
@@ -270,11 +325,11 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 				//theoretically , intersectPoint will only got 2 members , but maybe shit happens ??
 				if (tmpIntersectPointList.size() == 2)
 				{
-					N_LineSegment tmpLineSegment;
+					N_LayeredLineSegment tmpLineSegment;
 					tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
 					tmpLineSegment.LayerID = currentLayerID;
-					tmpLineSegment.Dirty = FALSE;
+					tmpLineSegment.Dirty = false;
 					//triangle normal projection , look for tech doc for more detail
 					tmpLineSegment.normal = mFunction_Compute_Normal2D(m_pTriangleNormalBuffer->at(currentTriangleID));
 					m_pLineSegmentBuffer->push_back(tmpLineSegment);//add to disordered line segments buffer
@@ -297,10 +352,17 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 
 	//preparation for next step
 	m_pLayerList->resize(totalLayerCount);
+
+	mCurrentStep = 3;
 }
 
 void	IMeshSlicer::Step3_GenerateLineStrip()
 {
+	if (mCurrentStep != 3)
+	{
+		ERROR_MSG("MeshSlicer : step 2 was not executed. ");
+		return;
+	}
 
 	//preprocess (generate layer tile information , optimization for linking line segment)
 	mFunction_GenerateLayerTileInformation();
@@ -309,20 +371,20 @@ void	IMeshSlicer::Step3_GenerateLineStrip()
 	//(and at the present  ignore the problem of  'multiple branches'
 
 	N_LineStrip			tmpLineStrip;
-	N_LineSegment		tmpLineSegment;
+	N_LayeredLineSegment		tmpLineSegment;
 	NVECTOR3			tmpLineStripTailPoint;
 
 	//............
 	UINT i = 0, j = 0;
 
-	BOOL canFindNextPoint = FALSE;
+	bool canFindNextPoint = false;
 
 	for (i = 0;i < m_pLineSegmentBuffer->size(); i++)
 	{
 
 		tmpLineSegment = m_pLineSegmentBuffer->at(i);
 		//find the first line segment valid to be the head of line strip
-		if (tmpLineSegment.Dirty == FALSE)
+		if (tmpLineSegment.Dirty == false)
 		{
 				//we have found a "clean" line segment , then add 2 vertices to the current line strip
 				//this is a new line strip spawned
@@ -354,20 +416,28 @@ void	IMeshSlicer::Step3_GenerateLineStrip()
 
 	nextLineSegment:;
 	}//for i
+
+	mCurrentStep = 4;
 }
 
-BOOL IMeshSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
+bool IMeshSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
 {
-	BOOL isSucceeded;
+	bool isSucceeded;
 	isSucceeded = mFunction_ImportFile_NOISELAYER(filePath, m_pLineStripBuffer);
+	if (isSucceeded)mCurrentStep = 4;
 	return isSucceeded;
 }
 
-BOOL IMeshSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
+bool IMeshSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
 {
+	if (mCurrentStep != 4)
+	{
+		ERROR_MSG("MeshSlicer : step3 was not executed.")
+	}
 
-	BOOL isSucceeded;  
-	isSucceeded = mFunction_ExportFile_NOISELAYER(filePath, m_pLineStripBuffer, TRUE);
+	bool isSucceeded;  
+	isSucceeded = mFunction_ExportFile_NOISELAYER(filePath, m_pLineStripBuffer, true);
+	if (isSucceeded)mCurrentStep = 5;//the end
 	return isSucceeded;
 }
 
@@ -376,13 +446,19 @@ UINT IMeshSlicer::GetLineSegmentCount()
 	return m_pLineSegmentBuffer->size();
 }
 
-void IMeshSlicer::GetLineSegmentBuffer(std::vector<NVECTOR3>& outBuffer)
+void IMeshSlicer::GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outBuffer)
 {
-	UINT i = 0, j = 0;
-	for (i = 0;i < m_pLineSegmentBuffer->size();i++)
+	outBuffer.clear();
+	outBuffer.reserve(m_pLineSegmentBuffer->size());
+
+	for (UINT i = 0;i < m_pLineSegmentBuffer->size();i++)
 	{
-		outBuffer.push_back(m_pLineSegmentBuffer->at(i).v1);
-		outBuffer.push_back(m_pLineSegmentBuffer->at(i).v2);
+		N_LayeredLineSegment2D outLineSeg;
+		auto& line = m_pLineSegmentBuffer->at(i);
+		outLineSeg.v1 = { line.v1.x,line.v1.z };
+		outLineSeg.v2 = { line.v2.x,line.v2.z };
+		outLineSeg.layerID = line.LayerID;
+		outBuffer.push_back(outLineSeg);
 	}
 
 	/*for (i = 0;i < m_pLineStripBuffer->size();i++)
@@ -408,6 +484,11 @@ void IMeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT inde
 		outPointList.assign(	m_pLineStripBuffer->begin(),
 										m_pLineStripBuffer->end());
 	}
+}
+
+N_Box IMeshSlicer::GetBoundingBox()
+{
+	return N_Box(*m_pBoundingBox_Min,*m_pBoundingBox_Max);
 }
 
 
@@ -437,12 +518,12 @@ void		IMeshSlicer::mFunction_ComputeBoundingBox()
 
 }
 
-BOOL	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
+bool	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
 {
 
 	//some obvious wrong input check
-	if (!outIntersectPoint){return FALSE;}
-	if (v1 == v2) { return FALSE; }
+	if (!outIntersectPoint){return false;}
+	if (v1 == v2) { return false; }
 
 	//init the out result
 	ZeroMemory(outIntersectPoint, sizeof(*outIntersectPoint));
@@ -452,7 +533,7 @@ BOOL	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, fl
 	if ((v1.y > layerY && v2.y > layerY) || (v1.y < layerY && v2.y < layerY))
 	{
 		//impossible to intersect ,so just return
-		return FALSE;
+		return false;
 	}
 
 	//an interpolating ratio between these 2 points ,valued [-1,1]
@@ -469,10 +550,10 @@ BOOL	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, fl
 		outIntersectPoint->y = layerY;
 
 		//...
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void		IMeshSlicer::mFunction_GenerateLayerTileInformation()
@@ -483,7 +564,7 @@ void		IMeshSlicer::mFunction_GenerateLayerTileInformation()
 	for (UINT i = 0;i < m_pLineSegmentBuffer->size();i++)
 	{
 		UINT currentLayerID = m_pLineSegmentBuffer->at(i).LayerID;
-		N_LineSegment currentLineSeg = m_pLineSegmentBuffer->at(i);
+		N_LayeredLineSegment currentLineSeg = m_pLineSegmentBuffer->at(i);
 		N_LineSegmentVertex tmpLineSegmentVertex;
 		UINT tileID_X = 0, tileID_Z = 0;
 
@@ -532,26 +613,25 @@ void		IMeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X
 	float MAX_Z = m_pBoundingBox_Max->z;
 
 	//map x to [0,1]first , then map to integer, and apply floot() operation
-	 tileID_X = (UINT)floorf((v.x - MIN_X) / (MAX_X - MIN_X)*CONST_LayerTileStepCount);
-	 tileID_Z = (UINT)floorf((v.z - MIN_Z) / (MAX_Z - MIN_Z)*CONST_LayerTileStepCount);
+	 tileID_X = (UINT)floorf((v.x - MIN_X) / (MAX_X - MIN_X)*c_LayerTileStepCount);
+	 tileID_Z = (UINT)floorf((v.z - MIN_Z) / (MAX_Z - MIN_Z)*c_LayerTileStepCount);
 
 	 //...deal with boundary problem (the most right vertex on the edge)
-	 if (tileID_X == CONST_LayerTileStepCount)tileID_X--;
-	 if (tileID_Z == CONST_LayerTileStepCount)tileID_Z--;
+	 if (tileID_X == c_LayerTileStepCount)tileID_X--;
+	 if (tileID_Z == c_LayerTileStepCount)tileID_Z--;
 };
 
-N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
-
+IMeshSlicer::N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
 {
 	N_IntersectionResult outResult;
 
 	//if all the vertex are beyond / below the layer
-	BOOL b1 = (v1.y > currentlayerY) && (v2.y > currentlayerY) && (v3.y > currentlayerY);
-	BOOL b2 = (v1.y < currentlayerY) && (v2.y < currentlayerY) && (v3.y < currentlayerY);
+	bool b1 = (v1.y > currentlayerY) && (v2.y > currentlayerY) && (v3.y > currentlayerY);
+	bool b2 = (v1.y < currentlayerY) && (v2.y < currentlayerY) && (v3.y < currentlayerY);
 	if (b1 || b2 )
 	{
 		outResult.mVertexCount = 0;
-		outResult.isPossibleToIntersectEdges = FALSE;
+		outResult.isPossibleToIntersectEdges = false;
 		return outResult;
 	}
 
@@ -559,7 +639,7 @@ N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLayer( float curr
 	if ((v1.y != currentlayerY) && (v2.y != currentlayerY) && (v3.y != currentlayerY) )
 	{
 		outResult.mVertexCount = 0;
-		outResult.isPossibleToIntersectEdges = TRUE;
+		outResult.isPossibleToIntersectEdges = true;
 		return outResult;
 	}
 
@@ -571,31 +651,31 @@ N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLayer( float curr
 	if(abs(v1.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
 		outResult.mVertexCount += 1;
-		outResult.mIndexList->push_back(0);
+		outResult.mIndexList.push_back(0);
 	}
 
 	if (abs(v2.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
 		outResult.mVertexCount += 1;
-		outResult.mIndexList->push_back(1);
+		outResult.mIndexList.push_back(1);
 	}
 
 	if (abs(v3.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
 		outResult.mVertexCount += 1;
-		outResult.mIndexList->push_back(2);
+		outResult.mIndexList.push_back(2);
 	}
 
 	return outResult;
 }
 
-BOOL IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
+bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
 {
 	//........used to judge if two point can be weld together
 	float						tmpPointDist = 0;
 	const float			SAME_POINT_DIST_THRESHOLD = 0.001f;
 	NVECTOR3			tmpV;
-	N_LineSegment		tmpLineSegment;
+	N_LayeredLineSegment		tmpLineSegment;
 
 	UINT tileID_X = 0, tileID_Z = 0;
 
@@ -613,7 +693,7 @@ BOOL IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 
 		//if this line segment has not been checked &&
 		//the line segment is on the same layer as the stretching line strip
-		if (tmpLineSegment.Dirty == FALSE )
+		if (tmpLineSegment.Dirty == false )
 		{
 
 			//if we can weld v1 to line strip tail 
@@ -624,8 +704,8 @@ BOOL IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v2;
 				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(lineSegID).Dirty = TRUE;
-				return TRUE;
+				m_pLineSegmentBuffer->at(lineSegID).Dirty = true;
+				return true;
 			}
 			
 
@@ -637,15 +717,15 @@ BOOL IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
 				*tailPoint = tmpLineSegment.v1;
 				//this line segment has been checked , so light up the DIRTY mark.
-				m_pLineSegmentBuffer->at(lineSegID).Dirty = TRUE;
-				return TRUE;
+				m_pLineSegmentBuffer->at(lineSegID).Dirty = true;
+				return true;
 			}
 		}
 
 	}//for j
 
 	//didn't find qualified line segment to link
-	return FALSE;
+	return false;
 }
 
 NVECTOR3 IMeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
@@ -657,11 +737,11 @@ NVECTOR3 IMeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 }
 
 //.NOISELAYER loader
-BOOL IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
+bool IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
 {
 	if (!pLineStripBuffer)
 	{
-		return FALSE;
+		return false;
 	}
 
 	//文件输入流
@@ -672,7 +752,7 @@ BOOL IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vect
 	if (!fileIn.is_open())
 	{
 		ERROR_MSG("FileManager : Cannot Open File !!");
-		return FALSE;
+		return false;
 	}
 
 	//指针移到文件尾
@@ -689,7 +769,7 @@ BOOL IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vect
 	//some  check before importing file
 	if (!pLineStripBuffer)
 	{
-		return FALSE;
+		return false;
 	}
 
 
@@ -748,11 +828,11 @@ BOOL IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vect
 
 	fileIn.close();
 
-	return TRUE;
+	return true;
 }
 
 //.NOISELAYER exporter
-BOOL IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, BOOL canOverlapOld)
+bool IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld)
 {
 	std::ofstream fileOut;
 
@@ -770,7 +850,7 @@ BOOL IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vect
 	if (!fileOut.good())
 	{
 		ERROR_MSG("FileManager : Cannot Open File !!");
-		return FALSE;
+		return false;
 	}
 
 	//prepare to output,tmp var to store number
@@ -838,5 +918,5 @@ BOOL IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vect
 
 	fileOut.close();
 
-	return TRUE;
+	return true;
 }

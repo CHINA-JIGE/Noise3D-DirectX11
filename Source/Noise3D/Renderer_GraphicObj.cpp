@@ -34,17 +34,12 @@ using namespace Noise3D;
 	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
 }*/
 
+
 void IRenderer::RenderGraphicObjects()
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
 	ICamera* const pCamera = GetScene()->GetCamera();
-
-	//set fillmode & cullmode
-	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-
-	//set blend state
-	mFunction_SetBlendState(m_BlendMode);
 
 	//set samplerState
 	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
@@ -91,15 +86,21 @@ void		IRenderer::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera,s
 	ID3D11Buffer* tmp_pVB = NULL;
 	for (UINT i = 0;i < pList->size();i++)
 	{
-		UINT vCount = pList->at(i)->GetLine3DCount() * 2;
+		IGraphicObject* pGObj = pList->at(i);
+
+		UINT vCount = pGObj->GetLine3DCount() * 2;
 		if (vCount == 0)continue;
 
 		//settings
-		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
+		tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+
+		//set blend state
+		mFunction_SetBlendState(pGObj->GetBlendMode());
 
 		//设置fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
@@ -122,18 +123,23 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera,
 	ID3D11Buffer* tmp_pVB = NULL;
 	for (UINT i = 0;i < pList->size();i++)
 	{
-		UINT vCount = pList->at(i)->GetPoint3DCount();
+		IGraphicObject* pGObj = pList->at(i);
+
+		UINT vCount = pGObj->GetPoint3DCount();
 		if (vCount == 0)continue;
 
 		//settings
-		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
+		tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-		//设置fillmode和cullmode
+		//set fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+
+		//set blend state
+		mFunction_SetBlendState(pGObj->GetBlendMode());
 
 		//draw point 一个pass就够了
 		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -149,18 +155,23 @@ void		IRenderer::mFunction_GraphicObj_RenderLine2DInList(std::vector<IGraphicObj
 	ID3D11Buffer* tmp_pVB = NULL;
 	for (UINT i = 0;i < pList->size();i++)
 	{
-		UINT vCount = pList->at(i)->GetLine2DCount() * 2;
+		IGraphicObject* pGObj = pList->at(i);
+
+		UINT vCount = pGObj->GetLine2DCount() * 2;
 		if (vCount == 0)continue;
 
 		//settings
-		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
+		tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-		//设置fillmode和cullmode
+		//set fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+
+		//set blend state
+		mFunction_SetBlendState(pGObj->GetBlendMode());
 
 		//draw line 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -175,18 +186,23 @@ void		IRenderer::mFunction_GraphicObj_RenderPoint2DInList(std::vector<IGraphicOb
 	ID3D11Buffer* tmp_pVB = NULL;
 	for (UINT i = 0;i < pList->size();i++)
 	{
-		UINT vCount = pList->at(i)->GetPoint2DCount() * 2;
+		IGraphicObject* pGObj = pList->at(i);
+
+		UINT vCount = pGObj->GetPoint2DCount() * 2;
 		if (vCount == 0)continue;
 
 		//settings
-		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
+		tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-		//设置fillmode和cullmode
+		//set fillmode和cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+
+		//set blend state
+		mFunction_SetBlendState(pGObj->GetBlendMode());
 
 		//draw point 一个pass就够了
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -206,6 +222,11 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 
 	for (UINT i = 0;i < pList->size();i++)
 	{
+		IGraphicObject* pGObj = pList->at(i);
+
+		//set blend state
+		mFunction_SetBlendState(pGObj->GetBlendMode());
+
 		//----------------------1,draw common triangle----------------------
 		tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
@@ -213,9 +234,8 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		UINT j = 0, vCount = 0;
+		UINT vCount = 0;
 		//traverse all region list , to decide use which tech to draw (textured or not)
-
 		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		vCount = pList->at(i)->GetTriangle2DCount() * 3;
 		if (vCount>0)g_pImmediateContext->Draw(pList->at(i)->GetTriangle2DCount() * 3, 0);

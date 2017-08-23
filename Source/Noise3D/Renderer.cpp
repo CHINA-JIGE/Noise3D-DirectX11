@@ -22,9 +22,7 @@ IRenderer::IRenderer()
 	m_pFX_Tech_Solid2D = nullptr;
 	m_pFX_Tech_Textured2D = nullptr;
 	m_pFX_Tech_DrawSky = nullptr;
-	m_FillMode = NOISE_FILLMODE_SOLID;
-	m_CullMode = NOISE_CULLMODE_NONE;
-	m_BlendMode = NOISE_BLENDMODE_OPAQUE;
+
 }
 
 IRenderer::~IRenderer()
@@ -105,20 +103,6 @@ void	IRenderer::PresentToScreen()
 		m_pRenderList_TextStatic->clear();
 };
 
-void IRenderer::SetFillMode(NOISE_FILLMODE iMode)
-{
-	m_FillMode = iMode;
-}
-
-void IRenderer::SetCullMode(NOISE_CULLMODE iMode)
-{
-	m_CullMode = iMode;
-}
-
-void IRenderer::SetBlendingMode(NOISE_BLENDMODE iMode)
-{
-	m_BlendMode = iMode;
-}
 
 UINT IRenderer::GetMainBufferWidth()
 {
@@ -565,8 +549,6 @@ void		IRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CULLMO
 		}
 		break;
 
-
-
 	//render points
 	case 	NOISE_FILLMODE_POINT:
 		g_pImmediateContext->RSSetState(m_pRasterState_WireFrame_CullNone);
@@ -581,7 +563,7 @@ void		IRenderer::mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CULLMO
 void		IRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 {
 	float tmpBlendFactor[4] = { 0,0,0,0 };
-	switch (m_BlendMode)
+	switch (iBlendMode)
 	{
 	case NOISE_BLENDMODE_OPAQUE:
 		g_pImmediateContext->OMSetBlendState(m_pBlendState_Opaque, tmpBlendFactor, 0xffffffff);

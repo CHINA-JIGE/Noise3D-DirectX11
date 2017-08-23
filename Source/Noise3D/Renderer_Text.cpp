@@ -16,16 +16,10 @@ void IRenderer::RenderTexts()
 	g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-	mFunction_SetBlendState(m_BlendMode);
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
-	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_DisableDepthTest, 0xffffffff);
-
 	//render TEXT
 	mFunction_TextGraphicObj_Render(m_pRenderList_TextDynamic);
 	mFunction_TextGraphicObj_Render(m_pRenderList_TextStatic);
 }
-
 
 /***********************************************************************
 									P R I V A T E
@@ -63,23 +57,24 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 
 	for (UINT i = 0;i < pList->size();i++)
 	{
-		tmp_pVB = pList->at(i)->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
+		IBasicTextInfo* pText = pList->at(i);
+		tmp_pVB = pText->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
 
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
 		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
 		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//设置fillmode和cullmode
+		//set fillmode & cullmode
 		mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
 
-		//设置blend state
-		mFunction_SetBlendState(m_BlendMode);
+		//set blend state
+		mFunction_SetBlendState(pText->GetBlendMode());
 
-		//设置samplerState
+		//set samplerState
 		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
 
-		//设置depth/Stencil State
+		//set depth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 

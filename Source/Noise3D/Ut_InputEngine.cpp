@@ -132,9 +132,9 @@ BOOL IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 
 	//set cooperative level ( how to share with other program)
 	hr = m_pDeviceMouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Mouse)Set Cooperative Format failed!!");
+	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Mouse)Set Cooperative Level failed!!");
 	hr = m_pDeviceKeyboard->SetCooperativeLevel(hwnd,	DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard)Set Cooperative Format failed!!");
+	HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard)Set Cooperative Level failed!!");
 
 	//acquire control (will be done in update)
 	 m_pDeviceMouse->Acquire();

@@ -11,6 +11,7 @@
 namespace Noise3D
 {
 	struct N_MaterialDesc;
+	struct N_MeshSubsetInfo;
 
 	enum NOISE_3DS_CHUNKID
 	{
@@ -66,13 +67,13 @@ namespace Noise3D
 	};
 
 
-	class /*_declspec(dllexport)*/ IFileLoader_3ds
+	class /*_declspec(dllexport)*/ IFileIO_3DS
 	{
 	public:
 
-		IFileLoader_3ds();
+		IFileIO_3DS();
 
-		BOOL ImportFile_3DS(
+		bool ImportFile_3DS(
 			NFilePath pFilePath,
 			std::vector<N_Load3ds_MeshObject>& outMeshInfoList,
 			std::vector<N_MaterialDesc>& outMaterialList,

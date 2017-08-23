@@ -35,6 +35,9 @@ IAtmosphere::~IAtmosphere()
 {
 	ReleaseCOM(m_pVB_Gpu_Sky);
 	ReleaseCOM(m_pIB_Gpu_Sky);
+	delete m_pVB_Mem_Sky;
+	delete m_pIB_Mem_Sky;
+	delete m_pFogColor;
 }
 
 

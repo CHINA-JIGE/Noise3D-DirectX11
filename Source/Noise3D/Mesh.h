@@ -9,10 +9,24 @@
 
 namespace Noise3D
 {
+	//correspond to one draw call of MESH
+	struct N_MeshSubsetInfo
+	{
+		N_MeshSubsetInfo() { ZeroMemory(this, sizeof(*this)); }
+		UINT		startPrimitiveID;
+		UINT		primitiveCount;
+		std::string		matName;
+	};
+
+
 	class /*_declspec(dllexport)*/ IMesh
+		: public CRenderSettingBlendMode,
+		public CRenderSettingCullMode,
+		public CRenderSettingFillMode
 	{
 		friend class IRenderer;
 		friend class IModelLoader;
+		friend class IModelProcessor;
 		friend class ICollisionTestor;
 
 	public:
@@ -53,18 +67,20 @@ namespace Noise3D
 
 		void		SetScaleZ(float scaleZ);
 
-		UINT		GetVertexCount();
+		UINT	GetVertexCount();
+
+		UINT	GetTriangleCount();
 
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
-		const std::vector<N_DefaultVertex>*		GetVertexBuffer();
+		const	std::vector<N_DefaultVertex>*		GetVertexBuffer();
 
-		const std::vector<UINT>*	GetIndexBuffer();
+		const	std::vector<UINT>*	GetIndexBuffer();
 
 		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_Box		ComputeBoundingBox();
+		N_Box	ComputeBoundingBox();
 
 	private:
 
@@ -76,8 +92,10 @@ namespace Noise3D
 		~IMesh();
 
 		//this function could be externally invoked by ModelLoader..etc
-		BOOL NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
 		
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
+
 		//invoked by NoiseRenderer
 		void		mFunction_UpdateWorldMatrix();
 
@@ -90,8 +108,8 @@ namespace Noise3D
 
 
 
-		UINT										mVertexCount;
-		UINT										mIndexCount;
+		UINT									mVertexCount;
+		UINT									mIndexCount;
 		ID3D11Buffer*						m_pVB_Gpu;
 		ID3D11Buffer*						m_pIB_Gpu;
 
@@ -107,9 +125,9 @@ namespace Noise3D
 
 		NMATRIX*										m_pMatrixWorld;
 		NMATRIX*										m_pMatrixWorldInvTranspose;
-		std::vector<N_DefaultVertex>*			m_pVB_Mem;//vertex in CPU memory
+		std::vector<N_DefaultVertex>*		m_pVB_Mem;//vertex in CPU memory
 		std::vector<UINT>*							m_pIB_Mem;//index in CPU memory
-		std::vector<N_MeshSubsetInfo>*		m_pSubsetInfoList;//store [a,b] of a subset
+		std::vector<N_MeshSubsetInfo>*	m_pSubsetInfoList;//store [a,b] of a subset
 
 	};
-}
+};

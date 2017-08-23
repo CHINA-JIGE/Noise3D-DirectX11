@@ -92,12 +92,12 @@ void IMaterialManager::mFunction_CreateDefaultMaterial()
 	//thus a default material is needed when an object was rendered with invalid material
 
 	N_MaterialDesc defaultMatDesc;
-	defaultMatDesc.mBaseAmbientColor = NVECTOR3(0.0f, 0.0f, 0.0f);
-	defaultMatDesc.mBaseDiffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	defaultMatDesc.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	defaultMatDesc.mEnvironmentMapTransparency = 0.0f;
-	defaultMatDesc.mNormalMapBumpIntensity = 0.1f;
-	defaultMatDesc.mSpecularSmoothLevel = 10;
+	defaultMatDesc.ambientColor = NVECTOR3(0.0f, 0.0f, 0.0f);
+	defaultMatDesc.diffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	defaultMatDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	defaultMatDesc.environmentMapTransparency = 0.0f;
+	defaultMatDesc.normalMapBumpIntensity = 0.1f;
+	defaultMatDesc.specularSmoothLevel = 10;
 	defaultMatDesc.diffuseMapName = "";
 	defaultMatDesc.specularMapName = "";
 	defaultMatDesc.environmentMapName = "";

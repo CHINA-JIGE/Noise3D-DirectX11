@@ -50,17 +50,17 @@ namespace Noise3D
 
 			NVECTOR4 GetBasicColor();//if texture is invalid,use basic color to draw solid rect
 
-			void	SetEnabled(BOOL isEnabled);
+			void	SetEnabled(bool isEnabled);
 
-			BOOL IsEnabled();
+			bool IsEnabled();
 
 			void	SetPosZ(float posZ);
 
 			float	GetPosZ();
 
 		protected:
-			BOOL	 IsPointInContainer(NVECTOR2 v);
-			BOOL	mIsEnabled;
+			bool		 IsPointInContainer(NVECTOR2 v);
+			bool		mIsEnabled;
 			NVECTOR2*	m_pPositionCenter;
 			float		mWidth;
 			float		mHeight;

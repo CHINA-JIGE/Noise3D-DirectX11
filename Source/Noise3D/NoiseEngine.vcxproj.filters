@@ -28,18 +28,6 @@
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseUtility\UtInputEngine">
-      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\UtSlicer">
-      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseUtility\UtTimer">
-      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{ff092c15-2f34-4861-be94-df2f8e903ae5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\Root">
       <UniqueIdentifier>{d4677d36-e4af-4062-aece-3b9a498593ed}</UniqueIdentifier>
     </Filter>
@@ -88,6 +76,27 @@
     <Filter Include="NoiseGraphic\Scene\CollisionTestor">
       <UniqueIdentifier>{f5ddb252-e47d-43e6-8a20-ede3c221af43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\ModelProcessor">
+      <UniqueIdentifier>{06180f0a-aa7f-475a-90e1-ce7438fa8eb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\_RenderSetting">
+      <UniqueIdentifier>{8d72bd88-eda0-447f-9220-fa526c9da6cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\InputEngine">
+      <UniqueIdentifier>{15dd7e5c-ee39-480b-a7bd-91615264dd11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\MeshSlicer">
+      <UniqueIdentifier>{2382ae15-f526-41f2-93f6-283143d5b9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\Timer">
+      <UniqueIdentifier>{5fb868b7-60e5-4ec0-b8ad-117e9c441ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\Voxelizer">
+      <UniqueIdentifier>{fcc730e9-856a-477d-863b-be202984143d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseUtility\MCMeshReconstructor">
+      <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseFlag.h">
@@ -102,9 +111,6 @@
     <ClInclude Include="NoiseTypes.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="Noise3D.h">
-      <Filter>Global</Filter>
-    </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClInclude>
@@ -116,9 +122,6 @@
     </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometryMeshGenerator.h">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClInclude>
     <ClInclude Include="Atmosphere.h">
       <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
@@ -145,16 +148,16 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MeshSlicer.h">
-      <Filter>NoiseUtility\UtSlicer</Filter>
+      <Filter>NoiseUtility\MeshSlicer</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine.h">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_InputEngine_KeyDef.h">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClInclude>
     <ClInclude Include="Ut_Timer.h">
-      <Filter>NoiseUtility\UtTimer</Filter>
+      <Filter>NoiseUtility\Timer</Filter>
     </ClInclude>
     <ClInclude Include="_2DBasicContainerInfo.h">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
@@ -186,20 +189,42 @@
     <ClInclude Include="ModelLoader.h">
       <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
     </ClInclude>
-    <ClInclude Include="FileMgr_3DS.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClInclude>
-    <ClInclude Include="GetResource.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="NoiseBinaryResource.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
     <ClInclude Include="CollisionTestor.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO_OBJ.h">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO_STL.h">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO_3DS.h">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelProcessor.h">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise3D.h" />
+    <ClInclude Include="_GeometryMeshGenerator.h">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="_BasicRenderSettings.h">
+      <Filter>NoiseGraphic\_RenderSetting</Filter>
+    </ClInclude>
+    <ClInclude Include="_SpatialHashTable.h">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_Voxelizer.h">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_VoxelizedModel.h">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Ut_MCMeshReconstructor.h">
+      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -226,18 +251,6 @@
     </ClCompile>
     <ClCompile Include="Renderer_Text.cpp">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMgr_3DS.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMgr_OBJ.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="FileMgr_STL.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometryMeshGenerator.cpp">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp">
       <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
@@ -267,13 +280,13 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp">
-      <Filter>NoiseUtility\UtSlicer</Filter>
+      <Filter>NoiseUtility\MeshSlicer</Filter>
     </ClCompile>
     <ClCompile Include="Ut_InputEngine.cpp">
-      <Filter>NoiseUtility\UtInputEngine</Filter>
+      <Filter>NoiseUtility\InputEngine</Filter>
     </ClCompile>
     <ClCompile Include="Ut_Timer.cpp">
-      <Filter>NoiseUtility\UtTimer</Filter>
+      <Filter>NoiseUtility\Timer</Filter>
     </ClCompile>
     <ClCompile Include="_2DBasicContainerInfo.cpp">
       <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
@@ -299,9 +312,6 @@
     <ClCompile Include="ModelLoader.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
     </ClCompile>
-    <ClCompile Include="GetResource.cpp">
-      <Filter>Shader</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
@@ -313,6 +323,33 @@
     </ClCompile>
     <ClCompile Include="CollisionTestor.cpp">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO_OBJ.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO_STL.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO_3DS.cpp">
+      <Filter>GeneralBasicClass\_FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelProcessor.cpp">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="_GeometryMeshGenerator.cpp">
+      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="_SpatialHashTable.cpp">
+      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_Voxelizer.cpp">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_VoxelizedModel.cpp">
+      <Filter>NoiseUtility\Voxelizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Ut_MCMeshReconstructor.cpp">
+      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

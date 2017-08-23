@@ -14,9 +14,9 @@ namespace Noise3D
 	struct N_CommonLightDesc
 	{
 		N_CommonLightDesc() { ZeroMemory(this, sizeof(*this)); }
-		NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
-		NVECTOR3	mDiffuseColor;			float				mDiffuseIntensity;
-		NVECTOR3	mSpecularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
+		NVECTOR3	ambientColor;		float				specularIntensity;
+		NVECTOR3	diffuseColor;		float				diffuseIntensity;
+		NVECTOR3	specularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
 	};
 
 
@@ -26,10 +26,10 @@ namespace Noise3D
 	{
 		N_DirLightDesc() { ZeroMemory(this, sizeof(*this)); };
 
-		/*NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
-		NVECTOR3	mDiffuseColor;				float				mDiffuseIntensity;
-		NVECTOR3	mSpecularColor;*/		float		mPad2;
-		NVECTOR3 mDirection;					float		mPad3;
+		/*NVECTOR3	ambientColor;		float				specularIntensity;
+		NVECTOR3	diffuseColor;				float				diffuseIntensity;
+		NVECTOR3	specularColor;*/		float		mPad2;
+		NVECTOR3 mDirection;				float		mPad3;
 	};
 
 
@@ -39,9 +39,9 @@ namespace Noise3D
 	{
 		N_PointLightDesc() {ZeroMemory(this, sizeof(*this));}
 
-		/*NVECTOR3	mAmbientColor;		float				mSpecularIntensity;
-		NVECTOR3	mDiffuseColor;				float				mDiffuseIntensity;
-		NVECTOR3	mSpecularColor;*/		float		mAttenuationFactor;
+		/*NVECTOR3	ambientColor;		float				specularIntensity;
+		NVECTOR3	diffuseColor;				float				diffuseIntensity;
+		NVECTOR3	specularColor;*/		float		mAttenuationFactor;
 		NVECTOR3 mPosition;						float		mLightingRange;
 
 	};
@@ -53,11 +53,11 @@ namespace Noise3D
 	{
 		N_SpotLightDesc(){ZeroMemory(this, sizeof(*this));}
 
-		/*NVECTOR3 mAmbientColor;		float mSpecularIntensity;
-		NVECTOR3 mDiffuseColor;			float mDiffuseIntensity;
-		NVECTOR3 mSpecularColor;*/	float mAttenuationFactor;
-		NVECTOR3 mLitAt;						float mLightingAngle;
-		NVECTOR3 mPosition;					float mLightingRange;
+		/*NVECTOR3 ambientColor;		float specularIntensity;
+		NVECTOR3 diffuseColor;			float diffuseIntensity;
+		NVECTOR3 specularColor;*/	float mAttenuationFactor;
+		NVECTOR3 mLitAt;					float mLightingAngle;
+		NVECTOR3 mPosition;			float mLightingRange;
 	};
 
 

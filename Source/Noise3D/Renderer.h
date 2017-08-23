@@ -32,12 +32,7 @@ namespace Noise3D
 	{
 		void SetBaseMat(const N_MaterialDesc& mat)
 		{
-			mBaseAmbientColor = mat.mBaseAmbientColor;
-			mBaseDiffuseColor = mat.mBaseDiffuseColor;
-			mBaseSpecularColor = mat.mBaseSpecularColor;
-			mSpecularSmoothLevel = mat.mSpecularSmoothLevel;
-			mNormalMapBumpIntensity = mat.mNormalMapBumpIntensity;
-			mEnvironmentMapTransparency = mat.mEnvironmentMapTransparency;
+			memcpy_s(this, sizeof(N_BasicMaterialDesc), &mat, sizeof(N_BasicMaterialDesc));
 		}
 
 		//only update these SWTICHES var to GPU, 
@@ -89,8 +84,6 @@ namespace Noise3D
 		NVECTOR4	mTextGlowColor;
 	};
 
-
-
 	class /*_declspec(dllexport)*/ IRenderer :
 		private IFileManager
 	{
@@ -119,12 +112,6 @@ namespace Noise3D
 		void			ClearBackground(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
 		void			PresentToScreen();
-
-		void			SetFillMode(NOISE_FILLMODE iMode);
-
-		void			SetCullMode(NOISE_CULLMODE iMode);
-
-		void			SetBlendingMode(NOISE_BLENDMODE iMode);
 
 		UINT		GetMainBufferWidth();
 
@@ -242,10 +229,6 @@ namespace Noise3D
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
 		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
 
-		NOISE_FILLMODE							m_FillMode;//填充模式
-		NOISE_CULLMODE							m_CullMode;//剔除模式
-		NOISE_BLENDMODE						m_BlendMode;
-
 		//在App中先定义好所有Struct再一次更新
 		BOOL											mCanUpdateCbCameraMatrix;
 		N_CbPerFrame							m_CbPerFrame;
@@ -270,7 +253,7 @@ namespace Noise3D
 		ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbSolid3D;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbAtmosphere;
-		ID3DX11EffectConstantBuffer* m_pFX_CbDrawText2D;
+		ID3DX11EffectConstantBuffer*	m_pFX_CbDrawText2D;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Diffuse;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
