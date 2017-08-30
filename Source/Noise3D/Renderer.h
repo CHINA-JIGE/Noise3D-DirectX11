@@ -85,7 +85,7 @@ namespace Noise3D
 	};
 
 	class /*_declspec(dllexport)*/ IRenderer :
-		private IFileManager
+		private IFileIO
 	{
 	friend class IScene;
 

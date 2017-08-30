@@ -115,6 +115,21 @@ UINT IVoxelizedModel::GetVoxelCount() const
 	return mCubeCountX * mCubeCountY * mCubeCountZ;
 }
 
+float IVoxelizedModel::GetModelWidth() const
+{
+	return GetVoxelCountX() * GetVoxelWidth();
+}
+
+float IVoxelizedModel::GetModelHeight() const
+{
+	return GetVoxelCountY() * GetVoxelHeight();
+}
+
+float IVoxelizedModel::GetModelDepth() const
+{
+	return GetVoxelCountZ() * GetVoxelDepth();
+}
+
 byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
 {
 	if (x < 0 || y < 0 || z < 0)return 0;
@@ -153,6 +168,100 @@ void IVoxelizedModel::SetVoxel(bool b, UINT x, UINT y, UINT z)
 		//ERROR_MSG("VoxelizedModel: SetVoxel failure. index out of boundary");
 	}
 
+}
+
+bool IVoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
+{
+	if (GetVoxelCount() > 1000000)
+	{
+		ERROR_MSG("VoxelizedModel: SaveToFile_STL failure. Resolution too high.");
+		return false;
+	}
+
+	std::ofstream outFile(STL_filePath, std::ios::trunc);
+	if (!outFile.is_open())
+	{
+		ERROR_MSG("VoxelizedModel: SaveToFile_STL failure. failed to open file");
+		return false;
+	}
+
+	std::vector<NVECTOR3> vertexList;
+
+	/*
+	     7 ________6
+	      /|		   /|
+	3  /_____ 2 /  |
+	   |	   |4       |  / 5
+	   |/_______ |/
+	0				1
+	
+	*/
+	float w = 1.0f, h =1.0f, d = 1.0f;
+	NVECTOR3 v[8]=
+	{
+		{0,0,0},
+		{w,0,0},
+		{w,h,0},
+		{0,h,0},
+		{0,0,d},
+		{w,0,d},
+		{w,h,d},
+		{0,h,d}
+	};
+
+	UINT index[6][6]=
+	{
+		{0,7,4,0,3,7},//x-minus surface
+		{ 5,2,1,5,6,2 },//x-plus surface
+		{ 1,0,4,1,4,5 },//y-minus surface
+		{ 2,7,3,2,6,7 },//y-plus surface
+		{ 1,3,0,1,2,3 },//z-minus surface
+		{ 7,6,5,7,5,4 },//z-plus surface
+	};
+
+	for (int y = 0; y < mCubeCountY; ++y)
+	{
+		for (int z = 0; z < mCubeCountZ; ++z)
+		{
+			for (int x = 0; x < mCubeCountX; ++x)
+			{
+				byte val = IVoxelizedModel::GetVoxel(x, y, z);
+				byte val_xm = IVoxelizedModel::GetVoxel(x-1, y, z);//x-minus
+				byte val_xp = IVoxelizedModel::GetVoxel(x+1, y, z);//x-plus
+				byte val_ym = IVoxelizedModel::GetVoxel(x, y-1, z);//y-minus
+				byte val_yp = IVoxelizedModel::GetVoxel(x, y+1, z);//y-plus
+				byte val_zm = IVoxelizedModel::GetVoxel(x, y, z-1);//z-minus
+				byte val_zp = IVoxelizedModel::GetVoxel(x, y, z+1);//z-plus
+				if (val == 1)
+				{
+					//cube position
+					NVECTOR3 vOffset = NVECTOR3( x*w,y*h,z*d);
+
+					//generate square surface for 1-valued voxel
+					if (val_xm == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset+v[index[0][i]]);
+
+					if (val_xp == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset + v[index[1][i]]);
+
+					if (val_ym == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset + v[index[2][i]]);
+
+					if (val_yp == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset + v[index[3][i]]);
+
+					if (val_zm == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset + v[index[4][i]]);
+
+					if (val_zp == 0)
+						for (int i = 0; i < 6; ++i)vertexList.push_back(vOffset + v[index[5][i]]);
+
+				}
+			}
+		}
+	}
+
+	return IFileIO::ExportFile_STL_Binary(STL_filePath,"Noise Voxelized Model",vertexList);
 }
 
 bool IVoxelizedModel::SaveToFile_NVM(NFilePath NVM_filePath)
@@ -210,7 +319,7 @@ bool IVoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
 		outFile << "***Layer" << y << std::endl;
 		for (uint32_t z = 0; z < mCubeCountZ; ++z)
 		{
-			for (uint32_t x = 0; x < mCubeCountZ; ++x)
+			for (uint32_t x = 0; x < mCubeCountX; ++x)
 			{
 				outFile << int( IVoxelizedModel::GetVoxel(x, y, z));
 			}

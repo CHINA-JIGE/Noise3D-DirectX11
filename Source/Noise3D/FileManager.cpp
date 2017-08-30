@@ -23,12 +23,12 @@ ios::trunc		打开一个文件，然后清空内容
 ios::ate		打开一个文件时，将位置移动到文件尾
 */
 
-IFileManager::IFileManager()
+IFileIO::IFileIO()
 {
 
 };
 
-bool IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
+bool IFileIO::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
 {
 	//文件输入流
 	std::ifstream fileIn(pFilePath, std::ios::binary);
@@ -72,7 +72,7 @@ bool IFileManager::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteB
 	return true;
 }
 
-bool IFileManager::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, bool canOverlapOld)
+bool IFileIO::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, bool canOverlapOld)
 {
 
 	std::ofstream fileOut;

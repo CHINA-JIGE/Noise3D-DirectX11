@@ -17,6 +17,8 @@ IModelLoader* pModelLoader;
 IMeshManager* pMeshMgr;
 IMesh* pMesh1;
 IMesh* pMesh2;
+IMesh* pMeshVox;
+IMesh* pMeshVoxFrame;
 IMaterialManager*	pMatMgr;
 ITextureManager*	pTexMgr;
 IGraphicObjectManager*	pGraphicObjMgr;
@@ -78,6 +80,8 @@ bool Init3D(HWND hwnd)
 	//use "myMesh1" string to initialize UID (unique-Identifier)
 	pMesh1 = pMeshMgr->CreateMesh("origin");
 	pMesh2 = pMeshMgr->CreateMesh("simplified");
+	pMeshVox = pMeshMgr->CreateMesh("voxelized");
+	pMeshVoxFrame = pMeshMgr->CreateMesh("voxFrame");
 
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, true);
 	pCamera = pScene->GetCamera();
@@ -88,14 +92,14 @@ bool Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
 	//Âþ·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("media/checker.jpg", "checker", true, 1024, 1024, false);
-	pTexMgr->CreateTextureFromFile("media/Jade.jpg", "Jade", false, 256, 256, false);
-	pTexMgr->CreateTextureFromFile("media/universe2.jpg", "Universe", false, 256, 256, false);
-	pTexMgr->CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", true, 0, 0, false);
+	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "checker", true, 1024, 1024, false);
+	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", false, 256, 256, false);
+	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
+	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", true, 0, 0, false);
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
-	pFontMgr->CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
+	pFontMgr->CreateFontFromFile("../media/STXINWEI.ttf", "myFont", 24);
 	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(150, 60));
@@ -114,14 +118,14 @@ bool Init3D(HWND hwnd)
 	Ut::IVoxelizer voxer;
 	Ut::IVoxelizedModel voxModel;
 	Ut::IMarchingCubeMeshReconstructor mc;
-	int sampleCountX = 500;
-	int sampleCountY = 800;
-	int sampleCountZ = 500;
-	std::string modelFile = "model/headOfAugustus.stl";
+	int sampleCountX = 20;
+	int sampleCountY = 20;
+	int sampleCountZ = 20;
+	std::string modelFile = "../model/polyFillTest.stl";
 	voxer.Init(modelFile, sampleCountX, sampleCountY, sampleCountZ);
 
 	pModelLoader->LoadFile_STL(pMesh1, modelFile);
-	pMesh1->SetPosition(-100.0f, 0, 0.0f);
+	pMesh1->SetPosition(-200.0f, 0, 0);
 	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMesh1->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
 	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
@@ -133,39 +137,51 @@ bool Init3D(HWND hwnd)
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
 	//pModelProc->WeldVertices(pMesh1, 0.1f);
 	tmpTimer.ResetAll();
-	tmpTimer.NextTick();
 	voxer.Voxelize();
 	tmpTimer.NextTick();
 	double interval1 = tmpTimer.GetInterval();
 	//************************************************************************
 
 	tmpTimer.ResetAll();
-	tmpTimer.NextTick();
 	voxer.GetVoxelizedModel(voxModel);
-	int downSampleRateX = 70;
-	int downSampleRateY = 100;
-	int downSampleRateZ = 70;
+	int downSampleRateX = 20;
+	int downSampleRateY = 20;
+	int downSampleRateZ = 20;
 	mc.Compute(voxModel, downSampleRateX, downSampleRateY, downSampleRateZ);
 	tmpTimer.NextTick();
 	double interval2 = tmpTimer.GetInterval();
 	//************************************************************************
 
-	//save voxel model
-	//voxModel.SaveToFile_TXT("voxel.txt");
 
 	//visualize result 
 	std::vector<NVECTOR3>	vertexList;
 	mc.GetResult(vertexList);
-	IFileManager fm;
+	IFileIO fm;
 	fm.ExportFile_STL_Binary("out.stl", "MyMCTest", vertexList);
 	
 	//load the output model (so that normals, tangents are automatically calculated)
 	pModelLoader->LoadFile_STL(pMesh2,"out.stl");
-	pMesh2->SetPosition(0, 0, 0);
+	pMesh2->SetPosition(-100.0f, 0, 0);
 	pMesh2->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMesh2->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
 	pMesh2->SetCullMode(NOISE_CULLMODE_NONE);
-	pModelProc->WeldVertices(pMesh2, 0.5f);
+	//pModelProc->WeldVertices(pMesh2, 0.5f);
+
+	//save voxel model
+	voxModel.SaveToFile_STL("voxelizedMesh.stl");
+	pModelLoader->LoadFile_STL(pMeshVox, "voxelizedMesh.stl");
+	pMeshVox->SetPosition(0, 0, 0);
+	pMeshVox->SetScale(2.0f, 2.0f, 2.0f);
+	pMeshVox->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMeshVox->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
+	pMeshVox->SetCullMode(NOISE_CULLMODE_NONE);
+
+	/*pModelLoader->LoadFile_STL(pMeshVoxFrame, "voxelizedMesh.stl");
+	pMeshVoxFrame->SetPosition(0, 0, 0);
+	pMeshVoxFrame->SetScale(2.0f, 2.0f, 2.0f);
+	pMeshVoxFrame->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMeshVoxFrame->SetFillMode(NOISE_FILLMODE_WIREFRAME); //NOISE_FILLMODE_WIREFRAME
+	pMeshVoxFrame->SetCullMode(NOISE_CULLMODE_NONE);*/
 
 	logFile << std::endl << "****** " << std::endl
 		<<"Model File : " << modelFile<<std::endl
@@ -192,13 +208,14 @@ bool Init3D(HWND hwnd)
 
 
 
+
+
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB = pMesh2->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("Axis");
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 20.0f,0,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f,0,0,0 });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });
-	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 20.0f,0,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f,0,0,0 });
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });
 
 	/*for (auto v : *pTmpVB)
 	{
@@ -251,8 +268,7 @@ bool Init3D(HWND hwnd)
 	//set material
 	pMesh1->SetMaterial("meshMat1");
 	pMesh2->SetMaterial("meshMat1");
-
-
+	pMeshVox->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
@@ -282,6 +298,8 @@ void MainLoop()
 	//add to render list
 	pRenderer->AddObjectToRenderList(pMesh1);
 	pRenderer->AddObjectToRenderList(pMesh2);
+	pRenderer->AddObjectToRenderList(pMeshVox);
+	//pRenderer->AddObjectToRenderList(pMeshVoxFrame);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

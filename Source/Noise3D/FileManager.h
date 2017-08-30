@@ -15,13 +15,13 @@ namespace Noise3D
 {
 	struct N_MaterialDesc;
 
-		class /*_declspec(dllexport)*/ IFileManager : 
+		class /*_declspec(dllexport)*/ IFileIO : 
 			public IFileIO_3DS,
 			public IFileIO_STL,
 			public IFileIO_OBJ
 		{
 		public:
-			IFileManager();
+			IFileIO();
 
 			bool ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer);
 

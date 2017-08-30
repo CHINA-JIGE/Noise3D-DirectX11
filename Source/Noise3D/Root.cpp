@@ -381,13 +381,13 @@ BOOL	IRoot::mFunction_CreateEffectFromMemory()
 
 	//Load FXO file
 #ifdef _DEBUG
-	if (!IFileManager::ImportFile_PURE("shader//Main_d.fxo", compiledShader))
+	if (!IFileIO::ImportFile_PURE("shader//Main_d.fxo", compiledShader))
 	{
 		ERROR_MSG("Root : critical error! Compiled shader (Debug mode) not found!!");
 		return FALSE;
 	}
 #else
-	if (!IFileManager::ImportFile_PURE("shader//Main.fxo", compiledShader))
+	if (!IFileIO::ImportFile_PURE("shader//Main.fxo", compiledShader))
 	{
 		ERROR_MSG("Root : critical error! Compiled shader(Release mode) not found!!");
 		return FALSE;

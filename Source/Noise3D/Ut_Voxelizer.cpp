@@ -98,7 +98,7 @@ void  IVoxelizer::GetVoxelizedModel(IVoxelizedModel& outModel)
 
 void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& lineSegList)
 {
-
+	//1.
 	for (auto& line : lineSegList)
 	{
 		UINT cubeCountZ = mVoxelizedModel.GetVoxelCountZ();
@@ -107,18 +107,35 @@ void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& 
 		float y1_2d = (line.v1.y - mLayerPosMin.y) / mLayerRealDepth ;
 		float y2_2d = (line.v2.y - mLayerPosMin.y) / mLayerRealDepth ;
 		UINT startY_2d = UINT((min(y1_2d, y2_2d)) * cubeCountZ);
-		UINT endY_2d = UINT((max(y1_2d, y2_2d)) * cubeCountZ) +1;
+		UINT endY_2d = (UINT((max(y1_2d, y2_2d)) * cubeCountZ)+1);
+		if (endY_2d >= cubeCountZ)endY_2d = cubeCountZ - 1;//boundary check
 
 		for (UINT i = startY_2d; i < endY_2d; ++i)
 		{
 			// layer pixel height = rows in a layer
-			float normalized_scanlineY = ((float(i) + 0.5f) / cubeCountZ);
+			float normalized_scanlineY = ((float(i)) / cubeCountZ);
 			//scanline - lineSegment intersection
 			mFunction_LineSegment_Scanline_Intersect(line, i, normalized_scanlineY);
 		}
 	}
 
-	//intersect-points' X coord in each row should be sorted in order to use scan line padding algorithm
+	//2.  re-calculate ambiguous situation by approximation
+	for (auto& a : mAmbiguousIntersection)
+	{
+		//clear the whole row,re-calculate
+		mIntersectXCoordLayers.at(a.layerID).at(a.scanLineRowID).clear();
+		//an offset added to y, trying to approximate the filling situation while
+		//avoiding ambiguous situation
+		a.originalScanlineYCoord += 0.001f;
+		//acitve line: possible intersection
+		for (auto& activeLine : a.activeLineSegmentList)
+		{
+			//new ambiguous situation could be generated, loop until all amb-situation are resolved by approximation
+			mFunction_LineSegment_Scanline_Intersect(activeLine, a.scanLineRowID, a.originalScanlineYCoord);
+		}
+	}
+
+	//3. intersect-points' X coord in each row should be sorted in order to use scan line padding algorithm
 	for (auto& layer : mIntersectXCoordLayers)
 	{
 		for (auto & row : layer)
@@ -127,14 +144,13 @@ void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& 
 		}
 	}
 
-	//pad inner area
+	//4. pad inner area of each layer
 	for (UINT i = 0; i < mVoxelizedModel.GetVoxelCountY(); ++i)
 	{
 		mFunction_PadInnerArea(mIntersectXCoordLayers.at(i),i);
 	}
 
 }
-
 
 void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSegment2D& line, UINT scanlineRowID, float y)
 {
@@ -154,25 +170,39 @@ void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSeg
 		return;
 	}
 
-
-
-	// now y valued between v1.y and v2.y can be assured
-	if (v1.y == v2.y)
+	// assuring no vertex of line segment are on the scanline
+	if ( v1.y==y || v2.y==y)
 	{
-		//this is a very special case
+		//this is a very special case, actually in this case 
+		//filling behaviour could be UN-DEFINED.
 
-		//v1.x and v2.x serve as the X region that can pad the line segment
-		layerIntersectResult.at(scanlineRowID).push_back(v1.x);
-		layerIntersectResult.at(scanlineRowID).push_back(v2.x);
+		//try to find existed Ambiguous situation and only add new active line to it
+		for (auto& asc : mAmbiguousIntersection)
+		{
+			if (asc.layerID == line.layerID && asc.scanLineRowID == scanlineRowID)
+			{
+				asc.activeLineSegmentList.push_back(line);
+				return;
+			}
+		}
 
-		//this v2.x serve as the start X of next horizontal padding area
+		//new ambiguous scan line
+		N_AmbiguousScanlineCircumstance newAsc;
+		newAsc.activeLineSegmentList.push_back(line);
+		newAsc.layerID = line.layerID;
+		newAsc.scanLineRowID = scanlineRowID;
+		newAsc.originalScanlineYCoord = y;
+		mAmbiguousIntersection.push_back(newAsc);
+
+		/*layerIntersectResult.at(scanlineRowID).push_back(v1.x);
 		layerIntersectResult.at(scanlineRowID).push_back(v2.x);
+		layerIntersectResult.at(scanlineRowID).push_back(v2.x);*/
 		return;
 	}
 
 	//vector ratio coeffient t
 	float t = (y - v1.y) / (v2.y - v1.y);
-	if (t >= 0.0f && t < 1.0f)
+	if (t > 0.0f && t < 1.0f)
 	{
 		layerIntersectResult.at(scanlineRowID).push_back(v1.x + t * (v2.x - v1.x));
 	}
@@ -184,6 +214,7 @@ void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSeg
 void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layerID)
 {
 	//Scan Line Padding , horizontal line scans from top to bottom
+	UINT cubeCountX = mVoxelizedModel.GetVoxelCountX();
 	for (UINT z = 0; z < layer.size(); ++z)
 	{
 		auto& XCoordRow = layer.at(z);
@@ -196,8 +227,6 @@ void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layer
 			//NOTE: accurate X coordinate of intersect points derived from
 			//each scan line had been computed. now we only need quantize
 			//these X coord and start padding from odd index to even index X coord
-
-			UINT cubeCountX = mVoxelizedModel.GetVoxelCountX();
 			UINT startX = UINT(XCoordRow.at(j)  * float(cubeCountX));
 			UINT endX = UINT(XCoordRow.at(j + 1)*float(cubeCountX));
 

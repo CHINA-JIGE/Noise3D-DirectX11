@@ -11,7 +11,7 @@
 
 using namespace Noise3D;
 
-void CGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	mFunction_Build_A_Quad(
 		NVECTOR3(-fWidth / 2, 0, fDepth / 2),
@@ -24,7 +24,7 @@ void CGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCo
 		outIndicesList);
 }
 
-void CGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	/*
 	Y  |
@@ -123,7 +123,7 @@ void CGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 		outIndicesList);
 }
 
-void CGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
@@ -249,7 +249,7 @@ void CGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 #pragma endregion GenerateIndices
 }
 
-void CGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
@@ -426,7 +426,7 @@ void CGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 	delete tmpTexCoord;
 }
 
-void CGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT iColumnCount, UINT iRingCount, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT iColumnCount, UINT iRingCount, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
@@ -555,7 +555,7 @@ void CGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 
 }
 
-void CGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDepth, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDepth, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	//Build 6 Quad
 	int tmpBaseIndex;
@@ -652,7 +652,7 @@ void CGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 								P R I V A T E					                    
 ***********************************************************************/
 
-inline void CGeometryMeshGenerator::mFunction_Build_A_Quad
+inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 (NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	NVECTOR3 tmpNormal;
@@ -693,7 +693,7 @@ inline void CGeometryMeshGenerator::mFunction_Build_A_Quad
 
 }
 
-inline void	 CGeometryMeshGenerator::mFunction_Build_A_Quad
+inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
 (NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
 {

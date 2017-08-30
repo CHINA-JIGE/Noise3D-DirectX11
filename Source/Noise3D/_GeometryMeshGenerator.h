@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/  CGeometryMeshGenerator
+	class /*_declspec(dllexport)*/  IGeometryMeshGenerator
 	{
 	public:
 

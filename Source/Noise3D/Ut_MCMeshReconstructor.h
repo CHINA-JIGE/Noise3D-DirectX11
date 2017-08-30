@@ -53,16 +53,19 @@ namespace Noise3D
 			void mFunction_MarchingCubeGenTriangles(const N_NonTrivialCube& cube);
 
 			const IVoxelizedModel*				m_pVoxelizedModel;
+
 			std::vector<NVECTOR3>				mVertexList;
 
-			//uint16_t		mResolutionX;
-			//uint16_t		mResolutionY;
-			//uint16_t		mResolutionZ;
 			float				mResampleScaleX;
+
 			float				mResampleScaleY;
+
 			float				mResampleScaleZ;
+
 			float				mResampledCubeWidth;
+
 			float				mResampledCubeHeight;
+
 			float				mResampledCubeDepth;
 
 			//256个Triangle cases，在8个正方体顶点的状态确定以后用于生成三角形面片（等值面？）
@@ -71,7 +74,10 @@ namespace Noise3D
 				char index[16];
 			};
 
+			static const float c_SampleBinarizationThreshold;
+
 			static const int	 c_edgeList[12][2];
+
 			static const N_MCTriangleCase c_MarchingCubeTriangleCase[256];
 		};
 	}

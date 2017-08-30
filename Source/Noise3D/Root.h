@@ -11,7 +11,7 @@ namespace Noise3D
 {
 
 	class /*_declspec(dllexport)*/ IRoot 
-	: private IFileManager, public IFactory<IScene>
+	: private IFileIO, public IFactory<IScene>
 	{
 	public:
 

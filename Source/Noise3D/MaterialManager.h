@@ -42,7 +42,5 @@ namespace Noise3D
 
 		void		mFunction_CreateDefaultMaterial();
 
-		static const N_UID mDefaultMatName;
-
 	};
 }

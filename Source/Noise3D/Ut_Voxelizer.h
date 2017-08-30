@@ -46,6 +46,16 @@ namespace Noise3D
 			//thus one 'N_IntersectXCoordList' saves all intersected points' x coord in EACH LAYER
 			typedef std::vector<std::vector<float>> N_IntersectXCoordList;
 
+			//but if one or two vertices of line segment lies right on the scanline
+			//then ambiguous situation happens
+			struct N_AmbiguousScanlineCircumstance
+			{
+				std::vector<N_LayeredLineSegment2D> activeLineSegmentList;
+				UINT layerID;
+				UINT scanLineRowID;
+				float originalScanlineYCoord;
+			};
+
 			void mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& lineSegList);
 
 			void mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSegment2D& line, UINT scanlineRowID, float y);
@@ -55,8 +65,10 @@ namespace Noise3D
 
 
 			bool		mIsInitialized;
-			//intermediate data storing result of scanline-lineSegment intersection
+			//intermediate data storing result of scanline filling algorithm (lineSegment intersection)
 			std::vector<N_IntersectXCoordList> mIntersectXCoordLayers;
+			//ambiguous scanline intersection result (line segment vertex on the scanline)
+			std::vector<N_AmbiguousScanlineCircumstance> mAmbiguousIntersection;
 
 			IMeshSlicer		mSlicer;
 

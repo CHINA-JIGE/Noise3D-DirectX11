@@ -9,6 +9,8 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
+const float  IMarchingCubeMeshReconstructor::c_SampleBinarizationThreshold = 0.01f;
+
 IMarchingCubeMeshReconstructor::IMarchingCubeMeshReconstructor():
 	mResampledCubeWidth(0.0f),
 	mResampledCubeHeight(0.0f),
@@ -44,6 +46,7 @@ void IMarchingCubeMeshReconstructor::GetResult(std::vector<NVECTOR3>& outVertexL
 float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float k)
 {
 	//desc: tri-linear sample, which takes 8 3d-vertices as source input
+	//i,j,k are SCALED  index coordinate
 
 	//NOTE: in order to "close" the MC reconstructed mesh, boundary of the big
 	//voxel model must be 0
@@ -131,6 +134,7 @@ float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float 
 	float resampleValue = Noise3D::Lerp(lerpABCD, lerpEFGH, w);
 
 	return resampleValue;
+	//return val[0];
 }
 
 void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ)
@@ -180,15 +184,16 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 
 				//in this stage, vertices are re-sampled and have fractional weight (not binary anymore)
+				//i,j,k are SCALED index
 				float resampledArray[8];
-				resampledArray[0] = mFunction_Sample(i,			j,			k);//i,j,k will be scaled
-				resampledArray[1] = mFunction_Sample(i+1,	j,			k);
-				resampledArray[2] = mFunction_Sample(i+1,	j +1,		k);
-				resampledArray[3] = mFunction_Sample(i,			j+1,		k);
-				resampledArray[4] = mFunction_Sample(i,			j,			k+1);
-				resampledArray[5] = mFunction_Sample(i+1,	j,			k+1);
-				resampledArray[6] = mFunction_Sample(i+1,	j+1,		k+1);
-				resampledArray[7] = mFunction_Sample(i,			j+1,		k+1);
+				resampledArray[0] = mFunction_Sample(i+0.0f,	j +0.0f,		k +0.0f);//i,j,k will be scaled
+				resampledArray[1] = mFunction_Sample(i+1.0f,	j + 0.0f,	k + 0.0f);
+				resampledArray[2] = mFunction_Sample(i+1.0f,	j +1.0f,		k + 0.0f);
+				resampledArray[3] = mFunction_Sample(i+0.0f,	j +1.0f,		k + 0.0f);
+				resampledArray[4] = mFunction_Sample(i+0.0f,	j + 0.0f,	k +1.0f);
+				resampledArray[5] = mFunction_Sample(i+1.0f,	j + 0.0f,	k +1.0f);
+				resampledArray[6] = mFunction_Sample(i+1.0f,	j +1.0f,		k +1.0f);
+				resampledArray[7] = mFunction_Sample(i+0.0f,	j +1.0f,		k +1.0f);
 
 				//compute triangle case ID (those 256 circumstances)
 				int triangleCase=0;
@@ -196,8 +201,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 				{
 					//though resampled vertices has non-binary weight,
 					//yet the calculation of triangle case index needs BINARY indicator
-					const float binaryThreshold = 0.01f;
-					if (resampledArray[vertexID] >= binaryThreshold)
+					if (resampledArray[vertexID] >= c_SampleBinarizationThreshold)
 					{
 						triangleCase |= (1 << vertexID);
 					}
@@ -217,18 +221,18 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 				float stepX = 1.0f / scaleX;
 				float stepY = 1.0f / scaleY;
 				float stepZ = 1.0f / scaleZ;
-				cube.arrayEdgeLerpRatio[0] = mFunction_ComputeEdgeLerpRatio(0, i,		j,		k,		stepX, .0f, .0f);
-				cube.arrayEdgeLerpRatio[1] = mFunction_ComputeEdgeLerpRatio(1, i+1,	j,		k,		.0f, stepY, .0f);
-				cube.arrayEdgeLerpRatio[2] = mFunction_ComputeEdgeLerpRatio(2, i,		j+1,	k,		stepX, .0f, .0f);
-				cube.arrayEdgeLerpRatio[3] = mFunction_ComputeEdgeLerpRatio(3, i,		j,		k,		.0f, stepY, .0f);
-				cube.arrayEdgeLerpRatio[4] = mFunction_ComputeEdgeLerpRatio(4, i,		j,		k+1, stepX, .0f, .0f);
-				cube.arrayEdgeLerpRatio[5] = mFunction_ComputeEdgeLerpRatio(5, i+1 ,	j,		k+1,	.0f, stepY, .0f);
-				cube.arrayEdgeLerpRatio[6] = mFunction_ComputeEdgeLerpRatio(6, i,		j+1,	k+1, stepX, .0f, .0f);
-				cube.arrayEdgeLerpRatio[7] = mFunction_ComputeEdgeLerpRatio(7, i,		j,		k+1,	.0f, stepY, .0f);
-				cube.arrayEdgeLerpRatio[8] = mFunction_ComputeEdgeLerpRatio(8, i,		j,		k,		.0f, .0f, stepZ);
-				cube.arrayEdgeLerpRatio[9] = mFunction_ComputeEdgeLerpRatio(9, i+1 ,	j,		k,		.0f, .0f, stepZ);
-				cube.arrayEdgeLerpRatio[10] = mFunction_ComputeEdgeLerpRatio(10, i,	j+1,	k,		.0f, .0f, stepZ);
-				cube.arrayEdgeLerpRatio[11] = mFunction_ComputeEdgeLerpRatio(11, i+1,j+1,	k,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[0] = mFunction_ComputeEdgeLerpRatio(0, i + 0.0f,		j +0.0f,		k + 0.0f,		stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[1] = mFunction_ComputeEdgeLerpRatio(1, i + 1.0f,		j +0.0f,		k + 0.0f,		.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[2] = mFunction_ComputeEdgeLerpRatio(2, i + 0.0f,		j +1.0f,		k + 0.0f,		stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[3] = mFunction_ComputeEdgeLerpRatio(3, i + 0.0f,		j +0.0f,		k + 0.0f,		.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[4] = mFunction_ComputeEdgeLerpRatio(4, i + 0.0f,		j +0.0f,		k +1.0f,		stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[5] = mFunction_ComputeEdgeLerpRatio(5, i +1.0f,		j +0.0f,		k +1.0f,		.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[6] = mFunction_ComputeEdgeLerpRatio(6, i + 0.0f,		j +1.0f,		k+1.0f,			 stepX, .0f, .0f);
+				cube.arrayEdgeLerpRatio[7] = mFunction_ComputeEdgeLerpRatio(7, i + 0.0f,		j + 0.0f,	k+1.0f,			.0f, stepY, .0f);
+				cube.arrayEdgeLerpRatio[8] = mFunction_ComputeEdgeLerpRatio(8, i + 0.0f,		j + 0.0f,	k + 0.0f,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[9] = mFunction_ComputeEdgeLerpRatio(9, i+1.0f,		j + 0.0f,	k + 0.0f,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[10] = mFunction_ComputeEdgeLerpRatio(10, i+0.0f,	j+1.0f,		k + 0.0f,		.0f, .0f, stepZ);
+				cube.arrayEdgeLerpRatio[11] = mFunction_ComputeEdgeLerpRatio(11, i+1.0f,	j+1.0f,		k + 0.0f,		.0f, .0f, stepZ);
 
 				//Generate new triangle for this NON-TRIVIAL CUBE
 				mFunction_MarchingCubeGenTriangles(cube);
@@ -267,11 +271,17 @@ float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID,
 
 	//find the intersect point of edge and iso-surface
 	//sample multiple time to rougly estimate the intersect position
+	//(at which point the value go to the other side of BinarizedThreshold)
 	float edgeStartVal = mFunction_Sample(start_i, start_j, start_k);
-	for (int stepCount=0; stepCount<10;++stepCount)
+	bool isInitValLargerThanThreshold = bool(edgeStartVal > c_SampleBinarizationThreshold);
+	UINT maxStepCount = UINT(max(max(mResampleScaleX, mResampleScaleY), mResampleScaleZ));
+
+	for (int stepCount=0; stepCount<maxStepCount;++stepCount)
 	{
 		float val = mFunction_Sample(start_i + stepX * stepCount, start_j + stepY * stepCount, start_k + stepZ *stepCount);
-		if (val != edgeStartVal)
+		bool isCurrentValLessThanThreshold = val <= c_SampleBinarizationThreshold;
+		//sample value go to the other side of threshold
+		if (isInitValLargerThanThreshold==isCurrentValLessThanThreshold)
 		{
 			switch (edgeID)
 			{
@@ -301,11 +311,14 @@ void IMarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_
 	float  cw = mResampledCubeWidth;
 	float ch = mResampledCubeHeight;
 	float cd = mResampledCubeDepth;
+	float halfW = m_pVoxelizedModel->GetModelWidth() / 2.0f;//half width of the whole model
+	float halfH = m_pVoxelizedModel->GetModelHeight() / 2.0f;//half height of the whole model
+	float halfD = m_pVoxelizedModel->GetModelDepth() / 2.0f;//half depth of the whole model
 	NVECTOR3 basePos =
 	{
-		cube.cubeIndexX * cw,
-		cube.cubeIndexY * ch,
-		cube.cubeIndexZ * cd
+		cube.cubeIndexX * cw - halfW,
+		cube.cubeIndexY * ch - halfH,
+		cube.cubeIndexZ * cd - halfD
 	};
 
 	//1. coordinates of 8 cube vertices 
@@ -332,12 +345,13 @@ void IMarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_
 
 
 	//3. use 'triangle case array' to generate triangles
+
 	for (int i = 0; i < 16; i += 3)
 	{
 		if (triCase.index[i] == -1)break;
 		//output to list 
 
-		mVertexList.push_back(pointOnEdge[triCase.index[i]] );
+		mVertexList.push_back(pointOnEdge[triCase.index[i]]);
 		mVertexList.push_back(pointOnEdge[triCase.index[i + 2]]);
 		mVertexList.push_back(pointOnEdge[triCase.index[i + 1]]);
 	}

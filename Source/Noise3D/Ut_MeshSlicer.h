@@ -28,8 +28,8 @@ namespace Noise3D
 			UINT		LayerID;
 		};
 
-		//IFileManager is used to load .stl model
-		class /*_declspec(dllexport)*/ IMeshSlicer : private IFileManager
+		//IFileIO is used to load .stl model
+		class /*_declspec(dllexport)*/ IMeshSlicer : private IFileIO
 		{
 
 		public:
@@ -128,19 +128,19 @@ namespace Noise3D
 			bool		mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld);
 
 
-			std::vector<NVECTOR3>*			m_pPrimitiveVertexBuffer;
+			std::vector<NVECTOR3>			mPrimitiveVertexBuffer;
 
-			std::vector<NVECTOR3>*			m_pTriangleNormalBuffer;
+			std::vector<NVECTOR3>			mTriangleNormalBuffer;
 
-			std::vector<N_LayeredLineSegment>*	m_pLineSegmentBuffer;
+			std::vector<N_LayeredLineSegment>	mLineSegmentBuffer;
 
-			std::vector<N_Layer>*				m_pLayerList;	//for every N_Layer , there are an 2D layer tile array
+			std::vector<N_Layer>				mLayerList;	//for every N_Layer , there are an 2D layer tile array
 
-			std::vector<N_LineStrip>*			m_pLineStripBuffer;
+			std::vector<N_LineStrip>		mLineStripBuffer;
 
-			NVECTOR3*								m_pBoundingBox_Min;
+			NVECTOR3								mBoundingBox_Min;
 
-			NVECTOR3*								m_pBoundingBox_Max;
+			NVECTOR3								mBoundingBox_Max;
 
 			int		mCurrentStep;
 		};

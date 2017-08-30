@@ -13,7 +13,7 @@ namespace Noise3D
 	namespace Ut
 	{
 
-		class IVoxelizedModel
+		class IVoxelizedModel : private IFileIO
 		{
 		public:
 
@@ -37,21 +37,27 @@ namespace Noise3D
 
 			UINT GetVoxelCount()const;
 
+			float GetModelWidth() const;
+
+			float GetModelHeight() const;
+
+			float GetModelDepth() const;
+
 			//1, those {x,y,z} out of boundary will yield a 0
 			//2, {y{z{x}}} nested loop access is more memory coherent
 			byte GetVoxel(int x, int y, int z)const;
 
 			void	SetVoxel(bool b, UINT x, UINT y, UINT z);
 
+			bool SaveToFile_STL(NFilePath STL_filePath);//one box replacing one voxel
+
 			bool	SaveToFile_NVM(NFilePath NVM_filePath);//Noise Voxelized Model
 
-			bool	SaveToFile_TXT(NFilePath TXT_filePath);//Noise Voxelized Model
+			bool	SaveToFile_TXT(NFilePath TXT_filePath);//txt file
 
 			bool LoadFromFile_NVM(NFilePath NVM_filePath);//Noise Voxelized Model
 
 		private:
-
-			//typedef std::vector<std::vector<byte>> N_LayerBitmap;
 
 			//every bit represent the presence/absence of a voxel
 			//std::vector<N_LayerBitmap> mLayerGroup;

@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	//class IMesh;
 
-	class /*_declspec(dllexport)*/ IModelLoader : private IFileManager
+	class /*_declspec(dllexport)*/ IModelLoader : private IFileIO
 	{
 	public:
 
@@ -40,7 +40,7 @@ namespace Noise3D
 		~IModelLoader();
 
 		//internal mesh generator
-		CGeometryMeshGenerator mMeshGenerator;
+		IGeometryMeshGenerator mMeshGenerator;
 
 	};
 

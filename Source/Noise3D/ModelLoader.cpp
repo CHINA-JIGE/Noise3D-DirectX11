@@ -134,7 +134,7 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	//Load STL using file manager
 	bool fileLoadSucceeded = false;
-	fileLoadSucceeded = IFileManager::ImportFile_STL(pFilePath, tmpVertexList, tmpIndexList, tmpNormalList, tmpInfo);
+	fileLoadSucceeded = IFileIO::ImportFile_STL(pFilePath, tmpVertexList, tmpIndexList, tmpNormalList, tmpInfo);
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("IMesh : Load STL failed ! Cannot open file!");
@@ -221,7 +221,7 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	//º”‘ÿSTL
 	bool fileLoadSucceeded = false;
-	fileLoadSucceeded = IFileManager::ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
+	fileLoadSucceeded = IFileIO::ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("Noise Mesh : Load OBJ failed! Cannot open file. ");
@@ -246,7 +246,7 @@ bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 
 	//import data
 	bool importSucceeded = false;
-	importSucceeded = IFileManager::ImportFile_3DS(
+	importSucceeded = IFileIO::ImportFile_3DS(
 		pFilePath,
 		meshList,
 		materialList,

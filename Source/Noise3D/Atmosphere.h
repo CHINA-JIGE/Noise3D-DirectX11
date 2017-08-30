@@ -35,7 +35,7 @@ namespace Noise3D
 
 		~IAtmosphere();
 
-		CGeometryMeshGenerator mMeshGenerator;
+		IGeometryMeshGenerator mMeshGenerator;
 		//only after atmosphere was added to render list can we  apply fog effect
 		BOOL				mFogHasBeenAddedToRenderList;
 		BOOL				mFogCanUpdateToGpu;//we dont need update fog param frequently
