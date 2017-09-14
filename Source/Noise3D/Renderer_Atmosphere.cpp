@@ -32,8 +32,8 @@ void IRenderer::RenderAtmosphere()
 #pragma region Draw Sky
 
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &pAtmo->m_pVB_Gpu_Sky, &g_cVBstride_Simple, &g_cVBoffset);
-		g_pImmediateContext->IASetIndexBuffer(pAtmo->m_pIB_Gpu_Sky, DXGI_FORMAT_R32_UINT, 0);
+		g_pImmediateContext->IASetVertexBuffers(0, 1, &pAtmo->m_pVB_Gpu, &g_cVBstride_Simple, &g_cVBoffset);
+		g_pImmediateContext->IASetIndexBuffer(pAtmo->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//......Set States
@@ -61,7 +61,7 @@ void IRenderer::RenderAtmosphere()
 		for (UINT k = 0;k < tmpTechDesc.Passes; k++)
 		{
 			m_pFX_Tech_DrawSky->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
-			g_pImmediateContext->DrawIndexed(pAtmo->m_pIB_Mem_Sky->size(), 0, 0);
+			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
 		}
 
 		//allow atmosphere to "add to render list" again 
@@ -83,7 +83,7 @@ void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextur
 	if (pAtmo->mFogCanUpdateToGpu)
 	{
 		//update fog param
-		m_CbAtmosphere.mFogColor = *(pAtmo->m_pFogColor);
+		m_CbAtmosphere.mFogColor = pAtmo->mFogColor;
 		m_CbAtmosphere.mFogFar = pAtmo->mFogFar;
 		m_CbAtmosphere.mFogNear = pAtmo->mFogNear;
 		m_CbAtmosphere.mIsFogEnabled = (BOOL)(pAtmo->mFogEnabled && pAtmo->mFogHasBeenAddedToRenderList);
@@ -97,7 +97,7 @@ void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextur
 void		IRenderer::mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyDomeTexName)
 {
 	//validate texture and update BOOL value to gpu
-	 N_UID skyDomeTexName = *pAtmo->m_pSkyDomeTexName;
+	 N_UID skyDomeTexName = pAtmo->mSkyDomeTexName;
 
 	//check skyType
 	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
@@ -118,7 +118,7 @@ void		IRenderer::mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, IT
 void		IRenderer::mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName)
 {
 	//skybox uses cube map to texture the box
-	N_UID skyboxTexName =*pAtmo->m_pSkyBoxCubeTexName;
+	N_UID skyboxTexName =pAtmo->mSkyBoxCubeTexName;
 
 	//check skyType
 	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)

@@ -493,6 +493,7 @@ BOOL	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 		compiledFX->GetBufferPointer(),
 		compiledFX->GetBufferSize(),
 		0,g_pd3dDevice11,&g_pFX,nullptr);
+
 	HR_DEBUG(hr,"Create Basic Effect Fail!");
 
 	return TRUE;

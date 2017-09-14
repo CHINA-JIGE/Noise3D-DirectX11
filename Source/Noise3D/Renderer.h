@@ -1,8 +1,9 @@
 
 /***********************************************************************
 
-                           h£ºNoiseRenderer3D
-						desc: assemble data and use gpu to render
+                           h£ºIRenderer
+				desc: transfer data to Graphic memory
+				and use gpu to render
 
 ************************************************************************/
 
@@ -47,7 +48,7 @@ namespace Noise3D
 	{
 		//¡ª¡ª¡ª¡ª¡ª¡ª¡ªstatic light¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª
 		N_DirLightDesc		mDirectionalLight_Static[50];
-		N_PointLightDesc		mPointLight_Static[50];
+		N_PointLightDesc	mPointLight_Static[50];
 		N_SpotLightDesc		mSpotLight_Static[50];
 		int		mDirLightCount_Static;
 		int		mPointLightCount_Static;
@@ -87,7 +88,7 @@ namespace Noise3D
 	class /*_declspec(dllexport)*/ IRenderer :
 		private IFileIO
 	{
-	friend class IScene;
+	friend class IScene;//father node
 
 	public:
 

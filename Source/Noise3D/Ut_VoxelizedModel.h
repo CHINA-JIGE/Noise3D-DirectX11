@@ -47,7 +47,9 @@ namespace Noise3D
 			//2, {y{z{x}}} nested loop access is more memory coherent
 			byte GetVoxel(int x, int y, int z)const;
 
-			void	SetVoxel(bool b, UINT x, UINT y, UINT z);
+			void	SetVoxel(int b, UINT x, UINT y, UINT z);
+
+			void SetVoxel(int b, UINT startX, UINT endX, UINT y, UINT z);
 
 			bool SaveToFile_STL(NFilePath STL_filePath);//one box replacing one voxel
 

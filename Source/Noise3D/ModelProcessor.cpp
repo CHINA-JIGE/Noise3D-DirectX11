@@ -3,7 +3,7 @@
 
 							class£ºModel Processor
 
-				Desc: all kind of operation on loaded model
+				Desc: all kind of operation on processing model
 
 ***********************************************************************/
 
@@ -299,7 +299,7 @@ void IModelProcessor::Smooth_Laplacian(IMesh * pTargetMesh)
 	N_AdjacentList adjList;
 
 	//get ref to vertex buffer
-	std::vector<N_DefaultVertex>&  vb = *(pTargetMesh->m_pVB_Mem);
+	std::vector<N_DefaultVertex>&  vb = (pTargetMesh->mVB_Mem);
 	const std::vector<UINT>& ib = *(pTargetMesh->GetIndexBuffer());
 	std::vector<NVECTOR3> tmpPosList;
 

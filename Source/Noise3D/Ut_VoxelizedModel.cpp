@@ -150,10 +150,10 @@ byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
 	}
 }
 
-void IVoxelizedModel::SetVoxel(bool b, UINT x, UINT y, UINT z)
+void IVoxelizedModel::SetVoxel(int b, UINT x, UINT y, UINT z)
 {
 	//voxel bits are all packed into uint32_t 
-	if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
+	/*if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
 	{
 		int val = b ? 1 : 0;
 		uint32_t bitIndex =(y * mCubeCountZ + z) * mCubeCountX +x ;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
@@ -166,13 +166,73 @@ void IVoxelizedModel::SetVoxel(bool b, UINT x, UINT y, UINT z)
 	{
 		throw std::exception("VoxelizedModel: SetVoxel failure.index out of boundary");
 		//ERROR_MSG("VoxelizedModel: SetVoxel failure. index out of boundary");
+	}*/
+	int val = b!=0 ? 1 : 0;
+	uint32_t bitIndex = (y * mCubeCountZ + z) * mCubeCountX + x;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
+	uint32_t packedIndex = bitIndex / 32;//index of uint32_t
+	uint32_t bitOffset = bitIndex - 32 * packedIndex;
+	mVoxelArray.at(packedIndex) &= ~(1 << bitOffset);//clear bit
+	mVoxelArray.at(packedIndex) |= (val << bitOffset);
+}
+
+void IVoxelizedModel::SetVoxel(int b, UINT startX, UINT endX, UINT y, UINT z)
+{
+	int val = b != 0 ? 1 : 0;
+	uint32_t startBitIndex = (y * mCubeCountZ + z) * mCubeCountX + startX;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
+	uint32_t startPackedIndex = startBitIndex / 32;//index of uint32_t
+	uint32_t startBitInternalOffset = startBitIndex - 32 * startPackedIndex;
+	uint32_t endBitIndex = (y * mCubeCountZ + z) * mCubeCountX + endX;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
+	uint32_t endPackedIndex = endBitIndex / 32;//index of uint32_t
+	uint32_t endBitInternalOffset = endBitIndex - 32 * endPackedIndex;
+
+	//same packed int
+	if (startPackedIndex == endPackedIndex)
+	{
+		for (uint32_t i = startBitInternalOffset; i <= endBitInternalOffset; ++i)
+		{
+			mVoxelArray.at(startPackedIndex) &= ~(1 << i);//clear bit
+			mVoxelArray.at(startPackedIndex) |= (val << i);
+		}
+		return;
+	}
+
+	//optimization for setting an array of voxel.
+	//32 bits can be set in a single operation after optimization
+	//|xxxx0000|00000000|00000000|00xxxxxxxx|
+
+	for (uint32_t i = startBitInternalOffset; i < 32; ++i)
+	{
+		mVoxelArray.at(startPackedIndex) &= ~(1 << i);//clear bit
+		mVoxelArray.at(startPackedIndex) |= (val << i);
+	}
+
+	//set 32 bit once at a time
+	if (val == 0)
+	{
+		for (uint32_t j = startPackedIndex + 1; j < endPackedIndex; ++j)
+		{
+			mVoxelArray.at(j) = 0;//every 32 bit int are set to 1
+		}
+	}
+	else
+	{
+		for (uint32_t j = startPackedIndex + 1; j < endPackedIndex; ++j)
+		{
+			mVoxelArray.at(j) = 0xffffffff;//every 32 bit int are set to 1
+		}
+	}
+
+	for (uint32_t k = 0; k <= endBitInternalOffset; ++k)
+	{
+		mVoxelArray.at(endPackedIndex) &= ~(1 << k);//clear bit
+		mVoxelArray.at(endPackedIndex) |= (val << k);
 	}
 
 }
 
 bool IVoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 {
-	if (GetVoxelCount() > 1000000)
+	if (GetVoxelCount() > 10000000)
 	{
 		ERROR_MSG("VoxelizedModel: SaveToFile_STL failure. Resolution too high.");
 		return false;

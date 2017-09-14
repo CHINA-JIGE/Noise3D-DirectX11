@@ -16,7 +16,8 @@ IAtmosphere* pAtmos;
 IModelLoader* pModelLoader;
 IMeshManager* pMeshMgr;
 IMesh* pMesh1;
-IMesh* pMesh2;
+IMesh* pMesh1WF;
+IMesh* pMeshSimplified;
 IMesh* pMeshVox;
 IMesh* pMeshVoxFrame;
 IMaterialManager*	pMatMgr;
@@ -31,7 +32,7 @@ IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
 
-Ut::ITimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::ITimer myTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 Ut::IInputEngine inputE;
 
 //Main Entry
@@ -79,7 +80,8 @@ bool Init3D(HWND hwnd)
 
 	//use "myMesh1" string to initialize UID (unique-Identifier)
 	pMesh1 = pMeshMgr->CreateMesh("origin");
-	pMesh2 = pMeshMgr->CreateMesh("simplified");
+	pMesh1WF = pMeshMgr->CreateMesh("originWF");
+	pMeshSimplified = pMeshMgr->CreateMesh("simplified");
 	pMeshVox = pMeshMgr->CreateMesh("voxelized");
 	pMeshVoxFrame = pMeshMgr->CreateMesh("voxFrame");
 
@@ -92,7 +94,7 @@ bool Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
 	//Âþ·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "checker", true, 1024, 1024, false);
+	pTexMgr->CreateTextureFromFile("../media/wood.jpg", "wood", true, 1024, 1024, false);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", false, 256, 256, false);
 	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", true, 0, 0, false);
@@ -118,10 +120,10 @@ bool Init3D(HWND hwnd)
 	Ut::IVoxelizer voxer;
 	Ut::IVoxelizedModel voxModel;
 	Ut::IMarchingCubeMeshReconstructor mc;
-	int sampleCountX = 20;
-	int sampleCountY = 20;
-	int sampleCountZ = 20;
-	std::string modelFile = "../model/polyFillTest.stl";
+	int sampleCountX = 300;
+	int sampleCountY = 300;
+	int sampleCountZ = 300;
+	std::string modelFile = "../model/dragon.stl";
 	voxer.Init(modelFile, sampleCountX, sampleCountY, sampleCountZ);
 
 	pModelLoader->LoadFile_STL(pMesh1, modelFile);
@@ -129,13 +131,17 @@ bool Init3D(HWND hwnd)
 	pMesh1->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMesh1->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
 	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
-
+	/*pModelLoader->LoadFile_STL(pMesh1WF, modelFile);
+	pMesh1WF->SetPosition(-200.0f, 0, 0);
+	pMesh1WF->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMesh1WF->SetFillMode(NOISE_FILLMODE_WIREFRAME); 
+	pMesh1WF->SetCullMode(NOISE_CULLMODE_NONE);*/
 
 	Ut::ITimer tmpTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
 	std::ofstream logFile("VoxelizationExp.txt", std::ios::app);
 	//***********************************************************************
 	IModelProcessor* pModelProc = pScene->GetModelProcessor();
-	//pModelProc->WeldVertices(pMesh1, 0.1f);
+	//pModelProc->WeldVertices(pMesh1, 0.5f);
 	tmpTimer.ResetAll();
 	voxer.Voxelize();
 	tmpTimer.NextTick();
@@ -144,9 +150,9 @@ bool Init3D(HWND hwnd)
 
 	tmpTimer.ResetAll();
 	voxer.GetVoxelizedModel(voxModel);
-	int downSampleRateX = 20;
-	int downSampleRateY = 20;
-	int downSampleRateZ = 20;
+	int downSampleRateX = 100;
+	int downSampleRateY = 100;
+	int downSampleRateZ = 100;
 	mc.Compute(voxModel, downSampleRateX, downSampleRateY, downSampleRateZ);
 	tmpTimer.NextTick();
 	double interval2 = tmpTimer.GetInterval();
@@ -160,29 +166,31 @@ bool Init3D(HWND hwnd)
 	fm.ExportFile_STL_Binary("out.stl", "MyMCTest", vertexList);
 	
 	//load the output model (so that normals, tangents are automatically calculated)
-	pModelLoader->LoadFile_STL(pMesh2,"out.stl");
-	pMesh2->SetPosition(-100.0f, 0, 0);
-	pMesh2->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pMesh2->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
-	pMesh2->SetCullMode(NOISE_CULLMODE_NONE);
-	//pModelProc->WeldVertices(pMesh2, 0.5f);
+	pModelLoader->LoadFile_STL(pMeshSimplified,"out.stl");
+	pMeshSimplified->SetPosition(-0, 0, 0);
+	pMeshSimplified->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pMeshSimplified->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
+	pMeshSimplified->SetCullMode(NOISE_CULLMODE_NONE);
+	//pModelProc->WeldVertices(pMeshSimplified, 0.3f);
 
 	//save voxel model
-	voxModel.SaveToFile_STL("voxelizedMesh.stl");
+	/*voxModel.SaveToFile_STL("voxelizedMesh.stl");
 	pModelLoader->LoadFile_STL(pMeshVox, "voxelizedMesh.stl");
-	pMeshVox->SetPosition(0, 0, 0);
-	pMeshVox->SetScale(2.0f, 2.0f, 2.0f);
+	pMeshVox->SetPosition(0.0f, 0, 0);
+	pMeshVox->SetScale(1.0f, 1.0f, 1.0f);
 	pMeshVox->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMeshVox->SetFillMode(NOISE_FILLMODE_SOLID); //NOISE_FILLMODE_WIREFRAME
 	pMeshVox->SetCullMode(NOISE_CULLMODE_NONE);
 
-	/*pModelLoader->LoadFile_STL(pMeshVoxFrame, "voxelizedMesh.stl");
+	pModelLoader->LoadFile_STL(pMeshVoxFrame, "voxelizedMesh.stl");
 	pMeshVoxFrame->SetPosition(0, 0, 0);
-	pMeshVoxFrame->SetScale(2.0f, 2.0f, 2.0f);
+	pMeshVoxFrame->SetScale(1.5f, 1.0f, 1.0f);
 	pMeshVoxFrame->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pMeshVoxFrame->SetFillMode(NOISE_FILLMODE_WIREFRAME); //NOISE_FILLMODE_WIREFRAME
 	pMeshVoxFrame->SetCullMode(NOISE_CULLMODE_NONE);*/
 
+#define ENABLE_LOG
+#ifdef ENABLE_LOG
 	logFile << std::endl << "****** " << std::endl
 		<<"Model File : " << modelFile<<std::endl
 		<< "Input Triangle Count : " << pMesh1->GetTriangleCount() << std::endl
@@ -195,9 +203,10 @@ bool Init3D(HWND hwnd)
 		<< " Z:" << downSampleRateZ << std::endl
 		<< "Time 2(ms) : " << interval2 << std::endl
 		<< "Output Triangle Count : " << vertexList.size()/3 << std::endl
+		<<"Simplified Percentage: " << (vertexList.size() / 3.0f)/float(pMesh1->GetTriangleCount())<<std::endl
 		<< "Total Time(ms) : " << interval1 + interval2 << std::endl;
 	logFile.close();
-
+#endif
 
 
 
@@ -211,16 +220,17 @@ bool Init3D(HWND hwnd)
 
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
-	pTmpVB = pMesh2->GetVertexBuffer();
+	pTmpVB = pMeshSimplified->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("Axis");
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 20.0f,0,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f,0,0,0 });
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });
+	/*pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 20.0f,0,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 1.0f,0,0,0 });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });*/
 
-	/*for (auto v : *pTmpVB)
+	/*NVECTOR3 modelPos = pMeshSimplified->GetPosition();
+	for (auto v : *pTmpVB)
 	{
-	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
 	}*/
 
 	//----------------------------------------------------------
@@ -247,8 +257,8 @@ bool Init3D(HWND hwnd)
 	N_DirLightDesc dirLightDesc;
 	dirLightDesc.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mDirection = NVECTOR3(0, 0, 0);//just init
+	dirLightDesc.specularColor = NVECTOR3(1.0f,1.0f,1.0f);
+	dirLightDesc.direction = NVECTOR3(0, 0, 0);//just init
 	dirLightDesc.specularIntensity = 1.0f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
@@ -263,16 +273,16 @@ bool Init3D(HWND hwnd)
 	mat.normalMapBumpIntensity = 0.2f;
 	mat.environmentMapTransparency = 0.05f;
 	mat.transparency = 1.0f;
-	mat.diffuseMapName = "Jade";
+	//mat.diffuseMapName = "Jade";
 	pMatMgr->CreateMaterial("meshMat1", mat);
 	//set material
 	pMesh1->SetMaterial("meshMat1");
-	pMesh2->SetMaterial("meshMat1");
+	pMeshSimplified->SetMaterial("meshMat1");
 	pMeshVox->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
-	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
+	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return true;
 };
@@ -282,23 +292,25 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, 1.0f));
+	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, 1.0f));
+	pDirLight1->SetDirection(NVECTOR3(-1.0f, -1.0f, 1.0f));
 
 	//GUIMgr.Update();
 	InputProcess();
 	pRenderer->ClearBackground();
-	NTimer.NextTick();
+	myTimer.NextTick();
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS << "fps :" << NTimer.GetFPS() << std::endl;
+	tmpS << "fps :" << myTimer.GetFPS() << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
 
 	//add to render list
 	pRenderer->AddObjectToRenderList(pMesh1);
-	pRenderer->AddObjectToRenderList(pMesh2);
-	pRenderer->AddObjectToRenderList(pMeshVox);
+	//pRenderer->AddObjectToRenderList(pMesh1WF);
+	pRenderer->AddObjectToRenderList(pMeshSimplified);
+	//pRenderer->AddObjectToRenderList(pMeshVox);
 	//pRenderer->AddObjectToRenderList(pMeshVoxFrame);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
@@ -310,7 +322,6 @@ void MainLoop()
 	pRenderer->RenderGraphicObjects();
 	pRenderer->RenderTexts();
 
-	//present
 	pRenderer->PresentToScreen();
 };
 
@@ -318,29 +329,30 @@ void InputProcess()
 {
 	inputE.Update();
 
+	float moveSpeed = float(0.06 * myTimer.GetInterval());
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
-		pCamera->fps_MoveRight(-0.1f, false);
+		pCamera->fps_MoveRight(-moveSpeed, false);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_D))
 	{
-		pCamera->fps_MoveRight(0.1f, false);
+		pCamera->fps_MoveRight(moveSpeed, false);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
-		pCamera->fps_MoveForward(0.1f, false);
+		pCamera->fps_MoveForward(moveSpeed, false);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
 	{
-		pCamera->fps_MoveForward(-0.1f, false);
+		pCamera->fps_MoveForward(-moveSpeed, false);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_SPACE))
 	{
-		pCamera->fps_MoveUp(0.1f);
+		pCamera->fps_MoveUp(moveSpeed);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_LCONTROL))
 	{
-		pCamera->fps_MoveUp(-0.1f);
+		pCamera->fps_MoveUp(-moveSpeed);
 	}
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))

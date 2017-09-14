@@ -9,9 +9,10 @@
 
 namespace Noise3D
 {
-	//class IMesh;
+	class IMesh;
+	class IAtmosphere;
 
-	class /*_declspec(dllexport)*/ IModelLoader : private IFileIO
+	class /*_declspec(dllexport)*/ IModelLoader
 	{
 	public:
 
@@ -29,7 +30,13 @@ namespace Noise3D
 
 		bool		LoadFile_OBJ(IMesh* pTargetMesh, NFilePath pFilePath);
 
-		bool		LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
+		//bool		LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
+
+		bool		LoadFile_FBX(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
+
+		bool		LoadSkyDome(IAtmosphere* pAtmo, float fRadiusXZ, float fHeight);
+
+		bool		LoadSkyBox(IAtmosphere* pAtmo, float fWidth, float fHeight, float fDepth);
 
 	private:
 
@@ -39,7 +46,8 @@ namespace Noise3D
 
 		~IModelLoader();
 
-		//internal mesh generator
+		//internal mesh loading helper
+		IFileIO mFileIO;
 		IGeometryMeshGenerator mMeshGenerator;
 
 	};

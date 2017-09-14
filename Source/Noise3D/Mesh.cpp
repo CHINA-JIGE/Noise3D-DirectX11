@@ -17,8 +17,6 @@ static UINT g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offse
 
 IMesh::IMesh()
 {
-	mVertexCount	= 0;
-	mIndexCount	= 0;
 	mRotationX_Pitch = 0.0f;
 	mRotationY_Yaw = 0.0f;
 	mRotationZ_Roll = 0.0f;
@@ -33,13 +31,9 @@ IMesh::IMesh()
 	mBoundingBox.max = NVECTOR3(0, 0, 0);
 	D3DXMatrixIdentity(m_pMatrixWorld);
 	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
-
-	m_pVB_Mem		= new std::vector<N_DefaultVertex>;
-	m_pIB_Mem			= new std::vector<UINT>;
-	m_pSubsetInfoList		= new std::vector<N_MeshSubsetInfo>;//store [a,b] of a subset
-
 	m_pVB_Gpu = nullptr;
 	m_pIB_Gpu = nullptr;
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
 IMesh::~IMesh()
@@ -48,17 +42,22 @@ IMesh::~IMesh()
 	ReleaseCOM(m_pIB_Gpu);
 }
 
+void IMesh::ResetMaterialToDefault()
+{
+	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+}
+
 void IMesh::SetMaterial(N_UID matName)
 {
 	N_MeshSubsetInfo tmpSubset;
 	tmpSubset.startPrimitiveID = 0;
-	tmpSubset.primitiveCount = mIndexCount/3;//count of triangles
+	tmpSubset.primitiveCount = mIB_Mem.size()/3;//count of triangles
 	tmpSubset.matName = matName;
-
+	
 	//because this SetMaterial aim to the entire mesh (all primitives) ,so
 	//previously-defined material will be wiped,and set to this material
-	m_pSubsetInfoList->clear();
-	m_pSubsetInfoList->push_back(tmpSubset);
+	mSubsetInfoList.clear();
+	mSubsetInfoList.push_back(tmpSubset);
 }
 
 void IMesh::SetPosition(float x,float y,float z)
@@ -154,30 +153,30 @@ void IMesh::SetScaleZ(float scaleZ)
 
 UINT IMesh::GetVertexCount()
 {
-	return m_pVB_Mem->size();
+	return mVB_Mem.size();
 }
 
 UINT IMesh::GetTriangleCount()
 {
-	return m_pIB_Mem->size()/3;
+	return mIB_Mem.size()/3;
 }
 
 void IMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 {
-	if (iIndex < m_pVB_Mem->size())
+	if (iIndex < mVB_Mem.size())
 	{
-		outVertex = m_pVB_Mem->at(iIndex);
+		outVertex = mVB_Mem.at(iIndex);
 	}
 }
 
 const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()
 {
-	return m_pVB_Mem;
+	return &mVB_Mem;
 }
 
 const std::vector<UINT>* IMesh::GetIndexBuffer()
 {
-	return m_pIB_Mem;
+	return &mIB_Mem;
 }
 
 void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTMat)
@@ -202,30 +201,30 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
-	m_pVB_Mem->clear();
+	mVB_Mem.clear();
 	ReleaseCOM(m_pIB_Gpu);
-	m_pIB_Mem->clear();
+	mIB_Mem.clear();
 
 	//this function could be externally invoked by ModelLoader..etc
-	*m_pVB_Mem = std::move(targetVB);
-	*m_pIB_Mem = std::move(targetIB);
+	mVB_Mem = std::move(targetVB);
+	mIB_Mem = std::move(targetIB);
 
 
 #pragma region CreateGpuBuffers
 	//Prepare to update to video memory, fill in SUBRESOURCE description structure
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
+	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
+	UINT vertexCount = mVB_Mem.size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();
+	tmpInitData_Index.pSysMem = &mIB_Mem.at(0);
+	UINT indexCount = mIB_Mem.size();
 
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* mVertexCount;
+	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -239,7 +238,7 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 
 
 	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * mIndexCount;
+	ibd.ByteWidth = sizeof(int) * indexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -264,17 +263,17 @@ bool IMesh::mFunction_UpdateDataToVideoMem()
 	//Prepare to update to video memory, fill in SUBRESOURCE description structure
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &m_pVB_Mem->at(0);
-	mVertexCount = m_pVB_Mem->size();
+	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
+	UINT vertexCount = mVB_Mem.size();
 
 	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
 	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &m_pIB_Mem->at(0);
-	mIndexCount = m_pIB_Mem->size();
+	tmpInitData_Index.pSysMem = &mIB_Mem.at(0);
+	UINT indexCount = mIB_Mem.size();
 
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* mVertexCount;
+	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -288,7 +287,7 @@ bool IMesh::mFunction_UpdateDataToVideoMem()
 
 
 	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * mIndexCount;
+	ibd.ByteWidth = sizeof(int) * indexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -351,17 +350,17 @@ void IMesh::mFunction_ComputeBoundingBox()
 	NVECTOR3 tmpV;
 
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
-	for (i = 0;i < m_pVB_Mem->size();i++)
+	for (i = 0;i < mVB_Mem.size();i++)
 	{
 		if (i == 0)
 		{
 			//initialization
-			tmpV = m_pVB_Mem->at(i).Pos;
-			mBoundingBox.min = m_pVB_Mem->at(0).Pos;
-			mBoundingBox.max = m_pVB_Mem->at(0).Pos;
+			tmpV = mVB_Mem.at(i).Pos;
+			mBoundingBox.min = mVB_Mem.at(0).Pos;
+			mBoundingBox.max = mVB_Mem.at(0).Pos;
 		}
 		//N_DEFAULT_VERTEX
-		tmpV = m_pVB_Mem->at(i).Pos;
+		tmpV = mVB_Mem.at(i).Pos;
 		if (tmpV.x <( mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
 		if (tmpV.y <(mBoundingBox.min.y)) { mBoundingBox.min.y = tmpV.y; }
 		if (tmpV.z <(mBoundingBox.min.z)) { mBoundingBox.min.z = tmpV.z; }
@@ -386,12 +385,12 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 		if (i == 0)
 		{
 			//initialization
-			mBoundingBox.min = m_pVB_Mem->at(0).Pos;
-			mBoundingBox.max = m_pVB_Mem->at(0).Pos;
+			mBoundingBox.min = mVB_Mem.at(0).Pos;
+			mBoundingBox.max = mVB_Mem.at(0).Pos;
 		}
 		tmpV = pVertexBuffer->at(i);
 		//N_DEFAULT_VERTEX
-		tmpV = m_pVB_Mem->at(i).Pos;
+		tmpV = mVB_Mem.at(i).Pos;
 		if (tmpV.x <(mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
 		if (tmpV.y <(mBoundingBox.min.y)) { mBoundingBox.min.y = tmpV.y; }
 		if (tmpV.z <(mBoundingBox.min.z)) { mBoundingBox.min.z = tmpV.z; }

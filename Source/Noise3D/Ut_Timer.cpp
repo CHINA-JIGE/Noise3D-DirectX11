@@ -18,7 +18,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	mMilliSecondsPerCount	= 0.0;
 	mDeltaTime				= 0.0;
 	mTotalTime				= 0.0;
-	mMaxInterval			= 1000.0f;//milli second
+	mMaxInterval			= 10000.0f;//milli second
 	mTimeScaleFactor	= 1.0f;
 	mIsPaused				= FALSE;
 

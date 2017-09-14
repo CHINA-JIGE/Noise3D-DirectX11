@@ -9,7 +9,7 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-const float  IMarchingCubeMeshReconstructor::c_SampleBinarizationThreshold = 0.01f;
+const float  IMarchingCubeMeshReconstructor::c_SampleBinarizationThreshold = 0.1f;//wtf???
 
 IMarchingCubeMeshReconstructor::IMarchingCubeMeshReconstructor():
 	mResampledCubeWidth(0.0f),
@@ -121,17 +121,17 @@ float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float 
 
 	//1, get the fractional part of float-index for LERP ratio
 	float u = (sampleCoordX - float(baseIndexX));
-	float v = (sampleCoordZ - float(baseIndexZ));
-	float w = (sampleCoordY - float(baseIndexY));
+	float v = (sampleCoordY - float(baseIndexY));
+	float w = (sampleCoordZ - float(baseIndexZ));
 
 	//2, tri-linear interpolation
 	float lerpAB = Noise3D::Lerp(val[0], val[1], u);
 	float lerpCD = Noise3D::Lerp(val[2], val[3], u);
 	float lerpEF = Noise3D::Lerp(val[4], val[5], u);
 	float lerpGH = Noise3D::Lerp(val[6], val[7], u);
-	float lerpABCD = Noise3D::Lerp(lerpAB, lerpCD, v);
-	float lerpEFGH = Noise3D::Lerp(lerpEF, lerpGH, v);
-	float resampleValue = Noise3D::Lerp(lerpABCD, lerpEFGH, w);
+	float lerpABCD = Noise3D::Lerp(lerpAB, lerpCD, w);
+	float lerpEFGH = Noise3D::Lerp(lerpEF, lerpGH, w);
+	float resampleValue = Noise3D::Lerp(lerpABCD, lerpEFGH, v);
 
 	return resampleValue;
 	//return val[0];
@@ -245,7 +245,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 //intersecting iso-surface and cube edge.
 //find the point where sample value suddenly changes(from 0 to 1, or 1 to 0)
-float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID, float start_i, float start_j, float start_k, float stepX, float stepY, float stepZ)
+inline float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID, float start_i, float start_j, float start_k, float stepX, float stepY, float stepZ)
 {
 		/*
 		the cube define in Marching Cube[Lorensen 1987]
@@ -269,9 +269,9 @@ float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID,
 		{ 4,5 },{ 5,6 },{ 7,6 },{ 4,7 },
 		{ 0,4 },{ 1,5 },{ 3,7 },{ 2,6 } };*/
 
-	//find the intersect point of edge and iso-surface
+	//find the intersect point of cube-edge and iso-surface
 	//sample multiple time to rougly estimate the intersect position
-	//(at which point the value go to the other side of BinarizedThreshold)
+	//(where the value happen to exceed BinarizedThreshold)
 	float edgeStartVal = mFunction_Sample(start_i, start_j, start_k);
 	bool isInitValLargerThanThreshold = bool(edgeStartVal > c_SampleBinarizationThreshold);
 	UINT maxStepCount = UINT(max(max(mResampleScaleX, mResampleScaleY), mResampleScaleZ));
@@ -279,14 +279,14 @@ float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID,
 	for (int stepCount=0; stepCount<maxStepCount;++stepCount)
 	{
 		float val = mFunction_Sample(start_i + stepX * stepCount, start_j + stepY * stepCount, start_k + stepZ *stepCount);
-		bool isCurrentValLessThanThreshold = val <= c_SampleBinarizationThreshold;
+		bool isCurrentValLessThanThreshold = bool(val < c_SampleBinarizationThreshold);
 		//sample value go to the other side of threshold
 		if (isInitValLargerThanThreshold==isCurrentValLessThanThreshold)
 		{
 			switch (edgeID)
 			{
-			case 0:case 2:case 4: case 6: return stepX*stepCount;
-			case 1: case 3:case 5: case 7: return stepY * stepCount;
+			case 0:case 2:case 4: case 6: return stepX * stepCount;
+			case 1:case 3:case 5: case 7: return stepY * stepCount;
 			case 8:case 9:case 10:case 11:return stepZ * stepCount;
 			default:return 1.0f;
 			}

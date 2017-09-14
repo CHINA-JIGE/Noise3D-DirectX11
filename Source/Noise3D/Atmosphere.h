@@ -12,51 +12,49 @@ namespace Noise3D
 	{
 	public:
 
-		void		SetFogEnabled(BOOL isEnabled);
+		void		SetFogEnabled(bool isEnabled);
 
 		void		SetFogParameter(float fogNear, float fogFar, NVECTOR3 color);
 
-		BOOL	CreateSkyDome(float fRadiusXZ, float fHeight, N_UID texName);
-
 		void		SetSkyDomeTexture(N_UID texName);
 
-		BOOL	CreateSkyBox(float fWidth, float fHeight, float fDepth, N_UID texName);
-
-		void		SetSkyBoxTexture(std::string texName);
+		void		SetSkyBoxTexture(N_UID cubeMapTexName);
 
 
 	private:
-		friend  IRenderer;
 
-		friend IFactory<IAtmosphere>;
+		friend  IRenderer;
+		friend	IModelLoader;
+		friend	IFactory<IAtmosphere>;
 
 		//¹¹Ôìº¯Êý
 		IAtmosphere();
 
 		~IAtmosphere();
 
-		IGeometryMeshGenerator mMeshGenerator;
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB, const std::vector<UINT>& targetIB);
+
 		//only after atmosphere was added to render list can we  apply fog effect
-		BOOL				mFogHasBeenAddedToRenderList;
-		BOOL				mFogCanUpdateToGpu;//we dont need update fog param frequently
-		BOOL				mFogEnabled;
+		bool					mFogHasBeenAddedToRenderList;
+		bool					mFogCanUpdateToGpu;//we dont need update fog param frequently
+		bool					mFogEnabled;
 		float					mFogNear;
 		float					mFogFar;
-		NVECTOR3*		m_pFogColor;
+		NVECTOR3		mFogColor;
 
 		//sky
-		NOISE_ATMOSPHERE_SKYTYPE		mSkyType;
+		NOISE_ATMOSPHERE_SKYTYPE	mSkyType;
 		float												mSkyDomeRadiusXZ;
 		float												mSkyDomeHeight;
-		N_UID*									m_pSkyDomeTexName;
+		N_UID											mSkyDomeTexName;
 		float												mSkyBoxWidth;
 		float												mSkyBoxHeight;
 		float												mSkyBoxDepth;
-		N_UID*									m_pSkyBoxCubeTexName;
-		std::vector<UINT>*						m_pIB_Mem_Sky;
-		std::vector<N_SimpleVertex>*		m_pVB_Mem_Sky;
-		ID3D11Buffer*								m_pIB_Gpu_Sky;
-		ID3D11Buffer*								m_pVB_Gpu_Sky;
+		N_UID											mSkyBoxCubeTexName;
+		std::vector<UINT>						mIB_Mem;
+		std::vector<N_SimpleVertex>		mVB_Mem;
+		ID3D11Buffer*								m_pIB_Gpu;
+		ID3D11Buffer*								m_pVB_Gpu;
 
 	};
 }

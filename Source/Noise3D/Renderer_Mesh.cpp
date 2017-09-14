@@ -11,7 +11,6 @@ using namespace Noise3D;
 
 void	IRenderer::RenderMeshes()
 {
-
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
 	//更新ConstantBuffer: Only update when modified(cbRarely)
@@ -54,12 +53,12 @@ void	IRenderer::RenderMeshes()
 
 
 		//for every subset
-		UINT meshSubsetCount = pMesh->m_pSubsetInfoList->size();
+		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
 		for (UINT j = 0;j < meshSubsetCount;j++)
 		{
 			//subset info
-			UINT currSubsetIndicesCount = pMesh->m_pSubsetInfoList->at(j).primitiveCount * 3;
-			UINT currSubsetStartIndex = pMesh->m_pSubsetInfoList->at(j).startPrimitiveID * 3;
+			UINT currSubsetIndicesCount = pMesh->mSubsetInfoList.at(j).primitiveCount * 3;
+			UINT currSubsetStartIndex = pMesh->mSubsetInfoList.at(j).startPrimitiveID * 3;
 
 			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
 			mFunction_RenderMeshInList_UpdateCbPerSubset(pMesh,j);
@@ -92,7 +91,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 	//————更新Static Light——————
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
-	if ((tmpLightMgr != NULL) && (tmpLightMgr->mCanUpdateStaticLights))
+	if ((tmpLightMgr != nullptr) && (tmpLightMgr->mCanUpdateStaticLights))
 	{
 		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_DIR);
 		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_POINT);
@@ -175,7 +174,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	IMaterialManager*		pMatMgr = GetScene()->GetMaterialMgr();
 
 	//Get Material ID by unique name
-	N_UID	 currSubsetMatName = pMesh->m_pSubsetInfoList->at(subsetID).matName;
+	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
 	BOOL  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr

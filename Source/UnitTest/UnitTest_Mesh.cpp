@@ -63,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 960;
+	const UINT bufferWidth = 1080;
 	const UINT bufferHeight = 720;
 
 	//³õÊ¼»¯Ê§°Ü
@@ -89,35 +89,28 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âş·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	pTexMgr->CreateTextureFromFile("media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	pTexMgr->CreateCubeMapFromDDS("media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
-	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
+	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
 	pNormalMap->ConvertTextureToGreyMap();
 	pNormalMap->ConvertHeightMapToNormalMap(10.0f);
 
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
-	pFontMgr->CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
+	pFontMgr->CreateFontFromFile("../media/STXINWEI.ttf", "myFont", 24);
 	pMyText_fps= pFontMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(150, 60));
+	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
 	pMyText_fps->SetFont("myFont");
+	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 
-	pRenderer->SetFillMode(NOISE_FILLMODE_SOLID);
-	pRenderer->SetCullMode(NOISE_CULLMODE_NONE);//NOISE_CULLMODE_BACK
 	
 	//------------------MESH INITIALIZATION----------------
-	//pModelLoader->LoadBox(pMesh1, 10.0f, 10.0f, 10.0f);
-	//Mesh1.LoadFile_STL("model/teapot7.stl");
-	//Mesh1.LoadFile_OBJ("model/teapot2.obj");
-	//pModelLoader->LoadFile_3DS("model/box/TexturedBox.3ds",);
-	//Mesh1.LoadFile_3DS("model/treeScene/manyGeometry.3ds");
-	//pMesh1->LoadFile_3DS("model/treeScene/treeScene3.3ds");
-	//Mesh1.LoadFile_OBJ("model/cylinder.obj");
+
 	pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
 	//Mesh1.CreatePlane(50.0f, 50.0f);
@@ -147,30 +140,31 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	pCamera->SetLookAt(0, 0, 0);
 
-	pAtmos->SetFogEnabled(FALSE);
+	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	pAtmos->CreateSkyDome(4.0f, 4.0f, "Universe");
-	//Atmos.CreateSkyBox(100.0f, 100.0f, 100.0f, pTexMgr->GetTextureID("AtmoTexture"));
+	pAtmos->SetSkyDomeTexture("Universe");
+	pModelLoader->LoadSkyDome(pAtmos, 4.0f, 4.0f);
+
 
 	//¡ª¡ª¡ª¡ª¡ª¡ªµÆ¹â¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.mAmbientColor = NVECTOR3(0.0f,0.0f, 0.0f);
-	dirLightDesc.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mDirection = NVECTOR3(-1.0f,1.0f, 0);
-	dirLightDesc.mSpecularIntensity = 1.0f;
-	dirLightDesc.mDiffuseIntensity =1.0f;
+	dirLightDesc.ambientColor = NVECTOR3(0.0f,0.0f, 0.0f);
+	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.direction = NVECTOR3(-1.0f,1.0f, 0);
+	dirLightDesc.specularIntensity = 1.0f;
+	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
 
 	N_MaterialDesc Mat1;
-	Mat1.mBaseAmbientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	Mat1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.mBaseSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.mSpecularSmoothLevel = 40;
-	Mat1.mNormalMapBumpIntensity = 0.2f;
-	Mat1.mEnvironmentMapTransparency = 0.05f;
+	Mat1.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.specularSmoothLevel = 40;
+	Mat1.normalMapBumpIntensity = 0.2f;
+	Mat1.environmentMapTransparency = 0.05f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName ="EarthNormalMap";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
@@ -179,7 +173,8 @@ BOOL Init3D(HWND hwnd)
 	pMesh1->SetMaterial("meshMat1");
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(1050.0f, 640.0f), NVECTOR2(1280.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
+	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 
 	return TRUE;
 };
@@ -209,13 +204,9 @@ void MainLoop()
 	pRenderer->AddObjectToRenderList(pMyText_fps);
 
 	//render
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	pRenderer->RenderMeshes();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_OPAQUE);
 	pRenderer->RenderAtmosphere();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ADDITIVE);
 	pRenderer->RenderGraphicObjects();
-	pRenderer->SetBlendingMode(NOISE_BLENDMODE_ALPHA);
 	pRenderer->RenderTexts();
 
 	//present

@@ -62,7 +62,7 @@ IDirLightD::IDirLightD()
 {
 	ZeroMemory(this, sizeof(*this));
 	mLightDesc.specularIntensity = 1.0f;
-	mLightDesc.mDirection = NVECTOR3(1.0f, 0, 0);
+	mLightDesc.direction = NVECTOR3(1.0f, 0, 0);
 	mLightDesc.diffuseIntensity = 0.5;
 }
 
@@ -75,14 +75,14 @@ void IDirLightD::SetDirection(const NVECTOR3& dir)
 	//the length of directional vector must be greater than 0
 	if (!(dir.x == 0 && dir.y == 0 && dir.z == 0))
 	{
-		mLightDesc.mDirection = dir;
+		mLightDesc.direction = dir;
 	}
 }
 
 void IDirLightD::SetDesc(const N_DirLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);//only modify the common part
-	SetDirection(desc.mDirection);//modify extra part
+	SetDirection(desc.direction);//modify extra part
 }
 
 N_DirLightDesc IDirLightD::GetDesc()
@@ -239,7 +239,7 @@ BOOL IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
 	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
 
 	//the length of directional vector must be greater than 0
-	const NVECTOR3& dir = desc.mDirection;
+	const NVECTOR3& dir = desc.direction;
 	if ((dir.x == 0 && dir.y == 0 && dir.z == 0))
 	{
 		ERROR_MSG("Dir Light Init: direction can't be (0,0,0)");
@@ -247,7 +247,7 @@ BOOL IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
 	}
 	else
 	{
-		mLightDesc.mDirection = dir;
+		mLightDesc.direction = dir;
 		return TRUE;
 	}
 }

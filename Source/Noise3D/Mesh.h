@@ -24,12 +24,9 @@ namespace Noise3D
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode
 	{
-		friend class IRenderer;
-		friend class IModelLoader;
-		friend class IModelProcessor;
-		friend class ICollisionTestor;
-
 	public:
+
+		void		ResetMaterialToDefault();
 
 		void		SetMaterial(N_UID matName);
 
@@ -84,6 +81,10 @@ namespace Noise3D
 
 	private:
 
+		friend class IRenderer;
+		friend class IModelLoader;
+		friend class IModelProcessor;
+		friend class ICollisionTestor;
 		friend IFactory<IMesh>;
 
 		//¹¹Ôìº¯Êý
@@ -106,10 +107,6 @@ namespace Noise3D
 
 	private:
 
-
-
-		UINT									mVertexCount;
-		UINT									mIndexCount;
 		ID3D11Buffer*						m_pVB_Gpu;
 		ID3D11Buffer*						m_pIB_Gpu;
 
@@ -125,9 +122,9 @@ namespace Noise3D
 
 		NMATRIX*										m_pMatrixWorld;
 		NMATRIX*										m_pMatrixWorldInvTranspose;
-		std::vector<N_DefaultVertex>*		m_pVB_Mem;//vertex in CPU memory
-		std::vector<UINT>*							m_pIB_Mem;//index in CPU memory
-		std::vector<N_MeshSubsetInfo>*	m_pSubsetInfoList;//store [a,b] of a subset
+		std::vector<N_DefaultVertex>		mVB_Mem;//vertex in CPU memory
+		std::vector<UINT>							mIB_Mem;//index in CPU memory
+		std::vector<N_MeshSubsetInfo>	mSubsetInfoList;//store [a,b] of a subset
 
 	};
 };

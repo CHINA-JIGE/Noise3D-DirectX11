@@ -70,10 +70,10 @@
 		debugMsg << "file: " << __FILE__ << std::endl;\
 		debugMsg << "line: " << __LINE__ << std::endl;\
 		debugMsg << "function:" << __func__ << std::endl;\
-		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		throw std::exception(debugMsg.str().c_str());\
 		debugMsg.clear();\
 	}\
-
+	//MessageBoxA(0, debugMsg.str().c_str(), 0, 0);
 
 #define WARNING_MSG(msg)\
 	{\
@@ -83,7 +83,7 @@
 		debugMsg << "file: " << __FILE__ << std::endl;\
 		debugMsg << "line: " << __LINE__ << std::endl;\
 		debugMsg << "function:" << __func__ << std::endl;\
-		MessageBoxA(0, debugMsg.str().c_str(), 0, 0);\
+		throw std::exception(debugMsg.str().c_str());\
 		debugMsg.clear();\
 	}\
 ;

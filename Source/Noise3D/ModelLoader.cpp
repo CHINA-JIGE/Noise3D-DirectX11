@@ -36,9 +36,6 @@ bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UI
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
 	return isUpdateOk;
 }
 
@@ -58,9 +55,6 @@ bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, flo
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
 	return isUpdateOk;
 }
 
@@ -78,9 +72,6 @@ bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCo
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
 	return isUpdateOk;
 }
 
@@ -97,9 +88,6 @@ bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeigh
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
-
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -119,9 +107,6 @@ bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem( vertexList, indicesList);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
 	return isUpdateOk;
 }
 
@@ -134,7 +119,7 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	//Load STL using file manager
 	bool fileLoadSucceeded = false;
-	fileLoadSucceeded = IFileIO::ImportFile_STL(pFilePath, tmpVertexList, tmpIndexList, tmpNormalList, tmpInfo);
+	fileLoadSucceeded = mFileIO.ImportFile_STL(pFilePath, tmpVertexList, tmpIndexList, tmpNormalList, tmpInfo);
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("IMesh : Load STL failed ! Cannot open file!");
@@ -208,9 +193,6 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(completeVertexList, tmpIndexList);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-
 	return isUpdateOk;
 }
 
@@ -221,7 +203,7 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
 
 	//¼ÓÔØSTL
 	bool fileLoadSucceeded = false;
-	fileLoadSucceeded = IFileIO::ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
+	fileLoadSucceeded = mFileIO.ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
 	if (!fileLoadSucceeded)
 	{
 		ERROR_MSG("Noise Mesh : Load OBJ failed! Cannot open file. ");
@@ -231,13 +213,66 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpCompleteVertexList, tmpIndexList);
 
-	//user-set material
-	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	return isUpdateOk;
+}
+
+bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo, float fRadiusXZ, float fHeight)
+{
+	//check if the input "Step Count" is illegal
+	UINT iColumnCount = 30;
+	UINT iRingCount = 25;
+	UINT tmpVertexCount = 0;
+	UINT tmpIndexCount = 0;
+
+
+	//delegate vert/idx creation duty to MeshGenerator 
+	std::vector<N_SimpleVertex> tmpVB;
+	std::vector<UINT> tmpIB;
+	mMeshGenerator.CreateSkyDome(fRadiusXZ, fHeight, iColumnCount, iRingCount, tmpVB, tmpIB);
+	
+	//copy won't be overhead because std::move is used inside the function
+	bool isUpdateOk = pAtmo->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+
+	//set current sky type
+	pAtmo->mSkyDomeRadiusXZ = fRadiusXZ;
+	pAtmo->mSkyDomeHeight = fHeight;
+	pAtmo->mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
 
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
+bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, float fWidth, float fHeight, float fDepth)
+{
+	//check if the input "Step Count" is illegal
+	UINT iColumnCount = 30;
+	UINT iRingCount = 25;
+	UINT tmpVertexCount = 0;
+	UINT tmpIndexCount = 0;
+
+
+	//delegate vert/idx creation duty to MeshGenerator 
+	std::vector<N_SimpleVertex> tmpVB;
+	std::vector<UINT> tmpIB;
+	mMeshGenerator.CreateSkyBox(fWidth, fHeight, fDepth, tmpVB, tmpIB);
+
+	//copy won't be overhead because std::move is used inside the function
+	bool isUpdateOk = pAtmo->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+
+	//set current sky type
+	pAtmo->mSkyBoxWidth = fWidth;
+	pAtmo->mSkyBoxHeight = fHeight;
+	pAtmo->mSkyBoxDepth = fDepth;
+	pAtmo->mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
+	pAtmo->mSkyBoxCubeTexName = NOISE_MACRO_DEFAULT_MATERIAL_NAME;
+
+	return isUpdateOk;
+
+	return false;
+}
+
+
+
+/*bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
 {
 	std::vector<N_Load3ds_MeshObject>	meshList;
 	std::vector<N_MaterialDesc>					materialList;
@@ -246,7 +281,7 @@ bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 
 	//import data
 	bool importSucceeded = false;
-	importSucceeded = IFileIO::ImportFile_3DS(
+	importSucceeded = mFileIO.ImportFile_3DS(
 		pFilePath,
 		meshList,
 		materialList,
@@ -359,7 +394,7 @@ bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 		pCreatedMesh->mFunction_UpdateDataToVideoMem(completeVertexList, currentMesh.indicesList);
 
 		//copy SUBSET lists
-		*pCreatedMesh->m_pSubsetInfoList = std::move(currentMesh.subsetList);
+		pCreatedMesh->mSubsetInfoList = std::move(currentMesh.subsetList);
 
 		//push_back IMesh ptr info for user
 		if (pCreatedMesh != nullptr)
@@ -439,4 +474,4 @@ bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMes
 
 
 	return true;
-}
+}*/

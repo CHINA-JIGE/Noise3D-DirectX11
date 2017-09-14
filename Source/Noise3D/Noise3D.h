@@ -48,8 +48,8 @@
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
-#include "Mesh.h"
 #include "ModelLoader.h"
+#include "Mesh.h"
 #include "ModelProcessor.h"
 #include "Lights.h"
 #include "Camera.h"
@@ -63,6 +63,8 @@
 #include "MaterialManager.h"
 #include "GraphicObjMgr.h"
 #include "CollisionTestor.h"
+#include "ShaderVarManager.h"
+
 
 //---------Font & Text-----------
 #include "Text_2DBasicTextInfo.h"

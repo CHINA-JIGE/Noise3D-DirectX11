@@ -132,7 +132,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.mAmbientColor = NVECTOR3(0.0f, 0.0f, 0.0f);
 	dirLightDesc.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mDirection = NVECTOR3(-1.0f, 1.0f, 0);
+	dirLightDesc.direction = NVECTOR3(-1.0f, 1.0f, 0);
 	dirLightDesc.mSpecularIntensity = 1.0f;
 	dirLightDesc.mDiffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);

@@ -232,10 +232,11 @@ void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layer
 
 
 			//scan line padding : pad from left to right
-			for (UINT x = startX; x < endX; ++x)
+			/*for (UINT x = startX; x < endX; ++x)
 			{
-				mVoxelizedModel.SetVoxel(true,x, layerID, z);
-			}
+				mVoxelizedModel.SetVoxel(1,x, layerID, z);
+			}*/
+			mVoxelizedModel.SetVoxel(1, startX, endX, layerID, z);
 
 		}
 

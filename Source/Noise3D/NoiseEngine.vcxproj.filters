@@ -13,9 +13,6 @@
     <Filter Include="NoiseGraphic\Scene">
       <UniqueIdentifier>{f84a9eaa-b39b-4a45-aaad-c93b72948637}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\_GeometryMeshGenerator">
-      <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GeneralBasicClass">
       <UniqueIdentifier>{33b8c1e0-39dc-4df0-88cc-9156de4f0922}</UniqueIdentifier>
     </Filter>
@@ -96,6 +93,15 @@
     </Filter>
     <Filter Include="NoiseUtility\MCMeshReconstructor">
       <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator">
+      <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\ModelLoader\_FBXSDK">
+      <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\_ShaderVarManager">
+      <UniqueIdentifier>{0be78f2c-c28e-4a82-bffc-5eb213a00ad6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -209,7 +215,7 @@
     </ClInclude>
     <ClInclude Include="Noise3D.h" />
     <ClInclude Include="_GeometryMeshGenerator.h">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+      <Filter>NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator</Filter>
     </ClInclude>
     <ClInclude Include="_BasicRenderSettings.h">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
@@ -225,6 +231,12 @@
     </ClInclude>
     <ClInclude Include="Ut_MCMeshReconstructor.h">
       <Filter>NoiseUtility\MCMeshReconstructor</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderVarManager.h">
+      <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
+    </ClInclude>
+    <ClInclude Include="FBXLoader.h">
+      <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -337,7 +349,7 @@
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
     </ClCompile>
     <ClCompile Include="_GeometryMeshGenerator.cpp">
-      <Filter>NoiseGraphic\_GeometryMeshGenerator</Filter>
+      <Filter>NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator</Filter>
     </ClCompile>
     <ClCompile Include="_SpatialHashTable.cpp">
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
@@ -350,6 +362,12 @@
     </ClCompile>
     <ClCompile Include="Ut_MCMeshReconstructor.cpp">
       <Filter>NoiseUtility\MCMeshReconstructor</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderVarManager.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FBXLoader.cpp">
+      <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

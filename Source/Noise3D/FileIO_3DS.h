@@ -1,12 +1,10 @@
 
-//#include "Noise3D.h"
-#pragma once
-
 /*******************************************************************
 
-								DECLARATION
+								.3DS LOADER (deprecated)
 
 *********************************************************************/
+#pragma once
 
 namespace Noise3D
 {

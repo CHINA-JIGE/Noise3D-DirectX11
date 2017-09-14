@@ -29,7 +29,7 @@ namespace Noise3D
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
 		NVECTOR3	specularColor;*/		float		mPad2;
-		NVECTOR3 mDirection;				float		mPad3;
+		NVECTOR3 direction;				float		mPad3;
 	};
 
 
