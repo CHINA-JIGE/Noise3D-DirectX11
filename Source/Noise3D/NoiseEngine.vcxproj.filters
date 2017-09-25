@@ -235,7 +235,7 @@
     <ClInclude Include="ShaderVarManager.h">
       <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
     </ClInclude>
-    <ClInclude Include="FBXLoader.h">
+    <ClInclude Include="_FbxLoader.h">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClInclude>
   </ItemGroup>
@@ -366,7 +366,7 @@
     <ClCompile Include="ShaderVarManager.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
     </ClCompile>
-    <ClCompile Include="FBXLoader.cpp">
+    <ClCompile Include="_FbxLoader.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClCompile>
   </ItemGroup>

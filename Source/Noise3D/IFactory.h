@@ -259,7 +259,6 @@ namespace Noise3D
 			}
 		}
 
-		//it will be set to nullptr no matter the deletion finish
 		bool	DestroyObject(objType* pObject)
 		{
 			if (pObject != nullptr)

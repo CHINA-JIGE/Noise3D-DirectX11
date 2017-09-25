@@ -21,7 +21,8 @@
 namespace Noise3D
 {
 
-	//inherited by IRenderer, providing shader variable update service
+	//1,inherited by classes which need to manipulate shaders
+	//2,provide shader variable update/retrieval service
 	class /*_declspec(dllexport)*/ IShaderVariableManager
 	{
 	public:

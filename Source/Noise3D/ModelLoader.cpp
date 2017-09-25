@@ -196,17 +196,17 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
+bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath filePath)
 {
 	std::vector<N_DefaultVertex> tmpCompleteVertexList;
 	std::vector<UINT>	tmpIndexList;
 
 	//¼ÓÔØSTL
 	bool fileLoadSucceeded = false;
-	fileLoadSucceeded = mFileIO.ImportFile_OBJ(pFilePath, tmpCompleteVertexList, tmpIndexList);
+	fileLoadSucceeded = mFileIO.ImportFile_OBJ(filePath, tmpCompleteVertexList, tmpIndexList);
 	if (!fileLoadSucceeded)
 	{
-		ERROR_MSG("Noise Mesh : Load OBJ failed! Cannot open file. ");
+		ERROR_MSG("IMesh : Load OBJ failed! Cannot open file. ");
 		return false;
 	}
 
@@ -214,6 +214,42 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath pFilePath)
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpCompleteVertexList, tmpIndexList);
 
 	return isUpdateOk;
+}
+
+void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+{
+	//if fbx loader has already been initialized,
+	//then actual init procedure will be skipped
+	N_FbxLoadingResult result;
+	mFbxLoader.Initialize();
+
+	//some scene nodes are not supported(2017.9.20)
+	mFbxLoader.LoadSceneFromFbx(filePath, result, true, false, false, false);
+
+	//create mesh object in Noise3D with the data loaded from fbx
+	IMeshManager* pMgr = GetScene()->GetMeshMgr();
+
+	for (auto& m : result.meshDataList)
+	{
+		IMesh* pMesh = pMgr->CreateMesh(m.name);
+		if (pMesh == nullptr)continue;
+
+		//update data to graphic memory
+		bool isUpdateSuccessful = pMesh->mFunction_UpdateDataToVideoMem(m.vertexBuffer, m.indexBuffer);
+		if (!isUpdateSuccessful) 
+		{
+			WARNING_MSG("IMesh: Load FBX scene: one of the mesh failed to load: mesh name:" + m.name);
+			pMgr->DestroyMesh(m.name); 
+			continue;
+		}
+
+		//output new mesh name
+		outLoadingResult.meshNameList.push_back(m.name);
+	}
+
+	//material loading
+	//..................
+
 }
 
 bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo, float fRadiusXZ, float fHeight)

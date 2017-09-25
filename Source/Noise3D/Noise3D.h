@@ -48,6 +48,7 @@
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
+#include "_FbxLoader.h"
 #include "ModelLoader.h"
 #include "Mesh.h"
 #include "ModelProcessor.h"

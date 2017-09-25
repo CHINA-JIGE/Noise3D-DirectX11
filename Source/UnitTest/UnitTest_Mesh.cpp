@@ -106,22 +106,27 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
 	pMyText_fps->SetFont("myFont");
-	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
+	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	
 	//------------------MESH INITIALIZATION----------------
 
-	pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
+	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
 	//Mesh1.CreatePlane(50.0f, 50.0f);
 	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);
 	//Mesh1.SetPosition(0, 0, 0);
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
+	pModelLoader = pScene->GetModelLoader();
+	N_SceneLoadingResult res;
+	pModelLoader->LoadFile_FBX("../model/teapot.FBX", res);
+	pMesh1 = pMeshMgr->GetMesh(res.meshNameList.at(0));
+	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
 	
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB = pMesh1->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	/*for (auto v : tmpVB)
+	/*for (auto v : *pTmpVB)
 	{
 		pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
 		pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
@@ -149,7 +154,7 @@ BOOL Init3D(HWND hwnd)
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(0.0f,0.0f, 0.0f);
+	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.direction = NVECTOR3(-1.0f,1.0f, 0);

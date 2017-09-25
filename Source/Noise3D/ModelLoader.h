@@ -12,6 +12,15 @@ namespace Noise3D
 	class IMesh;
 	class IAtmosphere;
 
+	//name lists of loaded objects (e.g. from .fbx)
+	struct N_SceneLoadingResult
+	{
+		N_SceneLoadingResult(){}
+
+		std::vector<N_UID> meshNameList;//mesh loading
+		std::vector<N_UID> materialNameList;//mesh loading
+	};
+
 	class /*_declspec(dllexport)*/ IModelLoader
 	{
 	public:
@@ -26,13 +35,17 @@ namespace Noise3D
 
 		bool		LoadCustomizedModel(IMesh* pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList);
 
-		bool		LoadFile_STL(IMesh* pTargetMesh, NFilePath pFilePath);
+		bool		LoadFile_STL(IMesh* pTargetMesh, NFilePath filePath);
 
-		bool		LoadFile_OBJ(IMesh* pTargetMesh, NFilePath pFilePath);
+		bool		LoadFile_OBJ(IMesh* pTargetMesh, NFilePath filePath);
 
 		//bool		LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
 
-		bool		LoadFile_FBX(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
+		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
+		void		LoadFile_FBX(NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
+
+		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
+		void		LoadFile_FBX(NFilePath pFilePath, std::string newMeshesNamePrefix, N_SceneLoadingResult& outLoadingResult);
 
 		bool		LoadSkyDome(IAtmosphere* pAtmo, float fRadiusXZ, float fHeight);
 
@@ -49,6 +62,7 @@ namespace Noise3D
 		//internal mesh loading helper
 		IFileIO mFileIO;
 		IGeometryMeshGenerator mMeshGenerator;
+		IFbxLoader mFbxLoader;
 
 	};
 

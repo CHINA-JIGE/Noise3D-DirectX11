@@ -93,7 +93,7 @@ namespace Noise3D
 		~IMesh();
 
 		//this function could be externally invoked by ModelLoader..etc
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
 		
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
 
@@ -117,14 +117,14 @@ namespace Noise3D
 		float										mScaleY;
 		float										mScaleZ;
 
-		NVECTOR3*							m_pPosition;
+		NVECTOR3							mPosition;
 		N_Box									mBoundingBox;
 
-		NMATRIX*										m_pMatrixWorld;
-		NMATRIX*										m_pMatrixWorldInvTranspose;
-		std::vector<N_DefaultVertex>		mVB_Mem;//vertex in CPU memory
-		std::vector<UINT>							mIB_Mem;//index in CPU memory
-		std::vector<N_MeshSubsetInfo>	mSubsetInfoList;//store [a,b] of a subset
+		NMATRIX										mMatrixWorld;
+		NMATRIX										mMatrixWorldInvTranspose;
+		std::vector<N_DefaultVertex>	mVB_Mem;//vertex in CPU memory
+		std::vector<UINT>						mIB_Mem;//index in CPU memory
+		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset
 
 	};
 };

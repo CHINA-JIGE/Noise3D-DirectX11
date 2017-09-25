@@ -15,24 +15,20 @@ using namespace Noise3D;
 static UINT g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
 static UINT g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
-IMesh::IMesh()
+IMesh::IMesh():
+	mRotationX_Pitch(0.0f),
+	mRotationY_Yaw(0.0f),
+	mRotationZ_Roll(0.0f),
+	mScaleX(1.0f),
+	mScaleY(1.0f),
+	mScaleZ(1.0f),
+	mPosition(0,0,0),
+	mBoundingBox({0,0,0},{0,0,0}),
+	m_pVB_Gpu(nullptr),
+	m_pIB_Gpu(nullptr)
 {
-	mRotationX_Pitch = 0.0f;
-	mRotationY_Yaw = 0.0f;
-	mRotationZ_Roll = 0.0f;
-	mScaleX = 1.0f;
-	mScaleY = 1.0f;
-	mScaleZ = 1.0f;
-
-	m_pMatrixWorld = new NMATRIX;
-	m_pMatrixWorldInvTranspose = new NMATRIX;
-	m_pPosition = new NVECTOR3(0, 0, 0);
-	mBoundingBox.min = NVECTOR3(0, 0, 0);
-	mBoundingBox.max = NVECTOR3(0, 0, 0);
-	D3DXMatrixIdentity(m_pMatrixWorld);
-	D3DXMatrixIdentity(m_pMatrixWorldInvTranspose);
-	m_pVB_Gpu = nullptr;
-	m_pIB_Gpu = nullptr;
+	D3DXMatrixIdentity(&mMatrixWorld);
+	D3DXMatrixIdentity(&mMatrixWorldInvTranspose);
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
@@ -62,19 +58,19 @@ void IMesh::SetMaterial(N_UID matName)
 
 void IMesh::SetPosition(float x,float y,float z)
 {
-	m_pPosition->x =x;
-	m_pPosition->y =y;
-	m_pPosition->z =z;
+	mPosition.x =x;
+	mPosition.y =y;
+	mPosition.z =z;
 }
 
 void IMesh::SetPosition(const NVECTOR3 & pos)
 {
-	*m_pPosition = pos;
+	mPosition = pos;
 }
 
 NVECTOR3 IMesh::GetPosition()
 {
-	return *m_pPosition;
+	return mPosition;
 }
 
 void IMesh::SetRotation(float angleX, float angleY, float angleZ)
@@ -182,8 +178,8 @@ const std::vector<UINT>* IMesh::GetIndexBuffer()
 void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTMat)
 {
 	mFunction_UpdateWorldMatrix();
-	outWorldMat = *m_pMatrixWorld;
-	outWorldInvTMat = *m_pMatrixWorldInvTranspose;
+	outWorldMat = mMatrixWorld;
+	outWorldInvTMat = mMatrixWorldInvTranspose;
 }
 
 N_Box IMesh::ComputeBoundingBox()
@@ -197,7 +193,7 @@ N_Box IMesh::ComputeBoundingBox()
 								PRIVATE					                    
 ***********************************************************************/
 //this function could be externally invoked by ModelLoader..etc
-bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB, const std::vector<UINT>& targetIB)
+bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -206,8 +202,8 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	mIB_Mem.clear();
 
 	//this function could be externally invoked by ModelLoader..etc
-	mVB_Mem = std::move(targetVB);
-	mIB_Mem = std::move(targetIB);
+	mVB_Mem =targetVB;
+	mIB_Mem = targetIB;
 
 
 #pragma region CreateGpuBuffers
@@ -323,19 +319,19 @@ void	IMesh::mFunction_UpdateWorldMatrix()
 	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
 
 	//平移矩阵
-	D3DXMatrixTranslation(&tmpMatrixTranslation, m_pPosition->x, m_pPosition->y, m_pPosition->z);
+	D3DXMatrixTranslation(&tmpMatrixTranslation, mPosition.x, mPosition.y, mPosition.z);
 
 	//先缩放，再旋转，再平移（跟viewMatrix有点区别）
 	D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &tmpMatrixScaling);
 	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrix,&tmpMatrixRotation);
 	D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &tmpMatrixTranslation);
-	*m_pMatrixWorld = tmpMatrix;
+	mMatrixWorld = tmpMatrix;
 
 	//求用于转换Normal的InvTranspose	因为要Trans 之后再来一次Trans才能更新 所以就可以省了
-	D3DXMatrixInverse(m_pMatrixWorldInvTranspose,&tmpDeterminant,m_pMatrixWorld);
+	D3DXMatrixInverse(&mMatrixWorldInvTranspose,&tmpDeterminant,&mMatrixWorld);
 
 	//Update到GPU前要先转置
-	D3DXMatrixTranspose(m_pMatrixWorld,m_pMatrixWorld);
+	D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
 
 	//WorldInvTranspose
 	//D3DXMatrixTranspose(m_pMatrixWorldInvTranspose,&tmpMatrix);
@@ -369,8 +365,8 @@ void IMesh::mFunction_ComputeBoundingBox()
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, m_pPosition);
-	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, m_pPosition);
+	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, &mPosition);
+	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, &mPosition);
 }
 
 void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
@@ -399,6 +395,6 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, m_pPosition);
-	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, m_pPosition);
+	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, &mPosition);
+	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, &mPosition);
 }

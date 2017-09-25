@@ -42,7 +42,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)Source\Noise3D\;$(SolutionDir)ExternalLib\FreeType\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Source\Noise3D\;$(SOLUTIONDIR)ExternalInclude\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Exec\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Exec\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)Source\Noise3D\;$(SolutionDir)ExternalLib\FreeType\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Source\Noise3D\;$(SOLUTIONDIR)ExternalInclude\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

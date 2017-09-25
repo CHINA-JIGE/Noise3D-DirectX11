@@ -32,7 +32,7 @@ namespace Noise3D
 
 		~IAtmosphere();
 
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB, const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const  std::vector<UINT>& targetIB);
 
 		//only after atmosphere was added to render list can we  apply fog effect
 		bool					mFogHasBeenAddedToRenderList;

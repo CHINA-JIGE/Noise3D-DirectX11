@@ -97,12 +97,12 @@ namespace Noise3D
 		float		mNearPlane;
 		float		mFarPlane;
 
-		NVECTOR3*		m_pPosition;
-		NVECTOR3*		m_pLookat;
-		NVECTOR3*		m_pDirection;
+		NVECTOR3		mPosition;
+		NVECTOR3		mLookat;
+		NVECTOR3		mDirection;
 
-		NMATRIX*		m_pMatrixView;
-		NMATRIX*		m_pMatrixProjection;
+		NMATRIX			mMatrixView;
+		NMATRIX			mMatrixProjection;
 
 		float			mRotateX_Pitch;
 		float			mRotateY_Yaw;

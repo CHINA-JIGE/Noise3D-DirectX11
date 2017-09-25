@@ -8,7 +8,7 @@
 
 #include "FileIO_STL.h"
 #include "FileIO_OBJ.h"
-#include "FileIO_3DS.h"
+//#include "FileIO_3DS.h"
 
 
 namespace Noise3D
@@ -16,9 +16,9 @@ namespace Noise3D
 	struct N_MaterialDesc;
 
 		class /*_declspec(dllexport)*/ IFileIO : 
-			public IFileIO_3DS,
 			public IFileIO_STL,
 			public IFileIO_OBJ
+			//public IFileIO_3DS,
 		{
 		public:
 			IFileIO();

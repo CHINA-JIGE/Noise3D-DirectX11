@@ -9,6 +9,7 @@
 
 namespace Noise3D
 {
+	class IModelLoader;
 
 		class /*_declspec(dllexport)*/ IScene:
 		public IFactory<IRenderer>,
@@ -23,7 +24,6 @@ namespace Noise3D
 		public IFactory<IModelLoader>,
 		public IFactory<IModelProcessor>,
 		public IFactory<ICollisionTestor>
-
 	{
 
 	public:

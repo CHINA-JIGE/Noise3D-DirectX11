@@ -78,7 +78,7 @@ void		IAtmosphere::SetSkyBoxTexture(N_UID cubeMapMatName)
 									PRIVATE
 *****************************************************************/
 
-bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB, const std::vector<UINT>& targetIB)
+bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -87,8 +87,8 @@ bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVert
 	mIB_Mem.clear();
 
 	//this function could be externally invoked by ModelLoader..etc
-	mVB_Mem = std::move(targetVB);
-	mIB_Mem = std::move(targetIB);
+	mVB_Mem =targetVB;
+	mIB_Mem = targetIB;
 
 
 #pragma region CreateGpuBuffers
