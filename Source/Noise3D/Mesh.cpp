@@ -56,6 +56,17 @@ void IMesh::SetMaterial(N_UID matName)
 	mSubsetInfoList.push_back(tmpSubset);
 }
 
+void IMesh::SetSubsetList(const std::vector<N_MeshSubsetInfo>& subsetList)
+{
+	mSubsetInfoList = subsetList;
+}
+
+void IMesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
+{
+	outRefSubsetList = mSubsetInfoList;
+}
+
+
 void IMesh::SetPosition(float x,float y,float z)
 {
 	mPosition.x =x;

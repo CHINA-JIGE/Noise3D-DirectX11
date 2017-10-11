@@ -282,7 +282,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 
 		//calculate position of Rects (relative to the graphic object container)
 		posAlignmentOffset.x = 0;
-		posAlignmentOffset.y = (float)gFunction_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
+		posAlignmentOffset.y = (float)gFunc_GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
 
 		NVECTOR2 tmpRectTopLeft(0, 0);
 		NVECTOR2 tmpRectBottomRight(0, 0);

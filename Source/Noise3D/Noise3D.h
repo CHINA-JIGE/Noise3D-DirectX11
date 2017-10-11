@@ -7,8 +7,8 @@
 
 #pragma once
 
-#pragma warning (disable : 4005)//宏重定义 WIN8 SDK和DXSDK
-//#define NDEBUG //禁止调用assert
+#pragma warning (disable : 4005)//Macro Redefined:  WIN8 SDK & DXSDK
+//#define NDEBUG //
 #define DIRECTINPUT_VERSION 0x0800
 #define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
@@ -41,15 +41,12 @@
 #include "NoiseFlag.h"
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
-
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
 #include "_SpatialHashTable.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
-#include "_FbxLoader.h"
-#include "ModelLoader.h"
 #include "Mesh.h"
 #include "ModelProcessor.h"
 #include "Lights.h"
@@ -65,6 +62,7 @@
 #include "GraphicObjMgr.h"
 #include "CollisionTestor.h"
 #include "ShaderVarManager.h"
+#include "ModelLoader.h"
 
 
 //---------Font & Text-----------

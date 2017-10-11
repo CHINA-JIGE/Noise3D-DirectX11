@@ -28,7 +28,7 @@ namespace Noise3D
 			environmentMapTransparency = 0.1f;
 			transparency = 1.0f;
 		}
-
+		
 		//base attribute offset that will be added to final color
 		NVECTOR3	ambientColor;		int32_t	specularSmoothLevel;
 		NVECTOR3	diffuseColor;		float		normalMapBumpIntensity;
@@ -46,12 +46,24 @@ namespace Noise3D
 			diffuseMapName(""),
 			normalMapName(""),
 			specularMapName(""),
+			emissiveMapName(""),
 			environmentMapName("")
 		{ };
+
+		N_MaterialDesc(const N_BasicMaterialDesc& basicDesc) :
+			N_BasicMaterialDesc(basicDesc),
+			diffuseMapName(""),
+			normalMapName(""),
+			specularMapName(""),
+			emissiveMapName(""),
+			environmentMapName("")
+		{
+		};
 
 		N_UID diffuseMapName;
 		N_UID normalMapName;
 		N_UID specularMapName;
+		N_UID emissiveMapName;
 		N_UID environmentMapName;
 	};
 

@@ -6,10 +6,10 @@
 
 ************************************************************************/
 
+#ifdef NOISE_ENABLE_3DS_LOADING
+
 #include "Noise3D.h"
-
 using namespace Noise3D;
-
 
 //-----------------file & file operation----------------
 #define BINARY_READ(var) \
@@ -756,3 +756,5 @@ void IFileIO_3DS::ParseSpecularMap()
 		filePos = fileIn.tellg();
 	} while (filePos<static_currentChunkFileEndPos);
 }
+
+#endif

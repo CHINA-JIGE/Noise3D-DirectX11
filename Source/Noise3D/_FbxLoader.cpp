@@ -15,7 +15,7 @@ IFbxLoader::IFbxLoader() :
 	mIsInitialized(false),
 	mEnableLoadMesh(false),
 	mEnableLoadSkeleton(false),
-	m_pResult(nullptr)
+	m_pRefOutResult(nullptr)
 {
 }
 
@@ -27,7 +27,7 @@ IFbxLoader::~IFbxLoader()
 	m_pFbxMgr = nullptr;
 	m_pFbxScene = nullptr;
 	m_pIOSettings = nullptr;
-	m_pResult = nullptr;
+	m_pRefOutResult = nullptr;
 	mIsInitialized = false;
 }
 
@@ -76,7 +76,7 @@ bool IFbxLoader::LoadSceneFromFbx(NFilePath fbxPath, N_FbxLoadingResult& outResu
 		ERROR_MSG("FBX Loader : loading failed! Fbx loader not initialized!");
 		return false;
 	}
-
+	
 	mEnableLoadMesh		= loadMesh;
 	mEnableLoadSkeleton	= loadSkeleton;
 
@@ -111,9 +111,9 @@ bool IFbxLoader::LoadSceneFromFbx(NFilePath fbxPath, N_FbxLoadingResult& outResu
 	FbxNode* pRNode= m_pFbxScene->GetRootNode();
 
 	//output result reference binding
-	m_pResult = &outResult;
+	m_pRefOutResult = &outResult;
 
-	//(recursive)
+	//(recursive), mesh and material (etc.) result will be loaded to RefOutResult
 	mFunction_TraverseSceneNodes(pRNode);
 
 	return true;
@@ -147,7 +147,7 @@ void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
 		{
 			if (mEnableLoadMesh)
 			{ 
-				m_pResult->meshDataList.push_back(N_FbxMeshInfo());
+				m_pRefOutResult->meshDataList.push_back(N_FbxMeshInfo());
 				mFunction_ProcessSceneNode_Mesh(pNode); 
 			}
 			break;
@@ -163,7 +163,7 @@ void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
 		{
 			if (mEnableLoadSkeleton)
 			{
-				m_pResult->skeletonList.push_back(N_FbxSkeletonInfo());
+				m_pRefOutResult->skeletonList.push_back(N_FbxSkeletonInfo());
 				mFunction_ProcessSceneNode_Skeleton(pNode); 
 			}
 			break;
@@ -194,36 +194,45 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 		ERROR_MSG("Fbx Loader : scene-node-bound mesh invalid. ");
 		return;
 	}
+	
 
-	N_FbxMeshInfo& currentMesh = m_pResult->meshDataList.back();
-	std::vector<N_DefaultVertex>&	vertexBuffer = currentMesh.vertexBuffer;
-	std::vector<UINT>&	indexBuffer = currentMesh.indexBuffer;
-	std::vector<N_MeshSubsetInfo>& subsetList = currentMesh.subsetList;
-	currentMesh.name = pNode->GetName();
+	N_FbxMeshInfo& refCurrentMesh = m_pRefOutResult->meshDataList.back();
+	std::vector<N_DefaultVertex>&	refVertexBuffer = refCurrentMesh.vertexBuffer;
+	std::vector<UINT>&	refIndexBuffer = refCurrentMesh.indexBuffer;
+	refCurrentMesh.name = pNode->GetName();
+
+	//--------------------MESH TRANSFORMATION--------------------------
+	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
+	refCurrentMesh.pos = NVECTOR3(pos4.mData[0], pos4.mData[2],pos4.mData[1]);
+
+	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
+	refCurrentMesh.scale = NVECTOR3(scale4.mData[0], scale4.mData[2], scale4.mData[1]);
+
 
 	//--------------------MESH GEOMETRY--------------------------
 
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer
 	int ctrlPointCount = pMesh->GetControlPointsCount();
 	FbxVector4* pCtrlPointArray = pMesh->GetControlPoints();
-	vertexBuffer.resize(ctrlPointCount);
+	refVertexBuffer.resize(ctrlPointCount);
 	for (int i = 0; i < ctrlPointCount; ++i)
 	{
 		FbxVector4& ctrlPoint = pCtrlPointArray[i];
-		vertexBuffer.at(i).Pos.x = float(ctrlPoint.mData[0]);
-		vertexBuffer.at(i).Pos.y = float(ctrlPoint.mData[2]);
-		vertexBuffer.at(i).Pos.z = float(ctrlPoint.mData[1]);
+		refVertexBuffer.at(i).Pos.x = float(ctrlPoint.mData[0]);
+		refVertexBuffer.at(i).Pos.y = float(ctrlPoint.mData[2]);
+		refVertexBuffer.at(i).Pos.z = float(ctrlPoint.mData[1]);
 	}
 
 	//2, Indices ------- indices of control points to assemble triangles
 	int indexCount = pMesh->GetPolygonVertexCount();
 	int* pIndexArray = pMesh->GetPolygonVertices();
-	indexBuffer.resize(indexCount);
-	for (int i = 0; i < indexCount; ++i)
+	refIndexBuffer.resize(indexCount);
+	for (int i = 0; i < indexCount; i+=3)
 	{
-		indexBuffer.at(i) = pIndexArray[i];
+		refIndexBuffer.at(i) = pIndexArray[i];
+		refIndexBuffer.at(i+1) = pIndexArray[i+2];
+		refIndexBuffer.at(i+2) = pIndexArray[i+1];
 	}
-
 	//3, other vertex attributes ----- vertex color/normal/tangent/texcoord
 	//meshes are assumed to be TRIANGULAR here
 	//in triangular mesh, poly-vertex count is 3x of triangleCount;
@@ -239,10 +248,10 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 			int polygonVertexIndex = i * 3 + j;
 
 			//load other vertex attributes for control points
-			NVECTOR4& color = vertexBuffer.at(ctrlPointIndex).Color;
-			NVECTOR3& tangent = vertexBuffer.at(ctrlPointIndex).Tangent;
-			NVECTOR3& normal = vertexBuffer.at(ctrlPointIndex).Normal;
-			NVECTOR2& texcoord = vertexBuffer.at(ctrlPointIndex).TexCoord;
+			NVECTOR4& color = refVertexBuffer.at(ctrlPointIndex).Color;
+			NVECTOR3& tangent = refVertexBuffer.at(ctrlPointIndex).Tangent;
+			NVECTOR3& normal = refVertexBuffer.at(ctrlPointIndex).Normal;
+			NVECTOR2& texcoord = refVertexBuffer.at(ctrlPointIndex).TexCoord;
 
 			//vertex color
 			mFunction_LoadMesh_VertexColor(pMesh, ctrlPointIndex, polygonVertexIndex, color);
@@ -259,14 +268,25 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	}
 
 	//---------------------------MATERIAL----------------------
+	//1.subset
 	std::vector<N_FbxMeshSubset> matIdSubsetList;
 	mFunction_LoadMesh_MatIndexOfTriangles(pMesh, triangleCount, matIdSubsetList);
 
-	std::vector<std::string> matNameList;
-	std::vector<N_MaterialDesc> matList;
-	mFunction_LoadMesh_Materials(pNode,matNameList ,matList);
+	//2.material(basic param & textures)
+	std::vector<N_FbxMaterialInfo> matList;
+	mFunction_LoadMesh_Materials(pNode, matList);
+	refCurrentMesh.matList = matList;
 
-
+	//3.convert materialID to material NAME( subset of mesh)
+	std::vector<N_MeshSubsetInfo>& refSubsetList = refCurrentMesh.subsetList;
+	for (auto& s : matIdSubsetList)
+	{
+		N_MeshSubsetInfo subset;
+		subset.matName = matList.at(s.matID).matName;
+		subset.primitiveCount = s.triCount;
+		subset.startPrimitiveID = s.triStart;
+		refSubsetList.push_back(subset);
+	}
 }
 
 void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR4 & outColor)
@@ -554,12 +574,7 @@ void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int tri
 		
 		if (pMatIndices!=nullptr)
 		{
-			//initial subset
-			N_FbxMeshSubset initSubset;
-			initSubset.triStart = 0;
-			initSubset.triCount = 1;
-			initSubset.matID = pMatIndices->GetAt(0);
-			outFbxSubsetList.push_back(initSubset);
+
 
 			switch (matMappingMode)
 			{
@@ -569,6 +584,13 @@ void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int tri
 					//count check before loading material IDs
 					if (pMatIndices->GetCount() == triangleCount)
 					{
+						//initial subset
+						N_FbxMeshSubset initSubset;
+						initSubset.triStart = 0;
+						initSubset.triCount = 1;
+						initSubset.matID = pMatIndices->GetAt(0);
+						outFbxSubsetList.push_back(initSubset);
+
 						for (int triangleIndex = 1; triangleIndex < triangleCount; ++triangleIndex)
 						{
 							int materialIndex = pMatIndices->GetAt(triangleIndex);
@@ -606,8 +628,10 @@ void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int tri
 	}
 }
 
-void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<std::string>& outMatNameList, std::vector<N_MaterialDesc>& outMatList)
+void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList)
 {
+#pragma warning (push)
+#pragma warning (disable : 4244)
 	//materials are independent from mesh geometry data
 	int materialCount = pNode->GetMaterialCount();
 	
@@ -617,24 +641,24 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<std::s
 		FbxSurfaceMaterial* pSurfaceMaterial = pNode->GetMaterial(materialIndex);
 
 		//material name
-		std::string matName;
-		matName = pSurfaceMaterial->GetName();
+		N_FbxMaterialInfo newFbxMat;
+		N_BasicMaterialDesc& basicMat = newFbxMat.matBasicInfo;
+		newFbxMat.matName = pSurfaceMaterial->GetName();
 
-		N_MaterialDesc mat;
 		// Phong material  
 		if (pSurfaceMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 		{
 			// Ambient Color  
 			FbxDouble3 amb= ((FbxSurfacePhong*)pSurfaceMaterial)->Ambient;
-			mat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
+			basicMat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
 
 			// Diffuse Color  
 			FbxDouble3 diff= ((FbxSurfacePhong*)pSurfaceMaterial)->Diffuse;
-			mat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
+			basicMat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
 			
 			// Specular Color  
 			FbxDouble3 spec= ((FbxSurfacePhong*)pSurfaceMaterial)->Specular;
-			mat.specularColor = NVECTOR3(spec.mData[0], spec.mData[1], spec.mData[2]);
+			basicMat.specularColor = NVECTOR3(spec.mData[0], spec.mData[1], spec.mData[2]);
 
 			// Emissive Color  
 			FbxDouble3 emissive= ((FbxSurfacePhong*)pSurfaceMaterial)->Emissive;
@@ -642,15 +666,16 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<std::s
 
 			// Opacity  
 			FbxDouble transparency = ((FbxSurfacePhong*)pSurfaceMaterial)->TransparencyFactor;
-			mat.transparency = transparency;
+			basicMat.transparency = transparency;
 
 			// Shininess  
 			FbxDouble shininess = ((FbxSurfacePhong*)pSurfaceMaterial)->Shininess;
-			mat.specularSmoothLevel = int32_t(shininess);
+			basicMat.specularSmoothLevel = int32_t(shininess);
 
 			// Reflectivity  
 			FbxDouble reflectFactor= ((FbxSurfacePhong*)pSurfaceMaterial)->ReflectionFactor;
-			mat.environmentMapTransparency = reflectFactor;
+			basicMat.environmentMapTransparency = reflectFactor;
+
 		}
 		// Lambert material  
 		else if (pSurfaceMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
@@ -658,11 +683,11 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<std::s
 
 			// Ambient Color  
 			FbxDouble3 amb= ((FbxSurfaceLambert*)pSurfaceMaterial)->Ambient;
-			mat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
+			basicMat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
 
 			// Diffuse Color  
 			FbxDouble3 diff= ((FbxSurfaceLambert*)pSurfaceMaterial)->Diffuse;
-			mat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
+			basicMat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
 
 			// Emissive Color  
 			FbxDouble3 emissive= ((FbxSurfaceLambert*)pSurfaceMaterial)->Emissive;
@@ -670,12 +695,80 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<std::s
 
 			// Opacity  
 			FbxDouble transparency= ((FbxSurfaceLambert*)pSurfaceMaterial)->TransparencyFactor;
-			mat.transparency = transparency;
+			basicMat.transparency = transparency;
+		}
 
-			return;
+		//load textures infos
+		N_FbxTextureMapsInfo& texMapsInfo = newFbxMat.texMapInfo;
+		mFunction_LoadMesh_Material_Textures(pSurfaceMaterial, texMapsInfo);
+
+		outMatList.push_back(newFbxMat);
+	}
+#pragma warning (pop)
+}
+
+void IFbxLoader::mFunction_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo)
+{
+	//diffuse map
+	FbxProperty prop = pSM->FindProperty(FbxSurfaceMaterial::sDiffuse);
+	mFunction_LoadMesh_Material_TextureMapInfo(
+		prop, outTexInfo.diffMapName, outTexInfo.diffMapFilePath);
+
+	//normal map
+	prop = pSM->FindProperty(FbxSurfaceMaterial::sBump);
+	mFunction_LoadMesh_Material_TextureMapInfo(
+		prop, outTexInfo.normalMapName, outTexInfo.normalMapFilePath);
+
+	//specular map
+	prop = pSM->FindProperty(FbxSurfaceMaterial::sSpecular);
+	mFunction_LoadMesh_Material_TextureMapInfo(
+		prop, outTexInfo.specMapName, outTexInfo.specMapFilePath);
+
+	//emissive map
+	prop = pSM->FindProperty(FbxSurfaceMaterial::sEmissive);
+	mFunction_LoadMesh_Material_TextureMapInfo(
+		prop, outTexInfo.emissiveMapName, outTexInfo.emissiveMapFilePath);
+}
+
+void IFbxLoader::mFunction_LoadMesh_Material_TextureMapInfo(const FbxProperty & prop, std::string & outTextureName, std::string & outTextureFilePath)
+{
+	int layerCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+	//texture could be layered/Non-layered
+	if (layerCount > 0)//layered
+	{
+		//for (int texLayerIndex = 0; texLayerIndex < layerCount; ++texLayerIndex)
+		//{
+		//FbxLayeredTexture* pLayeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(texLayerIndex));
+		FbxLayeredTexture* pLayeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(0));
+		int texCount = pLayeredTexture->GetSrcObjectCount<FbxTexture>();
+
+		for (int k = 0; k < texCount; k++)
+		{
+			FbxFileTexture* pTex = FbxCast<FbxFileTexture>(pLayeredTexture->GetSrcObject<FbxTexture>(k));
+			// Then, you can get all the properties of the texture, include its name
+			if (pTex != nullptr)
+			{
+				outTextureName = pTex->GetName();
+				outTextureFilePath = pTex->GetFileName();
+			}
+		}
+		//}
+	}
+	else//non-layered
+	{
+		int texCount = prop.GetSrcObjectCount<FbxTexture>();
+		//iterate all simple texture
+		for (int texId = 0; texId<texCount; texId++)
+		{
+			FbxFileTexture * pTex = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxTexture>(texId));
+			if (pTex != nullptr)
+			{
+				outTextureName = pTex->GetName();
+				outTextureFilePath = pTex->GetFileName();
+			}
 		}
 	}
-
 }
 
 void IFbxLoader::mFunction_ProcessSceneNode_Skeleton(FbxNode * pNode)

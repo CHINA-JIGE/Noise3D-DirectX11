@@ -6,6 +6,8 @@
 ************************************************************************/
 
 #pragma once
+#include "_FbxLoader.h"
+
 
 namespace Noise3D
 {
@@ -17,8 +19,8 @@ namespace Noise3D
 	{
 		N_SceneLoadingResult(){}
 
-		std::vector<N_UID> meshNameList;//mesh loading
-		std::vector<N_UID> materialNameList;//mesh loading
+		std::vector<N_UID> meshNameList;
+		std::vector<N_UID> materialNameList;
 	};
 
 	class /*_declspec(dllexport)*/ IModelLoader
@@ -43,9 +45,6 @@ namespace Noise3D
 
 		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
 		void		LoadFile_FBX(NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
-
-		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
-		void		LoadFile_FBX(NFilePath pFilePath, std::string newMeshesNamePrefix, N_SceneLoadingResult& outLoadingResult);
 
 		bool		LoadSkyDome(IAtmosphere* pAtmo, float fRadiusXZ, float fHeight);
 

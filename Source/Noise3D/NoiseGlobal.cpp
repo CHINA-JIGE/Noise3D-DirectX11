@@ -49,7 +49,7 @@ using namespace Noise3D;
 
 	/*------------------------------Global Function--------------------------*/
 
-/*_declspec(dllexport)*/	bool Noise3D::gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+/*_declspec(dllexport)*/	bool Noise3D::gFunc_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
 	{
 		if (v.x >= vTopLeft.x &&
 			v.x <= vBottomRight.x &&
@@ -62,7 +62,7 @@ using namespace Noise3D;
 		return false;
 	}
 
-/*_declspec(dllexport)*/ int Noise3D::gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
+/*_declspec(dllexport)*/ int Noise3D::gFunc_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar)
 	{
 		//!!!!!!the return type is signed INT ,because  top left might go beyond the upper boundary
 
@@ -105,7 +105,7 @@ using namespace Noise3D;
 	}
 
 
-/*_declspec(dllexport)*/ std::string Noise3D::GetFileDirectory(std::string completeFilePath)
+/*_declspec(dllexport)*/ std::string Noise3D::gFunc_GetFileFolderFromPath(std::string completeFilePath)
 	{
 		//Get the directory which the file lies on 
 		std::string outDir = completeFilePath;
@@ -122,6 +122,15 @@ using namespace Noise3D;
 		}
 		return "";
 	};
+
+/*_declspec(dllexport)*/ std::string Noise3D::gFunc_GetFileNameFromPath(std::string completeFilePath)
+{
+	//Get the directory which the file lies on 
+	int pos1 = completeFilePath.find_last_of('/');
+	int pos2 = completeFilePath.find_last_of('\\');
+	std::string result = completeFilePath.substr(max(pos1, pos2) + 1);
+	return result;
+};
 
 /*_declspec(dllexport)*/ inline float Noise3D::Lerp(float a, float b, float t)
 	{

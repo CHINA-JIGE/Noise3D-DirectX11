@@ -3,6 +3,7 @@
 
 							   h£ºFBX loader
 		Desc: encapsulation of  FBXSDK, loading FBX model/scene
+		which will be integrated to IModelLoader
 
 ************************************************************************/
 
@@ -12,10 +13,27 @@
 
 namespace Noise3D
 {
-	/*struct N_DirLightDesc;
-	struct N_PointLightDesc;
-	struct N_SpotLightDesc;*/
 	struct N_MeshSubsetInfo;
+	struct N_BasicMaterialDesc;
+
+	struct N_FbxTextureMapsInfo
+	{
+		std::string diffMapName;
+		std::string diffMapFilePath;
+		std::string normalMapName;
+		std::string normalMapFilePath;
+		std::string specMapName;
+		std::string specMapFilePath;
+		std::string emissiveMapName;
+		std::string emissiveMapFilePath;
+	};
+
+	struct N_FbxMaterialInfo
+	{
+		std::string matName;
+		N_BasicMaterialDesc matBasicInfo;
+		N_FbxTextureMapsInfo texMapInfo;//including loading path and names of texture maps
+	};
 
 	struct N_FbxMeshInfo
 	{
@@ -25,13 +43,15 @@ namespace Noise3D
 		std::vector<N_DefaultVertex> vertexBuffer;
 		std::vector<UINT> indexBuffer;
 		std::vector<N_MeshSubsetInfo> subsetList;
+		std::vector<N_FbxMaterialInfo> matList;
+		NVECTOR3 pos;//world translation
+		NVECTOR3 scale;
 	};
 
 	struct N_FbxSkeletonInfo
 	{
 
 	};
-
 
 	struct N_FbxLoadingResult
 	{
@@ -86,10 +106,12 @@ namespace Noise3D
 		void		mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh* pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList);
 
 		//details information of materials bound to current mesh
-		void		mFunction_LoadMesh_Materials(FbxNode* pNode,std::vector<std::string>& outMatNameList,std::vector<N_MaterialDesc>& outMatList);
+		void		mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList);
 
 		//textures which are bound to certain material
-		void		mFunction_LoadMesh_Textures();
+		void		mFunction_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo);
+
+		void		mFunction_LoadMesh_Material_TextureMapInfo(const FbxProperty& prop, std::string& outTextureName, std::string& outTextureFilePath);
 
 		//void		mFunction_ProcessSceneNode_Light(FbxNode* pNode);
 
@@ -103,7 +125,7 @@ namespace Noise3D
 
 		FbxIOSettings*	m_pIOSettings;
 
-		N_FbxLoadingResult*		m_pResult;
+		N_FbxLoadingResult*		m_pRefOutResult;
 
 		bool						mIsInitialized;
 
@@ -113,5 +135,4 @@ namespace Noise3D
 
 	};
 
-
-}
+};

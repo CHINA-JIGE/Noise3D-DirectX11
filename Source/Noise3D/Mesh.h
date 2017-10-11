@@ -30,6 +30,11 @@ namespace Noise3D
 
 		void		SetMaterial(N_UID matName);
 
+		//subset list of a mesh (one subset for one material)
+		void		SetSubsetList(const std::vector<N_MeshSubsetInfo>& subsetList);
+
+		void		GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList);
+
 		void		SetPosition(float x, float y, float z);
 
 		void		SetPosition(const NVECTOR3& pos);

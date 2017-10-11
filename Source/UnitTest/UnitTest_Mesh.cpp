@@ -15,7 +15,7 @@ ICamera* pCamera;
 IAtmosphere* pAtmos;
 IModelLoader* pModelLoader;
 IMeshManager* pMeshMgr;
-IMesh* pMesh1;
+std::vector<IMesh*> meshList;
 IMaterialManager*	pMatMgr;
 ITextureManager*	pTexMgr;
 IGraphicObjectManager*	pGraphicObjMgr;
@@ -76,7 +76,7 @@ BOOL Init3D(HWND hwnd)
 	pMeshMgr = pScene->GetMeshMgr();
 
 	//use "myMesh1" string to initialize UID (unique-Identifier)
-	pMesh1= pMeshMgr->CreateMesh("myMesh1");
+	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
 
 	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
@@ -92,6 +92,7 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
@@ -119,18 +120,24 @@ BOOL Init3D(HWND hwnd)
 	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX("../model/teapot.FBX", res);
-	pMesh1 = pMeshMgr->GetMesh(res.meshNameList.at(0));
-	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
-	
-	const std::vector<N_DefaultVertex>* pTmpVB;
-	pTmpVB = pMesh1->GetVertexBuffer();
-	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	/*for (auto v : *pTmpVB)
+	pModelLoader->LoadFile_FBX("../model/treeScene-fbx/geometries2.FBX", res);
+	for (auto & name : res.meshNameList)
 	{
-		pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-		pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
-	}*/
+		IMesh* pMesh = pMeshMgr->GetMesh(name);
+		meshList.push_back(pMesh);
+		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+	}
+
+	const std::vector<N_DefaultVertex>* pTmpVB;
+	pTmpVB =	meshList.at(0)->GetVertexBuffer();
+	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
+	NVECTOR3 modelPos = meshList.at(3)->GetPosition();
+	for (auto v : *pTmpVB)
+	{
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
+	}
+
 	
 	//----------------------------------------------------------
 
@@ -139,7 +146,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetViewAngle(MATH_PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
-	N_Box meshAABB = pMesh1->ComputeBoundingBox();
+	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();
 	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
 	float rotateY = meshAABB.max.y*1.3f;
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
@@ -175,7 +182,7 @@ BOOL Init3D(HWND hwnd)
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
-	pMesh1->SetMaterial("meshMat1");
+	//pMesh1->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
@@ -203,7 +210,7 @@ void MainLoop()
 
 
 	//add to render list
-	pRenderer->AddObjectToRenderList(pMesh1);
+	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

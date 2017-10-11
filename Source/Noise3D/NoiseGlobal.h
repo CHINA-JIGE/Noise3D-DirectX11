@@ -50,11 +50,13 @@ namespace Noise3D
 
 	//！！！！！！！！！！畠蕉痕方！！！！！！！！！！！！
 
-	extern /*_declspec(dllexport)*/ bool gFunction_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
+	extern /*_declspec(dllexport)*/ bool gFunc_IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
-	extern /*_declspec(dllexport)*/ int	gFunction_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
+	extern /*_declspec(dllexport)*/ int	gFunc_GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
-	extern /*_declspec(dllexport)*/ std::string GetFileDirectory(std::string completeFilePath);
+	extern /*_declspec(dllexport)*/ std::string gFunc_GetFileFolderFromPath(std::string completeFilePath);
+
+	extern	/*_declspec(dllexport)*/  std::string gFunc_GetFileNameFromPath(std::string completeFilePath);
 
 	extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
