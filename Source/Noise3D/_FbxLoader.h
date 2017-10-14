@@ -102,6 +102,10 @@ namespace Noise3D
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex UV is defined
 		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int uvIndex, int uvLayer, NVECTOR2& outTexcoord);
 
+		//Actually i don't want to import binormal at first. 
+		//But the handness of tangent space basis could not determine without binormal(what a big pit!!)
+		void		mFunction_LoadMesh_VertexBinormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3& outBinormal);
+
 		//load the mapping of triangle id and material id
 		void		mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh* pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList);
 

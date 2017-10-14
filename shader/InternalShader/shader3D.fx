@@ -12,27 +12,24 @@
 //---------------------------------Default Draw--------------------------------------
 VS_OUTPUT_DEFAULT VS_DefaultDraw(VS_INPUT_DEFAULT input )
 {
-		float3x3 gWorldMatrixWithoutTranslation;
-		gWorldMatrixWithoutTranslation[0] = gWorldMatrix[0].xyz;
-		gWorldMatrixWithoutTranslation[1] = gWorldMatrix[1].xyz;
-		gWorldMatrixWithoutTranslation[2] = gWorldMatrix[2].xyz;
-		
-		//initialize
-    	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
-		//the W transformation
-		output.posW 	= mul(float4(input.posL,1.0f),gWorldMatrix).xyz;
-		//the VP transformation
-		output.posH 	= mul(mul(float4(output.posW,1.0f),gViewMatrix),gProjMatrix);
-		//output the vertex color , this parameter will be used if the lighting system is off
-    	output.color 	= input.color;
-		//we need an normal vector in W space
-		output.normalW 	= mul(float4(input.normalL,1.0f),gWorldInvTransposeMatrix).xyz;
-		//transform tangent to help implement XYZ to TBN
-		output.tangentW = mul(input.tangentL,gWorldMatrixWithoutTranslation);
-		//texture coordinate
-		output.texcoord = input.texcoord;
 
-    	return output;
+	
+	//initialize
+    VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
+	//the W transformation
+	output.posW 	= mul(float4(input.posL,1.0f),gWorldMatrix).xyz;
+	//the VP transformation
+	output.posH 	= mul(mul(float4(output.posW,1.0f),gViewMatrix),gProjMatrix);
+	//output the vertex color , this parameter will be used if the lighting system is off
+    output.color 	= input.color;
+	//we need an normal vector in W space
+	output.normalW 	= mul(float4(input.normalL,1.0f),gWorldInvTransposeMatrix).xyz;
+	//transform tangent to help implement XYZ to TBN
+	output.tangentW = mul(float4(input.tangentL,0.0f), gWorldMatrix).xyz;
+	//texture coordinate
+	output.texcoord = input.texcoord;
+
+    return output;
 }
 
 float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的texture，就是 back buffer ，所以叫SV_Target
@@ -49,6 +46,7 @@ float4 PS_DefaultDraw(VS_OUTPUT_DEFAULT input ) : SV_Target //渲染到system需要的
 
 	//interpolation can  'unnormalized' the unit  vector
 	input.normalW = normalize(input.normalW);
+	input.tangentW = normalize(input.tangentW);
 	
 	//vector ---- this point to Camera
 	float3 Vec_ToCam = gCamPos - input.posW;
@@ -125,14 +123,9 @@ VS_OUTPUT_DEFAULT VS_DrawSky(VS_INPUT_SIMPLE input)
 {
 	VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 	
-	float3x3 viewMatrixWithoutTranslation;
-	viewMatrixWithoutTranslation[0]=gViewMatrix[0].xyz;
-	viewMatrixWithoutTranslation[1]=gViewMatrix[1].xyz;
-	viewMatrixWithoutTranslation[2]=gViewMatrix[2].xyz;
-	
 	//so the sky will always be in the same relative position with camera  (ww means the triangles lie in  infinitely far from original point)
 	//output.posH = float4(mul(float4(mul(input.posL,viewMatrixWithoutTranslation),1.0f), gProjMatrix).xy,1.0f,1.0f);
-	output.posH = mul(float4(mul(input.posL,viewMatrixWithoutTranslation),1.0f), gProjMatrix).xyww;
+	output.posH = mul(float4(mul(float4(input.posL.xyz,0.0f), gViewMatrix).xyz,1.0f), gProjMatrix).xyww;
 	output.posW = input.posL;
 	output.color = input.color;
 	output.texcoord = input.texcoord;

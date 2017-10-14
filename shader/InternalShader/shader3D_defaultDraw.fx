@@ -178,10 +178,9 @@ void	TransformCoord_XYZ_TBN(float3 inVectorXYZ,float3 TangentW,float3 NormalW,ou
 	transformMatrix[0] = float4(TangentW.x,NormalW.x,BinormalW.x,0);
 	transformMatrix[1] = float4(TangentW.y,NormalW.y,BinormalW.y,0);
 	transformMatrix[2] = float4(TangentW.z,NormalW.z,BinormalW.z,0);
-	transformMatrix[3] = float4(0,0,0,1.0f);
-	
-	outVectorTBN = mul(float4(inVectorXYZ,1.0f),transformMatrix).xyz;
+	transformMatrix[3] = float4(0, 0, 0, 1.0f);
 
+	outVectorTBN = mul(float4(inVectorXYZ,1.0f),transformMatrix).xyz;
 }
 
 
@@ -216,7 +215,7 @@ void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,
 	transformMatrix[3] = float4(0,0,0,1.0f);
 
 	//outVectorXYZ = mul(float4(inVectorTBN,1.0f),transformMatrix).xyz;
-	outVectorXYZ = mul(transformMatrix,float4(inVectorTBN,1.0f)).xyz;
+	outVectorXYZ = mul(float4(inVectorTBN, 1.0f),transformMatrix).xyz;
 }
 
 
@@ -260,8 +259,8 @@ void	ComputeDirLightColor(N_DirectionalLight Light,float3 NormalW,float2 TexCoor
 	
 	ComputeOutput_Amb_Diff_Spec(diffuseCosFactor,Light.mSpecularIntensity,gMaterial.mSpecularSmoothLevel,1.0f,
 									gMaterial.mAmbientColor	,Light.mAmbientColor,
-									diffuseColor3			,Light.mDiffuseColor,
-									specularColor3			,Light.mSpecularColor,
+									diffuseColor3						,Light.mDiffuseColor,
+									specularColor3					,Light.mSpecularColor,
 									Vec_toCamTBN,lightVecTBN,normalTBN,
 									outAmbient4,outDiffuse4,outSpec4);
 	

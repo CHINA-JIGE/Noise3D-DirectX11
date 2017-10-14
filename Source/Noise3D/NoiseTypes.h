@@ -40,6 +40,16 @@ namespace Noise3D
 			return *this;
 		};
 
+		bool operator!=(N_DefaultVertex& v) {
+			if (v.Pos != Pos || v.Color != Color || v.Normal != Normal || v.TexCoord!=TexCoord || v.Tangent!=Tangent) { return true; }
+			else { return false; }
+		};
+
+		bool operator==(N_DefaultVertex& v) {
+			if (v.Pos == Pos &&  v.Color== Color && v.Normal == Normal && v.TexCoord == TexCoord && v.Tangent == Tangent) { return true; }
+			else { return false; }
+		};
+
 		NVECTOR3 Pos;
 		NVECTOR4 Color;
 		NVECTOR3 Normal;
@@ -51,10 +61,12 @@ namespace Noise3D
 	{
 		N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
 		N_SimpleVertex(NVECTOR3 inPos, NVECTOR4 inColor, NVECTOR2 inTexCoord) { Pos = inPos;Color = inColor;TexCoord = inTexCoord; };
+		
 		bool operator!=(N_SimpleVertex& v) {
 			if (v.Color != Color || v.Pos != Pos || v.TexCoord != TexCoord) { return true; }
 			else { return false; }
 		};
+		
 		bool operator==(N_SimpleVertex& v) {
 			if (v.Color == Color && v.Pos == Pos && v.TexCoord == TexCoord) { return true; }
 			else { return false; }

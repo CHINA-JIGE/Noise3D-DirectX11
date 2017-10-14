@@ -3,6 +3,9 @@
 
                            cpp£ºFBX SDK encapsulation
 
+			control point splitting according to vertex 
+			attribute is implemented
+
 ************************************************************************/
 #include "Noise3D.h"
 
@@ -201,7 +204,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	std::vector<UINT>&	refIndexBuffer = refCurrentMesh.indexBuffer;
 	refCurrentMesh.name = pNode->GetName();
 
-	//--------------------MESH TRANSFORMATION--------------------------
+	//---------------------------MESH TRANSFORMATION--------------------------
 	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
 	refCurrentMesh.pos = NVECTOR3(pos4.mData[0], pos4.mData[2],pos4.mData[1]);
 
@@ -209,8 +212,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	refCurrentMesh.scale = NVECTOR3(scale4.mData[0], scale4.mData[2], scale4.mData[1]);
 
 
-	//--------------------MESH GEOMETRY--------------------------
-
+	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer
 	int ctrlPointCount = pMesh->GetControlPointsCount();
 	FbxVector4* pCtrlPointArray = pMesh->GetControlPoints();
@@ -223,51 +225,95 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 		refVertexBuffer.at(i).Pos.z = float(ctrlPoint.mData[1]);
 	}
 
+
 	//2, Indices ------- indices of control points to assemble triangles
 	int indexCount = pMesh->GetPolygonVertexCount();
 	int* pIndexArray = pMesh->GetPolygonVertices();
 	refIndexBuffer.resize(indexCount);
-	for (int i = 0; i < indexCount; i+=3)
-	{
-		refIndexBuffer.at(i) = pIndexArray[i];
-		refIndexBuffer.at(i+1) = pIndexArray[i+2];
-		refIndexBuffer.at(i+2) = pIndexArray[i+1];
-	}
+	for (int i = 0; i < indexCount; ++i)refIndexBuffer.at(i) = pIndexArray[i];
+
 	//3, other vertex attributes ----- vertex color/normal/tangent/texcoord
 	//meshes are assumed to be TRIANGULAR here
 	//in triangular mesh, poly-vertex count is 3x of triangleCount;
 	//and many vertex attributes can be shared, hence
 	int triangleCount = pMesh->GetPolygonCount();
 	//int vertexCount = pMesh->GetPolygonVertexCount();
+
+	//(but be careful, one control point can possess several normal/tangent....
+	//thus control point could be split into several vertices with different vertex attributes.
+	//vertex attributes will be loaded below, but if a "dirty" vertex is encountered again,
+	//then a new vertex should be CREATED, index should be MODIFIED
+	std::vector<bool> ctrlPointDirtyMarkArray(ctrlPointCount,false);
+
 	for (int i = 0; i < triangleCount; ++i)
 	{
 		//3 vertices for each triangle
 		for (int j = 0; j < 3; ++j)
 		{
 			int ctrlPointIndex = pMesh->GetPolygonVertex(i, j);
+			//int polygonVertexIndex = pMesh->GetPolygonVertexIndex(i)+j;
 			int polygonVertexIndex = i * 3 + j;
 
-			//load other vertex attributes for control points
-			NVECTOR4& color = refVertexBuffer.at(ctrlPointIndex).Color;
-			NVECTOR3& tangent = refVertexBuffer.at(ctrlPointIndex).Tangent;
-			NVECTOR3& normal = refVertexBuffer.at(ctrlPointIndex).Normal;
-			NVECTOR2& texcoord = refVertexBuffer.at(ctrlPointIndex).TexCoord;
+			//load other vertex attributes for control points(or say, vertex, because
+			//control point could be split according to each vertex attribute
 
 			//vertex color
+			NVECTOR4 color;
 			mFunction_LoadMesh_VertexColor(pMesh, ctrlPointIndex, polygonVertexIndex, color);
 
 			//vertex normal
+			NVECTOR3 normal;
 			mFunction_LoadMesh_VertexNormal(pMesh, ctrlPointIndex, polygonVertexIndex, normal);
 
 			//vertex tangent (nice!!!)
+			NVECTOR3 tangent;
 			mFunction_LoadMesh_VertexTangent(pMesh, ctrlPointIndex, polygonVertexIndex, tangent);
+			//tangent.y += 0.01f;
 
 			//texture coordinates could be multiple layers, but we only support 1 layer here
+			NVECTOR2 texcoord;
 			mFunction_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, 0, texcoord);
+
+			//if current control point has been loaded
+			if (ctrlPointDirtyMarkArray.at(ctrlPointIndex) == true)
+			{
+				N_DefaultVertex existedV = refVertexBuffer.at(ctrlPointIndex);
+				N_DefaultVertex currentV;
+				currentV.Pos = refVertexBuffer.at(ctrlPointIndex).Pos;
+				currentV.Color = color;
+				currentV.Normal = normal;
+				currentV.TexCoord = texcoord;
+				currentV.Tangent = tangent;
+
+				//Vertex attr not equal, split control point
+				if (existedV != currentV)
+				{
+					refVertexBuffer.push_back(currentV);
+					//index of split vertex
+					refIndexBuffer.at(polygonVertexIndex) = refVertexBuffer.size() - 1;
+				}
+			}
+			else
+			{
+				//current vertex not dirty, attributes need to be configure
+				N_DefaultVertex& v = refVertexBuffer.at(ctrlPointIndex);
+				v.Color = color;
+				v.Normal = normal;
+				v.Tangent = tangent;
+				v.TexCoord = texcoord;
+				//set dirty mark
+				ctrlPointDirtyMarkArray.at(ctrlPointIndex) = true;
+			}
 		}
 	}
 
-	//---------------------------MATERIAL----------------------
+	//Clockwise/ counterClockwise
+	for (int i = 0; i < indexCount; i += 3)
+	{
+		std::swap(refIndexBuffer.at(i + 1), refIndexBuffer.at(i + 2));
+	}
+
+	//-----------------------------MATERIAL-------------------------------
 	//1.subset
 	std::vector<N_FbxMeshSubset> matIdSubsetList;
 	mFunction_LoadMesh_MatIndexOfTriangles(pMesh, triangleCount, matIdSubsetList);
@@ -367,7 +413,6 @@ void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointI
 		return;
 	}
 
-	//get an array of vertex color(indexed by control point index OR polygon vertex index)
 	FbxGeometryElementNormal* pElement = pMesh->GetElementNormal();
 
 	//target vector
@@ -408,12 +453,14 @@ void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointI
 			v = pElement->GetDirectArray().GetAt(polygonVertexIndex);
 		}
 		break;
+
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = pElement->GetIndexArray().GetAt(polygonVertexIndex);
 			v = pElement->GetDirectArray().GetAt(id);
 		}
 		break;
+
 		default:
 			break;
 		}
@@ -434,7 +481,6 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 		return;
 	}
 
-	//get an array of vertex color(indexed by control point index OR polygon vertex index)
 	FbxGeometryElementTangent* pElement = pMesh->GetElementTangent();
 
 	//target vector
@@ -501,7 +547,6 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 		return;
 	}
 
-	//get an array of vertex color(indexed by control point index OR polygon vertex index)
 	FbxGeometryElementUV* pElement = pMesh->GetElementUV();
 
 	//target vector
@@ -559,6 +604,74 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 
 	outTexcoord.x = float(v.mData[0]);
 	outTexcoord.y = float(v.mData[1]);
+}
+
+void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3 & outBinormal)
+{
+	if (pMesh->GetElementNormalCount() < 1)
+	{
+		outBinormal = { 0,0,0 };
+		return;
+	}
+
+	FbxGeometryElementBinormal* pElement = pMesh->GetElementBinormal();
+
+	//target vector
+	FbxVector4& v = pElement->GetDirectArray().GetAt(0);
+
+	//re-bind variable 'v' according to index mapping mode and ref mode
+	switch (pElement->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+	{
+		switch (pElement->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			v = pElement->GetDirectArray().GetAt(ctrlPointIndex);
+		}
+		break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = pElement->GetIndexArray().GetAt(ctrlPointIndex);
+			v = pElement->GetDirectArray().GetAt(id);
+		}
+		break;
+
+		default:
+			break;
+		}
+	}
+	break;
+
+	case FbxGeometryElement::eByPolygonVertex:
+	{
+		switch (pElement->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			v = pElement->GetDirectArray().GetAt(polygonVertexIndex);
+		}
+		break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = pElement->GetIndexArray().GetAt(polygonVertexIndex);
+			v = pElement->GetDirectArray().GetAt(id);
+		}
+		break;
+
+		default:
+			break;
+		}
+	}
+	break;
+	}
+
+	outBinormal.x = float(v.mData[0]);
+	outBinormal.y = float(v.mData[2]);
+	outBinormal.z = float(v.mData[1]);
 }
 
 void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList)
