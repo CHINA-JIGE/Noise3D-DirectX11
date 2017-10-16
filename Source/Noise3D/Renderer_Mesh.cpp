@@ -86,7 +86,7 @@ void	IRenderer::RenderMeshes()
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
 
-	bool tmpCanUpdateCbRarely = FALSE;
+	bool tmpCanUpdateCbRarely = false;
 
 	//————更新Static Light——————
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
@@ -118,13 +118,13 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 			m_CbRarely.mSpotLight_Static[i] = (tmpLightMgr->GetSpotLightS(i)->GetDesc());
 		}
 
-		//更新 “可更新”状态，保证static light 只进行初始化
-		tmpLightMgr->mCanUpdateStaticLights = FALSE;
+		//static light only need to update once for INITIALIZATION
+		tmpLightMgr->mCanUpdateStaticLights = false;
 	}
 
 
 	//——————更新到GPU——————
-	if (tmpCanUpdateCbRarely == TRUE)
+	if (tmpCanUpdateCbRarely == true)
 	{
 		m_pFX_CbRarely->SetRawValue(&m_CbRarely, 0, sizeof(m_CbRarely));
 	};
@@ -180,7 +180,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
 	N_MaterialDesc tmpMat;
-	if (IsMatNameValid==FALSE)
+	if (IsMatNameValid== false)
 	{
 		WARNING_MSG("IRenderer : material UID not valid when rendering mesh.");
 		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);

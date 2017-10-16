@@ -61,7 +61,7 @@ bool IMaterialManager::DeleteMaterial(N_UID matName)
 	if (matName == NOISE_MACRO_DEFAULT_MATERIAL_NAME)
 	{
 		ERROR_MSG("DeleteMaterial: default material can't be deleted...(how lucky you are- -.)");
-		return FALSE;
+		return false;
 	}
 	return IFactory<IMaterial>::DestroyObject(matName);
 }

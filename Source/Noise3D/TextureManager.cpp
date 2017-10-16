@@ -29,7 +29,7 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 	HRESULT hr = S_OK;
 
 	//we must check if new name has been used
-	if(ValidateUID(texName)==TRUE)
+	if(ValidateUID(texName)== true)
 	{
 			ERROR_MSG("CreateTextureFromFile : Texture name has been used!! name: " + texName);
 			return nullptr;//invalid
@@ -162,10 +162,10 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 		ITexture* pTexture = CreateTextureFromFile(
 			fileName[i], 
 			tmpTexName[i].c_str(),
-			FALSE,
+			false,
 			cubeMapWidth, 
 			cubeMapWidth, 
-			TRUE);
+			true);
 
 		//one of the texture failed loading
 		if (pTexture==nullptr)
@@ -254,7 +254,7 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 	
 	//we disable texture modification of Cube Map for the time being...
 	/*N_TextureObject tmpTexObj;
-	tmpTexObj.mIsPixelBufferInMemValid = FALSE;
+	tmpTexObj.mIsPixelBufferInMemValid = false;
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;*/
 
 	//create SRV from texture2D
@@ -276,7 +276,7 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 	//Create a new Texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(cubeTextureName);
 	std::vector<NVECTOR4> emptyBuff;
-	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), FALSE, NOISE_TEXTURE_TYPE_CUBEMAP);
+	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_CUBEMAP);
 
 	return pTexObj;
 }
@@ -360,7 +360,7 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 	//Create a new Texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(cubeTextureName);
 	std::vector<NVECTOR4> emptyBuff;
-	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), FALSE, NOISE_TEXTURE_TYPE_CUBEMAP);
+	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_CUBEMAP);
 
 	//return new texObj ptr
 	return pTexObj;
@@ -380,7 +380,7 @@ bool ITextureManager::DeleteTexture(ITexture * pTex)
 {
 	if (pTex == nullptr)
 	{
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -406,9 +406,9 @@ bool ITextureManager::ValidateUID(N_UID texName)
 
 bool ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 {
-	if (IFactory<ITexture>::FindUid(texName) == FALSE)
+	if (IFactory<ITexture>::FindUid(texName) == false)
 	{
-		return FALSE;
+		return false;
 	}
 
 	//then check the texture type : common / cubemap / volumn
@@ -420,28 +420,28 @@ bool ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 	case D3D11_SRV_DIMENSION_TEXTURECUBE:
 		if (texType != NOISE_TEXTURE_TYPE_CUBEMAP)
 		{
-			return FALSE;
+			return false;
 		}
 		break;
 
 	case D3D11_SRV_DIMENSION_TEXTURE3D:
 		if (texType != NOISE_TEXTURE_TYPE_VOLUMN)
 		{
-			return FALSE;
+			return false;
 		}
 		break;
 
 	case D3D11_SRV_DIMENSION_TEXTURE2D:
 		if (texType != NOISE_TEXTURE_TYPE_COMMON)
 		{
-			return FALSE;
+			return false;
 		}
 		break;
 
 	}
 
 	//a no-problem texID
-	return TRUE;
+	return true;
 }
 
 
@@ -490,7 +490,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFi
 	HRESULT hr = S_OK;
 
 	//we must check if new name has been used
-	if(ValidateUID(texName)==TRUE)
+	if(ValidateUID(texName)== true)
 	{
 		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return nullptr;//invalid
@@ -513,7 +513,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFi
 	//at last create  a new texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(texName);
 	std::vector<NVECTOR4> emptyBuff;
-	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(emptyBuff), FALSE, NOISE_TEXTURE_TYPE_COMMON);
+	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_COMMON);
 
 	return pTexObj;//invalid file or sth else
 }
@@ -536,7 +536,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 
 	//we must check if new name has been used
 	//count() will return 0 if given key dont exists
-	if (ValidateUID(texName)==TRUE)
+	if (ValidateUID(texName)== true)
 	{
 		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
 		return nullptr;//invalid
@@ -669,7 +669,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 
 	//at last create  a new texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(texName);
-	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), TRUE, NOISE_TEXTURE_TYPE_COMMON);
+	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), true, NOISE_TEXTURE_TYPE_COMMON);
 
 	return pTexObj;
 }

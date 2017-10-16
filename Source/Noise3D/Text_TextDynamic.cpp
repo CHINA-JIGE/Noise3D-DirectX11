@@ -14,8 +14,8 @@ IDynamicText::IDynamicText()
 	m_pTextureName = new N_UID;
 	m_pFontName = new N_UID;
 	m_pTextContent	= new std::string;
-	mIsTextContentChanged=TRUE;
-	mIsSizeChanged=TRUE;
+	mIsTextContentChanged=true;
+	mIsSizeChanged=true;
 }
 
 IDynamicText::~IDynamicText()
@@ -27,7 +27,7 @@ void IDynamicText::SetWidth(float w)
 	if (w != GetWidth())
 	{
 		IBasicContainerInfo::SetWidth(w);
-		mIsSizeChanged = TRUE;
+		mIsSizeChanged = true;
 	}
 }
 
@@ -36,7 +36,7 @@ void IDynamicText::SetHeight(float h)
 	if (h != GetHeight())
 	{
 		IBasicContainerInfo::SetHeight(h);
-		mIsSizeChanged = TRUE;
+		mIsSizeChanged = true;
 	}
 };
 
@@ -45,7 +45,7 @@ void IDynamicText::SetFont(N_UID fontName)
 {
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
-	if (pFontMgr->IsFontExisted(fontName)==TRUE)
+	if (pFontMgr->IsFontExisted(fontName)==true)
 	{
 		*m_pFontName = fontName;
 		N_FontObject* pfontObj = pFontMgr->IFactory< N_FontObject>::GetObjectPtr(fontName);
@@ -79,7 +79,7 @@ void IDynamicText::SetTextAscii(const std::string& newText)
 	if(newText!=*m_pTextContent)
 	{
 		*m_pTextContent = newText;
-		mIsTextContentChanged = TRUE;
+		mIsTextContentChanged = true;
 	}
 }
 
@@ -178,7 +178,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
 	//if font is invalid (deleted??), we must clear the graphic objects 
-	if (pFontMgr->IsFontExisted(*m_pFontName)==FALSE)
+	if (pFontMgr->IsFontExisted(*m_pFontName)== false)
 	{
 		m_pGraphicObj->DeleteRectangle(0, m_pGraphicObj->GetRectCount()-1);
 		return;
@@ -188,8 +188,8 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	//those SetRectangle/SetXXX might cause GraphicObject to update ,then data must be updated to GPU
 	NVECTOR2 aaa = m_pGraphicObj->GetBasePosOffset();
 	NVECTOR2 bbb = GetTopLeft();
-	if ( mIsSizeChanged == FALSE
-		&& mIsTextContentChanged == FALSE
+	if ( mIsSizeChanged == false
+		&& mIsTextContentChanged == false
 		 && m_pGraphicObj->GetBasePosOffset()==GetTopLeft())
 		return;
 
@@ -336,8 +336,8 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	}//1 char update finished
 
 
-	mIsSizeChanged = FALSE;
-	mIsTextContentChanged = FALSE;
+	mIsSizeChanged = false;
+	mIsTextContentChanged = false;
 //all chars update finished.
 };
 

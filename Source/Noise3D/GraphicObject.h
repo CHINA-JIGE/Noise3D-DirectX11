@@ -12,7 +12,7 @@ namespace Noise3D
 
 #define NOISE_GRAPHIC_OBJECT_BUFFER_COUNT 6
 
-#define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=TRUE;}
+#define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
 
 	struct N_GraphicObject_SubsetInfo
 	{

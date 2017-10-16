@@ -20,7 +20,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	mTotalTime				= 0.0;
 	mMaxInterval			= 10000.0f;//milli second
 	mTimeScaleFactor	= 1.0f;
-	mIsPaused				= FALSE;
+	mIsPaused				= false;
 
 	//每秒可以数多少次
 	INT64 countsPerSecond;
@@ -124,19 +124,19 @@ void ITimer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
 
 void ITimer::Pause()
 {
-	mIsPaused = TRUE;
+	mIsPaused = true;
 };
 
 void ITimer::Continue()
 {
-	mIsPaused = FALSE;
+	mIsPaused = false;
 };
 
 void ITimer::ResetAll()
 {
 	mTotalTime	= 0.0;
 	mDeltaTime	= 0.0;
-	mIsPaused	= FALSE;
+	mIsPaused	= false;
 };
 
 void ITimer::ResetTotalTime()

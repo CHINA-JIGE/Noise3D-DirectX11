@@ -243,12 +243,12 @@ bool IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
 	if ((dir.x == 0 && dir.y == 0 && dir.z == 0))
 	{
 		ERROR_MSG("Dir Light Init: direction can't be (0,0,0)");
-		return FALSE;
+		return false;
 	}
 	else
 	{
 		mLightDesc.direction = dir;
-		return TRUE;
+		return true;
 	}
 }
 
@@ -279,7 +279,7 @@ bool IPointLightS::mFunction_Init(const N_PointLightDesc & desc)
 	mLightDesc.mPosition = desc.mPosition;
 	mLightDesc.mAttenuationFactor = Clamp(desc.mAttenuationFactor, 0.0f, 1.0f);
 	mLightDesc.mLightingRange = Clamp(desc.mAttenuationFactor, 0.0f, 10000000.0f);
-	return TRUE;
+	return true;
 }
 
 
@@ -318,10 +318,10 @@ bool ISpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
 	else
 	{
 		ERROR_MSG("Spot Light Init: pos and LitAt can't be the same.");
-		return FALSE;
+		return false;
 	}
 
 	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
 	mLightDesc.mLightingAngle = Clamp(desc.mLightingAngle, 0.0f, MATH_PI - 0.001f);
-	return TRUE;
+	return true;
 }

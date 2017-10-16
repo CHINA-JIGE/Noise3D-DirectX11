@@ -16,7 +16,7 @@ using namespace Noise3D;
 	if (m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord != coord)\
 	{\
 		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord = coord;\
-		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;	\
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	\
 	};\
 
 
@@ -31,7 +31,7 @@ IGraphicObject::IGraphicObject()
 
 		m_pVB_GPU[i]					=nullptr;
 
-		mCanUpdateToGpu[i]		= FALSE;
+		mCanUpdateToGpu[i]		= false;
 
 		m_pVB_Mem[i]					= new std::vector<N_SimpleVertex>;
 	}
@@ -90,7 +90,7 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 			m_pVB_Mem[i]->at(j).Pos.x += offsetV.x;
 			m_pVB_Mem[i]->at(j).Pos.y += offsetV.y;
 		}
-		mCanUpdateToGpu[i] = TRUE;
+		mCanUpdateToGpu[i] = true;
 	}
 }
 
@@ -365,7 +365,7 @@ void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBotto
 	if (texName != m_pTextureUidList_Rect->at(index))
 	{
 		m_pTextureUidList_Rect->at(index) = texName;
-		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
+		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;
 	}
 
 	//skip if nth need to change,avoid unnecessary update subresource
@@ -430,7 +430,7 @@ void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,N
 	CHECK_BEFORE_CHANGE_TEXCOORD(3, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
 	CHECK_BEFORE_CHANGE_TEXCOORD(4, texCoordBottomRight);
 	CHECK_BEFORE_CHANGE_TEXCOORD(5, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));*/
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;	
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
 
 
 }
@@ -451,7 +451,7 @@ void	IGraphicObject::SetRectangleDepth(UINT index, float posZ)
 		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(index * 6+i).Pos.z = posZ;
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = TRUE;
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;
 }
 
 void	IGraphicObject::DeleteLine3D(UINT index)
@@ -650,7 +650,7 @@ bool	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
 
 	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
 
-	return TRUE;
+	return true;
 }
 
 void		IGraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
@@ -717,7 +717,7 @@ void		IGraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	}
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[buffType] = TRUE;
+	mCanUpdateToGpu[buffType] = true;
 }
 
 void		IGraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
@@ -741,7 +741,7 @@ void		IGraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	}
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[buffType] = TRUE;
+	mCanUpdateToGpu[buffType] = true;
 }
 
 void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
@@ -757,7 +757,7 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	std::initializer_list<NVECTOR4>::iterator colorIter = colorList.begin();
 	std::initializer_list<NVECTOR2>::iterator texcoordIter = texcoordList.begin();
 
-	bool canUpdate = FALSE;
+	bool canUpdate = false;
 
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
@@ -789,7 +789,7 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	}
 
 	//now it is allowed to update because of modification
-	mCanUpdateToGpu[buffType] = TRUE;//(mCanUpdateToGpu[buffType] || canUpdate);//TRUE;
+	mCanUpdateToGpu[buffType] = true;//(mCanUpdateToGpu[buffType] || canUpdate);
 
 }
 
@@ -807,7 +807,7 @@ void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	auto colorIter = colorList.begin();
 	auto texcoordIter = texcoordList.begin();
 
-	bool canUpdate = FALSE;
+	bool canUpdate = false;
 
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
@@ -852,7 +852,7 @@ void		IGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	//delte elements
 	pList->erase(iter_Start, iter_End);
 
-	mCanUpdateToGpu[buffType] = TRUE;
+	mCanUpdateToGpu[buffType] = true;
 }
 
 void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)

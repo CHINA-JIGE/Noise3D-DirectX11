@@ -33,7 +33,7 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureMan
 	//......
 	//texID = mFunction_ValidateTextureID_UsingTexMgr(texID, NOISE_TEXTURE_TYPE_TEXT,NOISE_TEXTURE_ACCESS_PERMISSION_FONTMGR);
 
-	if (pTexMgr->ValidateUID(uid)==TRUE)
+	if (pTexMgr->ValidateUID(uid)==true)
 	{
 		HRESULT hr = S_OK;
 		m_CbDrawText2D = (N_CbDrawText2D)cbText;
@@ -91,7 +91,7 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 			bool texUidValid = pFontMgr->m_pTexMgr->ValidateUID(tmpRegion.texName, NOISE_TEXTURE_TYPE_COMMON);
 
 			//if current Rectangle disable Texture ,then draw in a solid way
-			if (texUidValid==FALSE)
+			if (texUidValid== false)
 			{
 				m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}

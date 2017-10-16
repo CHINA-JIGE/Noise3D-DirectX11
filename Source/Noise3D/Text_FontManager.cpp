@@ -28,7 +28,7 @@ IFontManager::IFontManager():
 	IFactory<IDynamicText>(100000),
 	IFactory<IStaticText>(100000)
 {
-	mIsFTInitialized = FALSE;
+	mIsFTInitialized = false;
 	m_FTLibrary		= nullptr;
 }
 
@@ -54,14 +54,14 @@ bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	if (!tmpFile.is_open())
 	{
 		ERROR_MSG("CreateFont : file path not exist... Path:" + filePath);
-		return FALSE;
+		return false;
 	}
 
 	//font name must not be used
-	if(IFactory<N_FontObject>::FindUid(fontName)==TRUE)
+	if(IFactory<N_FontObject>::FindUid(fontName)==true)
 	{
 			ERROR_MSG("CreateFont : Font Name has been used!");
-			return FALSE;
+			return false;
 	}
 
 
@@ -78,12 +78,12 @@ bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	if (ftCreateNewFaceErr)
 	{
 		ERROR_MSG("FontMgr : Create Font failed!");
-		return FALSE;
+		return false;
 	}
 	else
 	{
 		//
-		mIsFTInitialized = TRUE;
+		mIsFTInitialized = true;
 	};
 
 	FT_Set_Pixel_Sizes(tmpFontObj.mFtFace, UINT(fontSize / 1.414), fontSize);
@@ -113,10 +113,10 @@ bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 		UINT(fontSize*fontAspectRatio),
 		fontSize);//bitmap size (height) for 1 ascii char
 
-	if (createBitmapTableSucceed == FALSE)
+	if (createBitmapTableSucceed == false)
 	{
 		ERROR_MSG("CreateFont : create bitmap table failed!!");
-		return FALSE;
+		return false;
 	}
 
 	//create a font obj and initialize
@@ -129,12 +129,12 @@ bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 
 	tmpFile.close();
 
-	return TRUE;
+	return true;
 }
 
 bool	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 {
-	if (IFactory<N_FontObject>::FindUid(fontName)==FALSE)
+	if (IFactory<N_FontObject>::FindUid(fontName)== false)
 	{
 		if (fontSize < 4)fontSize = 4;
 		auto pFontObj = IFactory<N_FontObject>::GetObjectPtr(fontName);
@@ -144,9 +144,9 @@ bool	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 		FT_Set_Char_Size(pFontObj->mFtFace, UINT(fontSize / 1.414) << 6, fontSize << 6, 72, 72);
 
 
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 bool IFontManager::IsFontExisted(N_UID fontName)
@@ -166,13 +166,13 @@ IStaticText*	 IFontManager::CreateStaticTextA(N_UID fontName, N_UID textObjectNa
 IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//check fontName if it repeats
-	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
+	if (IFactory<N_FontObject>::FindUid(fontName) == false)
 	{
 		ERROR_MSG("CreateStaticTextW:Font Name Invalid!!");
 		return nullptr;
 	}
 
-	if (IFactory<IStaticText>::FindUid(textObjectName) == TRUE)
+	if (IFactory<IStaticText>::FindUid(textObjectName) == true)
 	{
 		ERROR_MSG("CreateStaticTextW: static Text UID existed!");
 		return nullptr;
@@ -188,7 +188,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		boundaryWidth,
 		boundaryHeight,
 		NVECTOR4(0, 0, 0, 0),
-		TRUE
+		true
 		);
 
 	//check if texture creation success
@@ -214,7 +214,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	pTexture->SetPixelArray(std::move(tmpFontBitmap.bitmapBuffer));
 
 	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
-	bool UpdateToGMSuccess = FALSE;
+	bool UpdateToGMSuccess = false;
 	UpdateToGMSuccess = pTexture->UpdateToVideoMemory();
 	if (!UpdateToGMSuccess)
 	{
@@ -246,14 +246,14 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 	//dynamic text use bitmap table & texture coordinate to  render text
 
 	//check fontName if it existed
-	if (IFactory<N_FontObject>::FindUid(fontName) == FALSE)
+	if (IFactory<N_FontObject>::FindUid(fontName) == false)
 	{
 		ERROR_MSG("WARN : CreateDynamicTextA:Font Name Invalid!!");
 		return nullptr;
 	}
 
 
-	if (IFactory<IDynamicText>::FindUid(textObjectName) == TRUE)
+	if (IFactory<IDynamicText>::FindUid(textObjectName) == true)
 	{
 		ERROR_MSG("CreateDynamicTextA: dynamic Text UID existed!");
 		return nullptr;
@@ -296,7 +296,7 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
 {
 	float fontWidth = 0.0f; float fontHeight = 0.0f;
-	if (IFactory<N_FontObject>::FindUid(fontName)==TRUE)
+	if (IFactory<N_FontObject>::FindUid(fontName)==true)
 	{
 		auto pObj = IFactory<N_FontObject>::GetObjectPtr(fontName);
 		fontHeight = float(pObj->mFontSize);
@@ -324,11 +324,11 @@ bool IFontManager::DeleteStaticText(N_UID textName)
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(textName);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -340,11 +340,11 @@ bool IFontManager::DeleteStaticText(IStaticText * pText)
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(pText);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -356,11 +356,11 @@ bool IFontManager::DeleteDynamicText(N_UID textName)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		IFactory<IDynamicText>::DestroyObject(textName);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -372,11 +372,11 @@ bool IFontManager::DeleteDynamicText(IDynamicText * pText)
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
 		IFactory<IDynamicText>::DestroyObject(pText);
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -423,7 +423,7 @@ bool IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicO
 	{
 		ERROR_MSG("FontMgr: FreeType init failed!");
 		m_FTLibrary = nullptr;
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -431,20 +431,20 @@ bool IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicO
 		{
 			m_pGraphicObjMgr = in_created_pGObjMgr;
 			m_pTexMgr = in_created_pTexMgr;
-			mIsFTInitialized = TRUE;
-			return TRUE;
+			mIsFTInitialized = true;
+			return true;
 		}
 		else
 		{
-			mIsFTInitialized = FALSE;
+			mIsFTInitialized = false;
 			ERROR_MSG("Font Mgr: internal TexMgr / GraphicObjectManager init failed");
-			return FALSE;
+			return false;
 		}
 
 
 	};
 
-	return TRUE;
+	return true;
 }
 
 void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
@@ -611,14 +611,14 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		tablePxWidth,
 		tablePxHeight,
 		NVECTOR4(0, 0, 0, 0),
-		TRUE
+		true
 		);
 
 	//check if texture creation success
 	if (pTexture==nullptr)
 	{
 		ERROR_MSG("CreateFontFromFile : Create Bitmap Table Texture failed!");
-		return FALSE;
+		return false;
 	}
 	
 	//-----Up to now,the texture is still a pure color bitmap-------
@@ -653,6 +653,6 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	//update a texture to Graphic Memory
 	pTexture->UpdateToVideoMemory();
 
-	return TRUE;
+	return true;
 }
 

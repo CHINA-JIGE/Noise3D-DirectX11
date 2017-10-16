@@ -58,9 +58,9 @@ namespace Noise3D
 
 		void				RotateZ_Roll(float angleZ);
 
-		void				fps_MoveForward(float fSignedDistance, bool enableYAxisMovement = FALSE);
+		void				fps_MoveForward(float fSignedDistance, bool enableYAxisMovement = false);
 
-		void				fps_MoveRight(float fSignedDistance, bool enableYAxisMovement = FALSE);
+		void				fps_MoveRight(float fSignedDistance, bool enableYAxisMovement = false);
 
 		void				fps_MoveUp(float fSignedDistance);
 

@@ -82,7 +82,7 @@ IInputEngine::IInputEngine()
 	mWindowWidth = 0;
 	mWindowHeight = 0;
 
-	mHasBeenInitialized=FALSE;
+	mHasBeenInitialized= false;
 	mResponsiveHWND=(HWND)0;
 };
 
@@ -93,13 +93,13 @@ void IInputEngine::Destroy()
 	ReleaseCOM(m_pDirectInput);
 	ReleaseCOM(m_pDeviceKeyboard);
 	ReleaseCOM(m_pDeviceMouse);
-	mHasBeenInitialized = FALSE;
+	mHasBeenInitialized = false;
 };
 
 bool IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 {
 	//input Engine has been initialized
-	if (mHasBeenInitialized)return TRUE;
+	if (mHasBeenInitialized)return true;
 
 	//get screen size
 	mScreenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -142,14 +142,14 @@ bool IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 	 m_pDeviceKeyboard->Acquire();
 	//HR_DEBUG(hr, " NoiseUtInputEngine :Device (Keyboard) Acquire failed");*/
 
-	mHasBeenInitialized = TRUE;
-	return TRUE;
+	mHasBeenInitialized = true;
+	return true;
 };
 
 bool IInputEngine::Update()
 {
 	//input engine must be initialized
-	if (!mHasBeenInitialized)return FALSE;
+	if (!mHasBeenInitialized)return false;
 
 	//..................
 	HRESULT hr;
@@ -166,7 +166,7 @@ bool IInputEngine::Update()
 		}
 		else
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -192,7 +192,7 @@ bool IInputEngine::Update()
 		}
 		else
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -221,7 +221,7 @@ bool IInputEngine::Update()
 
 #pragma endregion
 
-	return TRUE;
+	return true;
 }
 
 bool IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
@@ -236,10 +236,10 @@ bool IInputEngine::IsKeyPressed(UINT keyVal)
 	//in other word, the key was pressed if (val & 0x80) is non zero
 	if ((mKeyboardState[keyVal]) & 0x80)
 	{
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
@@ -253,17 +253,17 @@ bool IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 	switch(mouseBtn)
 	{
 	case NOISE_MOUSEBUTTON_LEFT:
-		if (mMouseState.rgbButtons[0] & 0x80)return TRUE;
+		if (mMouseState.rgbButtons[0] & 0x80)return true;
 		break;
 	case NOISE_MOUSEBUTTON_RIGHT:
-		if (mMouseState.rgbButtons[1] & 0x80)return TRUE;
+		if (mMouseState.rgbButtons[1] & 0x80)return true;
 		break;
 	case NOISE_MOUSEBUTTON_MIDDLE:
-		if (mMouseState.rgbButtons[2] & 0x80)return TRUE;
+		if (mMouseState.rgbButtons[2] & 0x80)return true;
 		break;
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool IInputEngine::IsInitialized()

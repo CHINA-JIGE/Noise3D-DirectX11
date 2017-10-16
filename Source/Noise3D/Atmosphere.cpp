@@ -64,7 +64,7 @@ void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 	//set color
 	mFogColor = color;
 
-	mFogCanUpdateToGpu = TRUE;
+	mFogCanUpdateToGpu = true;
 }
 
 void		IAtmosphere::SetSkyDomeTexture(N_UID matName)

@@ -252,7 +252,7 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		{
 			//if current Rectangle disable Texture ,then draw in a solid way
 			//thus validate the UID first
-			if (pTexMgr->FindUid(tmpRegion.texName)==FALSE)
+			if (pTexMgr->FindUid(tmpRegion.texName)== false)
 			{
 				//draw with solid texture
 				m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);

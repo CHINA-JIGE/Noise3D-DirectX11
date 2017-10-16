@@ -90,10 +90,10 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	mRenderWindowClassName = L"Noise Engine Render Window";
 
 	//窗体类注册
-	if (mFunction_InitWindowClass(&wndclass) == FALSE)
+	if (mFunction_InitWindowClass(&wndclass) == false)
 	{
 		ERROR_MSG("Window Class 创建失败");
-		return FALSE;
+		return false;
 	};
 
 	//创建窗体
@@ -102,7 +102,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	if (outHWND == 0)
 	{
 		ERROR_MSG("窗体创建失败");
-		return FALSE;
+		return false;
 	};
 
 	return outHWND;
@@ -168,9 +168,9 @@ bool IRoot::InitD3D(HWND RenderHWND)
 	HR_DEBUG(hr, "IRoot : D3D Device Creation failed /n DriverType"+std::to_string(g_Device_driverType));
 
 	
-	if(!mFunction_CreateEffectFromMemory())return FALSE;
+	if(!mFunction_CreateEffectFromMemory())return false;
 
-	return TRUE;
+	return true;
 
 };
 
@@ -329,12 +329,12 @@ bool IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 
 	if (!RegisterClass(wc))//注册窗体类
 	{
-		MessageBox(NULL, TEXT("This program requires Windows NT!"), TEXT("R"), MB_ICONERROR);
-		return FALSE;
+		ERROR_MSG("IRoot: Create Window failed! Windows NT (or newer) required");
+		return false;
 	}
 	else
 	{
-		return TRUE;
+		return true;
 	};
 
 };
@@ -384,13 +384,13 @@ bool	IRoot::mFunction_CreateEffectFromMemory()
 	if (!IFileIO::ImportFile_PURE("shader//Main_d.fxo", compiledShader))
 	{
 		ERROR_MSG("Root : critical error! Compiled shader (Debug mode) not found!!");
-		return FALSE;
+		return false;
 	}
 #else
 	if (!IFileIO::ImportFile_PURE("shader//Main.fxo", compiledShader))
 	{
 		ERROR_MSG("Root : critical error! Compiled shader(Release mode) not found!!");
-		return FALSE;
+		return false;
 	}
 #endif
 
@@ -407,7 +407,7 @@ bool	IRoot::mFunction_CreateEffectFromMemory()
 
 	HR_DEBUG(hr, "IRoot : load compiled shader failed");
 
-	return TRUE;
+	return true;
 }
 
 

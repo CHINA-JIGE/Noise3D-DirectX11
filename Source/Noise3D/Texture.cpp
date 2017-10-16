@@ -119,7 +119,7 @@ bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 			if (in_ColorArray.size() == mPixelBuffer.size())
 			{
 				mPixelBuffer.assign(in_ColorArray.begin(), in_ColorArray.end());
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -127,7 +127,7 @@ bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
@@ -140,7 +140,7 @@ bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
 			if (in_ColorArray.size() == mPixelBuffer.size())
 			{
 				mPixelBuffer = std::move(in_ColorArray);
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -148,7 +148,7 @@ bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 bool ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
@@ -156,11 +156,11 @@ bool ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
 	if (IsSysMemPixelBufferValid())
 	{
 		outColorArray = mPixelBuffer;
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -191,19 +191,19 @@ bool ITexture::UpdateToVideoMemory()
 		}
 		else
 		{
-			//mIsPixelBufferInMemValid==FALSE
+			//mIsPixelBufferInMemValid==false
 			ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
-			return FALSE;
+			return false;
 		}
 	}
 	else
 	{
 		//texID = ==Noise_macro_invalid_Texture_ID
 		ERROR_MSG("UpdateTextureToGraphicMemory : Texture Type invalid!!");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool ITexture::ConvertTextureToGreyMap()
@@ -213,10 +213,10 @@ bool ITexture::ConvertTextureToGreyMap()
 
 bool ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float factorB)
 {
-	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON)==FALSE)
+	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON)== false)
 	{
 		ERROR_MSG("ConvertTextureToGreyMap:texture Type Invalid!");
-		return FALSE;
+		return false;
 	}
 
 	//only the texture created both in gpu & memory can be modified 
@@ -224,7 +224,7 @@ bool ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float fac
 	if (!IsSysMemPixelBufferValid())
 	{
 		ERROR_MSG("ConvertTextureToGreyMap:Only Textures that keep a copy in memory can be converted ! ");
-		return FALSE;
+		return false;
 	}
 
 	//Get Dimension info
@@ -263,15 +263,15 @@ bool ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float fac
 
 	ReleaseCOM(pTmpRes);
 
-	return TRUE;
+	return false;
 }
 
 bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 {
-	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON) == FALSE)
+	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON) == false)
 	{
 		ERROR_MSG("ConvertTextureToNormalMap:texture Type Invalid!");
-		return FALSE;
+		return false;
 	}
 
 	//only the texture created both in gpu & memory can be modified 
@@ -279,7 +279,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	if (!IsSysMemPixelBufferValid())
 	{
 		ERROR_MSG("ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted ! ");
-		return FALSE;
+		return false;
 	}
 
 	//texture size might be modified when being transformed into D3D11 resource
@@ -376,7 +376,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 
 	ReleaseCOM(pTmpRes);
 
-	return TRUE;
+	return true;
 }
 
 bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
@@ -394,7 +394,7 @@ bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT p
 	HR_DEBUG(hr, "ITexture£ºSave Texture Failed!");
 	ReleaseCOM(tmp_pResource);
 
-	return TRUE;
+	return true;
 }
 
 

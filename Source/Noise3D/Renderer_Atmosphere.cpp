@@ -77,7 +77,7 @@ void IRenderer::RenderAtmosphere()
 		}
 
 		//allow atmosphere to "add to render list" again 
-		pAtmo->mFogHasBeenAddedToRenderList = FALSE;
+		pAtmo->mFogHasBeenAddedToRenderList = false;
 
 #pragma endregion Draw Sky
 	}
@@ -102,7 +102,7 @@ void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextur
 
 		//udpate to GPU
 		m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
-		pAtmo->mFogCanUpdateToGpu = FALSE;
+		pAtmo->mFogCanUpdateToGpu = false;
 	}
 };
 

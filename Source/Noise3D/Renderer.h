@@ -20,7 +20,7 @@ namespace Noise3D
 		int			mDirLightCount_Dynamic;
 		int			mPointLightCount_Dynamic;
 		int			mSpotLightCount_Dynamic;
-		bool		mIsLightingEnabled_Dynamic;
+		int			mIsLightingEnabled_Dynamic;
 	};
 
 	struct N_CbPerObject
@@ -38,10 +38,10 @@ namespace Noise3D
 
 		//only update these SWTICHES var to GPU, 
 		//cos' texture show up as a shaderResource(update in another way)
-		bool			IsDiffuseMapValid;
-		bool			IsNormalMapValid;
-		bool			IsSpecularMapValid;
-		bool			IsEnvironmentMapValid;
+		int			IsDiffuseMapValid;
+		int			IsNormalMapValid;
+		int			IsSpecularMapValid;
+		int			IsEnvironmentMapValid;
 	};
 
 	struct N_CbRarely

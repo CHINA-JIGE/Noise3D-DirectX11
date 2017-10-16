@@ -239,7 +239,7 @@ bool ICollisionTestor::mFunction_Init()
 	if (m_pFX_CbPicking == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
 	if (m_pFX_CbPerObject == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
 
-	return TRUE;
+	return true;
 }
 
 inline bool ICollisionTestor::mFunction_InitDSS()

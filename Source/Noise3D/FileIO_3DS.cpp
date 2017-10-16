@@ -54,7 +54,7 @@ bool IFileIO_3DS::ImportFile_3DS(
 	if (!fileIn.good())
 	{
 		ERROR_MSG("Noise File Manager : Import .3ds file failed!!");
-		return FALSE;
+		return false;
 	}
 
 	fileIn.seekg(0, std::ios::end);
@@ -76,7 +76,7 @@ bool IFileIO_3DS::ImportFile_3DS(
 	if (vertexList.size() == 0 || vertexList.size() == 0)
 	{
 		ERROR_MSG("Noise File Manager :Data Damaged!!!No Vertices or Indices loaded!");
-		return FALSE;
+		return false;
 	}
 
 
