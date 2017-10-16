@@ -71,7 +71,7 @@ namespace Noise3D
 				NVECTOR3 v2;
 				UINT		LayerID;
 				NVECTOR3 normal;
-				BOOL	Dirty;//check if this line segment has been reviewed,this flag can be reused
+				bool	Dirty;//check if this line segment has been reviewed,this flag can be reused
 			};
 
 			struct N_IntersectionResult
@@ -79,7 +79,7 @@ namespace Noise3D
 				N_IntersectionResult() { ZeroMemory(this, sizeof(*this));}
 
 				UINT mVertexCount;
-				BOOL isPossibleToIntersectEdges;//this bool will be used when (mVertexCount ==0)
+				bool isPossibleToIntersectEdges;//this bool will be used when (mVertexCount ==0)
 				std::vector<UINT> mIndexList;//which vertex (of a triangle) is on the layer
 			};
 

@@ -49,7 +49,7 @@ IDirLightS * ILightManager::CreateStaticDirLight(N_UID lightName, const N_DirLig
 	IDirLightS* pLight = IFactory<IDirLightS>::CreateObject(lightName);
 
 	//init could fail and we must check
-	BOOL isSucceeded  = pLight->mFunction_Init(desc);
+	bool isSucceeded  = pLight->mFunction_Init(desc);
 	
 	if (isSucceeded)
 	{
@@ -68,7 +68,7 @@ IPointLightS * ILightManager::CreateStaticPointLight(N_UID lightName, const N_Po
 	IPointLightS* pLight = IFactory<IPointLightS>::CreateObject(lightName);
 
 	//init could fail and we must check
-	BOOL isSucceeded = pLight->mFunction_Init(desc);
+	bool isSucceeded = pLight->mFunction_Init(desc);
 
 	if (isSucceeded)
 	{
@@ -87,7 +87,7 @@ ISpotLightS * ILightManager::CreateStaticSpotLight(N_UID lightName, const N_Spot
 	ISpotLightS* pLight = IFactory<ISpotLightS>::CreateObject(lightName);
 
 	//init could fail and we must check
-	BOOL isSucceeded = pLight->mFunction_Init(desc);
+	bool isSucceeded = pLight->mFunction_Init(desc);
 
 	if (isSucceeded)
 	{
@@ -163,81 +163,81 @@ ISpotLightS * ILightManager::GetSpotLightS(UINT index)
 }
 
 //-----------Dynamic Light Deletion-------------
-BOOL ILightManager::DeleteDirLightD(N_UID lightName)
+bool ILightManager::DeleteDirLightD(N_UID lightName)
 {
 	return IFactory<IDirLightD>::DestroyObject(lightName);
 }
 
-BOOL ILightManager::DeleteDirLightD(IDirLightD * pLight)
+bool ILightManager::DeleteDirLightD(IDirLightD * pLight)
 {
 	return IFactory<IDirLightD>::DestroyObject(pLight);
 }
 
-BOOL ILightManager::DeletePointLightD(N_UID lightName)
+bool ILightManager::DeletePointLightD(N_UID lightName)
 {
 	return IFactory<IPointLightD>::DestroyObject(lightName);
 }
 
-BOOL ILightManager::DeletePointLightD(IPointLightD * pLight)
+bool ILightManager::DeletePointLightD(IPointLightD * pLight)
 {
 	return IFactory<IPointLightD>::DestroyObject(pLight);
 }
 
-BOOL ILightManager::DeleteSpotLightD(N_UID lightName)
+bool ILightManager::DeleteSpotLightD(N_UID lightName)
 {
 	return IFactory<ISpotLightD>::DestroyObject(lightName);
 }
 
-BOOL ILightManager::DeleteSpotLightD(ISpotLightD * pLight)
+bool ILightManager::DeleteSpotLightD(ISpotLightD * pLight)
 {
 	return IFactory<ISpotLightD>::DestroyObject(pLight);
 }
 
 
 //---------Static Light Deletion---------------
-BOOL ILightManager::DeleteDirLightS(N_UID lightName)
+bool ILightManager::DeleteDirLightS(N_UID lightName)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<IDirLightS>::DestroyObject(lightName);
 }
 
-BOOL  ILightManager::DeleteDirLightS(IDirLightS * pLight)
+bool  ILightManager::DeleteDirLightS(IDirLightS * pLight)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<IDirLightS>::DestroyObject(pLight);
 }
 
-BOOL ILightManager::DeletePointLightS(N_UID lightName)
+bool ILightManager::DeletePointLightS(N_UID lightName)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<IPointLightS>::DestroyObject(lightName);
 }
 
-BOOL ILightManager::DeletePointLightS(IPointLightS * pLight)
+bool ILightManager::DeletePointLightS(IPointLightS * pLight)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<IPointLightS>::DestroyObject(pLight);
 }
 
-BOOL ILightManager::DeleteSpotLightS(N_UID lightName)
+bool ILightManager::DeleteSpotLightS(N_UID lightName)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<ISpotLightS>::DestroyObject(lightName);
 }
 
-BOOL ILightManager::DeleteSpotLightS(ISpotLightS * pLight)
+bool ILightManager::DeleteSpotLightS(ISpotLightS * pLight)
 {
 	mCanUpdateStaticLights = TRUE;
 	return IFactory<ISpotLightS>::DestroyObject(pLight);
 }
 
 
-void	ILightManager::SetDynamicLightingEnabled(BOOL isEnabled)
+void	ILightManager::SetDynamicLightingEnabled(bool isEnabled)
 {
 	mIsDynamicLightingEnabled = isEnabled;
 };
 
-void	ILightManager::SetStaticLightingEnabled(BOOL isEnabled)
+void	ILightManager::SetStaticLightingEnabled(bool isEnabled)
 {
 	mIsStaticLightingEnabled = isEnabled;
 };

@@ -68,7 +68,7 @@ namespace Noise3D
 			//时间制
 			NOISE_TIMER_TIMEUNIT	 mTimeUnit;
 			//
-			BOOL					mIsPaused;
+			bool					mIsPaused;
 			//queryPerformance貌似返回的是绝对count而不是两次query间的count
 			INT64					mPrevCount;
 			//

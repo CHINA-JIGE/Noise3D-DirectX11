@@ -26,11 +26,11 @@ namespace Noise3D
 
 		IMaterial*		GetMaterial(N_UID matName);
 
-		BOOL		DeleteMaterial(N_UID matName);
+		bool		DeleteMaterial(N_UID matName);
 
 		void			DeleteAllMaterial();
 
-		BOOL		ValidateUID(N_UID matName);
+		bool		ValidateUID(N_UID matName);
 
 	private:
 

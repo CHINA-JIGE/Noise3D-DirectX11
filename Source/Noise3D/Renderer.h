@@ -20,7 +20,7 @@ namespace Noise3D
 		int			mDirLightCount_Dynamic;
 		int			mPointLightCount_Dynamic;
 		int			mSpotLightCount_Dynamic;
-		BOOL		mIsLightingEnabled_Dynamic;
+		bool		mIsLightingEnabled_Dynamic;
 	};
 
 	struct N_CbPerObject
@@ -38,10 +38,10 @@ namespace Noise3D
 
 		//only update these SWTICHES var to GPU, 
 		//cos' texture show up as a shaderResource(update in another way)
-		BOOL			IsDiffuseMapValid;
-		BOOL			IsNormalMapValid;
-		BOOL			IsSpecularMapValid;
-		BOOL			IsEnvironmentMapValid;
+		bool			IsDiffuseMapValid;
+		bool			IsNormalMapValid;
+		bool			IsSpecularMapValid;
+		bool			IsEnvironmentMapValid;
 	};
 
 	struct N_CbRarely
@@ -71,8 +71,6 @@ namespace Noise3D
 		int				mIsFogEnabled;
 		float				mFogNear;
 		float				mFogFar;
-		int				mIsSkyDomeValid;
-		int				mIsSkyBoxValid;
 		float				mSkyBoxWidth;
 		float				mSkyBoxHeight;
 		float				mSkyBoxDepth;
@@ -130,19 +128,19 @@ namespace Noise3D
 
 		//--------------------INITIALIZATION---------------------
 
-		BOOL			mFunction_Init(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
+		bool			mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);
 
-		BOOL			mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);//render target view, depth stencil view
+		bool			mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);//render target view, depth stencil view
 
-		BOOL			mFunction_Init_CreateBlendState();
+		bool			mFunction_Init_CreateBlendState();
 
-		BOOL			mFunction_Init_CreateRasterState();
+		bool			mFunction_Init_CreateRasterState();
 
-		BOOL			mFunction_Init_CreateSamplerState();
+		bool			mFunction_Init_CreateSamplerState();
 
-		BOOL			mFunction_Init_CreateDepthStencilState();
+		bool			mFunction_Init_CreateDepthStencilState();
 
-		BOOL			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
+		bool			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
 		//--------------------BASIC OPERATION---------------------
 		void				mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList);
@@ -189,11 +187,13 @@ namespace Noise3D
 		//----------------ATMOSPHERE-----------------------
 		void				mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextureManager* const pTexMgr);
 
-		void				mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr,N_UID& outSkyDomeTexName);
+		//true for enable Sky Dome
+		bool				mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr,N_UID& outSkyDomeTexName);
 
-		void				mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName);
+		//true for enable Sky Box
+		bool				mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName);
 
-		void				mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName);
+		void				mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr,bool enableSkyBox, bool enableSkyDome, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName);
 
 	private:
 
@@ -229,9 +229,10 @@ namespace Noise3D
 		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
 		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
+		
 
 		//在App中先定义好所有Struct再一次更新
-		BOOL											mCanUpdateCbCameraMatrix;
+		bool												mCanUpdateCbCameraMatrix;
 		N_CbPerFrame							m_CbPerFrame;
 		N_CbPerObject							m_CbPerObject;
 		N_CbPerSubset							m_CbPerSubset;
@@ -241,7 +242,6 @@ namespace Noise3D
 		N_CbDrawText2D						m_CbDrawText2D;
 
 		//用于从app更新到Gpu的接口
-
 		ID3DX11EffectTechnique*			m_pFX_Tech_Default;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;

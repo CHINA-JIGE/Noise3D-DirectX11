@@ -211,6 +211,11 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
 	refCurrentMesh.scale = NVECTOR3(scale4.mData[0], scale4.mData[2], scale4.mData[1]);
 
+	FbxVector4 rotate4 = pNode->EvaluateLocalRotation();
+	refCurrentMesh.rotation = NVECTOR3(
+		-rotate4.mData[0] / 180.0f *MATH_PI,
+		-rotate4.mData[2] / 180.0f *MATH_PI,//negative for handness conversion
+		-rotate4.mData[1] / 180.0f *MATH_PI);
 
 	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer
@@ -687,8 +692,6 @@ void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int tri
 		
 		if (pMatIndices!=nullptr)
 		{
-
-
 			switch (matMappingMode)
 			{
 			//one Mat ID for one polygon(triangle)
@@ -788,6 +791,10 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxM
 			// Reflectivity  
 			FbxDouble reflectFactor= ((FbxSurfacePhong*)pSurfaceMaterial)->ReflectionFactor;
 			basicMat.environmentMapTransparency = reflectFactor;
+
+			//normal map bump intensity
+			FbxDouble bumpFactor = ((FbxSurfacePhong*)pSurfaceMaterial)->BumpFactor;
+			basicMat.normalMapBumpIntensity = bumpFactor;
 
 		}
 		// Lambert material  

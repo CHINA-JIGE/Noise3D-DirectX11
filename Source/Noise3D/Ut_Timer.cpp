@@ -50,7 +50,7 @@ void ITimer::NextTick()
 
 		//如果在省电模式下，若切换处理器可能会导致counts也是负的
 		mDeltaCount = mCurrentCount - mPrevCount;
-		BOOL isDeltaTimePositive = ((mDeltaCount) > 0);
+		bool isDeltaTimePositive = ((mDeltaCount) > 0);
 		if(isDeltaTimePositive)
 		{
 			mDeltaTime =(double)(mDeltaCount * mMilliSecondsPerCount);

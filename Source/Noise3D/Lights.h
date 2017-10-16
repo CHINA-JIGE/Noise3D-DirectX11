@@ -194,7 +194,7 @@ namespace Noise3D
 
 		//the IFactory<> didn't accept constructor with parameters... 
 		//thus an additional Init() func should be implemented and invoked by lightMgr
-		BOOL	mFunction_Init(const N_DirLightDesc& desc);
+		bool	mFunction_Init(const N_DirLightDesc& desc);
 
 		N_DirLightDesc mLightDesc;
 	};
@@ -217,7 +217,7 @@ namespace Noise3D
 
 		~IPointLightS();
 
-		BOOL	mFunction_Init(const N_PointLightDesc& desc);
+		bool	mFunction_Init(const N_PointLightDesc& desc);
 
 		N_PointLightDesc mLightDesc;
 	};
@@ -240,7 +240,7 @@ namespace Noise3D
 
 		~ISpotLightS();
 
-		BOOL	mFunction_Init(const N_SpotLightDesc& desc);
+		bool	mFunction_Init(const N_SpotLightDesc& desc);
 
 		N_SpotLightDesc mLightDesc;
 	};

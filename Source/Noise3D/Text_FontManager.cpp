@@ -46,7 +46,7 @@ IFontManager::~IFontManager()
 	IFactory<IDynamicText>::DestroyAllObject();
 }
 
-BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
+bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
 {
 
 	//open font file (.ttf ,etc.)
@@ -107,7 +107,7 @@ BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 
 	//------------new Font Object--------------
 	//Create Bitmap Table
-	BOOL createBitmapTableSucceed = mFunction_CreateTexture_AsciiBitmapTable(
+	bool createBitmapTableSucceed = mFunction_CreateTexture_AsciiBitmapTable(
 		tmpFontObj,
 		fontName,
 		UINT(fontSize*fontAspectRatio),
@@ -132,7 +132,7 @@ BOOL	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	return TRUE;
 }
 
-BOOL	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
+bool	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 {
 	if (IFactory<N_FontObject>::FindUid(fontName)==FALSE)
 	{
@@ -149,7 +149,7 @@ BOOL	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 	return FALSE;
 }
 
-BOOL IFontManager::IsFontExisted(N_UID fontName)
+bool IFontManager::IsFontExisted(N_UID fontName)
 {
 	return IFactory<N_FontObject>::FindUid(fontName);
 }
@@ -214,7 +214,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	pTexture->SetPixelArray(std::move(tmpFontBitmap.bitmapBuffer));
 
 	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
-	BOOL UpdateToGMSuccess = FALSE;
+	bool UpdateToGMSuccess = FALSE;
 	UpdateToGMSuccess = pTexture->UpdateToVideoMemory();
 	if (!UpdateToGMSuccess)
 	{
@@ -305,7 +305,7 @@ NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
 	return NVECTOR2(fontWidth,fontHeight);
 }
 
-BOOL IFontManager::DeleteFont(N_UID fontName)
+bool IFontManager::DeleteFont(N_UID fontName)
 {
 	return IFactory<N_FontObject>::DestroyObject(fontName);
 }
@@ -315,7 +315,7 @@ void IFontManager::DeleteAllFont()
 	IFactory<N_FontObject>::DestroyAllObject();
 }
 
-BOOL IFontManager::DeleteStaticText(N_UID textName)
+bool IFontManager::DeleteStaticText(N_UID textName)
 {
 	// delete internal graphicObj and corresponding texture
 	IStaticText* pText=  IFactory<IStaticText>::GetObjectPtr(textName);
@@ -332,7 +332,7 @@ BOOL IFontManager::DeleteStaticText(N_UID textName)
 	}
 }
 
-BOOL IFontManager::DeleteStaticText(IStaticText * pText)
+bool IFontManager::DeleteStaticText(IStaticText * pText)
 {
 	// delete internal graphicObj
 	if (pText != nullptr)
@@ -348,7 +348,7 @@ BOOL IFontManager::DeleteStaticText(IStaticText * pText)
 	}
 }
 
-BOOL IFontManager::DeleteDynamicText(N_UID textName)
+bool IFontManager::DeleteDynamicText(N_UID textName)
 {
 	// delete internal graphicObj and corresponding texture
 	IDynamicText* pText = IFactory<IDynamicText>::GetObjectPtr(textName);
@@ -364,7 +364,7 @@ BOOL IFontManager::DeleteDynamicText(N_UID textName)
 	}
 }
 
-BOOL IFontManager::DeleteDynamicText(IDynamicText * pText)
+bool IFontManager::DeleteDynamicText(IDynamicText * pText)
 {
 	// delete internal graphicObj and corresponding texture
 	if (pText != nullptr)
@@ -414,7 +414,7 @@ void IFontManager::DeleteAllFonts()
 										P R I V A T E
 ************************************************************************/
 
-BOOL IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
+bool IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
 {
 	//Init FreeType Library
 	FT_Error ftInitError = FT_Init_FreeType(&m_FTLibrary);
@@ -594,7 +594,7 @@ void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstri
 	outFontBitmap.height = boundaryHeight;
 }
 
-BOOL IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
+bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
 {
 	//define the width /height of bitmap Table , Ascii code 0~127
 	UINT tablePxWidth = charWidth*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;

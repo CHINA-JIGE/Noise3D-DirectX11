@@ -16,9 +16,9 @@ namespace Noise3D
 		friend class IRenderer;
 		//friend class IFontManager;//Let it Create\Access bitmap table Texture
 
-		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory = FALSE);
+		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = FALSE);
 
-		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight, BOOL keepCopyInMemory = FALSE);
+		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = FALSE);
 
 		ITexture*		CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
 
@@ -28,15 +28,15 @@ namespace Noise3D
 
 		UINT			GetTextureCount();
 
-		BOOL			DeleteTexture(ITexture* pTex);
+		bool			DeleteTexture(ITexture* pTex);
 
-		BOOL			DeleteTexture(N_UID texName);
+		bool			DeleteTexture(N_UID texName);
 
 		void				DeleteAllTexture();
 
-		BOOL			ValidateUID(N_UID texName);
+		bool			ValidateUID(N_UID texName);
 
-		BOOL			ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
+		bool			ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
 
 	private:
 
@@ -47,8 +47,8 @@ namespace Noise3D
 
 		~ITextureManager();
 
-		ITexture*		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+		ITexture*		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 
-		ITexture*		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight);
+		ITexture*		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight);
 	};
 }

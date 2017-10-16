@@ -57,35 +57,35 @@ namespace Noise3D
 
 
 
-		BOOL		DeleteDirLightD(N_UID lightName);
+		bool		DeleteDirLightD(N_UID lightName);
 
-		BOOL		DeleteDirLightD(IDirLightD* pLight);
+		bool		DeleteDirLightD(IDirLightD* pLight);
 
-		BOOL		DeletePointLightD(N_UID lightName);
+		bool		DeletePointLightD(N_UID lightName);
 
-		BOOL		DeletePointLightD(IPointLightD* pLight);
+		bool		DeletePointLightD(IPointLightD* pLight);
 
-		BOOL		DeleteSpotLightD(N_UID lightName);
+		bool		DeleteSpotLightD(N_UID lightName);
 
-		BOOL		DeleteSpotLightD(ISpotLightD* pLight);
+		bool		DeleteSpotLightD(ISpotLightD* pLight);
 
 		NOISE_LIGHT_TYPE a;
-		BOOL		DeleteDirLightS(N_UID lightName);
+		bool		DeleteDirLightS(N_UID lightName);
 
-		BOOL		DeleteDirLightS(IDirLightS* pLight);
+		bool		DeleteDirLightS(IDirLightS* pLight);
 
-		BOOL		DeletePointLightS(N_UID lightName);
+		bool		DeletePointLightS(N_UID lightName);
 
-		BOOL		DeletePointLightS(IPointLightS* pLight);
+		bool		DeletePointLightS(IPointLightS* pLight);
 
-		BOOL		DeleteSpotLightS(N_UID lightName);
+		bool		DeleteSpotLightS(N_UID lightName);
 
-		BOOL		DeleteSpotLightS(ISpotLightS* pLight);
+		bool		DeleteSpotLightS(ISpotLightS* pLight);
 
 
-		void			SetDynamicLightingEnabled(BOOL isEnabled);
+		void			SetDynamicLightingEnabled(bool isEnabled);
 
-		void			SetStaticLightingEnabled(BOOL isEnabled);
+		void			SetStaticLightingEnabled(bool isEnabled);
 
 		UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
 
@@ -107,9 +107,9 @@ namespace Noise3D
 
 		~ILightManager();
 
-		BOOL		mIsDynamicLightingEnabled;
-		BOOL		mIsStaticLightingEnabled;
-		BOOL		mCanUpdateStaticLights;
+		bool		mIsDynamicLightingEnabled;
+		bool		mIsStaticLightingEnabled;
+		bool		mCanUpdateStaticLights;
 
 	};
 }

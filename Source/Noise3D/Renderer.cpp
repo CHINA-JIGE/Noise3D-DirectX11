@@ -11,7 +11,7 @@ using namespace Noise3D;
 
 IRenderer::IRenderer()
 {
-	mCanUpdateCbCameraMatrix			= FALSE;
+	mCanUpdateCbCameraMatrix			= false;
 	m_pRenderList_Mesh							= new std::vector <IMesh*>;
 	m_pRenderList_CommonGraphicObj	= new std::vector<IGraphicObject*>;
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
@@ -61,7 +61,7 @@ void IRenderer::AddObjectToRenderList(IAtmosphere* obj)
 {
 	m_pRenderList_Atmosphere->push_back(obj);
 	//fog color will only be rendered after ADDTORENDERLIST();
-	obj->mFogHasBeenAddedToRenderList = TRUE;
+	obj->mFogHasBeenAddedToRenderList = true;
 };
 
 void IRenderer::AddObjectToRenderList(IGraphicObject* obj)
@@ -93,7 +93,7 @@ void	IRenderer::PresentToScreen()
 		m_pSwapChain->Present(0, 0 );
 
 		//reset some state
-		mCanUpdateCbCameraMatrix = TRUE;
+		mCanUpdateCbCameraMatrix = true;
 
 		//clear render list
 		m_pRenderList_CommonGraphicObj->clear();
@@ -120,13 +120,13 @@ UINT IRenderer::GetMainBufferHeight()
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-BOOL	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
+bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
 {
 	//init d3d infrastructure
 	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, IsWindowed))
 	{
 		ERROR_MSG("IRenderer : Init D3D Infrastructure failed.");
-		return FALSE;
+		return false;
 	};
 
 	HRESULT hr = S_OK;
@@ -187,29 +187,29 @@ BOOL	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, BOOL IsWindo
 #pragma endregion Create Fx Variable
 
 	//Create Various kinds of states
-	if (!mFunction_Init_CreateRasterState())return FALSE;
-	if (!mFunction_Init_CreateBlendState())return FALSE;
-	if (!mFunction_Init_CreateSamplerState())return FALSE;
-	if (!mFunction_Init_CreateDepthStencilState())return FALSE;
+	if (!mFunction_Init_CreateRasterState())return false;
+	if (!mFunction_Init_CreateBlendState())return false;
+	if (!mFunction_Init_CreateSamplerState())return false;
+	if (!mFunction_Init_CreateDepthStencilState())return false;
 
 	mMainBufferWidth = BufferWidth;
 	mMainBufferHeight = BufferHeight;
 
-	return TRUE;
+	return true;
 }
 
-BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
+bool	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
 {
 	//check multi-sample capability
 	UINT device_MSAA_Quality = 1;//bigger than 1
 	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
-	UINT device_MSAA_Enabled = FALSE;
+	UINT device_MSAA_Enabled = false;
 
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
 	if (device_MSAA_Quality > 0)
 	{
-		device_MSAA_Enabled = TRUE;	//4x抗锯齿可以开了
+		device_MSAA_Enabled = true;	//4x抗锯齿可以开了
 	};
 
 	//-----------------------------------SWAP CHAIN--------------------------------
@@ -225,8 +225,8 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	SwapChainParam.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;//BACKBUFFER怎么被使用
 	SwapChainParam.OutputWindow = GetRoot()->GetRenderWindowHWND();
 	SwapChainParam.Windowed = IsWindowed;
-	SwapChainParam.SampleDesc.Count = (device_MSAA_Enabled == TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	SwapChainParam.SampleDesc.Quality = (device_MSAA_Enabled == TRUE ? device_MSAA_Quality - 1 : 0);//quality之前获取了
+	SwapChainParam.SampleDesc.Count = (device_MSAA_Enabled == true ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	SwapChainParam.SampleDesc.Quality = (device_MSAA_Enabled == true ? device_MSAA_Quality - 1 : 0);//quality之前获取了
 
 	//下面的COM的QueryInterface 用一个接口查询另一个接口
 	IDXGIDevice *dxgiDevice = 0;
@@ -248,10 +248,10 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	dxgiAdapter->Release();
 
 	//------------------------------RTV---------------------
-	ID3D11Texture2D* pBackBuffer = NULL;
+	ID3D11Texture2D* pBackBuffer = nullptr;
 	hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	if (FAILED(hr))
-		return FALSE;
+		return false;
 
 	hr = g_pd3dDevice11->CreateRenderTargetView(
 		pBackBuffer,
@@ -263,7 +263,6 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 
 	HR_DEBUG(hr, "创建RENDER TARGET VIEW失败");
 
-
 	//------------------------------------------DSV--------------------------
 	//创建depth/stencil view
 	D3D11_TEXTURE2D_DESC DSBufferDesc;
@@ -272,8 +271,8 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
 	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = TRUE ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = TRUE ? device_MSAA_Quality - 1 : 0);
+	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = true ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = true ? device_MSAA_Quality - 1 : 0);
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
 	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
 	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
@@ -290,7 +289,7 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 
 	if (FAILED(hr))
 	{
-		return FALSE;
+		return false;
 	};
 
 	//-------------------Set RTV/DSV------------------
@@ -314,19 +313,19 @@ BOOL	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	g_pImmediateContext->RSSetViewports(1, &vp);
 
 
-	return TRUE;
+	return true;
 }
 
-BOOL	IRenderer::mFunction_Init_CreateBlendState()
+bool	IRenderer::mFunction_Init_CreateBlendState()
 {
 
 	//source color : the first color in blending equation
 	HRESULT hr = S_OK;
 
 	D3D11_BLEND_DESC tmpBlendDesc;
-	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
-	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
-	tmpBlendDesc.RenderTarget[0].BlendEnable = FALSE;
+	tmpBlendDesc.AlphaToCoverageEnable = false; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = false; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = false;
 	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
 	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -337,9 +336,9 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_Opaque);
 	HR_DEBUG(hr, "Create blend state(opaque) failed!!");
 
-	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
-	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
-	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.AlphaToCoverageEnable = false; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = false; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = true;
 	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -350,9 +349,9 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorAdd);
 	HR_DEBUG(hr, "Create blend state(Color Add) failed!!");
 
-	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
-	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
-	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.AlphaToCoverageEnable = false; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = false; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = true;
 	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
 	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
 	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -363,9 +362,9 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_ColorMultiply);
 	HR_DEBUG(hr, "Create blend state(Color Filter) failed!!");
 
-	tmpBlendDesc.AlphaToCoverageEnable = FALSE; // ???related to multi-sampling
-	tmpBlendDesc.IndependentBlendEnable = FALSE; //determine if 8 simultaneous render targets are rendered with same blend state
-	tmpBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	tmpBlendDesc.AlphaToCoverageEnable = false; // ???related to multi-sampling
+	tmpBlendDesc.IndependentBlendEnable = false; //determine if 8 simultaneous render targets are rendered with same blend state
+	tmpBlendDesc.RenderTarget[0].BlendEnable = true;
 	tmpBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;//what about D3D11_BLEND_SRC1_COLOR
 	tmpBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	tmpBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -376,17 +375,17 @@ BOOL	IRenderer::mFunction_Init_CreateBlendState()
 	hr = g_pd3dDevice11->CreateBlendState(&tmpBlendDesc, &m_pBlendState_AlphaTransparency);
 	HR_DEBUG(hr, "Create blend state(Transparency) failed!!");
 
-	return TRUE;
+	return true;
 };
 
-BOOL	IRenderer::mFunction_Init_CreateRasterState()
+bool	IRenderer::mFunction_Init_CreateRasterState()
 {
 	HRESULT hr = S_OK;
 	//创建预设的光栅化state
 	//Create Raster State;If you want various Raster State,you should pre-Create all of them in the beginning
 	D3D11_RASTERIZER_DESC tmpRasterStateDesc;//光栅化设置
 	ZeroMemory(&tmpRasterStateDesc, sizeof(D3D11_RASTERIZER_DESC));
-	tmpRasterStateDesc.AntialiasedLineEnable = TRUE;//抗锯齿设置
+	tmpRasterStateDesc.AntialiasedLineEnable = true;//抗锯齿设置
 	tmpRasterStateDesc.CullMode = D3D11_CULL_NONE;//剔除模式
 	tmpRasterStateDesc.FillMode = D3D11_FILL_SOLID;
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_Solid_CullNone);
@@ -417,10 +416,10 @@ BOOL	IRenderer::mFunction_Init_CreateRasterState()
 	hr = g_pd3dDevice11->CreateRasterizerState(&tmpRasterStateDesc, &m_pRasterState_WireFrame_CullFront);
 	HR_DEBUG(hr, "Createm_pRasterState_WireFrame_CullFront failed");
 
-	return TRUE;
+	return true;
 };
 
-BOOL	IRenderer::mFunction_Init_CreateSamplerState()
+bool	IRenderer::mFunction_Init_CreateSamplerState()
 {
 	HRESULT hr = S_OK;
 
@@ -436,33 +435,33 @@ BOOL	IRenderer::mFunction_Init_CreateSamplerState()
 	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinear);
 	HR_DEBUG(hr, "Create Sampler State failed!!");
 
-	return TRUE;
+	return true;
 };
 
-BOOL	IRenderer::mFunction_Init_CreateDepthStencilState()
+bool	IRenderer::mFunction_Init_CreateDepthStencilState()
 {
 	HRESULT hr = S_OK;
 	//depth stencil state
 	D3D11_DEPTH_STENCIL_DESC dssDesc;
 	ZeroMemory(&dssDesc, sizeof(dssDesc));
-	dssDesc.DepthEnable = TRUE;
+	dssDesc.DepthEnable = true;
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dssDesc.StencilEnable = FALSE;
+	dssDesc.StencilEnable = false;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_EnableDepthTest);
 	HR_DEBUG(hr, "Create Depth Stencil State #1 Failed!!!");
 
 
 	ZeroMemory(&dssDesc, sizeof(dssDesc));
-	dssDesc.DepthEnable = FALSE;
-	dssDesc.StencilEnable = FALSE;
+	dssDesc.DepthEnable = false;
+	dssDesc.StencilEnable = false;
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDepthStencilState_DisableDepthTest);
 	HR_DEBUG(hr, "Create Depth Stencil State #2 Failed!!!");
 
-	return TRUE;
+	return true;
 };
 
-BOOL	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
+bool	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 {
 	HRESULT hr = S_OK;
 
@@ -496,7 +495,7 @@ BOOL	IRenderer::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 
 	HR_DEBUG(hr,"Create Basic Effect Fail!");
 
-	return TRUE;
+	return true;
 };
 
 
@@ -605,7 +604,7 @@ void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 		m_pFX_CbSolid3D->SetRawValue(&m_CbCameraInfo, 0, sizeof(m_CbCameraInfo));
 
 		//..........
-		mCanUpdateCbCameraMatrix = FALSE;
+		mCanUpdateCbCameraMatrix = false;
 	}
 };
 
@@ -616,10 +615,10 @@ void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicOb
 	//Update Data to GPU if data is not up to date , 5 object types for now
 	for (UINT i = 0;i < NOISE_GRAPHIC_OBJECT_BUFFER_COUNT;i++)
 	{
-		if (pGraphicObj->mCanUpdateToGpu[i]==TRUE)
+		if (pGraphicObj->mCanUpdateToGpu[i]==true)
 		{
 			pGraphicObj->mFunction_UpdateVerticesToGpu(i);
-			pGraphicObj->mCanUpdateToGpu[i] = FALSE;
+			pGraphicObj->mCanUpdateToGpu[i] = false;
 			// rectangle buffer must generate a subset list
 			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pGraphicObj->mFunction_GenerateRectSubsetInfo();
 		}
@@ -636,7 +635,7 @@ void		IRenderer::mFunction_AddToRenderList_Text(IBasicTextInfo * pText, std::vec
 		if (pText->m_pGraphicObj->mCanUpdateToGpu[i])
 		{
 			pText->m_pGraphicObj->mFunction_UpdateVerticesToGpu(i);
-			pText->m_pGraphicObj->mCanUpdateToGpu[i] = FALSE;
+			pText->m_pGraphicObj->mCanUpdateToGpu[i] = false;
 			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pText->m_pGraphicObj->mFunction_GenerateRectSubsetInfo();
 		}
 	}

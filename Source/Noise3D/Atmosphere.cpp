@@ -41,6 +41,11 @@ void		IAtmosphere::SetFogEnabled(bool isEnabled)
 	mFogCanUpdateToGpu = true;
 }
 
+bool IAtmosphere::IsFogEnabled()
+{
+	return mFogEnabled;
+}
+
 void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 {
 	//perhaps i can skip checking the size comparison between NEAR & FAR

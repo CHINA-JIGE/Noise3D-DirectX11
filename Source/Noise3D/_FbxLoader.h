@@ -46,6 +46,7 @@ namespace Noise3D
 		std::vector<N_FbxMaterialInfo> matList;
 		NVECTOR3 pos;//world translation
 		NVECTOR3 scale;
+		NVECTOR3 rotation;
 	};
 
 	struct N_FbxSkeletonInfo

@@ -20,9 +20,9 @@ namespace Noise3D
 
 		IGraphicObject*		GetGraphicObj(UINT index);
 
-		BOOL						DestroyGraphicObj(N_UID objName);
+		bool						DestroyGraphicObj(N_UID objName);
 
-		BOOL						DestroyGraphicObj(IGraphicObject* pObj);
+		bool						DestroyGraphicObj(IGraphicObject* pObj);
 
 		void							DestroyAllGraphicObj();
 

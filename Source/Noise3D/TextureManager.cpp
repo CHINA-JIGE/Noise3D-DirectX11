@@ -23,7 +23,7 @@ ITextureManager::~ITextureManager()
 }
 
 //--------------------------------TEXTURE CREATION-----------------------------
-ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, BOOL keepCopyInMemory)
+ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory)
 {
 	//create New Texture Object
 	HRESULT hr = S_OK;
@@ -111,7 +111,7 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 	return pTexObj;
 };
 
-ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight,BOOL keepCopyInMemory)
+ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight,bool keepCopyInMemory)
 {
 
 	if (keepCopyInMemory)
@@ -283,7 +283,7 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 
 ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
 {
-	BOOL isFileNameValid;
+	bool isFileNameValid;
 	for (UINT i = 0; i < 6;i++)
 	{
 		//try opening a file
@@ -376,7 +376,7 @@ UINT	 ITextureManager::GetTextureCount()
 	return IFactory<ITexture>::GetObjectCount();
 }
 
-BOOL ITextureManager::DeleteTexture(ITexture * pTex)
+bool ITextureManager::DeleteTexture(ITexture * pTex)
 {
 	if (pTex == nullptr)
 	{
@@ -388,7 +388,7 @@ BOOL ITextureManager::DeleteTexture(ITexture * pTex)
 	}
 }
 
-BOOL ITextureManager::DeleteTexture(N_UID uid)
+bool ITextureManager::DeleteTexture(N_UID uid)
 {
 	auto texturePtr = IFactory<ITexture>::GetObjectPtr(uid);
 	return IFactory<ITexture>::DestroyObject(uid);
@@ -399,12 +399,12 @@ void ITextureManager::DeleteAllTexture()
 	IFactory<ITexture>::DestroyAllObject();
 }
 
-BOOL ITextureManager::ValidateUID(N_UID texName)
+bool ITextureManager::ValidateUID(N_UID texName)
 {
 	return IFactory<ITexture>::FindUid(texName);
 }
 
-BOOL ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
+bool ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 {
 	if (IFactory<ITexture>::FindUid(texName) == FALSE)
 	{
@@ -449,7 +449,7 @@ BOOL ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 							P R I V A T E
 *************************************************************/
 
-ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -518,7 +518,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFi
 	return pTexObj;//invalid file or sth else
 }
 
-ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, BOOL useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 

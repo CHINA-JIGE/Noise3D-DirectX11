@@ -159,7 +159,7 @@ namespace Noise3D
 			NOISE_KEY_Z = DIK_Z,
 		};
 
-		/*_declspec(dllexport)*/extern UINT MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital);
+		/*_declspec(dllexport)*/extern UINT MapDInputScanCodeToAscii(UINT scanCode, bool isCapital);
 
 	}
 }

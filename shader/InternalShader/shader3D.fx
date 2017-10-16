@@ -1,9 +1,9 @@
 /**********************************************************************
 
-	File:shader3D.fx
-	Author: Jige
+		File:shader3D.fx
+		Author: Jige
 	
-	3D Shader Main Functions
+		3D Shader Main Functions
 
 **************************************************************************/
 
@@ -13,7 +13,6 @@
 VS_OUTPUT_DEFAULT VS_DefaultDraw(VS_INPUT_DEFAULT input )
 {
 
-	
 	//initialize
     VS_OUTPUT_DEFAULT output = (VS_OUTPUT_DEFAULT)0;
 	//the W transformation
@@ -132,21 +131,23 @@ VS_OUTPUT_DEFAULT VS_DrawSky(VS_INPUT_SIMPLE input)
 	return output;
 }
 
-float4 PS_DrawSky(VS_OUTPUT_DEFAULT input) : SV_Target
+float4 PS_DrawSky(VS_OUTPUT_DEFAULT input,uniform bool enabledSkyBox, uniform bool enabledSkyDome) : SV_Target
 {
 	float4 outputColor = input.color;
 	
 	//both skybox and skydome are invalid
-	if((!gIsSkyDomeValid)&&(!gIsSkyBoxValid))
+	if((!enabledSkyDome)&&(!enabledSkyBox))
 	{
 		return outputColor;
 	}
-	if(gIsSkyDomeValid)
+
+	if(enabledSkyDome)
 	{
 		outputColor = gDiffuseMap.Sample(samplerDefault, input.texcoord);
 		return outputColor;
 	}
-	if(gIsSkyBoxValid)
+
+	if(enabledSkyBox)
 	{
 		//what we used to intersect sky box  is a world-space Vector , but we should map the irregular skybox to a standard normalized box
 		outputColor = gCubeMap.Sample(samplerDefault,input.posW * float3(1/gSkyBoxWidth,1/gSkyBoxHeight,1/gSkyBoxDepth));

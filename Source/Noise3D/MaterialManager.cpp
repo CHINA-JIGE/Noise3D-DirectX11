@@ -56,7 +56,7 @@ IMaterial* IMaterialManager::GetMaterial(N_UID matName)
 	return IFactory<IMaterial>::GetObjectPtr(matName);
 };
 
-BOOL IMaterialManager::DeleteMaterial(N_UID matName)
+bool IMaterialManager::DeleteMaterial(N_UID matName)
 {
 	if (matName == NOISE_MACRO_DEFAULT_MATERIAL_NAME)
 	{
@@ -73,7 +73,7 @@ void IMaterialManager::DeleteAllMaterial()
 	mFunction_CreateDefaultMaterial();
 }
 
-inline BOOL IMaterialManager::ValidateUID(N_UID matName)
+inline bool IMaterialManager::ValidateUID(N_UID matName)
 {
 	return IFactory<IMaterial>::FindUid(matName);
 };

@@ -24,7 +24,7 @@ ITexture::~ITexture()
 	mPixelBuffer.clear();
 }
 
-BOOL ITexture::IsSysMemPixelBufferValid()
+bool ITexture::IsSysMemPixelBufferValid()
 {
 	return mIsPixelBufferInMemValid;
 }
@@ -39,7 +39,7 @@ NOISE_TEXTURE_TYPE ITexture::GetTextureType()
 	return mTextureType;
 }
 
-BOOL ITexture::IsTextureType(NOISE_TEXTURE_TYPE type)
+bool ITexture::IsTextureType(NOISE_TEXTURE_TYPE type)
 {
 	return (type==mTextureType);
 }
@@ -109,7 +109,7 @@ NVECTOR4 ITexture::GetPixel(UINT x, UINT y)
 	return NVECTOR4(0, 0, 0, 0);
 }
 
-BOOL ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
+bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -130,7 +130,7 @@ BOOL ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 	return FALSE;
 }
 
-BOOL ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
+bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -151,7 +151,7 @@ BOOL ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
 	return FALSE;
 }
 
-BOOL ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
+bool ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
 {
 	if (IsSysMemPixelBufferValid())
 	{
@@ -164,7 +164,7 @@ BOOL ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
 	}
 }
 
-BOOL ITexture::UpdateToVideoMemory()
+bool ITexture::UpdateToVideoMemory()
 {
 
 	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
@@ -206,12 +206,12 @@ BOOL ITexture::UpdateToVideoMemory()
 	return TRUE;
 }
 
-BOOL ITexture::ConvertTextureToGreyMap()
+bool ITexture::ConvertTextureToGreyMap()
 {
 	return ConvertTextureToGreyMapEx(0.3f, 0.59f, 0.1f);
 }
 
-BOOL ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float factorB)
+bool ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float factorB)
 {
 	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON)==FALSE)
 	{
@@ -266,7 +266,7 @@ BOOL ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float fac
 	return TRUE;
 }
 
-BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
+bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 {
 	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON) == FALSE)
 	{
@@ -379,7 +379,7 @@ BOOL ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	return TRUE;
 }
 
-BOOL ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
 {
 	HRESULT hr = S_OK;
 	ID3D11Texture2D* tmp_pResource;
@@ -405,7 +405,7 @@ BOOL ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT p
 ********************************************************************/
 
 //invoked by texture manager
-void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NVECTOR4>&& pixelBuff, BOOL isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
+void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NVECTOR4>&& pixelBuff, bool isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
 {
 	m_pSRV = pSRV;
 	*m_pTextureUid = uid;

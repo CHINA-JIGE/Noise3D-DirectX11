@@ -91,8 +91,8 @@ BOOL Init3D(HWND hwnd)
 	//Âþ·´ÉäÌùÍ¼
 	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
@@ -121,6 +121,7 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
 	pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
+	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
 	for (auto & name : res.meshNameList)
 	{
 		IMesh* pMesh = pMeshMgr->GetMesh(name);
@@ -135,7 +136,7 @@ BOOL Init3D(HWND hwnd)
 	for (auto v : *pTmpVB)
 	{
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 
 	
@@ -165,7 +166,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.direction = NVECTOR3(-1.0f,1.0f, 0);
-	dirLightDesc.specularIntensity = 1.0f;
+	dirLightDesc.specularIntensity = 0.5f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
@@ -197,6 +198,7 @@ void MainLoop()
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
 	pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	
 
 	//GUIMgr.Update();
 	InputProcess();
@@ -210,7 +212,7 @@ void MainLoop()
 
 
 	//add to render list
-	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
+	//for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

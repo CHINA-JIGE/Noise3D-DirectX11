@@ -88,7 +88,7 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr
-			BOOL texUidValid = pFontMgr->m_pTexMgr->ValidateUID(tmpRegion.texName, NOISE_TEXTURE_TYPE_COMMON);
+			bool texUidValid = pFontMgr->m_pTexMgr->ValidateUID(tmpRegion.texName, NOISE_TEXTURE_TYPE_COMMON);
 
 			//if current Rectangle disable Texture ,then draw in a solid way
 			if (texUidValid==FALSE)

@@ -148,6 +148,17 @@ cbuffer cbCameraInfo
 	float3		gCamPos;	float mPad1;
 };
 
+cbuffer cbAtmosphere
+{
+	float3	gFogColor3;
+	int		gFogEnabled;
+	float		gFogNear;
+	float		gFogFar;
+	float		gSkyBoxWidth;
+	float		gSkyBoxHeight;
+	float		gSkyBoxDepth;
+	float		mPad3;
+};
 
 SamplerState samplerDefault
 {

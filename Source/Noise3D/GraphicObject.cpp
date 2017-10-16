@@ -621,7 +621,7 @@ UINT IGraphicObject::GetRectCount()
 //When needed (like when updating data to gpu), this CreateVB function will be 
 //invoked to dynamically resize (re-create) ID3DVB to fit the data
 
-BOOL	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
+bool	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
 {
 	//get VB (in memory) byte size of corresponding graphic object type
 	UINT vertexCount = m_pVB_Mem[objType_ID]->size();
@@ -757,7 +757,7 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	std::initializer_list<NVECTOR4>::iterator colorIter = colorList.begin();
 	std::initializer_list<NVECTOR2>::iterator texcoordIter = texcoordList.begin();
 
-	BOOL canUpdate = FALSE;
+	bool canUpdate = FALSE;
 
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
@@ -807,7 +807,7 @@ void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	auto colorIter = colorList.begin();
 	auto texcoordIter = texcoordList.begin();
 
-	BOOL canUpdate = FALSE;
+	bool canUpdate = FALSE;
 
 	//construct a N_SimpleVertex
 	for (UINT i = 0;i < vertexList.size();i++)
@@ -899,7 +899,7 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 	//vec -= *m_pBaseScreenSpacePosOffset;
 }
 
-inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth)
+inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth)
 {
 	IRenderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetMainBufferWidth();

@@ -25,12 +25,12 @@ IMesh * IMeshManager::GetMesh(UINT index)
 	return IFactory<IMesh>::GetObjectPtr(index);
 }
 
-BOOL IMeshManager::DestroyMesh(N_UID meshName)
+bool IMeshManager::DestroyMesh(N_UID meshName)
 {
 	return IFactory<IMesh>::DestroyObject(meshName);
 }
 
-BOOL IMeshManager::DestroyMesh(IMesh* ppMesh)
+bool IMeshManager::DestroyMesh(IMesh* ppMesh)
 {
 	return IFactory<IMesh>::DestroyObject(ppMesh);
 }
@@ -45,7 +45,7 @@ UINT IMeshManager::GetMeshCount()
 	return IFactory<IMesh>::GetObjectCount();
 }
 
-BOOL Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
+bool Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
 {
 	return IFactory<IMesh>::FindUid(meshName);
 }

@@ -230,7 +230,7 @@ IDirLightS::~IDirLightS()
 {
 }
 
-BOOL IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
+bool IDirLightS::mFunction_Init(const N_DirLightDesc & desc)
 {
 	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
@@ -269,7 +269,7 @@ IPointLightS::~IPointLightS()
 {
 }
 
-BOOL IPointLightS::mFunction_Init(const N_PointLightDesc & desc)
+bool IPointLightS::mFunction_Init(const N_PointLightDesc & desc)
 {
 	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
@@ -298,7 +298,7 @@ ISpotLightS::~ISpotLightS()
 {
 }
 
-BOOL ISpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
+bool ISpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
 {
 	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
 	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));

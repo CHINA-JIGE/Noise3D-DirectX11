@@ -13,7 +13,7 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-UINT Noise3D::Ut::MapDInputScanCodeToAscii(UINT scanCode, BOOL isCapital)
+UINT Noise3D::Ut::MapDInputScanCodeToAscii(UINT scanCode, bool isCapital)
 {
 #define returnChar(UCase,LCase) if(isCapital){return UCase;}else {return LCase;} break;
 
@@ -96,7 +96,7 @@ void IInputEngine::Destroy()
 	mHasBeenInitialized = FALSE;
 };
 
-BOOL IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
+bool IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 {
 	//input Engine has been initialized
 	if (mHasBeenInitialized)return TRUE;
@@ -146,7 +146,7 @@ BOOL IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 	return TRUE;
 };
 
-BOOL IInputEngine::Update()
+bool IInputEngine::Update()
 {
 	//input engine must be initialized
 	if (!mHasBeenInitialized)return FALSE;
@@ -224,12 +224,12 @@ BOOL IInputEngine::Update()
 	return TRUE;
 }
 
-BOOL IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
+bool IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
 {
 	return IsKeyPressed(UINT(keyVal));
 }
 
-BOOL IInputEngine::IsKeyPressed(UINT keyVal)
+bool IInputEngine::IsKeyPressed(UINT keyVal)
 {
 	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
 	//according to the doc , only low byte of the dwData  matters, so apply "and" with 0x80
@@ -242,7 +242,7 @@ BOOL IInputEngine::IsKeyPressed(UINT keyVal)
 	return FALSE;
 }
 
-BOOL IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
+bool IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 {
 	//according to Doc :
 	//The rgbButtons member is an array of bytes, one for each of four or eight buttons.
@@ -266,7 +266,7 @@ BOOL IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 	return FALSE;
 }
 
-BOOL IInputEngine::IsInitialized()
+bool IInputEngine::IsInitialized()
 {
 	return mHasBeenInitialized;
 }

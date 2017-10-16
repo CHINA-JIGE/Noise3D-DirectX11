@@ -117,7 +117,7 @@ namespace Noise3D
 
 
 
-		BOOL		mFunction_CreateVB(UINT objType_ID);
+		bool		mFunction_CreateVB(UINT objType_ID);
 
 		void			NOISE_MACRO_FUNCTION_EXTERN_CALL 	mFunction_UpdateVerticesToGpu(UINT objType_ID);//by renderer
 
@@ -136,7 +136,7 @@ namespace Noise3D
 
 		void			mFunction_ConvertPixelVec2FloatVec(NVECTOR2& in_out_vec);
 
-		float			mFunction_ConvertPixelLength2FloatLength(float pxLen, BOOL isWidth);
+		float			mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth);
 
 		void			mFunction_AdjustElementCount(UINT newCount, UINT currentObjCount, NOISE_GRAPHIC_OBJECT_TYPE objType);
 
@@ -148,7 +148,7 @@ namespace Noise3D
 
 		ID3D11Buffer*		m_pVB_GPU[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
-		BOOL					mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
+		bool					mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
 		std::vector<N_SimpleVertex>*	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 

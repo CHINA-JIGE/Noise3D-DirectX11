@@ -256,6 +256,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 		//set coordinate transformation
 		pMesh->SetScale(m.scale.x, m.scale.y, m.scale.z);
 		pMesh->SetPosition(m.pos.x, m.pos.y, m.pos.z);
+		pMesh->SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
 
 		//output new mesh name
 		outLoadingResult.meshNameList.push_back(m.name);
@@ -270,7 +271,6 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			std::string normalMapName =fbxMat.texMapInfo.normalMapName;
 			std::string specMapName = fbxMat.texMapInfo.specMapName;
 			std::string emissiveMapName = fbxMat.texMapInfo.emissiveMapName;
-
 
 			std::string modelFileFolder = Noise3D::gFunc_GetFileFolderFromPath(filePath);
 			std::string diffMapPath = modelFileFolder + Noise3D::gFunc_GetFileNameFromPath(fbxMat.texMapInfo.diffMapFilePath);

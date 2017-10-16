@@ -20,17 +20,17 @@ namespace Noise3D
 			//¹¹Ôìº¯Êý
 			IInputEngine();
 
-			BOOL		Initialize(HINSTANCE hinstance, HWND hwnd);
+			bool		Initialize(HINSTANCE hinstance, HWND hwnd);
 
-			BOOL		Update();
+			bool		Update();
 
-			BOOL		IsKeyPressed(NOISE_KEY keyVal);
+			bool		IsKeyPressed(NOISE_KEY keyVal);
 
-			BOOL		IsKeyPressed(UINT keyVal);
+			bool		IsKeyPressed(UINT keyVal);
 
-			BOOL		IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn);
+			bool		IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn);
 
-			BOOL		IsInitialized();
+			bool		IsInitialized();
 
 			int			GetMouseDiffX();
 
@@ -52,7 +52,7 @@ namespace Noise3D
 
 			IDirectInputDevice8*	m_pDeviceMouse;
 
-			BOOL							mHasBeenInitialized;
+			bool							mHasBeenInitialized;
 
 			HWND							mResponsiveHWND;
 

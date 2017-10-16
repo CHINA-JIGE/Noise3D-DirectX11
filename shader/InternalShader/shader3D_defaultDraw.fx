@@ -8,19 +8,7 @@
 
 **************************************************************************/
 
-cbuffer cbAtmosphere
-{
-	float3	gFogColor3;
-	int		gFogEnabled;
-	float		gFogNear;
-	float		gFogFar;
-	int		gIsSkyDomeValid;
-	int		gIsSkyBoxValid;
-	float		gSkyBoxWidth;
-	float		gSkyBoxHeight;
-	float		gSkyBoxDepth;
-	float		mPad3;
-};
+
 
 Texture2D gDiffuseMap;
 Texture2D gNormalMap;

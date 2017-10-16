@@ -41,6 +41,7 @@ namespace Noise3D
 
 		NVECTOR3 GetPosition();
 
+		//Radian angle
 		void		SetRotation(float angleX, float angleY, float angleZ);
 
 		void		SetRotationX_Pitch(float angleX);

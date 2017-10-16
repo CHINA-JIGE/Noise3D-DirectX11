@@ -38,12 +38,12 @@ IGraphicObject * IGraphicObjectManager::GetGraphicObj(UINT index)
 	return  IFactory<IGraphicObject>::GetObjectPtr(index);
 }
 
-BOOL IGraphicObjectManager::DestroyGraphicObj(N_UID objName)
+bool IGraphicObjectManager::DestroyGraphicObj(N_UID objName)
 {
 	return IFactory<IGraphicObject>::DestroyObject(objName);
 }
 
-BOOL IGraphicObjectManager::DestroyGraphicObj(IGraphicObject * pObj)
+bool IGraphicObjectManager::DestroyGraphicObj(IGraphicObject * pObj)
 {
 	return IFactory<IGraphicObject>::DestroyObject(pObj);
 }

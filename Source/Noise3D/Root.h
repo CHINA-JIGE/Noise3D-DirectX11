@@ -19,7 +19,7 @@ namespace Noise3D
 
 		HWND	CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 
-		BOOL	InitD3D(HWND RenderHWND);
+		bool	InitD3D(HWND RenderHWND);
 
 		void	ReleaseAll();
 
@@ -63,13 +63,13 @@ namespace Noise3D
 	private:
 
 		//invoked by RenderWindows Creation function
-		BOOL	mFunction_InitWindowClass(WNDCLASS* wc);
+		bool	mFunction_InitWindowClass(WNDCLASS* wc);
 
 		//invoked by RenderWindows Creation function
 		HWND mFunction_InitWindow(UINT windowWidth, UINT windowHeight);
 
 		//Create Effect Interface From fxo file
-		BOOL	mFunction_CreateEffectFromMemory();
+		bool	mFunction_CreateEffectFromMemory();
 	};
 
 

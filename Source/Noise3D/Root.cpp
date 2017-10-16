@@ -108,7 +108,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	return outHWND;
 };
 
-BOOL IRoot::InitD3D(HWND RenderHWND)
+bool IRoot::InitD3D(HWND RenderHWND)
 {
 	mRenderWindowHWND = RenderHWND;
 
@@ -314,7 +314,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 
 }
 
-BOOL IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
+bool IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 {
 	wc->style = CS_HREDRAW | CS_VREDRAW; //ÑשÊ½
 	wc->cbClsExtra = 0;
@@ -374,7 +374,7 @@ HWND IRoot::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
 
 };
 
-BOOL	IRoot::mFunction_CreateEffectFromMemory()
+bool	IRoot::mFunction_CreateEffectFromMemory()
 {
 	std::vector<char> compiledShader;
 	HRESULT hr = S_OK;

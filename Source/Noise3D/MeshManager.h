@@ -20,15 +20,15 @@ namespace Noise3D
 
 		IMesh*					GetMesh(UINT index);
 
-		BOOL					DestroyMesh(N_UID meshName);
+		bool					DestroyMesh(N_UID meshName);
 
-		BOOL					DestroyMesh(IMesh* ppMesh);
+		bool					DestroyMesh(IMesh* ppMesh);
 
 		void						DestroyAllMesh();
 
 		UINT					GetMeshCount();
 
-		BOOL					IsMeshExisted(N_UID meshName);
+		bool					IsMeshExisted(N_UID meshName);
 
 	private:
 

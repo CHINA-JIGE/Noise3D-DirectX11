@@ -68,7 +68,7 @@ void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 	//......
-	BOOL IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
+	bool IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
 
 	if (IsUidValid)
 	{

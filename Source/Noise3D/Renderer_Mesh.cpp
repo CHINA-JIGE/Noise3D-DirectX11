@@ -86,7 +86,7 @@ void	IRenderer::RenderMeshes()
 void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
 {
 
-	BOOL tmpCanUpdateCbRarely = FALSE;
+	bool tmpCanUpdateCbRarely = FALSE;
 
 	//！！！！厚仟Static Light！！！！！！
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
@@ -175,7 +175,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
-	BOOL  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
+	bool  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 

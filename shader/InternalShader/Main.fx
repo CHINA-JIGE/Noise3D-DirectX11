@@ -26,7 +26,7 @@ technique11 DefaultDraw
 
 technique11 DrawSolid3D
 {
-	pass Pass0
+	pass EmptyTextureSky
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_Solid3D()));
 		SetGeometryShader(NULL);
@@ -67,12 +67,24 @@ technique11 DrawText2D
 
 technique11 DrawSky
 {
-	pass Pass0
+	//one of the pass will be chosen to draw sky
+	pass EmptySky
 	{
 		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky()));
-		//SetDepthStencilState(LessEqualDSS, 0);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky(false, false)));//skyBox,skyDome
+	}
+	pass DrawSkyBox
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky(true,false)));
+	}
+	pass DrawSkyDome
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawSky()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawSky(false, true)));
 	}
 }
 
@@ -82,7 +94,8 @@ technique11 PickingIntersection
 	{
 	  SetVertexShader(CompileShader(vs_5_0,VS_Picking()));
 	  //SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0,GS_STREAMOUT()),"POSITION.xyz;NORMAL.xyz;TEXCOORD.xy") );
-	  SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_Picking()), "POSITION0.xyz"));//what is the use of this string....define the format of SO??
+	  //what is the use of this string....define the format of SO??No seems that it's the format of VS output
+	  SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_Picking()), "POSITION0.xyz"));
 	  SetPixelShader(NULL);
 
 	}

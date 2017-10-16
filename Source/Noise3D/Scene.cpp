@@ -55,7 +55,7 @@ void	IScene::ReleaseAllChildObject()
 }
 
 //first time to init RENDERER
-IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed)
+IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
 {
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<IRenderer>::FindUid(uid) == FALSE)
@@ -63,7 +63,7 @@ IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsW
 		IRenderer* pRd = IFactory<IRenderer>::CreateObject(uid);
 
 		//init of shaders/RV/states/....
-		BOOL isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight,IsWindowed);
+		bool isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight,IsWindowed);
 		if (isSucceeded)
 		{
 			return pRd;
@@ -176,7 +176,7 @@ IFontManager * IScene::GetFontMgr()
 		auto pTexMgr = mFunction_GetTexMgrInsideFontMgr();
 		auto pGObjMgr = mFunction_GetGObjMgrInsideFontMgr();
 
-		BOOL isSucceeded = pFontMgr->mFunction_Init(pTexMgr,pGObjMgr);
+		bool isSucceeded = pFontMgr->mFunction_Init(pTexMgr,pGObjMgr);
 		if (isSucceeded)
 		{
 			return pFontMgr;
@@ -220,7 +220,7 @@ ICollisionTestor * IScene::GetCollisionTestor()
 
 		//init of FreeType, internal TexMgr,GraphicObjMgr
 
-		BOOL isSucceeded = pCT->mFunction_Init();
+		bool isSucceeded = pCT->mFunction_Init();
 		if (isSucceeded)
 		{
 			return pCT;

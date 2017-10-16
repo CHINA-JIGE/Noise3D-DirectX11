@@ -30,7 +30,7 @@ namespace Noise3D
 
 		void								ReleaseAllChildObject();
 
-		IRenderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, BOOL IsWindowed);
+		IRenderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);
 
 		IRenderer*					GetRenderer();
 

@@ -44,23 +44,35 @@ void IRenderer::RenderAtmosphere()
 
 
 		//update Vertices or atmo param to GPU
-		//shaders will decide to draw skybox or sky dome
-		//( there are SkyboxValid & SkyDomeValid BOOL)
-		//UINT skyDomeTexID = NOISE_MACRO_INVALID_TEXTURE_ID;
-		//UINT skyBoxTexID = NOISE_MACRO_INVALID_TEXTURE_ID;
+		//shader will be chosen to render skybox OR skydome
+
 		N_UID skyDomeTexName = "";
 		N_UID skyBoxTexName = "";
-		mFunction_Atmosphere_SkyDome_Update(pAtmo, pTexMgr,skyDomeTexName);
-		mFunction_Atmosphere_SkyBox_Update(pAtmo, pTexMgr,skyBoxTexName);
-		mFunction_Atmosphere_UpdateCbAtmosphere(pAtmo, pTexMgr, skyDomeTexName, skyBoxTexName);
+		bool enableSkyDome =  mFunction_Atmosphere_SkyDome_Update(pAtmo, pTexMgr,skyDomeTexName);
+		bool enableSkyBox = mFunction_Atmosphere_SkyBox_Update(pAtmo, pTexMgr,skyBoxTexName);
+		mFunction_Atmosphere_UpdateCbAtmosphere(pAtmo, pTexMgr,enableSkyBox,enableSkyDome, skyDomeTexName, skyBoxTexName);
 
 
 		//traverse passes in one technique ---- pass index starts from 1
 		D3DX11_TECHNIQUE_DESC	tmpTechDesc;
 		m_pFX_Tech_DrawSky->GetDesc(&tmpTechDesc);
-		for (UINT k = 0;k < tmpTechDesc.Passes; k++)
+
+		if (!enableSkyBox && !enableSkyDome)
 		{
-			m_pFX_Tech_DrawSky->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
+			//"EmptySky"
+			m_pFX_Tech_DrawSky->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
+		}
+		if (enableSkyBox)
+		{
+			//"DrawSkyBox"
+			m_pFX_Tech_DrawSky->GetPassByIndex(1)->Apply(0, g_pImmediateContext);
+			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
+		}
+		if (enableSkyDome)
+		{
+			//"DrawSkyDome"
+			m_pFX_Tech_DrawSky->GetPassByIndex(2)->Apply(0, g_pImmediateContext);
 			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
 		}
 
@@ -86,7 +98,7 @@ void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextur
 		m_CbAtmosphere.mFogColor = pAtmo->mFogColor;
 		m_CbAtmosphere.mFogFar = pAtmo->mFogFar;
 		m_CbAtmosphere.mFogNear = pAtmo->mFogNear;
-		m_CbAtmosphere.mIsFogEnabled = (BOOL)(pAtmo->mFogEnabled && pAtmo->mFogHasBeenAddedToRenderList);
+		m_CbAtmosphere.mIsFogEnabled = (bool)(pAtmo->mFogEnabled && pAtmo->mFogHasBeenAddedToRenderList);
 
 		//udpate to GPU
 		m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
@@ -94,28 +106,28 @@ void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextur
 	}
 };
 
-void		IRenderer::mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyDomeTexName)
+bool		IRenderer::mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyDomeTexName)
 {
-	//validate texture and update BOOL value to gpu
+	//validate texture and update bool value to gpu
 	 N_UID skyDomeTexName = pAtmo->mSkyDomeTexName;
 
 	//check skyType
 	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
 	{
-		BOOL isTextureUidValid = pTexMgr->FindUid(skyDomeTexName);
+		bool isTextureUidValid = pTexMgr->FindUid(skyDomeTexName);
 		//if texture pass UID validation and match current skytype
-		m_CbAtmosphere.mIsSkyDomeValid = isTextureUidValid;//if texture is also valid, sky dome will be allowed to render
+		bool isSkyDomeValid = pTexMgr->ValidateUID(skyDomeTexName, NOISE_TEXTURE_TYPE_COMMON);
 		outSkyDomeTexName = skyDomeTexName;
+		return isSkyDomeValid;
 	}
 	else
 	{
-		m_CbAtmosphere.mIsSkyDomeValid = FALSE;
 		outSkyDomeTexName = "";
+		return false;
 	}
-
 };
 
-void		IRenderer::mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName)
+bool		IRenderer::mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName)
 {
 	//skybox uses cube map to texture the box
 	N_UID skyboxTexName =pAtmo->mSkyBoxCubeTexName;
@@ -123,26 +135,27 @@ void		IRenderer::mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITe
 	//check skyType
 	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
-		BOOL isTextureUidValid = pTexMgr->FindUid(skyboxTexName);
+		bool isTextureUidValid = pTexMgr->FindUid(skyboxTexName);
 		//skybox texture must be a cube map
-		m_CbAtmosphere.mIsSkyBoxValid = pTexMgr->ValidateUID(skyboxTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
+		bool isSkyBoxValid = pTexMgr->ValidateUID(skyboxTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
 		m_CbAtmosphere.mSkyBoxWidth = pAtmo->mSkyBoxWidth;
 		m_CbAtmosphere.mSkyBoxHeight = pAtmo->mSkyBoxHeight;
 		m_CbAtmosphere.mSkyBoxDepth = pAtmo->mSkyBoxDepth;
 		outSkyBoxTexName = skyboxTexName;
+		return isSkyBoxValid;
 	}
 	else
 	{
-		m_CbAtmosphere.mIsSkyBoxValid = FALSE;
 		outSkyBoxTexName = "";
+		return false;
 	}
 
 };
 
-void		IRenderer::mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName)
+void		IRenderer::mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, bool enableSkyBox, bool enableSkyDome, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName)
 {
 	//update valid texture to gpu
-	if (m_CbAtmosphere.mIsSkyDomeValid)
+	if (enableSkyDome)
 	{
 		//texName has been validated in UPDATE function
 		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyDomeTexName)->m_pSRV;
@@ -151,7 +164,7 @@ void		IRenderer::mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo
 
 
 	//update skybox cube map to gpu
-	if (m_CbAtmosphere.mIsSkyBoxValid)
+	if (enableSkyBox)
 	{
 		//pAtmo->mSkyBoxTextureID has been validated  in UPDATE function
 		//but how do you validate it's a valid cube map ?????

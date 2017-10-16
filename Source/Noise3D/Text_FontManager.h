@@ -40,11 +40,11 @@ namespace Noise3D
 			friend  class IRenderer;
 			friend  IDynamicText;
 
-			BOOL		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
+			bool		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
 
-			BOOL		SetFontSize(N_UID fontName, UINT  fontSize);
+			bool		SetFontSize(N_UID fontName, UINT  fontSize);
 
-			BOOL		IsFontExisted(N_UID fontName);
+			bool		IsFontExisted(N_UID fontName);
 
 			IStaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor=NVECTOR4(0,0,0,0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
@@ -54,17 +54,17 @@ namespace Noise3D
 
 			NVECTOR2		GetFontSize(N_UID fontName);
 
-			BOOL		DeleteFont(N_UID fontName);
+			bool		DeleteFont(N_UID fontName);
 
 			void			DeleteAllFont();
 
-			BOOL		DeleteStaticText(N_UID textName);
+			bool		DeleteStaticText(N_UID textName);
 
-			BOOL		DeleteStaticText(IStaticText* pText);
+			bool		DeleteStaticText(IStaticText* pText);
 
-			BOOL		DeleteDynamicText(N_UID textName);
+			bool		DeleteDynamicText(N_UID textName);
 
-			BOOL		DeleteDynamicText(IDynamicText* pText);
+			bool		DeleteDynamicText(IDynamicText* pText);
 
 			void			DeleteAllTexts();
 
@@ -72,13 +72,13 @@ namespace Noise3D
 
 		private:
 			//init freetype library and internal objects , invoked by IScene
-			BOOL	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
+			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
 			//get bitmap of a single WCHAR
 			void			mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
 			//used for creating Bitmap Table (combining char pixel blocks)
 			void			mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
 			//Use GetBitmapOfString() to create ascii bitmap table
-			BOOL		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
+			bool		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 
 		private:
 
@@ -92,7 +92,7 @@ namespace Noise3D
 			IGraphicObjectManager*	m_pGraphicObjMgr;//Created by IScene, assign GObj to every TextObj
 
 			FT_Library					m_FTLibrary;
-			BOOL							mIsFTInitialized;
+			bool							mIsFTInitialized;
 
 		};
 }

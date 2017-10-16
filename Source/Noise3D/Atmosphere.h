@@ -14,6 +14,8 @@ namespace Noise3D
 
 		void		SetFogEnabled(bool isEnabled);
 
+		bool		IsFogEnabled();
+
 		void		SetFogParameter(float fogNear, float fogFar, NVECTOR3 color);
 
 		void		SetSkyDomeTexture(N_UID texName);
