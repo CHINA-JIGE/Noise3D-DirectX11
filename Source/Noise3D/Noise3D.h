@@ -38,7 +38,6 @@
 
 //------------
 #include "NoiseMacro.h"
-#include "NoiseFlag.h"
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"

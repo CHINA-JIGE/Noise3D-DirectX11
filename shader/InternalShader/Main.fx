@@ -65,6 +65,7 @@ technique11 DrawText2D
 	}
 }
 
+//3 passes are funtionally independent
 technique11 DrawSky
 {
 	//one of the pass will be chosen to draw sky

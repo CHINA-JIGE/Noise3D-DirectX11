@@ -144,7 +144,7 @@ BOOL Init3D(HWND hwnd)
 
 	pCamera->SetPosition(2.0f, 0, 0);
 	pCamera->SetLookAt(0, 0, 0);
-	pCamera->SetViewAngle(MATH_PI / 2.5f, 1.333333333f);
+	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
 	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();

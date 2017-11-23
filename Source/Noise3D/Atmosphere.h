@@ -8,6 +8,13 @@
 
 namespace Noise3D
 {
+	enum NOISE_ATMOSPHERE_SKYTYPE
+	{
+		NOISE_ATMOSPHERE_SKYTYPE_BOX = 0,
+		NOISE_ATMOSPHERE_SKYTYPE_DOME = 1,
+		NOISE_ATMOSPHERE_SKYTYPE_INVALID = UINT_MAX,
+	};
+
 	class  IAtmosphere
 	{
 	public:

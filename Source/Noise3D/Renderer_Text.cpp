@@ -25,24 +25,20 @@ void IRenderer::RenderTexts()
 									P R I V A T E
 ************************************************************************/
 
-void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, N_CbDrawText2D& cbText)
+void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText)
 {
-	//Get Shader Resource View
-	ID3D11ShaderResourceView* tmp_pSRV = NULL;
-
-	//......
-	//texID = mFunction_ValidateTextureID_UsingTexMgr(texID, NOISE_TEXTURE_TYPE_TEXT,NOISE_TEXTURE_ACCESS_PERMISSION_FONTMGR);
 
 	if (pTexMgr->ValidateUID(uid)==true)
 	{
 		HRESULT hr = S_OK;
-		m_CbDrawText2D = (N_CbDrawText2D)cbText;
-		//update Constant buffer
-		m_pFX_CbDrawText2D->SetRawValue(&m_CbDrawText2D, 0, sizeof(m_CbDrawText2D));
+
+		//update text color infos
+		float* pColorData = (float*)pText->m_pTextColor;
+		IShaderVariableManager::m_pFxVector4_TextColor->SetFloatVector(pColorData);
 
 		//update textures
-		tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
-		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+		ID3D11ShaderResourceView* tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
+		IShaderVariableManager::m_pFxTexture_ColorMap2D->SetResource(tmp_pSRV);
 	}
 }
 
@@ -97,14 +93,10 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 			}
 			else
 			{
-				//fill cb struct......
-				N_CbDrawText2D tmpCbText;
-				ZeroMemory(&tmpCbText, sizeof(tmpCbText));
-				tmpCbText.mTextColor = *(pList->at(i)->m_pTextColor);
-				tmpCbText.mTextGlowColor = *(pList->at(i)->m_pTextGlowColor);
-
-				//update colors of text(cb & srv)
-				mFunction_TextGraphicObj_Update_TextInfo(tmpRegion.texName, pFontMgr->m_pTexMgr, tmpCbText);
+				//update colors of text(colors & srv)
+				mFunction_TextGraphicObj_Update_TextInfo(tmpRegion.texName, pFontMgr->m_pTexMgr, pList->at(i));
+				
+				//issue draw call
 				m_pFX_Tech_DrawText2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 			}
 

@@ -34,7 +34,6 @@ using namespace Noise3D;
 	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
 }*/
 
-
 void IRenderer::RenderGraphicObjects()
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
@@ -62,17 +61,13 @@ void IRenderer::RenderGraphicObjects()
 //invoked by RenderTriangle(when needed)
 void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 {
-	//Get Shader Resource View
-	ID3D11ShaderResourceView* tmp_pSRV = NULL;
-
-
+	//validate texture type
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	//......
 	bool IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
 
 	if (IsUidValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
+		ID3D11ShaderResourceView*  tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
 		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
 	}
 }

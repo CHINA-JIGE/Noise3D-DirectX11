@@ -77,6 +77,10 @@ cbuffer cbPicking
 //
 // 7 local object(s)
 //
+Texture2D gDiffuseMap;
+Texture2D gNormalMap;
+Texture2D gSpecularMap;
+TextureCube gCubeMap;
 SamplerState samplerDefault
 {
     Filter   = uint(MIN_MAG_MIP_LINEAR /* 21 */);
@@ -84,11 +88,7 @@ SamplerState samplerDefault
     AddressV = uint(WRAP /* 1 */);
     AddressW = uint(WRAP /* 1 */);
 };
-Texture2D gDiffuseMap;
-Texture2D gNormalMap;
-Texture2D gSpecularMap;
-TextureCube gCubeMap;
-SamplerState sampler2D_ANISOTROPIC
+SamplerState samplerDraw2D
 {
     Filter   = uint(ANISOTROPIC /* 85 */);
     MaxAnisotropy = uint(2);
@@ -96,7 +96,7 @@ SamplerState sampler2D_ANISOTROPIC
     AddressV = uint(WRAP /* 1 */);
     AddressW = uint(WRAP /* 1 */);
 };
-Texture2D g2D_DiffuseMap;
+Texture2D gColorMap2D;
 
 //
 // 1 groups(s)
@@ -1068,8 +1068,8 @@ fxgroup
                 //
                 // Name                                 Type  Format         Dim Slot Elements
                 // ------------------------------ ---------- ------- ----------- ---- --------
-                // sampler2D_ANISOTROPIC             sampler      NA          NA    0        1
-                // g2D_DiffuseMap                    texture  float4          2d    0        1
+                // samplerDraw2D                     sampler      NA          NA    0        1
+                // gColorMap2D                       texture  float4          2d    0        1
                 //
                 //
                 //
@@ -1171,8 +1171,8 @@ fxgroup
                 //
                 // Name                                 Type  Format         Dim Slot Elements
                 // ------------------------------ ---------- ------- ----------- ---- --------
-                // sampler2D_ANISOTROPIC             sampler      NA          NA    0        1
-                // g2D_DiffuseMap                    texture  float4          2d    0        1
+                // samplerDraw2D                     sampler      NA          NA    0        1
+                // gColorMap2D                       texture  float4          2d    0        1
                 // cbDrawText2D                      cbuffer      NA          NA    0        1
                 //
                 //

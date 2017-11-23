@@ -25,7 +25,7 @@ ICollisionTestor::~ICollisionTestor()
 	ReleaseCOM(m_pDSS_DisableDepthTest);
 }
 
-void ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
+void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
 {
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
@@ -112,7 +112,7 @@ void ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCo
 
 }
 
-UINT ICollisionTestor::Picking(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord)
+UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord)
 {
 	//preparation is similar to another PICKING
 

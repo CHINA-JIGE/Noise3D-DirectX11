@@ -20,15 +20,16 @@ namespace Noise3D
 		NVECTOR2 pickingRayNormalizedDirXY;    NVECTOR2 mPad1;
 	};
 
-	class /*_declspec(dllexport)*/ ICollisionTestor
+	class /*_declspec(dllexport)*/ ICollisionTestor:
+		private IShaderVariableManager
 	{
 	public:
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		void Picking(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord,std::vector<NVECTOR3>& outCollidedPointList);
+		void Picking_GpuBased(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord,std::vector<NVECTOR3>& outCollidedPointList);
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		UINT Picking(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
+		UINT Picking_GpuBased(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
 
 	private:
 		

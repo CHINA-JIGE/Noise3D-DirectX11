@@ -34,17 +34,19 @@ namespace Noise3D
 
 		void				Move(float relativeX, float relativeY, float relativeZ);
 
-		void				SetViewFrustumPlane(float iNearPlaneZ, float iFarPlaneZ);
+		void				SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);
 
-		void				SetViewAngle(float iViewAngleY, float iAspectRatio);
+		void				SetViewAngle_Degree(float fDegreeViewAngleY, float fAspectRatio);
 
-		void				SetRotation(float RX_Pitch, float RY_Yaw, float RZ_Roll);//要更新Lookat
+		void				SetViewAngle_Radian(float fRadianViewAngleY, float fAspectRatio);
 
-		void				SetRotationY_Yaw(float AngleX);//用setRotation呗
+		void				SetRotation(float RX_Pitch, float RY_Yaw, float RZ_Roll);//Lookat vector will be updated
 
-		void				SetRotationX_Pitch(float AngleY);
+		void				SetRotationY_Yaw(float AngleX);//radian angle
 
-		void				SetRotationZ_Roll(float AngleZ);
+		void				SetRotationX_Pitch(float AngleY);//radian angle
+
+		void				SetRotationZ_Roll(float AngleZ);//radian angle
 
 		float				GetRotationY_Yaw();
 
@@ -92,7 +94,7 @@ namespace Noise3D
 		void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateViewMatrix();
 		void		mFunction_UpdateRotation();
 		void		mFunction_UpdateDirection();
-		float		mViewAngleY;
+		float		mViewAngleY_Radian;//radian
 		float		mAspectRatio;
 		float		mNearPlane;
 		float		mFarPlane;

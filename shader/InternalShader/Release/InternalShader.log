@@ -1,4 +1,4 @@
-﻿shader3D_defaultDraw.fx(127,5): warning X4121: gradient-based operations must be moved out of flow control to prevent divergence. Performance may improve by using a non-gradient operation
+﻿shader3D_defaultDraw.fx(119,5): warning X4121: gradient-based operations must be moved out of flow control to prevent divergence. Performance may improve by using a non-gradient operation
   
   Microsoft (R) Direct3D Shader Compiler 9.29.952.3111
   Copyright (C) Microsoft Corporation 2002-2009. All rights reserved.

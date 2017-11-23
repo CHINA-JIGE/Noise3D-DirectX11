@@ -88,7 +88,7 @@ void GS_Picking(triangle GS_INPUT_MINIZED  inputGeometry[3], inout PointStream<G
 		float4 intersectPointV = float4(t * rayDir.xyz ,1.0f);
 
 		//transform back to world space
-		float3 intersectPointW = mul(intersectPointV, gInvViewMatrix).xyz;
+		float3 intersectPointW = mul(intersectPointV, gViewInvMatrix).xyz;
 
 		outVert.pos = intersectPointW;
 		pointStream.Append(outVert);

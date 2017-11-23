@@ -10,20 +10,13 @@
 
 
 
-Texture2D gDiffuseMap;
-Texture2D gNormalMap;
-Texture2D gSpecularMap;
-TextureCube gCubeMap;
-
-
-
-
 
 /**********************************************************************
 					SHADING FUNCTION
 **************************************************************************/
 //function used by all light-computing functions
-void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensity, float matSpecSmoothLevel, float Attenuation,
+void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensity, 
+										float matSpecSmoothLevel, float Attenuation,
 										float3 matAmbientColor3	, float3 lightAmbientColor3,
 										float3 matDiffuseColor3	, float3 lightDiffuseColor3, 
 										float3 matSpecColor3	, float3 lightSpecColor3, 

@@ -92,15 +92,27 @@ struct N_Material_Basic
 };
 
 
-
-
 /**********************************************************************
 					GLOBAL CONSTANT    BUFFER
 **************************************************************************/
+
+Texture2D gDiffuseMap;
+Texture2D gNormalMap;
+Texture2D gSpecularMap;
+TextureCube gCubeMap;
+
 cbuffer cbPerObject
 {
 	float4x4	gWorldMatrix;
 	float4x4	gWorldInvTransposeMatrix;
+};
+
+cbuffer cbCameraInfo
+{
+	float4x4	gProjMatrix;//to proj space
+	float4x4	gViewMatrix;//to view space
+	float4x4	gViewInvMatrix;
+	float3		gCamPos;	//float mPad1;
 };
 
 cbuffer cbPerFrame
@@ -120,15 +132,15 @@ cbuffer cbPerSubset
 {
 	//Material
 	N_Material_Basic		gMaterial;
-	int				gIsDiffuseMapValid;
+	/*int				gIsDiffuseMapValid;// should be designed as uniform var
 	int				gIsNormalMapValid;
 	int				gIsSpecularMapValid;
-	int				gIsEnvironmentMapVaild;
+	int				gIsEnvironmentMapVaild;*/
 };
 
 cbuffer	cbRarely
 {
-	//————Static Light————
+	//---------Static Light--------
 	N_DirectionalLight gDirectionalLight_Static[50];
 	N_PointLight	 gPointLight_Static[50];
 	N_SpotLight		gSpotLight_Static[50];
@@ -139,14 +151,6 @@ cbuffer	cbRarely
 };
 
 
-cbuffer cbCameraInfo
-{
-	float4x4	gProjMatrix;//to proj space
-	float4x4	gViewMatrix;//to view space
-	float4x4	gInvProjMatrix;
-	float4x4	gInvViewMatrix;
-	float3		gCamPos;	float mPad1;
-};
 
 cbuffer cbAtmosphere
 {
@@ -157,13 +161,35 @@ cbuffer cbAtmosphere
 	float		gSkyBoxWidth;
 	float		gSkyBoxHeight;
 	float		gSkyBoxDepth;
-	float		mPad3;
 };
 
+//---SAMPLER
 SamplerState samplerDefault
+{
+	Filter = ANISOTROPIC;
+	MaxAnisotropy = 2;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	AddressW = Wrap;
+};
+
+SamplerState samplerDraw2D
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
 	AddressW = Wrap;
 };
+
+
+/*********************************************************
+											2 D
+**********************************************************/
+
+cbuffer cbDrawText2D
+{
+	float4 	g2D_TextColor;
+	float4	g2D_TextGlowColor;
+}
+
+Texture2D gColorMap2D;

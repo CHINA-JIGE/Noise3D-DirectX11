@@ -12,7 +12,7 @@
 namespace Noise3D
 {
 	//Constant Buffer Structure, GPU Memory : 128 byte alignment
-	struct N_CbPerFrame
+	/*struct N_CbPerFrame
 	{
 		N_DirLightDesc		mDirectionalLight_Dynamic[10];//放心 已经对齐了
 		N_PointLightDesc	mPointLight_Dynamic[10];
@@ -81,10 +81,33 @@ namespace Noise3D
 	{
 		NVECTOR4 	mTextColor;
 		NVECTOR4	mTextGlowColor;
+	};*/
+
+	enum NOISE_FILLMODE
+	{
+		NOISE_FILLMODE_SOLID = D3D11_FILL_SOLID,
+		NOISE_FILLMODE_WIREFRAME = D3D11_FILL_WIREFRAME,
+		NOISE_FILLMODE_POINT = 0,
+	};
+
+	enum NOISE_CULLMODE
+	{
+		NOISE_CULLMODE_NONE = D3D11_CULL_NONE,
+		NOISE_CULLMODE_BACK = D3D11_CULL_BACK,
+		NOISE_CULLMODE_FRONT = D3D11_CULL_FRONT,
+	};
+
+	enum NOISE_BLENDMODE
+	{
+		NOISE_BLENDMODE_OPAQUE = 0,
+		NOISE_BLENDMODE_ALPHA = 1,
+		NOISE_BLENDMODE_ADDITIVE = 2,
+		NOISE_BLENDMODE_COLORFILTER = 3,
 	};
 
 	class /*_declspec(dllexport)*/ IRenderer :
-		private IFileIO
+		private IFileIO,
+		private IShaderVariableManager
 	{
 	friend class IScene;//father node
 
@@ -179,7 +202,7 @@ namespace Noise3D
 
 
 		//----------------TEXT-----------------------
-		void				mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, N_CbDrawText2D& cbText);
+		void				mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText);
 
 		void				mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList);
 
@@ -229,17 +252,18 @@ namespace Noise3D
 		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
 		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
-		
+
+		ID3DX11EffectSamplerVariable*		m_pFX_SamplerState_Default;
 
 		//在App中先定义好所有Struct再一次更新
 		bool												mCanUpdateCbCameraMatrix;
-		N_CbPerFrame							m_CbPerFrame;
+		/*N_CbPerFrame							m_CbPerFrame;
 		N_CbPerObject							m_CbPerObject;
 		N_CbPerSubset							m_CbPerSubset;
 		N_CbRarely									m_CbRarely;
 		N_CbCameraInfo							m_CbCameraInfo;
 		N_CbAtmosphere						m_CbAtmosphere;
-		N_CbDrawText2D						m_CbDrawText2D;
+		N_CbDrawText2D						m_CbDrawText2D;*/
 
 		//用于从app更新到Gpu的接口
 		ID3DX11EffectTechnique*			m_pFX_Tech_Default;
@@ -248,7 +272,8 @@ namespace Noise3D
 		ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_DrawText2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;
-		ID3DX11EffectConstantBuffer*	m_pFX_CbPerObject;
+
+		/*ID3DX11EffectConstantBuffer*	m_pFX_CbPerObject;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbPerFrame;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbPerSubset;
 		ID3DX11EffectConstantBuffer*	m_pFX_CbRarely;
@@ -259,7 +284,7 @@ namespace Noise3D
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Normal;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_Specular;
 		ID3DX11EffectShaderResourceVariable* m_pFX_Texture_CubeMap;
-		ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;
-		ID3DX11EffectSamplerVariable*	m_pFX_SamplerState_Default;
+		ID3DX11EffectShaderResourceVariable* m_pFX2D_Texture_Diffuse;*/
+
 	};
 }
