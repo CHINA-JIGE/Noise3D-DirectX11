@@ -63,7 +63,6 @@ void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 
 	//set color
 	mFogColor = color;
-
 	mFogCanUpdateToGpu = true;
 }
 
@@ -76,6 +75,42 @@ void		IAtmosphere::SetSkyDomeTexture(N_UID matName)
 void		IAtmosphere::SetSkyBoxTexture(N_UID cubeMapMatName)
 {
 	mSkyBoxCubeTexName = cubeMapMatName;
+}
+
+N_UID IAtmosphere::GetSkyTextureUID()
+{
+	if (mSkyType == NOISE_ATMOSPHERE_SKYTYPE::NOISE_ATMOSPHERE_SKYTYPE_BOX)
+	{
+		return mSkyBoxCubeTexName;
+	}
+	else if (mSkyType == NOISE_ATMOSPHERE_SKYTYPE::NOISE_ATMOSPHERE_SKYTYPE_DOME)
+	{
+		return mSkyDomeTexName;
+	}
+	else
+	{
+		return "";
+	}
+}
+
+NOISE_ATMOSPHERE_SKYTYPE IAtmosphere::GetSkyType()
+{
+	return mSkyType;
+}
+
+UINT IAtmosphere::GetSkyboxWidth()
+{
+	return mSkyBoxWidth;
+}
+
+UINT IAtmosphere::GetSkyboxHeight()
+{
+	return mSkyBoxHeight;
+}
+
+UINT IAtmosphere::GetSkyboxDepth()
+{
+	return mSkyBoxDepth;
 }
 
 

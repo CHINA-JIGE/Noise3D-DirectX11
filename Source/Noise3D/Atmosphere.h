@@ -29,6 +29,18 @@ namespace Noise3D
 
 		void		SetSkyBoxTexture(N_UID cubeMapTexName);
 
+		N_UID	GetSkyTextureUID();
+
+		NOISE_ATMOSPHERE_SKYTYPE GetSkyType();
+
+		//SET xxx is not available here because the size of sky box is fixed
+		//when IModelLoader load the real model of sky
+		UINT	GetSkyboxWidth();
+
+		UINT	GetSkyboxHeight();
+
+		UINT	GetSkyboxDepth();
+
 
 	private:
 
@@ -44,7 +56,6 @@ namespace Noise3D
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const  std::vector<UINT>& targetIB);
 
 		//only after atmosphere was added to render list can we  apply fog effect
-		bool					mFogHasBeenAddedToRenderList;
 		bool					mFogCanUpdateToGpu;//we dont need update fog param frequently
 		bool					mFogEnabled;
 		float					mFogNear;

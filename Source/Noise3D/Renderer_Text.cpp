@@ -34,11 +34,11 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureMan
 
 		//update text color infos
 		float* pColorData = (float*)pText->m_pTextColor;
-		IShaderVariableManager::m_pFxVector4_TextColor->SetFloatVector(pColorData);
+		IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
 
 		//update textures
 		ID3D11ShaderResourceView* tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
-		IShaderVariableManager::m_pFxTexture_ColorMap2D->SetResource(tmp_pSRV);
+		IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
 

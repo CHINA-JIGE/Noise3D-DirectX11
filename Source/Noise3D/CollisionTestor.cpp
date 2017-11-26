@@ -35,14 +35,15 @@ void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
 
 	//update camera Info
-	N_CbCameraInfo CbCam;
 	ICamera* pCamera = GetScene()->GetCamera();
-	pCamera->GetProjMatrix(CbCam.projMatrix);
-	pCamera->GetViewMatrix(CbCam.viewMatrix);
-	pCamera->GetInvProjMatrix(CbCam.invProjMatrix);
-	pCamera->GetInvViewMatrix(CbCam.invViewMatrix);
-	CbCam.camPos = pCamera->GetPosition();
-	m_pFX_CbCameraInfo->SetRawValue(&CbCam, 0, sizeof(CbCam));
+	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
+	pCamera->GetProjMatrix(projMatrix);
+	pCamera->GetViewMatrix(viewMatrix);
+	pCamera->GetInvProjMatrix(invProjMatrix);
+	pCamera->GetInvViewMatrix(invViewMatrix);
+	NVECTOR3 camPos = pCamera->GetPosition();
+
+	IShaderVariableManager::m_pFxMatrix_View->Set
 
 	//update mouse position to GPU to compute picking ray
 	N_CbPicking CbPicking;

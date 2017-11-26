@@ -28,13 +28,91 @@ namespace Noise3D
 	class /*_declspec(dllexport)*/ IShaderVariableManager
 	{
 	public:
-		
+
+		enum NOISE_SHADER_VAR_MATRIX
+		{
+			WORLD,
+			WORLD_INV_TRANSPOSE,
+			PROJECTION,
+			VIEW,
+			VIEW_INV,
+		};
+
+		enum NOISE_SHADER_VAR_GENERAL
+		{
+			DYNAMIC_DIRLIGHT,
+			DYNAMIC_POINTLIGHT,
+			DYNAMIC_SPOTLIGHT,
+			STATIC_DIRLIGHT,
+			STATIC_POINTLIGHT,
+			STATIC_SPOTLIGHT,
+		};
+
+		enum NOISE_SHADER_VAR_SCALAR
+		{
+			DYNAMIC_LIGHT_ENABLED,
+			DYNAMIC_DIRLIGHT_COUNT,
+			DYNAMIC_POINTLIGHT_COUNT,
+			DYNAMIC_SPOTLIGHT_COUNT,
+			STATIC_LIGHT_ENABLED,
+			STATIC_DIRLIGHT_COUNT,
+			STATIC_POINTLIGHT_COUNT,
+			STATIC_SPOTLIGHT_COUNT,
+			FOG_ENABLED,
+			FOG_NEAR,
+			FOG_FAR,
+			SKYBOX_WIDTH,
+			SKYBOX_HEIGHT,
+			SKYBOX_DEPTH
+		};
+
+		enum NOISE_SHADER_VAR_VECTOR
+		{
+			CAMERA_POS3,
+			FOG_COLOR3,
+			TEXT_COLOR4,
+			TEXT_GLOW_COLOR4,
+		};
+
+		enum NOISE_SHADER_VAR_SAMPLER
+		{
+			DEFAULT_DRAW,
+			DRAW_2D,
+		};
+
+		enum NOISE_SHADER_VAR_TEXTURE
+		{
+			DIFFUSE_MAP,
+			NORMAL_MAP,
+			SPECULAR_MAP,
+			CUBE_MAP,
+			COLOR_MAP_2D,
+		};
+
+	public:
+
 		//init must be POSTPONED because the initialization of renderer is triggered
 		//by user, hence init op will not be done in constructor
 		bool	Init();
 
 		//set general variables
 		void SetVar(const char* var, void* pVal,int size);
+
+		void SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX& data);
+
+		void SetVector2(NOISE_SHADER_VAR_VECTOR var, const NVECTOR2& data);
+
+		void SetVector3(NOISE_SHADER_VAR_VECTOR var, const NVECTOR3& data);
+
+		void SetVector4(NOISE_SHADER_VAR_VECTOR var, const NVECTOR4& data);
+
+		void SetFloat(NOISE_SHADER_VAR_SCALAR var, float val);
+
+		void SetInt(NOISE_SHADER_VAR_SCALAR var, int val);
+
+		void SetSampler(NOISE_SHADER_VAR_SAMPLER var,int index, ID3D11SamplerState* pState);
+
+		void SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11ShaderResourceView* pSRV);
 
 		//set Array
 		void	SetStaticDirLight(int index, const N_DirLightDesc& staticLightDesc );
@@ -49,75 +127,30 @@ namespace Noise3D
 
 		void	SetDynamicSpotLight(int index, const N_SpotLightDesc& dynamicLightDesc);
 
-
 	private:
 
 		friend IRenderer;
+
+		friend ICollisionTestor;
 
 		IShaderVariableManager();
 
 		~IShaderVariableManager();
 
-	protected:
 		//all the effect variables are interfaces via which we can communicate with GPU
 		//and the data will be updated to variable in GPU with certain name.
+		static const int c_matrixVarCount = 5;
+		static const int c_generalVarCount = 6;
+		static const int c_scalarVarCount = 14;
+		static const int c_vectorVarCount = 4;
+		static const int c_samplerVarCount = 2;
+		static const int c_textureVarCount = 5;
 
-#define SHADER_VAR_MATRIX(name) ID3DX11EffectMatrixVariable* m_pFxMatrix_##name##;
-
-		SHADER_VAR_MATRIX(World)
-		SHADER_VAR_MATRIX(WorldInvTranspose)
-		SHADER_VAR_MATRIX(Projection)
-		SHADER_VAR_MATRIX(View)
-		SHADER_VAR_MATRIX(ViewInv)
-
-
-#define SHADER_VAR_GENERAL(name) ID3DX11EffectVariable* m_pFxVar_##name##;
-
-		SHADER_VAR_GENERAL(DynamicDirLightArray)
-		SHADER_VAR_GENERAL(DynamicPointLightArray)
-		SHADER_VAR_GENERAL(DynamicSpotLightArray)
-		SHADER_VAR_GENERAL(StaticDirLightArray)
-		SHADER_VAR_GENERAL(StaticPointLightArray)
-		SHADER_VAR_GENERAL(StaticSpotLightArray)
-
-#define SHADER_VAR_SCALAR(name,type) ID3DX11EffectVariable* m_pFxScalar_##type##_##name##;
-	
-		SHADER_VAR_SCALAR(DynamicLightEnabled,int)
-		SHADER_VAR_SCALAR(DynamicDirLightCount,int)
-		SHADER_VAR_SCALAR(DynamicPointLightCount,int)
-		SHADER_VAR_SCALAR(DynamicSpotLightCount, int)
-		SHADER_VAR_SCALAR(StaticLightEnabled, int)
-		SHADER_VAR_SCALAR(StaticDirLightCount, int)
-		SHADER_VAR_SCALAR(StaticPointLightCount, int)
-		SHADER_VAR_SCALAR(StaticSpotLightCount, int)
-		SHADER_VAR_SCALAR(FogEnabled, int)
-		SHADER_VAR_SCALAR(FogNear,float)
-		SHADER_VAR_SCALAR(FogFar, float)
-		SHADER_VAR_SCALAR(SkyBoxWidth, float)
-		SHADER_VAR_SCALAR(SkyBoxHeight, float)
-		SHADER_VAR_SCALAR(SkyBoxDepth, float)
-
-
-
-#define SHADER_VAR_VECTOR(name,dimension) ID3DX11EffectVectorVariable* m_pFxVector##dimension##_##name##;
-
-		SHADER_VAR_VECTOR(CamPos,3)
-		SHADER_VAR_VECTOR(FogColor,3)
-		SHADER_VAR_VECTOR(TextColor,4)
-		SHADER_VAR_VECTOR(TextGlowColor,4)
-
-#define SHADER_VAR_SAMPLER(name) ID3DX11EffectSamplerVariable* m_pFxSampler_##name##;
-
-		SHADER_VAR_SAMPLER(DefaultDraw)
-		SHADER_VAR_SAMPLER(Draw2D)
-
-#define SHADER_VAR_TEXTURE(name) ID3DX11EffectShaderResourceVariable* m_pFxTexture_##name##;
-
-		SHADER_VAR_TEXTURE(DiffuseMap)
-		SHADER_VAR_TEXTURE(NormalMap)
-		SHADER_VAR_TEXTURE(SpecularMap)
-		SHADER_VAR_TEXTURE(CubeMap)//environment mapping
-		SHADER_VAR_TEXTURE(ColorMap2D)//for 2d texturing
-
+		ID3DX11EffectMatrixVariable*		m_pFxMatrix[c_matrixVarCount];
+		ID3DX11EffectVariable*					m_pFxVar[c_generalVarCount];
+		ID3DX11EffectScalarVariable*			m_pFxScalar[c_scalarVarCount];
+		ID3DX11EffectVectorVariable*		m_pFxVector[c_vectorVarCount];
+		ID3DX11EffectSamplerVariable*		m_pFxSampler[c_samplerVarCount];
+		ID3DX11EffectShaderResourceVariable* m_pFxTexture[c_textureVarCount];
 	};
-}
+};

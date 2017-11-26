@@ -11,7 +11,6 @@ using namespace Noise3D;
 
 IRenderer::IRenderer()
 {
-	mCanUpdateCbCameraMatrix			= false;
 	m_pRenderList_Mesh							= new std::vector <IMesh*>;
 	m_pRenderList_CommonGraphicObj	= new std::vector<IGraphicObject*>;
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
@@ -60,8 +59,6 @@ void IRenderer::AddObjectToRenderList(IMesh* obj)
 void IRenderer::AddObjectToRenderList(IAtmosphere* obj)
 {
 	m_pRenderList_Atmosphere->push_back(obj);
-	//fog color will only be rendered after ADDTORENDERLIST();
-	obj->mFogHasBeenAddedToRenderList = true;
 };
 
 void IRenderer::AddObjectToRenderList(IGraphicObject* obj)
@@ -91,9 +88,6 @@ void	IRenderer::ClearBackground(const NVECTOR4& color)
 void	IRenderer::PresentToScreen()
 {
 		m_pSwapChain->Present(0, 0 );
-
-		//reset some state
-		mCanUpdateCbCameraMatrix = true;
 
 		//clear render list
 		m_pRenderList_CommonGraphicObj->clear();
@@ -164,27 +158,12 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	HR_DEBUG(hr, "create simple input Layout failed！");
 #pragma endregion Create Input Layout
 
-#pragma region Create Fx Variable
-	//创建Cbuffer
-	m_pFX_CbPerFrame=g_pFX->GetConstantBufferByName("cbPerFrame");
-	m_pFX_CbPerObject=g_pFX->GetConstantBufferByName("cbPerObject");
-	m_pFX_CbPerSubset = g_pFX->GetConstantBufferByName("cbPerSubset");
-	m_pFX_CbRarely=g_pFX->GetConstantBufferByName("cbRarely");
-	m_pFX_CbSolid3D = g_pFX->GetConstantBufferByName("cbCameraInfo");
-	m_pFX_CbAtmosphere = g_pFX->GetConstantBufferByName("cbAtmosphere");
-	m_pFX_CbDrawText2D = g_pFX->GetConstantBufferByName("cbDrawText2D");
-
-	//纹理
-	m_pFX_Texture_Diffuse = g_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	m_pFX_Texture_Normal = g_pFX->GetVariableByName("gNormalMap")->AsShaderResource();
-	m_pFX_Texture_Specular = g_pFX->GetVariableByName("gSpecularMap")->AsShaderResource();
-	m_pFX_Texture_CubeMap = g_pFX->GetVariableByName("gCubeMap")->AsShaderResource();
-	m_pFX2D_Texture_Diffuse = g_pFX->GetVariableByName("g2D_DiffuseMap")->AsShaderResource();
-
-	//sampler state ( it needs a name in FX so for the time being I had to use D3DX11Effect
-	m_pFX_SamplerState_Default = g_pFX->GetVariableByName("samplerDefault")->AsSampler();
-
-#pragma endregion Create Fx Variable
+	// Create Fx Variable
+	if (!IShaderVariableManager::Init())
+	{
+		ERROR_MSG("IRenderer: Initialization failure! shader variable not found!");
+		return false;
+	};
 
 	//Create Various kinds of states
 	if (!mFunction_Init_CreateRasterState())return false;
@@ -584,28 +563,21 @@ void		IRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 	}
 }
 
-void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
+void		IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 {
-	if (mCanUpdateCbCameraMatrix)
-	{
-		//update camera matrices
-		pCamera->GetProjMatrix(m_CbCameraInfo.projMatrix);
+	//update camera matrices
+	NMATRIX tmpMatrix;
+	pCamera->GetProjMatrix(tmpMatrix);
+	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::PROJECTION, tmpMatrix);
 
-		pCamera->GetViewMatrix(m_CbCameraInfo.viewMatrix);
+	pCamera->GetViewMatrix(tmpMatrix);
+	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
-		pCamera->GetInvProjMatrix(m_CbCameraInfo.invViewMatrix);
+	pCamera->GetInvViewMatrix(tmpMatrix);
+	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
-		pCamera->GetInvViewMatrix(m_CbCameraInfo.invProjMatrix);
-
-		m_CbCameraInfo.camPos = pCamera->GetPosition();
-
-
-		//——————更新到GPU——————
-		m_pFX_CbSolid3D->SetRawValue(&m_CbCameraInfo, 0, sizeof(m_CbCameraInfo));
-
-		//..........
-		mCanUpdateCbCameraMatrix = false;
-	}
+	NVECTOR3 camPos = pCamera->GetPosition();
+	IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 };
 
 void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList)
@@ -619,7 +591,7 @@ void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicOb
 		{
 			pGraphicObj->mFunction_UpdateVerticesToGpu(i);
 			pGraphicObj->mCanUpdateToGpu[i] = false;
-			// rectangle buffer must generate a subset list
+			// rectangles can have textures, thus a subset list should be generated
 			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pGraphicObj->mFunction_GenerateRectSubsetInfo();
 		}
 	}

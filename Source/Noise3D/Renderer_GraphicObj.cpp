@@ -9,31 +9,6 @@
 
 using namespace Noise3D;
 
-/*void IRenderer::RenderGUIObjects()
-{
-	//validation before rendering
-	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
-		return;
-	};
-
-	//CLEAR DEPTH!! to implement component overlapping
-	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-	mFunction_SetBlendState(m_BlendMode);
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
-	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-
-	//render internal graphic objects
-	mFunction_GraphicObj_RenderPoint2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_GraphicObj_RenderLine2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_GraphicObj_RenderTriangle2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
-}*/
-
 void IRenderer::RenderGraphicObjects()
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
@@ -68,7 +43,7 @@ void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 	if (IsUidValid)
 	{
 		ID3D11ShaderResourceView*  tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
-		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+		IShaderVariableManager::m_pFxTexture_ColorMap2D->SetResource(tmp_pSRV);
 	}
 }
 
