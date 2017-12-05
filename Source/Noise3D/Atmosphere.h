@@ -35,11 +35,11 @@ namespace Noise3D
 
 		//SET xxx is not available here because the size of sky box is fixed
 		//when IModelLoader load the real model of sky
-		UINT	GetSkyboxWidth();
+		float	GetSkyboxWidth();
 
-		UINT	GetSkyboxHeight();
+		float	GetSkyboxHeight();
 
-		UINT	GetSkyboxDepth();
+		float	GetSkyboxDepth();
 
 
 	private:

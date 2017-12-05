@@ -16,7 +16,7 @@ void IRenderer::RenderGraphicObjects()
 	ICamera* const pCamera = GetScene()->GetCamera();
 
 	//set samplerState
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+	m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
 
 	//set depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -43,7 +43,7 @@ void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 	if (IsUidValid)
 	{
 		ID3D11ShaderResourceView*  tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
-		IShaderVariableManager::m_pFxTexture_ColorMap2D->SetResource(tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
 

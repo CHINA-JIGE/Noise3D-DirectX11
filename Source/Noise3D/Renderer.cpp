@@ -21,7 +21,6 @@ IRenderer::IRenderer()
 	m_pFX_Tech_Solid2D = nullptr;
 	m_pFX_Tech_Textured2D = nullptr;
 	m_pFX_Tech_DrawSky = nullptr;
-
 }
 
 IRenderer::~IRenderer()
@@ -109,8 +108,6 @@ UINT IRenderer::GetMainBufferHeight()
 };
 
 
-
-
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
@@ -159,7 +156,8 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 #pragma endregion Create Input Layout
 
 	// Create Fx Variable
-	if (!IShaderVariableManager::Init())
+	m_pRefShaderVarMgr = IShaderVariableManager::GetSingleton();
+	if (m_pRefShaderVarMgr ==nullptr)
 	{
 		ERROR_MSG("IRenderer: Initialization failure! shader variable not found!");
 		return false;
@@ -182,7 +180,7 @@ bool	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	//check multi-sample capability
 	UINT device_MSAA_Quality = 1;//bigger than 1
 	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
-	UINT device_MSAA_Enabled = false;
+	bool device_MSAA_Enabled = false;
 
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
@@ -250,8 +248,8 @@ bool	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
 	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = true ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = true ? device_MSAA_Quality - 1 : 0);
+	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled  ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled  ? device_MSAA_Quality - 1 : 0);
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
 	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
 	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
@@ -568,16 +566,16 @@ void		IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 	//update camera matrices
 	NMATRIX tmpMatrix;
 	pCamera->GetProjMatrix(tmpMatrix);
-	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::PROJECTION, tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, tmpMatrix);
 
 	pCamera->GetViewMatrix(tmpMatrix);
-	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
 	pCamera->GetInvViewMatrix(tmpMatrix);
-	IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
 	NVECTOR3 camPos = pCamera->GetPosition();
-	IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 };
 
 void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList)

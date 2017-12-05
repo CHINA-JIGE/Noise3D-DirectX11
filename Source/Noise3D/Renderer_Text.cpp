@@ -34,11 +34,11 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureMan
 
 		//update text color infos
 		float* pColorData = (float*)pText->m_pTextColor;
-		IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
+		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
 
 		//update textures
 		ID3D11ShaderResourceView* tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
-		IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
 
@@ -68,7 +68,8 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 		mFunction_SetBlendState(pText->GetBlendMode());
 
 		//set samplerState
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D, 0, m_pSamplerState_FilterLinear);
+
 
 		//set depth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);

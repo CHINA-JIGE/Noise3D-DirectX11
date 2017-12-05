@@ -24,7 +24,6 @@
 
 namespace Noise3D
 {
-
 	class /*_declspec(dllexport)*/ IShaderVariableManager
 	{
 	public:
@@ -36,6 +35,8 @@ namespace Noise3D
 			PROJECTION,
 			VIEW,
 			VIEW_INV,
+
+			NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT
 		};
 
 		enum NOISE_SHADER_VAR_GENERAL
@@ -46,6 +47,8 @@ namespace Noise3D
 			STATIC_DIRLIGHT,
 			STATIC_POINTLIGHT,
 			STATIC_SPOTLIGHT,
+
+			NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT
 		};
 
 		enum NOISE_SHADER_VAR_SCALAR
@@ -63,7 +66,9 @@ namespace Noise3D
 			FOG_FAR,
 			SKYBOX_WIDTH,
 			SKYBOX_HEIGHT,
-			SKYBOX_DEPTH
+			SKYBOX_DEPTH,
+
+			NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT
 		};
 
 		enum NOISE_SHADER_VAR_VECTOR
@@ -72,12 +77,17 @@ namespace Noise3D
 			FOG_COLOR3,
 			TEXT_COLOR4,
 			TEXT_GLOW_COLOR4,
+			PICKING_RAY_NORMALIZED_DIR_XY,
+
+			NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT
 		};
 
 		enum NOISE_SHADER_VAR_SAMPLER
 		{
-			DEFAULT_DRAW,
+			DEFAULT,
 			DRAW_2D,
+
+			NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT
 		};
 
 		enum NOISE_SHADER_VAR_TEXTURE
@@ -87,13 +97,15 @@ namespace Noise3D
 			SPECULAR_MAP,
 			CUBE_MAP,
 			COLOR_MAP_2D,
+
+			NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT
 		};
 
 	public:
 
 		//init must be POSTPONED because the initialization of renderer is triggered
 		//by user, hence init op will not be done in constructor
-		bool	Init();
+		static IShaderVariableManager* GetSingleton();
 
 		//set general variables
 		void SetVar(const char* var, void* pVal,int size);
@@ -129,28 +141,24 @@ namespace Noise3D
 
 	private:
 
-		friend IRenderer;
+		//only specific friend class can inherit shader var manager
+		friend class IRenderer;
 
-		friend ICollisionTestor;
+		friend class ICollisionTestor;
 
 		IShaderVariableManager();
 
 		~IShaderVariableManager();
 
+		static IShaderVariableManager* m_pSingleton;
+
 		//all the effect variables are interfaces via which we can communicate with GPU
 		//and the data will be updated to variable in GPU with certain name.
-		static const int c_matrixVarCount = 5;
-		static const int c_generalVarCount = 6;
-		static const int c_scalarVarCount = 14;
-		static const int c_vectorVarCount = 4;
-		static const int c_samplerVarCount = 2;
-		static const int c_textureVarCount = 5;
-
-		ID3DX11EffectMatrixVariable*		m_pFxMatrix[c_matrixVarCount];
-		ID3DX11EffectVariable*					m_pFxVar[c_generalVarCount];
-		ID3DX11EffectScalarVariable*			m_pFxScalar[c_scalarVarCount];
-		ID3DX11EffectVectorVariable*		m_pFxVector[c_vectorVarCount];
-		ID3DX11EffectSamplerVariable*		m_pFxSampler[c_samplerVarCount];
-		ID3DX11EffectShaderResourceVariable* m_pFxTexture[c_textureVarCount];
+		static ID3DX11EffectMatrixVariable*			m_pFxMatrix[NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT];
+		static ID3DX11EffectVariable*						m_pFxVar[NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT];
+		static ID3DX11EffectScalarVariable*			m_pFxScalar[NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT];
+		static ID3DX11EffectVectorVariable*			m_pFxVector[NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT];
+		static ID3DX11EffectSamplerVariable*		m_pFxSampler[NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT];
+		static ID3DX11EffectShaderResourceVariable* m_pFxTexture[NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT];
 	};
 };

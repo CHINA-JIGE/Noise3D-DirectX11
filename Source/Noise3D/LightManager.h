@@ -79,7 +79,6 @@ namespace Noise3D
 
 		bool		DeleteSpotLightD(ISpotLightD* pLight);
 
-		NOISE_LIGHT_TYPE a;
 		bool		DeleteDirLightS(N_UID lightName);
 
 		bool		DeleteDirLightS(IDirLightS* pLight);
@@ -96,6 +95,10 @@ namespace Noise3D
 		void			SetDynamicLightingEnabled(bool isEnabled);
 
 		void			SetStaticLightingEnabled(bool isEnabled);
+
+		bool			IsDynamicLightingEnabled();
+
+		bool			IsStaticLightingEnabled();
 
 		UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
 

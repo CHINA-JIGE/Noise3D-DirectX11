@@ -260,19 +260,12 @@ void ICamera::GetProjMatrix(NMATRIX & outMat)
 	outMat = mMatrixProjection;
 }
 
-void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
+void ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
 	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixView);
 	if(invPtr==nullptr)ERROR_MSG("Camera : Inverse of View Matrix not exist!")
 }
-
-void Noise3D::ICamera::GetInvProjMatrix(NMATRIX & outMat)
-{
-	mFunction_UpdateProjMatrix();
-	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixProjection);
-	if (invPtr == nullptr)ERROR_MSG("Camera : Inverse of Proj Matrix not exist!")
-};
 
 void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 {
@@ -281,7 +274,6 @@ void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 		mNearPlane	= iNearPlaneZ;
 		mFarPlane	=	iFarPlaneZ;
 	}
-
 };
 
 void ICamera::SetViewAngle_Degree(float fViewAngleY,float fAspectRatio)

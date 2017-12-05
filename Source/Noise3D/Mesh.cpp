@@ -186,11 +186,11 @@ const std::vector<UINT>* IMesh::GetIndexBuffer()
 	return &mIB_Mem;
 }
 
-void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTMat)
+void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTransposeMat)
 {
 	mFunction_UpdateWorldMatrix();
 	outWorldMat = mMatrixWorld;
-	outWorldInvTMat = mMatrixWorldInvTranspose;
+	outWorldInvTransposeMat = mMatrixWorldInvTranspose;
 }
 
 N_Box IMesh::ComputeBoundingBox()

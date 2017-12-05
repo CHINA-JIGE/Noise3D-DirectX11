@@ -12,34 +12,10 @@
 namespace Noise3D
 {
 
-	enum NOISE_FILLMODE
-	{
-		NOISE_FILLMODE_SOLID = D3D11_FILL_SOLID,
-		NOISE_FILLMODE_WIREFRAME = D3D11_FILL_WIREFRAME,
-		NOISE_FILLMODE_POINT = 0,
-	};
-
-	enum NOISE_CULLMODE
-	{
-		NOISE_CULLMODE_NONE = D3D11_CULL_NONE,
-		NOISE_CULLMODE_BACK = D3D11_CULL_BACK,
-		NOISE_CULLMODE_FRONT = D3D11_CULL_FRONT,
-	};
-
-	enum NOISE_BLENDMODE
-	{
-		NOISE_BLENDMODE_OPAQUE = 0,
-		NOISE_BLENDMODE_ALPHA = 1,
-		NOISE_BLENDMODE_ADDITIVE = 2,
-		NOISE_BLENDMODE_COLORFILTER = 3,
-	};
 
 	class /*_declspec(dllexport)*/ IRenderer :
-		private IFileIO,
-		private IShaderVariableManager
+		private IFileIO
 	{
-	friend class IScene;//father node
-
 	public:
 
 		void			RenderMeshes();
@@ -79,8 +55,8 @@ namespace Noise3D
 	private:
 
 		//--------------------INITIALIZATION---------------------
-
-		bool			mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);
+		
+		bool			NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);
 
 		bool			mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);//render target view, depth stencil view
 
@@ -107,13 +83,13 @@ namespace Noise3D
 
 
 		//----------------MESHES-----------------------
-		void			mFunction_RenderMeshInList_UpdateCbPerObject(IMesh* const pMesh);
+		void			mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh);
 
-		void			mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCamera);
+		void			mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera);
 
-		void			mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh, UINT subsetID);//return subset primitive count
+		UINT		mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh, UINT subsetID);//return subset primitive count
 
-		void			mFunction_RenderMeshInList_UpdateCbRarely();
+		void			mFunction_RenderMeshInList_UpdateRarely();
 
 
 		//----------------GRAPHIC OBJECT-----------------------
@@ -143,12 +119,16 @@ namespace Noise3D
 
 	private:
 
+		friend IScene;//for external init
+
 		friend IFactory<IRenderer>;
 
 		//构造函数
 		IRenderer();
 
 		~IRenderer();
+
+		IShaderVariableManager* m_pRefShaderVarMgr;
 
 		UINT		mMainBufferWidth;
 		UINT		mMainBufferHeight;
@@ -159,24 +139,22 @@ namespace Noise3D
 		std::vector <IBasicTextInfo*>*	m_pRenderList_TextStatic;//for static Text Rendering(including other info)
 		std::vector <IAtmosphere*>*		m_pRenderList_Atmosphere;
 
-		IDXGISwapChain*							m_pSwapChain;
-		ID3D11RenderTargetView*				m_pRenderTargetView;//RTV
-		ID3D11DepthStencilView*				m_pDepthStencilView;//DSV
-		ID3D11RasterizerState*					m_pRasterState_Solid_CullNone;
-		ID3D11RasterizerState*					m_pRasterState_Solid_CullBack;
-		ID3D11RasterizerState*					m_pRasterState_Solid_CullFront;
-		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullFront;
-		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullNone;
-		ID3D11RasterizerState*					m_pRasterState_WireFrame_CullBack;
-		ID3D11BlendState*							m_pBlendState_Opaque;
-		ID3D11BlendState*							m_pBlendState_AlphaTransparency;
-		ID3D11BlendState*							m_pBlendState_ColorAdd;
-		ID3D11BlendState*							m_pBlendState_ColorMultiply;
-		ID3D11DepthStencilState*				m_pDepthStencilState_EnableDepthTest;
-		ID3D11DepthStencilState*				m_pDepthStencilState_DisableDepthTest;
-		ID3D11SamplerState*						m_pSamplerState_FilterLinear;
-
-		ID3DX11EffectSamplerVariable*		m_pFX_SamplerState_Default;
+		IDXGISwapChain*						m_pSwapChain;
+		ID3D11RenderTargetView*			m_pRenderTargetView;//RTV
+		ID3D11DepthStencilView*			m_pDepthStencilView;//DSV
+		ID3D11RasterizerState*				m_pRasterState_Solid_CullNone;
+		ID3D11RasterizerState*				m_pRasterState_Solid_CullBack;
+		ID3D11RasterizerState*				m_pRasterState_Solid_CullFront;
+		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullFront;
+		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullNone;
+		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullBack;
+		ID3D11BlendState*						m_pBlendState_Opaque;
+		ID3D11BlendState*						m_pBlendState_AlphaTransparency;
+		ID3D11BlendState*						m_pBlendState_ColorAdd;
+		ID3D11BlendState*						m_pBlendState_ColorMultiply;
+		ID3D11DepthStencilState*			m_pDepthStencilState_EnableDepthTest;
+		ID3D11DepthStencilState*			m_pDepthStencilState_DisableDepthTest;
+		ID3D11SamplerState*					m_pSamplerState_FilterLinear;
 
 		//用于从app更新到Gpu的接口
 		ID3DX11EffectTechnique*			m_pFX_Tech_Default;

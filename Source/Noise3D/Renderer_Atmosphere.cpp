@@ -37,7 +37,7 @@ void IRenderer::RenderAtmosphere()
 		//......Set States
 		mFunction_SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
 		mFunction_SetBlendState(NOISE_BLENDMODE_OPAQUE);
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 
@@ -86,10 +86,10 @@ void		IRenderer::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtm
 	if (pAtmo->mFogCanUpdateToGpu)
 	{
 		//udpate to GPU
-		IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR::FOG_COLOR3, pAtmo->mFogColor);
-		IShaderVariableManager::SetFloat(NOISE_SHADER_VAR_SCALAR::FOG_FAR, pAtmo->mFogFar);
-		IShaderVariableManager::SetFloat(NOISE_SHADER_VAR_SCALAR::FOG_NEAR, pAtmo->mFogNear);
-		IShaderVariableManager::SetInt(NOISE_SHADER_VAR_SCALAR::FOG_ENABLED, pAtmo->mFogEnabled);
+		m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::FOG_COLOR3, pAtmo->mFogColor);
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_FAR, pAtmo->mFogFar);
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_NEAR, pAtmo->mFogNear);
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_ENABLED, pAtmo->mFogEnabled);
 		pAtmo->mFogCanUpdateToGpu = false;
 	}
 };
@@ -111,9 +111,9 @@ void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtm
 	{
 		//skybox texture must be a cube map
 		bool isSkyBoxValid = pTexMgr->ValidateUID(skyTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
-		IShaderVariableManager::SetFloat(NOISE_SHADER_VAR_SCALAR::SKYBOX_WIDTH, pAtmo->GetSkyboxWidth());
-		IShaderVariableManager::SetFloat(NOISE_SHADER_VAR_SCALAR::SKYBOX_HEIGHT, pAtmo->GetSkyboxHeight());
-		IShaderVariableManager::SetFloat(NOISE_SHADER_VAR_SCALAR::SKYBOX_DEPTH, pAtmo->GetSkyboxDepth());
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_WIDTH, pAtmo->GetSkyboxWidth());
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_HEIGHT, pAtmo->GetSkyboxHeight());
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_DEPTH, pAtmo->GetSkyboxDepth());
 		enableSkyBox = isSkyBoxValid;
 	}
 
@@ -122,7 +122,7 @@ void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtm
 	{
 		//texName has been validated in UPDATE function
 		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
-		IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, tmp_pSRV);
 	}
 
 	//update skybox cube map to gpu
@@ -131,7 +131,7 @@ void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtm
 		//pAtmo->mSkyBoxTextureID has been validated  in UPDATE function
 		//but how do you validate it's a valid cube map ?????
 		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
-		IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, tmp_pSRV);
 	}
 
 	outEnabledSkybox = enableSkyBox;

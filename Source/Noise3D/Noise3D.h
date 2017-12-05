@@ -60,9 +60,8 @@
 #include "MaterialManager.h"
 #include "GraphicObjMgr.h"
 #include "CollisionTestor.h"
-#include "ShaderVarManager.h"
 #include "ModelLoader.h"
-
+#include "ShaderVarManager.h"
 
 //---------Font & Text-----------
 #include "Text_2DBasicTextInfo.h"

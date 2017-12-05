@@ -206,16 +206,16 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 
 	//---------------------------MESH TRANSFORMATION--------------------------
 	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
-	refCurrentMesh.pos = NVECTOR3(pos4.mData[0], pos4.mData[2],pos4.mData[1]);
+	refCurrentMesh.pos = NVECTOR3(float(pos4.mData[0]), float(pos4.mData[2]),float(pos4.mData[1]));
 
 	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
-	refCurrentMesh.scale = NVECTOR3(scale4.mData[0], scale4.mData[2], scale4.mData[1]);
+	refCurrentMesh.scale = NVECTOR3(float(scale4.mData[0]), float(scale4.mData[2]), float(scale4.mData[1]));
 
 	FbxVector4 rotate4 = pNode->EvaluateLocalRotation();
 	refCurrentMesh.rotation = NVECTOR3(
-		-rotate4.mData[0] / 180.0f *MATH_PI,
-		-rotate4.mData[2] / 180.0f *MATH_PI,//negative for handness conversion
-		-rotate4.mData[1] / 180.0f *MATH_PI);
+		-float(rotate4.mData[0]) / 180.0f *MATH_PI,
+		-float(rotate4.mData[2]) / 180.0f *MATH_PI,//negative for handness conversion
+		-float(rotate4.mData[1]) / 180.0f *MATH_PI);
 
 	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer

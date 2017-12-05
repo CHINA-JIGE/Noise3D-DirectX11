@@ -11,7 +11,8 @@
 
 using namespace Noise3D;
 
-ICollisionTestor::ICollisionTestor()
+ICollisionTestor::ICollisionTestor():
+	m_pRefShaderVarMgr(nullptr)
 {
 
 }
@@ -34,26 +35,27 @@ void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
 	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
 
+	//picking info
+	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
+
 	//update camera Info
 	ICamera* pCamera = GetScene()->GetCamera();
 	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
-	pCamera->GetInvProjMatrix(invProjMatrix);
 	pCamera->GetInvViewMatrix(invViewMatrix);
 	NVECTOR3 camPos = pCamera->GetPosition();
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 
-	IShaderVariableManager::m_pFxMatrix_View->Set
 
-	//update mouse position to GPU to compute picking ray
-	N_CbPicking CbPicking;
-	CbPicking.pickingRayNormalizedDirXY = mouseNormalizedCoord;
-	m_pFX_CbPicking->SetRawValue(&CbPicking, 0, sizeof(CbPicking));
-
-	//update target mesh world Matrix
-	N_CbPerObject cbObj;
-	pMesh->GetWorldMatrix(cbObj.mWorldMatrix, cbObj.mWorldInvTransposeMatrix);
-	m_pFX_CbPerObject->SetRawValue(&cbObj, 0, sizeof(cbObj));
+	//update target tested mesh world Matrix
+	NMATRIX worldMat, worldInvTransMat;
+	pMesh->GetWorldMatrix(worldMat, worldInvTransMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
 
 	UINT offset = 0;
@@ -124,25 +126,27 @@ UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
 	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest,0x00000000) ;
 
+	//picking info
+	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
+
 	//update camera Info
-	N_CbCameraInfo CbCam;
 	ICamera* pCamera = GetScene()->GetCamera();
-	pCamera->GetProjMatrix(CbCam.projMatrix);//tangent of Fov can be retrieved in proj matrix 
-	pCamera->GetViewMatrix(CbCam.viewMatrix);
-	pCamera->GetInvProjMatrix(CbCam.invProjMatrix);
-	pCamera->GetInvViewMatrix(CbCam.invViewMatrix);
-	CbCam.camPos = pCamera->GetPosition();
-	m_pFX_CbCameraInfo->SetRawValue(&CbCam, 0, sizeof(CbCam));
+	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
+	pCamera->GetProjMatrix(projMatrix);
+	pCamera->GetViewMatrix(viewMatrix);
+	pCamera->GetInvViewMatrix(invViewMatrix);
+	NVECTOR3 camPos = pCamera->GetPosition();
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 
-	//update mouse position to GPU to compute picking ray
-	N_CbPicking CbPicking;
-	CbPicking.pickingRayNormalizedDirXY = mouseNormalizedCoord;
-	m_pFX_CbPicking->SetRawValue(&CbPicking, 0, sizeof(CbPicking));
+	//update target tested mesh world Matrix
+	NMATRIX worldMat, worldInvTransMat;
+	pMesh->GetWorldMatrix(worldMat, worldInvTransMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
-	//update target mesh world Matrix
-	N_CbPerObject cbObj;
-	pMesh->GetWorldMatrix(cbObj.mWorldMatrix, cbObj.mWorldInvTransposeMatrix);
-	m_pFX_CbPerObject->SetRawValue(&cbObj, 0, sizeof(cbObj));
 
 
 	UINT offset =0;
@@ -185,6 +189,13 @@ UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 
 bool ICollisionTestor::mFunction_Init()
 {
+	m_pRefShaderVarMgr = IShaderVariableManager::GetSingleton();
+	if (m_pRefShaderVarMgr == nullptr)
+	{
+		ERROR_MSG("Collision Testor: Initialization failed! (Shader var manager)");
+		return false;
+	}
+
 	//Create Id3d11query to get SO info
 	//so this page for more info
 	//https://www.gamedev.net/blog/272/entry-1913400-using-d3d11-stream-out-for-debugging/
@@ -194,7 +205,7 @@ bool ICollisionTestor::mFunction_Init()
 
 
 	HRESULT hr = g_pd3dDevice11->CreateQuery(&queryDesc, &m_pSOQuery);
-	HR_DEBUG(hr, "Collsion Testor : Initialization failed! (ID3D11Query for SO Info)");
+	HR_DEBUG(hr, "Collision Testor : Initialization failed! (ID3D11Query for SO Info)");
 
 
 	//SO Buffer initial data
@@ -231,14 +242,6 @@ bool ICollisionTestor::mFunction_Init()
 
 	//Create Techiniques from FX
 	m_pFX_Tech_Picking = g_pFX->GetTechniqueByName("PickingIntersection");
-	m_pFX_CbCameraInfo = g_pFX->GetConstantBufferByName("cbCameraInfo");
-	m_pFX_CbPicking = g_pFX->GetConstantBufferByName("cbPicking");
-	m_pFX_CbPerObject = g_pFX->GetConstantBufferByName("cbPerObject");
-
-	if (m_pFX_CbPicking == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
-	if (m_pFX_CbCameraInfo == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
-	if (m_pFX_CbPicking == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
-	if (m_pFX_CbPerObject == nullptr)ERROR_MSG("Collision Testor : Fatal Internal Error!!");
 
 	return true;
 }

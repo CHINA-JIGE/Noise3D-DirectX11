@@ -72,15 +72,6 @@ namespace Noise3D
 
 		void				GetInvViewMatrix(NMATRIX& outMat);
 
-		void				GetInvProjMatrix(NMATRIX& outMat);
-
-		/*
-		void				sm_Update();
-		void				sm_LinearMoveTo();
-		void				sm_SineMoveTo();
-		void				sm_RotateAroundAxis();*/
-
-
 	private:
 		friend  IRenderer;
 

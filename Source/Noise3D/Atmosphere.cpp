@@ -98,17 +98,17 @@ NOISE_ATMOSPHERE_SKYTYPE IAtmosphere::GetSkyType()
 	return mSkyType;
 }
 
-UINT IAtmosphere::GetSkyboxWidth()
+float IAtmosphere::GetSkyboxWidth()
 {
 	return mSkyBoxWidth;
 }
 
-UINT IAtmosphere::GetSkyboxHeight()
+float IAtmosphere::GetSkyboxHeight()
 {
 	return mSkyBoxHeight;
 }
 
-UINT IAtmosphere::GetSkyboxDepth()
+float IAtmosphere::GetSkyboxDepth()
 {
 	return mSkyBoxDepth;
 }

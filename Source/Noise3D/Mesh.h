@@ -22,7 +22,8 @@ namespace Noise3D
 	class /*_declspec(dllexport)*/ IMesh
 		: public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
-		public CRenderSettingFillMode
+		public CRenderSettingFillMode,
+		public CRenderSettingShadeMode
 	{
 	public:
 
@@ -80,7 +81,7 @@ namespace Noise3D
 
 		const	std::vector<UINT>*	GetIndexBuffer();
 
-		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTMat);
+		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTransposeMat);
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
 		N_Box	ComputeBoundingBox();

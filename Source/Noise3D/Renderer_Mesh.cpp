@@ -14,10 +14,10 @@ void	IRenderer::RenderMeshes()
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
 	//更新ConstantBuffer: Only update when modified(cbRarely)
-	mFunction_RenderMeshInList_UpdateCbRarely();
+	mFunction_RenderMeshInList_UpdateRarely();
 
 	//Update ConstantBuffer: Once Per Frame (cbPerFrame)
-	mFunction_RenderMeshInList_UpdateCbPerFrame(tmp_pCamera);
+	mFunction_RenderMeshInList_UpdatePerFrame(tmp_pCamera);
 
 	//Update ConstantBuffer : Proj / View Matrix (this function could be used elsewhere)
 	mFunction_CameraMatrix_Update(tmp_pCamera);
@@ -31,7 +31,7 @@ void	IRenderer::RenderMeshes()
 		IMesh* const pMesh = m_pRenderList_Mesh->at(i);
 
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
-		mFunction_RenderMeshInList_UpdateCbPerObject(pMesh);
+		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
 
 		//更新完cb就准备开始draw了
 		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
@@ -46,7 +46,7 @@ void	IRenderer::RenderMeshes()
 		mFunction_SetBlendState(pMesh->GetBlendMode());
 
 		//设置samplerState
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(m_pRefShaderVarMgr->NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
 
 		//设置depth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -60,17 +60,18 @@ void	IRenderer::RenderMeshes()
 			UINT currSubsetIndicesCount = pMesh->mSubsetInfoList.at(j).primitiveCount * 3;
 			UINT currSubsetStartIndex = pMesh->mSubsetInfoList.at(j).startPrimitiveID * 3;
 
-			//更新ConstantBuffer:每Subset,在一个mesh里面有不同Material的都算一个subset
-			mFunction_RenderMeshInList_UpdateCbPerSubset(pMesh,j);
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//ATTENTION!! : each subset might have different materials, hences different
+			//texture combinations. In consideration of efficiency, texture operations will be 
+			//turned on/off by UNIFORM bool in shader(so each mapping will be turn on/off
+			//in shader compilation stage).  N switches of multiple mapping will produce 2^N
+			//passes for the c++ host program to choose. 
+			//'passID' will be computed to choose appropriate pass.
+			UINT passID = mFunction_RenderMeshInList_UpdatePerSubset(pMesh,j);
 
-			//遍历所用tech的所有pass ---- index starts from 1
-			D3DX11_TECHNIQUE_DESC tmpTechDesc;
-			m_pFX_Tech_Default->GetDesc(&tmpTechDesc);
-			for (UINT k = 0;k < tmpTechDesc.Passes; k++)
-			{
-				m_pFX_Tech_Default->GetPassByIndex(k)->Apply(0, g_pImmediateContext);
-				g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
-			}
+			m_pFX_Tech_Default->GetPassByIndex(passID)->Apply(0, g_pImmediateContext);
+			g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
+			
 		}
 	}
 #pragma endregion Render Mesh
@@ -83,91 +84,73 @@ void	IRenderer::RenderMeshes()
 ************************************************************************/
 
 
-void		IRenderer::mFunction_RenderMeshInList_UpdateCbRarely()
+void		IRenderer::mFunction_RenderMeshInList_UpdateRarely()
 {
-
-	bool tmpCanUpdateCbRarely = false;
-
 	//————更新Static Light——————
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
-	if ((tmpLightMgr != nullptr) && (tmpLightMgr->mCanUpdateStaticLights))
+	if (tmpLightMgr->mCanUpdateStaticLights)
 	{
 		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_DIR);
 		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_POINT);
 		UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_SPOT);
 
-		m_CbRarely.mIsLightingEnabled_Static = tmpLightMgr->mIsDynamicLightingEnabled;
-		m_CbRarely.mDirLightCount_Static = tmpLight_Dir_Count;
-		m_CbRarely.mPointLightCount_Static = tmpLight_Point_Count;
-		m_CbRarely.mSpotLightCount_Static = tmpLight_Spot_Count;
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_LIGHT_ENABLED, tmpLightMgr->IsStaticLightingEnabled());
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_DIRLIGHT_COUNT, tmpLight_Dir_Count);
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_POINTLIGHT_COUNT, tmpLight_Point_Count);
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_SPOTLIGHT_COUNT, tmpLight_Spot_Count);
 
 		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 		{
-			//static directional light description
-			m_CbRarely.mDirectionalLight_Static[i] = (tmpLightMgr->GetDirLightS(i)->GetDesc());
+			m_pRefShaderVarMgr->SetStaticDirLight(i, tmpLightMgr->GetDirLightS(i)->GetDesc());
 		}
 
 		for (UINT i = 0; i<(tmpLight_Point_Count); i++)
 		{
-			m_CbRarely.mPointLight_Static[i] = (tmpLightMgr->GetPointLightS(i)->GetDesc());
+			m_pRefShaderVarMgr->SetStaticPointLight(i, tmpLightMgr->GetPointLightS(i)->GetDesc());
 		}
 
 		for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
 		{
-			m_CbRarely.mSpotLight_Static[i] = (tmpLightMgr->GetSpotLightS(i)->GetDesc());
+			m_pRefShaderVarMgr->SetStaticSpotLight(i, tmpLightMgr->GetSpotLightS(i)->GetDesc());
 		}
 
-		//static light only need to update once for INITIALIZATION
+		//static light only need to update once for INITIALIZATION / ELIMATION
 		tmpLightMgr->mCanUpdateStaticLights = false;
 	}
-
-
-	//——————更新到GPU——————
-	if (tmpCanUpdateCbRarely == true)
-	{
-		m_pFX_CbRarely->SetRawValue(&m_CbRarely, 0, sizeof(m_CbRarely));
-	};
 };
 
-void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerFrame(ICamera*const pCamera)
+void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera)
 {
 	//————Update Dynamic Light————
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
-	if (tmpLightMgr != NULL)
+
+	UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
+	UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
+	UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
+
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_LIGHT_ENABLED, tmpLightMgr->IsDynamicLightingEnabled());
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_DIRLIGHT_COUNT, tmpLight_Dir_Count);
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_POINTLIGHT_COUNT, tmpLight_Point_Count);
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_SPOTLIGHT_COUNT, tmpLight_Spot_Count);
+
+	for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
 	{
-		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
-		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
-		UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
-
-		m_CbPerFrame.mIsLightingEnabled_Dynamic = tmpLightMgr->mIsDynamicLightingEnabled;
-		m_CbPerFrame.mDirLightCount_Dynamic = tmpLight_Dir_Count;
-		m_CbPerFrame.mPointLightCount_Dynamic = tmpLight_Point_Count;
-		m_CbPerFrame.mSpotLightCount_Dynamic = tmpLight_Spot_Count;
-
-		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
-		{
-			m_CbPerFrame.mDirectionalLight_Dynamic[i] = tmpLightMgr->GetDirLightD(i)->GetDesc();
-		}
-
-		for (UINT i = 0; i<(tmpLight_Point_Count); i++)
-		{
-			m_CbPerFrame.mPointLight_Dynamic[i] = tmpLightMgr->GetPointLightD(i)->GetDesc();
-		}
-
-		for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
-		{
-			m_CbPerFrame.mSpotLight_Dynamic[i] = tmpLightMgr->GetSpotLightD(i)->GetDesc();
-		}
-
+		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLightD(i)->GetDesc());
 	}
 
+	for (UINT i = 0; i<(tmpLight_Point_Count); i++)
+	{
+		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLightD(i)->GetDesc());
+	}
 
-	//————Update to GPU——————
-	m_pFX_CbPerFrame->SetRawValue(&m_CbPerFrame, 0, sizeof(m_CbPerFrame));
+	for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
+	{
+		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLightD(i)->GetDesc());
+	}
 };
 
-void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh,UINT subsetID)
+UINT		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
 	ITextureManager*		pTexMgr = GetScene()->GetTextureMgr();
@@ -193,67 +176,86 @@ void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerSubset(IMesh* const pMesh
 
 	//Validate Indices of MATERIALS/TEXTURES
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	//m_CbPerSubset.basicMaterial = tmpMat.baseMaterial;
-	m_CbPerSubset.SetBaseMat(tmpMat);
 
 	ITexture* pDiffMap = pTexMgr->GetTexture(tmpMat.diffuseMapName);
 	ITexture* pNormalMap = pTexMgr->GetTexture(tmpMat.normalMapName);
 	ITexture* pSpecMap = pTexMgr->GetTexture(tmpMat.specularMapName);
 	ITexture* pEnvMap = pTexMgr->GetTexture(tmpMat.environmentMapName);
+	bool isDiffuseMapValid = false;
+	bool	isNormalMapValid = false;
+	bool isSpecularMapValid = false;
+	bool isEnvMapValid = false;
 
 	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	if(pDiffMap)			m_CbPerSubset.IsDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	m_CbPerSubset.IsDiffuseMapValid = FALSE;
+	if(pDiffMap)			isDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	isDiffuseMapValid = false;
 
-	if (pNormalMap)	m_CbPerSubset.IsNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	m_CbPerSubset.IsNormalMapValid = FALSE;
+	if (pNormalMap)	isNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	isNormalMapValid = false;
 
-	if (pSpecMap)		m_CbPerSubset.IsSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	m_CbPerSubset.IsSpecularMapValid = FALSE;
+	if (pSpecMap)		isSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
+						else	isSpecularMapValid = false;
 
-	if (pEnvMap)		m_CbPerSubset.IsEnvironmentMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
-						else	m_CbPerSubset.IsEnvironmentMapValid = FALSE;
+	if (pEnvMap)		isEnvMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
+						else	isEnvMapValid = false;
 
 	//update textures, bound corresponding ShaderResourceView to the pipeline
 	//if tetxure is  valid ,then set diffuse map
-	if (m_CbPerSubset.IsDiffuseMapValid)
+	if (isDiffuseMapValid)
 	{
-		tmp_pSRV = pDiffMap->m_pSRV;
-		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, pDiffMap->m_pSRV);
 	}
 
 	//if tetxure is  valid ,then set normal map
-	if (m_CbPerSubset.IsNormalMapValid)
+	if (isNormalMapValid)
 	{
-		tmp_pSRV = pNormalMap->m_pSRV;
-		m_pFX_Texture_Normal->SetResource(tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::NORMAL_MAP, pNormalMap->m_pSRV);
 	}
 
 	//if tetxure is  valid ,then set specular map
-	if (m_CbPerSubset.IsSpecularMapValid)
+	if (isSpecularMapValid)
 	{
-		tmp_pSRV = pSpecMap->m_pSRV;
-		m_pFX_Texture_Specular->SetResource(tmp_pSRV);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::SPECULAR_MAP, pSpecMap->m_pSRV);
 	}
 
 	//if tetxure is  valid ,then set environment map (cube map)
-	if (m_CbPerSubset.IsEnvironmentMapValid)
+	if (isEnvMapValid)
 	{
-		tmp_pSRV = pEnvMap->m_pSRV;
-		m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);//environment map is a cube map
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, pEnvMap->m_pSRV);
 	}
 
-	//transmit all data to gpu
-	m_pFX_CbPerSubset->SetRawValue(&m_CbPerSubset, 0, sizeof(m_CbPerSubset));
 
+	//return pass ID to choose appropriate shader
+	//each bit for each switch, then bitwise-AND all the switches
+	constexpr int perPixelRenderSwitchCount = 4;
+
+	//NOTE that: special reneder technique like NORMAL MAPPING can only be
+	//implemented in TANGENT SPACE
+	bool isPerVertexLighting = (pMesh->GetShadeMode() == NOISE_SHADEMODE_GOURAUD);
+	if (isPerVertexLighting)return pow(2, perPixelRenderSwitchCount);
+
+	int renderEffectSwitches[perPixelRenderSwitchCount] =
+	{ 
+		isDiffuseMapValid, 
+		isNormalMapValid,
+		isSpecularMapValid,
+		isEnvMapValid
+	};
+
+	uint32_t passID = 0;
+	for (uint32_t switchID = 0; switchID < perPixelRenderSwitchCount; ++switchID)
+	{
+		passID |= (renderEffectSwitches[switchID] << switchID);
+	}
+	return passID;
 };
 
-void		IRenderer::mFunction_RenderMeshInList_UpdateCbPerObject(IMesh* const pMesh)
+void		IRenderer::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)
 {
-	//————更新World Matrix————
-	pMesh->GetWorldMatrix(m_CbPerObject.mWorldMatrix, m_CbPerObject.mWorldInvTransposeMatrix);
-	
-	//——————更新到GPU——————
-	m_pFX_CbPerObject->SetRawValue(&m_CbPerObject, 0, sizeof(m_CbPerObject));
+	//update world/worldInv matrix
+	NMATRIX worldMat,worldInvTransposeMat;
+	pMesh->GetWorldMatrix(worldMat, worldInvTransposeMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransposeMat);
 };
 

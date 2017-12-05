@@ -53,6 +53,7 @@ IDirLightS * ILightManager::CreateStaticDirLight(N_UID lightName, const N_DirLig
 	
 	if (isSucceeded)
 	{
+		mCanUpdateStaticLights = true;
 		return pLight;
 	}
 	else
@@ -72,6 +73,7 @@ IPointLightS * ILightManager::CreateStaticPointLight(N_UID lightName, const N_Po
 
 	if (isSucceeded)
 	{
+		mCanUpdateStaticLights = true;
 		return pLight;
 	}
 	else
@@ -91,6 +93,7 @@ ISpotLightS * ILightManager::CreateStaticSpotLight(N_UID lightName, const N_Spot
 
 	if (isSucceeded)
 	{
+		mCanUpdateStaticLights = true;
 		return pLight;
 	}
 	else
@@ -142,7 +145,7 @@ IDirLightS * ILightManager::GetDirLightS(UINT index)
 	return IFactory<IDirLightS>::GetObjectPtr(index);
 }
 
-IPointLightS * Noise3D::ILightManager::GetPointLightS(N_UID lightName)
+IPointLightS * ILightManager::GetPointLightS(N_UID lightName)
 {
 	return IFactory<IPointLightS>::GetObjectPtr(lightName);
 }
@@ -240,7 +243,19 @@ void	ILightManager::SetDynamicLightingEnabled(bool isEnabled)
 void	ILightManager::SetStaticLightingEnabled(bool isEnabled)
 {
 	mIsStaticLightingEnabled = isEnabled;
-};
+}
+
+bool ILightManager::IsDynamicLightingEnabled()
+{
+	return mIsDynamicLightingEnabled;
+}
+
+bool ILightManager::IsStaticLightingEnabled()
+{
+	return mIsStaticLightingEnabled;
+}
+
+
 
 
 UINT	ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
