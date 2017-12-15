@@ -1,19 +1,16 @@
-/**********************************************************************
+/******************************************
 
-								File:Picking.fx
-	implement of PICKING RAY-TRIANGLE MESH INTERSECTION
+	Module: picking(impl)
+	Author: Jige
+	
+	picking ray & triangle intersection
+	(GS involved, accurate)
 
-**************************************************************************/
-
-cbuffer cbPicking
-{
-	float2 gPickingRayNormalizedDirXY;/*(x,y,1) for the picking ray , and this is the xy*/
-	float2 gPadPicking123;
-}
+******************************************/
 
 
 //----------------------PICKING : VS + GS-----------------------
-GS_INPUT_MINIZED VS_Picking(VS_INPUT_DEFAULT input)//SV_POSITION is semantic
+GS_INPUT_MINIZED VS_Picking(VS_INPUT_DRAW_MESH input)//SV_POSITION is semantic
 {
 	//initialize
 	GS_INPUT_MINIZED outputPosV;

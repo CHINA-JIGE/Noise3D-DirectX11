@@ -1,12 +1,12 @@
 
-/**********************************************************************
+/**********************************************
 
 	File:3D Function.fx
 	Author: Jige
 	
 	Child Function used by 3d Shaders
 
-**************************************************************************/
+************************************************/
 
 
 
@@ -57,74 +57,65 @@ void	ComputeOutput_Amb_Diff_Spec(float diffuseCosFactor, float lightSpecIntensit
 
 
 
-void	SampleFromTexture(float2 TexCoord,out float3 outDiffColor3,out float3 outNormalTBN,out float3 outSpecColor3)
+float3	SampleFromNormalMap(float2 TexCoord,uniform bool ubEnableNormalMap)
 {
-	//let's see if diffuse map is valid, and determine whether to use diffuse map
-	outDiffColor3 = float3(0, 0, 0);
-	outSpecColor3 = float3(0,0,0);
-	outNormalTBN = float3(0,0,0);
-	
-	//------------Diffuse Map------------
-	[flatten]
-	float3 diffSampleColor = gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
-	if (gIsDiffuseMapValid)
+	if(ubEnableNormalMap)
 	{
-		outDiffColor3 = diffSampleColor;
-	}
-	else
-	{
-		//invalid diffuse map, we should use pure color of basic material
-		outDiffColor3 = gMaterial.mDiffuseColor;
-	}
-	
-
-	//-------NORMAL MAP-------
-	float3 normSampleColor = gNormalMap.Sample(samplerDefault, TexCoord).xyz;
-	if(gIsNormalMapValid)
-	{
+		float3 normSampleColor = gNormalMap.Sample(samplerDefault, TexCoord).xyz;
 		//retrieve normals from normal map
-		outNormalTBN = normSampleColor;
-		//map to [-1,1]
-		outNormalTBN = 2 * outNormalTBN - 1;
+		float tmpNormalTBN = normSampleColor;
+		//R: [0,1] , G[0,1], B: [0.5,1];
+		//R & G~[0,1] map to [-1,1]
+		tmpNormalTBN = 2 * tmpNormalTBN - 1;
 		//scale bump mapping
-		outNormalTBN = normalize(outNormalTBN + saturate(1.0f-gMaterial.mNormalMapBumpIntensity) *(float3(0,1.0f,0)-outNormalTBN));
+		tmpNormalTBN = normalize(tmpNormalTBN + saturate(1.0f-gMaterial.mNormalMapBumpIntensity) *(float3(0,1.0f,0)- tmpNormalTBN));
 	}
 	else
 	{
 		outNormalTBN = float3(0,1.0f,0);
 	}
-	
-
-	//----------SPECULAR MAP--------------
-	float3 specSampleColor = gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
-	if(gIsSpecularMapValid)
-	{
-		outSpecColor3 = specSampleColor;
-	}
-	else
-	{
-	//invalid diffuse map, we should use pure color of basic material
-		outSpecColor3 = gMaterial.mSpecularColor;
-	}
-	
 }
 
-
-void	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, out float4 outEnvMapColor4)
+float3	SampleFromDiffuseMap(float2 TexCoord,uniform bool ubEnableDiffuseMap)
 {
-	outEnvMapColor4 = float4(0,0,0,0);
-
-	float4 sampleColor = float4(gCubeMap.Sample(samplerDefault, reflect(-VecToCamW, NormalW)).xyz, saturate(gMaterial.mEnvironmentMapTransparency));
-
-
-	if(gIsEnvironmentMapVaild)
+	//------------Diffuse Map------------
+	if (ubEnableDiffuseMap)
 	{
-		//alpha : user-set transparency , used to blend
-		outEnvMapColor4 = sampleColor;
+		return  gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
 	}
 	else
 	{
-		outEnvMapColor4 = float4(0,0,0,0);
+		//invalid diffuse map, we should use pure color of basic material
+		return gMaterial.mDiffuseColor;
+	}
+}
+
+float3	SampleFromSpecularMap(float2 TexCoord,uniform bool ubEnableSpecularMap)
+{
+	//----------SPECULAR MAP--------------
+	if (ubEnableSpecularMap)
+	{
+		outSpecColor3 = gDiffuseMap.Sample(samplerDefault, TexCoord).xyz;
+	}
+	else
+	{
+		//invalid diffuse map, we should use pure color of basic material
+		outSpecColor3 = gMaterial.mSpecularColor;
+	}
+
+}
+
+float4	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW,uniform bool ubEnableEnvMap)
+{
+
+	if(ubEnableEnvMap)
+	{
+		//alpha : user-set transparency , used to blend
+		outEnvMapColor4 = float4(gCubeMap.Sample(samplerDefault, reflect(-VecToCamW, NormalW)).xyz, saturate(gMaterial.mEnvironmentMapTransparency));
+	}
+	else
+	{
+		return float4(0,0,0,0);
 	}
 }
 
@@ -184,11 +175,6 @@ void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,
 	float3 BinormalW = normalize(cross(NormalW,TangentW));
 	
 	//x - Binormal , Y-Normal ,Z - tangent
-	/*float4x4 transformMatrix;
-	transformMatrix[0] = float4(BinormalW.xyz,0);
-	transformMatrix[1] = float4(NormalW.xyz,0);
-	transformMatrix[2] = float4(TangentW.xyz,0);
-	transformMatrix[3] = float4(0,0,0,1.0f);*/
 	float4x4 transformMatrix;
 	transformMatrix[0] = float4(TangentW.xyz,0);
 	transformMatrix[1] = float4(NormalW.xyz,0);
