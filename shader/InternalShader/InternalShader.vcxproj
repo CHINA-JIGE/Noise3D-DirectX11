@@ -120,46 +120,24 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="Draw2D.hlsli" />
-    <None Include="DrawMesh.hlsli" />
-    <None Include="CommonDef.hlsli">
+    <None Include="GlobalDef.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="DrawSky.hlsli" />
-    <None Include="DrawSolid3D.hlsli" />
     <None Include="Main.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="Picking.fx">
+    <None Include="picking.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="Draw2D.fx">
+    <None Include="shader2D.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="Picking.hlsli" />
+    <None Include="shader3D.fx">
+      <FileType>Document</FileType>
+    </None>
     <None Include="shader3D_defaultDraw.fx">
       <FileType>Document</FileType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="DrawMesh.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="DrawSky.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="DrawSolid3D.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
