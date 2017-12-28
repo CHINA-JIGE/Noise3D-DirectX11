@@ -14,6 +14,12 @@ cbuffer cbPicking
 	float2 gPickingRayNormalizedDirXY;
 }
 
+GS_INPUT_MINIZED VS_Picking(VS_INPUT_DRAW_MESH input);
+
+[maxvertexcount(3)]
+void GS_Picking(triangle GS_INPUT_MINIZED  inputGeometry[3], inout PointStream<GS_OUTPUT_MINIZED> pointStream);
+
+bool IntersectTriangle(float3 origin, float3 dir, float3 v0, float3 v1, float3 v2, out float t, out float u, out float v);
 
 technique11 PickingIntersection
 {

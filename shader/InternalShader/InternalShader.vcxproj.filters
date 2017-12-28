@@ -5,29 +5,71 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ShaderSource">
+    <Filter Include="DrawSky">
+      <UniqueIdentifier>{03a7adac-6fa0-4a1d-bab1-1bcaf5b3b594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{31b5409e-ba54-45ff-8d13-bc73bb807e66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Draw2D">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="DrawMesh">
+      <UniqueIdentifier>{1c043cb3-3d4f-484c-b942-c27e4cc633a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Picking">
+      <UniqueIdentifier>{eabd5767-7d6f-442e-a17b-9b8b651213be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DrawSolid3D">
+      <UniqueIdentifier>{00c06ffc-9cc0-4c71-8018-206cc51ccf4f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="GlobalDef.fx">
-      <Filter>ShaderSource</Filter>
+    <None Include="Draw2D.fx">
+      <Filter>Draw2D</Filter>
     </None>
-    <None Include="picking.fx">
-      <Filter>ShaderSource</Filter>
-    </None>
-    <None Include="shader2D.fx">
-      <Filter>ShaderSource</Filter>
-    </None>
-    <None Include="shader3D.fx">
-      <Filter>ShaderSource</Filter>
-    </None>
-    <None Include="shader3D_defaultDraw.fx">
-      <Filter>ShaderSource</Filter>
+    <None Include="CommonDef.hlsli">
+      <Filter>Main</Filter>
     </None>
     <None Include="Main.fx">
-      <Filter>ShaderSource</Filter>
+      <Filter>Main</Filter>
+    </None>
+    <None Include="DrawSky.hlsli">
+      <Filter>DrawSky</Filter>
+    </None>
+    <None Include="DrawSky.fx">
+      <Filter>DrawSky</Filter>
+    </None>
+    <None Include="Draw2D.hlsli">
+      <Filter>Draw2D</Filter>
+    </None>
+    <None Include="DrawMesh.fx">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="DrawMesh.hlsli">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="Picking.hlsli">
+      <Filter>Picking</Filter>
+    </None>
+    <None Include="Picking.fx">
+      <Filter>Picking</Filter>
+    </None>
+    <None Include="DrawSolid3D.hlsli">
+      <Filter>DrawSolid3D</Filter>
+    </None>
+    <None Include="DrawSolid3D.fx">
+      <Filter>DrawSolid3D</Filter>
+    </None>
+    <None Include="DrawMesh_PixelLighting.fx">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="DrawMesh_VertexLighting.fx">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="DrawMesh_Common.fx">
+      <Filter>DrawMesh</Filter>
     </None>
   </ItemGroup>
 </Project>

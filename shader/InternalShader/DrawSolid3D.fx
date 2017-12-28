@@ -22,5 +22,5 @@ PS_OUTPUT_SIMPLE PS_Solid3D(VS_OUTPUT_SIMPLE input)
 {
 	PS_OUTPUT_SIMPLE output;
 	output.color = input.color;
-	return input.color;
+	return output;
 }

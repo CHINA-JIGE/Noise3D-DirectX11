@@ -7,8 +7,11 @@
 
 ******************************************/
 
+#include "DrawMesh_Common.fx"
+#include "DrawMesh_PixelLighting.fx"
+#include "DrawMesh_VertexLighting.fx"
 
-VS_OUTPUT_DRAW_MESH VS_DrawMesh(VS_INPUT_DRAW_MESH input, uniform bool ubPerVertexLighting)
+VS_OUTPUT_DRAW_MESH VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
 {
 	//initialize
 	VS_OUTPUT_DRAW_MESH output = (VS_OUTPUT_DRAW_MESH)0;
@@ -28,7 +31,8 @@ VS_OUTPUT_DRAW_MESH VS_DrawMesh(VS_INPUT_DRAW_MESH input, uniform bool ubPerVert
 	return output;
 }
 
-PS_OUTPUT_DRAW_MESH PS_DrawMesh(VS_OUTPUT_DRAW_MESH input)
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
+	uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap)
 {
 	//the output
 	float4 	finalColor4 = float4(0, 0, 0, 0);
@@ -56,6 +60,7 @@ PS_OUTPUT_DRAW_MESH PS_DrawMesh(VS_OUTPUT_DRAW_MESH input)
 		return float4(gFogColor3, 1.0f);
 	}
 
+	在这里初始化那个RenderProcess类
 
 	//compute DYNAMIC LIGHT
 	int i = 0;
@@ -63,6 +68,7 @@ PS_OUTPUT_DRAW_MESH PS_DrawMesh(VS_OUTPUT_DRAW_MESH input)
 	{
 		for (i = 0; i<gDirectionalLightCount_Dynamic; i++)
 		{
+			都换成ComputeLightColor 
 			ComputeDirLightColor(gDirectionalLight_Dynamic[i], input.normalW, input.texcoord, Vec_ToCam, input.tangentW, tmpColor4);
 			finalColor4 += tmpColor4;
 		}

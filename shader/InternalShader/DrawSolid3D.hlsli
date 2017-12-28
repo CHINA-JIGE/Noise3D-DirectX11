@@ -8,6 +8,9 @@
 
 ******************************************/
 
+VS_OUTPUT_SIMPLE VS_Solid3D(VS_INPUT_SIMPLE input);
+
+PS_OUTPUT_SIMPLE PS_Solid3D(VS_OUTPUT_SIMPLE input);
 
 technique11 DrawSolid3D
 {

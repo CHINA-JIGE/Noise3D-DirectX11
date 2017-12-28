@@ -1,0 +1,10 @@
+﻿DrawMesh_PixelLighting.fx(102,26): error X3004: undeclared identifier 'Unit_LightVec'
+  
+  Microsoft (R) Direct3D Shader Compiler 9.29.952.3111
+  Copyright (C) Microsoft Corporation 2002-2009. All rights reserved.
+  
+  compilation failed; no code produced
+  已复制         1 个文件。
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(203,5): error MSB3073: 命令“fxc.exe /Fc /T fx_5_0 /Fo "Main.fxo" "Main.fx"
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(203,5): error MSB3073: copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"
+C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppCommon.targets(203,5): error MSB3073: :VCEnd”已退出，代码为 -1。

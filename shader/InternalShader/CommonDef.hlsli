@@ -69,6 +69,13 @@ struct PS_OUTPUT_SIMPLE
 					STRUCTURE DEFINITION
 **************************************************************************/
 
+#define NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT 0
+#define NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT 1
+#define NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT 2
+#define NOISE_LIGHT_TYPE_ID_STATIC_DIR_LIGHT 3
+#define NOISE_LIGHT_TYPE_ID_STATIC_POINT_LIGHT 4
+#define NOISE_LIGHT_TYPE_ID_STATIC_SPOT_LIGHT 5
+
 struct N_DirectionalLight
 {
 	 float3 mAmbientColor;		float		mSpecularIntensity;

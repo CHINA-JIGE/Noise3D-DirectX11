@@ -7,8 +7,6 @@
 	
 *****************************************************/
 
-
-
 //----------------------------------Draw 2D Lines/Points/Triangles----------------------------------
 VS_OUTPUT_SIMPLE VS_Solid2D(VS_INPUT_SIMPLE input)
 {
@@ -18,9 +16,11 @@ VS_OUTPUT_SIMPLE VS_Solid2D(VS_INPUT_SIMPLE input)
 	return output;
 }
 
-float4 PS_Solid2D(VS_OUTPUT_SIMPLE input) : SV_Target
+PS_OUTPUT_SIMPLE PS_Solid2D(VS_OUTPUT_SIMPLE input)
 {
-	return input.color;
+	PS_OUTPUT_SIMPLE output;
+	output.color = input.color;
+	return output;
 }
 
 
@@ -34,11 +34,12 @@ VS_OUTPUT_SIMPLE VS_Textured2D(VS_INPUT_SIMPLE input)
 	return output;
 }
 
-float4 PS_Textured2D(VS_OUTPUT_SIMPLE input) : SV_Target
+PS_OUTPUT_SIMPLE PS_Textured2D(VS_OUTPUT_SIMPLE input)
 {
+	PS_OUTPUT_SIMPLE output;
 	float4 sampledColor = gColorMap2D.Sample(samplerDraw2D, input.texcoord);
-	float4 outputColor = float4(sampledColor.xyz,sampledColor.w * input.color.w);
-	return outputColor;
+	output.color = float4(sampledColor.xyz,sampledColor.w * input.color.w);
+	return output;
 }
 
 
@@ -53,12 +54,13 @@ VS_OUTPUT_SIMPLE VS_DrawText2D(VS_INPUT_SIMPLE input)
 	return output;
 }
 
-float4 PS_DrawText2D(VS_OUTPUT_SIMPLE input) : SV_Target
+PS_OUTPUT_SIMPLE PS_DrawText2D(VS_OUTPUT_SIMPLE input)
 {
+	PS_OUTPUT_SIMPLE output;
 	float4 sampledColor = gColorMap2D.Sample(samplerDraw2D, input.texcoord);
 	if(sampledColor.w!=0)sampledColor.xyz=g2D_TextColor.xyz;
-	float4 outputColor = float4(sampledColor.xyz,sampledColor.w);
+	output.color = float4(sampledColor.xyz,sampledColor.w);
 	//float4 outputColor = float4(sampledColor.xyz, input.color.w);
-	return outputColor;
+	return output;
 
 }

@@ -7,6 +7,9 @@
 	
 *************************************************/
 
+VS_OUTPUT_DRAW_MESH VS_DrawSky(VS_INPUT_SIMPLE input);
+
+PS_OUTPUT_DRAW_MESH PS_DrawSky(VS_OUTPUT_DRAW_MESH input, uniform bool enabledSkyBox, uniform bool enabledSkyDome);
 
 //3 passes are funtionally independent
 technique11 DrawSky

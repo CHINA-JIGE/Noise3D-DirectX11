@@ -7,7 +7,6 @@
 	
 *************************************************/
 
-
 VS_OUTPUT_DRAW_MESH VS_DrawSky(VS_INPUT_SIMPLE input)
 {
 	VS_OUTPUT_DRAW_MESH output = (VS_OUTPUT_DRAW_MESH)0;
@@ -23,29 +22,26 @@ VS_OUTPUT_DRAW_MESH VS_DrawSky(VS_INPUT_SIMPLE input)
 
 PS_OUTPUT_DRAW_MESH PS_DrawSky(VS_OUTPUT_DRAW_MESH input, uniform bool enabledSkyBox, uniform bool enabledSkyDome)
 {
-	float4 outputColor = input.color;
+	PS_OUTPUT_DRAW_MESH output = (PS_OUTPUT_DRAW_MESH)0;
 
 	//both skybox and skydome are invalid
 	if ((!enabledSkyDome) && (!enabledSkyBox))
 	{
-		return outputColor;
+		output.color = input.color;
+		return output;
 	}
-
-	if (enabledSkyDome)
+	else if (enabledSkyDome)
 	{
-		outputColor = gDiffuseMap.Sample(samplerDefault, input.texcoord);
-		return outputColor;
+		output.color = gDiffuseMap.Sample(samplerDefault, input.texcoord);
+		return output;
 	}
-
-	if (enabledSkyBox)
+	else if (enabledSkyBox)
 	{
 		//what we used to intersect sky box  is a world-space Vector , but we should map the irregular skybox to a standard normalized box
-		outputColor = gCubeMap.Sample(samplerDefault, input.posW * float3(1 / gSkyBoxWidth, 1 / gSkyBoxHeight, 1 / gSkyBoxDepth));
-		return outputColor;
+		output.color = gCubeMap.Sample(samplerDefault, input.posW * float3(1 / gSkyBoxWidth, 1 / gSkyBoxHeight, 1 / gSkyBoxDepth));
+		return output;
 	}
 
-	PS_OUTPUT_DRAW_MESH output;
-	output.color = outputColor;
-	return output;
+	return output;//not reachable
 }
 
