@@ -47,9 +47,6 @@
     <None Include="DrawMesh.fx">
       <Filter>DrawMesh</Filter>
     </None>
-    <None Include="DrawMesh.hlsli">
-      <Filter>DrawMesh</Filter>
-    </None>
     <None Include="Picking.hlsli">
       <Filter>Picking</Filter>
     </None>
@@ -69,6 +66,9 @@
       <Filter>DrawMesh</Filter>
     </None>
     <None Include="DrawMesh_Common.fx">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="DrawMesh.hlsli">
       <Filter>DrawMesh</Filter>
     </None>
   </ItemGroup>

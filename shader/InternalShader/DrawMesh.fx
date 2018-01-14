@@ -6,7 +6,6 @@
 	draw mesh technique
 
 ******************************************/
-
 #include "DrawMesh_Common.fx"
 #include "DrawMesh_PixelLighting.fx"
 #include "DrawMesh_VertexLighting.fx"
@@ -35,13 +34,15 @@ PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
 	uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap)
 {
 	//the output
+	PS_OUTPUT_DRAW_MESH psOutput=(PS_OUTPUT_DRAW_MESH)0;
 	float4 	finalColor4 = float4(0, 0, 0, 0);
 	float4	tmpColor4 = float4(0, 0, 0, 0);
 
 	//if the lighting system and material are invalid ,then use vertex color
-	if ((!gIsLightingEnabled_Dynamic) && (!gIsLightingEnabled_Static))
+	if (!gIsLightingEnabled_Dynamic)
 	{
-		return input.color;//vertex color
+		psOutput.color = input.color;
+		return psOutput;//vertex color
 	}
 
 	//interpolation can  'unnormalized' the unit  vector
@@ -57,10 +58,14 @@ PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
 	float Dist_CurrPointToCam = length(Vec_ToCam);
 	if (gFogEnabled == 1 && Dist_CurrPointToCam>gFogFar)
 	{
-		return float4(gFogColor3, 1.0f);
+		psOutput.color = float4(gFogColor3, 1.0f);
+		return psOutput;
 	}
 
-	在这里初始化那个RenderProcess类
+	//Initialization of RenderProcess class
+	RenderProcess_PixelLighting renderProc;
+	renderProc.InitEffectSwitches(bDiffMap,bNormalMap,bSpecMap,bEnvMap);
+	renderProc.InitVectors(input.normalW,input.texcoord, Vec_ToCam, input.posW, input.tangentW);
 
 	//compute DYNAMIC LIGHT
 	int i = 0;
@@ -68,39 +73,18 @@ PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
 	{
 		for (i = 0; i<gDirectionalLightCount_Dynamic; i++)
 		{
-			都换成ComputeLightColor 
-			ComputeDirLightColor(gDirectionalLight_Dynamic[i], input.normalW, input.texcoord, Vec_ToCam, input.tangentW, tmpColor4);
+			//void ComputeLightColor(int lightTypeID, int lightIndex, out float4 outColor4);
+			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT,i,tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for (i = 0; i<gPointLightCount_Dynamic; i++)
 		{
-			ComputePointLightColor(gPointLight_Dynamic[i], input.normalW, input.texcoord, Vec_ToCam, input.posW, input.tangentW, tmpColor4);
+			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT, i, tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 		for (i = 0; i<gSpotLightCount_Dynamic; i++)
 		{
-
-			ComputeSpotLightColor(gSpotLight_Dynamic[i], input.normalW, input.texcoord, Vec_ToCam, input.posW, input.tangentW, tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-	}
-
-	//compute STATIC LIGHT
-	if (gIsLightingEnabled_Static)
-	{
-		for (i = 0; i<gDirectionalLightCount_Static; i++)
-		{
-			ComputeDirLightColor(gDirectionalLight_Static[i], input.normalW, input.texcoord, Vec_ToCam, input.tangentW, tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-		for (i = 0; i<gPointLightCount_Static; i++)
-		{
-			ComputePointLightColor(gPointLight_Static[i], input.normalW, input.texcoord, Vec_ToCam, input.posW, input.tangentW, tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-		for (i = 0; i<gSpotLightCount_Static; i++)
-		{
-			ComputeSpotLightColor(gSpotLight_Static[i], input.normalW, input.texcoord, Vec_ToCam, input.posW, input.tangentW, tmpColor4);
+			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT, i, tmpColor4);
 			finalColor4 += tmpColor4;
 		}
 	}
@@ -115,7 +99,7 @@ PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
 	//set transparency component
 	finalColor4.w = saturate(gMaterial.mTransparency);
 
-	PS_OUTPUT_DRAW_MESH psOutput;
-	psOutput.color = finalColor;
+
+	psOutput.color = finalColor4;
 	return psOutput;
 }

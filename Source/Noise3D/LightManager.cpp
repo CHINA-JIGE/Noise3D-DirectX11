@@ -240,21 +240,11 @@ void	ILightManager::SetDynamicLightingEnabled(bool isEnabled)
 	mIsDynamicLightingEnabled = isEnabled;
 };
 
-void	ILightManager::SetStaticLightingEnabled(bool isEnabled)
-{
-	mIsStaticLightingEnabled = isEnabled;
-}
 
 bool ILightManager::IsDynamicLightingEnabled()
 {
 	return mIsDynamicLightingEnabled;
 }
-
-bool ILightManager::IsStaticLightingEnabled()
-{
-	return mIsStaticLightingEnabled;
-}
-
 
 
 

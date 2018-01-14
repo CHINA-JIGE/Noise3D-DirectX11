@@ -86,38 +86,8 @@ void	IRenderer::RenderMeshes()
 
 void		IRenderer::mFunction_RenderMeshInList_UpdateRarely()
 {
-	//！！！！厚仟Static Light！！！！！！
-	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
-
-	if (tmpLightMgr->mCanUpdateStaticLights)
-	{
-		UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_DIR);
-		UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_POINT);
-		UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_STATIC_SPOT);
-
-		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_LIGHT_ENABLED, tmpLightMgr->IsStaticLightingEnabled());
-		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_DIRLIGHT_COUNT, tmpLight_Dir_Count);
-		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_POINTLIGHT_COUNT, tmpLight_Point_Count);
-		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::STATIC_SPOTLIGHT_COUNT, tmpLight_Spot_Count);
-
-		for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
-		{
-			m_pRefShaderVarMgr->SetStaticDirLight(i, tmpLightMgr->GetDirLightS(i)->GetDesc());
-		}
-
-		for (UINT i = 0; i<(tmpLight_Point_Count); i++)
-		{
-			m_pRefShaderVarMgr->SetStaticPointLight(i, tmpLightMgr->GetPointLightS(i)->GetDesc());
-		}
-
-		for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
-		{
-			m_pRefShaderVarMgr->SetStaticSpotLight(i, tmpLightMgr->GetSpotLightS(i)->GetDesc());
-		}
-
-		//static light only need to update once for INITIALIZATION / ELIMATION
-		tmpLightMgr->mCanUpdateStaticLights = false;
-	}
+	//From 2018.1.14 on, static lights are used to bake static lights(light maps)
+	//and not sent to GPU for lighting
 };
 
 void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera)

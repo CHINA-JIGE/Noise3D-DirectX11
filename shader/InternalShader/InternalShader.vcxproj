@@ -121,10 +121,10 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="Draw2D.hlsli" />
-    <None Include="DrawMesh.hlsli" />
     <None Include="CommonDef.hlsli">
       <FileType>Document</FileType>
     </None>
+    <None Include="DrawMesh.hlsli" />
     <None Include="DrawSky.hlsli" />
     <None Include="DrawSolid3D.hlsli" />
     <None Include="Main.fx">
@@ -165,7 +165,7 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DrawMesh_Common.fx">
+    <None Include="DrawMesh_VertexLighting.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -174,13 +174,7 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DrawMesh_VertexLighting.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <FileType>Document</FileType>
-    </None>
+    <None Include="DrawMesh_Common.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

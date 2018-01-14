@@ -24,17 +24,19 @@ namespace Noise3D
 
 		ITexture*		GetTexture(N_UID texName);
 
+		ITexture*		BakeLightMapForMesh(IMesh* pMesh);//bake light map for static scenes
+
 		UINT			GetTextureCount();
 
-		bool			DeleteTexture(ITexture* pTex);
+		bool				DeleteTexture(ITexture* pTex);
 
-		bool			DeleteTexture(N_UID texName);
+		bool				DeleteTexture(N_UID texName);
 
 		void				DeleteAllTexture();
 
-		bool			ValidateUID(N_UID texName);
+		bool				ValidateUID(N_UID texName);
 
-		bool			ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
+		bool				ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
 
 	private:
 

@@ -54,9 +54,6 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_DIRLIGHT, "gDirectionalLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_POINTLIGHT, "gPointLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_SPOTLIGHT, "gSpotLight_Dynamic");
-	BIND_SHADER_VAR_GENERAL(STATIC_DIRLIGHT, "gDirectionalLight_Static");
-	BIND_SHADER_VAR_GENERAL(STATIC_POINTLIGHT, "gPointLight_Static");
-	BIND_SHADER_VAR_GENERAL(STATIC_SPOTLIGHT, "gSpotLight_Static");
 
 #define BIND_SHADER_VAR_SCALAR(cppVarName,shaderVarName) m_pFxScalar[NOISE_SHADER_VAR_SCALAR::cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsScalar()
 
@@ -64,10 +61,6 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_SCALAR(DYNAMIC_DIRLIGHT_COUNT, "gDirectionalLightCount_Dynamic");
 	BIND_SHADER_VAR_SCALAR(DYNAMIC_POINTLIGHT_COUNT, "gPointLightCount_Dynamic");
 	BIND_SHADER_VAR_SCALAR(DYNAMIC_SPOTLIGHT_COUNT, "gSpotLightCount_Dynamic");
-	BIND_SHADER_VAR_SCALAR(STATIC_LIGHT_ENABLED, "gIsLightingEnabled_Static");
-	BIND_SHADER_VAR_SCALAR(STATIC_DIRLIGHT_COUNT, "gDirectionalLightCount_Static");
-	BIND_SHADER_VAR_SCALAR(STATIC_POINTLIGHT_COUNT, "gPointLightCount_Static");
-	BIND_SHADER_VAR_SCALAR(STATIC_SPOTLIGHT_COUNT, "gSpotLightCount_Static");
 	BIND_SHADER_VAR_SCALAR(FOG_ENABLED, "gFogEnabled");
 	BIND_SHADER_VAR_SCALAR(FOG_NEAR, "gFogNear");
 	BIND_SHADER_VAR_SCALAR(FOG_FAR, "gFogFar");
@@ -144,24 +137,6 @@ void IShaderVariableManager::SetSampler(NOISE_SHADER_VAR_SAMPLER var,int index, 
 void IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11ShaderResourceView * pSRV)
 {
 	m_pFxTexture[var]->SetResource(pSRV);
-}
-
-void IShaderVariableManager::SetStaticDirLight(int index, const N_DirLightDesc & staticLightDesc)
-{
-	int byteOffset = sizeof(staticLightDesc) * index;
-	m_pFxVar[NOISE_SHADER_VAR_GENERAL::STATIC_DIRLIGHT]->SetRawValue(&staticLightDesc, byteOffset, sizeof(staticLightDesc));
-}
-
-void IShaderVariableManager::SetStaticPointLight(int index, const N_PointLightDesc & staticLightDesc)
-{
-	int byteOffset = sizeof(staticLightDesc) * index;
-	m_pFxVar[NOISE_SHADER_VAR_GENERAL::STATIC_POINTLIGHT]->SetRawValue(&staticLightDesc, byteOffset, sizeof(staticLightDesc));
-}
-
-void IShaderVariableManager::SetStaticSpotLight(int index, const N_SpotLightDesc & staticLightDesc)
-{
-	int byteOffset = sizeof(staticLightDesc) * index;
-	m_pFxVar[NOISE_SHADER_VAR_GENERAL::STATIC_SPOTLIGHT]->SetRawValue(&staticLightDesc, byteOffset, sizeof(staticLightDesc));
 }
 
 void IShaderVariableManager::SetDynamicDirLight(int index, const N_DirLightDesc & dynamicLightDesc)

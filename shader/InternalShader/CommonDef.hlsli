@@ -72,9 +72,7 @@ struct PS_OUTPUT_SIMPLE
 #define NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT 0
 #define NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT 1
 #define NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT 2
-#define NOISE_LIGHT_TYPE_ID_STATIC_DIR_LIGHT 3
-#define NOISE_LIGHT_TYPE_ID_STATIC_POINT_LIGHT 4
-#define NOISE_LIGHT_TYPE_ID_STATIC_SPOT_LIGHT 5
+//there used to be static lights(2018.1.14)
 
 struct N_DirectionalLight
 {
@@ -150,25 +148,14 @@ cbuffer cbPerSubset
 {
 	//Material
 	N_Material_Basic		gMaterial;
-	/*int				gIsDiffuseMapValid;// should be designed as uniform var
-	int				gIsNormalMapValid;
-	int				gIsSpecularMapValid;
-	int				gIsEnvironmentMapVaild;*/
+	//there used to be int/BOOL variables for switching on/off 
+	//mapping techniques/special effects
 };
 
 cbuffer	cbRarely
 {
-	//---------Static Light--------
-	N_DirectionalLight gDirectionalLight_Static[50];
-	N_PointLight	 gPointLight_Static[50];
-	N_SpotLight		gSpotLight_Static[50];
-	int		gDirectionalLightCount_Static;
-	int		gPointLightCount_Static;
-	int		gSpotLightCount_Static;
-	int		gIsLightingEnabled_Static;
+	//used to be "static" lights(2018.1.14)
 };
-
-
 
 cbuffer cbAtmosphere
 {

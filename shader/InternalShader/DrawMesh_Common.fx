@@ -73,11 +73,13 @@ float3	SampleFromNormalMap(float2 TexCoord, bool enableNormalMap)
 {
 	if (enableNormalMap)
 	{
-		float3 normSampleColor = gNormalMap.Sample(samplerDefault, TexCoord).xyz;
+		//input: R:[0,1], G:[0,1], B[0.5,1]
+		//float3 normSampleColor = gNormalMap.Sample(samplerDefault, TexCoord).xyz;
+		float3 normSampleColor = gNormalMap.Sample(samplerDefault, TexCoord).xzy;
 		//retrieve normals from normal map
 		float3 tmpNormalTBN = normSampleColor;
-		//R: [0,1] , G[0,1], B: [0.5,1];
-		//R & G~[0,1] map to [-1,1]
+		//x: [0,1] , y[0.5,1], z: [0,1];
+		//x & z~[0,1] map to [-1,1]
 		tmpNormalTBN = 2 * tmpNormalTBN - 1;
 		//scale bump mapping
 		tmpNormalTBN = normalize(tmpNormalTBN + saturate(1.0f - gMaterial.mNormalMapBumpIntensity) *(float3(tmpNormalTBN.x, 0, tmpNormalTBN.z)));

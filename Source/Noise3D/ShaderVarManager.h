@@ -44,9 +44,9 @@ namespace Noise3D
 			DYNAMIC_DIRLIGHT,
 			DYNAMIC_POINTLIGHT,
 			DYNAMIC_SPOTLIGHT,
-			STATIC_DIRLIGHT,
-			STATIC_POINTLIGHT,
-			STATIC_SPOTLIGHT,
+			//STATIC_DIRLIGHT,
+			//STATIC_POINTLIGHT,
+			//STATIC_SPOTLIGHT,
 
 			NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT
 		};
@@ -57,10 +57,10 @@ namespace Noise3D
 			DYNAMIC_DIRLIGHT_COUNT,
 			DYNAMIC_POINTLIGHT_COUNT,
 			DYNAMIC_SPOTLIGHT_COUNT,
-			STATIC_LIGHT_ENABLED,
-			STATIC_DIRLIGHT_COUNT,
-			STATIC_POINTLIGHT_COUNT,
-			STATIC_SPOTLIGHT_COUNT,
+			//STATIC_LIGHT_ENABLED,
+			//STATIC_DIRLIGHT_COUNT,
+			//STATIC_POINTLIGHT_COUNT,
+			//STATIC_SPOTLIGHT_COUNT,
 			FOG_ENABLED,
 			FOG_NEAR,
 			FOG_FAR,
@@ -127,11 +127,11 @@ namespace Noise3D
 		void SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11ShaderResourceView* pSRV);
 
 		//set Array
-		void	SetStaticDirLight(int index, const N_DirLightDesc& staticLightDesc );
+		//void	SetStaticDirLight(int index, const N_DirLightDesc& staticLightDesc );
 
-		void	SetStaticPointLight(int index, const N_PointLightDesc& staticLightDesc);
+		//void	SetStaticPointLight(int index, const N_PointLightDesc& staticLightDesc);
 
-		void	SetStaticSpotLight(int index, const N_SpotLightDesc& staticLightDesc);
+		//void	SetStaticSpotLight(int index, const N_SpotLightDesc& staticLightDesc);
 
 		void	SetDynamicDirLight(int index, const N_DirLightDesc& dynamicLightDesc);
 
