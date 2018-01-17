@@ -129,17 +129,14 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
 	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
 	//the "+2" refers to the TOP/BOTTOM vertex
-	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
+	//the TOP/BOTTOM vertex will be 2 cluster of vertices(at same position, different texcoord)
 	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
-	UINT tmpVertexCount = (iColumnCount+1) * iRingCount +2;
-	tmpV			  = new NVECTOR3[tmpVertexCount];
-	tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount-2] = NVECTOR3(NVECTOR3(0,fRadius,0));			//TOP vertex
-	tmpV[tmpVertexCount-1] = NVECTOR3(NVECTOR3(0,-fRadius,0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount-2] = NVECTOR2(0.5f,1.0f);			//TOP vertex
-	tmpTexCoord[tmpVertexCount-1] = NVECTOR2(0.5f,0.0f);			//BOTTOM vertex
+
+	//top/bottom vertex are clustered into one position, but with different texture coordinate
+	UINT tmpVertexCount = (iColumnCount + 1) * (iRingCount + 2);
+	NVECTOR3* tmpV = new NVECTOR3[tmpVertexCount];
+	NVECTOR2* tmpTexCoord = new NVECTOR2[tmpVertexCount];
+	NVECTOR3* tmpTangent = new NVECTOR3[tmpVertexCount];
 
 
 #pragma region GenerateVertex
@@ -152,15 +149,13 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 
 	UINT k = 0;//for iteration
 	//start to iterate
-	for(UINT i = 0;i < iRingCount ;i++)
+	for(int i =-1;i < int(iRingCount)+1 ;i++)
 	{
 		//Generate Vertices ring By ring ( from top to down )
 		//the first column will be duplicated to achieve adequate texture mapping
-		for(UINT j = 0; j <	iColumnCount+1 ; j++)
+		for(int j = 0; j <int(iColumnCount)+1 ; j++)
 		{
-
-
-			//the Y coord of  current ring 
+			/*//the Y coord of  current ring 
 			tmpY = fRadius *sin( MATH_PI/2 - (i+1) *StepLength_AngleY);
 
 			////Pythagoras theorem(勾股定理)
@@ -178,23 +173,50 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
 			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount),(float)i /(iRingCount-1));
 
+			k++;*/
+			//TOP || BOTTOM
+			if (i == -1)
+			{
+				tmpX = 0;
+				tmpZ = 0;
+				tmpY = fRadius;
+			}
+			else if (i == iColumnCount)
+			{
+				tmpX = 0;
+				tmpZ = 0;
+				tmpY = -fRadius;
+			}
+			else
+			{
+				//the Y coord of  current ring 
+				tmpY = fRadius *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
+				// radius of current horizontal ring 
+				tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY);
+				//compute x,z
+				tmpX = tmpRingRadius * cos(j*StepLength_AngleXZ);
+				tmpZ = tmpRingRadius * sin(j*StepLength_AngleXZ);
+			}
+
+			//store position in array
+			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
+			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
+			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)i / (iRingCount - 1));
+			//tangent need to be dealt with specially
+			tmpTangent[k] = NVECTOR3(-sinf(j*StepLength_AngleXZ), 0, cos(j*StepLength_AngleXZ));
 			k++;
 		}
 	}
-
 
 	//add to Memory
 	N_DefaultVertex tmpCompleteV;
 	for(UINT i =0;i<tmpVertexCount;i++)
 	{
-
-		tmpCompleteV.Pos			= tmpV[i];
+		tmpCompleteV.Pos				= tmpV[i];
 		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
-		tmpCompleteV.Color		= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
+		tmpCompleteV.Color			= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
 		tmpCompleteV.TexCoord	= tmpTexCoord[i];
-		NVECTOR3 tmpTangent = tmpV[i].z>0 ? NVECTOR3(-tmpV[i].z, 0, tmpV[i].x) : NVECTOR3(tmpV[i].z, 0, -tmpV[i].x);
-		//D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpTangent, &tmpCompleteV.Normal);//tangent
-		tmpCompleteV.Tangent = tmpTangent;
+		tmpCompleteV.Tangent		= tmpTangent[i];
 		outVerticeList.push_back(tmpCompleteV);
 	}
 
@@ -203,9 +225,9 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 #pragma region GenerateIndices
 	//Generate Indices of a ball
 	//every Ring grows a triangle net with lower level ring
-	for(UINT i=0; i<iRingCount-1; i++)
+	for (uint32_t i = 0; i<iRingCount + 1; ++i)
 	{
-		for(UINT j=0; j<iColumnCount; j++)
+		for (uint32_t j = 0; j<iColumnCount; ++j)
 		{
 			/*	
 					v1	_____ v2
@@ -232,21 +254,11 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 		}
 	}
 
-
-	//deal with the TOP/BOTTOM
-	
-	for(UINT j =0;j<iColumnCount;j++)
-	{
-		outIndicesList.push_back(j+1);
-		outIndicesList.push_back(j) ;
-		outIndicesList.push_back(tmpVertexCount-2);	//index of top vertex
-
-		outIndicesList.push_back((iColumnCount+1)* (iRingCount-1) + j);
-		outIndicesList.push_back((iColumnCount+1) * (iRingCount-1) + j+1);
-		outIndicesList.push_back(tmpVertexCount -1); //index of bottom vertex
-	}
 	
 #pragma endregion GenerateIndices
+
+	delete tmpTexCoord;
+	delete tmpV;
 }
 
 void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
@@ -432,22 +444,13 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 	//iColunmCount : Slices of Columns (Cut up the ball Vertically)
 	//iRingCount: Slices of Horizontal Rings (Cut up the ball Horizontally)
 	//the "+2" refers to the TOP/BOTTOM vertex
-	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
+	//the TOP/BOTTOM vertex will be 2 cluster of vertices(at same position, different texcoord)
 	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
-	UINT tmpVertexCount = (iColumnCount + 1) * iRingCount + 2;
-	tmpV = new NVECTOR3[tmpVertexCount];
-	tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount - 2] = NVECTOR3(NVECTOR3(0, fHeight, 0));			//TOP vertex
-	tmpV[tmpVertexCount - 1] = NVECTOR3(NVECTOR3(0, -fHeight, 0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount - 2] = NVECTOR2(0.5f, 0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount - 1] = NVECTOR2(0.5f, 1.0f);			//BOTTOM vertex
 
-																	//i,j will be used for iterating , and k will be the subscript
-	UINT 	i = 0, j = 0, k = 0;
-	float	tmpX, tmpY, tmpZ, tmpRingRadius;
-
+	//top/bottom vertex are clustered into one position, but with different texture coordinate
+	UINT tmpVertexCount = (iColumnCount + 1) * (iRingCount + 2);
+	NVECTOR3* tmpV = new NVECTOR3[tmpVertexCount];
+	NVECTOR2* tmpTexCoord = new NVECTOR2[tmpVertexCount];
 
 	//Calculate the Step length (步长)
 	float	StepLength_AngleY = MATH_PI / (iRingCount + 1); // distances between each level (ring)
@@ -456,45 +459,57 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 #pragma region GenerateVertex
 
 	//start to iterate
-	for (i = 0;i < iRingCount;i++)
+	UINT k = 0;
+	float	tmpX, tmpY, tmpZ, tmpRingRadius;
+	//each ring is parallel to the water plane (XZ)
+	for (int i = -1;i < int(iRingCount)+1;i++)
 	{
 		//Generate Vertices ring By ring ( from top to down )
 		//the first column will be duplicated to achieve adequate texture mapping
-		for (j = 0; j < iColumnCount + 1; j++)
+		for (int j = 0; j < int(iColumnCount) + 1; j++)
 		{
-			//the Y coord of  current ring 
-			tmpY = fHeight *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
+			//TOP || BOTTOM
+			if (i == -1)
+			{
+				tmpX = 0;
+				tmpZ = 0;
+				tmpY = fHeight;
+			}
+			else if (i == iColumnCount)
+			{
+				tmpX = 0;
+				tmpZ = 0;
+				tmpY = -fHeight;
+			}
+			else
+			{			
+				//the Y coord of  current ring 
+				tmpY = fHeight *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
+				// radius of current horizontal ring 
+				tmpRingRadius = fRadiusXZ* sqrtf(1 - (tmpY * tmpY) / (fHeight*fHeight));
+				//compute x,z
+				tmpX = tmpRingRadius * cos(j*StepLength_AngleXZ);
+				tmpZ = tmpRingRadius * sin(j*StepLength_AngleXZ);
+			}
 
-			// radius of current horizontal ring 
-			tmpRingRadius = fRadiusXZ* sqrtf(1 - (tmpY * tmpY) / (fHeight*fHeight));
-
-			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos(j*StepLength_AngleXZ);
-
-			//...
-			tmpZ = tmpRingRadius * sin(j*StepLength_AngleXZ);
-
-			//...
+			//store position in array
 			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
-
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
 			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)i / (iRingCount - 1));
-
 			k++;
 		}
 	}
 
 
-	//add to Memory
-	N_SimpleVertex tmpCompleteV;
-	for (i = 0;i<tmpVertexCount;i++)
+	//add to output list
+	for (UINT i = 0;i<tmpVertexCount;i++)
 	{
+		N_SimpleVertex tmpCompleteV;
 		tmpCompleteV.Pos = tmpV[i];
 		tmpCompleteV.Color = NVECTOR4(tmpV[i].x / fRadiusXZ, tmpV[i].y / fHeight, tmpV[i].z / fRadiusXZ, 1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
 		outVerticeList.push_back(tmpCompleteV);
 	}
-
 
 #pragma endregion GenerateVertex
 
@@ -503,9 +518,10 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 	//Generate Indices of a ball
 	//deal with the middle
 	//every Ring grows a triangle net with lower level ring
-	for (i = 0; i<iRingCount - 1; i++)
+	//for (int i = 0; i<iRingCount - 1; i++)
+	for(uint32_t i=0;i<iRingCount+1;++i)
 	{
-		for (j = 0; j<iColumnCount; j++)
+		for (uint32_t j = 0; j<iColumnCount; ++j)
 		{
 			/*
 			k	_____ k+1
@@ -534,21 +550,10 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 		}
 	}
 
-
-	//deal with the TOP/BOTTOM
-
-	for (j = 0;j<iColumnCount;j++)
-	{
-		outIndicesList.push_back(j + 1);
-		outIndicesList.push_back(tmpVertexCount - 2);	//index of top vertex
-		outIndicesList.push_back(j);
-
-		outIndicesList.push_back((iColumnCount + 1)* (iRingCount - 1) + j);
-		outIndicesList.push_back(tmpVertexCount - 1); //index of bottom vertex
-		outIndicesList.push_back((iColumnCount + 1) * (iRingCount - 1) + j + 1);
-	}
-
 #pragma endregion GenerateIndex
+
+	delete tmpV;
+	delete tmpTexCoord;
 
 }
 

@@ -91,7 +91,7 @@ BOOL Init3D(HWND hwnd)
 	//Âþ·´ÉäÌùÍ¼
 	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
@@ -135,8 +135,8 @@ BOOL Init3D(HWND hwnd)
 	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
 	for (auto v : *pTmpVB)
 	{
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
+		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
