@@ -246,7 +246,7 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.ByteWidth = sizeof(int) * indexCount;
-	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	ibd.Usage = D3D11_USAGE_DEFAULT;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
 	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
@@ -326,27 +326,24 @@ void	IMesh::mFunction_UpdateWorldMatrix()
 	//缩放矩阵
 	D3DXMatrixScaling(&tmpMatrixScaling, mScaleX, mScaleY, mScaleZ);
 
-	//旋转矩阵(连mesh也用航向角hhhhhh）
+	//旋转矩阵
 	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
 
 	//平移矩阵
 	D3DXMatrixTranslation(&tmpMatrixTranslation, mPosition.x, mPosition.y, mPosition.z);
 
 	//先缩放，再旋转，再平移（跟viewMatrix有点区别）
-	D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &tmpMatrixScaling);
-	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrix,&tmpMatrixRotation);
-	D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &tmpMatrixTranslation);
-	mMatrixWorld = tmpMatrix;
+	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrixScaling,&tmpMatrixRotation);
+	D3DXMatrixMultiply(&mMatrixWorld, &tmpMatrix, &tmpMatrixTranslation);
 
 	//求用于转换Normal的InvTranspose	因为要Trans 之后再来一次Trans才能更新 所以就可以省了
 	D3DXMatrixInverse(&mMatrixWorldInvTranspose,&tmpDeterminant,&mMatrixWorld);
 
-	//Update到GPU前要先转置
-	D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
+	//Be careful about the row/column major of the matrix and transposes
+	//D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
 
-	//WorldInvTranspose
-	//D3DXMatrixTranspose(m_pMatrixWorldInvTranspose,&tmpMatrix);
-
+	//Transpose of worldInverse
+	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&tmpMatrix);
 }
 
 void IMesh::mFunction_ComputeBoundingBox()

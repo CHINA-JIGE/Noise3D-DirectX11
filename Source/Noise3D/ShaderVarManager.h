@@ -2,7 +2,7 @@
 /***********************************************************************
 
                            h£ºShader Variable Manager
-			Desc: WHenever I want to create a new constant buffer
+			Desc: Whenever I want to create a new constant buffer
 			in shader(s), i had to create a struct with identical memory 
 			layout in c++, then define one of this structure in Renderer
 			then fill up those cbuffer struct in memory. Moreover,
@@ -44,9 +44,6 @@ namespace Noise3D
 			DYNAMIC_DIRLIGHT,
 			DYNAMIC_POINTLIGHT,
 			DYNAMIC_SPOTLIGHT,
-			//STATIC_DIRLIGHT,
-			//STATIC_POINTLIGHT,
-			//STATIC_SPOTLIGHT,
 
 			NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT
 		};
@@ -127,12 +124,6 @@ namespace Noise3D
 		void SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11ShaderResourceView* pSRV);
 
 		//set Array
-		//void	SetStaticDirLight(int index, const N_DirLightDesc& staticLightDesc );
-
-		//void	SetStaticPointLight(int index, const N_PointLightDesc& staticLightDesc);
-
-		//void	SetStaticSpotLight(int index, const N_SpotLightDesc& staticLightDesc);
-
 		void	SetDynamicDirLight(int index, const N_DirLightDesc& dynamicLightDesc);
 
 		void	SetDynamicPointLight(int index, const N_PointLightDesc& dynamicLightDesc);
@@ -154,11 +145,11 @@ namespace Noise3D
 
 		//all the effect variables are interfaces via which we can communicate with GPU
 		//and the data will be updated to variable in GPU with certain name.
-		static ID3DX11EffectMatrixVariable*			m_pFxMatrix[NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT];
-		static ID3DX11EffectVariable*						m_pFxVar[NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT];
-		static ID3DX11EffectScalarVariable*			m_pFxScalar[NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT];
-		static ID3DX11EffectVectorVariable*			m_pFxVector[NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT];
-		static ID3DX11EffectSamplerVariable*		m_pFxSampler[NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT];
-		static ID3DX11EffectShaderResourceVariable* m_pFxTexture[NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT];
+		ID3DX11EffectMatrixVariable*			m_pFxMatrix[NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT];
+		ID3DX11EffectVariable*						m_pFxVar[NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT];
+		ID3DX11EffectScalarVariable*				m_pFxScalar[NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT];
+		ID3DX11EffectVectorVariable*			m_pFxVector[NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT];
+		ID3DX11EffectSamplerVariable*			m_pFxSampler[NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT];
+		ID3DX11EffectShaderResourceVariable* m_pFxTexture[NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT];
 	};
 };

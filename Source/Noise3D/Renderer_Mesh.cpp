@@ -39,20 +39,20 @@ void	IRenderer::RenderMeshes()
 		g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
 		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//设置fillmode和cullmode
+		//set fillmode和cullmode
 		mFunction_SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
 
-		//设置blend state
+		//set blend state
 		mFunction_SetBlendState(pMesh->GetBlendMode());
 
-		//设置samplerState
-		m_pRefShaderVarMgr->SetSampler(m_pRefShaderVarMgr->NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
+		//set samplerState
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
 
-		//设置depth/Stencil State
+		//set epth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 
-		//for every subset
+		//every mesh subset(one for each material)
 		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
 		for (UINT j = 0;j < meshSubsetCount;j++)
 		{
@@ -67,9 +67,8 @@ void	IRenderer::RenderMeshes()
 			//in shader compilation stage).  N switches of multiple mapping will produce 2^N
 			//passes for the c++ host program to choose. 
 			//'passID' will be computed to choose appropriate pass.
-			UINT passID = mFunction_RenderMeshInList_UpdatePerSubset(pMesh,j);
-
-			m_pFX_Tech_Default->GetPassByIndex(passID)->Apply(0, g_pImmediateContext);
+			ID3DX11EffectPass* pPass = mFunction_RenderMeshInList_UpdatePerSubset(pMesh,j);
+			pPass->Apply(0, g_pImmediateContext);
 			g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
 			
 		}
@@ -78,11 +77,9 @@ void	IRenderer::RenderMeshes()
 
 }
 
-
 /***********************************************************************
 									P R I V A T E
 ************************************************************************/
-
 
 void		IRenderer::mFunction_RenderMeshInList_UpdateRarely()
 {
@@ -120,7 +117,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera
 	}
 };
 
-UINT		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
+ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
 	ITextureManager*		pTexMgr = GetScene()->GetTextureMgr();
@@ -194,16 +191,29 @@ UINT		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,U
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, pEnvMap->m_pSRV);
 	}
 
-
-	//return pass ID to choose appropriate shader
+	//return ID3DX11EffectPass interface to choose appropriate shader
 	//each bit for each switch, then bitwise-AND all the switches
-	constexpr int perPixelRenderSwitchCount = 4;
+	ID3DX11EffectPass* pPass = nullptr;
 
 	//NOTE that: special reneder technique like NORMAL MAPPING can only be
 	//implemented in TANGENT SPACE
 	bool isPerVertexLighting = (pMesh->GetShadeMode() == NOISE_SHADEMODE_GOURAUD);
-	if (isPerVertexLighting)return pow(2, perPixelRenderSwitchCount);
+	if (isPerVertexLighting)
+	{
+		if (isDiffuseMapValid)
+		{
+			pPass = m_pFX_Tech_DrawMesh->GetPassByName("perVertex_enableDiffMap");
+			return pPass;
+		}
+		else
+		{
+			pPass = m_pFX_Tech_DrawMesh->GetPassByName("perVertex_disableDiffMap");
+			return pPass;
+		}
+	}
 
+	//determine per-pixel drawing pass (2^switchCount shaders are caches)
+	constexpr int perPixelRenderSwitchCount = 4;
 	int renderEffectSwitches[perPixelRenderSwitchCount] =
 	{ 
 		isDiffuseMapValid, 
@@ -217,7 +227,8 @@ UINT		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,U
 	{
 		passID |= (renderEffectSwitches[switchID] << switchID);
 	}
-	return passID;
+	pPass = m_pFX_Tech_DrawMesh->GetPassByIndex(passID);//name "perPixel_xxx"
+	return pPass;
 };
 
 void		IRenderer::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)

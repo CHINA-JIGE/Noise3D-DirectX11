@@ -24,9 +24,9 @@ IFbxLoader::IFbxLoader() :
 
 IFbxLoader::~IFbxLoader()
 {
-	m_pIOSettings->Destroy();
-	m_pFbxScene->Destroy();
-	m_pFbxMgr->Destroy();
+	if(m_pIOSettings)m_pIOSettings->Destroy();
+	if(m_pFbxScene)m_pFbxScene->Destroy();
+	if(m_pFbxMgr)m_pFbxMgr->Destroy();
 	m_pFbxMgr = nullptr;
 	m_pFbxScene = nullptr;
 	m_pIOSettings = nullptr;

@@ -91,16 +91,16 @@
     <Filter Include="NoiseUtility\Voxelizer">
       <UniqueIdentifier>{fcc730e9-856a-477d-863b-be202984143d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseUtility\MCMeshReconstructor">
-      <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator">
       <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseGraphic\Scene\ModelLoader\_FBXSDK">
       <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\Renderer\_ShaderVarManager">
+    <Filter Include="NoiseUtility\MarchingCubes">
+      <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\_ShaderVarManager">
       <UniqueIdentifier>{0be78f2c-c28e-4a82-bffc-5eb213a00ad6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -227,10 +227,10 @@
       <Filter>NoiseUtility\Voxelizer</Filter>
     </ClInclude>
     <ClInclude Include="Ut_MCMeshReconstructor.h">
-      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
+      <Filter>NoiseUtility\MarchingCubes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVarManager.h">
-      <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
+      <Filter>NoiseGraphic\Scene\_ShaderVarManager</Filter>
     </ClInclude>
     <ClInclude Include="_FbxLoader.h">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
@@ -358,10 +358,10 @@
       <Filter>NoiseUtility\Voxelizer</Filter>
     </ClCompile>
     <ClCompile Include="Ut_MCMeshReconstructor.cpp">
-      <Filter>NoiseUtility\MCMeshReconstructor</Filter>
+      <Filter>NoiseUtility\MarchingCubes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderVarManager.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer\_ShaderVarManager</Filter>
+      <Filter>NoiseGraphic\Scene\_ShaderVarManager</Filter>
     </ClCompile>
     <ClCompile Include="_FbxLoader.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>

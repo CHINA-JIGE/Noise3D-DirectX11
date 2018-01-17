@@ -15,7 +15,7 @@ namespace Noise3D
 		NOISE_ATMOSPHERE_SKYTYPE_INVALID = UINT_MAX,
 	};
 
-	class  IAtmosphere
+	class  /*_declspec(dllexport)*/ IAtmosphere
 	{
 	public:
 

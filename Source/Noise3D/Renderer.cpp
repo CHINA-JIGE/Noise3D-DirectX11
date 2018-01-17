@@ -16,7 +16,7 @@ IRenderer::IRenderer()
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_TextStatic					= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_Atmosphere				= new std::vector<IAtmosphere*>;
-	m_pFX_Tech_Default = nullptr;
+	m_pFX_Tech_DrawMesh = nullptr;
 	m_pFX_Tech_Solid3D = nullptr;
 	m_pFX_Tech_Solid2D = nullptr;
 	m_pFX_Tech_Textured2D = nullptr;
@@ -123,7 +123,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	HRESULT hr = S_OK;
 
 	//´´½¨Technique
-	m_pFX_Tech_Default =	g_pFX->GetTechniqueByName("DefaultDraw");
+	m_pFX_Tech_DrawMesh =	g_pFX->GetTechniqueByName("DrawMesh");
 	m_pFX_Tech_Solid3D =	g_pFX->GetTechniqueByName("DrawSolid3D");
 	m_pFX_Tech_Solid2D =	g_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_Textured2D = g_pFX->GetTechniqueByName("DrawTextured2D");
@@ -133,7 +133,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 #pragma region Create Input Layout
 	//default vertex input layout
 	D3DX11_PASS_DESC passDesc;
-	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
+	m_pFX_Tech_DrawMesh->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice11->CreateInputLayout(
 		&g_VertexDesc_Default[0],
 		g_VertexDesc_Default_ElementCount,
@@ -141,7 +141,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Default);
 
-	HR_DEBUG(hr, "create default input Layout failed£¡");
+	HR_DEBUG(hr, "IRenderer : Create Default input layout failed£¡");
 
 	//simple vertex input layout
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
@@ -152,7 +152,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Simple);
 
-	HR_DEBUG(hr, "create simple input Layout failed£¡");
+	HR_DEBUG(hr, "IRenderer : Create Simple input Layout failed£¡");
 #pragma endregion Create Input Layout
 
 	// Create Fx Variable

@@ -8,24 +8,21 @@
 ******************************************/
 
 //use a class to reduce parameter passing of functions
-class RenderProcess_PixelLighting
+class RenderProcess_Phong
 {
-	void InitEffectSwitches(uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap);
+	void InitVectors(float3 NormalW, float2 TexCoord, float3 thisPoint, float3 tangentW);
 
-	void InitVectors(float3 NormalW, float2 TexCoord, float3 Vec_toCam, float3 thisPoint, float3 tangentW);
-
-	//color compute for dynamic/static -- dir/point/spot light
-	void ComputeLightColor(int lightTypeID, int lightIndex,out float4 outColor4);
+	void ComputeFinalColor(uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap,out float4 outColor4);
 
 	//****************Internally invoked**********************
+	//color compute for dynamic dir/point/spot light
+	void mFunction_ComputeLightColor(int lightTypeID, int lightIndex, uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap, out float4 outColor4);
+
+	//computation of lighting-related information of Directional/Point/Spot lights
 	bool mFunction_ComputeLightingVariables(int lightTypeID, int lightIndex, out float3 lightVec, out float3 unitLightVec, out float attenuation, out float3 lightAmbientColor3, out float3 lightDiffuseColor3, out float3 lightSpecColor3,out float lightSpecIntensity);
 
+	//computation of the "Cosine" factor (multiplied by Diffuse Intensity) of Directional/Point/Spot lights
     float mFunction_ComputeDiffuseCosineFactor(int lightTypeID, int lightIndex,float3 lightVecTBN,float3 normalTBN);
-
-	bool mEnableDiffuseMap;		//input
-	bool mEnableNormalMap;		//input
-	bool mEnableSpecularMap;	//input
-	bool mEnableEnvMap;			//input
 
 	float3 mNormalW;
 	float2 mTexcoord;
@@ -34,50 +31,177 @@ class RenderProcess_PixelLighting
 	float3 mTangentW;
 };
 
-class RenderProcess_VertexLighting
+class RenderProcess_Gouraud
 {
-	void InitEffectSwitches(uniform bool bDiffMap);
+	//lighting is computed in Vertex shader
+	void ComputeLightingColorForVS(float3 normalW, float3 posW, out float4 outAmbient4, out float4 outDiffuse4, out float4 outSpecular4);
 
-	void InitVectors(float3 NormalW, float2 TexCoord, float3 Vec_toCam, float3 thisPoint, float3 tangentW);
+	//however, all kinds of texture mapping will be computed in Pixel Shader
+	void ComputeFinalColorForPS(float3 normalW, float3 posW, float2 texcoord,float4 ambient,float4 diffuse,float4 specular, uniform bool bDiffMap, out float4 outColor4);
 
-    //****************Internally invoked**********************
-    bool mEnableDiffuseMap; //input
+	//****************Internally invoked**********************
+	//color compute for dynamic dir/point/spot light
+	void mFunction_ComputeLightColor(int lightTypeID, int lightIndex, out float4 outAmbient4, out float4 outDiffuse4, out float4 outSpecular4);
 
-    float3 mNormalW;
-    float2 mTexcoord;
-    float3 mVecToCamW;
-    float3 mPosOfCurrentPointW;
-    float3 mTangentW;
+	//computation of lighting-related information of Directional/Point/Spot lights
+	bool mFunction_ComputeLightingVariables(int lightTypeID, int lightIndex, out float3 lightVecW, out float3 unitLightVecW, out float attenuation, out float3 lightAmbientColor3, out float3 lightDiffuseColor3, out float3 lightSpecColor3, out float lightSpecIntensity);
+
+	//computation of the "Cosine" factor (multiplied by Diffuse Intensity) of Directional/Point/Spot lights
+	float mFunction_ComputeDiffuseCosineFactor(int lightTypeID, int lightIndex, float3 lightVecW, float3 normalW);
+
+	float3 mNormalW;
+	float3 mPosW;
+	float3 mVecToCamW;
 };
 
+//XYZ to TBN space transformation, only available in pixel lighting
 void		TransformCoord_XYZ_TBN(float3 inVectorXYZ, float3 TangentW, float3 NormalW, out float3 outVectorTBN);
 
+//TBN to XYZ space transformation, only available in pixel lighting
 void		TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW, out float3 outVectorXYZ);
 
-float3	SampleFromNormalMap(float2 TexCoord, bool enableNormalMap);
+//sampling from normal map , output: deviated TBN space normal vector 
+float3	SampleFromNormalMap(float2 TexCoord, uniform bool enableNormalMap);
 
-float3	SampleFromDiffuseMap(float2 TexCoord, bool enableDiffuseMap);
+//sampling from diffuse map , output: diffuse color
+float3	SampleFromDiffuseMap(float2 TexCoord, uniform bool enableDiffuseMap);
 
-float3	SampleFromSpecularMap(float2 TexCoord, bool enableSpecMap);
+//sampling from diffuse map , output: specular color 
+float3	SampleFromSpecularMap(float2 TexCoord, uniform bool enableSpecMap);
 
-float4	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, bool enableEnvMap);
+//sampling from diffuse map , output: specular color 
+float4	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, uniform bool enableEnvMap);
 
 
 
-VS_OUTPUT_DRAW_MESH VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input);
+VS_OUTPUT_DRAW_MESH_PHONG VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input);
 
-PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH_PHONG input,
 	uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap);
 
+
+VS_OUTPUT_DRAW_MESH_GOURAUD VS_DrawMeshWithVertexLighting(VS_INPUT_DRAW_MESH input);
+
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithVertexLighting(VS_OUTPUT_DRAW_MESH_GOURAUD input, uniform bool bDiffMap);
 
 //*****************************Technique Definition****************************
 technique11 DrawMesh
 {
-	pass Pass000
+	//-------------per-pixel lighting----------------
+	//code generated by "passDefGenerator.py"
+	pass perPixel_0
 	{
-		//diffuse map ||| normal map ||| specular map ||| env map
 		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false,false,false,false)));
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, false, false)));
+	}
+	pass perPixel_1
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, false, false)));
+	}
+	pass perPixel_2
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, false, false)));
+	}
+	pass perPixel_3
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, false, false)));
+	}
+	pass perPixel_4
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, true, false)));
+	}
+	pass perPixel_5
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, true, false)));
+	}
+	pass perPixel_6
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, true, false)));
+	}
+	pass perPixel_7
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, true, false)));
+	}
+	pass perPixel_8
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, false, true)));
+	}
+	pass perPixel_9
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, false, true)));
+	}
+	pass perPixel_10
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, false, true)));
+	}
+	pass perPixel_11
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, false, true)));
+	}
+	pass perPixel_12
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, true, true)));
+	}
+	pass perPixel_13
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, true, true)));
+	}
+	pass perPixel_14
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, true, true)));
+	}
+	pass perPixel_15
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, true, true)));
+	}
+
+
+
+
+
+	//-------------per-vertex lighting----------------
+	pass perVertex_disableDiffMap
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithVertexLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithVertexLighting(false)));
+	}
+
+	pass perVertex_enableDiffMap
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithVertexLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithVertexLighting(true)));
 	}
 }

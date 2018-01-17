@@ -37,7 +37,7 @@ namespace Noise3D
 	enum NOISE_SHADEMODE
 	{
 		NOISE_SHADEMODE_GOURAUD = 0,//per-vertex lighting
-		NOISE_SHADEMODE_PHONG = 1,//per-pixel lighting
+		NOISE_SHADEMODE_PHONG = 1,//per-pixel lighting(advanced render technique supported)
 	};
 
 	class CRenderSettingFillMode

@@ -41,9 +41,6 @@
     <None Include="DrawSky.fx">
       <Filter>DrawSky</Filter>
     </None>
-    <None Include="Draw2D.hlsli">
-      <Filter>Draw2D</Filter>
-    </None>
     <None Include="DrawMesh.fx">
       <Filter>DrawMesh</Filter>
     </None>
@@ -59,16 +56,19 @@
     <None Include="DrawSolid3D.fx">
       <Filter>DrawSolid3D</Filter>
     </None>
-    <None Include="DrawMesh_PixelLighting.fx">
-      <Filter>DrawMesh</Filter>
-    </None>
-    <None Include="DrawMesh_VertexLighting.fx">
-      <Filter>DrawMesh</Filter>
-    </None>
     <None Include="DrawMesh_Common.fx">
       <Filter>DrawMesh</Filter>
     </None>
     <None Include="DrawMesh.hlsli">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="DrawMesh_Phong.fx">
+      <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="Draw2D.hlsli">
+      <Filter>Draw2D</Filter>
+    </None>
+    <None Include="DrawMesh_Gouraud.fx">
       <Filter>DrawMesh</Filter>
     </None>
   </ItemGroup>

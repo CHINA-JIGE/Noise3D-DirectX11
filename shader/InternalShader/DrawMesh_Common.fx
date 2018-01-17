@@ -69,7 +69,7 @@ void	TransformCoord_TBN_XYZ(float3 inVectorTBN, float3 TangentW, float3 NormalW,
 	outVectorXYZ = mul(float4(inVectorTBN, 1.0f), transformMatrix).xyz;
 }
 
-float3	SampleFromNormalMap(float2 TexCoord, bool enableNormalMap)
+float3	SampleFromNormalMap(float2 TexCoord,uniform bool enableNormalMap)
 {
 	if (enableNormalMap)
 	{
@@ -91,7 +91,7 @@ float3	SampleFromNormalMap(float2 TexCoord, bool enableNormalMap)
 	}
 }
 
-float3	SampleFromDiffuseMap(float2 TexCoord, bool enableDiffuseMap)
+float3	SampleFromDiffuseMap(float2 TexCoord, uniform bool enableDiffuseMap)
 {
 	//------------Diffuse Map------------
 	if (enableDiffuseMap)
@@ -105,7 +105,7 @@ float3	SampleFromDiffuseMap(float2 TexCoord, bool enableDiffuseMap)
 	}
 }
 
-float3	SampleFromSpecularMap(float2 TexCoord, bool enableSpecMap)
+float3	SampleFromSpecularMap(float2 TexCoord, uniform bool enableSpecMap)
 {
 	//----------SPECULAR MAP--------------
 	if (enableSpecMap)
@@ -120,9 +120,8 @@ float3	SampleFromSpecularMap(float2 TexCoord, bool enableSpecMap)
 
 }
 
-float4	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW, bool enableEnvMap)
+float4	SampleFromEnvironmentMap(float3 VecToCamW, float3 NormalW,uniform bool enableEnvMap)
 {
-
 	if (enableEnvMap)
 	{
 		//alpha : user-set transparency , used to blend

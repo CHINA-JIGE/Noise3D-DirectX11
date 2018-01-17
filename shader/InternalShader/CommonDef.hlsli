@@ -19,7 +19,8 @@ struct VS_INPUT_DRAW_MESH
 	float3 tangentL : TANGENT;
 };
 
-struct VS_OUTPUT_DRAW_MESH
+//for phong shading/pixel lighting
+struct VS_OUTPUT_DRAW_MESH_PHONG
 {
 	float4 posH : SV_POSITION;
 	float4 color : COLOR;
@@ -28,6 +29,19 @@ struct VS_OUTPUT_DRAW_MESH
 	float2 texcoord:TEXCOORD;
 	float3 tangentW :TANGENT;
 };
+
+//for gouraud shading/vertex lighting
+struct VS_OUTPUT_DRAW_MESH_GOURAUD
+{
+	float4 posH : SV_POSITION;
+	float4 ambient : COLOR0;
+	float4 diffuse : COLOR1;
+	float4 specular : COLOR2;
+	float3 posW: POSITION;
+	float3 normalW :NORMAL;
+	float2 texcoord:TEXCOORD;
+};
+
 
 struct VS_INPUT_SIMPLE
 {

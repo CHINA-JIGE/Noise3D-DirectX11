@@ -46,9 +46,9 @@ namespace Noise3D
 		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
 		void		LoadFile_FBX(NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
 
-		bool		LoadSkyDome(IAtmosphere* pAtmo, float fRadiusXZ, float fHeight);
+		bool		LoadSkyDome(IAtmosphere* pAtmo,N_UID texture, float fRadiusXZ, float fHeight);
 
-		bool		LoadSkyBox(IAtmosphere* pAtmo, float fWidth, float fHeight, float fDepth);
+		bool		LoadSkyBox(IAtmosphere* pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth);
 
 	private:
 

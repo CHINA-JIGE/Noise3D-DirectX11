@@ -7,13 +7,13 @@
 
 ******************************************/
 #include "DrawMesh_Common.fx"
-#include "DrawMesh_PixelLighting.fx"
-#include "DrawMesh_VertexLighting.fx"
+#include "DrawMesh_Gouraud.fx"
+#include "DrawMesh_Phong.fx"
 
-VS_OUTPUT_DRAW_MESH VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
+VS_OUTPUT_DRAW_MESH_PHONG VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
 {
 	//initialize
-	VS_OUTPUT_DRAW_MESH output = (VS_OUTPUT_DRAW_MESH)0;
+	VS_OUTPUT_DRAW_MESH_PHONG output = (VS_OUTPUT_DRAW_MESH_PHONG)0;
 	//the W transformation
 	output.posW = mul(float4(input.posL, 1.0f), gWorldMatrix).xyz;
 	//the VP transformation
@@ -30,13 +30,11 @@ VS_OUTPUT_DRAW_MESH VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
 	return output;
 }
 
-PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH_PHONG input,
 	uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap)
 {
 	//the output
 	PS_OUTPUT_DRAW_MESH psOutput=(PS_OUTPUT_DRAW_MESH)0;
-	float4 	finalColor4 = float4(0, 0, 0, 0);
-	float4	tmpColor4 = float4(0, 0, 0, 0);
 
 	//if the lighting system and material are invalid ,then use vertex color
 	if (!gIsLightingEnabled_Dynamic)
@@ -49,57 +47,64 @@ PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH input,
 	input.normalW = normalize(input.normalW);
 	input.tangentW = normalize(input.tangentW);
 
-	//vector ---- this point to Camera
-	float3 Vec_ToCam = gCamPos - input.posW;
-
-
-	//compute fog effect
-	//skip pixel if it is totally fogged
-	float Dist_CurrPointToCam = length(Vec_ToCam);
-	if (gFogEnabled == 1 && Dist_CurrPointToCam>gFogFar)
-	{
-		psOutput.color = float4(gFogColor3, 1.0f);
-		return psOutput;
-	}
-
-	//Initialization of RenderProcess class
-	RenderProcess_PixelLighting renderProc;
-	renderProc.InitEffectSwitches(bDiffMap,bNormalMap,bSpecMap,bEnvMap);
-	renderProc.InitVectors(input.normalW,input.texcoord, Vec_ToCam, input.posW, input.tangentW);
-
-	//compute DYNAMIC LIGHT
-	int i = 0;
-	if (gIsLightingEnabled_Dynamic)
-	{
-		for (i = 0; i<gDirectionalLightCount_Dynamic; i++)
-		{
-			//void ComputeLightColor(int lightTypeID, int lightIndex, out float4 outColor4);
-			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT,i,tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-		for (i = 0; i<gPointLightCount_Dynamic; i++)
-		{
-			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT, i, tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-		for (i = 0; i<gSpotLightCount_Dynamic; i++)
-		{
-			renderProc.ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT, i, tmpColor4);
-			finalColor4 += tmpColor4;
-		}
-	}
-
-	//at last compute fog  ( point farther than gFogFar has been skipped
-	if (gFogEnabled)
-	{
-		float fogInterpolationFactor = max(0, (Dist_CurrPointToCam - gFogNear) / (gFogFar - gFogNear));
-		finalColor4 = lerp(finalColor4, float4(gFogColor3, 1.0f), fogInterpolationFactor);
-	}
-
-	//set transparency component
-	finalColor4.w = saturate(gMaterial.mTransparency);
-
+	//invoke the process of lighting/mapping/shading
+	float4 	finalColor4 = float4(0, 0, 0, 1.0f);
+	RenderProcess_Phong renderProc;
+	renderProc.InitVectors(input.normalW,input.texcoord, input.posW, input.tangentW);
+	renderProc.ComputeFinalColor(bDiffMap, bNormalMap, bSpecMap, bEnvMap, finalColor4);
 
 	psOutput.color = finalColor4;
+	return psOutput;
+}
+
+
+
+
+VS_OUTPUT_DRAW_MESH_GOURAUD VS_DrawMeshWithVertexLighting(VS_INPUT_DRAW_MESH input)
+{
+	//initialize
+	VS_OUTPUT_DRAW_MESH_GOURAUD output = (VS_OUTPUT_DRAW_MESH_GOURAUD)0;
+	//the W transformation
+	output.posW = mul(float4(input.posL, 1.0f), gWorldMatrix).xyz;
+	//the VP transformation
+	output.posH = mul(mul(float4(output.posW, 1.0f), gViewMatrix), gProjMatrix);
+	//we need an normal vector in W space
+	output.normalW = mul(float4(input.normalL, 1.0f), gWorldInvTransposeMatrix).xyz;
+	//texture coordinate
+	output.texcoord = input.texcoord;
+
+	//vertex lighting
+	float4 	ambientLightingColor = float4(0, 0, 0, 1.0f);
+	float4 	diffuseLightingColor = float4(0, 0, 0, 1.0f);
+	float4  specularLightingColor = float4(0, 0, 0, 1.0f);
+	RenderProcess_Gouraud renderProc;
+	renderProc.ComputeLightingColorForVS(output.normalW, output.posW, ambientLightingColor, diffuseLightingColor, specularLightingColor);
+	
+	//because in Pixel shader, diffuse color need to be mul by albedo/diffuseMapColor
+	//hence amb/diff/spec are passed to PS seperately
+	output.ambient = ambientLightingColor;
+	output.diffuse = diffuseLightingColor;
+	output.specular = specularLightingColor;
+
+	return output;
+}
+
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithVertexLighting(VS_OUTPUT_DRAW_MESH_GOURAUD input, uniform bool bDiffMap)
+{
+	float4 	outColor4 = float4(0, 0, 0, 1.0f);
+	RenderProcess_Gouraud renderProc;
+	renderProc.ComputeFinalColorForPS(
+		input.normalW,
+		input.posW,
+		input.texcoord,
+		input.ambient,
+		input.diffuse,
+		input.specular,
+		bDiffMap,
+		outColor4);
+
+
+	PS_OUTPUT_DRAW_MESH psOutput = (PS_OUTPUT_DRAW_MESH)0;
+	psOutput.color = outColor4;
 	return psOutput;
 }

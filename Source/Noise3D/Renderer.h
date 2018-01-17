@@ -11,8 +11,6 @@
 
 namespace Noise3D
 {
-
-
 	class /*_declspec(dllexport)*/ IRenderer :
 		private IFileIO
 	{
@@ -87,7 +85,7 @@ namespace Noise3D
 
 		void			mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera);
 
-		UINT		mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh, UINT subsetID);//return subset primitive count
+		ID3DX11EffectPass*		mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh, UINT subsetID);//return subset primitive count
 
 		void			mFunction_RenderMeshInList_UpdateRarely();
 
@@ -157,7 +155,7 @@ namespace Noise3D
 		ID3D11SamplerState*					m_pSamplerState_FilterLinear;
 
 		//用于从app更新到Gpu的接口
-		ID3DX11EffectTechnique*			m_pFX_Tech_Default;
+		ID3DX11EffectTechnique*			m_pFX_Tech_DrawMesh;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;

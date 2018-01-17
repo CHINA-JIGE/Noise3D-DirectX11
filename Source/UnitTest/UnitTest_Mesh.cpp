@@ -28,7 +28,7 @@ IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
 
-Ut::ITimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::ITimer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 Ut::IInputEngine inputE;
 
 //Main Entry
@@ -113,21 +113,21 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
-	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
-	//Mesh1.CreatePlane(50.0f, 50.0f);
-	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);
-	//Mesh1.SetPosition(0, 0, 0);
-	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
 	pModelLoader = pScene->GetModelLoader();
-	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
+	//N_SceneLoadingResult res;
+	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
-	for (auto & name : res.meshNameList)
+	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
+	pModelLoader->LoadSphere(pMesh, 20.0f, 10, 10);
+	pMesh->SetPosition(20.0, 0, 0);
+	pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+	meshList.push_back(pMesh);
+	/*for (auto & name : res.meshNameList)
 	{
 		IMesh* pMesh = pMeshMgr->GetMesh(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
-	}
+	}*/
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
@@ -138,7 +138,9 @@ BOOL Init3D(HWND hwnd)
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
-
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f },	{ 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
 	
 	//----------------------------------------------------------
 
@@ -153,11 +155,10 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	pCamera->SetLookAt(0, 0, 0);
 
+
+	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 4.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	pAtmos->SetSkyDomeTexture("Universe");
-	pModelLoader->LoadSkyDome(pAtmos, 4.0f, 4.0f);
-
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
@@ -212,7 +213,7 @@ void MainLoop()
 
 
 	//add to render list
-	//for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
+	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

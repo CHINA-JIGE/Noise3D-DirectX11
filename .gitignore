@@ -20,6 +20,10 @@ $RECYCLE.BIN/
 #Compiled shader/effect
 *.fxo
 
+#other
+*.db
+*.tlog
+
 # =========================
 # Operating System Files
 # =========================

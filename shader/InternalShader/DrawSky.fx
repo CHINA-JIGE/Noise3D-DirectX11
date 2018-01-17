@@ -7,20 +7,20 @@
 	
 *************************************************/
 
-VS_OUTPUT_DRAW_MESH VS_DrawSky(VS_INPUT_SIMPLE input)
+VS_OUTPUT_DRAW_MESH_PHONG VS_DrawSky(VS_INPUT_SIMPLE input)
 {
-	VS_OUTPUT_DRAW_MESH output = (VS_OUTPUT_DRAW_MESH)0;
+	VS_OUTPUT_DRAW_MESH_PHONG output = (VS_OUTPUT_DRAW_MESH_PHONG)0;
 
 	//so the sky will always be in the same relative position with camera  (ww means the triangles lie in  infinitely far from original point)
 	//output.posH = float4(mul(float4(mul(input.posL,viewMatrixWithoutTranslation),1.0f), gProjMatrix).xy,1.0f,1.0f);
-	output.posH = mul(float4(mul(float4(input.posL.xyz, 0.0f), gViewMatrix).xyz, 1.0f), gProjMatrix).xyww;
+	output.posH = mul(float4(mul(float4(input.posL, 0.0f), gViewMatrix).xyz, 1.0f), gProjMatrix).xyww;
 	output.posW = input.posL;
 	output.color = input.color;
 	output.texcoord = input.texcoord;
 	return output;
 }
 
-PS_OUTPUT_DRAW_MESH PS_DrawSky(VS_OUTPUT_DRAW_MESH input, uniform bool enabledSkyBox, uniform bool enabledSkyDome)
+PS_OUTPUT_DRAW_MESH PS_DrawSky(VS_OUTPUT_DRAW_MESH_PHONG input, uniform bool enabledSkyBox, uniform bool enabledSkyDome)
 {
 	PS_OUTPUT_DRAW_MESH output = (PS_OUTPUT_DRAW_MESH)0;
 

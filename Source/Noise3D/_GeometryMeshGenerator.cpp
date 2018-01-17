@@ -518,7 +518,7 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 			outIndicesList.push_back(i*			(iColumnCount + 1) + j + 0);
 			outIndicesList.push_back((i + 1)*	(iColumnCount + 1) + j + 0);
 			outIndicesList.push_back(i*			(iColumnCount + 1) + j + 1);
-			
+
 
 			/*
 			k+3
@@ -530,7 +530,6 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 			outIndicesList.push_back(i*			(iColumnCount + 1) + j + 1);
 			outIndicesList.push_back((i + 1)*	(iColumnCount + 1) + j + 0);
 			outIndicesList.push_back((i + 1)*	(iColumnCount + 1) + j + 1);
-			//m_pIB_Mem_Sky->push_back((i + 1)*	(iColumnCount + 1) + j + 0);
 
 		}
 	}
@@ -543,12 +542,10 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 		outIndicesList.push_back(j + 1);
 		outIndicesList.push_back(tmpVertexCount - 2);	//index of top vertex
 		outIndicesList.push_back(j);
-		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 2);	//index of top vertex
 
 		outIndicesList.push_back((iColumnCount + 1)* (iRingCount - 1) + j);
 		outIndicesList.push_back(tmpVertexCount - 1); //index of bottom vertex
 		outIndicesList.push_back((iColumnCount + 1) * (iRingCount - 1) + j + 1);
-		//m_pIB_Mem_Sky->push_back(tmpVertexCount - 1); //index of bottom vertex
 	}
 
 #pragma endregion GenerateIndex

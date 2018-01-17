@@ -145,7 +145,7 @@ bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVert
 
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
+	vbd.ByteWidth = sizeof(N_SimpleVertex)* vertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -153,7 +153,7 @@ bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVert
 	vbd.StructureByteStride = 0;
 
 	//Create Buffers
-	int hr = 0;
+	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
 	HR_DEBUG(hr, "IAtmosphere : Failed to create vertex buffer ! ");
 

@@ -304,7 +304,7 @@ void	ICamera::mFunction_UpdateProjMatrix()
 		mFarPlane);
 
 	//didn't know the major of matrix gen by D3DX
-	D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
+	//D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
 };
 
 void	ICamera::mFunction_UpdateViewMatrix()
@@ -322,8 +322,7 @@ void	ICamera::mFunction_UpdateViewMatrix()
 	D3DXMatrixMultiply(&mMatrixView,&tmpMatrixTranslation,&tmpMatrixRotation);
 	//(2016.4.11)楼上貌似有点不对啊，他妈的shader居然一直写的是矩阵右乘！！！！
 	//一直是用行向量！！！
-	D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
-
+	//D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
 };
 
 void	ICamera::mFunction_UpdateRotation()

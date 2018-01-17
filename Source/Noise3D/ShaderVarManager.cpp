@@ -17,12 +17,12 @@ IShaderVariableManager::IShaderVariableManager()
 
 IShaderVariableManager::~IShaderVariableManager()
 {
-	for (int i = 0; i < NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT; ++i) m_pFxMatrix[i]->Release();
-	for (int i = 0; i < NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT; ++i) m_pFxVar[i]->Release();
-	for (int i = 0; i < NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT; ++i) m_pFxScalar[i]->Release();
-	for (int i = 0; i < NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT; ++i) m_pFxVector[i]->Release();
-	for (int i = 0; i < NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT; ++i) m_pFxSampler[i]->Release();
-	for (int i = 0; i < NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT; ++i) m_pFxTexture[i]->Release();
+	for (int i = 0; i < NOISE_SHADER_VAR_MATRIX_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxMatrix[i]);
+	for (int i = 0; i < NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxVar[i]);
+	for (int i = 0; i < NOISE_SHADER_VAR_SCALAR_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxScalar[i]);
+	for (int i = 0; i < NOISE_SHADER_VAR_VECTOR_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxVector[i]);
+	for (int i = 0; i < NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxSampler[i]);
+	for (int i = 0; i < NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT; ++i) ReleaseCOM(m_pFxTexture[i]);
 
 }
 
@@ -42,20 +42,23 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	//
 	//	m_pFxMatrix_World = g_pFX->GetVariableByName("gWorldMatrix")->AsMatrix();
 	//
-#define BIND_SHADER_VAR_MATRIX(cppVarName,shaderVarName) m_pFxMatrix[NOISE_SHADER_VAR_MATRIX::cppVarName] =  g_pFX->GetVariableByName(shaderVarName)->AsMatrix();
+	m_pSingleton = new IShaderVariableManager;
+
+	//initialization of the singleton
+#define BIND_SHADER_VAR_MATRIX(cppVarName,shaderVarName) m_pSingleton->m_pFxMatrix[NOISE_SHADER_VAR_MATRIX::cppVarName] =  g_pFX->GetVariableByName(shaderVarName)->AsMatrix()
 	BIND_SHADER_VAR_MATRIX(WORLD, "gWorldMatrix");
 	BIND_SHADER_VAR_MATRIX(WORLD_INV_TRANSPOSE, "gWorldInvTransposeMatrix");
 	BIND_SHADER_VAR_MATRIX(PROJECTION, "gProjMatrix");
 	BIND_SHADER_VAR_MATRIX(VIEW, "gViewMatrix");
 	BIND_SHADER_VAR_MATRIX(VIEW_INV, "gViewInvMatrix");
 
-#define BIND_SHADER_VAR_GENERAL(cppVarName,shaderVarName) m_pFxVar[NOISE_SHADER_VAR_GENERAL::cppVarName] = g_pFX->GetVariableByName(shaderVarName)
-
+#define BIND_SHADER_VAR_GENERAL(cppVarName,shaderVarName) m_pSingleton->m_pFxVar[NOISE_SHADER_VAR_GENERAL::cppVarName] = g_pFX->GetVariableByName(shaderVarName)
+	
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_DIRLIGHT, "gDirectionalLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_POINTLIGHT, "gPointLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_SPOTLIGHT, "gSpotLight_Dynamic");
 
-#define BIND_SHADER_VAR_SCALAR(cppVarName,shaderVarName) m_pFxScalar[NOISE_SHADER_VAR_SCALAR::cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsScalar()
+#define BIND_SHADER_VAR_SCALAR(cppVarName,shaderVarName) m_pSingleton->m_pFxScalar[NOISE_SHADER_VAR_SCALAR::cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsScalar()
 
 	BIND_SHADER_VAR_SCALAR(DYNAMIC_LIGHT_ENABLED, "gIsLightingEnabled_Dynamic");
 	BIND_SHADER_VAR_SCALAR(DYNAMIC_DIRLIGHT_COUNT, "gDirectionalLightCount_Dynamic");
@@ -68,7 +71,7 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_SCALAR(SKYBOX_HEIGHT, "gSkyBoxHeight");
 	BIND_SHADER_VAR_SCALAR(SKYBOX_DEPTH, "gSkyBoxDepth");
 
-#define BIND_SHADER_VAR_VECTOR(cppVarName,shaderVarName)m_pFxVector[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsVector()
+#define BIND_SHADER_VAR_VECTOR(cppVarName,shaderVarName) m_pSingleton->m_pFxVector[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsVector()
 
 	BIND_SHADER_VAR_VECTOR(CAMERA_POS3, "gCamPos");
 	BIND_SHADER_VAR_VECTOR(FOG_COLOR3, "gFogColor3");
@@ -76,31 +79,32 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_VECTOR(TEXT_GLOW_COLOR4, "g2D_TextGlowColor");
 	BIND_SHADER_VAR_VECTOR(PICKING_RAY_NORMALIZED_DIR_XY, "gPickingRayNormalizedDirXY");
 
-#define BIND_SHADER_VAR_SAMPLER(cppVarName,shaderVarName) m_pFxSampler[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsSampler()
+#define BIND_SHADER_VAR_SAMPLER(cppVarName,shaderVarName) m_pSingleton->m_pFxSampler[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsSampler()
 
 	BIND_SHADER_VAR_SAMPLER(DEFAULT, "samplerDefault");
 	BIND_SHADER_VAR_SAMPLER(DRAW_2D, "samplerDraw2D");
 
-#define BIND_SHADER_VAR_TEXTURE(cppVarName,shaderVarName) m_pFxTexture[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsShaderResource()
+#define BIND_SHADER_VAR_TEXTURE(cppVarName,shaderVarName) m_pSingleton->m_pFxTexture[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsShaderResource()
 
 	BIND_SHADER_VAR_TEXTURE(DIFFUSE_MAP, "gDiffuseMap");
 	BIND_SHADER_VAR_TEXTURE(NORMAL_MAP, "gNormalMap");
 	BIND_SHADER_VAR_TEXTURE(SPECULAR_MAP, "gSpecularMap");
 	BIND_SHADER_VAR_TEXTURE(CUBE_MAP, "gCubeMap");//environment mapping
 	BIND_SHADER_VAR_TEXTURE(COLOR_MAP_2D, "gColorMap2D");//for 2d texturing
+	
 
-	m_pSingleton = new IShaderVariableManager;
 	return m_pSingleton;
 }
 
-void Noise3D::IShaderVariableManager::SetVar(const char * var, void * pVal, int size)
+void IShaderVariableManager::SetVar(const char * var, void * pVal, int size)
 {
 	g_pFX->GetVariableByName(var)->SetRawValue(pVal, 0, size);
 }
 
 void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX & data)
 {
-	m_pFxMatrix[var]->SetMatrix((float*)&data);
+	//Effect::SetMatrix will automatically transpose the data
+	 m_pFxMatrix[var]->SetMatrix((float*)&data);
 }
 
 void IShaderVariableManager::SetVector2(NOISE_SHADER_VAR_VECTOR var, const NVECTOR2 & data)
