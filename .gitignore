@@ -17,6 +17,15 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#Compiled shader/effect
+*.fxo
+
+#other
+*.db
+*.tlog
+*.log
+*.cod
+
 # =========================
 # Operating System Files
 # =========================

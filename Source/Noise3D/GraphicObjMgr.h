@@ -1,7 +1,7 @@
-#pragma once
+
 /***********************************************************************
 
-h£ºNoiseMaterialManager
+				h£ºGraphic Object Manager
 
 ************************************************************************/
 
@@ -20,14 +20,13 @@ namespace Noise3D
 
 		IGraphicObject*		GetGraphicObj(UINT index);
 
-		bool						DestroyGraphicObj(N_UID objName);
+		bool			DestroyGraphicObj(N_UID objName);
 
-		bool						DestroyGraphicObj(IGraphicObject* pObj);
+		bool			DestroyGraphicObj(IGraphicObject* pObj);
 
-		void							DestroyAllGraphicObj();
+		void			DestroyAllGraphicObj();
 
-		UINT						GetGraphicObjCount();
-
+		UINT		GetGraphicObjCount();
 
 	private:
 

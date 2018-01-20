@@ -68,7 +68,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -120,22 +125,52 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="GlobalDef.fx">
+    <None Include="Draw2D.hlsli" />
+    <None Include="CommonDef.hlsli">
       <FileType>Document</FileType>
     </None>
+    <None Include="DrawMesh.hlsli" />
+    <None Include="DrawSky.hlsli" />
+    <None Include="DrawSolid3D.hlsli" />
     <None Include="Main.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="picking.fx">
+    <None Include="Picking.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="shader2D.fx">
+    <None Include="Draw2D.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="shader3D.fx">
+    <None Include="Picking.hlsli" />
+    <None Include="DrawMesh_Phong.fx">
       <FileType>Document</FileType>
     </None>
-    <None Include="shader3D_defaultDraw.fx">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DrawSky.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="DrawSolid3D.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DrawMesh_Common.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DrawMesh_Gouraud.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

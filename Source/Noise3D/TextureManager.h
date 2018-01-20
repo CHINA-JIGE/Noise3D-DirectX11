@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h£ºNoiseTextureManager
+                           h£º Texture manager
 
 ************************************************************************/
 #pragma once
@@ -9,13 +9,11 @@
 namespace Noise3D
 {
 
+
 	class /*_declspec(dllexport)*/ ITextureManager :
 		public IFactory<ITexture>
 	{
 	public:
-		friend class IRenderer;
-		//friend class IFontManager;//Let it Create\Access bitmap table Texture
-
 		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = false);
 
 		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
@@ -26,19 +24,23 @@ namespace Noise3D
 
 		ITexture*		GetTexture(N_UID texName);
 
+		ITexture*		BakeLightMapForMesh(IMesh* pMesh);//bake light map for static scenes
+
 		UINT			GetTextureCount();
 
-		bool			DeleteTexture(ITexture* pTex);
+		bool				DeleteTexture(ITexture* pTex);
 
-		bool			DeleteTexture(N_UID texName);
+		bool				DeleteTexture(N_UID texName);
 
 		void				DeleteAllTexture();
 
-		bool			ValidateUID(N_UID texName);
+		bool				ValidateUID(N_UID texName);
 
-		bool			ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
+		bool				ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
 
 	private:
+
+		friend class IRenderer;
 
 		friend IFactory<ITextureManager>;
 

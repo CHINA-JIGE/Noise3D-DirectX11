@@ -371,6 +371,12 @@ ITexture * ITextureManager::GetTexture(N_UID texName)
 	return IFactory<ITexture>::GetObjectPtr(texName);
 }
 
+ITexture * Noise3D::ITextureManager::BakeLightMapForMesh(IMesh * pMesh)
+{
+	ERROR_MSG("Light map baking hasn't implemented!");
+	return nullptr;
+}
+
 UINT	 ITextureManager::GetTextureCount()
 {
 	return IFactory<ITexture>::GetObjectCount();

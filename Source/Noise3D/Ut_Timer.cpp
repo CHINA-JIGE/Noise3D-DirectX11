@@ -11,24 +11,42 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
+ITimer::ITimer()
+	:mTimeUnit(NOISE_TIMER_TIMEUNIT_MILLISECOND),
+	mMilliSecondsPerCount(0.0),
+	mDeltaTime(0.0),
+	mTotalTime(0.0),
+	mMaxInterval(100000.0f),
+	mTimeScaleFactor(1.0f),
+	mIsPaused(false),
+	mFPS(0)
 {
-	//默认用毫秒制
-	mTimeUnit				= timeUnit;
-	mMilliSecondsPerCount	= 0.0;
-	mDeltaTime				= 0.0;
-	mTotalTime				= 0.0;
-	mMaxInterval			= 10000.0f;//milli second
-	mTimeScaleFactor	= 1.0f;
-	mIsPaused				= false;
-
 	//每秒可以数多少次
-	INT64 countsPerSecond;
-	//获取这个计数计时器的频率
+	INT64 countsPerSecond = 0;
+	//get the FREQUENCY of this counter
+	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
+	mMilliSecondsPerCount = (1000.0) / (double)countsPerSecond;//每一count多少毫秒
+	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mPrevCount);
+	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
+}
+
+ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
+	:mTimeUnit(timeUnit),
+	mMilliSecondsPerCount(0.0),
+	mDeltaTime(0.0),
+	mTotalTime(0.0),
+	mMaxInterval(100000.0f),
+	mTimeScaleFactor(1.0f),
+	mIsPaused(false),
+	mFPS(0)
+{
+	//每秒可以数多少次
+	INT64 countsPerSecond=0;
+	//get the FREQUENCY of this counter
 	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSecond);
 	mMilliSecondsPerCount = (1000.0) /(double)countsPerSecond;//每一count多少毫秒
+		NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mPrevCount);
 	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
-
 }
 
 //elapse time . and time interval will be scaled
@@ -134,9 +152,14 @@ void ITimer::Continue()
 
 void ITimer::ResetAll()
 {
-	mTotalTime	= 0.0;
-	mDeltaTime	= 0.0;
-	mIsPaused	= false;
+	mDeltaTime = 0.0;
+	mTotalTime = 0.0;
+	mMaxInterval = 100000.0f;
+	mTimeScaleFactor = 1.0f;
+	mIsPaused = false;
+	mFPS = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&mPrevCount);
+	QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 };
 
 void ITimer::ResetTotalTime()

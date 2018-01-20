@@ -28,7 +28,7 @@ IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
 
-Ut::ITimer NTimer(NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::ITimer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 Ut::IInputEngine inputE;
 
 //Main Entry
@@ -91,7 +91,7 @@ BOOL Init3D(HWND hwnd)
 	//只郡符薮夕
 	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/universe2.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
@@ -113,21 +113,24 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
-	//Mesh1.CreateBox(10.0f, 10.0f, 10.0f);
-	//Mesh1.CreatePlane(50.0f, 50.0f);
-	//pMesh1->CreateCylinder(20.0f, 30.0f,10,10);
-	//Mesh1.SetPosition(0, 0, 0);
-	//Mesh1.SetScale(0.2f, 0.2f, 0.2f);
 	pModelLoader = pScene->GetModelLoader();
-	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
+	//N_SceneLoadingResult res;
+	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
-	for (auto & name : res.meshNameList)
+	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
+	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
+	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
+	pMesh->SetPosition(0, 0, 0);
+	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
+	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	meshList.push_back(pMesh);
+	/*for (auto & name : res.meshNameList)
 	{
 		IMesh* pMesh = pMeshMgr->GetMesh(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
-	}
+	}*/
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
@@ -138,13 +141,15 @@ BOOL Init3D(HWND hwnd)
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
-
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f },	{ 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
 	
 	//----------------------------------------------------------
 
 	pCamera->SetPosition(2.0f, 0, 0);
 	pCamera->SetLookAt(0, 0, 0);
-	pCamera->SetViewAngle(MATH_PI / 2.5f, 1.333333333f);
+	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
 	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();
@@ -153,11 +158,10 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	pCamera->SetLookAt(0, 0, 0);
 
-	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
-	pAtmos->SetSkyDomeTexture("Universe");
-	pModelLoader->LoadSkyDome(pAtmos, 4.0f, 4.0f);
 
+	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 4.0f);
+	pAtmos->SetFogEnabled(false);
+	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
@@ -165,25 +169,38 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(-1.0f,1.0f, 0);
-	dirLightDesc.specularIntensity = 0.5f;
+	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
+	dirLightDesc.specularIntensity = 0.7f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
+	/*pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
+	N_PointLightDesc pointLightDesc;
+	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.mAttenuationFactor = 0.01f;
+	pointLightDesc.mLightingRange = 1000.0f;
+	pointLightDesc.mPosition = NVECTOR3(0,20, 0);
+	pointLightDesc.specularIntensity = 2.0f;
+	pointLightDesc.diffuseIntensity = 1.0f;
+	pPointLight1->SetDesc(pointLightDesc);*/
+
 
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	Mat1.ambientColor = NVECTOR3(0.1f, 1.0f, 1.0f);
 	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
 	Mat1.normalMapBumpIntensity = 0.2f;
-	Mat1.environmentMapTransparency = 0.05f;
+	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName ="EarthNormalMap";
+	Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
-	//pMesh1->SetMaterial("meshMat1");
+	pMesh->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
@@ -197,7 +214,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
 	
 
 	//GUIMgr.Update();
@@ -212,7 +229,7 @@ void MainLoop()
 
 
 	//add to render list
-	//for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
+	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
 	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
 	pRenderer->AddObjectToRenderList(pAtmos);
 	pRenderer->AddObjectToRenderList(pMyText_fps);

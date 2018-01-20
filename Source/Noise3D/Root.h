@@ -9,6 +9,12 @@
 
 namespace Noise3D
 {
+	enum NOISE_MAINLOOP_STATUS
+	{
+		NOISE_MAINLOOP_STATUS_BUSY = 0,
+		NOISE_MAINLOOP_STATUS_QUIT_LOOP = 1,
+	};
+
 
 	class /*_declspec(dllexport)*/ IRoot 
 	: private IFileIO, public IFactory<IScene>

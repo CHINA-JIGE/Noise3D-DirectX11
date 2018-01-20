@@ -12,6 +12,8 @@
 
 using namespace Noise3D;
 
+#define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
+
 #define CHECK_BEFORE_CHANGE_TEXCOORD(id,coord) \
 	if (m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord != coord)\
 	{\

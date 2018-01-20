@@ -21,13 +21,11 @@ void IRenderer::RenderAtmosphere()
 	for (UINT i = 0;i < m_pRenderList_Atmosphere->size();i++)
 	{
 		IAtmosphere* const  pAtmo = m_pRenderList_Atmosphere->at(i);
-		//texture manager singleton
-		ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
 		if (pAtmo == nullptr)continue;
 
 		//enable/disable fog effect 
-		mFunction_Atmosphere_Fog_Update(pAtmo,pTexMgr);
+		mFunction_Atmosphere_UpdateFogParameters(pAtmo);
 
 #pragma region Draw Sky
 
@@ -39,18 +37,14 @@ void IRenderer::RenderAtmosphere()
 		//......Set States
 		mFunction_SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
 		mFunction_SetBlendState(NOISE_BLENDMODE_OPAQUE);
-		m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 
 		//update Vertices or atmo param to GPU
 		//shader will be chosen to render skybox OR skydome
-
-		N_UID skyDomeTexName = "";
-		N_UID skyBoxTexName = "";
-		bool enableSkyDome =  mFunction_Atmosphere_SkyDome_Update(pAtmo, pTexMgr,skyDomeTexName);
-		bool enableSkyBox = mFunction_Atmosphere_SkyBox_Update(pAtmo, pTexMgr,skyBoxTexName);
-		mFunction_Atmosphere_UpdateCbAtmosphere(pAtmo, pTexMgr,enableSkyBox,enableSkyDome, skyDomeTexName, skyBoxTexName);
+		bool enableSkyDome=false, enableSkyBox=false;
+		mFunction_Atmosphere_UpdateSkyParameters(pAtmo,enableSkyBox,enableSkyDome);
 
 
 		//traverse passes in one technique ---- pass index starts from 1
@@ -76,9 +70,6 @@ void IRenderer::RenderAtmosphere()
 			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
 		}
 
-		//allow atmosphere to "add to render list" again 
-		pAtmo->mFogHasBeenAddedToRenderList = false;
-
 #pragma endregion Draw Sky
 	}
 
@@ -90,88 +81,59 @@ void IRenderer::RenderAtmosphere()
 ************************************************************************/
 
 
-void		IRenderer::mFunction_Atmosphere_Fog_Update(IAtmosphere*const pAtmo,ITextureManager* const pTexMgr)
+void		IRenderer::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo)
 {
 	if (pAtmo->mFogCanUpdateToGpu)
 	{
-		//update fog param
-		m_CbAtmosphere.mFogColor = pAtmo->mFogColor;
-		m_CbAtmosphere.mFogFar = pAtmo->mFogFar;
-		m_CbAtmosphere.mFogNear = pAtmo->mFogNear;
-		m_CbAtmosphere.mIsFogEnabled = (bool)(pAtmo->mFogEnabled && pAtmo->mFogHasBeenAddedToRenderList);
-
 		//udpate to GPU
-		m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
+		m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::FOG_COLOR3, pAtmo->mFogColor);
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_FAR, pAtmo->mFogFar);
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_NEAR, pAtmo->mFogNear);
+		m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::FOG_ENABLED, pAtmo->mFogEnabled);
 		pAtmo->mFogCanUpdateToGpu = false;
 	}
 };
 
-bool		IRenderer::mFunction_Atmosphere_SkyDome_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyDomeTexName)
+void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome)
 {
-	//validate texture and update bool value to gpu
-	 N_UID skyDomeTexName = pAtmo->mSkyDomeTexName;
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	N_UID skyTexName = pAtmo->GetSkyTextureUID();
+	bool enableSkyBox=false, enableSkyDome = false;
 
-	//check skyType
+	//check skyType and update corresponding shader variables
 	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
 	{
-		bool isTextureUidValid = pTexMgr->FindUid(skyDomeTexName);
 		//if texture pass UID validation and match current skytype
-		bool isSkyDomeValid = pTexMgr->ValidateUID(skyDomeTexName, NOISE_TEXTURE_TYPE_COMMON);
-		outSkyDomeTexName = skyDomeTexName;
-		return isSkyDomeValid;
+		bool isSkyDomeValid = pTexMgr->ValidateUID(skyTexName, NOISE_TEXTURE_TYPE_COMMON);
+		enableSkyDome =  isSkyDomeValid;
 	}
-	else
+	else	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
-		outSkyDomeTexName = "";
-		return false;
-	}
-};
-
-bool		IRenderer::mFunction_Atmosphere_SkyBox_Update(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, N_UID& outSkyBoxTexName)
-{
-	//skybox uses cube map to texture the box
-	N_UID skyboxTexName =pAtmo->mSkyBoxCubeTexName;
-
-	//check skyType
-	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
-	{
-		bool isTextureUidValid = pTexMgr->FindUid(skyboxTexName);
 		//skybox texture must be a cube map
-		bool isSkyBoxValid = pTexMgr->ValidateUID(skyboxTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
-		m_CbAtmosphere.mSkyBoxWidth = pAtmo->mSkyBoxWidth;
-		m_CbAtmosphere.mSkyBoxHeight = pAtmo->mSkyBoxHeight;
-		m_CbAtmosphere.mSkyBoxDepth = pAtmo->mSkyBoxDepth;
-		outSkyBoxTexName = skyboxTexName;
-		return isSkyBoxValid;
-	}
-	else
-	{
-		outSkyBoxTexName = "";
-		return false;
+		bool isSkyBoxValid = pTexMgr->ValidateUID(skyTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_WIDTH, pAtmo->GetSkyboxWidth());
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_HEIGHT, pAtmo->GetSkyboxHeight());
+		m_pRefShaderVarMgr->SetFloat(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::SKYBOX_DEPTH, pAtmo->GetSkyboxDepth());
+		enableSkyBox = isSkyBoxValid;
 	}
 
-};
-
-void		IRenderer::mFunction_Atmosphere_UpdateCbAtmosphere(IAtmosphere*const pAtmo, ITextureManager* const pTexMgr, bool enableSkyBox, bool enableSkyDome, const N_UID& skyDomeTexName, const N_UID& skyBoxTexName)
-{
-	//update valid texture to gpu
+	//UPDATE TEXTURES
 	if (enableSkyDome)
 	{
 		//texName has been validated in UPDATE function
-		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyDomeTexName)->m_pSRV;
-		m_pFX_Texture_Diffuse->SetResource(tmp_pSRV);
+		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, tmp_pSRV);
 	}
-
 
 	//update skybox cube map to gpu
 	if (enableSkyBox)
 	{
 		//pAtmo->mSkyBoxTextureID has been validated  in UPDATE function
 		//but how do you validate it's a valid cube map ?????
-		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyBoxTexName)->m_pSRV;
-		m_pFX_Texture_CubeMap->SetResource(tmp_pSRV);
+		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, tmp_pSRV);
 	}
 
-
-	m_pFX_CbAtmosphere->SetRawValue(&m_CbAtmosphere, 0, sizeof(m_CbAtmosphere));
+	outEnabledSkybox = enableSkyBox;
+	outEnabledSkydome = enableSkyDome;
 };

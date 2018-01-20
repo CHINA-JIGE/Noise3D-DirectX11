@@ -11,18 +11,16 @@ using namespace Noise3D;
 
 IRenderer::IRenderer()
 {
-	mCanUpdateCbCameraMatrix			= false;
 	m_pRenderList_Mesh							= new std::vector <IMesh*>;
 	m_pRenderList_CommonGraphicObj	= new std::vector<IGraphicObject*>;
 	m_pRenderList_TextDynamic				= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_TextStatic					= new std::vector<IBasicTextInfo*>;//for Text Rendering
 	m_pRenderList_Atmosphere				= new std::vector<IAtmosphere*>;
-	m_pFX_Tech_Default = nullptr;
+	m_pFX_Tech_DrawMesh = nullptr;
 	m_pFX_Tech_Solid3D = nullptr;
 	m_pFX_Tech_Solid2D = nullptr;
 	m_pFX_Tech_Textured2D = nullptr;
 	m_pFX_Tech_DrawSky = nullptr;
-
 }
 
 IRenderer::~IRenderer()
@@ -60,8 +58,6 @@ void IRenderer::AddObjectToRenderList(IMesh* obj)
 void IRenderer::AddObjectToRenderList(IAtmosphere* obj)
 {
 	m_pRenderList_Atmosphere->push_back(obj);
-	//fog color will only be rendered after ADDTORENDERLIST();
-	obj->mFogHasBeenAddedToRenderList = true;
 };
 
 void IRenderer::AddObjectToRenderList(IGraphicObject* obj)
@@ -92,9 +88,6 @@ void	IRenderer::PresentToScreen()
 {
 		m_pSwapChain->Present(0, 0 );
 
-		//reset some state
-		mCanUpdateCbCameraMatrix = true;
-
 		//clear render list
 		m_pRenderList_CommonGraphicObj->clear();
 		m_pRenderList_Mesh->clear();
@@ -115,8 +108,6 @@ UINT IRenderer::GetMainBufferHeight()
 };
 
 
-
-
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
@@ -132,7 +123,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	HRESULT hr = S_OK;
 
 	//创建Technique
-	m_pFX_Tech_Default =	g_pFX->GetTechniqueByName("DefaultDraw");
+	m_pFX_Tech_DrawMesh =	g_pFX->GetTechniqueByName("DrawMesh");
 	m_pFX_Tech_Solid3D =	g_pFX->GetTechniqueByName("DrawSolid3D");
 	m_pFX_Tech_Solid2D =	g_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_Textured2D = g_pFX->GetTechniqueByName("DrawTextured2D");
@@ -142,7 +133,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 #pragma region Create Input Layout
 	//default vertex input layout
 	D3DX11_PASS_DESC passDesc;
-	m_pFX_Tech_Default->GetPassByIndex(0)->GetDesc(&passDesc);
+	m_pFX_Tech_DrawMesh->GetPassByIndex(0)->GetDesc(&passDesc);
 	hr = g_pd3dDevice11->CreateInputLayout(
 		&g_VertexDesc_Default[0],
 		g_VertexDesc_Default_ElementCount,
@@ -150,7 +141,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Default);
 
-	HR_DEBUG(hr, "create default input Layout failed！");
+	HR_DEBUG(hr, "IRenderer : Create Default input layout failed！");
 
 	//simple vertex input layout
 	m_pFX_Tech_Solid3D->GetPassByIndex(0)->GetDesc(&passDesc);
@@ -161,30 +152,16 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 		passDesc.IAInputSignatureSize,
 		&g_pVertexLayout_Simple);
 
-	HR_DEBUG(hr, "create simple input Layout failed！");
+	HR_DEBUG(hr, "IRenderer : Create Simple input Layout failed！");
 #pragma endregion Create Input Layout
 
-#pragma region Create Fx Variable
-	//创建Cbuffer
-	m_pFX_CbPerFrame=g_pFX->GetConstantBufferByName("cbPerFrame");
-	m_pFX_CbPerObject=g_pFX->GetConstantBufferByName("cbPerObject");
-	m_pFX_CbPerSubset = g_pFX->GetConstantBufferByName("cbPerSubset");
-	m_pFX_CbRarely=g_pFX->GetConstantBufferByName("cbRarely");
-	m_pFX_CbSolid3D = g_pFX->GetConstantBufferByName("cbCameraInfo");
-	m_pFX_CbAtmosphere = g_pFX->GetConstantBufferByName("cbAtmosphere");
-	m_pFX_CbDrawText2D = g_pFX->GetConstantBufferByName("cbDrawText2D");
-
-	//纹理
-	m_pFX_Texture_Diffuse = g_pFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	m_pFX_Texture_Normal = g_pFX->GetVariableByName("gNormalMap")->AsShaderResource();
-	m_pFX_Texture_Specular = g_pFX->GetVariableByName("gSpecularMap")->AsShaderResource();
-	m_pFX_Texture_CubeMap = g_pFX->GetVariableByName("gCubeMap")->AsShaderResource();
-	m_pFX2D_Texture_Diffuse = g_pFX->GetVariableByName("g2D_DiffuseMap")->AsShaderResource();
-
-	//sampler state ( it needs a name in FX so for the time being I had to use D3DX11Effect
-	m_pFX_SamplerState_Default = g_pFX->GetVariableByName("samplerDefault")->AsSampler();
-
-#pragma endregion Create Fx Variable
+	// Create Fx Variable
+	m_pRefShaderVarMgr = IShaderVariableManager::GetSingleton();
+	if (m_pRefShaderVarMgr ==nullptr)
+	{
+		ERROR_MSG("IRenderer: Initialization failure! shader variable not found!");
+		return false;
+	};
 
 	//Create Various kinds of states
 	if (!mFunction_Init_CreateRasterState())return false;
@@ -203,7 +180,7 @@ bool	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	//check multi-sample capability
 	UINT device_MSAA_Quality = 1;//bigger than 1
 	UINT device_MSAA_SampleCount = 1;//1 for none,2 for 2xMSAA, 4 ...
-	UINT device_MSAA_Enabled = false;
+	bool device_MSAA_Enabled = false;
 
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, device_MSAA_SampleCount, &device_MSAA_Quality);//4x坑锯齿一般都支持，这个返回值一般情况下都大于0
@@ -271,8 +248,8 @@ bool	IRenderer::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT Buffe
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
 	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled = true ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled = true ? device_MSAA_Quality - 1 : 0);
+	DSBufferDesc.SampleDesc.Count = (device_MSAA_Enabled  ? device_MSAA_SampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality = (device_MSAA_Enabled  ? device_MSAA_Quality - 1 : 0);
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;	//尽量避免DYNAMIC和STAGING
 	DSBufferDesc.CPUAccessFlags = 0;	//CPU不能碰它 GPU才行 这样能够加快
 	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;//和PIPELINE的绑定
@@ -584,28 +561,21 @@ void		IRenderer::mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode)
 	}
 }
 
-void	 IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
+void		IRenderer::mFunction_CameraMatrix_Update(ICamera* const pCamera)
 {
-	if (mCanUpdateCbCameraMatrix)
-	{
-		//update camera matrices
-		pCamera->GetProjMatrix(m_CbCameraInfo.projMatrix);
+	//update camera matrices
+	NMATRIX tmpMatrix;
+	pCamera->GetProjMatrix(tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, tmpMatrix);
 
-		pCamera->GetViewMatrix(m_CbCameraInfo.viewMatrix);
+	pCamera->GetViewMatrix(tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
-		pCamera->GetInvProjMatrix(m_CbCameraInfo.invViewMatrix);
+	pCamera->GetInvViewMatrix(tmpMatrix);
+	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
-		pCamera->GetInvViewMatrix(m_CbCameraInfo.invProjMatrix);
-
-		m_CbCameraInfo.camPos = pCamera->GetPosition();
-
-
-		//——————更新到GPU——————
-		m_pFX_CbSolid3D->SetRawValue(&m_CbCameraInfo, 0, sizeof(m_CbCameraInfo));
-
-		//..........
-		mCanUpdateCbCameraMatrix = false;
-	}
+	NVECTOR3 camPos = pCamera->GetPosition();
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 };
 
 void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList)
@@ -619,7 +589,7 @@ void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicOb
 		{
 			pGraphicObj->mFunction_UpdateVerticesToGpu(i);
 			pGraphicObj->mCanUpdateToGpu[i] = false;
-			// rectangle buffer must generate a subset list
+			// rectangles can have textures, thus a subset list should be generated
 			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pGraphicObj->mFunction_GenerateRectSubsetInfo();
 		}
 	}

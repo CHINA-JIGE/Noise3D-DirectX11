@@ -8,6 +8,16 @@
 
 namespace Noise3D
 {
+	//µ∆π‚¿‡–Õ
+	enum NOISE_LIGHT_TYPE
+	{
+		NOISE_LIGHT_TYPE_DYNAMIC_DIR = 0,
+		NOISE_LIGHT_TYPE_DYNAMIC_POINT = 1,
+		NOISE_LIGHT_TYPE_DYNAMIC_SPOT = 2,
+		NOISE_LIGHT_TYPE_STATIC_DIR = 3,
+		NOISE_LIGHT_TYPE_STATIC_POINT = 4,
+		NOISE_LIGHT_TYPE_STATIC_SPOT = 5
+	};
 
 	class /*_declspec(dllexport)*/ ILightManager:
 		IFactory<IDirLightD>,
@@ -29,7 +39,7 @@ namespace Noise3D
 
 		IPointLightS*		CreateStaticPointLight(N_UID lightName, const N_PointLightDesc& desc);
 
-		ISpotLightS*			CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc);
+		ISpotLightS*		CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc);
 
 		IDirLightD*			GetDirLightD(N_UID lightName);
 
@@ -69,7 +79,6 @@ namespace Noise3D
 
 		bool		DeleteSpotLightD(ISpotLightD* pLight);
 
-		NOISE_LIGHT_TYPE a;
 		bool		DeleteDirLightS(N_UID lightName);
 
 		bool		DeleteDirLightS(IDirLightS* pLight);
@@ -85,7 +94,11 @@ namespace Noise3D
 
 		void			SetDynamicLightingEnabled(bool isEnabled);
 
-		void			SetStaticLightingEnabled(bool isEnabled);
+		//void		SetStaticLightingEnabled(bool isEnabled);
+
+		bool			IsDynamicLightingEnabled();
+
+		//bool		IsStaticLightingEnabled();
 
 		UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
 

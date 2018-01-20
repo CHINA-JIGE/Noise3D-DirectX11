@@ -9,32 +9,6 @@
 
 using namespace Noise3D;
 
-/*void IRenderer::RenderGUIObjects()
-{
-	//validation before rendering
-	if (m_pFatherScene->m_pChildTextureMgr == nullptr)
-	{
-		ERROR_MSG("Noise Renderer : Texture Mgr has not been created");
-		return;
-	};
-
-	//CLEAR DEPTH!! to implement component overlapping
-	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-	mFunction_SetBlendState(m_BlendMode);
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterAnis);
-	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-
-	//render internal graphic objects
-	mFunction_GraphicObj_RenderPoint2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_GraphicObj_RenderLine2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_GraphicObj_RenderTriangle2DInList(m_pRenderList_GUIGraphicObj);
-	mFunction_TextGraphicObj_Render(m_pRenderList_GUIText);
-}*/
-
-
 void IRenderer::RenderGraphicObjects()
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
@@ -42,7 +16,7 @@ void IRenderer::RenderGraphicObjects()
 	ICamera* const pCamera = GetScene()->GetCamera();
 
 	//set samplerState
-	m_pFX_SamplerState_Default->SetSampler(0, m_pSamplerState_FilterLinear);
+	m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
 
 	//set depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -62,18 +36,14 @@ void IRenderer::RenderGraphicObjects()
 //invoked by RenderTriangle(when needed)
 void		IRenderer::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 {
-	//Get Shader Resource View
-	ID3D11ShaderResourceView* tmp_pSRV = NULL;
-
-
+	//validate texture type
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	//......
 	bool IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
 
 	if (IsUidValid)
 	{
-		tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
-		m_pFX2D_Texture_Diffuse->SetResource(tmp_pSRV);
+		ID3D11ShaderResourceView*  tmp_pSRV = pTexMgr->GetObjectPtr(texName)->m_pSRV;
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
 
