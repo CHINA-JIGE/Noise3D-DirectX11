@@ -16,7 +16,7 @@ void IRenderer::RenderGraphicObjects()
 	ICamera* const pCamera = GetScene()->GetCamera();
 
 	//set samplerState
-	m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
+	m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
 
 	//set depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);

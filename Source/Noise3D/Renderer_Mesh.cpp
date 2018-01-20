@@ -46,7 +46,7 @@ void	IRenderer::RenderMeshes()
 		mFunction_SetBlendState(pMesh->GetBlendMode());
 
 		//set samplerState
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
 
 		//set epth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
@@ -92,26 +92,26 @@ void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera
 	//！！！！Update Dynamic Light！！！！
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
-	UINT tmpLight_Dir_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
-	UINT tmpLight_Point_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
-	UINT tmpLight_Spot_Count = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
+	UINT dirLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
+	UINT pointLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
+	UINT spotLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
 
 	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_LIGHT_ENABLED, tmpLightMgr->IsDynamicLightingEnabled());
-	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_DIRLIGHT_COUNT, tmpLight_Dir_Count);
-	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_POINTLIGHT_COUNT, tmpLight_Point_Count);
-	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_SPOTLIGHT_COUNT, tmpLight_Spot_Count);
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_DIRLIGHT_COUNT, dirLightCount);
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_POINTLIGHT_COUNT, pointLightCount);
+	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_SPOTLIGHT_COUNT, spotLightCount);
 
-	for (UINT i = 0; i<(tmpLight_Dir_Count); i++)
+	for (UINT i = 0; i<(dirLightCount); i++)
 	{
 		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLightD(i)->GetDesc());
 	}
 
-	for (UINT i = 0; i<(tmpLight_Point_Count); i++)
+	for (UINT i = 0; i<(pointLightCount); i++)
 	{
 		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLightD(i)->GetDesc());
 	}
 
-	for (UINT i = 0; i<(tmpLight_Spot_Count); i++)
+	for (UINT i = 0; i<(spotLightCount); i++)
 	{
 		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLightD(i)->GetDesc());
 	}
@@ -120,8 +120,10 @@ void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera
 ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
-	ITextureManager*		pTexMgr = GetScene()->GetTextureMgr();
-	IMaterialManager*		pMatMgr = GetScene()->GetMaterialMgr();
+	IScene* pScene = GetScene();
+	ITextureManager*		pTexMgr = pScene->GetTextureMgr();
+	IMaterialManager*		pMatMgr = pScene->GetMaterialMgr();
+	IMeshManager*			pMeshMgr = pScene->GetMeshMgr();
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
@@ -132,7 +134,7 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 	N_MaterialDesc tmpMat;
 	if (IsMatNameValid== false)
 	{
-		WARNING_MSG("IRenderer : material UID not valid when rendering mesh.");
+		WARNING_MSG("IRenderer : material UID not valid !");
 		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
 	}
 	else
@@ -140,8 +142,11 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 		pMatMgr->GetMaterial(currSubsetMatName)->GetDesc(tmpMat);
 	}
 
+	//update basic material info
+	m_pRefShaderVarMgr->SetMaterial(N_BasicMaterialDesc(tmpMat));
 
-	//Validate Indices of MATERIALS/TEXTURES
+
+	//Validate textures
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 
 	ITexture* pDiffMap = pTexMgr->GetTexture(tmpMat.diffuseMapName);

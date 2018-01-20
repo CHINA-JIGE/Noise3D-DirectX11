@@ -44,6 +44,7 @@ namespace Noise3D
 			DYNAMIC_DIRLIGHT,
 			DYNAMIC_POINTLIGHT,
 			DYNAMIC_SPOTLIGHT,
+			MATERIAL_BASIC,
 
 			NOISE_SHADER_VAR_GENERAL_ELEMENT_COUNT
 		};
@@ -81,8 +82,8 @@ namespace Noise3D
 
 		enum NOISE_SHADER_VAR_SAMPLER
 		{
-			DEFAULT,
-			DRAW_2D,
+			DEFAULT_SAMPLER,
+			DRAW_2D_SAMPLER,
 
 			NOISE_SHADER_VAR_SAMPLER_ELEMENT_COUNT
 		};
@@ -123,12 +124,16 @@ namespace Noise3D
 
 		void SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11ShaderResourceView* pSRV);
 
+
 		//set Array
 		void	SetDynamicDirLight(int index, const N_DirLightDesc& dynamicLightDesc);
 
 		void	SetDynamicPointLight(int index, const N_PointLightDesc& dynamicLightDesc);
 
 		void	SetDynamicSpotLight(int index, const N_SpotLightDesc& dynamicLightDesc);
+
+		void	SetMaterial(const N_BasicMaterialDesc& mat);
+
 
 	private:
 

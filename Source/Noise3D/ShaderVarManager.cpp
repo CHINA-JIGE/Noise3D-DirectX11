@@ -44,7 +44,8 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	//
 	m_pSingleton = new IShaderVariableManager;
 
-	//initialization of the singleton
+	//1. initialization of the singleton, bind effect variables to shader variables
+	//2. remember to maintain the 'order of enum definition' and 'order of var binding' consistent
 #define BIND_SHADER_VAR_MATRIX(cppVarName,shaderVarName) m_pSingleton->m_pFxMatrix[NOISE_SHADER_VAR_MATRIX::cppVarName] =  g_pFX->GetVariableByName(shaderVarName)->AsMatrix()
 	BIND_SHADER_VAR_MATRIX(WORLD, "gWorldMatrix");
 	BIND_SHADER_VAR_MATRIX(WORLD_INV_TRANSPOSE, "gWorldInvTransposeMatrix");
@@ -57,6 +58,7 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_DIRLIGHT, "gDirectionalLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_POINTLIGHT, "gPointLight_Dynamic");
 	BIND_SHADER_VAR_GENERAL(DYNAMIC_SPOTLIGHT, "gSpotLight_Dynamic");
+	BIND_SHADER_VAR_GENERAL(MATERIAL_BASIC, "gMaterial");
 
 #define BIND_SHADER_VAR_SCALAR(cppVarName,shaderVarName) m_pSingleton->m_pFxScalar[NOISE_SHADER_VAR_SCALAR::cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsScalar()
 
@@ -81,8 +83,8 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 
 #define BIND_SHADER_VAR_SAMPLER(cppVarName,shaderVarName) m_pSingleton->m_pFxSampler[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsSampler()
 
-	BIND_SHADER_VAR_SAMPLER(DEFAULT, "samplerDefault");
-	BIND_SHADER_VAR_SAMPLER(DRAW_2D, "samplerDraw2D");
+	BIND_SHADER_VAR_SAMPLER(DEFAULT_SAMPLER, "samplerDefault");
+	BIND_SHADER_VAR_SAMPLER(DRAW_2D_SAMPLER, "samplerDraw2D");
 
 #define BIND_SHADER_VAR_TEXTURE(cppVarName,shaderVarName) m_pSingleton->m_pFxTexture[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsShaderResource()
 
@@ -145,18 +147,26 @@ void IShaderVariableManager::SetTexture(NOISE_SHADER_VAR_TEXTURE var, ID3D11Shad
 
 void IShaderVariableManager::SetDynamicDirLight(int index, const N_DirLightDesc & dynamicLightDesc)
 {
-	int byteOffset = sizeof(dynamicLightDesc) * index;
+	uint32_t byteOffset = sizeof(dynamicLightDesc) * index;
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_DIRLIGHT]->SetRawValue(&dynamicLightDesc, byteOffset, sizeof(dynamicLightDesc));
+	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_DIRLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
 }
 
 void IShaderVariableManager::SetDynamicPointLight(int index, const N_PointLightDesc & dynamicLightDesc)
 {
-	int byteOffset = sizeof(dynamicLightDesc) * index;
+	uint32_t byteOffset = sizeof(dynamicLightDesc) * index;
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_POINTLIGHT]->SetRawValue(&dynamicLightDesc, byteOffset, sizeof(dynamicLightDesc));
+	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_POINTLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
 }
 
 void IShaderVariableManager::SetDynamicSpotLight(int index, const N_SpotLightDesc & dynamicLightDesc)
 {
-	int byteOffset = sizeof(dynamicLightDesc) * index;
+	uint32_t byteOffset = sizeof(dynamicLightDesc) * index;
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_SPOTLIGHT]->SetRawValue(&dynamicLightDesc, byteOffset, sizeof(dynamicLightDesc));
+	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_SPOTLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
+}
+
+void IShaderVariableManager::SetMaterial(const N_BasicMaterialDesc & mat)
+{
+	m_pFxVar[NOISE_SHADER_VAR_GENERAL::MATERIAL_BASIC]->SetRawValue(&mat, 0, sizeof(mat));
 }

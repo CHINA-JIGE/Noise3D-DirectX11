@@ -68,7 +68,7 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 		mFunction_SetBlendState(pText->GetBlendMode());
 
 		//set samplerState
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D, 0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, 0, m_pSamplerState_FilterLinear);
 
 
 		//set depth/Stencil State

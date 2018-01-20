@@ -25,7 +25,6 @@ void	TransformCoord_XYZ_TBN(float3 inVectorXYZ, float3 TangentW, float3 NormalW,
 	TangentW = normalize(TangentW - dot(NormalW, TangentW)*NormalW);//orthogonalization , subtract  tangent's projection on Normal Vector
 	float3 BinormalW = normalize(cross(NormalW, TangentW));
 
-	//x - Binormal , Y-Normal ,Z - tangent
 	/*float4x4 transformMatrix;
 	transformMatrix[0] = float4(BinormalW.x,NormalW.x,TangentW.x,0);
 	transformMatrix[1] = float4(BinormalW.y,NormalW.y,TangentW.y,0);
@@ -81,8 +80,8 @@ float3	SampleFromNormalMap(float2 TexCoord,uniform bool enableNormalMap)
 		//x: [0,1] , y[0.5,1], z: [0,1];
 		//x & z~[0,1] map to [-1,1]
 		tmpNormalTBN = 2 * tmpNormalTBN - 1;
-		//scale bump mapping
-		tmpNormalTBN = normalize(tmpNormalTBN + saturate(1.0f - gMaterial.mNormalMapBumpIntensity) *(float3(tmpNormalTBN.x, 0, tmpNormalTBN.z)));
+		//scale bump mapping (0,1,0) + scale* offsetVector
+		tmpNormalTBN = normalize(float3(0,1.0f,0) + gMaterial.mNormalMapBumpIntensity *(float3(tmpNormalTBN.x, 0, tmpNormalTBN.z)));
 		return tmpNormalTBN;
 	}
 	else

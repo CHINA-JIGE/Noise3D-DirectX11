@@ -9,6 +9,56 @@
 
 ************************************************/
 
+VS_OUTPUT_DRAW_MESH_PHONG VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
+{
+	//initialize
+	VS_OUTPUT_DRAW_MESH_PHONG output = (VS_OUTPUT_DRAW_MESH_PHONG)0;
+	//the W transformation
+	output.posW = mul(float4(input.posL, 1.0f), gWorldMatrix).xyz;
+	//the VP transformation
+	output.posH = mul(mul(float4(output.posW, 1.0f), gViewMatrix), gProjMatrix);
+	//output the vertex color , this parameter will be used if the lighting system is off
+	output.color = input.color;
+	//we need an normal vector in W space(it can be derived that inverse-transpose guaranteed the correct transform of normal)
+	output.normalW = mul(float4(input.normalL, 1.0f), gWorldInvTransposeMatrix).xyz;
+	//transform tangent to help implement XYZ to TBN
+	output.tangentW = mul(float4(input.tangentL, 0.0f), gWorldMatrix).xyz;
+	//texture coordinate
+	output.texcoord = input.texcoord;
+
+	return output;
+}
+
+PS_OUTPUT_DRAW_MESH PS_DrawMeshWithPixelLighting(VS_OUTPUT_DRAW_MESH_PHONG input,
+	uniform bool bDiffMap, uniform bool bNormalMap, uniform bool bSpecMap, uniform bool bEnvMap)
+{
+	//the output
+	PS_OUTPUT_DRAW_MESH psOutput = (PS_OUTPUT_DRAW_MESH)0;
+
+	//if dynamic lighting is disable, then use vertex color
+	if (!gIsLightingEnabled_Dynamic)
+	{
+		psOutput.color = input.color;
+		return psOutput;//vertex color
+	}
+	//interpolation can  'unnormalized' the unit  vector
+	input.normalW = normalize(input.normalW);
+	input.tangentW = normalize(input.tangentW);
+
+	//invoke the process of lighting/mapping/shading
+	float4 	finalColor4 = float4(0, 0, 0, 0);
+	RenderProcess_Phong renderProc;
+	renderProc.InitVectors(input.normalW, input.texcoord, input.posW, input.tangentW);
+	renderProc.ComputeFinalColor(bDiffMap, bNormalMap, bSpecMap, bEnvMap, finalColor4);
+
+	psOutput.color = finalColor4;
+	return psOutput;
+}
+
+
+
+//-------------CLASS IMPLEMENTATION--------
+
 void RenderProcess_Phong::InitVectors(float3 NormalW, float2 TexCoord, float3 thisPoint, float3 tangentW)
 {
 	mNormalW = NormalW;//surface normal of current point
@@ -22,6 +72,8 @@ void RenderProcess_Phong::ComputeFinalColor(uniform bool bDiffMap, uniform bool 
 {
 	outColor4 = float4(0, 0, 0, 1.0f);
 
+
+
 	//compute fog effect
 	//skip pixel if it is totally fogged
 	if (gFogEnabled == 1 && length(mVecToCamW) > gFogFar)
@@ -32,26 +84,23 @@ void RenderProcess_Phong::ComputeFinalColor(uniform bool bDiffMap, uniform bool 
 
 	//sum up all the lighting contribution 'tmpColor4' into 'finalColor4'
 	int i = 0;
-	if (gIsLightingEnabled_Dynamic)
+	for (i = 0; i<gDirectionalLightCount_Dynamic; i++)
 	{
-		for (i = 0; i<gDirectionalLightCount_Dynamic; i++)
-		{
-			float4 tmpColor4 = float4(0, 0, 0,1.0f);
-			mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
-			outColor4 += tmpColor4;
-		}
-		for (i = 0; i<gPointLightCount_Dynamic; i++)
-		{
-			float4 tmpColor4 = float4(0, 0, 0, 1.0f);
-			mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
-			outColor4 += tmpColor4;
-		}
-		for (i = 0; i<gSpotLightCount_Dynamic; i++)
-		{
-			float4 tmpColor4 = float4(0, 0, 0, 1.0f);
-			mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
-			outColor4 += tmpColor4;
-		}
+		float4 tmpColor4 = float4(0, 0, 0, 0);
+		mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_DIR_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
+		outColor4 += tmpColor4;
+	}
+	for (i = 0; i<gPointLightCount_Dynamic; i++)
+	{
+		float4 tmpColor4 = float4(0, 0, 0, 0);
+		mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_POINT_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
+		outColor4 += tmpColor4;
+	}
+	for (i = 0; i<gSpotLightCount_Dynamic; i++)
+	{
+		float4 tmpColor4 = float4(0, 0, 0, 0);
+		mFunction_ComputeLightColor(NOISE_LIGHT_TYPE_ID_DYNAMIC_SPOT_LIGHT, i, bDiffMap, bNormalMap, bSpecMap, bEnvMap, tmpColor4);
+		outColor4 += tmpColor4;
 	}
 
 	//at last compute fog  ( point farther than gFogFar has been skipped
@@ -107,7 +156,7 @@ void RenderProcess_Phong::mFunction_ComputeLightColor(int lightTypeID, int light
 	TransformCoord_XYZ_TBN(unitLightVecW, mTangentW, mNormalW, lightVecTBN);
 
     //diffuse cos factor
-	diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, unitLightVecW, mNormalW);
+	diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, unitLightVecW, normalize(deviatedNormalW));
 
     float4 ambient4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 diffuse4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -122,13 +171,13 @@ void RenderProcess_Phong::mFunction_ComputeLightColor(int lightTypeID, int light
 		diffuse4 = attenuation* diffuseCosFactor* float4(albedo3 * lightDiffuseColor3, 1.0f);
 
 		//now specular	----reflect () : input an incoming light,and output an outgoing light , the axis being reflected about is a bisecting vector of NORMAL and LIGHTVEC
-		float3 tmpV = reflect(unitLightVecW, normalize(mNormalW));
+		float3 reflectedLightVec = reflect(unitLightVecW, normalize(deviatedNormalW));
 
 		//remember to normalize vectors to be "dotted"
 		float3 unitVecToCam = normalize(mVecToCamW);
 
 		//to see if the specular light can be seen ... the SpecIntensity is the power of the cos factor
-		float  SpecFactor = lightSpecIntensity * pow(max(dot(tmpV, unitVecToCam), 0.0f), gMaterial.mSpecularSmoothLevel);
+		float  SpecFactor = lightSpecIntensity * pow(max(dot(reflectedLightVec, unitVecToCam), 0.0f), gMaterial.mSpecularSmoothLevel);
 
 		//final SpecularColor
 		specular4 = attenuation * SpecFactor * float4(gMaterial.mSpecularColor *lightSpecColor3, 1.0f);
@@ -159,7 +208,7 @@ bool RenderProcess_Phong::mFunction_ComputeLightingVariables(int lightTypeID, in
 			//***
 			lightVecW = light.mDirection;
 			unitLightVecW = normalize(lightVecW);
-			attenuation = 0.0f;
+			attenuation = 1.0f;
 			lightAmbientColor3 = light.mAmbientColor;
 			lightDiffuseColor3 = light.mDiffuseColor;
 			lightSpecColor3 = light.mSpecularColor;
@@ -181,7 +230,8 @@ bool RenderProcess_Phong::mFunction_ComputeLightingVariables(int lightTypeID, in
 			if (distanceFromLight > light.mLightingRange) return true; 
 
 			//...
-			attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight*distanceFromLight + 1.0f);
+			//attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight*distanceFromLight + 1.0f);
+			attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight + 1.0f);
 			lightAmbientColor3 = light.mAmbientColor;
 			lightDiffuseColor3 = light.mDiffuseColor;
 			lightSpecColor3 = light.mSpecularColor;
@@ -205,7 +255,8 @@ bool RenderProcess_Phong::mFunction_ComputeLightingVariables(int lightTypeID, in
 			if ((distanceFromLight > light.mLightingRange) || (Cos_Theta < cos(light.mLightingAngle / 2.0f)))return true;
 
 			//...
-			attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight*distanceFromLight + 1.0f);
+			//attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight*distanceFromLight + 1.0f);
+			attenuation = 1.0f / (light.mAttenuationFactor*distanceFromLight + 1.0f);
 			lightAmbientColor3 = light.mAmbientColor;
 			lightDiffuseColor3 = light.mDiffuseColor;
 			lightSpecColor3 = light.mSpecularColor;

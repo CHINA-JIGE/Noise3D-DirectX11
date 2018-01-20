@@ -17,7 +17,9 @@
 
 
 //implementation
-#include "DrawMesh.fx"
+#include "DrawMesh_Common.fx"
+#include "DrawMesh_Gouraud.fx"
+#include "DrawMesh_Phong.fx"
 #include "Draw2D.fx"
 #include "DrawSky.fx"
 #include "DrawSolid3D.fx"

@@ -23,6 +23,7 @@ $RECYCLE.BIN/
 #other
 *.db
 *.tlog
+*.log
 
 # =========================
 # Operating System Files

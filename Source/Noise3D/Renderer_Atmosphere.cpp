@@ -37,7 +37,7 @@ void IRenderer::RenderAtmosphere()
 		//......Set States
 		mFunction_SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
 		mFunction_SetBlendState(NOISE_BLENDMODE_OPAQUE);
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT, 0, m_pSamplerState_FilterLinear);
+		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
 

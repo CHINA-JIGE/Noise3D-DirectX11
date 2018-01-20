@@ -7,13 +7,9 @@
 
 ***********************************************************************/
 
-
 #include "Noise3D.h"
 
 using namespace Noise3D;
-
-static UINT g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
-static UINT g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
 
 IMesh::IMesh():
 	mRotationX_Pitch(0.0f),
@@ -313,7 +309,6 @@ bool IMesh::mFunction_UpdateDataToVideoMem()
 
 void	IMesh::mFunction_UpdateWorldMatrix()
 {
-
 	D3DXMATRIX	tmpMatrixScaling;
 	D3DXMATRIX	tmpMatrixTranslation;
 	D3DXMATRIX	tmpMatrixRotation;

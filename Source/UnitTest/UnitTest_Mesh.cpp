@@ -118,9 +118,12 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
 	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
-	pModelLoader->LoadSphere(pMesh, 20.0f, 10, 10);
-	pMesh->SetPosition(20.0, 0, 0);
-	pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
+	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
+	pMesh->SetPosition(0, 0, 0);
+	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
+	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh);
 	/*for (auto & name : res.meshNameList)
 	{
@@ -135,8 +138,8 @@ BOOL Init3D(HWND hwnd)
 	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
 	for (auto v : *pTmpVB)
 	{
-		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
@@ -158,7 +161,7 @@ BOOL Init3D(HWND hwnd)
 
 	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 4.0f);
 	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
@@ -166,25 +169,38 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(-1.0f,1.0f, 0);
-	dirLightDesc.specularIntensity = 0.5f;
+	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
+	dirLightDesc.specularIntensity = 0.7f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
+	/*pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
+	N_PointLightDesc pointLightDesc;
+	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.mAttenuationFactor = 0.01f;
+	pointLightDesc.mLightingRange = 1000.0f;
+	pointLightDesc.mPosition = NVECTOR3(0,20, 0);
+	pointLightDesc.specularIntensity = 2.0f;
+	pointLightDesc.diffuseIntensity = 1.0f;
+	pPointLight1->SetDesc(pointLightDesc);*/
+
 
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
+	Mat1.ambientColor = NVECTOR3(0.1f, 1.0f, 1.0f);
 	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
 	Mat1.normalMapBumpIntensity = 0.2f;
-	Mat1.environmentMapTransparency = 0.05f;
+	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName ="EarthNormalMap";
+	Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
-	//pMesh1->SetMaterial("meshMat1");
+	pMesh->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
@@ -198,7 +214,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
 	
 
 	//GUIMgr.Update();

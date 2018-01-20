@@ -41,9 +41,6 @@
     <None Include="DrawSky.fx">
       <Filter>DrawSky</Filter>
     </None>
-    <None Include="DrawMesh.fx">
-      <Filter>DrawMesh</Filter>
-    </None>
     <None Include="Picking.hlsli">
       <Filter>Picking</Filter>
     </None>
