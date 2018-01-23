@@ -68,7 +68,7 @@ namespace Noise3D
 
 			float				mResampledCubeDepth;
 
-			//256个Triangle cases，在8个正方体顶点的状态确定以后用于生成三角形面片（等值面？）
+			//256个Triangle cases，8 vertices for one box, 2^8 state combination
 			struct N_MCTriangleCase
 			{
 				char index[16];

@@ -12,11 +12,18 @@ namespace Noise3D
 {
 	namespace Ut
 	{
+		enum NOISE_TIMER_TIMEUNIT
+		{
+			NOISE_TIMER_TIMEUNIT_MILLISECOND = 0,
+			NOISE_TIMER_TIMEUNIT_SECOND = 1
+		};
+
 		class /*_declspec(dllexport)*/ ITimer
 		{
 		public:
 
-			//构造函数
+			ITimer();
+
 			ITimer(NOISE_TIMER_TIMEUNIT timeUnit);
 
 			//在函数名后加const表示此函数不会修改类成员
@@ -33,7 +40,7 @@ namespace Noise3D
 			void NextTick();
 
 			//....
-			UINT	 GetFPS() const;
+			UINT GetFPS() const;
 
 			//暂停计时
 			void Pause();

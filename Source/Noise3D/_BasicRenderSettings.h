@@ -12,6 +12,34 @@
 namespace Noise3D
 {
 
+	enum NOISE_FILLMODE
+	{
+		NOISE_FILLMODE_SOLID = D3D11_FILL_SOLID,
+		NOISE_FILLMODE_WIREFRAME = D3D11_FILL_WIREFRAME,
+		NOISE_FILLMODE_POINT = 0,
+	};
+
+	enum NOISE_CULLMODE
+	{
+		NOISE_CULLMODE_NONE = D3D11_CULL_NONE,
+		NOISE_CULLMODE_BACK = D3D11_CULL_BACK,
+		NOISE_CULLMODE_FRONT = D3D11_CULL_FRONT,
+	};
+
+	enum NOISE_BLENDMODE
+	{
+		NOISE_BLENDMODE_OPAQUE = 0,
+		NOISE_BLENDMODE_ALPHA = 1,
+		NOISE_BLENDMODE_ADDITIVE = 2,
+		NOISE_BLENDMODE_COLORFILTER = 3,
+	};
+
+	enum NOISE_SHADEMODE
+	{
+		NOISE_SHADEMODE_GOURAUD = 0,//per-vertex lighting
+		NOISE_SHADEMODE_PHONG = 1,//per-pixel lighting(advanced render technique supported)
+	};
+
 	class CRenderSettingFillMode
 	{
 	public:
@@ -67,4 +95,21 @@ namespace Noise3D
 		NOISE_CULLMODE	mCullMode;
 	};
 
-};
+	class CRenderSettingShadeMode
+	{
+	public:
+
+		CRenderSettingShadeMode()
+		{
+			mShadeMode =NOISE_SHADEMODE_PHONG;
+		}
+
+		void SetShadeMode(NOISE_SHADEMODE mode) { mShadeMode = mode; }
+
+		NOISE_SHADEMODE GetShadeMode() { return mShadeMode; }
+
+	private:
+		
+		NOISE_SHADEMODE mShadeMode;
+	};
+}

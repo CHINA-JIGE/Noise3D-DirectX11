@@ -1,0 +1,96 @@
+	pass perPixel_0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, false, false)));
+	}
+	pass perPixel_1
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, false, false)));
+	}
+	pass perPixel_2
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, false, false)));
+	}
+	pass perPixel_3
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, false, false)));
+	}
+	pass perPixel_4
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, true, false)));
+	}
+	pass perPixel_5
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, true, false)));
+	}
+	pass perPixel_6
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, true, false)));
+	}
+	pass perPixel_7
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, true, false)));
+	}
+	pass perPixel_8
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, false, true)));
+	}
+	pass perPixel_9
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, false, true)));
+	}
+	pass perPixel_10
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, false, true)));
+	}
+	pass perPixel_11
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, false, true)));
+	}
+	pass perPixel_12
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, false, true, true)));
+	}
+	pass perPixel_13
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, false, true, true)));
+	}
+	pass perPixel_14
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(false, true, true, true)));
+	}
+	pass perPixel_15
+	{
+		SetVertexShader(CompileShader(vs_5_0, VS_DrawMeshWithPixelLighting()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PS_DrawMeshWithPixelLighting(true, true, true, true)));
+	}

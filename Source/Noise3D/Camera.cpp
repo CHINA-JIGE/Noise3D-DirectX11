@@ -19,14 +19,14 @@ ICamera::ICamera() :
 	mRotateX_Pitch(0),
 	mRotateY_Yaw(0),
 	mRotateZ_Roll(0),
-	mViewAngleY((float)60 / 180 * MATH_PI),
+	mViewAngleY_Radian((float)60 / 180 * MATH_PI),
 	mAspectRatio(1.5f),
 	mPosition(0, 0, 0),
 	mLookat(1.0f, 0, 0),
 	mNearPlane(1.0f),
 	mFarPlane(1000.0f)
 {
-	D3DXMatrixPerspectiveFovLH(&mMatrixProjection,mViewAngleY,mAspectRatio,mNearPlane,mFarPlane);
+	D3DXMatrixPerspectiveFovLH(&mMatrixProjection,mViewAngleY_Radian,mAspectRatio,mNearPlane,mFarPlane);
 	D3DXMatrixIdentity(&mMatrixView);
 }
 
@@ -260,19 +260,12 @@ void ICamera::GetProjMatrix(NMATRIX & outMat)
 	outMat = mMatrixProjection;
 }
 
-void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
+void ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
 	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixView);
 	if(invPtr==nullptr)ERROR_MSG("Camera : Inverse of View Matrix not exist!")
 }
-
-void Noise3D::ICamera::GetInvProjMatrix(NMATRIX & outMat)
-{
-	mFunction_UpdateProjMatrix();
-	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixProjection);
-	if (invPtr == nullptr)ERROR_MSG("Camera : Inverse of Proj Matrix not exist!")
-};
 
 void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 {
@@ -281,14 +274,20 @@ void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 		mNearPlane	= iNearPlaneZ;
 		mFarPlane	=	iFarPlaneZ;
 	}
-
 };
 
-void ICamera::SetViewAngle(float iViewAngleY,float iAspectRatio)
+void ICamera::SetViewAngle_Degree(float fViewAngleY,float fAspectRatio)
 {
-	if(iViewAngleY>0 && (mViewAngleY <(MATH_PI/2))){mViewAngleY	=	iViewAngleY;	}
-	if(iAspectRatio>0){mAspectRatio	= iAspectRatio;}
+	if(fViewAngleY>0 && (mViewAngleY_Radian <180.0f)){mViewAngleY_Radian	=	fViewAngleY * MATH_PI / 180.0f;	}
+	if(fAspectRatio>0){mAspectRatio	= fAspectRatio;}
+}
+
+void ICamera::SetViewAngle_Radian(float fRadianViewAngleY, float fAspectRatio)
+{
+	if (fRadianViewAngleY>0 && (mViewAngleY_Radian <(MATH_PI))) { mViewAngleY_Radian = fRadianViewAngleY; }
+	if (fAspectRatio>0) { mAspectRatio = fAspectRatio; }
 };
+
 
 
 /************************************************************************
@@ -299,13 +298,13 @@ void	ICamera::mFunction_UpdateProjMatrix()
 {
 	D3DXMatrixPerspectiveFovLH(
 		&mMatrixProjection,
-		mViewAngleY,
+		mViewAngleY_Radian,
 		mAspectRatio,
 		mNearPlane,
 		mFarPlane);
 
-	//要更新到GPU，TM居然要先转置
-	D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
+	//didn't know the major of matrix gen by D3DX
+	//D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
 };
 
 void	ICamera::mFunction_UpdateViewMatrix()
@@ -321,11 +320,9 @@ void	ICamera::mFunction_UpdateViewMatrix()
 	D3DXMatrixTranspose(&tmpMatrixRotation,&tmpMatrixRotation);
 	//先平移，再旋转
 	D3DXMatrixMultiply(&mMatrixView,&tmpMatrixTranslation,&tmpMatrixRotation);
-	//要更新到GPU，TM居然要先转置
 	//(2016.4.11)楼上貌似有点不对啊，他妈的shader居然一直写的是矩阵右乘！！！！
-	//一直是用行向量！！！但是奇怪的是
-	D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
-
+	//一直是用行向量！！！
+	//D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
 };
 
 void	ICamera::mFunction_UpdateRotation()

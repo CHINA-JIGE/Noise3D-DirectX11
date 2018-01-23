@@ -167,7 +167,6 @@
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Noise3D.h" />
     <ClInclude Include="Atmosphere.h" />
-    <ClInclude Include="NoiseFlag.h" />
     <ClInclude Include="NoiseGlobal.h" />
     <ClInclude Include="NoiseMacro.h" />
     <ClInclude Include="NoiseTypes.h" />

@@ -35,6 +35,7 @@ bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UI
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -54,6 +55,7 @@ bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, flo
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -71,6 +73,7 @@ bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCo
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -88,6 +91,7 @@ bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeigh
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -106,6 +110,7 @@ bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem( vertexList, indicesList);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -192,6 +197,7 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 
 
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(completeVertexList, tmpIndexList);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -212,6 +218,7 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath filePath)
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpCompleteVertexList, tmpIndexList);
+	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
 }
@@ -366,7 +373,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	}
 }
 
-bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo, float fRadiusXZ, float fHeight)
+bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -387,11 +394,12 @@ bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo, float fRadiusXZ, float fHeig
 	pAtmo->mSkyDomeRadiusXZ = fRadiusXZ;
 	pAtmo->mSkyDomeHeight = fHeight;
 	pAtmo->mSkyType = NOISE_ATMOSPHERE_SKYTYPE_DOME;
+	pAtmo->mSkyDomeTexName = textureName;
 
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, float fWidth, float fHeight, float fDepth)
+bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -413,7 +421,7 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, float fWidth, float fHeight, 
 	pAtmo->mSkyBoxHeight = fHeight;
 	pAtmo->mSkyBoxDepth = fDepth;
 	pAtmo->mSkyType = NOISE_ATMOSPHERE_SKYTYPE_BOX;
-	pAtmo->mSkyBoxCubeTexName = NOISE_MACRO_DEFAULT_MATERIAL_NAME;
+	pAtmo->mSkyBoxCubeTexName = texture;
 
 	return isUpdateOk;
 

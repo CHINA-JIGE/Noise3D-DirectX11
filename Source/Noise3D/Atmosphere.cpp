@@ -63,7 +63,6 @@ void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 
 	//set color
 	mFogColor = color;
-
 	mFogCanUpdateToGpu = true;
 }
 
@@ -76,6 +75,42 @@ void		IAtmosphere::SetSkyDomeTexture(N_UID matName)
 void		IAtmosphere::SetSkyBoxTexture(N_UID cubeMapMatName)
 {
 	mSkyBoxCubeTexName = cubeMapMatName;
+}
+
+N_UID IAtmosphere::GetSkyTextureUID()
+{
+	if (mSkyType == NOISE_ATMOSPHERE_SKYTYPE::NOISE_ATMOSPHERE_SKYTYPE_BOX)
+	{
+		return mSkyBoxCubeTexName;
+	}
+	else if (mSkyType == NOISE_ATMOSPHERE_SKYTYPE::NOISE_ATMOSPHERE_SKYTYPE_DOME)
+	{
+		return mSkyDomeTexName;
+	}
+	else
+	{
+		return "";
+	}
+}
+
+NOISE_ATMOSPHERE_SKYTYPE IAtmosphere::GetSkyType()
+{
+	return mSkyType;
+}
+
+float IAtmosphere::GetSkyboxWidth()
+{
+	return mSkyBoxWidth;
+}
+
+float IAtmosphere::GetSkyboxHeight()
+{
+	return mSkyBoxHeight;
+}
+
+float IAtmosphere::GetSkyboxDepth()
+{
+	return mSkyBoxDepth;
 }
 
 
@@ -110,7 +145,7 @@ bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVert
 
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
+	vbd.ByteWidth = sizeof(N_SimpleVertex)* vertexCount;
 	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
@@ -118,7 +153,7 @@ bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVert
 	vbd.StructureByteStride = 0;
 
 	//Create Buffers
-	int hr = 0;
+	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
 	HR_DEBUG(hr, "IAtmosphere : Failed to create vertex buffer ! ");
 

@@ -175,7 +175,8 @@ namespace Noise3D
 
 
 	//------------------Static Directional Light------------------
-	//immutable after initialization (so that pre-render can be applied)
+	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
+	//2.immutable after initialization
 	class IDirLightS
 	{
 	public:
@@ -201,6 +202,8 @@ namespace Noise3D
 
 
 	//----------------------Static Point Light------------------
+	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
+	//2.immutable after initialization
 	class IPointLightS
 	{
 	public:
@@ -224,6 +227,8 @@ namespace Noise3D
 
 
 	//------------------Static Spot Light--------------------
+	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
+	//2.immutable after initialization
 	class ISpotLightS
 	{
 	public:
