@@ -130,6 +130,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CollisionTestor.h" />
+    <ClInclude Include="Renderer_Atmosphere.h" />
+    <ClInclude Include="Renderer_GraphicObj.h" />
+    <ClInclude Include="Renderer_Mesh.h" />
+    <ClInclude Include="Renderer_Text.h" />
+    <ClInclude Include="RenderInfrastructure.h" />
     <ClInclude Include="_FbxLoader.h" />
     <ClInclude Include="FileIO_OBJ.h" />
     <ClInclude Include="FileIO_STL.h" />
@@ -185,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="RenderInfrastructure.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />
     <ClCompile Include="ShaderVarManager.cpp" />
     <ClCompile Include="Ut_MCMeshReconstructor.cpp" />

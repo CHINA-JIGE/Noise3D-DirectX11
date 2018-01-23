@@ -23,17 +23,17 @@ namespace Noise3D
 
 		IScene*	GetScenePtr();
 
-		HWND	CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
+		HWND		CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 
-		bool	InitD3D(HWND RenderHWND);
+		bool		InitD3D(HWND RenderHWND);
 
-		void	ReleaseAll();
+		void		ReleaseAll();
 
-		void Mainloop();
+		void		Mainloop();
 
-		void	SetMainLoopFunction(void(*pFunction)(void));//function pointer
+		void		SetMainLoopFunction(void(*pFunction)(void));//function pointer
 
-		void	SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus);
+		void		SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus);
 
 		HWND GetRenderWindowHWND();
 

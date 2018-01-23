@@ -25,10 +25,10 @@ void	IRenderer::RenderMeshes()
 
 #pragma region Render Mesh
 	//for every mesh
-	for (UINT i = 0; i<(m_pRenderList_Mesh->size()); i++)
+	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
 	{
 		//取出渲染列表中的mesh指针
-		IMesh* const pMesh = m_pRenderList_Mesh->at(i);
+		IMesh* const pMesh = mRenderList_Mesh.at(i);
 
 		//更新ConstantBuffer:每物体更新一次(cbPerObject)
 		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
@@ -50,7 +50,9 @@ void	IRenderer::RenderMeshes()
 
 		//set epth/Stencil State
 		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-
+		
+		//Set Render target
+		g_pImmediateContext->OMSetRenderTargets(1,&m_pRenderTargetViewForDisplay,m_pDepthStencilView);
 
 		//every mesh subset(one for each material)
 		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
@@ -143,7 +145,7 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 	}
 
 	//update basic material info
-	m_pRefShaderVarMgr->SetMaterial(N_BasicMaterialDesc(tmpMat));
+	m_pRefShaderVarMgr->SetMaterial(tmpMat);
 
 
 	//Validate textures

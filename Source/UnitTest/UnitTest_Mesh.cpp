@@ -122,14 +122,15 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
 	pMesh->SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+	//pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh);
 	/*for (auto & name : res.meshNameList)
 	{
 		IMesh* pMesh = pMeshMgr->GetMesh(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	}*/
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
@@ -170,7 +171,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
-	dirLightDesc.specularIntensity = 0.7f;
+	dirLightDesc.specularIntensity =1.0f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
@@ -186,17 +187,16 @@ BOOL Init3D(HWND hwnd)
 	pointLightDesc.diffuseIntensity = 1.0f;
 	pPointLight1->SetDesc(pointLightDesc);*/
 
-
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0.1f, 1.0f, 1.0f);
+	Mat1.ambientColor = NVECTOR3(0, 0, 0);
 	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
 	Mat1.normalMapBumpIntensity = 0.2f;
 	Mat1.environmentMapTransparency = 0.1f;
-	Mat1.diffuseMapName = "Earth";//"Earth");
-	Mat1.normalMapName ="EarthNormalMap";
-	Mat1.environmentMapName = "AtmoTexture";
+	//Mat1.diffuseMapName = "Earth";//"Earth");
+	//Mat1.normalMapName ="EarthNormalMap";
+	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material

@@ -28,16 +28,21 @@ namespace Noise3D
 
 	enum NOISE_BLENDMODE
 	{
-		NOISE_BLENDMODE_OPAQUE = 0,
-		NOISE_BLENDMODE_ALPHA = 1,
-		NOISE_BLENDMODE_ADDITIVE = 2,
-		NOISE_BLENDMODE_COLORFILTER = 3,
+		NOISE_BLENDMODE_OPAQUE,
+		NOISE_BLENDMODE_ALPHA,
+		NOISE_BLENDMODE_ADDITIVE,
+		NOISE_BLENDMODE_COLORFILTER,
 	};
 
 	enum NOISE_SHADEMODE
 	{
-		NOISE_SHADEMODE_GOURAUD = 0,//per-vertex lighting
-		NOISE_SHADEMODE_PHONG = 1,//per-pixel lighting(advanced render technique supported)
+		NOISE_SHADEMODE_GOURAUD,//per-vertex lighting
+		NOISE_SHADEMODE_PHONG,//per-pixel lighting(advanced render technique supported)
+	};
+
+	enum NOISE_SAMPLERMODE
+	{
+		LINEAR
 	};
 
 	class CRenderSettingFillMode
@@ -95,13 +100,14 @@ namespace Noise3D
 		NOISE_CULLMODE	mCullMode;
 	};
 
+
 	class CRenderSettingShadeMode
 	{
 	public:
 
 		CRenderSettingShadeMode()
 		{
-			mShadeMode =NOISE_SHADEMODE_PHONG;
+			mShadeMode = NOISE_SHADEMODE_PHONG;
 		}
 
 		void SetShadeMode(NOISE_SHADEMODE mode) { mShadeMode = mode; }
@@ -111,5 +117,24 @@ namespace Noise3D
 	private:
 		
 		NOISE_SHADEMODE mShadeMode;
+	};
+
+
+	class CRenderSettingSamplerMode
+	{
+	public:
+
+		CRenderSettingSamplerMode()
+		{
+			mSamplerMode = NOISE_SAMPLERMODE::LINEAR;
+		}
+
+		void SetSamplerMode(NOISE_SAMPLERMODE mode) { mSamplerMode = mode; }
+
+		NOISE_SAMPLERMODE GetShadeMode() { return mSamplerMode; }
+
+	private:
+
+		NOISE_SAMPLERMODE mSamplerMode;
 	};
 }

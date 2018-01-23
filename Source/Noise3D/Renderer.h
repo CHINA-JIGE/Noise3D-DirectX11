@@ -9,18 +9,38 @@
 
 #pragma once
 
+#include "RenderInfrastructure.h"
+#include "Renderer_Atmosphere.h"
+#include "Renderer_GraphicObj.h"
+#include "Renderer_Mesh.h"
+#include "Renderer_Text.h"
+
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IRenderer :
-		private IFileIO
+	/*class IRenderModule
 	{
 	public:
 
-		void			RenderMeshes();
+		void addToList();
+		void Render();
+
+	protected:
+
+		void clear();
+	private:
+	};*/
+
+	class /*_declspec(dllexport)*/ IRenderer :
+		private IFactory<IRenderInfrastructure>,
+		public IRenderModuleForAtmosphere
+	{
+	public:
+		
+		/*void			RenderMeshes();
 
 		void			RenderGraphicObjects();
 
-		void			RenderAtmosphere();
+		//void			RenderAtmosphere();
 
 		void			RenderTexts();
 
@@ -32,52 +52,28 @@ namespace Noise3D
 
 		void			AddObjectToRenderList(IDynamicText* obj);
 
-		void			AddObjectToRenderList(IStaticText* obj);
+		void			AddObjectToRenderList(IStaticText* obj);*/
 
 		void			ClearBackground(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
 		void			PresentToScreen();
 
-		UINT		GetMainBufferWidth();
+		UINT		GetBackBufferWidth();
 
-		UINT		GetMainBufferHeight();
+		UINT		GetBackBufferHeight();
 
-	private:
+		void			SetDepthTestEnabled(bool isEnabled);
 
-		const UINT	g_cVBstride_Default = sizeof(N_DefaultVertex);		//VertexBuffer的每个元素的字节跨度
-
-		const UINT	g_cVBstride_Simple = sizeof(N_SimpleVertex);
-
-		const UINT	g_cVBoffset = 0;				//VertexBuffer顶点序号偏移 因为从头开始所以offset是0
+		void			SetPostProcessingEnabled(bool isEnabled);
 
 	private:
 
-		//--------------------INITIALIZATION---------------------
-		
-		bool			NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);
+		//extern init by IScene
+		bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT bufferWidth, UINT bufferHeight, bool IsWindowed);
 
-		bool			mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed);//render target view, depth stencil view
+		void	mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList);
 
-		bool			mFunction_Init_CreateBlendState();
-
-		bool			mFunction_Init_CreateRasterState();
-
-		bool			mFunction_Init_CreateSamplerState();
-
-		bool			mFunction_Init_CreateDepthStencilState();
-
-		bool			mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
-
-		//--------------------BASIC OPERATION---------------------
-		void			mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList);
-
-		void			mFunction_AddToRenderList_Text(IBasicTextInfo* pText, std::vector<IBasicTextInfo*>* pList);
-
-		void			mFunction_SetRasterState(NOISE_FILLMODE iFillMode, NOISE_CULLMODE iCullMode);
-
-		void			mFunction_SetBlendState(NOISE_BLENDMODE iBlendMode);
-
-		void			mFunction_CameraMatrix_Update(ICamera* const pCamera);
+		void	mFunction_AddToRenderList_Text(IBasicTextInfo* pText, std::vector<IBasicTextInfo*>* pList);
 
 
 		//----------------MESHES-----------------------
@@ -103,17 +99,10 @@ namespace Noise3D
 
 		void			mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphicObject*>* pList);
 
-
 		//----------------TEXT-----------------------
 		void			mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText);
 
 		void			mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList);
-
-
-		//----------------ATMOSPHERE-----------------------
-		void			mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo);
-
-		void			mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo,bool& outEnabledSkybox,bool& outEnabledSkydome);
 
 	private:
 
@@ -121,46 +110,51 @@ namespace Noise3D
 
 		friend IFactory<IRenderer>;
 
-		//构造函数
 		IRenderer();
 
 		~IRenderer();
 
-		IShaderVariableManager* m_pRefShaderVarMgr;
+		IRenderInfrastructure* m_pRenderInfrastructure;
 
-		UINT		mMainBufferWidth;
-		UINT		mMainBufferHeight;
+		/*IShaderVariableManager* m_pRefShaderVarMgr;
 
-		std::vector <IMesh*>*					m_pRenderList_Mesh;
-		std::vector <IGraphicObject*>* 	m_pRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
-		std::vector <IBasicTextInfo*>*	m_pRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
-		std::vector <IBasicTextInfo*>*	m_pRenderList_TextStatic;//for static Text Rendering(including other info)
-		std::vector <IAtmosphere*>*		m_pRenderList_Atmosphere;
+		//each category of renderable object should have:
+		//1.object list to be rendered
+		//2.specific render preparation and draw call
+		//3.clear render list after Present()
+		std::vector <IMesh*>					mRenderList_Mesh;
+		std::vector <IGraphicObject*> 	mRenderList_CommonGraphicObj;//for user-defined graphic obj rendering
+		std::vector <IBasicTextInfo*>		mRenderList_TextDynamic;//for dynamic Text Rendering(including other info)
+		std::vector <IBasicTextInfo*>		mRenderList_TextStatic;//for static Text Rendering(including other info)
+		std::vector <IAtmosphere*>		mRenderList_Atmosphere;*/
 
-		IDXGISwapChain*						m_pSwapChain;
-		ID3D11RenderTargetView*			m_pRenderTargetView;//RTV
-		ID3D11DepthStencilView*			m_pDepthStencilView;//DSV
+		/*IDXGISwapChain*						m_pSwapChain;
+		ID3D11RenderTargetView*			m_pRenderTargetViewForPresent;//RTV for back buffer
+		ID3D11DepthStencilView*			m_pDepthStencilView;//DSV for back buffer*/
+		/*ID3D11RenderTargetView*			m_pRTTRenderTargetView;//RTV for render-to-texture
+		ID3D11ShaderResourceView*		m_pRTTShaderResourceView;//SRV for render-To-Texture
+		ID3D11DepthStencilView*			m_pRTTDepthStencilView;//DSV for render-To-Texture
 		ID3D11RasterizerState*				m_pRasterState_Solid_CullNone;
 		ID3D11RasterizerState*				m_pRasterState_Solid_CullBack;
 		ID3D11RasterizerState*				m_pRasterState_Solid_CullFront;
 		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullFront;
 		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullNone;
 		ID3D11RasterizerState*				m_pRasterState_WireFrame_CullBack;
-		ID3D11BlendState*						m_pBlendState_Opaque;
-		ID3D11BlendState*						m_pBlendState_AlphaTransparency;
-		ID3D11BlendState*						m_pBlendState_ColorAdd;
-		ID3D11BlendState*						m_pBlendState_ColorMultiply;
-		ID3D11DepthStencilState*			m_pDepthStencilState_EnableDepthTest;
-		ID3D11DepthStencilState*			m_pDepthStencilState_DisableDepthTest;
-		ID3D11SamplerState*					m_pSamplerState_FilterLinear;
+		ID3D11BlendState*					m_pBlendState_Opaque;
+		ID3D11BlendState*					m_pBlendState_AlphaTransparency;
+		ID3D11BlendState*					m_pBlendState_ColorAdd;
+		ID3D11BlendState*					m_pBlendState_ColorMultiply;
+		ID3D11DepthStencilState*		m_pDepthStencilState_EnableDepthTest;
+		ID3D11DepthStencilState*		m_pDepthStencilState_DisableDepthTest;
+		ID3D11SamplerState*				m_pSamplerState_FilterLinear;*/
 
-		//用于从app更新到Gpu的接口
-		ID3DX11EffectTechnique*			m_pFX_Tech_DrawMesh;
+		//EffectTechnique interfaces in compiled internal shaders
+		/*ID3DX11EffectTechnique*			m_pFX_Tech_DrawMesh;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid3D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Solid2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_Textured2D;
 		ID3DX11EffectTechnique*			m_pFX_Tech_DrawText2D;
-		ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;
+		ID3DX11EffectTechnique*			m_pFX_Tech_DrawSky;*/
 
 	};
 }

@@ -9,43 +9,50 @@
 
 using namespace Noise3D;
 
-void IRenderer::RenderAtmosphere()
+IRenderModuleForAtmosphere::IRenderModuleForAtmosphere()
+{
+}
+
+IRenderModuleForAtmosphere::~IRenderModuleForAtmosphere()
+{
+}
+
+
+void IRenderModuleForAtmosphere::SetActiveAtmosphere(IAtmosphere * pAtmo)
+{
+	mRenderList_Atmosphere.resize(1);
+	mRenderList_Atmosphere.at(0) = pAtmo;
+}
+
+void IRenderModuleForAtmosphere::RenderAtmosphere()
 {
 	//...................
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
 	//update view/proj matrix
-	mFunction_CameraMatrix_Update(tmp_pCamera);
+	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	//actually there is only 1 atmosphere because you dont need more 
-	for (UINT i = 0;i < m_pRenderList_Atmosphere->size();i++)
+	for (UINT i = 0;i < mRenderList_Atmosphere.size();i++)
 	{
-		IAtmosphere* const  pAtmo = m_pRenderList_Atmosphere->at(i);
+		IAtmosphere* const  pAtmo = mRenderList_Atmosphere.at(i);
 
 		if (pAtmo == nullptr)continue;
 
+		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, pAtmo->m_pVB_Gpu, pAtmo->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
+		m_pRefRI->SetBlendState(NOISE_BLENDMODE_OPAQUE);
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+		m_pRefRI->SetDepthStencilState();
+		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
+
 		//enable/disable fog effect 
 		mFunction_Atmosphere_UpdateFogParameters(pAtmo);
-
-#pragma region Draw Sky
-
-		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &pAtmo->m_pVB_Gpu, &g_cVBstride_Simple, &g_cVBoffset);
-		g_pImmediateContext->IASetIndexBuffer(pAtmo->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//......Set States
-		mFunction_SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
-		mFunction_SetBlendState(NOISE_BLENDMODE_OPAQUE);
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
-		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-
 
 		//update Vertices or atmo param to GPU
 		//shader will be chosen to render skybox OR skydome
 		bool enableSkyDome=false, enableSkyBox=false;
 		mFunction_Atmosphere_UpdateSkyParameters(pAtmo,enableSkyBox,enableSkyDome);
-
 
 		//traverse passes in one technique ---- pass index starts from 1
 		D3DX11_TECHNIQUE_DESC	tmpTechDesc;
@@ -69,19 +76,29 @@ void IRenderer::RenderAtmosphere()
 			m_pFX_Tech_DrawSky->GetPassByIndex(2)->Apply(0, g_pImmediateContext);
 			g_pImmediateContext->DrawIndexed(pAtmo->mIB_Mem.size(), 0, 0);
 		}
-
-#pragma endregion Draw Sky
 	}
-
 }
 
 
 /***********************************************************************
+										PROTECTED
+************************************************************************/
+void IRenderModuleForAtmosphere::ClearRenderList()
+{
+	mRenderList_Atmosphere.clear();
+}
+
+/***********************************************************************
 									P R I V A T E
 ************************************************************************/
+void IRenderModuleForAtmosphere::mFunction_Init(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr)
+{
+	m_pRefRI = pRI;
+	m_pRefShaderVarMgr = pShaderVarMgr;
+	m_pFX_Tech_DrawSky = g_pFX->GetTechniqueByName("DrawSky");
+}
 
-
-void		IRenderer::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo)
+void	IRenderModuleForAtmosphere::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo)
 {
 	if (pAtmo->mFogCanUpdateToGpu)
 	{
@@ -94,20 +111,20 @@ void		IRenderer::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtm
 	}
 };
 
-void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome)
+void	IRenderModuleForAtmosphere::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome)
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 	N_UID skyTexName = pAtmo->GetSkyTextureUID();
 	bool enableSkyBox=false, enableSkyDome = false;
 
 	//check skyType and update corresponding shader variables
-	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_DOME)
+	if (pAtmo->GetSkyType() == NOISE_ATMOSPHERE_SKYTYPE_DOME)
 	{
 		//if texture pass UID validation and match current skytype
 		bool isSkyDomeValid = pTexMgr->ValidateUID(skyTexName, NOISE_TEXTURE_TYPE_COMMON);
 		enableSkyDome =  isSkyDomeValid;
 	}
-	else	if (pAtmo->mSkyType == NOISE_ATMOSPHERE_SKYTYPE_BOX)
+	else	if (pAtmo->GetSkyType() == NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
 		//skybox texture must be a cube map
 		bool isSkyBoxValid = pTexMgr->ValidateUID(skyTexName, NOISE_TEXTURE_TYPE_CUBEMAP);
@@ -137,3 +154,4 @@ void		IRenderer::mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtm
 	outEnabledSkybox = enableSkyBox;
 	outEnabledSkydome = enableSkyDome;
 };
+

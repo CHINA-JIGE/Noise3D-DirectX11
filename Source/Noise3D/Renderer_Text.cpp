@@ -16,9 +16,12 @@ void IRenderer::RenderTexts()
 	g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	//Set Render target
+	g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewForDisplay, m_pDepthStencilView);
+
 	//render TEXT
-	mFunction_TextGraphicObj_Render(m_pRenderList_TextDynamic);
-	mFunction_TextGraphicObj_Render(m_pRenderList_TextStatic);
+	mFunction_TextGraphicObj_Render(&mRenderList_TextDynamic);
+	mFunction_TextGraphicObj_Render(&mRenderList_TextStatic);
 }
 
 /***********************************************************************
@@ -45,7 +48,7 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureMan
 void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList)
 {
 	//prepare to draw , various settings.....
-	ID3D11Buffer* tmp_pVB = NULL;
+	ID3D11Buffer* tmp_pVB = nullptr;
 
 	//I didn't use template because this function is type-dependent
 	//i dont want it to be type-unsafe
@@ -107,7 +110,4 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 		}
 
 	}
-
-	//clear render list
-	pList->clear();
 };

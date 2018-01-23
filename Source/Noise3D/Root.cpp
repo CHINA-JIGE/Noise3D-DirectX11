@@ -114,29 +114,26 @@ bool IRoot::InitD3D(HWND RenderHWND)
 
 	HRESULT hr = S_OK;
 
-
-	//用来做判断及返回结果
-
 	//硬件驱动类型
 	D3D_DRIVER_TYPE driverTypes[] =
 	{
-		D3D_DRIVER_TYPE_HARDWARE,	//HAL 硬件驱动
-		D3D_DRIVER_TYPE_REFERENCE,	//REF参考设备
-		D3D_DRIVER_TYPE_WARP,		//Windows Advanced Rasterization Platform只支持DX10.1
+		D3D_DRIVER_TYPE_HARDWARE,	//HAL
+		D3D_DRIVER_TYPE_REFERENCE,	//REF device
+		D3D_DRIVER_TYPE_WARP,		//Windows Advanced Rasterization Platform, D3D10.1 only
 	};
 	UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
-	//D3D特性的版本
+	//D3D feature levels (9_1,9_29_3, 10_0 ,10_1,11_0,11_1etc.)
 	D3D_FEATURE_LEVEL featureLevels[] =
 	{
 		D3D_FEATURE_LEVEL_11_0
 	};
 	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
-	//设备创建标签 
+	//flag of device creation:
 	UINT createDeviceFlags = 0;
-
-#ifdef _DEBUG	//D3D调试模式
+#ifdef _DEBUG	
+	//device debug mode, enable outputing d3d info
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -174,10 +171,9 @@ bool IRoot::InitD3D(HWND RenderHWND)
 
 };
 
-void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
+void IRoot::ReleaseAll()
 {
-	//g_pImmediateContext->Flush();
-	//g_pImmediateContext->ClearState();
+
 	IScene* pScene = GetScenePtr();
 	pScene->ReleaseAllChildObject();
 	IFactory<IScene>::DestroyAllObject();//delete the only scene
@@ -204,8 +200,6 @@ void IRoot::ReleaseAll()//考虑下在构造函数那弄个AddToReleaseList呗
 	}
 
 #endif
-
-
 }
 
 void IRoot::Mainloop()
@@ -295,7 +289,7 @@ int	IRoot::GetRenderWindowHeight()
 ************************************************************************/
 
 //windows message handle
-static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)//消息的处理程序
+static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	/*HDC			hdc ;
 	PAINTSTRUCT ps ;
@@ -304,6 +298,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 	{
 	case WM_CREATE:
 		return 0;
+
 
 	case WM_DESTROY:
 		PostQuitMessage(0);

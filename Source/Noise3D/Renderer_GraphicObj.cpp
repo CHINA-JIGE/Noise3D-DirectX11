@@ -21,12 +21,15 @@ void IRenderer::RenderGraphicObjects()
 	//set depth/Stencil State
 	g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
 
+	//Set Render target
+	g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewForDisplay, m_pDepthStencilView);
+
 	//render various kinds of primitives
-	mFunction_GraphicObj_RenderLine2DInList(m_pRenderList_CommonGraphicObj);
-	if (pCamera != nullptr)mFunction_GraphicObj_RenderLine3DInList(pCamera,m_pRenderList_CommonGraphicObj);
-	if (pCamera != nullptr)mFunction_GraphicObj_RenderPoint3DInList(pCamera,m_pRenderList_CommonGraphicObj);
-	mFunction_GraphicObj_RenderPoint2DInList(m_pRenderList_CommonGraphicObj);
-	mFunction_GraphicObj_RenderTriangle2DInList(m_pRenderList_CommonGraphicObj);
+	mFunction_GraphicObj_RenderLine2DInList(&mRenderList_CommonGraphicObj);
+	if (pCamera != nullptr)mFunction_GraphicObj_RenderLine3DInList(pCamera,&mRenderList_CommonGraphicObj);
+	if (pCamera != nullptr)mFunction_GraphicObj_RenderPoint3DInList(pCamera,&mRenderList_CommonGraphicObj);
+	mFunction_GraphicObj_RenderPoint2DInList(&mRenderList_CommonGraphicObj);
+	mFunction_GraphicObj_RenderTriangle2DInList(&mRenderList_CommonGraphicObj);
 }
 
 /***********************************************************************
@@ -85,7 +88,6 @@ void		IRenderer::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera,s
 
 void		IRenderer::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera,std::vector<IGraphicObject*>* pList)
 {
-
 	//update view/proj matrix
 	mFunction_CameraMatrix_Update(pCamera);
 
@@ -240,7 +242,4 @@ void		IRenderer::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphi
 		}
 
 	}
-
-	//Çå¿ÕäÖÈ¾ÁÐ±í
-	pList->clear();
 }

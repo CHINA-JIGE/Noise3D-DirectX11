@@ -235,6 +235,21 @@
     <ClInclude Include="_FbxLoader.h">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer_Atmosphere.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_GraphicObj.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_Mesh.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_Text.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderInfrastructure.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -365,6 +380,9 @@
     </ClCompile>
     <ClCompile Include="_FbxLoader.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderInfrastructure.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

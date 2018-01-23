@@ -63,7 +63,7 @@ namespace Noise3D
 		N_UID diffuseMapName;
 		N_UID normalMapName;
 		N_UID specularMapName;
-		N_UID emissiveMapName;
+		N_UID emissiveMapName;//(2018.1.20)not supported yet
 		N_UID environmentMapName;
 	};
 
