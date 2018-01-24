@@ -14,14 +14,12 @@ namespace Noise3D
 		{
 		public:
 
-			friend class IRenderer;
-			friend class IFontManager;
-
 			NVECTOR2 GetFontSize();
-
 
 		private:
 
+			friend class IRenderModuleForText;
+			friend class IFontManager;
 			friend IFactory<IStaticText>;
 
 			IStaticText();
@@ -32,9 +30,8 @@ namespace Noise3D
 
 			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();//extern call by renderer
 
-		private:
+			N_UID	mTextureName;//which bitmap texture to refer to
 
-			N_UID*				m_pTextureName;//which bitmap texture to refer to
-			N_UID*				m_pFontName;
+			N_UID	mFontName;
 		};
 }

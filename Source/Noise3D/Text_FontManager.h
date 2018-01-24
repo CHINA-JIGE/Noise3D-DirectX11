@@ -36,9 +36,7 @@ namespace Noise3D
 			public IFactory<IStaticText>
 		{
 		public:
-			friend	class IScene;//create internal object
-			friend  class IRenderer;
-			friend  IDynamicText;
+
 
 			bool		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
 
@@ -81,14 +79,17 @@ namespace Noise3D
 			bool		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 
 		private:
-
-			friend IFactory<IFontManager>;
+			friend	class IScene;//create internal object
+			friend  class IRenderModuleForText;
+			friend  IDynamicText;
+			friend	IFactory<IFontManager>;
 
 			IFontManager();
 
 			~IFontManager();
 
 			ITextureManager*				m_pTexMgr;//created by IScene, internal texture manager (ascii bitmap table/static Bitmap)
+			
 			IGraphicObjectManager*	m_pGraphicObjMgr;//Created by IScene, assign GObj to every TextObj
 
 			FT_Library					m_FTLibrary;

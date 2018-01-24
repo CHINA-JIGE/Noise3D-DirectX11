@@ -11,8 +11,7 @@
 using namespace Noise3D;
 
 IRenderer::IRenderer():
-	IFactory<IRenderInfrastructure>(1),
-	IRenderModuleForAtmosphere()
+	IFactory<IRenderInfrastructure>(1)
 {
 }
 
@@ -21,31 +20,38 @@ IRenderer::~IRenderer()
 	IFactory<IRenderInfrastructure>::DestroyAllObject();
 };
 
-
-/*void IRenderer::AddObjectToRenderList(IMesh* obj)
+void IRenderer::AddToRenderQueue(IMesh * obj)
 {
-	mRenderList_Mesh.push_back(obj);
-};
-
-void IRenderer::AddObjectToRenderList(IAtmosphere* obj)
-{
-	mRenderList_Atmosphere.push_back(obj);
-};
-
-void IRenderer::AddObjectToRenderList(IGraphicObject* obj)
-{
-	mFunction_AddToRenderList_GraphicObj(obj, &mRenderList_CommonGraphicObj);
+	IRenderModuleForMesh::AddToRenderQueue(obj);
 }
 
-void IRenderer::AddObjectToRenderList(IDynamicText* obj)
+void IRenderer::AddToRenderQueue(IGraphicObject * obj)
 {
-	mFunction_AddToRenderList_Text(obj, &mRenderList_TextDynamic);
+	IRenderModuleForGraphicObject::AddToRenderQueue(obj);
 }
 
-void IRenderer::AddObjectToRenderList(IStaticText* obj)
+void IRenderer::AddToRenderQueue(IDynamicText * obj)
 {
-	mFunction_AddToRenderList_Text(obj, &mRenderList_TextStatic);
-};*/
+	IRenderModuleForText::AddToRenderQueue(obj);
+}
+
+void IRenderer::AddToRenderQueue(IStaticText * obj)
+{
+	IRenderModuleForText::AddToRenderQueue(obj);
+}
+
+void IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
+{
+	IRenderModuleForAtmosphere::SetActiveAtmosphere(obj);
+}
+
+void IRenderer::Render()
+{
+	IRenderModuleForMesh::RenderMeshes();
+	IRenderModuleForAtmosphere::RenderAtmosphere();
+	IRenderModuleForGraphicObject::RenderGraphicObjects();
+	IRenderModuleForText::RenderTexts();
+}
 
 void	IRenderer::ClearBackground(const NVECTOR4& color)
 {
@@ -56,12 +62,11 @@ void	IRenderer::PresentToScreen()
 {
 	m_pRenderInfrastructure->SwapChainPresent();
 
+	//pop out rendered objects
 	IRenderModuleForAtmosphere::ClearRenderList();
-		//clear render list
-		mRenderList_CommonGraphicObj.clear();
-		mRenderList_Mesh.clear();
-		mRenderList_TextDynamic.clear();
-		mRenderList_TextStatic.clear();
+	IRenderModuleForGraphicObject::ClearRenderList();
+	IRenderModuleForMesh::ClearRenderList();
+	IRenderModuleForText::ClearRenderList();
 };
 
 
@@ -75,13 +80,9 @@ UINT IRenderer::GetBackBufferHeight()
 	return m_pRenderInfrastructure->mBackBufferHeight;
 }
 
-void IRenderer::SetDepthTestEnabled(bool isEnabled)
-{
-	m_pRenderInfrastructure->mEnableDepthTest = isEnabled;
-}
 void IRenderer::SetPostProcessingEnabled(bool isEnabled)
 {
-
+	m_pRenderInfrastructure->mEnablePostProcessing = isEnabled;
 };
 
 
@@ -107,42 +108,13 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	}
 
 	//2. Init Render Modules
-
-
+	IShaderVariableManager* pSVM = m_pRenderInfrastructure->GetRefToShaderVarMgr();
+	IRenderModuleForAtmosphere::Initialize(m_pRenderInfrastructure, pSVM);
+	IRenderModuleForGraphicObject::Initialize(m_pRenderInfrastructure, pSVM);
+	IRenderModuleForMesh::Initialize(m_pRenderInfrastructure, pSVM);
+	IRenderModuleForText::Initialize(m_pRenderInfrastructure, pSVM);
 
 	return true;
 }
 
-void		IRenderer::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList)
-{
-	pList->push_back(pGraphicObj);
-
-	//Update Data to GPU if data is not up to date , 5 object types for now
-	for (UINT i = 0;i < NOISE_GRAPHIC_OBJECT_BUFFER_COUNT;i++)
-	{
-		if (pGraphicObj->mCanUpdateToGpu[i]==true)
-		{
-			pGraphicObj->mFunction_UpdateVerticesToGpu(i);
-			pGraphicObj->mCanUpdateToGpu[i] = false;
-			// rectangles can have textures, thus a subset list should be generated
-			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pGraphicObj->mFunction_GenerateRectSubsetInfo();
-		}
-	}
-}
-
-void		IRenderer::mFunction_AddToRenderList_Text(IBasicTextInfo * pText, std::vector<IBasicTextInfo*>* pList)
-{
-	pText->mFunction_UpdateGraphicObject();//implemented by derived Text Class
-	pList->push_back(pText);
-	//Update Data to GPU if data is not up to date , 6 object types for now
-	for (UINT i = 0;i <NOISE_GRAPHIC_OBJECT_BUFFER_COUNT;i++)
-	{
-		if (pText->m_pGraphicObj->mCanUpdateToGpu[i])
-		{
-			pText->m_pGraphicObj->mFunction_UpdateVerticesToGpu(i);
-			pText->m_pGraphicObj->mCanUpdateToGpu[i] = false;
-			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pText->m_pGraphicObj->mFunction_GenerateRectSubsetInfo();
-		}
-	}
-}
 

@@ -17,16 +17,10 @@
     <ClCompile Include="UnitTest_Mesh.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTest_Text.cpp">
-      <Filter>Main3D</Filter>
-    </ClCompile>
     <ClCompile Include="UnitTest_Picking.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
     <ClCompile Include="UnitTest_MC_ModelExport.cpp">
-      <Filter>Main3D</Filter>
-    </ClCompile>
-    <ClCompile Include="UnitTest_ModelProcessor.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
     <ClCompile Include="Exp_MeshSimplification.cpp">

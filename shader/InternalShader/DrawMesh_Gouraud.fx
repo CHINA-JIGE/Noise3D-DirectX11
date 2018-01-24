@@ -144,6 +144,8 @@ void RenderProcess_Gouraud::ComputeFinalColorForPS(float3 normalW, float3 posW, 
 		outColor4 = lerp(outColor4, float4(gFogColor3, 1.0f), fogInterpolationFactor);
 	}
 
+	//set transparency component
+	outColor4.w = saturate(gMaterial.mTransparency);
 }
 
 

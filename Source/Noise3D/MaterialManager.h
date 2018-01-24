@@ -14,8 +14,6 @@ namespace Noise3D
 		:public IFactory<IMaterial>
 	{
 	public:
-		friend  class IScene;
-		friend  class IRenderer;
 
 
 		IMaterial*		CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc);
@@ -33,6 +31,8 @@ namespace Noise3D
 		bool		ValidateUID(N_UID matName);
 
 	private:
+
+		friend  class IScene;
 
 		friend IFactory<IMaterialManager>;
 

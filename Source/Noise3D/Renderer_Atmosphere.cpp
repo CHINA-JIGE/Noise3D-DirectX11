@@ -15,14 +15,19 @@ IRenderModuleForAtmosphere::IRenderModuleForAtmosphere()
 
 IRenderModuleForAtmosphere::~IRenderModuleForAtmosphere()
 {
-}
 
+}
 
 void IRenderModuleForAtmosphere::SetActiveAtmosphere(IAtmosphere * pAtmo)
 {
+	if (pAtmo == nullptr)return;
 	mRenderList_Atmosphere.resize(1);
 	mRenderList_Atmosphere.at(0) = pAtmo;
 }
+
+/***********************************************************************
+										PROTECTED
+************************************************************************/
 
 void IRenderModuleForAtmosphere::RenderAtmosphere()
 {
@@ -33,17 +38,17 @@ void IRenderModuleForAtmosphere::RenderAtmosphere()
 	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	//actually there is only 1 atmosphere because you dont need more 
-	for (UINT i = 0;i < mRenderList_Atmosphere.size();i++)
+	for (UINT i = 0; i < mRenderList_Atmosphere.size(); i++)
 	{
 		IAtmosphere* const  pAtmo = mRenderList_Atmosphere.at(i);
 
 		if (pAtmo == nullptr)continue;
 
 		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, pAtmo->m_pVB_Gpu, pAtmo->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID , NOISE_CULLMODE_BACK );
+		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_BACK);
 		m_pRefRI->SetBlendState(NOISE_BLENDMODE_OPAQUE);
 		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
-		m_pRefRI->SetDepthStencilState();
+		m_pRefRI->SetDepthStencilState(true);
 		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 
 		//enable/disable fog effect 
@@ -51,13 +56,10 @@ void IRenderModuleForAtmosphere::RenderAtmosphere()
 
 		//update Vertices or atmo param to GPU
 		//shader will be chosen to render skybox OR skydome
-		bool enableSkyDome=false, enableSkyBox=false;
-		mFunction_Atmosphere_UpdateSkyParameters(pAtmo,enableSkyBox,enableSkyDome);
+		bool enableSkyDome = false, enableSkyBox = false;
+		mFunction_Atmosphere_UpdateSkyParameters(pAtmo, enableSkyBox, enableSkyDome);
 
-		//traverse passes in one technique ---- pass index starts from 1
-		D3DX11_TECHNIQUE_DESC	tmpTechDesc;
-		m_pFX_Tech_DrawSky->GetDesc(&tmpTechDesc);
-
+		//select pass to apply
 		if (!enableSkyBox && !enableSkyDome)
 		{
 			//"EmptySky"
@@ -79,24 +81,21 @@ void IRenderModuleForAtmosphere::RenderAtmosphere()
 	}
 }
 
-
-/***********************************************************************
-										PROTECTED
-************************************************************************/
 void IRenderModuleForAtmosphere::ClearRenderList()
 {
 	mRenderList_Atmosphere.clear();
 }
 
-/***********************************************************************
-									P R I V A T E
-************************************************************************/
-void IRenderModuleForAtmosphere::mFunction_Init(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr)
+void IRenderModuleForAtmosphere::Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr)
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
 	m_pFX_Tech_DrawSky = g_pFX->GetTechniqueByName("DrawSky");
 }
+
+/***********************************************************************
+									P R I V A T E
+************************************************************************/
 
 void	IRenderModuleForAtmosphere::mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo)
 {
@@ -138,7 +137,7 @@ void	IRenderModuleForAtmosphere::mFunction_Atmosphere_UpdateSkyParameters(IAtmos
 	if (enableSkyDome)
 	{
 		//texName has been validated in UPDATE function
-		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
+		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,skyTexName);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, tmp_pSRV);
 	}
 
@@ -147,7 +146,7 @@ void	IRenderModuleForAtmosphere::mFunction_Atmosphere_UpdateSkyParameters(IAtmos
 	{
 		//pAtmo->mSkyBoxTextureID has been validated  in UPDATE function
 		//but how do you validate it's a valid cube map ?????
-		auto tmp_pSRV = pTexMgr->GetObjectPtr(skyTexName)->m_pSRV;
+		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,skyTexName);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, tmp_pSRV);
 	}
 

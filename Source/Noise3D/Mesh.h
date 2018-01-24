@@ -88,7 +88,7 @@ namespace Noise3D
 
 	private:
 
-		friend class IRenderer;
+		friend class IRenderModuleForMesh;
 		friend class IModelLoader;
 		friend class IModelProcessor;
 		friend class ICollisionTestor;

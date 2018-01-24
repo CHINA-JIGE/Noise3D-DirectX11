@@ -73,7 +73,8 @@ namespace Noise3D
 		void				GetInvViewMatrix(NMATRIX& outMat);
 
 	private:
-		friend  IRenderer;
+
+		friend  class IRenderer;
 
 		friend IFactory<ICamera>;
 

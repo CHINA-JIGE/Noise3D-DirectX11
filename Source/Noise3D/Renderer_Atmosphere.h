@@ -11,13 +11,12 @@ namespace Noise3D
 {
 	class IRenderer;
 
-	class /*_declspec(dllexport)*/ IRenderModuleForAtmosphere
+	class /*_declspec(dllexport)*/ IRenderModuleForAtmosphere:
+		IBaseRenderModule
 	{
 	public:
 
-		void		SetActiveAtmosphere(IAtmosphere* pAtmo);
-
-		void		RenderAtmosphere();
+		void	SetActiveAtmosphere(IAtmosphere* pAtmo);
 
 	protected:
 
@@ -27,16 +26,18 @@ namespace Noise3D
 
 		~IRenderModuleForAtmosphere();
 
-		void		ClearRenderList();
+		void		RenderAtmosphere();
+
+		virtual void	ClearRenderList() override;
+
+		//called by IRenderer
+		virtual void	Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
 
 	private:
 
+		void		mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo);
 
-		void			mFunction_Init(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr);
-
-		void			mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo);
-
-		void			mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome);
+		void		mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome);
 
 
 		std::vector <IAtmosphere*>	mRenderList_Atmosphere; //list of object to be rendererd

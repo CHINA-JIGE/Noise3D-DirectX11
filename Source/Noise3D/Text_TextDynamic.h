@@ -13,8 +13,7 @@ namespace Noise3D
 			public	IBasicTextInfo
 		{
 		public:
-			friend class IRenderer;
-			friend class IFontManager;
+
 
 			void		SetWidth(float w);
 
@@ -44,6 +43,8 @@ namespace Noise3D
 
 		private:
 
+			friend class IRenderModuleForText;
+			friend class IFontManager;
 			friend IFactory<IDynamicText>;
 
 			IDynamicText();
@@ -56,13 +57,13 @@ namespace Noise3D
 
 		private:
 
-			N_UID*					m_pFontName;
-			UINT					mCharBoundarySizeX;//updated when SetFontID
-			UINT					mCharBoundarySizeY;
-			int					mWordSpacingOffset;
-			int					mLineSpacingOffset;
-			N_UID*				m_pTextureName;//which bitmap texture to refer to
-			std::string*		m_pTextContent;//the target "string"
+			N_UID			mFontName;
+			UINT			mCharBoundarySizeX;//updated when SetFontID
+			UINT			mCharBoundarySizeY;
+			int				mWordSpacingOffset;
+			int				mLineSpacingOffset;
+			N_UID			mTextureName;//which bitmap texture to refer to
+			std::string		mTextContent;//the target "string"
 			bool				mIsTextContentChanged;
 			bool				mIsSizeChanged;
 		};

@@ -16313,10 +16313,10 @@ fxgroup
                 #line 87
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 208
+                #line 210
                     imul null, r2.w, r2.z, l(4)
                     mov r11.xyz, cb2[r2.w + 0].xyzx  // light<0,1,2>
                     mov r12.xyz, cb2[r2.w + 1].xyzx  // light<4,5,6>
@@ -16324,7 +16324,7 @@ fxgroup
                     mov r3.w, cb2[r2.w + 0].w  // light<3>
                     mov r14.xyz, cb2[r2.w + 3].xyzx  // light<12,13,14>
                 
-                #line 211
+                #line 213
                     mov r14.xyz, r14.xyzx  // lightVecW<0,1,2>
                     dp3 r4.w, r14.xyzx, r14.xyzx
                     rsq r4.w, r4.w
@@ -16334,53 +16334,53 @@ fxgroup
                     mov r13.xyz, r13.xyzx  // lightSpecColor3<0,1,2>
                     mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 167
+                #line 169
                     mov r14.xyz, r14.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r11.xyz, r11.xyzx  // lightAmbientColor3<0,1,2>
                     mov r12.xyz, r12.xyzx  // lightDiffuseColor3<0,1,2>
                     mov r13.xyz, r13.xyzx  // lightSpecColor3<0,1,2>
                     mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 174
+                #line 176
                     nop 
                     mov r14.xyz, r14.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r4.w, r5.xyzx, r5.xyzx
                     rsq r4.w, r4.w
                     mul r15.xyz, r4.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 281
+                #line 283
                     mov r16.xyz, -r14.xyzx
                     dp3 r4.w, r16.xyzx, r15.xyzx
                     mul r2.w, r4.w, cb2[r2.w + 1].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                     mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                     mul r11.xyz, r11.xyzx, cb3[0].xyzx  // outAmbient4<0:Inf,1:Inf,2:Inf>
                 
-                #line 180
+                #line 182
                     lt r4.w, l(0.000000), r2.w
                     if_nz r4.w
                 
-                #line 183
+                #line 185
                       mul r2.w, r2.w, l(1.000000)
                       mul r12.xyz, r12.xyzx, cb3[1].xyzx
                       mul r12.xyz, r2.wwww, r12.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                       dp3 r2.w, r14.xyzx, r15.xyzx
                       add r2.w, r2.w, r2.w
                       mov r2.w, -r2.w
                       mul r15.xyz, r2.wwww, r15.xyzx
                       add r14.xyz, r14.xyzx, r15.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                       dp3 r2.w, r7.xyzx, r7.xyzx
                       rsq r2.w, r2.w
                       mul r15.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                       dp3 r2.w, r14.xyzx, r15.xyzx
                       max r2.w, r2.w, l(0.000000)
                       itof r4.w, cb3[0].w
@@ -16389,12 +16389,12 @@ fxgroup
                       exp r2.w, r2.w
                       mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                       mul r2.w, r2.w, l(1.000000)
                       mul r13.xyz, r13.xyzx, cb3[2].xyzx
                       mul r13.xyz, r2.wwww, r13.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                     else 
                       mov r12.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                       mov r13.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
@@ -16424,10 +16424,10 @@ fxgroup
                 #line 97
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 224
+                #line 226
                     imul null, r2.w, r2.z, l(4)
                     mov r13.xyz, cb2[r2.w + 40].xyzx  // light<0,1,2>
                     mov r14.xyz, cb2[r2.w + 41].xyzx  // light<4,5,6>
@@ -16437,21 +16437,21 @@ fxgroup
                     mov r4.w, cb2[r2.w + 42].w  // light<11>
                     mov r5.w, cb2[r2.w + 43].w  // light<15>
                 
-                #line 227
+                #line 229
                     mov r16.xyz, -r16.xyzx
                     add r16.xyz, r6.xyzx, r16.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r6.w, r16.xyzx, r16.xyzx
                     rsq r7.w, r6.w
                     mul r16.xyz, r7.wwww, r16.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 231
+                #line 233
                     sqrt r6.w, r6.w  // distanceFromLight<0:NaN:Inf>
                     lt r17.xy, r5.wwww, r6.wwww
                     if_nz r17.y
                       mov r5.w, l(-1)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: true>
                     endif 
                 
-                #line 236
+                #line 238
                     not r7.w, r17.y
                     not r8.w, r17.x
                     and r7.w, r7.w, r8.w
@@ -16465,17 +16465,17 @@ fxgroup
                       mov r15.xyz, r15.xyzx  // lightSpecColor3<0,1,2>
                       mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 236
+                #line 238
                     endif 
                     and r6.w, r7.w, r8.w
                     or r6.w, r17.x, r6.w
                 
-                #line 272
+                #line 274
                     if_z r6.w
                       mov r5.w, l(0)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: false>
                     endif 
                 
-                #line 167
+                #line 169
                     mov r16.xyz, r16.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r4.w, r4.w  // attenuation<0:NaN:Inf>
                     mov r13.xyz, r13.xyzx  // lightAmbientColor3<0:Inf,1:Inf,2:Inf>
@@ -16483,7 +16483,7 @@ fxgroup
                     mov r15.xyz, r15.xyzx  // lightSpecColor3<0:Inf,1:Inf,2:Inf>
                     mov r3.w, r3.w  // lightSpecIntensity<0:Inf>
                 
-                #line 174
+                #line 176
                     if_z r5.w
                       nop 
                       mov r17.xyz, r16.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -16491,39 +16491,39 @@ fxgroup
                       rsq r5.w, r5.w
                       mul r18.xyz, r5.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 287
+                #line 289
                       mov r17.xyz, -r17.xyzx
                       dp3 r5.w, r17.xyzx, r18.xyzx
                       mul r2.w, r5.w, cb2[r2.w + 41].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                       mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                       mul r13.xyz, r13.xyzx, cb3[0].xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       lt r5.w, l(0.000000), r2.w
                       if_nz r5.w
                 
-                #line 183
+                #line 185
                         mul r2.w, r2.w, r4.w
                         mul r14.xyz, r14.xyzx, cb3[1].xyzx
                         mul r14.xyz, r2.wwww, r14.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                         dp3 r2.w, r16.xyzx, r18.xyzx
                         add r2.w, r2.w, r2.w
                         mov r2.w, -r2.w
                         mul r17.xyz, r2.wwww, r18.xyzx
                         add r16.xyz, r16.xyzx, r17.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                         dp3 r2.w, r7.xyzx, r7.xyzx
                         rsq r2.w, r2.w
                         mul r17.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                         dp3 r2.w, r16.xyzx, r17.xyzx
                         max r2.w, r2.w, l(0.000000)
                         itof r5.w, cb3[0].w
@@ -16532,18 +16532,18 @@ fxgroup
                         exp r2.w, r2.w
                         mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                         mul r2.w, r2.w, r4.w
                         mul r15.xyz, r15.xyzx, cb3[2].xyzx
                         mul r15.xyz, r2.wwww, r15.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       else 
                         mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                         mov r15.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
                       endif 
                 
-                #line 174
+                #line 176
                     else 
                       mov r13.xyz, l(0,0,0,0)  // outAmbient4<0: 0f,1: 0f,2: 0f>
                       mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
@@ -16574,10 +16574,10 @@ fxgroup
                 #line 107
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 246
+                #line 248
                     imul null, r2.w, r2.z, l(5)
                     mov r13.xyz, cb2[r2.w + 80].xyzx  // light<0,1,2>
                     mov r14.xyz, cb2[r2.w + 81].xyzx  // light<4,5,6>
@@ -16589,14 +16589,14 @@ fxgroup
                     mov r5.w, cb2[r2.w + 83].w  // light<15>
                     mov r6.w, cb2[r2.w + 84].w  // light<19>
                 
-                #line 249
+                #line 251
                     mov r17.xyz, -r17.xyzx
                     add r18.xyz, r6.xyzx, r17.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r7.w, r18.xyzx, r18.xyzx
                     rsq r11.w, r7.w
                     mul r18.xyz, r11.wwww, r18.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 255
+                #line 257
                     sqrt r7.w, r7.w  // distanceFromLight<0:NaN:Inf>
                     add r16.xyz, r16.xyzx, r17.xyzx
                     dp3 r11.w, r16.xyzx, r16.xyzx
@@ -16612,7 +16612,7 @@ fxgroup
                       mov r5.w, l(-1)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: true>
                     endif 
                 
-                #line 261
+                #line 263
                     not r6.w, r16.y
                     not r11.w, r16.x
                     and r6.w, r6.w, r11.w
@@ -16626,17 +16626,17 @@ fxgroup
                       mov r15.xyz, r15.xyzx  // lightSpecColor3<0,1,2>
                       mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 261
+                #line 263
                     endif 
                     and r6.w, r6.w, r11.w
                     or r6.w, r16.x, r6.w
                 
-                #line 272
+                #line 274
                     if_z r6.w
                       mov r5.w, l(0)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: false>
                     endif 
                 
-                #line 167
+                #line 169
                     mov r18.xyz, r18.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r4.w, r4.w  // attenuation<0:NaN:Inf>
                     mov r13.xyz, r13.xyzx  // lightAmbientColor3<0:Inf,1:Inf,2:Inf>
@@ -16644,7 +16644,7 @@ fxgroup
                     mov r15.xyz, r15.xyzx  // lightSpecColor3<0:Inf,1:Inf,2:Inf>
                     mov r3.w, r3.w  // lightSpecIntensity<0:Inf>
                 
-                #line 174
+                #line 176
                     if_z r5.w
                       nop 
                       mov r16.xyz, r18.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -16652,39 +16652,39 @@ fxgroup
                       rsq r5.w, r5.w
                       mul r17.xyz, r5.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 293
+                #line 295
                       mov r16.xyz, -r16.xyzx
                       dp3 r5.w, r16.xyzx, r17.xyzx
                       mul r2.w, r5.w, cb2[r2.w + 81].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                       mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                       mul r13.xyz, r13.xyzx, cb3[0].xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       lt r5.w, l(0.000000), r2.w
                       if_nz r5.w
                 
-                #line 183
+                #line 185
                         mul r2.w, r2.w, r4.w
                         mul r14.xyz, r14.xyzx, cb3[1].xyzx
                         mul r14.xyz, r2.wwww, r14.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                         dp3 r2.w, r18.xyzx, r17.xyzx
                         add r2.w, r2.w, r2.w
                         mov r2.w, -r2.w
                         mul r16.xyz, r2.wwww, r17.xyzx
                         add r16.xyz, r18.xyzx, r16.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                         dp3 r2.w, r7.xyzx, r7.xyzx
                         rsq r2.w, r2.w
                         mul r17.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                         dp3 r2.w, r16.xyzx, r17.xyzx
                         max r2.w, r2.w, l(0.000000)
                         itof r5.w, cb3[0].w
@@ -16693,18 +16693,18 @@ fxgroup
                         exp r2.w, r2.w
                         mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                         mul r2.w, r2.w, r4.w
                         mul r15.xyz, r15.xyzx, cb3[2].xyzx
                         mul r15.xyz, r2.wwww, r15.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       else 
                         mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                         mov r15.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
                       endif 
                 
-                #line 174
+                #line 176
                     else 
                       mov r13.xyz, l(0,0,0,0)  // outAmbient4<0: 0f,1: 0f,2: 0f>
                       mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
@@ -16881,7 +16881,6 @@ fxgroup
                   mul r0.yzw, r2.xxyz, r0.yyzw
                   add r0.yzw, r0.yyzw, r1.xxyz
                   add r4.xyz, r3.xyzx, r0.yzwy  // outColor4<0:Inf,1:Inf,2:Inf>
-                  mov r4.w, cb1[3].x  // outColor4<3>
                 
                 #line 141
                   ine r0.y, l(0, 0, 0, 0), cb2[0].w
@@ -16891,27 +16890,29 @@ fxgroup
                     add r0.y, r0.y, cb2[1].y
                     div r0.x, r0.x, r0.y
                     max r0.x, r0.x, l(0.000000)  // fogInterpolationFactor<0:Inf:[-0f,1.#INFf]>
-                    mov r1.xyzw, -r4.xyzw
-                    mov r2.xyz, cb2[0].xyzx
-                    mov r2.w, l(1.000000)
-                    add r1.xyzw, r1.xyzw, r2.xyzw
-                    mul r0.xyzw, r0.xxxx, r1.xyzw
-                    add r4.xyzw, r0.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    mov r0.yzw, -r4.xxyz
+                    add r0.yzw, r0.yyzw, cb2[0].xxyz
+                    mul r0.xyz, r0.yzwy, r0.xxxx
+                    add r4.xyz, r0.xyzx, r4.xyzx  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 141
                   endif 
+                
+                #line 148
+                  max r0.x, cb1[3].x, l(0.000000)
+                  min r4.w, r0.x, l(1.000000)  // outColor4<3:[0f,1f]>
                 
                 #line 136
                 endif 
                 
                 #line 45
-                mov r4.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov r4.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
                 
                 #line 57
-                mov r4.xyzw, r4.xyzw  // psOutput<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                mov o0.xyzw, r4.xyzw  // PS_DrawMeshWithVertexLighting<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov r4.xyzw, r4.xyzw  // psOutput<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
+                mov o0.xyzw, r4.xyzw  // PS_DrawMeshWithVertexLighting<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
                 ret 
-                // Approximately 43 instruction slots used
+                // Approximately 42 instruction slots used
                             
             };
         }
@@ -17124,10 +17125,10 @@ fxgroup
                 #line 87
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 208
+                #line 210
                     imul null, r2.w, r2.z, l(4)
                     mov r11.xyz, cb2[r2.w + 0].xyzx  // light<0,1,2>
                     mov r12.xyz, cb2[r2.w + 1].xyzx  // light<4,5,6>
@@ -17135,7 +17136,7 @@ fxgroup
                     mov r3.w, cb2[r2.w + 0].w  // light<3>
                     mov r14.xyz, cb2[r2.w + 3].xyzx  // light<12,13,14>
                 
-                #line 211
+                #line 213
                     mov r14.xyz, r14.xyzx  // lightVecW<0,1,2>
                     dp3 r4.w, r14.xyzx, r14.xyzx
                     rsq r4.w, r4.w
@@ -17145,53 +17146,53 @@ fxgroup
                     mov r13.xyz, r13.xyzx  // lightSpecColor3<0,1,2>
                     mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 167
+                #line 169
                     mov r14.xyz, r14.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r11.xyz, r11.xyzx  // lightAmbientColor3<0,1,2>
                     mov r12.xyz, r12.xyzx  // lightDiffuseColor3<0,1,2>
                     mov r13.xyz, r13.xyzx  // lightSpecColor3<0,1,2>
                     mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 174
+                #line 176
                     nop 
                     mov r14.xyz, r14.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r4.w, r5.xyzx, r5.xyzx
                     rsq r4.w, r4.w
                     mul r15.xyz, r4.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 281
+                #line 283
                     mov r16.xyz, -r14.xyzx
                     dp3 r4.w, r16.xyzx, r15.xyzx
                     mul r2.w, r4.w, cb2[r2.w + 1].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                     mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                     mul r11.xyz, r11.xyzx, cb3[0].xyzx  // outAmbient4<0:Inf,1:Inf,2:Inf>
                 
-                #line 180
+                #line 182
                     lt r4.w, l(0.000000), r2.w
                     if_nz r4.w
                 
-                #line 183
+                #line 185
                       mul r2.w, r2.w, l(1.000000)
                       mul r12.xyz, r12.xyzx, cb3[1].xyzx
                       mul r12.xyz, r2.wwww, r12.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                       dp3 r2.w, r14.xyzx, r15.xyzx
                       add r2.w, r2.w, r2.w
                       mov r2.w, -r2.w
                       mul r15.xyz, r2.wwww, r15.xyzx
                       add r14.xyz, r14.xyzx, r15.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                       dp3 r2.w, r7.xyzx, r7.xyzx
                       rsq r2.w, r2.w
                       mul r15.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                       dp3 r2.w, r14.xyzx, r15.xyzx
                       max r2.w, r2.w, l(0.000000)
                       itof r4.w, cb3[0].w
@@ -17200,12 +17201,12 @@ fxgroup
                       exp r2.w, r2.w
                       mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                       mul r2.w, r2.w, l(1.000000)
                       mul r13.xyz, r13.xyzx, cb3[2].xyzx
                       mul r13.xyz, r2.wwww, r13.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                     else 
                       mov r12.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                       mov r13.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
@@ -17235,10 +17236,10 @@ fxgroup
                 #line 97
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 224
+                #line 226
                     imul null, r2.w, r2.z, l(4)
                     mov r13.xyz, cb2[r2.w + 40].xyzx  // light<0,1,2>
                     mov r14.xyz, cb2[r2.w + 41].xyzx  // light<4,5,6>
@@ -17248,21 +17249,21 @@ fxgroup
                     mov r4.w, cb2[r2.w + 42].w  // light<11>
                     mov r5.w, cb2[r2.w + 43].w  // light<15>
                 
-                #line 227
+                #line 229
                     mov r16.xyz, -r16.xyzx
                     add r16.xyz, r6.xyzx, r16.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r6.w, r16.xyzx, r16.xyzx
                     rsq r7.w, r6.w
                     mul r16.xyz, r7.wwww, r16.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 231
+                #line 233
                     sqrt r6.w, r6.w  // distanceFromLight<0:NaN:Inf>
                     lt r17.xy, r5.wwww, r6.wwww
                     if_nz r17.y
                       mov r5.w, l(-1)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: true>
                     endif 
                 
-                #line 236
+                #line 238
                     not r7.w, r17.y
                     not r8.w, r17.x
                     and r7.w, r7.w, r8.w
@@ -17276,17 +17277,17 @@ fxgroup
                       mov r15.xyz, r15.xyzx  // lightSpecColor3<0,1,2>
                       mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 236
+                #line 238
                     endif 
                     and r6.w, r7.w, r8.w
                     or r6.w, r17.x, r6.w
                 
-                #line 272
+                #line 274
                     if_z r6.w
                       mov r5.w, l(0)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: false>
                     endif 
                 
-                #line 167
+                #line 169
                     mov r16.xyz, r16.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r4.w, r4.w  // attenuation<0:NaN:Inf>
                     mov r13.xyz, r13.xyzx  // lightAmbientColor3<0:Inf,1:Inf,2:Inf>
@@ -17294,7 +17295,7 @@ fxgroup
                     mov r15.xyz, r15.xyzx  // lightSpecColor3<0:Inf,1:Inf,2:Inf>
                     mov r3.w, r3.w  // lightSpecIntensity<0:Inf>
                 
-                #line 174
+                #line 176
                     if_z r5.w
                       nop 
                       mov r17.xyz, r16.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -17302,39 +17303,39 @@ fxgroup
                       rsq r5.w, r5.w
                       mul r18.xyz, r5.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 287
+                #line 289
                       mov r17.xyz, -r17.xyzx
                       dp3 r5.w, r17.xyzx, r18.xyzx
                       mul r2.w, r5.w, cb2[r2.w + 41].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                       mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                       mul r13.xyz, r13.xyzx, cb3[0].xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       lt r5.w, l(0.000000), r2.w
                       if_nz r5.w
                 
-                #line 183
+                #line 185
                         mul r2.w, r2.w, r4.w
                         mul r14.xyz, r14.xyzx, cb3[1].xyzx
                         mul r14.xyz, r2.wwww, r14.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                         dp3 r2.w, r16.xyzx, r18.xyzx
                         add r2.w, r2.w, r2.w
                         mov r2.w, -r2.w
                         mul r17.xyz, r2.wwww, r18.xyzx
                         add r16.xyz, r16.xyzx, r17.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                         dp3 r2.w, r7.xyzx, r7.xyzx
                         rsq r2.w, r2.w
                         mul r17.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                         dp3 r2.w, r16.xyzx, r17.xyzx
                         max r2.w, r2.w, l(0.000000)
                         itof r5.w, cb3[0].w
@@ -17343,18 +17344,18 @@ fxgroup
                         exp r2.w, r2.w
                         mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                         mul r2.w, r2.w, r4.w
                         mul r15.xyz, r15.xyzx, cb3[2].xyzx
                         mul r15.xyz, r2.wwww, r15.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       else 
                         mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                         mov r15.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
                       endif 
                 
-                #line 174
+                #line 176
                     else 
                       mov r13.xyz, l(0,0,0,0)  // outAmbient4<0: 0f,1: 0f,2: 0f>
                       mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
@@ -17385,10 +17386,10 @@ fxgroup
                 #line 107
                     nop 
                 
-                #line 167
+                #line 169
                     nop 
                 
-                #line 246
+                #line 248
                     imul null, r2.w, r2.z, l(5)
                     mov r13.xyz, cb2[r2.w + 80].xyzx  // light<0,1,2>
                     mov r14.xyz, cb2[r2.w + 81].xyzx  // light<4,5,6>
@@ -17400,14 +17401,14 @@ fxgroup
                     mov r5.w, cb2[r2.w + 83].w  // light<15>
                     mov r6.w, cb2[r2.w + 84].w  // light<19>
                 
-                #line 249
+                #line 251
                     mov r17.xyz, -r17.xyzx
                     add r18.xyz, r6.xyzx, r17.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     dp3 r7.w, r18.xyzx, r18.xyzx
                     rsq r11.w, r7.w
                     mul r18.xyz, r11.wwww, r18.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 255
+                #line 257
                     sqrt r7.w, r7.w  // distanceFromLight<0:NaN:Inf>
                     add r16.xyz, r16.xyzx, r17.xyzx
                     dp3 r11.w, r16.xyzx, r16.xyzx
@@ -17423,7 +17424,7 @@ fxgroup
                       mov r5.w, l(-1)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: true>
                     endif 
                 
-                #line 261
+                #line 263
                     not r6.w, r16.y
                     not r11.w, r16.x
                     and r6.w, r6.w, r11.w
@@ -17437,17 +17438,17 @@ fxgroup
                       mov r15.xyz, r15.xyzx  // lightSpecColor3<0,1,2>
                       mov r3.w, r3.w  // lightSpecIntensity<0>
                 
-                #line 261
+                #line 263
                     endif 
                     and r6.w, r6.w, r11.w
                     or r6.w, r16.x, r6.w
                 
-                #line 272
+                #line 274
                     if_z r6.w
                       mov r5.w, l(0)  // RenderProcess_Gouraud::mFunction_ComputeLightingVariables<0: false>
                     endif 
                 
-                #line 167
+                #line 169
                     mov r18.xyz, r18.xyzx  // unitLightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                     mov r4.w, r4.w  // attenuation<0:NaN:Inf>
                     mov r13.xyz, r13.xyzx  // lightAmbientColor3<0:Inf,1:Inf,2:Inf>
@@ -17455,7 +17456,7 @@ fxgroup
                     mov r15.xyz, r15.xyzx  // lightSpecColor3<0:Inf,1:Inf,2:Inf>
                     mov r3.w, r3.w  // lightSpecIntensity<0:Inf>
                 
-                #line 174
+                #line 176
                     if_z r5.w
                       nop 
                       mov r16.xyz, r18.xyzx  // lightVecW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
@@ -17463,39 +17464,39 @@ fxgroup
                       rsq r5.w, r5.w
                       mul r17.xyz, r5.wwww, r5.xyzx  // normalW<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 293
+                #line 295
                       mov r16.xyz, -r16.xyzx
                       dp3 r5.w, r16.xyzx, r17.xyzx
                       mul r2.w, r5.w, cb2[r2.w + 81].w  // RenderProcess_Gouraud::mFunction_ComputeDiffuseCosineFactor<0:NaN:Inf>
                 
-                #line 174
+                #line 176
                       mov r2.w, r2.w  // diffuseCosFactor<0:NaN:Inf>
                 
-                #line 177
+                #line 179
                       mul r13.xyz, r13.xyzx, cb3[0].xyzx  // outAmbient4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       lt r5.w, l(0.000000), r2.w
                       if_nz r5.w
                 
-                #line 183
+                #line 185
                         mul r2.w, r2.w, r4.w
                         mul r14.xyz, r14.xyzx, cb3[1].xyzx
                         mul r14.xyz, r2.wwww, r14.xyzx  // outDiffuse4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 186
+                #line 188
                         dp3 r2.w, r18.xyzx, r17.xyzx
                         add r2.w, r2.w, r2.w
                         mov r2.w, -r2.w
                         mul r16.xyz, r2.wwww, r17.xyzx
                         add r16.xyz, r18.xyzx, r16.xyzx  // reflectedLightVec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 189
+                #line 191
                         dp3 r2.w, r7.xyzx, r7.xyzx
                         rsq r2.w, r2.w
                         mul r17.xyz, r2.wwww, r7.xyzx  // unitVecToCam<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 192
+                #line 194
                         dp3 r2.w, r16.xyzx, r17.xyzx
                         max r2.w, r2.w, l(0.000000)
                         itof r5.w, cb3[0].w
@@ -17504,18 +17505,18 @@ fxgroup
                         exp r2.w, r2.w
                         mul r2.w, r2.w, r3.w  // SpecFactor<0:NaN:Inf>
                 
-                #line 195
+                #line 197
                         mul r2.w, r2.w, r4.w
                         mul r15.xyz, r15.xyzx, cb3[2].xyzx
                         mul r15.xyz, r2.wwww, r15.xyzx  // outSpecular4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 180
+                #line 182
                       else 
                         mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
                         mov r15.xyz, l(0,0,0,0)  // outSpecular4<0: 0f,1: 0f,2: 0f>
                       endif 
                 
-                #line 174
+                #line 176
                     else 
                       mov r13.xyz, l(0,0,0,0)  // outAmbient4<0: 0f,1: 0f,2: 0f>
                       mov r14.xyz, l(0,0,0,0)  // outDiffuse4<0: 0f,1: 0f,2: 0f>
@@ -17697,7 +17698,6 @@ fxgroup
                   mul r0.yzw, r2.xxyz, r0.yyzw
                   add r0.yzw, r0.yyzw, r1.xxyz
                   add r4.xyz, r3.xyzx, r0.yzwy  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
-                  mov r4.w, cb1[3].x  // outColor4<3>
                 
                 #line 141
                   ine r0.y, l(0, 0, 0, 0), cb2[0].w
@@ -17707,27 +17707,29 @@ fxgroup
                     add r0.y, r0.y, cb2[1].y
                     div r0.x, r0.x, r0.y
                     max r0.x, r0.x, l(0.000000)  // fogInterpolationFactor<0:Inf:[-0f,1.#INFf]>
-                    mov r1.xyzw, -r4.xyzw
-                    mov r2.xyz, cb2[0].xyzx
-                    mov r2.w, l(1.000000)
-                    add r1.xyzw, r1.xyzw, r2.xyzw
-                    mul r0.xyzw, r0.xxxx, r1.xyzw
-                    add r4.xyzw, r0.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                    mov r0.yzw, -r4.xxyz
+                    add r0.yzw, r0.yyzw, cb2[0].xxyz
+                    mul r0.xyz, r0.yzwy, r0.xxxx
+                    add r4.xyz, r0.xyzx, r4.xyzx  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
                 #line 141
                   endif 
+                
+                #line 148
+                  max r0.x, cb1[3].x, l(0.000000)
+                  min r4.w, r0.x, l(1.000000)  // outColor4<3:[0f,1f]>
                 
                 #line 136
                 endif 
                 
                 #line 45
-                mov r4.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov r4.xyzw, r4.xyzw  // outColor4<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
                 
                 #line 57
-                mov r4.xyzw, r4.xyzw  // psOutput<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                mov o0.xyzw, r4.xyzw  // PS_DrawMeshWithVertexLighting<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov r4.xyzw, r4.xyzw  // psOutput<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
+                mov o0.xyzw, r4.xyzw  // PS_DrawMeshWithVertexLighting<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:Inf>
                 ret 
-                // Approximately 43 instruction slots used
+                // Approximately 42 instruction slots used
                             
             };
         }

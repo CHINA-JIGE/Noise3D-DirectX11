@@ -135,6 +135,7 @@
     <ClInclude Include="Renderer_Mesh.h" />
     <ClInclude Include="Renderer_Text.h" />
     <ClInclude Include="RenderInfrastructure.h" />
+    <ClInclude Include="_BaseRenderModule.h" />
     <ClInclude Include="_FbxLoader.h" />
     <ClInclude Include="FileIO_OBJ.h" />
     <ClInclude Include="FileIO_STL.h" />

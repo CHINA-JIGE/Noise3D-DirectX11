@@ -7,15 +7,12 @@
 
 using namespace Noise3D;
 
-IDynamicText::IDynamicText()
+IDynamicText::IDynamicText():
+	mWordSpacingOffset(0),
+	mLineSpacingOffset(0),
+	mIsTextContentChanged(true),
+	mIsSizeChanged(true)
 {
-	mWordSpacingOffset = 0;
-	mLineSpacingOffset = 0;
-	m_pTextureName = new N_UID;
-	m_pFontName = new N_UID;
-	m_pTextContent	= new std::string;
-	mIsTextContentChanged=true;
-	mIsSizeChanged=true;
 }
 
 IDynamicText::~IDynamicText()
@@ -47,7 +44,7 @@ void IDynamicText::SetFont(N_UID fontName)
 
 	if (pFontMgr->IsFontExisted(fontName)==true)
 	{
-		*m_pFontName = fontName;
+		mFontName = fontName;
 		N_FontObject* pfontObj = pFontMgr->IFactory< N_FontObject>::GetObjectPtr(fontName);
 		
 		//boundary size of 1 Char
@@ -55,20 +52,20 @@ void IDynamicText::SetFont(N_UID fontName)
 		mCharBoundarySizeX = UINT(mCharBoundarySizeY*pfontObj->mAspectRatio);
 
 		//update Texture ID using name "AsciiBitmapTable" + fontName
-		*m_pTextureName = pfontObj->mInternalTextureName;
+		mTextureName = pfontObj->mInternalTextureName;
 
 	}
 }
 
 N_UID IDynamicText::GetFontName()
 {
-	return *m_pFontName;
+	return mFontName;
 }
 
 NVECTOR2 IDynamicText::GetFontSize(UINT fontID)
 {
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
-	return pFontMgr->GetFontSize(*m_pFontName);
+	return pFontMgr->GetFontSize(mFontName);
 };
 
 
@@ -76,16 +73,16 @@ void IDynamicText::SetTextAscii(const std::string& newText)
 {
 	//std::hash<std::string>() can hash a key
 	//if (std::hash<std::string>()(newText) != std::hash<std::string>()(*m_pTextContent))
-	if(newText!=*m_pTextContent)
+	if(newText!=mTextContent)
 	{
-		*m_pTextContent = newText;
+		mTextContent = newText;
 		mIsTextContentChanged = true;
 	}
 }
 
 void IDynamicText::GetTextAscii(std::string & outString)
 {
-	outString = *m_pTextContent;
+	outString = mTextContent;
 };
 
 
@@ -126,7 +123,7 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 	//clamp wordIndex
 	for (UINT i = 0;i <	(wordIndex<str.size()?wordIndex:str.size()); i++)
 	{
-		NVECTOR2 realCharBitmapSize = GetWordRealSize(m_pTextContent->at(i));
+		NVECTOR2 realCharBitmapSize = GetWordRealSize(mTextContent.at(i));
 
 		//sum up widths and heights of words to derive pos offset
 		posTopLeftOffset.x += (realCharBitmapSize.x + mWordSpacingOffset);
@@ -147,7 +144,7 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
 {
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
-	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(*m_pFontName)->mAsciiCharSizeList.at(wordIndex);
+	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(wordIndex);
 	return realCharBitmapPixelSize;
 };
 
@@ -178,7 +175,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
 
 	//if font is invalid (deleted??), we must clear the graphic objects 
-	if (pFontMgr->IsFontExisted(*m_pFontName)== false)
+	if (pFontMgr->IsFontExisted(mFontName)== false)
 	{
 		m_pGraphicObj->DeleteRectangle(0, m_pGraphicObj->GetRectCount()-1);
 		return;
@@ -205,7 +202,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	//in case other font has been deleted 
 
 
-	UINT stringCharCount = m_pTextContent->size();
+	UINT stringCharCount = mTextContent.size();
 
 	//------------------------------------------------
 	//now , we will determine whether to add/set/delete rectangles according to 
@@ -221,7 +218,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 		{
 			//delete redundant
 			NVECTOR2 tmpZeroVec2(0, 0);NVECTOR4 tmpZeroVec4(0, 0, 0, 0);
-			m_pGraphicObj->AddRectangle(tmpZeroVec2, tmpZeroVec2, tmpZeroVec4, *m_pTextureName);
+			m_pGraphicObj->AddRectangle(tmpZeroVec2, tmpZeroVec2, tmpZeroVec4, mTextureName);
 		}
 	}
 	else
@@ -249,7 +246,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 	{
 
 		//chars which are at the corresponding position (if one string is longer than the other
-		char currentChar = m_pTextContent->at(i);//(i < m_pTextContent->size()) ? m_pTextContent->at(i) : 0;
+		char currentChar = mTextContent.at(i);//(i < m_pTextContent->size()) ? m_pTextContent->at(i) : 0;
 
 
 #pragma region UpdateTexcoord
@@ -272,7 +269,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 #pragma endregion UpdateTexcoord
 
 
-		NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(*m_pFontName)->mAsciiCharSizeList.at(currentChar);
+		NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(currentChar);
 
 
 #pragma region UpdatePositionOfSubRects
@@ -300,7 +297,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				NVECTOR2(0, 0),
 				NVECTOR2(0, 0),
 				IBasicContainerInfo::GetBasicColor(),
-				*m_pTextureName
+				mTextureName
 				);
 		}
 		else
@@ -311,7 +308,7 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 				tmpRectTopLeft,
 				tmpRectBottomRight,
 				IBasicContainerInfo::GetBasicColor(),
-				*m_pTextureName
+				mTextureName
 				);
 		}
 

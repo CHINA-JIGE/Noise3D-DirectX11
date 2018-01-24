@@ -73,7 +73,7 @@ void IMaterialManager::DeleteAllMaterial()
 	mFunction_CreateDefaultMaterial();
 }
 
-inline bool IMaterialManager::ValidateUID(N_UID matName)
+bool IMaterialManager::ValidateUID(N_UID matName)
 {
 	return IFactory<IMaterial>::FindUid(matName);
 };

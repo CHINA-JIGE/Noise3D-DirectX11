@@ -9,26 +9,69 @@
 
 using namespace Noise3D;
 
-void IRenderer::RenderTexts()
+IRenderModuleForText::IRenderModuleForText()
 {
+}
 
-	//CLEAR DEPTH!! to implement component overlapping
-	g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+IRenderModuleForText::~IRenderModuleForText()
+{
+}
 
-	//Set Render target
-	g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewForDisplay, m_pDepthStencilView);
+void IRenderModuleForText::RenderTexts()
+{
+	m_pRefRI->SetDepthStencilState(false);
+	m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
+	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
 
-	//render TEXT
+	//render dynamic/static texts
 	mFunction_TextGraphicObj_Render(&mRenderList_TextDynamic);
 	mFunction_TextGraphicObj_Render(&mRenderList_TextStatic);
+}
+
+void IRenderModuleForText::AddToRenderQueue(IDynamicText * obj)
+{
+	mFunction_AddToRenderList_Text(obj, &mRenderList_TextDynamic);
+}
+
+void IRenderModuleForText::AddToRenderQueue(IStaticText * obj)
+{
+	mFunction_AddToRenderList_Text(obj, &mRenderList_TextStatic);
+}
+
+void IRenderModuleForText::ClearRenderList()
+{
+	mRenderList_TextDynamic.clear();
+	mRenderList_TextStatic.clear();
+}
+
+void IRenderModuleForText::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
+{
+	m_pRefRI = pRI;
+	m_pRefShaderVarMgr = pShaderVarMgr;
+	m_pFX_Tech_Solid2D = g_pFX->GetTechniqueByName("DrawSolid2D");
+	m_pFX_Tech_DrawText2D = g_pFX->GetTechniqueByName("DrawText2D");
 }
 
 /***********************************************************************
 									P R I V A T E
 ************************************************************************/
+void		IRenderModuleForText::mFunction_AddToRenderList_Text(IBasicTextInfo * pText, std::vector<IBasicTextInfo*>* pList)
+{
+	pText->mFunction_UpdateGraphicObject();//implemented by derived Text Class
+	pList->push_back(pText);
+	//Update Data to GPU if data is not up to date , 6 object types for now
+	for (UINT i = 0; i <NOISE_GRAPHIC_OBJECT_BUFFER_COUNT; i++)
+	{
+		if (pText->m_pGraphicObj->mCanUpdateToGpu[i])
+		{
+			pText->m_pGraphicObj->mFunction_UpdateVerticesToGpu(i);
+			pText->m_pGraphicObj->mCanUpdateToGpu[i] = false;
+			if (i == NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D)pText->m_pGraphicObj->mFunction_GenerateRectSubsetInfo();
+		}
+	}
+}
 
-void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText)
+void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText)
 {
 
 	if (pTexMgr->ValidateUID(uid)==true)
@@ -40,47 +83,27 @@ void		IRenderer::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureMan
 		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
 
 		//update textures
-		ID3D11ShaderResourceView* tmp_pSRV = pTexMgr->GetObjectPtr(uid)->m_pSRV;
+		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,uid);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
 
-void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList)
+void		IRenderModuleForText::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList)
 {
 	//prepare to draw , various settings.....
 	ID3D11Buffer* tmp_pVB = nullptr;
-
-	//I didn't use template because this function is type-dependent
-	//i dont want it to be type-unsafe
-
 
 	for (UINT i = 0;i < pList->size();i++)
 	{
 		IBasicTextInfo* pText = pList->at(i);
 		tmp_pVB = pText->m_pGraphicObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
 
-		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Simple);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &tmp_pVB, &g_cVBstride_Simple, &g_cVBoffset);
-		g_pImmediateContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R32_UINT, 0);
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//set fillmode & cullmode
-		mFunction_SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-
-		//set blend state
-		mFunction_SetBlendState(pText->GetBlendMode());
-
-		//set samplerState
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, 0, m_pSamplerState_FilterLinear);
-
-
-		//set depth/Stencil State
-		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-
+		//settings
+		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+		m_pRefRI->SetBlendState(pText->GetBlendMode());
 
 		UINT j = 0, vCount = 0;
-		//traverse all region list , to decide use which tech to draw (textured or not)
-
 		//---------------------draw rectangles---------------------
 		for (auto tmpRegion : *(pList->at(i)->m_pGraphicObj->m_pRectSubsetInfoList))
 		{
@@ -111,3 +134,4 @@ void		IRenderer::mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* p
 
 	}
 };
+

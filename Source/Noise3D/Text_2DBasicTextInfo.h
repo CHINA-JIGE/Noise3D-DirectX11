@@ -18,7 +18,6 @@ namespace Noise3D
 	class /*_declspec(dllexport)*/ IBasicTextInfo
 		: public CRenderSettingBlendMode
 		{
-			friend class IRenderer;
 
 		public:
 			IBasicTextInfo();
@@ -31,6 +30,8 @@ namespace Noise3D
 
 			NVECTOR4 GetTextGlowColor() { return *m_pTextGlowColor; };
 		protected:
+
+			friend class IRenderModuleForText;
 
 			virtual	void	mFunction_UpdateGraphicObject() = 0;//require implementation
 

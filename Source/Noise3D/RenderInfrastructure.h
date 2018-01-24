@@ -2,8 +2,8 @@
 /***********************************************************************
 
 							IRenderInfracstructure
-		encapsulation of common D3D operation/states
-		init once by IRenderer, and provide service for other
+		encapsulation of common, low-level D3D operation/states
+		init by IFactory in IRenderer, and provide service for other
 		render modules
 
 ************************************************************************/
@@ -29,7 +29,7 @@ namespace Noise3D
 			DEFAULT,
 			SIMPLE
 		};
-			
+		
 		bool		Init(UINT bufferWidth, UINT bufferHeight, bool IsWindowed);
 
 		void		SetInputAssembler(NOISE_VERTEX_TYPE vertexType,ID3D11Buffer* pVB,ID3D11Buffer* pIB,D3D11_PRIMITIVE_TOPOLOGY topo);
@@ -38,7 +38,7 @@ namespace Noise3D
 
 		void		SetBlendState(NOISE_BLENDMODE iBlendMode);
 
-		void		SetDepthStencilState();
+		void		SetDepthStencilState(bool enableDepthTest);
 
 		void		SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER sampler,NOISE_SAMPLERMODE mode);
 
@@ -52,6 +52,13 @@ namespace Noise3D
 
 		void		SwapChainPresent();
 
+		IShaderVariableManager* GetRefToShaderVarMgr();
+
+		//intermediate
+		ID3D11ShaderResourceView* GetTextureSRV(ITextureManager* pMgr, N_UID uid);
+
+		ID3D11ShaderResourceView* GetTextureSRV(ITexture* pTex);
+
 	private:
 
 		IRenderInfrastructure();
@@ -60,12 +67,12 @@ namespace Noise3D
 
 		friend IFactory<IRenderInfrastructure>;
 
-		friend IRenderer;
+		friend class IRenderer;
 
 
-		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, bool IsWindowed, UINT msaaQuality, UINT msaaSampleCount);
+		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, bool IsWindowed, UINT msaaSampleCount);
 
-		bool		mFunction_Init_CreateRenderToTextureViews(UINT bufferWidth, UINT bufferHeight, UINT msaaQuality, UINT msaaSampleCount);
+		bool		mFunction_Init_CreateRenderToTextureViews(UINT bufferWidth, UINT bufferHeight, UINT msaaSampleCount);
 
 		bool		mFunction_Init_CreateBlendState();
 
@@ -79,7 +86,6 @@ namespace Noise3D
 
 		UINT	mBackBufferWidth;
 		UINT	mBackBufferHeight;
-		bool		mEnableDepthTest;
 		bool		mEnablePostProcessing;
 
 		IDXGISwapChain*						m_pSwapChain;

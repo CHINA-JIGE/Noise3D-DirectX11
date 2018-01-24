@@ -9,50 +9,41 @@
 
 using namespace Noise3D;
 
-void	IRenderer::RenderMeshes()
+IRenderModuleForMesh::IRenderModuleForMesh()
+{
+
+}
+
+IRenderModuleForMesh::~IRenderModuleForMesh()
+{
+
+}
+
+void	IRenderModuleForMesh::RenderMeshes()
 {
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
 
-	//更新ConstantBuffer: Only update when modified(cbRarely)
 	mFunction_RenderMeshInList_UpdateRarely();
 
-	//Update ConstantBuffer: Once Per Frame (cbPerFrame)
-	mFunction_RenderMeshInList_UpdatePerFrame(tmp_pCamera);
+	mFunction_RenderMeshInList_UpdatePerFrame();
 
-	//Update ConstantBuffer : Proj / View Matrix (this function could be used elsewhere)
-	mFunction_CameraMatrix_Update(tmp_pCamera);
+	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
-
-#pragma region Render Mesh
 	//for every mesh
 	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
 	{
-		//取出渲染列表中的mesh指针
 		IMesh* const pMesh = mRenderList_Mesh.at(i);
 
-		//更新ConstantBuffer:每物体更新一次(cbPerObject)
 		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
 
-		//更新完cb就准备开始draw了
-		g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
-		g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
-		g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//IA/OM settings
+		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pRefRI->SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
+		m_pRefRI->SetBlendState(pMesh->GetBlendMode());
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+		m_pRefRI->SetDepthStencilState(true);
+		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 
-		//set fillmode和cullmode
-		mFunction_SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
-
-		//set blend state
-		mFunction_SetBlendState(pMesh->GetBlendMode());
-
-		//set samplerState
-		m_pRefShaderVarMgr->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, 0, m_pSamplerState_FilterLinear);
-
-		//set epth/Stencil State
-		g_pImmediateContext->OMSetDepthStencilState(m_pDepthStencilState_EnableDepthTest, 0xffffffff);
-		
-		//Set Render target
-		g_pImmediateContext->OMSetRenderTargets(1,&m_pRenderTargetViewForDisplay,m_pDepthStencilView);
 
 		//every mesh subset(one for each material)
 		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
@@ -75,23 +66,45 @@ void	IRenderer::RenderMeshes()
 			
 		}
 	}
-#pragma endregion Render Mesh
-
 }
 
-/***********************************************************************
-									P R I V A T E
-************************************************************************/
+void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
+{
+	mRenderList_Mesh.push_back(obj);
+}
 
-void		IRenderer::mFunction_RenderMeshInList_UpdateRarely()
+
+
+
+/***********************************************************
+									PROTECTED
+************************************************************/
+
+void IRenderModuleForMesh::ClearRenderList()
+{
+	mRenderList_Mesh.clear();
+}
+
+void IRenderModuleForMesh::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
+{
+	m_pRefRI = pRI;
+	m_pRefShaderVarMgr = pShaderVarMgr;
+	m_pFX_Tech_DrawMesh = g_pFX->GetTechniqueByName("DrawMesh");
+}
+
+/***********************************************************
+										PRIVATE
+***********************************************************/
+
+void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdateRarely()
 {
 	//From 2018.1.14 on, static lights are used to bake static lights(light maps)
 	//and not sent to GPU for lighting
 };
 
-void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera)
+void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 {
-	//————Update Dynamic Light————
+	//-------Update Dynamic Light-------
 	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
 	UINT dirLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
@@ -119,7 +132,7 @@ void		IRenderer::mFunction_RenderMeshInList_UpdatePerFrame(ICamera*const pCamera
 	}
 };
 
-ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
+ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
 	IScene* pScene = GetScene();
@@ -129,7 +142,7 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
-	bool  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
+	bool  IsMatNameValid = pMatMgr->ValidateUID(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
@@ -146,7 +159,6 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 
 	//update basic material info
 	m_pRefShaderVarMgr->SetMaterial(tmpMat);
-
 
 	//Validate textures
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
@@ -177,25 +189,29 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 	//if tetxure is  valid ,then set diffuse map
 	if (isDiffuseMapValid)
 	{
-		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, pDiffMap->m_pSRV);
+		auto pSRV = m_pRefRI->GetTextureSRV(pDiffMap);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, pSRV);
 	}
 
 	//if tetxure is  valid ,then set normal map
 	if (isNormalMapValid)
 	{
-		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::NORMAL_MAP, pNormalMap->m_pSRV);
+		auto pSRV = m_pRefRI->GetTextureSRV(pNormalMap);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::NORMAL_MAP, pSRV);
 	}
 
 	//if tetxure is  valid ,then set specular map
 	if (isSpecularMapValid)
 	{
-		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::SPECULAR_MAP, pSpecMap->m_pSRV);
+		auto pSRV = m_pRefRI->GetTextureSRV(pSpecMap);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::SPECULAR_MAP, pSRV);
 	}
 
 	//if tetxure is  valid ,then set environment map (cube map)
 	if (isEnvMapValid)
 	{
-		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, pEnvMap->m_pSRV);
+		auto pSRV = m_pRefRI->GetTextureSRV(pEnvMap);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::CUBE_MAP, pSRV);
 	}
 
 	//return ID3DX11EffectPass interface to choose appropriate shader
@@ -238,7 +254,7 @@ ID3DX11EffectPass*		IRenderer::mFunction_RenderMeshInList_UpdatePerSubset(IMesh*
 	return pPass;
 };
 
-void		IRenderer::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)
+void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)
 {
 	//update world/worldInv matrix
 	NMATRIX worldMat,worldInvTransposeMat;

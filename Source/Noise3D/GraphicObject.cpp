@@ -3,8 +3,8 @@
 
 						class£º Graphic Object
 
-						desc: store data of simple graphic object like line/point/triangle 
-						on mem and GpuMem
+	desc: store data of simple graphic object like line/point/triangle 
+			on mem and GpuMem
 
 ************************************************************************/
 
@@ -13,14 +13,6 @@
 using namespace Noise3D;
 
 #define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
-
-#define CHECK_BEFORE_CHANGE_TEXCOORD(id,coord) \
-	if (m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord != coord)\
-	{\
-		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord = coord;\
-		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	\
-	};\
-
 
 IGraphicObject::IGraphicObject()
 {
@@ -426,14 +418,8 @@ void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,N
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[4]).TexCoord =  texCoordBottomRight;
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
 
-	/*CHECK_BEFORE_CHANGE_TEXCOORD(0, texCoordTopLeft);
-	CHECK_BEFORE_CHANGE_TEXCOORD(1, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(2, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(3, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(4, texCoordBottomRight);
-	CHECK_BEFORE_CHANGE_TEXCOORD(5, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));*/
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
 
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
 
 }
 

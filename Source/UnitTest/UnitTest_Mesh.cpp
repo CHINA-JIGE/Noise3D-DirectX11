@@ -139,8 +139,8 @@ BOOL Init3D(HWND hwnd)
 	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
 	for (auto v : *pTmpVB)
 	{
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
+		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
@@ -205,6 +205,10 @@ BOOL Init3D(HWND hwnd)
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 1000,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
+	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 1000,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
+
+	pRenderer->SetPostProcessingEnabled(true);
 
 	return TRUE;
 };
@@ -229,16 +233,13 @@ void MainLoop()
 
 
 	//add to render list
-	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
-	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
-	pRenderer->AddObjectToRenderList(pAtmos);
-	pRenderer->AddObjectToRenderList(pMyText_fps);
+	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
+	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	pRenderer->AddToRenderQueue(pMyText_fps);
+	pRenderer->SetActiveAtmosphere(pAtmos);
 
 	//render
-	pRenderer->RenderMeshes();
-	pRenderer->RenderAtmosphere();
-	pRenderer->RenderGraphicObjects();
-	pRenderer->RenderTexts();
+	pRenderer->Render();
 
 	//present
 	pRenderer->PresentToScreen();

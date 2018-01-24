@@ -74,7 +74,7 @@ namespace Noise3D
 
 	private:
 
-		friend class IRenderer;
+		friend class IRenderInfrastructure;
 
 		friend  class ITextureManager;
 
