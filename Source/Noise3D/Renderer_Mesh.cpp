@@ -16,7 +16,7 @@ IRenderModuleForMesh::IRenderModuleForMesh()
 
 IRenderModuleForMesh::~IRenderModuleForMesh()
 {
-
+	ReleaseCOM(m_pFX_Tech_DrawMesh);
 }
 
 void	IRenderModuleForMesh::RenderMeshes()
@@ -85,11 +85,12 @@ void IRenderModuleForMesh::ClearRenderList()
 	mRenderList_Mesh.clear();
 }
 
-void IRenderModuleForMesh::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
+bool IRenderModuleForMesh::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
 	m_pFX_Tech_DrawMesh = g_pFX->GetTechniqueByName("DrawMesh");
+	return true;
 }
 
 /***********************************************************
@@ -193,21 +194,21 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::DIFFUSE_MAP, pSRV);
 	}
 
-	//if tetxure is  valid ,then set normal map
+	//if texture is  valid ,then set normal map
 	if (isNormalMapValid)
 	{
 		auto pSRV = m_pRefRI->GetTextureSRV(pNormalMap);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::NORMAL_MAP, pSRV);
 	}
 
-	//if tetxure is  valid ,then set specular map
+	//if texture is  valid ,then set specular map
 	if (isSpecularMapValid)
 	{
 		auto pSRV = m_pRefRI->GetTextureSRV(pSpecMap);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::SPECULAR_MAP, pSRV);
 	}
 
-	//if tetxure is  valid ,then set environment map (cube map)
+	//if texture is  valid ,then set environment map (cube map)
 	if (isEnvMapValid)
 	{
 		auto pSRV = m_pRefRI->GetTextureSRV(pEnvMap);

@@ -208,8 +208,6 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 1000,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
 	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 1000,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
 
-	pRenderer->SetPostProcessingEnabled(true);
-
 	return TRUE;
 };
 
@@ -237,6 +235,11 @@ void MainLoop()
 	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
+	static N_PostProcessGreyScaleDesc desc;
+	desc.factorR = 0.3f;
+	desc.factorG = 0.59f;
+	desc.factorB = 0.11f;
+	pRenderer->EnqueuePostProcessEffect_GreyScale(desc);
 
 	//render
 	pRenderer->Render();

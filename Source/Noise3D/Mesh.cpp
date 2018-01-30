@@ -228,10 +228,10 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
 	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
-	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	vbd.Usage = D3D11_USAGE_DEFAULT;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
-	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
 
 	//Create Buffers
@@ -244,8 +244,8 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	ibd.ByteWidth = sizeof(int) * indexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
-	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers

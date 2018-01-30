@@ -23,6 +23,6 @@ namespace Noise3D
 
 		virtual void ClearRenderList() = 0;
 
-		virtual void Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) = 0;
+		virtual bool Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) = 0;
 	};
 }

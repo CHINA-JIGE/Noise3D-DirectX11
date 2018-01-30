@@ -15,6 +15,9 @@ IRenderModuleForGraphicObject::IRenderModuleForGraphicObject()
 
 IRenderModuleForGraphicObject::~IRenderModuleForGraphicObject()
 {
+	ReleaseCOM(m_pFX_Tech_Solid2D);
+	ReleaseCOM(m_pFX_Tech_Solid3D);
+	ReleaseCOM(m_pFX_Tech_Textured2D);
 }
 
 void IRenderModuleForGraphicObject::RenderGraphicObjects()
@@ -25,6 +28,7 @@ void IRenderModuleForGraphicObject::RenderGraphicObjects()
 
 	//set samplerState
 	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
 	m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 
 	//render various kinds of primitives
@@ -50,13 +54,14 @@ void IRenderModuleForGraphicObject::ClearRenderList()
 	mRenderList_GO.clear();
 }
 
-void IRenderModuleForGraphicObject::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
+bool IRenderModuleForGraphicObject::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
 	m_pFX_Tech_Solid3D = g_pFX->GetTechniqueByName("DrawSolid3D");
 	m_pFX_Tech_Solid2D = g_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_Textured2D = g_pFX->GetTechniqueByName("DrawTextured2D");
+	return true;
 }
 
 /***********************************************************

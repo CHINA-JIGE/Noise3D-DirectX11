@@ -44,12 +44,13 @@ void IRenderModuleForText::ClearRenderList()
 	mRenderList_TextStatic.clear();
 }
 
-void IRenderModuleForText::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
+bool IRenderModuleForText::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
 	m_pFX_Tech_Solid2D = g_pFX->GetTechniqueByName("DrawSolid2D");
 	m_pFX_Tech_DrawText2D = g_pFX->GetTechniqueByName("DrawText2D");
+	return true;
 }
 
 /***********************************************************************

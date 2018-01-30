@@ -28,9 +28,9 @@ namespace Noise3D
 
 		void		RenderTexts();
 
-		void		ClearRenderList() override;
+		virtual void	ClearRenderList() override;
 
-		void		Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
+		virtual bool	Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
 
 	private:
 

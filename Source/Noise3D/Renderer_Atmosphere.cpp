@@ -15,7 +15,7 @@ IRenderModuleForAtmosphere::IRenderModuleForAtmosphere()
 
 IRenderModuleForAtmosphere::~IRenderModuleForAtmosphere()
 {
-
+	ReleaseCOM(m_pFX_Tech_DrawSky);
 }
 
 void IRenderModuleForAtmosphere::SetActiveAtmosphere(IAtmosphere * pAtmo)
@@ -86,11 +86,12 @@ void IRenderModuleForAtmosphere::ClearRenderList()
 	mRenderList_Atmosphere.clear();
 }
 
-void IRenderModuleForAtmosphere::Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr)
+bool IRenderModuleForAtmosphere::Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr)
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
 	m_pFX_Tech_DrawSky = g_pFX->GetTechniqueByName("DrawSky");
+	return true;
 }
 
 /***********************************************************************

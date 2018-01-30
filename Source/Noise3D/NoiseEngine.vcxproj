@@ -135,6 +135,7 @@
     <ClInclude Include="Renderer_Mesh.h" />
     <ClInclude Include="Renderer_Text.h" />
     <ClInclude Include="RenderInfrastructure.h" />
+    <ClInclude Include="Renderer_PostProcessing.h" />
     <ClInclude Include="_BaseRenderModule.h" />
     <ClInclude Include="_FbxLoader.h" />
     <ClInclude Include="FileIO_OBJ.h" />
@@ -191,6 +192,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="Renderer_PostProcessing.cpp" />
     <ClCompile Include="RenderInfrastructure.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />
     <ClCompile Include="ShaderVarManager.cpp" />

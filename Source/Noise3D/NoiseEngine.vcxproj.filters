@@ -118,6 +118,9 @@
     <Filter Include="NoiseGraphic\Scene\Renderer\Infrastructure">
       <UniqueIdentifier>{8f21c0d8-8af6-48b7-be67-bb3b7675b049}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing">
+      <UniqueIdentifier>{b33968be-f8a9-479f-bd25-d1f10480aa56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -253,9 +256,6 @@
     <ClInclude Include="Renderer_Atmosphere.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer_GraphicObj.h">
-      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer_Mesh.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Mesh</Filter>
     </ClInclude>
@@ -267,6 +267,12 @@
     </ClInclude>
     <ClInclude Include="_BaseRenderModule.h">
       <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_GraphicObj.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_PostProcessing.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -390,9 +396,6 @@
     <ClCompile Include="Renderer_Atmosphere.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer_GraphicObj.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer_Mesh.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Mesh</Filter>
     </ClCompile>
@@ -401,6 +404,12 @@
     </ClCompile>
     <ClCompile Include="RenderInfrastructure.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_GraphicObj.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_PostProcessing.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

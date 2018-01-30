@@ -24,6 +24,9 @@
     <Filter Include="DrawSolid3D">
       <UniqueIdentifier>{00c06ffc-9cc0-4c71-8018-206cc51ccf4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PostProcessing">
+      <UniqueIdentifier>{41c84a7b-f01a-4818-a7b3-e56fa3cacb91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Draw2D.fx">
@@ -67,6 +70,15 @@
     </None>
     <None Include="DrawMesh_Gouraud.fx">
       <Filter>DrawMesh</Filter>
+    </None>
+    <None Include="PostProcessing.hlsli">
+      <Filter>PostProcessing</Filter>
+    </None>
+    <None Include="PostProcess_SimpleEffects.fx">
+      <Filter>PostProcessing</Filter>
+    </None>
+    <None Include="PostProcess_Qwerty.fx">
+      <Filter>PostProcessing</Filter>
     </None>
   </ItemGroup>
 </Project>

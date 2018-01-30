@@ -176,7 +176,7 @@ ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID c
 				DeleteTexture(tmpTexName[j]);
 			}
 
-			ERROR_MSG("NoiseTexMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
+			ERROR_MSG("ITextureMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
 			return nullptr;
 		}
 	}

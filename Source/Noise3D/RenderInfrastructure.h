@@ -45,6 +45,8 @@ namespace Noise3D
 		//(2018.1.24)param can change to meet needs
 		void		SetRtvAndDsv(NOISE_RENDER_STAGE stage);
 
+		void		SetRTTViewsReference(ID3D11RenderTargetView* pRTV_A, ID3D11RenderTargetView* pRTV_B, ID3D11DepthStencilView* pDSV_A, ID3D11DepthStencilView* pDSV_B);
+
 		//clear render target view(s) and depth stencil view(s)
 		void		ClearRtvAndDsv(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
@@ -59,6 +61,14 @@ namespace Noise3D
 
 		ID3D11ShaderResourceView* GetTextureSRV(ITexture* pTex);
 
+		uint32_t GetBackBufferWidth();
+
+		uint32_t GetBackBufferHeight();
+
+		uint32_t GetMsaaSampleCount();
+
+		void SetPostProcessRemainingPassCount(uint32_t passCount);
+
 	private:
 
 		IRenderInfrastructure();
@@ -69,10 +79,7 @@ namespace Noise3D
 
 		friend class IRenderer;
 
-
-		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, bool IsWindowed, UINT msaaSampleCount);
-
-		bool		mFunction_Init_CreateRenderToTextureViews(UINT bufferWidth, UINT bufferHeight, UINT msaaSampleCount);
+		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, bool IsWindowed, UINT cMsaaSampleCount);
 
 		bool		mFunction_Init_CreateBlendState();
 
@@ -84,17 +91,19 @@ namespace Noise3D
 
 		bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
-		UINT	mBackBufferWidth;
-		UINT	mBackBufferHeight;
-		bool		mEnablePostProcessing;
+		const uint32_t cMsaaSampleCount = 1;
+		uint32_t	mBackBufferWidth;
+		uint32_t	mBackBufferHeight;
+		uint32_t	mPostProcessRemainingPassCount;
 
 		IDXGISwapChain*						m_pSwapChain;
-		ID3D11RenderTargetView*			m_pRenderTargetViewForDisplay;//RTV for back buffer
-		ID3D11DepthStencilView*			m_pDepthStencilView;//DSV for back buffer
-		ID3D11RenderTargetView*			m_pRTTRenderTargetView;//RTV for render-to-texture
-		ID3D11ShaderResourceView*		m_pRTTShaderResourceView;//SRV for render-To-Texture
-		ID3D11DepthStencilView*			m_pRTTDepthStencilView;//DSV for render-To-Texture
+		ID3D11RenderTargetView*			m_pRenderTargetViewOfBackBuffer;//RTV for back buffer
+		ID3D11DepthStencilView*			m_pDepthStencilViewOfBackBuffer;//DSV for back buffer
 		IShaderVariableManager*			m_pRefShaderVarMgr;//singleton of shader var manager
+		ID3D11RenderTargetView*			m_pRefOffScreenRtv_A;//RTV for RTT
+		ID3D11DepthStencilView*			m_pRefOffScreenDsv_A;//DSV for RTT
+		ID3D11RenderTargetView*			m_pRefOffScreenRtv_B;//RTV for RTT
+		ID3D11DepthStencilView*			m_pRefOffScreenDsv_B;//DSV for RTT
 
 		ID3D11RasterizerState*			m_pRasterState_Solid_CullNone;
 		ID3D11RasterizerState*			m_pRasterState_Solid_CullBack;

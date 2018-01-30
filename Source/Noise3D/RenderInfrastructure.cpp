@@ -12,14 +12,15 @@
 using namespace Noise3D;
 
 IRenderInfrastructure::IRenderInfrastructure():
-	mEnablePostProcessing(false),
+	mPostProcessRemainingPassCount(0),
 	m_pRefShaderVarMgr(nullptr),
 	m_pSwapChain(nullptr),
-	m_pDepthStencilView(nullptr),
-	m_pRenderTargetViewForDisplay(nullptr),
-	m_pRTTDepthStencilView(nullptr),
-	m_pRTTRenderTargetView(nullptr),
-	m_pRTTShaderResourceView(nullptr),
+	m_pDepthStencilViewOfBackBuffer(nullptr),
+	m_pRenderTargetViewOfBackBuffer(nullptr),
+	m_pRefOffScreenRtv_A(nullptr),
+	m_pRefOffScreenRtv_B(nullptr),
+	m_pRefOffScreenDsv_A(nullptr),
+	m_pRefOffScreenDsv_B(nullptr),
 	m_pRasterState_Solid_CullBack(nullptr),
 	m_pRasterState_Solid_CullFront(nullptr),
 	m_pRasterState_Solid_CullNone(nullptr),
@@ -51,26 +52,17 @@ IRenderInfrastructure::~IRenderInfrastructure()
 	ReleaseCOM(m_pDepthStencilState_DisableDepthTest);
 	ReleaseCOM(m_pDepthStencilState_EnableDepthTest);
 	ReleaseCOM(m_pSamplerState_FilterLinear);
-	ReleaseCOM(m_pDepthStencilView);
-	ReleaseCOM(m_pRenderTargetViewForDisplay);
-	ReleaseCOM(m_pRTTShaderResourceView);
+	ReleaseCOM(m_pDepthStencilViewOfBackBuffer);
+	ReleaseCOM(m_pRenderTargetViewOfBackBuffer);
 	ReleaseCOM(m_pSwapChain);
 }
 
 bool	IRenderInfrastructure::Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
 {
 	//init d3d infrastructure
-	const uint32_t msaaSampleCount = 1;
-
-	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, IsWindowed, msaaSampleCount))
+	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, IsWindowed, cMsaaSampleCount))
 	{
 		ERROR_MSG("IRenderer : failed to Init D3D Infrastructure.");
-		return false;
-	};
-
-	if (!mFunction_Init_CreateRenderToTextureViews(BufferWidth, BufferHeight, msaaSampleCount))
-	{
-		ERROR_MSG("IRenderer : failed to Post Processing Infrastructure.");
 		return false;
 	};
 
@@ -259,55 +251,96 @@ void IRenderInfrastructure::SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_
 void	IRenderInfrastructure::SetRtvAndDsv(NOISE_RENDER_STAGE stage)
 {
 	//the decision of how to set RTV/DSV according to state of post-processing
-	//WILL BE made here.
-	//(though some effect might require 2+ passessor 2+ RTV (like deferred rendering?), 
+	//WILL BE made here. render target bounces back and forth.
+	//(though some effect might require 2+ passes or 2+ RTV (like deferred rendering?), 
 	//and the branches count might be tremendous.
-	//but someone has to do it= = so there you go.
+	//but someone has to do the branch selection job= = so there you go.
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//ensure compatibility with SRV settings of IRenderModulePostProcessing
+	//"=>" is initial render to texture 
+	//"->" is a post process pass
+	//0 pass -- =>backBuffer
+	//1 pass -- => rtB -> backBuffer
+	//2 pass -- => rtA -> rtB ->backBuffer
+	//3 pass -- => rtB -> rtA ->rtB ->backBuffer
+	//4 pass -- => rtA -> rtB -> rtA -> rtB ->backBuffer
 
 	if (stage == NOISE_RENDER_STAGE::NORMAL_DRAWING)
 	{
-		if (mEnablePostProcessing)
+		if (mPostProcessRemainingPassCount==0)
+		{
+			//post process pass count == 0
+			//directly render to back buffer
+			g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewOfBackBuffer, m_pDepthStencilViewOfBackBuffer);
+		}
+		else	//one or more post process need to be dealt with
 		{
 			//render to off-screen texture first
 			//(Note that RTV & DSV should be set at the same time)
-			g_pImmediateContext->OMSetRenderTargets(1, &m_pRTTRenderTargetView, m_pRTTDepthStencilView);
-		}
-		else
-		{
-			//directly render to back buffer
-			g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewForDisplay, m_pDepthStencilView);
+			uint32_t passIndexParity = mPostProcessRemainingPassCount % 2;
+			if (passIndexParity == 0)
+			{
+				g_pImmediateContext->OMSetRenderTargets(1, &m_pRefOffScreenRtv_A, m_pRefOffScreenDsv_A);
+			}
+			else
+			{
+				g_pImmediateContext->OMSetRenderTargets(1, &m_pRefOffScreenRtv_B, m_pRefOffScreenDsv_B);
+			}
 		}
 	}
-	else if (stage ==NOISE_RENDER_STAGE::POST_PROCESSING)
+	else if (stage == NOISE_RENDER_STAGE::POST_PROCESSING)
 	{
-		if (mEnablePostProcessing)
+		//remaining pass count will be updated before start a post process count
+		uint32_t passIndexParity = mPostProcessRemainingPassCount % 2;
+		if (mPostProcessRemainingPassCount ==1)
 		{
-			//in second pass, back buffer will be the Render target
-			g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewForDisplay, m_pDepthStencilView);
+			//last pass
+			g_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetViewOfBackBuffer, m_pDepthStencilViewOfBackBuffer);
 		}
 		else
 		{
-			ERROR_MSG("IRenderInfrastructure: Fatal Error! Post Processing is turned off, but here is the pass of post-processing render.");
+			if (passIndexParity == 0)
+			{
+				//different to the Render Target of initial render
+				g_pImmediateContext->OMSetRenderTargets(1, &m_pRefOffScreenRtv_B, m_pRefOffScreenDsv_B);
+			}
+			else
+			{
+				g_pImmediateContext->OMSetRenderTargets(1, &m_pRefOffScreenRtv_A, m_pRefOffScreenDsv_A);
+			}
 		}
 	}
+}
+
+void IRenderInfrastructure::SetRTTViewsReference(ID3D11RenderTargetView * pRTV_A, ID3D11RenderTargetView * pRTV_B, ID3D11DepthStencilView * pDSV_A, ID3D11DepthStencilView * pDSV_B)
+{
+	m_pRefOffScreenRtv_A = pRTV_A;//pass index start from 0
+	m_pRefOffScreenRtv_B = pRTV_B;
+	m_pRefOffScreenDsv_A = pDSV_A;//pass index start from 0
+	m_pRefOffScreenDsv_B = pDSV_B;
 }
 
 void IRenderInfrastructure::ClearRtvAndDsv(const NVECTOR4 & color)
 {
 	//choose RTV and DSV to clear (target varys when post-processing is on or off)
-	if (mEnablePostProcessing)
+	if (mPostProcessRemainingPassCount>0)
 	{
 		float ClearColor[4] = { color.x,color.y,color.z,color.w };
-		g_pImmediateContext->ClearRenderTargetView(m_pRenderTargetViewForDisplay, ClearColor);
-		g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		g_pImmediateContext->ClearRenderTargetView(m_pRTTRenderTargetView, ClearColor);
-		g_pImmediateContext->ClearDepthStencilView(m_pRTTDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		g_pImmediateContext->ClearRenderTargetView(m_pRenderTargetViewOfBackBuffer, ClearColor);
+		g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilViewOfBackBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		
+		//RTT's RTVs and DSVs
+		g_pImmediateContext->ClearRenderTargetView(m_pRefOffScreenRtv_A, ClearColor);
+		g_pImmediateContext->ClearDepthStencilView(m_pRefOffScreenDsv_A, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		g_pImmediateContext->ClearRenderTargetView(m_pRefOffScreenRtv_B, ClearColor);
+		g_pImmediateContext->ClearDepthStencilView(m_pRefOffScreenDsv_B, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 	else
 	{
 		float ClearColor[4] = { color.x,color.y,color.z,color.w };
-		g_pImmediateContext->ClearRenderTargetView(m_pRenderTargetViewForDisplay, ClearColor);
-		g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		g_pImmediateContext->ClearRenderTargetView(m_pRenderTargetViewOfBackBuffer, ClearColor);
+		g_pImmediateContext->ClearDepthStencilView(m_pDepthStencilViewOfBackBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 }
 
@@ -348,19 +381,39 @@ ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(ITexture * pTex)
 	return pTex->m_pSRV;
 }
 
+uint32_t IRenderInfrastructure::GetBackBufferWidth()
+{
+	return mBackBufferWidth;
+}
+
+uint32_t IRenderInfrastructure::GetBackBufferHeight()
+{
+	return mBackBufferHeight;
+}
+
+uint32_t IRenderInfrastructure::GetMsaaSampleCount()
+{
+	return cMsaaSampleCount;
+}
+
+void IRenderInfrastructure::SetPostProcessRemainingPassCount(uint32_t passCount)
+{
+	mPostProcessRemainingPassCount = passCount;
+}
+
 
 /***********************************************************************
 									P R I V A T E
 ************************************************************************/
 
-bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed, UINT msaaSampleCount)
+bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed, UINT cMsaaSampleCount)
 {
 	//check multi-sample capability
 	//the support level of MSAA might vary among hardwares
 	bool enableMSAA = false;
 	UINT msaaQuality = 0;//query via d3d11
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, msaaSampleCount, &msaaQuality);
+		DXGI_FORMAT_R8G8B8A8_UNORM, cMsaaSampleCount, &msaaQuality);
 	if (msaaQuality > 0)enableMSAA = true;
 
 	//-----------------SWAP CHAIN------------------
@@ -376,7 +429,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = GetRoot()->GetRenderWindowHWND();
 	swapChainDesc.Windowed = IsWindowed;
-	swapChainDesc.SampleDesc.Count = (enableMSAA == true ? msaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	swapChainDesc.SampleDesc.Count = (enableMSAA == true ? cMsaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
 	swapChainDesc.SampleDesc.Quality = (enableMSAA == true ? msaaQuality-1 : 0);
 
 	//use COM's QueryInterface to get desired interface
@@ -404,7 +457,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	HR_DEBUG(hr, "IRenderer: failed to get back buffer from swap chain.");
 
-	hr = g_pd3dDevice11->CreateRenderTargetView(pBackBuffer, NULL, &m_pRenderTargetViewForDisplay);
+	hr = g_pd3dDevice11->CreateRenderTargetView(pBackBuffer, NULL, &m_pRenderTargetViewOfBackBuffer);
 	pBackBuffer->Release();
 	HR_DEBUG(hr, "IRenderer : failed to create render target view");
 
@@ -415,7 +468,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
 	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (enableMSAA ? msaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Count = (enableMSAA ? cMsaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
 	DSBufferDesc.SampleDesc.Quality = (enableMSAA ? msaaQuality-1 : 0);
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	DSBufferDesc.CPUAccessFlags = 0;
@@ -424,12 +477,12 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 
 	ID3D11Texture2D* pDepthStencilBuffer;
 	g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);
-	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBuffer, nullptr, &m_pDepthStencilView);
+	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBuffer, nullptr, &m_pDepthStencilViewOfBackBuffer);
 
 	pDepthStencilBuffer->Release();
 	HR_DEBUG(hr, "IRenderer: failed to create depth stencil buffer");
 
-	//--------------------------VIEWPORT--------------------------------
+	//-----------------------VIEWPORT----------------------
 	D3D11_VIEWPORT vp;
 	vp.Width = (FLOAT)BufferWidth;
 	vp.Height = (FLOAT)BufferHeight;
@@ -442,85 +495,8 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	return true;
 }
 
-bool IRenderInfrastructure::mFunction_Init_CreateRenderToTextureViews(UINT bufferWidth, UINT bufferHeight, UINT msaaSampleCount)
-{
-	//check multi-sample capability
-	//the support level of MSAA might vary among hardwares
-	bool enableMSAA = false;
-	UINT msaaQuality = 0;//query via d3d11
-	g_pd3dDevice11->CheckMultisampleQualityLevels(
-		DXGI_FORMAT_R8G8B8A8_UNORM, msaaSampleCount, &msaaQuality);
-	if (msaaQuality > 0)enableMSAA = true;
-
-	//Create Render Target View
-	//RTV should be created from a explicitly created ID3D11Texture2D,
-	//or a implicitly created Texture2D of Swap chain's back buffer
-	//NOTE: desc.BindFlags is a KEYPOINT for implementing Render-To-Texture
-	D3D11_TEXTURE2D_DESC backBufferTexDesc;
-	backBufferTexDesc.Width = bufferWidth;
-	backBufferTexDesc.Height = bufferHeight;
-	backBufferTexDesc.MipLevels = 1;
-	backBufferTexDesc.ArraySize = 1;
-	backBufferTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	backBufferTexDesc.SampleDesc.Count = (enableMSAA ? msaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	backBufferTexDesc.SampleDesc.Quality = (enableMSAA ? msaaQuality-1 : 0);
-	backBufferTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	backBufferTexDesc.CPUAccessFlags = 0;
-	backBufferTexDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	backBufferTexDesc.MiscFlags = 0;
-
-	ID3D11Texture2D* pBackBufferTexture = nullptr;
-	HRESULT hr = g_pd3dDevice11->CreateTexture2D(&backBufferTexDesc, nullptr, &pBackBufferTexture);
-	HR_DEBUG(hr, "IRenderer: failed to create back buffer texture2D.");
-
-	//Create RTV
-	hr = g_pd3dDevice11->CreateRenderTargetView(pBackBufferTexture, nullptr, &m_pRTTRenderTargetView);
-	if (FAILED(hr))
-	{
-		ReleaseCOM(pBackBufferTexture);
-		ERROR_MSG("IRenderer: failed to create Render Target View");
-		return false;
-	}
-
-	//Create RTT shader resource view
-	hr = g_pd3dDevice11->CreateShaderResourceView(pBackBufferTexture, nullptr, &m_pRTTShaderResourceView);
-	if (FAILED(hr))
-	{
-		ReleaseCOM(pBackBufferTexture);
-		ERROR_MSG("IRenderer: failed to create RTT SRV");
-		return false;
-	}
-
-	//texture2D can be released after RTV is created
-	ReleaseCOM(pBackBufferTexture);
-
-	//DSV for RTT texture
-	//the size(width,height) must match the back buffer of RTV
-	D3D11_TEXTURE2D_DESC DSBufferDesc;
-	DSBufferDesc.Width = bufferWidth;
-	DSBufferDesc.Height = bufferHeight;
-	DSBufferDesc.MipLevels = 1;
-	DSBufferDesc.ArraySize = 1;
-	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DSBufferDesc.SampleDesc.Count = (enableMSAA ? msaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
-	DSBufferDesc.SampleDesc.Quality = (enableMSAA ? msaaQuality-1 : 0);
-	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	DSBufferDesc.CPUAccessFlags = 0;
-	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	DSBufferDesc.MiscFlags = 0;
-
-	ID3D11Texture2D* pDepthStencilBuffer;
-	g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);
-	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBuffer, nullptr, &m_pRTTDepthStencilView);
-	pDepthStencilBuffer->Release();
-	HR_DEBUG(hr, "IRenderer: failed to create depth stencil buffer");
-
-	return true;
-}
-
 bool	IRenderInfrastructure::mFunction_Init_CreateBlendState()
 {
-
 	//source color : the first color in blending equation
 	HRESULT hr = S_OK;
 

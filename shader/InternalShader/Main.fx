@@ -13,6 +13,7 @@
 #include "DrawSky.hlsli"
 #include "DrawSolid3D.hlsli"
 #include "Picking.hlsli"
+#include "PostProcessing.hlsli"
 
 
 
@@ -24,6 +25,8 @@
 #include "DrawSky.fx"
 #include "DrawSolid3D.fx"
 #include "Picking.fx"
+#include "PostProcess_SimpleEffects.fx"
+#include "PostProcess_Qwerty.fx"
 
 
 //#include "shader3D_DrawMesh.fx"

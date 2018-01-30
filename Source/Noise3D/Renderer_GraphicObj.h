@@ -25,10 +25,10 @@ namespace Noise3D
 
 		void		RenderGraphicObjects();
 
-		void		ClearRenderList() override;
+		virtual void	ClearRenderList() override;
 
 		//called by IRenderer
-		void		Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
+		virtual bool	Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
 
 	private:
 

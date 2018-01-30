@@ -15,18 +15,22 @@
 #include "Renderer_GraphicObj.h"
 #include "Renderer_Mesh.h"
 #include "Renderer_Text.h"
+#include "Renderer_PostProcessing.h"
 
 namespace Noise3D
 {
-
 	class /*_declspec(dllexport)*/ IRenderer :
 		private IFactory<IRenderInfrastructure>,
-		protected IRenderModuleForAtmosphere,
-		protected IRenderModuleForGraphicObject,
-		protected IRenderModuleForMesh,
-		protected IRenderModuleForText
+		public IRenderModuleForAtmosphere,
+		public IRenderModuleForGraphicObject,
+		public IRenderModuleForMesh,
+		public IRenderModuleForText,
+		public IRenderModuleForPostProcessing
 	{
 	public:
+
+		//explicitly overload 'AddToRenderQueue' 
+		//prevent functions with same names are HIDDEN
 
 		void		AddToRenderQueue(IMesh* obj);
 
@@ -47,8 +51,6 @@ namespace Noise3D
 		UINT	GetBackBufferWidth();
 
 		UINT	GetBackBufferHeight();
-
-		void		SetPostProcessingEnabled(bool isEnabled);
 
 	private:
 

@@ -47,10 +47,16 @@ void IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
 
 void IRenderer::Render()
 {
+	//this affects the decision of Render Targets
+	m_pRenderInfrastructure->SetPostProcessRemainingPassCount(IRenderModuleForPostProcessing::GetPostProcessPassCount());
+
 	IRenderModuleForMesh::RenderMeshes();
 	IRenderModuleForAtmosphere::RenderAtmosphere();
 	IRenderModuleForGraphicObject::RenderGraphicObjects();
 	IRenderModuleForText::RenderTexts();
+
+	IRenderModuleForPostProcessing::PostProcess();
+	
 }
 
 void	IRenderer::ClearBackground(const NVECTOR4& color)
@@ -67,6 +73,7 @@ void	IRenderer::PresentToScreen()
 	IRenderModuleForGraphicObject::ClearRenderList();
 	IRenderModuleForMesh::ClearRenderList();
 	IRenderModuleForText::ClearRenderList();
+	IRenderModuleForPostProcessing::ClearRenderList();//no use
 };
 
 
@@ -79,13 +86,6 @@ UINT IRenderer::GetBackBufferHeight()
 {
 	return m_pRenderInfrastructure->mBackBufferHeight;
 }
-
-void IRenderer::SetPostProcessingEnabled(bool isEnabled)
-{
-	m_pRenderInfrastructure->mEnablePostProcessing = isEnabled;
-};
-
-
 
 /************************************************************************
                                             PRIVATE                        
@@ -113,6 +113,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	IRenderModuleForGraphicObject::Initialize(m_pRenderInfrastructure, pSVM);
 	IRenderModuleForMesh::Initialize(m_pRenderInfrastructure, pSVM);
 	IRenderModuleForText::Initialize(m_pRenderInfrastructure, pSVM);
+	IRenderModuleForPostProcessing::Initialize(m_pRenderInfrastructure, pSVM);
 
 	return true;
 }
