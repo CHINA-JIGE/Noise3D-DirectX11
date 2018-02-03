@@ -24,9 +24,9 @@ Some simple features are implemented:
 
 --Texture Modification by pixel (including HeightMap -> Normal Map Conversion
 
---per pixel lighting (local illumination)
+--per vertex/pixel lighting (gouraud/phong shading)(local illumination)
 
---Input Engine using DIRECT INPUT
+--DirectInput8 based input engine
 
 --skybox(cubemap) / SkySphere
 
@@ -34,9 +34,13 @@ Some simple features are implemented:
 
 --Text Rendering
 
---Mesh File Loading : STL , OBJ，FBX
+--ModelLoader : .stl, .obj , .fbx(due to unstability, .3ds is deprecated)
 
---Collision Test
+--Collision Testor(not stable):GPU accelerated ray-mesh intersection;
+
+--ModelProcessor(not stable):mesh simplification;
+
+--post processing
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +52,7 @@ Utility:
 
 --Voxelizer
 
---Marching  Cube Mesh Reconstructor
+--Marching Cube Mesh Reconstructor
 
 In the future my own 3d Scanner (data processing pipeline) will be combined into this engine as an Utility.
 
