@@ -91,7 +91,7 @@ BOOL Init3D(HWND hwnd)
 	//Âş·´ÉäÌùÍ¼
 	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
@@ -122,8 +122,8 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
 	pMesh->SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-	//pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh);
 	/*for (auto & name : res.meshNameList)
 	{
@@ -139,8 +139,8 @@ BOOL Init3D(HWND hwnd)
 	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
 	for (auto v : *pTmpVB)
 	{
-		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
@@ -160,7 +160,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetLookAt(0, 0, 0);
 
 
-	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 4.0f);
+	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
@@ -194,8 +194,8 @@ BOOL Init3D(HWND hwnd)
 	Mat1.specularSmoothLevel = 40;
 	Mat1.normalMapBumpIntensity = 0.2f;
 	Mat1.environmentMapTransparency = 0.1f;
-	//Mat1.diffuseMapName = "Earth";//"Earth");
-	//Mat1.normalMapName ="EarthNormalMap";
+	Mat1.diffuseMapName = "Earth";//"Earth");
+	Mat1.normalMapName ="EarthNormalMap";
 	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
@@ -205,8 +205,8 @@ BOOL Init3D(HWND hwnd)
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 1000,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
-	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 1000,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
+	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 500,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
+	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 300,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
 
 	return TRUE;
 };
@@ -239,7 +239,9 @@ void MainLoop()
 	desc.factorR = 0.3f;
 	desc.factorG = 0.59f;
 	desc.factorB = 0.11f;
-	pRenderer->EnqueuePostProcessEffect_GreyScale(desc);
+	//pRenderer->AddToPostProcessList_GreyScale(desc);
+	//pRenderer->AddToPostProcessList_GreyScale(desc);
+	//pRenderer->AddToPostProcessList_GreyScale(desc);
 
 	//render
 	pRenderer->Render();

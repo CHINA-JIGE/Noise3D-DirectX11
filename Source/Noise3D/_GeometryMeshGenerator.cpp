@@ -201,7 +201,7 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 			//store position in array
 			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)i / (iRingCount - 1));
+			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
 			//tangent need to be dealt with specially
 			tmpTangent[k] = NVECTOR3(-sinf(j*StepLength_AngleXZ), 0, cos(j*StepLength_AngleXZ));
 			k++;
@@ -495,7 +495,7 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 			//store position in array
 			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)i / (iRingCount - 1));
+			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
 			k++;
 		}
 	}

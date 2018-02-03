@@ -33,5 +33,5 @@ technique11 PostProcessing
 		SetVertexShader(CompileShader(vs_5_0, VS_PostProcess_FullScreenQuad()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS_PostProcess_QwertyDistortion()));
-	};
+	}
 }

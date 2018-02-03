@@ -266,6 +266,12 @@ void	IRenderInfrastructure::SetRtvAndDsv(NOISE_RENDER_STAGE stage)
 	//3 pass -- => rtB -> rtA ->rtB ->backBuffer
 	//4 pass -- => rtA -> rtB -> rtA -> rtB ->backBuffer
 
+	//!!!!UNBIND previous render targets first
+	//D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT slots in total
+	const int cSlotCount = 3;
+	ID3D11ShaderResourceView* pNullSRV[cSlotCount] = { nullptr,nullptr,nullptr };
+	g_pImmediateContext->PSSetShaderResources(0, cSlotCount, pNullSRV);
+
 	if (stage == NOISE_RENDER_STAGE::NORMAL_DRAWING)
 	{
 		if (mPostProcessRemainingPassCount==0)
@@ -291,6 +297,8 @@ void	IRenderInfrastructure::SetRtvAndDsv(NOISE_RENDER_STAGE stage)
 	}
 	else if (stage == NOISE_RENDER_STAGE::POST_PROCESSING)
 	{
+
+
 		//remaining pass count will be updated before start a post process count
 		uint32_t passIndexParity = mPostProcessRemainingPassCount % 2;
 		if (mPostProcessRemainingPassCount ==1)

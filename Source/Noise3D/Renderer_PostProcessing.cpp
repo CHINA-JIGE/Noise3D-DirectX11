@@ -38,15 +38,24 @@ IRenderModuleForPostProcessing::~IRenderModuleForPostProcessing()
 	ReleaseCOM(m_pFX_Pass_Qwerty);
 }
 
-void IRenderModuleForPostProcessing::EnqueuePostProcessEffect_GreyScale(const N_PostProcessGreyScaleDesc & param)
+void IRenderModuleForPostProcessing::AddToPostProcessList_GreyScale(const N_PostProcessGreyScaleDesc & param)
 {
+	mGreyScaleDescList.push_back(param);
+
 	N_PostProcessPass pass;
-	pass.type = 
-	mPostProcessEffectQueue.push_back(param);
+	pass.type = NOISE_POST_PROCESS_EFFECT::GreyScale;
+	pass.index = mGreyScaleDescList.size()-1;
+	mPostProcessEffectQueue.push_back(pass);
 }
 
-void IRenderModuleForPostProcessing::EnqueuePostProcessEffect_QwertyDistortion(const N_PostProcesQwertyDistortionDesc & param)
+void IRenderModuleForPostProcessing::AddToPostProcessList_QwertyDistortion(const N_PostProcesQwertyDistortionDesc & param)
 {
+	mQwertyDescList.push_back(param);
+
+	N_PostProcessPass pass;
+	pass.type = NOISE_POST_PROCESS_EFFECT::QwertyDistortion;
+	pass.index = mQwertyDescList.size() - 1;
+	mPostProcessEffectQueue.push_back(pass);
 }
 
 
@@ -60,7 +69,8 @@ void IRenderModuleForPostProcessing::PostProcess()
 	for (uint32_t passIndex = 0; passIndex < totalPassCount; ++passIndex)
 	{
 		//settings (IA will be set before executing each task)
-		m_pRefRI->SetPostProcessRemainingPassCount(totalPassCount - passIndex);
+		//the queue size decreases (pop_front) after task is performed
+		m_pRefRI->SetPostProcessRemainingPassCount(mPostProcessEffectQueue.size());
 		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::POST_PROCESSING);
 		m_pRefRI->SetDepthStencilState(false);
 		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
@@ -69,28 +79,31 @@ void IRenderModuleForPostProcessing::PostProcess()
 
 		//remaining task count must be updated so that the RTV and DSV can be 
 		//configured correctly
-		N_PostProcessPass& pass = mPostProcessEffectQueue.at(passIndex);
+		N_PostProcessPass& pass = mPostProcessEffectQueue.front();
 		switch (pass.type)
 		{
 		case NOISE_POST_PROCESS_EFFECT::GreyScale:
 		{
-			mFunction_GreyScale(mPostProcessEffectQueue.at(passIndex).desc.greyScale);
+			uint32_t index = mPostProcessEffectQueue.front().index;
+			mFunction_GreyScale(mGreyScaleDescList.at(index));
 			break;
 		}
 
 		case NOISE_POST_PROCESS_EFFECT::QwertyDistortion:
 		{
-			mFunction_QwertyDistortion(mPostProcessEffectQueue.at(passIndex).desc.qwerty);
+			uint32_t index = mPostProcessEffectQueue.front().index;
+			mFunction_QwertyDistortion(mQwertyDescList.at(index));
 			break;
 		}
 
 		default:
 		{
-			ERROR_MSG("IRenderer(Post Processing Module): this parameter is not appropriately re-interpreted.");
+			ERROR_MSG("IRenderer(Post Processing Module): BUG! No Such post effect!");
 			break;
 		};
 		}
 
+		mPostProcessEffectQueue.pop_front();
 	}
 }
 
@@ -102,6 +115,8 @@ uint32_t IRenderModuleForPostProcessing::GetPostProcessPassCount()
 void IRenderModuleForPostProcessing::ClearRenderList()
 {
 	mPostProcessEffectQueue.clear();
+	mGreyScaleDescList.clear();
+	mQwertyDescList.clear();
 }
 
 bool IRenderModuleForPostProcessing::Initialize(IRenderInfrastructure * pRI, IShaderVariableManager * pShaderVarMgr)
@@ -112,17 +127,27 @@ bool IRenderModuleForPostProcessing::Initialize(IRenderInfrastructure * pRI, ISh
 	m_pFX_Pass_GreyScale = m_pFX_Tech_PostProcessing->GetPassByName("GreyScale");
 	m_pFX_Pass_Qwerty = m_pFX_Tech_PostProcessing->GetPassByName("QwertyDistortion");
 
-	//initialize RTV A&B, DSV A&b
-	if (!mFunction_Init_CreateRenderToTextureViews(
+	//initialize RTV A&B, DSV A&B. split this two up has less concern 
+	//about releasing ID3D11Texture2D* when error occurs
+	if (!mFunction_Init_CreateOffScreenRTV(
 		m_pRefRI->GetBackBufferWidth(),
 		m_pRefRI->GetBackBufferHeight(),
 		m_pRefRI->GetMsaaSampleCount()))
 	{
-		ERROR_MSG("IRenderer: failed to init Post Processing module.");
+		ERROR_MSG("IRenderer: failed to init Post Processing module. (off-screen render targets)");
 		return false;
 	}
 
-	//initialize RTV A&B, DSV A&b
+	if (!mFunction_Init_CreateOffScreenDSV(
+		m_pRefRI->GetBackBufferWidth(),
+		m_pRefRI->GetBackBufferHeight(),
+		m_pRefRI->GetMsaaSampleCount()))
+	{
+		ERROR_MSG("IRenderer: failed to init Post Processing module. (off-screen depth-stencil buffer)");
+		return false;
+	}
+
+	//initialize a quad vertex buffer (2 triangles that cover the whole screen)
 	if (!mFunction_Init_VertexBufferOfQuad())
 	{
 		ERROR_MSG("IRenderer: failed to init Post Processing module.");
@@ -184,7 +209,7 @@ bool IRenderModuleForPostProcessing::mFunction_Init_VertexBufferOfQuad()
 	return true;
 }
 
-bool IRenderModuleForPostProcessing::mFunction_Init_CreateRenderToTextureViews(UINT bufferWidth, UINT bufferHeight, UINT cMsaaSampleCount)
+bool IRenderModuleForPostProcessing::mFunction_Init_CreateOffScreenRTV(UINT bufferWidth, UINT bufferHeight, UINT cMsaaSampleCount)
 {
 	//check multi-sample capability
 	//the support level of MSAA might vary among hardwares
@@ -211,48 +236,76 @@ bool IRenderModuleForPostProcessing::mFunction_Init_CreateRenderToTextureViews(U
 	backBufferTexDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	backBufferTexDesc.MiscFlags = 0;
 
-	ID3D11Texture2D* pOffScreenTexture = nullptr;
-	HRESULT hr = g_pd3dDevice11->CreateTexture2D(&backBufferTexDesc, nullptr, &pOffScreenTexture);
-	HR_DEBUG(hr, "IRenderer: failed to create back buffer texture2D.");
+	//if one step failed, remember to release created resource
+	ID3D11Texture2D* pOffScreenTextureA = nullptr;
+	ID3D11Texture2D* pOffScreenTextureB = nullptr;
+	HRESULT hr = g_pd3dDevice11->CreateTexture2D(&backBufferTexDesc, nullptr, &pOffScreenTextureA);
+	HR_DEBUG(hr, "IRenderer: failed to create back buffer texture2D_A.");
 
-	//Create RTV
-	hr = g_pd3dDevice11->CreateRenderTargetView(pOffScreenTexture, nullptr, &m_pOffScreenRenderTargetView_A);
+	hr = g_pd3dDevice11->CreateTexture2D(&backBufferTexDesc, nullptr, &pOffScreenTextureB);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pOffScreenTexture);
+		ERROR_MSG("IRenderer: failed to create back buffer texture2D_B.");
+		return false;
+	}
+
+	//RTV for texture A
+	hr = g_pd3dDevice11->CreateRenderTargetView(pOffScreenTextureA, nullptr, &m_pOffScreenRenderTargetView_A);
+	if (FAILED(hr))
+	{
+		ReleaseCOM(pOffScreenTextureA);
+		ReleaseCOM(pOffScreenTextureB);
 		ERROR_MSG("IRenderer: failed to create Render Target View A");
 		return false;
 	}
-	hr = g_pd3dDevice11->CreateRenderTargetView(pOffScreenTexture, nullptr, &m_pOffScreenRenderTargetView_B);
+
+	//RTV for texture B
+	hr = g_pd3dDevice11->CreateRenderTargetView(pOffScreenTextureB, nullptr, &m_pOffScreenRenderTargetView_B);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pOffScreenTexture);
+		ReleaseCOM(pOffScreenTextureA);
+		ReleaseCOM(pOffScreenTextureB);
 		ERROR_MSG("IRenderer: failed to create Render Target View B");
 		return false;
 	}
 
-	//Create RTT shader resource view
-	hr = g_pd3dDevice11->CreateShaderResourceView(pOffScreenTexture, nullptr, &m_pOffScreenShaderResourceView_A);
+	//SRV for texture A
+	hr = g_pd3dDevice11->CreateShaderResourceView(pOffScreenTextureA, nullptr, &m_pOffScreenShaderResourceView_A);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pOffScreenTexture);
+		ReleaseCOM(pOffScreenTextureA);
+		ReleaseCOM(pOffScreenTextureB);
 		ERROR_MSG("IRenderer: failed to create RTT SRV A");
 		return false;
 	}
 
-	//Create RTT shader resource view
-	hr = g_pd3dDevice11->CreateShaderResourceView(pOffScreenTexture, nullptr, &m_pOffScreenShaderResourceView_B);
+	//SRV for texture B
+	hr = g_pd3dDevice11->CreateShaderResourceView(pOffScreenTextureB, nullptr, &m_pOffScreenShaderResourceView_B);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pOffScreenTexture);
+		ReleaseCOM(pOffScreenTextureA);
+		ReleaseCOM(pOffScreenTextureB);
 		ERROR_MSG("IRenderer: failed to create RTT SRV B");
 		return false;
 	}
 
-	//texture2D can be released after RTV is created
-	ReleaseCOM(pOffScreenTexture);
+	//this texture2D can be released after DSV is created
+	ReleaseCOM(pOffScreenTextureA);
+	ReleaseCOM(pOffScreenTextureB);
 
-	//--------------DSV-------------------
+	return true;
+}
+
+bool IRenderModuleForPostProcessing::mFunction_Init_CreateOffScreenDSV(UINT bufferWidth, UINT bufferHeight, UINT cMsaaSampleCount)
+{
+	//check multi-sample capability
+	//the support level of MSAA might vary among hardwares
+	bool enableMSAA = false;
+	UINT msaaQuality = 0;//query via d3d11
+	g_pd3dDevice11->CheckMultisampleQualityLevels(
+		DXGI_FORMAT_R8G8B8A8_UNORM, cMsaaSampleCount, &msaaQuality);
+	if (msaaQuality > 0)enableMSAA = true;
+
 	//DSV for RTT texture
 	//the size(width,height) must match the back buffer of RTV
 	D3D11_TEXTURE2D_DESC DSBufferDesc;
@@ -268,28 +321,40 @@ bool IRenderModuleForPostProcessing::mFunction_Init_CreateRenderToTextureViews(U
 	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	DSBufferDesc.MiscFlags = 0;
 
-	ID3D11Texture2D* pDepthStencilBuffer;
-	hr = g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBuffer);
+	ID3D11Texture2D* pDepthStencilBufferA;
+	ID3D11Texture2D* pDepthStencilBufferB;
+	HRESULT hr = g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBufferA);
 	HR_DEBUG(hr, "IRenderer: failed to create Off screeen Depth-Stencil texture.");
 
-	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBuffer, nullptr, &m_pOffScreenDepthStencilView_A);
+	hr = g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilBufferB);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pDepthStencilBuffer);
+		ReleaseCOM(pDepthStencilBufferB)
+		ERROR_MSG("IRenderer: failed to create Off screeen Depth-Stencil texture.");
+		return false;
+	}
+
+	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBufferA, nullptr, &m_pOffScreenDepthStencilView_A);
+	if (FAILED(hr))
+	{
+		ReleaseCOM(pDepthStencilBufferA);
+		ReleaseCOM(pDepthStencilBufferB);
 		ERROR_MSG("IRenderer: failed to create DSV for RTT A");
 		return false;
 	}
 
-	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBuffer, nullptr, &m_pOffScreenDepthStencilView_B);
+	hr = g_pd3dDevice11->CreateDepthStencilView(pDepthStencilBufferB, nullptr, &m_pOffScreenDepthStencilView_B);
 	if (FAILED(hr))
 	{
-		ReleaseCOM(pDepthStencilBuffer);
+		ReleaseCOM(pDepthStencilBufferA);
+		ReleaseCOM(pDepthStencilBufferB);
 		ERROR_MSG("IRenderer: failed to create DSV for RTT B");
 		return false;
 	}
 
 	//this texture2D can be released after DSV is created
-	ReleaseCOM(pDepthStencilBuffer);
+	ReleaseCOM(pDepthStencilBufferA);
+	ReleaseCOM(pDepthStencilBufferB);
 
 	return true;
 }
@@ -331,17 +396,29 @@ void IRenderModuleForPostProcessing::mFunction_GreyScale(const N_PostProcessGrey
 		IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE,
 		m_pVB_Quad,nullptr,D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//prior RTV is now bound as SRV
 	mFunction_SetInputShaderResource();
+
+	//update param
 
 	m_pFX_Pass_GreyScale->Apply(0, g_pImmediateContext);
 	g_pImmediateContext->Draw(cQuadVertexCount, 0);
+
+	//un-bind SRV
+	//mFunction_ResetInputShaderResource();
 }
 
 void IRenderModuleForPostProcessing::mFunction_QwertyDistortion(const N_PostProcesQwertyDistortionDesc& param)
 {
-	/*m_pRefRI->SetInputAssembler(
+	m_pRefRI->SetInputAssembler(
 		IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, 
 		nullptr,nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	ERROR_MSG("SCreen descriptor not correct!");*/
 
+	//prior RTV is now bound as SRV
+	mFunction_SetInputShaderResource();
+
+	ERROR_MSG("SCreen descriptor not correct!");
+
+	m_pFX_Pass_Qwerty->Apply(0, g_pImmediateContext);
+	//g_pImmediateContext->Draw();
 }

@@ -223,4 +223,4 @@ Texture2D gColorMap2D;
 								POST PROCESSING
 **********************************************************/
 //previous render target, use as post processing's shader input
-Texture2D gPostProcessPreviousRenderTarget;
+Texture2D gPreviousRenderTarget;

@@ -93,7 +93,7 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_TEXTURE(SPECULAR_MAP, "gSpecularMap");
 	BIND_SHADER_VAR_TEXTURE(CUBE_MAP, "gCubeMap");//environment mapping
 	BIND_SHADER_VAR_TEXTURE(COLOR_MAP_2D, "gColorMap2D");//for 2d texturing
-	BIND_SHADER_VAR_TEXTURE(POST_PROCESS_PREV_RT, "gPostProcessPreviousRenderTarget");//RenderTarget use as next pass's shader input
+	BIND_SHADER_VAR_TEXTURE(POST_PROCESS_PREV_RT, "gPreviousRenderTarget");//RenderTarget use as next pass's shader input
 	
 
 	return m_pSingleton;
