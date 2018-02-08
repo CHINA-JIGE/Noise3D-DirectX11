@@ -71,7 +71,7 @@ namespace Noise3D
 
 		void		SetScaleZ(float scaleZ);
 
-		UINT	GetVertexCount();
+		UINT	GetIndexCount();
 
 		UINT	GetTriangleCount();
 
@@ -89,6 +89,7 @@ namespace Noise3D
 	private:
 
 		friend class IRenderModuleForMesh;
+		friend class IRenderModuleForPostProcessing;//ref by qwerty
 		friend class IModelLoader;
 		friend class IModelProcessor;
 		friend class ICollisionTestor;

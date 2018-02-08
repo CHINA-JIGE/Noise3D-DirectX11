@@ -154,9 +154,9 @@ void IMesh::SetScaleZ(float scaleZ)
 	mScaleZ = scaleZ;
 }
 
-UINT IMesh::GetVertexCount()
+UINT IMesh::GetIndexCount()
 {
-	return mVB_Mem.size();
+	return mIB_Mem.size();
 }
 
 UINT IMesh::GetTriangleCount()

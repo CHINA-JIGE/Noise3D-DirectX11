@@ -439,7 +439,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	swapChainDesc.Windowed = IsWindowed;
 	swapChainDesc.SampleDesc.Count = (enableMSAA == true ? cMsaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
 	swapChainDesc.SampleDesc.Quality = (enableMSAA == true ? msaaQuality-1 : 0);
-
+	
 	//use COM's QueryInterface to get desired interface
 	IDXGIDevice *dxgiDevice = 0;
 	g_pd3dDevice11->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);

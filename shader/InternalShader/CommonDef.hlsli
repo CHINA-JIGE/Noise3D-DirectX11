@@ -8,7 +8,7 @@
 
 
 /**********************************************************************
-					SHADER	INPUT/OUTPUT   STRUCTURE    DEFINITION
+			SHADER	INPUT/OUTPUT   STRUCTURE    DEFINITION
 **************************************************************************/
 struct VS_INPUT_DRAW_MESH
 {
@@ -59,8 +59,8 @@ struct VS_OUTPUT_SIMPLE
 struct VS_OUTPUT_QWERTY
 {
 	//for qwerty 3d
-	float4 posH : SV_POSITION;//equals uv coord
-	float3 posW : POSITION;
+	float4 posH : SV_POSITION;
+	float3 posV : POSITION;
 	float2 texcoord:TEXCOORD;
 };
 

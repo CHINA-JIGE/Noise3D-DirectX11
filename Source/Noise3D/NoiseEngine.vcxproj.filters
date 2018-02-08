@@ -265,14 +265,14 @@
     <ClInclude Include="RenderInfrastructure.h">
       <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
     </ClInclude>
-    <ClInclude Include="_BaseRenderModule.h">
-      <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer_GraphicObj.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="Renderer_PostProcessing.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="_BaseRenderModule.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

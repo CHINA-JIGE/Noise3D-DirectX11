@@ -9,7 +9,6 @@
 
 using namespace Noise3D;
 
-
  IRenderModuleForPostProcessing::IRenderModuleForPostProcessing():
 	m_pOffScreenRenderTargetView_A(nullptr),
 	m_pOffScreenRenderTargetView_B(nullptr),
@@ -57,7 +56,6 @@ void IRenderModuleForPostProcessing::AddToPostProcessList_QwertyDistortion(const
 	pass.index = mQwertyDescList.size() - 1;
 	mPostProcessEffectQueue.push_back(pass);
 }
-
 
 /*******************************************************
 								   PROTECTED
@@ -403,22 +401,24 @@ void IRenderModuleForPostProcessing::mFunction_GreyScale(const N_PostProcessGrey
 
 	m_pFX_Pass_GreyScale->Apply(0, g_pImmediateContext);
 	g_pImmediateContext->Draw(cQuadVertexCount, 0);
-
-	//un-bind SRV
-	//mFunction_ResetInputShaderResource();
 }
 
 void IRenderModuleForPostProcessing::mFunction_QwertyDistortion(const N_PostProcesQwertyDistortionDesc& param)
 {
+	IMesh* pMesh = param.pScreenDescriptor;
+	ICamera* pCam = param.pCamera;
+
+	//though SIMPLE is enough, but i want to make full use of the model loading function of IMesh
 	m_pRefRI->SetInputAssembler(
-		IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, 
-		nullptr,nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, 
+		pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//prior RTV is now bound as SRV
 	mFunction_SetInputShaderResource();
 
-	ERROR_MSG("SCreen descriptor not correct!");
+	//update param
+	m_pRefRI->UpdateCameraMatrix(pCam);
 
 	m_pFX_Pass_Qwerty->Apply(0, g_pImmediateContext);
-	//g_pImmediateContext->Draw();
+	g_pImmediateContext->DrawIndexed(pMesh->GetIndexCount(),0,0);
 }

@@ -16,6 +16,7 @@ IAtmosphere* pAtmos;
 IModelLoader* pModelLoader;
 IMeshManager* pMeshMgr;
 std::vector<IMesh*> meshList;
+IMesh* pScreenDescriptor;
 IMaterialManager*	pMatMgr;
 ITextureManager*	pTexMgr;
 IGraphicObjectManager*	pGraphicObjMgr;
@@ -23,10 +24,13 @@ IGraphicObject*	pGraphicObjBuffer;
 ILightManager* pLightMgr;
 IDirLightD*		pDirLight1;
 IPointLightD*	pPointLight1;
+IPointLightD*	pPointLight2;
 ISpotLightD*	pSpotLight1;
 IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
+N_PostProcessGreyScaleDesc greyScaleDesc;
+N_PostProcesQwertyDistortionDesc qwertyDesc;
 
 Ut::ITimer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 Ut::IInputEngine inputE;
@@ -40,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	//create a window (using default window creation function)
 	HWND windowHWND;
-	windowHWND = pRoot->CreateRenderWindow(960, 720, L"Hahaha Render Window", hInstance);
+	windowHWND = pRoot->CreateRenderWindow(1920, 1080, L"Hahaha Render Window", hInstance);
 
 	//initialize input engine (detection for keyboard and mouse input)
 	inputE.Initialize(hInstance, windowHWND);
@@ -63,12 +67,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 1080;
-	const UINT bufferHeight = 720;
+	const UINT bufferWidth = 1920;
+	const UINT bufferHeight = 1080;
 
 	//兜兵晒払移
 	if (!pRoot->InitD3D(hwnd))return FALSE;
-	
+
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
 
@@ -78,10 +82,9 @@ BOOL Init3D(HWND hwnd)
 	//use "myMesh1" string to initialize UID (unique-Identifier)
 	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
-
-	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
+	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, TRUE);
 	pCamera = pScene->GetCamera();
-	pLightMgr=pScene->GetLightMgr();
+	pLightMgr = pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
 	pTexMgr = pScene->GetTextureMgr();
 	pAtmos = pScene->GetAtmosphere();
@@ -92,7 +95,7 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
+	//pTexMgr->CreateTextureFromFile("../../../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
@@ -102,39 +105,42 @@ BOOL Init3D(HWND hwnd)
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
-	pFontMgr->CreateFontFromFile("../media/STXINWEI.ttf", "myFont", 24);
-	pMyText_fps= pFontMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
+	pFontMgr->CreateFontFromFile("../../../media/STXINWEI.ttf", "myFont", 24);
+	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-	
-	//------------------MESH INITIALIZATION----------------
+	//---------------------INIT QWERTY----------------
+	pScreenDescriptor = pMeshMgr->CreateMesh("screen");
+	pModelLoader->LoadFile_OBJ(pScreenDescriptor,"../../../model/qwerty/AsusZenbook-Screen.obj");
+	pScreenDescriptor->SetPosition(0, 0, 0);
+	pScreenDescriptor->SetCullMode(NOISE_CULLMODE_BACK);
+	pScreenDescriptor->SetShadeMode(NOISE_SHADEMODE_PHONG);
 
-	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
+	//------------------MESH INITIALIZATION----------------
 	pModelLoader = pScene->GetModelLoader();
-	//N_SceneLoadingResult res;
-	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
-	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
-	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
-	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
-	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
-	pMesh->SetPosition(0, 0, 0);
-	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
-	meshList.push_back(pMesh);
-	/*for (auto & name : res.meshNameList)
+	N_SceneLoadingResult res;
+	pModelLoader->LoadFile_FBX("../../../model/qwerty/testScene1.FBX", res);
+	//pModelLoader->LoadFile_FBX("../../../model/treeScene/treeScene.FBX", res);
+	//IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
+	//pModelLoader->LoadFile_OBJ(pMesh, "../../../model/qwerty/qwertyScene1.obj");
+	//pMesh->SetPosition(0, 0, 0);
+	//pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+	//pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	//meshList.push_back(pMesh);
+	//meshList.push_back(pScreenDescriptor);
+	for (auto & name : res.meshNameList)
 	{
-		IMesh* pMesh = pMeshMgr->GetMesh(name);
-		meshList.push_back(pMesh);
-		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
-		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-	}*/
+	IMesh* pMesh = pMeshMgr->GetMesh(name);
+	meshList.push_back(pMesh);
+	pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	}
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
-	pTmpVB =	meshList.at(0)->GetVertexBuffer();
+	pTmpVB = meshList.at(0)->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
 	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
 	for (auto v : *pTmpVB)
@@ -142,50 +148,46 @@ BOOL Init3D(HWND hwnd)
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f },	{ 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
-	
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
+
 	//----------------------------------------------------------
 
-	pCamera->SetPosition(2.0f, 0, 0);
-	pCamera->SetLookAt(0, 0, 0);
-	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
-	pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	//use bounding box of mesh to init camera pos
-	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();
-	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
-	float rotateY = meshAABB.max.y*1.3f;
-	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
+	pCamera->SetViewAngle_Radian(MATH_PI *0.5f, float(345.0f/195.0f));//asus zenbook 345mm x 195mm
+	pCamera->SetViewFrustumPlane(1.0f, 3000.f);
+	pCamera->SetPosition(170.0f,10.0f, -170.0f);
 	pCamera->SetLookAt(0, 0, 0);
 
 
-	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
+	pModelLoader->LoadSkyDome(pAtmos, "Universe", 4.0f, 2.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
-	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
+	/*pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
+	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
-	dirLightDesc.specularIntensity =1.0f;
-	dirLightDesc.diffuseIntensity =1.0f;
-	pDirLight1->SetDesc(dirLightDesc);
+	dirLightDesc.direction = NVECTOR3(-1.0f, -1.0f, -1.0f);
+	dirLightDesc.specularIntensity = 0.5f;
+	dirLightDesc.diffuseIntensity = 1.0f;
+	pDirLight1->SetDesc(dirLightDesc);*/
 
-	/*pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
+	pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
 	N_PointLightDesc pointLightDesc;
 	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	pointLightDesc.mAttenuationFactor = 0.01f;
+	pointLightDesc.mAttenuationFactor = 0.001f;
 	pointLightDesc.mLightingRange = 1000.0f;
-	pointLightDesc.mPosition = NVECTOR3(0,20, 0);
-	pointLightDesc.specularIntensity = 2.0f;
+	pointLightDesc.mPosition = NVECTOR3(-10.0f,0, 0);
+	pointLightDesc.specularIntensity = 1.0f;
 	pointLightDesc.diffuseIntensity = 1.0f;
-	pPointLight1->SetDesc(pointLightDesc);*/
+	pPointLight1->SetDesc(pointLightDesc);
+
+
 
 	N_MaterialDesc Mat1;
 	Mat1.ambientColor = NVECTOR3(0, 0, 0);
@@ -195,18 +197,24 @@ BOOL Init3D(HWND hwnd)
 	Mat1.normalMapBumpIntensity = 0.2f;
 	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
-	Mat1.normalMapName ="EarthNormalMap";
+	Mat1.normalMapName = "EarthNormalMap";
 	//Mat1.environmentMapName = "AtmoTexture";
-	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
+	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
 
 	//set material
-	pMesh->SetMaterial("meshMat1");
+	//pMesh->SetMaterial("meshMat1");
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 500,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
-	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 300,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
+
+	//post process description init
+	greyScaleDesc.factorR = 0.3f;
+	greyScaleDesc.factorG = 0.59f;
+	greyScaleDesc.factorB = 0.1f;
+
+	qwertyDesc.pCamera = pCamera;
+	qwertyDesc.pScreenDescriptor = pScreenDescriptor;
 
 	return TRUE;
 };
@@ -214,12 +222,9 @@ BOOL Init3D(HWND hwnd)
 
 void MainLoop()
 {
-	static float incrNum = 0.0;
-	incrNum += 0.001f;
-	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
-	
-
-	//GUIMgr.Update();
+	//static double incrNum = 0;
+	//incrNum += 0.0001;
+	//pCamera->SetPosition(450.0f, 0, 500.0f * cos(incrNum));
 	InputProcess();
 	pRenderer->ClearBackground();
 	NTimer.NextTick();
@@ -232,16 +237,11 @@ void MainLoop()
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
-	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
-	pRenderer->AddToRenderQueue(pMyText_fps);
+	//pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	//pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
-	static N_PostProcessGreyScaleDesc desc;
-	desc.factorR = 0.3f;
-	desc.factorG = 0.59f;
-	desc.factorB = 0.11f;
-	pRenderer->AddToPostProcessList_GreyScale(desc);
-	//pRenderer->AddToPostProcessList_GreyScale(desc);
-	//pRenderer->AddToPostProcessList_GreyScale(desc);
+
+	pRenderer->AddToPostProcessList_QwertyDistortion(qwertyDesc);
 
 	//render
 	pRenderer->Render();
@@ -256,34 +256,47 @@ void InputProcess()
 
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
-		pCamera->fps_MoveRight(-0.1f, FALSE);
+		//pCamera->fps_MoveRight(-0.1f, FALSE);
+		pCamera->SetPosition(170.0f, 0, -172.5f);
+		pCamera->SetLookAt(0, 0, -100.0f);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_D))
 	{
-		pCamera->fps_MoveRight(0.1f, FALSE);
+		//pCamera->fps_MoveRight(0.1f, FALSE);
+		pCamera->SetPosition(170.0f, 0, 172.5f);
+		pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
-		pCamera->fps_MoveForward(0.1f, FALSE);
+		//pCamera->fps_MoveForward(0.1f, FALSE);
+		pCamera->SetPosition(170.0f, 100.0f, 0);
+		pCamera->SetLookAt(0, 0, 0);
+
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
 	{
-		pCamera->fps_MoveForward(-0.1f, FALSE);
+		//pCamera->fps_MoveForward(-0.1f, FALSE);
+		pCamera->SetPosition(170.0f, -100.0f, 0);
+		pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_SPACE))
 	{
-		pCamera->fps_MoveUp(0.1f);
+		//pCamera->fps_MoveUp(0.1f);
+		pCamera->SetPosition(170.0f, 0, 0);
+		pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_LCONTROL))
 	{
-		pCamera->fps_MoveUp(-0.1f);
+		//pCamera->fps_MoveUp(-0.1f);
+		pCamera->SetPosition(300.0f, 0, 0);
+		pCamera->SetLookAt(0, 0, 0);
 	}
 
-	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
+	/*if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
 		pCamera->RotateY_Yaw((float)inputE.GetMouseDiffX() / 200.0f);
 		pCamera->RotateX_Pitch((float)inputE.GetMouseDiffY() / 200.0f);
-	}
+	}*/
 
 	//quit main loop and terminate program
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_ESCAPE))

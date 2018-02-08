@@ -29,7 +29,7 @@ namespace Noise3D
 
 	struct N_PostProcesQwertyDistortionDesc
 	{
-		NVECTOR3 camPos;
+		ICamera* pCamera;
 		IMesh* pScreenDescriptor;
 	};
 
