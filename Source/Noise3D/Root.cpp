@@ -108,10 +108,8 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	return outHWND;
 };
 
-bool IRoot::InitD3D(HWND RenderHWND)
+bool IRoot::Init()
 {
-	mRenderWindowHWND = RenderHWND;
-
 	HRESULT hr = S_OK;
 
 	//硬件驱动类型
@@ -259,30 +257,6 @@ void IRoot::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)
 	mMainLoopStatus = loopStatus;
 }
 
-HWND IRoot::GetRenderWindowHWND()
-{
-	return mRenderWindowHWND;
-}
-
-HINSTANCE IRoot::GetRenderWindowHINSTANCE()
-{
-	return mRenderWindowHINSTANCE;
-}
-
-int	IRoot::GetRenderWindowWidth()
-{
-	RECT windowRect;
-	//when you only need the difference , GetClientRect is OK~
-	GetClientRect(mRenderWindowHWND, &windowRect);
-	return (int)(windowRect.right- windowRect.left);
-}
-
-int	IRoot::GetRenderWindowHeight()
-{
-	RECT windowRect;
-	GetClientRect(mRenderWindowHWND, &windowRect);
-	return (int)(windowRect.bottom - windowRect.top);
-}
 
 /************************************************************************
 										 PRIVATE                               

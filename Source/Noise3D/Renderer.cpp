@@ -79,18 +79,33 @@ void	IRenderer::PresentToScreen()
 
 UINT IRenderer::GetBackBufferWidth()
 {
-	return m_pRenderInfrastructure->mBackBufferWidth;
+	return m_pRenderInfrastructure->GetBackBufferWidth();
 };
 
 UINT IRenderer::GetBackBufferHeight()
 {
-	return m_pRenderInfrastructure->mBackBufferHeight;
+	return m_pRenderInfrastructure->GetBackBufferHeight();
+}
+
+HWND IRenderer::GetRenderWindowHWND()
+{
+	return m_pRenderInfrastructure->GetRenderWindowHWND();
+}
+
+void IRenderer::SwitchToFullScreenMode()
+{
+	m_pRenderInfrastructure->SwitchToFullScreenMode();
+}
+
+void IRenderer::SwitchToWindowedMode()
+{
+	m_pRenderInfrastructure->SwitchToWindowedMode();
 }
 
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
+bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
 {
 	//1. try to init a unique render infrastructure 
 	//(failure could affect the creation of IRenderer)
@@ -98,7 +113,7 @@ bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, bool IsWindo
 	if (IFactory<IRenderInfrastructure>::GetObjectCount() == 0)
 	{
 		m_pRenderInfrastructure = IFactory<IRenderInfrastructure>::CreateObject(uid);
-		if (!m_pRenderInfrastructure->Init(BufferWidth, BufferHeight, IsWindowed))
+		if (!m_pRenderInfrastructure->Init(BufferWidth, BufferHeight,renderWindowHandle))
 		{
 			IFactory<IRenderInfrastructure>::DestroyObject(uid);
 			m_pRenderInfrastructure = nullptr;

@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	//create a window (using default window creation function)
 	HWND windowHWND;
-	windowHWND = pRoot->CreateRenderWindow(1920, 1080, L"Hahaha Render Window", hInstance);
+	windowHWND = pRoot->CreateRenderWindow(1280, 800, L"Hahaha Render Window", hInstance);
 
 	//initialize input engine (detection for keyboard and mouse input)
 	inputE.Initialize(hInstance, windowHWND);
@@ -67,11 +67,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 1920;
-	const UINT bufferHeight = 1080;
+	const UINT bufferWidth = 1280;
+	const UINT bufferHeight = 800;
 
 	//³õÊ¼»¯Ê§°Ü
-	if (!pRoot->InitD3D(hwnd))return FALSE;
+	if (!pRoot->Init())return FALSE;
 
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
@@ -82,7 +82,8 @@ BOOL Init3D(HWND hwnd)
 	//use "myMesh1" string to initialize UID (unique-Identifier)
 	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
-	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, TRUE);
+	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
+	//pRenderer->SwitchToFullScreenMode();
 	pCamera = pScene->GetCamera();
 	pLightMgr = pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
@@ -90,8 +91,7 @@ BOOL Init3D(HWND hwnd)
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
-
-	//Âþ·´ÉäÌùÍ¼
+	//diffuse map
 	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
@@ -133,21 +133,26 @@ BOOL Init3D(HWND hwnd)
 	//meshList.push_back(pScreenDescriptor);
 	for (auto & name : res.meshNameList)
 	{
-	IMesh* pMesh = pMeshMgr->GetMesh(name);
-	meshList.push_back(pMesh);
-	pMesh->SetCullMode(NOISE_CULLMODE_BACK);
-	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
+		IMesh* pMesh = pMeshMgr->GetMesh(name);
+		meshList.push_back(pMesh);
+		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+		pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	}
 
-	const std::vector<N_DefaultVertex>* pTmpVB;
-	pTmpVB = meshList.at(0)->GetVertexBuffer();
+
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
-	for (auto v : *pTmpVB)
+	for (auto mesh : meshList)
 	{
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		const std::vector<N_DefaultVertex>* pTmpVB;
+		pTmpVB = mesh->GetVertexBuffer();
+		NVECTOR3 modelPos = mesh->GetPosition();
+		for (auto v : *pTmpVB)
+		{
+			//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0, 0, 0, 1.0f));//draw the normal
+			//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 10.0f* v.Tangent, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
+		}
 	}
+	
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
@@ -170,7 +175,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(-1.0f, -1.0f, -1.0f);
+	dirLightDesc.direction = NVECTOR3(-1.0f, -1.0f, 0);
 	dirLightDesc.specularIntensity = 0.5f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);*/
@@ -180,9 +185,9 @@ BOOL Init3D(HWND hwnd)
 	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	pointLightDesc.mAttenuationFactor = 0.001f;
+	pointLightDesc.mAttenuationFactor = 0.0001f;
 	pointLightDesc.mLightingRange = 1000.0f;
-	pointLightDesc.mPosition = NVECTOR3(-10.0f,0, 0);
+	pointLightDesc.mPosition = NVECTOR3(0, 30, 0);
 	pointLightDesc.specularIntensity = 1.0f;
 	pointLightDesc.diffuseIntensity = 1.0f;
 	pPointLight1->SetDesc(pointLightDesc);
@@ -237,11 +242,11 @@ void MainLoop()
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
-	//pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	//pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
 
-	pRenderer->AddToPostProcessList_QwertyDistortion(qwertyDesc);
+	//pRenderer->AddToPostProcessList_QwertyDistortion(qwertyDesc);
 
 	//render
 	pRenderer->Render();
@@ -256,47 +261,47 @@ void InputProcess()
 
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
-		//pCamera->fps_MoveRight(-0.1f, FALSE);
-		pCamera->SetPosition(170.0f, 0, -172.5f);
-		pCamera->SetLookAt(0, 0, -100.0f);
+		pCamera->fps_MoveRight(-0.5f, FALSE);
+		//pCamera->SetPosition(170.0f, 0, -172.5f);
+		//pCamera->SetLookAt(0, 0, -100.0f);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_D))
 	{
-		//pCamera->fps_MoveRight(0.1f, FALSE);
-		pCamera->SetPosition(170.0f, 0, 172.5f);
-		pCamera->SetLookAt(0, 0, 0);
+		pCamera->fps_MoveRight(0.5f, FALSE);
+		//pCamera->SetPosition(170.0f, 0, 172.5f);
+		//pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
-		//pCamera->fps_MoveForward(0.1f, FALSE);
-		pCamera->SetPosition(170.0f, 100.0f, 0);
-		pCamera->SetLookAt(0, 0, 0);
+		pCamera->fps_MoveForward(0.5f, FALSE);
+		//pCamera->SetPosition(170.0f, 100.0f, 0);
+		//pCamera->SetLookAt(0, 0, 0);
 
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
 	{
-		//pCamera->fps_MoveForward(-0.1f, FALSE);
-		pCamera->SetPosition(170.0f, -100.0f, 0);
-		pCamera->SetLookAt(0, 0, 0);
+		pCamera->fps_MoveForward(-0.5f, FALSE);
+		//pCamera->SetPosition(170.0f, -100.0f, 0);
+		//pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_SPACE))
 	{
-		//pCamera->fps_MoveUp(0.1f);
-		pCamera->SetPosition(170.0f, 0, 0);
-		pCamera->SetLookAt(0, 0, 0);
+		pCamera->fps_MoveUp(0.5f);
+		//pCamera->SetPosition(170.0f, 0, 0);
+		//pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_LCONTROL))
 	{
-		//pCamera->fps_MoveUp(-0.1f);
-		pCamera->SetPosition(300.0f, 0, 0);
-		pCamera->SetLookAt(0, 0, 0);
+		pCamera->fps_MoveUp(-0.5f);
+		//pCamera->SetPosition(300.0f, 0, 0);
+		//pCamera->SetLookAt(0, 0, 0);
 	}
 
-	/*if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
+	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
 		pCamera->RotateY_Yaw((float)inputE.GetMouseDiffX() / 200.0f);
 		pCamera->RotateX_Pitch((float)inputE.GetMouseDiffY() / 200.0f);
-	}*/
+	}
 
 	//quit main loop and terminate program
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_ESCAPE))

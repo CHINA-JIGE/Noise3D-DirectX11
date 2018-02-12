@@ -52,10 +52,20 @@ namespace Noise3D
 
 		UINT	GetBackBufferHeight();
 
+		HWND		GetRenderWindowHWND();
+
+		uint32_t	GetRenderWindowWidth();
+
+		uint32_t	GetRenderWindowHeight();
+
+		void		SwitchToFullScreenMode();
+
+		void		SwitchToWindowedMode();
+
 	private:
 
 		//extern init by IScene
-		bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT bufferWidth, UINT bufferHeight, bool IsWindowed);
+		bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT bufferWidth, UINT bufferHeight, HWND renderWindowHandle);
 
 	private:
 

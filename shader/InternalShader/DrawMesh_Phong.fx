@@ -20,7 +20,7 @@ VS_OUTPUT_DRAW_MESH_PHONG VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
 	//output the vertex color , this parameter will be used if the lighting system is off
 	output.color = input.color;
 	//we need an normal vector in W space(it can be derived that inverse-transpose guaranteed the correct transform of normal)
-	output.normalW = mul(float4(input.normalL, 1.0f), gWorldInvTransposeMatrix).xyz;
+	output.normalW = mul(float4(input.normalL, 1.0f), gWorldInvTransposeMatrix).xyz; //mul(float4(input.normalL, 0.0f), gWorldMatrix).xyz;
 	//transform tangent to help implement XYZ to TBN
 	output.tangentW = mul(float4(input.tangentL, 0.0f), gWorldMatrix).xyz;
 	//texture coordinate
@@ -157,6 +157,8 @@ void RenderProcess_Phong::mFunction_ComputeLightColor(int lightTypeID, int light
 
     //diffuse cos factor
 	diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, unitLightVecW, normalize(deviatedNormalW));
+	//diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, lightVecTBN, normalize(normalTBN));
+
 
     float4 ambient4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 diffuse4 = float4(0.0f, 0.0f, 0.0f, 0.0f);

@@ -33,7 +33,8 @@ IRenderInfrastructure::IRenderInfrastructure():
 	m_pBlendState_Opaque(nullptr),
 	m_pDepthStencilState_DisableDepthTest(nullptr),
 	m_pDepthStencilState_EnableDepthTest(nullptr),
-	m_pSamplerState_FilterLinear(nullptr)
+	m_pSamplerState_FilterLinear(nullptr),
+	mRenderWindowHWND(0)
 {
 }
 
@@ -57,10 +58,10 @@ IRenderInfrastructure::~IRenderInfrastructure()
 	ReleaseCOM(m_pSwapChain);
 }
 
-bool	IRenderInfrastructure::Init(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
+bool	IRenderInfrastructure::Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
 {
 	//init d3d infrastructure
-	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, IsWindowed, cMsaaSampleCount))
+	if (!mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(BufferWidth, BufferHeight, cMsaaSampleCount,renderWindowHandle))
 	{
 		ERROR_MSG("IRenderer : failed to Init D3D Infrastructure.");
 		return false;
@@ -110,6 +111,24 @@ bool	IRenderInfrastructure::Init(UINT BufferWidth, UINT BufferHeight, bool IsWin
 	mBackBufferHeight = BufferHeight;
 
 	return true;
+}
+
+void IRenderInfrastructure::SwitchToFullScreenMode()
+{
+	//If you pass TRUE to the Fullscreen parameter to set the display state to full screen, 
+	//you can optionally set this parameter to a pointer to an IDXGIOutput interface for 
+	//the output target that contains the swap chain. If you set this parameter to NULL, 
+	//DXGI will choose the output based on the swap-chain's device and the output window's placement.
+	HRESULT hr = m_pSwapChain->SetFullscreenState(TRUE, nullptr);
+	if (FAILED(hr))
+	{
+		ERROR_MSG("IRenderInfrastructure: failed to switch to full screen.")
+	}
+}
+
+void IRenderInfrastructure::SwitchToWindowedMode()
+{
+	HRESULT hr = m_pSwapChain->SetFullscreenState(FALSE, nullptr);
 }
 
 void IRenderInfrastructure::SetInputAssembler(NOISE_VERTEX_TYPE vertexType, ID3D11Buffer * pVB, ID3D11Buffer * pIB, D3D11_PRIMITIVE_TOPOLOGY topo)
@@ -410,12 +429,35 @@ void IRenderInfrastructure::SetPostProcessRemainingPassCount(uint32_t passCount)
 }
 
 
+HWND IRenderInfrastructure::GetRenderWindowHWND()
+{
+	return mRenderWindowHWND;
+}
+
+uint32_t	IRenderInfrastructure::GetRenderWindowWidth()
+{
+	RECT windowRect;
+	//when you only need the difference , GetClientRect is OK~
+	GetClientRect(mRenderWindowHWND, &windowRect);
+	return (uint32_t)(windowRect.right - windowRect.left);
+}
+
+uint32_t	IRenderInfrastructure::GetRenderWindowHeight()
+{
+	RECT windowRect;
+	GetClientRect(mRenderWindowHWND, &windowRect);
+	return (uint32_t)(windowRect.bottom - windowRect.top);
+}
+
+
 /***********************************************************************
 									P R I V A T E
 ************************************************************************/
 
-bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, bool IsWindowed, UINT cMsaaSampleCount)
+bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT BufferWidth, UINT BufferHeight, UINT cMsaaSampleCount, HWND renderWindowHandle)
 {
+	mRenderWindowHWND = renderWindowHandle;
+
 	//check multi-sample capability
 	//the support level of MSAA might vary among hardwares
 	bool enableMSAA = false;
@@ -425,7 +467,8 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	if (msaaQuality > 0)enableMSAA = true;
 
 	//-----------------SWAP CHAIN------------------
-	//Swap Chain description
+	//Swap Chain description. a little problem about full screen state
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/bb174579(v=vs.85).aspx
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferCount = 1;
@@ -435,8 +478,8 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.OutputWindow = GetRoot()->GetRenderWindowHWND();
-	swapChainDesc.Windowed = IsWindowed;
+	swapChainDesc.OutputWindow = renderWindowHandle;
+	swapChainDesc.Windowed = TRUE;//full screen could be switched to later via explicitly call 'IDXGI::SetFullScreenState'
 	swapChainDesc.SampleDesc.Count = (enableMSAA == true ? cMsaaSampleCount : 1);//if MSAA enabled, RT/DS buffer must have same quality
 	swapChainDesc.SampleDesc.Quality = (enableMSAA == true ? msaaQuality-1 : 0);
 	

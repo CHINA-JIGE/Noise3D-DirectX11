@@ -55,7 +55,7 @@ void	IScene::ReleaseAllChildObject()
 }
 
 //first time to init RENDERER
-IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, bool IsWindowed)
+IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
 {
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<IRenderer>::FindUid(uid) == false)
@@ -63,7 +63,7 @@ IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight, bool IsW
 		IRenderer* pRd = IFactory<IRenderer>::CreateObject(uid);
 
 		//init of shaders/RV/states/....
-		bool isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight,IsWindowed);
+		bool isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight, renderWindowHWND);
 		if (isSucceeded)
 		{
 			return pRd;

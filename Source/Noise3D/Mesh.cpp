@@ -315,30 +315,32 @@ void	IMesh::mFunction_UpdateWorldMatrix()
 	D3DXMATRIX	tmpMatrix;
 	float tmpDeterminant;
 
-	//初始化输出矩阵
+	//initialize
 	D3DXMatrixIdentity(&tmpMatrix);
 		
-	//缩放矩阵
+	//1.scale
 	D3DXMatrixScaling(&tmpMatrixScaling, mScaleX, mScaleY, mScaleZ);
 
-	//旋转矩阵
+	//2.rotate
 	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
 
-	//平移矩阵
+	//3.translate
 	D3DXMatrixTranslation(&tmpMatrixTranslation, mPosition.x, mPosition.y, mPosition.z);
 
-	//先缩放，再旋转，再平移（跟viewMatrix有点区别）
+	//4.concatenate scaling/rotation/translation（跟viewMatrix有点区别）
 	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrixScaling,&tmpMatrixRotation);
 	D3DXMatrixMultiply(&mMatrixWorld, &tmpMatrix, &tmpMatrixTranslation);
 
-	//求用于转换Normal的InvTranspose	因为要Trans 之后再来一次Trans才能更新 所以就可以省了
+	//world InvTranspose for normal transformation
 	D3DXMatrixInverse(&mMatrixWorldInvTranspose,&tmpDeterminant,&mMatrixWorld);
 
 	//Be careful about the row/column major of the matrix and transposes
 	//D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
 
-	//Transpose of worldInverse
-	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&tmpMatrix);
+	//Transpose of worldInverse 
+	//(2018.2.12 there was a bug here, that the source matrix is set to 'tmpMatrix'!!)
+	//god damn it @#$%#^
+	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&mMatrixWorldInvTranspose);
 }
 
 void IMesh::mFunction_ComputeBoundingBox()

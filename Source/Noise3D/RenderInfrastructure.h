@@ -30,7 +30,11 @@ namespace Noise3D
 			SIMPLE
 		};
 		
-		bool		Init(UINT bufferWidth, UINT bufferHeight, bool IsWindowed);
+		bool		Init(UINT bufferWidth, UINT bufferHeight,HWND renderWindowHandle);
+
+		void		SwitchToFullScreenMode();
+
+		void		SwitchToWindowedMode();
 
 		void		SetInputAssembler(NOISE_VERTEX_TYPE vertexType,ID3D11Buffer* pVB,ID3D11Buffer* pIB,D3D11_PRIMITIVE_TOPOLOGY topo);
 
@@ -47,6 +51,8 @@ namespace Noise3D
 
 		void		SetRTTViewsReference(ID3D11RenderTargetView* pRTV_A, ID3D11RenderTargetView* pRTV_B, ID3D11DepthStencilView* pDSV_A, ID3D11DepthStencilView* pDSV_B);
 
+		void		SetPostProcessRemainingPassCount(uint32_t passCount);
+
 		//clear render target view(s) and depth stencil view(s)
 		void		ClearRtvAndDsv(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
@@ -54,20 +60,24 @@ namespace Noise3D
 
 		void		SwapChainPresent();
 
-		IShaderVariableManager* GetRefToShaderVarMgr();
+		IShaderVariableManager*		GetRefToShaderVarMgr();
 
-		//intermediate
+		//serve as intermediate role
 		ID3D11ShaderResourceView* GetTextureSRV(ITextureManager* pMgr, N_UID uid);
 
 		ID3D11ShaderResourceView* GetTextureSRV(ITexture* pTex);
 
-		uint32_t GetBackBufferWidth();
+		uint32_t	GetBackBufferWidth();
 
-		uint32_t GetBackBufferHeight();
+		uint32_t	GetBackBufferHeight();
 
-		uint32_t GetMsaaSampleCount();
+		uint32_t	GetMsaaSampleCount();
 
-		void SetPostProcessRemainingPassCount(uint32_t passCount);
+		HWND		GetRenderWindowHWND();
+
+		uint32_t	GetRenderWindowWidth();
+
+		uint32_t	GetRenderWindowHeight();
 
 	private:
 
@@ -77,9 +87,7 @@ namespace Noise3D
 
 		friend IFactory<IRenderInfrastructure>;
 
-		friend class IRenderer;
-
-		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, bool IsWindowed, UINT cMsaaSampleCount);
+		bool		mFunction_Init_CreateSwapChainAndRTVandDSVandViewport(UINT bufferWidth, UINT bufferHeight, UINT cMsaaSampleCount, HWND renderWindowHandle);
 
 		bool		mFunction_Init_CreateBlendState();
 
@@ -92,6 +100,7 @@ namespace Noise3D
 		bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
 		const uint32_t cMsaaSampleCount = 1;
+		HWND		mRenderWindowHWND;
 		uint32_t	mBackBufferWidth;
 		uint32_t	mBackBufferHeight;
 		uint32_t	mPostProcessRemainingPassCount;

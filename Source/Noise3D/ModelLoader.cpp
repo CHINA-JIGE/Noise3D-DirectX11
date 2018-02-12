@@ -349,6 +349,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			const std::string& matName = fbxMat.matName;
 			if (!matName.empty())
 			{
+				if (pMatMgr->ValidateUID(matName) == true)continue;//material that is already created
 				IMaterial* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{
