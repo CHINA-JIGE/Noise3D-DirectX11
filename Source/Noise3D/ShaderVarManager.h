@@ -95,6 +95,7 @@ namespace Noise3D
 			SPECULAR_MAP,
 			CUBE_MAP,
 			COLOR_MAP_2D,
+			POST_PROCESS_PREV_RT,
 
 			NOISE_SHADER_VAR_TEXTURE_ELEMENT_COUNT
 		};
@@ -132,13 +133,13 @@ namespace Noise3D
 
 		void	SetDynamicSpotLight(int index, const N_SpotLightDesc& dynamicLightDesc);
 
-		void	SetMaterial(const N_BasicMaterialDesc& mat);
+		void	SetMaterial(N_BasicMaterialDesc mat);
 
 
 	private:
 
 		//only specific friend class can inherit shader var manager
-		friend class IRenderer;
+		friend class IRenderInfrastructure;
 
 		friend class ICollisionTestor;
 

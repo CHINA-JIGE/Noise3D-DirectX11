@@ -3,8 +3,8 @@
 
 						class£º Graphic Object
 
-						desc: store data of simple graphic object like line/point/triangle 
-						on mem and GpuMem
+	desc: store data of simple graphic object like line/point/triangle 
+			on mem and GpuMem
 
 ************************************************************************/
 
@@ -13,14 +13,6 @@
 using namespace Noise3D;
 
 #define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
-
-#define CHECK_BEFORE_CHANGE_TEXCOORD(id,coord) \
-	if (m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord != coord)\
-	{\
-		m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[id]).TexCoord = coord;\
-		mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	\
-	};\
-
 
 IGraphicObject::IGraphicObject()
 {
@@ -68,8 +60,8 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	//				   |
 	
 	IRenderer* pRenderer = GetScene()->GetRenderer();
-	UINT mainWidth = pRenderer->GetMainBufferWidth();
-	UINT mainHeight = pRenderer->GetMainBufferHeight();
+	UINT mainWidth = pRenderer->GetBackBufferWidth();
+	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	pixelOffset.x = pixelOffset.x * 2.0f / float(mainWidth);
 	pixelOffset.y = -pixelOffset.y*2.0f  / float(mainHeight);
@@ -99,8 +91,8 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 NVECTOR2 IGraphicObject::GetBasePosOffset()
 {
 	IRenderer* pRenderer = GetScene()->GetRenderer();
-	UINT mainWidth = pRenderer->GetMainBufferWidth();
-	UINT mainHeight = pRenderer->GetMainBufferHeight();
+	UINT mainWidth = pRenderer->GetBackBufferWidth();
+	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	//Position Offset
 	NVECTOR2 outBaseTopLeftPixel = *m_pBaseScreenSpacePosOffset;
@@ -426,14 +418,8 @@ void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,N
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[4]).TexCoord =  texCoordBottomRight;
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
 
-	/*CHECK_BEFORE_CHANGE_TEXCOORD(0, texCoordTopLeft);
-	CHECK_BEFORE_CHANGE_TEXCOORD(1, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(2, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(3, NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y));
-	CHECK_BEFORE_CHANGE_TEXCOORD(4, texCoordBottomRight);
-	CHECK_BEFORE_CHANGE_TEXCOORD(5, NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y));*/
-	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
 
+	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
 
 }
 
@@ -870,8 +856,8 @@ void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 	//				   |		SCR SPACE
 	//				   |
 	IRenderer* pRenderer = GetScene()->GetRenderer();
-	UINT mainWidth = pRenderer->GetMainBufferWidth();
-	UINT mainHeight = pRenderer->GetMainBufferHeight();
+	UINT mainWidth = pRenderer->GetBackBufferWidth();
+	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	in_out_vec.x = float(mainWidth) *((in_out_vec.x + 1.0f) / 2.0f);
 	in_out_vec.y = float(mainHeight)*((1.0f - in_out_vec.y) / 2.0f);
@@ -890,8 +876,8 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 	//				   |		SCR SPACE
 	//				   |
 	IRenderer* pRenderer = GetScene()->GetRenderer();
-	UINT mainWidth = pRenderer->GetMainBufferWidth();
-	UINT mainHeight = pRenderer->GetMainBufferHeight();
+	UINT mainWidth = pRenderer->GetBackBufferWidth();
+	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	//PIXEL SPACE TO [-1,1] SCR SPACE
 	float halfW= (float)mainWidth / 2.0f;
@@ -904,8 +890,8 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth)
 {
 	IRenderer* pRenderer = GetScene()->GetRenderer();
-	UINT mainWidth = pRenderer->GetMainBufferWidth();
-	UINT mainHeight = pRenderer->GetMainBufferHeight();
+	UINT mainWidth = pRenderer->GetBackBufferWidth();
+	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	float outLength = 0;
 	//PIXEL SPACE TO [-1,1] SCR SPACE

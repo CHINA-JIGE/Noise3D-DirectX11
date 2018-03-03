@@ -93,6 +93,7 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_TEXTURE(SPECULAR_MAP, "gSpecularMap");
 	BIND_SHADER_VAR_TEXTURE(CUBE_MAP, "gCubeMap");//environment mapping
 	BIND_SHADER_VAR_TEXTURE(COLOR_MAP_2D, "gColorMap2D");//for 2d texturing
+	BIND_SHADER_VAR_TEXTURE(POST_PROCESS_PREV_RT, "gPreviousRenderTarget");//RenderTarget use as next pass's shader input
 	
 
 	return m_pSingleton;
@@ -166,7 +167,7 @@ void IShaderVariableManager::SetDynamicSpotLight(int index, const N_SpotLightDes
 	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_SPOTLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
 }
 
-void IShaderVariableManager::SetMaterial(const N_BasicMaterialDesc & mat)
+void IShaderVariableManager::SetMaterial(N_BasicMaterialDesc  mat)
 {
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::MATERIAL_BASIC]->SetRawValue(&mat, 0, sizeof(mat));
 }

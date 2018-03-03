@@ -71,15 +71,15 @@ namespace Noise3D
 
 		void		SetScaleZ(float scaleZ);
 
-		UINT	GetVertexCount();
+		UINT	GetIndexCount();
 
 		UINT	GetTriangleCount();
 
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
-		const	std::vector<N_DefaultVertex>*		GetVertexBuffer();
+		const	std::vector<N_DefaultVertex>*	GetVertexBuffer() const;
 
-		const	std::vector<UINT>*	GetIndexBuffer();
+		const	std::vector<UINT>*	GetIndexBuffer() const;
 
 		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTransposeMat);
 
@@ -88,7 +88,8 @@ namespace Noise3D
 
 	private:
 
-		friend class IRenderer;
+		friend class IRenderModuleForMesh;
+		friend class IRenderModuleForPostProcessing;//ref by qwerty
 		friend class IModelLoader;
 		friend class IModelProcessor;
 		friend class ICollisionTestor;

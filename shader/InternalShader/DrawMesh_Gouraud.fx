@@ -18,7 +18,7 @@ VS_OUTPUT_DRAW_MESH_GOURAUD VS_DrawMeshWithVertexLighting(VS_INPUT_DRAW_MESH inp
 	//the VP transformation
 	output.posH = mul(mul(float4(output.posW, 1.0f), gViewMatrix), gProjMatrix);
 	//we need an normal vector in W space
-	output.normalW = mul(float4(input.normalL, 1.0f), gWorldInvTransposeMatrix).xyz;
+	output.normalW = mul(float4(input.normalL, 0.0f), gWorldInvTransposeMatrix).xyz;
 	//texture coordinate
 	output.texcoord = input.texcoord;
 
@@ -144,6 +144,8 @@ void RenderProcess_Gouraud::ComputeFinalColorForPS(float3 normalW, float3 posW, 
 		outColor4 = lerp(outColor4, float4(gFogColor3, 1.0f), fogInterpolationFactor);
 	}
 
+	//set transparency component
+	outColor4.w = saturate(gMaterial.mTransparency);
 }
 
 

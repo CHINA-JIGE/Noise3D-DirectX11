@@ -132,6 +132,7 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     <None Include="DrawMesh.hlsli" />
     <None Include="DrawSky.hlsli" />
     <None Include="DrawSolid3D.hlsli" />
+    <None Include="PostProcessing.hlsli" />
     <None Include="Main.fx">
       <FileType>Document</FileType>
     </None>
@@ -145,6 +146,8 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     <None Include="DrawMesh_Phong.fx">
       <FileType>Document</FileType>
     </None>
+    <None Include="PostProcess_Qwerty.fx" />
+    <None Include="PostProcess_SimpleEffects.fx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DrawSky.fx">

@@ -205,8 +205,11 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	refCurrentMesh.name = pNode->GetName();
 
 	//---------------------------MESH TRANSFORMATION--------------------------
+	//in 3dsmax export, 'Y axis up' and 'Z axis up' should be carefully processed
+	//to convert handness correctly
+	//对不起，忍不住说句中文了，这FBX文件的手性转换简直就是玄学吧？？
 	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
-	refCurrentMesh.pos = NVECTOR3(float(pos4.mData[0]), float(pos4.mData[2]),float(pos4.mData[1]));
+	refCurrentMesh.pos = NVECTOR3(float(pos4.mData[0]), float(pos4.mData[1]),-float(pos4.mData[2]));
 
 	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
 	refCurrentMesh.scale = NVECTOR3(float(scale4.mData[0]), float(scale4.mData[2]), float(scale4.mData[1]));
@@ -273,7 +276,6 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 			//vertex tangent (nice!!!)
 			NVECTOR3 tangent;
 			mFunction_LoadMesh_VertexTangent(pMesh, ctrlPointIndex, polygonVertexIndex, tangent);
-			//tangent.y += 0.01f;
 
 			//texture coordinates could be multiple layers, but we only support 1 layer here
 			NVECTOR2 texcoord;

@@ -154,9 +154,9 @@ void IMesh::SetScaleZ(float scaleZ)
 	mScaleZ = scaleZ;
 }
 
-UINT IMesh::GetVertexCount()
+UINT IMesh::GetIndexCount()
 {
-	return mVB_Mem.size();
+	return mIB_Mem.size();
 }
 
 UINT IMesh::GetTriangleCount()
@@ -172,12 +172,12 @@ void IMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 	}
 }
 
-const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()
+const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()const 
 {
 	return &mVB_Mem;
 }
 
-const std::vector<UINT>* IMesh::GetIndexBuffer()
+const std::vector<UINT>* IMesh::GetIndexBuffer() const
 {
 	return &mIB_Mem;
 }
@@ -228,10 +228,10 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	//------Create VERTEX BUFFER
 	D3D11_BUFFER_DESC vbd;
 	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
-	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
+	vbd.Usage = D3D11_USAGE_DEFAULT;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
-	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
 
 	//Create Buffers
@@ -244,8 +244,8 @@ bool IMesh::mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& t
 	ibd.ByteWidth = sizeof(int) * indexCount;
 	ibd.Usage = D3D11_USAGE_DEFAULT;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
-	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers
@@ -315,30 +315,32 @@ void	IMesh::mFunction_UpdateWorldMatrix()
 	D3DXMATRIX	tmpMatrix;
 	float tmpDeterminant;
 
-	//初始化输出矩阵
+	//initialize
 	D3DXMatrixIdentity(&tmpMatrix);
 		
-	//缩放矩阵
+	//1.scale
 	D3DXMatrixScaling(&tmpMatrixScaling, mScaleX, mScaleY, mScaleZ);
 
-	//旋转矩阵
+	//2.rotate
 	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
 
-	//平移矩阵
+	//3.translate
 	D3DXMatrixTranslation(&tmpMatrixTranslation, mPosition.x, mPosition.y, mPosition.z);
 
-	//先缩放，再旋转，再平移（跟viewMatrix有点区别）
+	//4.concatenate scaling/rotation/translation（跟viewMatrix有点区别）
 	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrixScaling,&tmpMatrixRotation);
 	D3DXMatrixMultiply(&mMatrixWorld, &tmpMatrix, &tmpMatrixTranslation);
 
-	//求用于转换Normal的InvTranspose	因为要Trans 之后再来一次Trans才能更新 所以就可以省了
+	//world InvTranspose for normal transformation
 	D3DXMatrixInverse(&mMatrixWorldInvTranspose,&tmpDeterminant,&mMatrixWorld);
 
 	//Be careful about the row/column major of the matrix and transposes
 	//D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
 
-	//Transpose of worldInverse
-	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&tmpMatrix);
+	//Transpose of worldInverse 
+	//(2018.2.12 there was a bug here, that the source matrix is set to 'tmpMatrix'!!)
+	//god damn it @#$%#^
+	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&mMatrixWorldInvTranspose);
 }
 
 void IMesh::mFunction_ComputeBoundingBox()

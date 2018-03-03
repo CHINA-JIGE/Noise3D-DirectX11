@@ -36,9 +36,9 @@ namespace Noise3D
 
 		void				SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);
 
-		void				SetViewAngle_Degree(float fDegreeViewAngleY, float fAspectRatio);
+		void				SetViewAngle_Degree(float fovY_Degree, float fAspectRatio);
 
-		void				SetViewAngle_Radian(float fRadianViewAngleY, float fAspectRatio);
+		void				SetViewAngle_Radian(float fovY_Radian, float fAspectRatio);
 
 		void				SetRotation(float RX_Pitch, float RY_Yaw, float RZ_Roll);//Lookat vector will be updated
 
@@ -72,8 +72,11 @@ namespace Noise3D
 
 		void				GetInvViewMatrix(NMATRIX& outMat);
 
+		void				OptimizeForQwertyPass1(const IMesh* pScreenDescriptor);
+
 	private:
-		friend  IRenderer;
+
+		friend  class IRenderer;
 
 		friend IFactory<ICamera>;
 

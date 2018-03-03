@@ -235,8 +235,8 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 
 	//....only after all init work was done can we bind mgr/object together
 
-	*(pText->m_pTextureName)=tmpTextureName;
-	*(pText->m_pFontName) = fontName;
+	pText->mTextureName=tmpTextureName;
+	pText->mFontName = fontName;
 
 	return pText;
 }
@@ -271,17 +271,17 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 	pText->mWordSpacingOffset = wordSpacingOffset;
 
 	//use the internal init func of TEXT 
-	*(pText->m_pFontName) = fontName;
+	pText->mFontName = fontName;
 	pText->mCharBoundarySizeY= UINT(IFactory<N_FontObject>::GetObjectPtr(fontName)->mFontSize);
 	pText->mCharBoundarySizeX= UINT(pText->mCharBoundarySizeY* IFactory<N_FontObject>::GetObjectPtr(fontName)->mAspectRatio);
 
 	//update TEXT content
-	*(pText->m_pTextContent) = contentString;
+	pText->mTextContent = contentString;
 
 	//(the texture has been created for each font
 	//texture name in	TexMgr
 	std::string tmpTextureName= "AsciiBitmapTable" + fontName;//texture name generated with font ID
-	*(pText->m_pTextureName)= tmpTextureName;
+	pText->mTextureName= tmpTextureName;
 
 
 	//------------initialize the graphic object of the TEXT------------
@@ -322,7 +322,7 @@ bool IFontManager::DeleteStaticText(N_UID textName)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(textName);
 		return true;
 	}
@@ -338,7 +338,7 @@ bool IFontManager::DeleteStaticText(IStaticText * pText)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(pText);
 		return true;
 	}
@@ -370,7 +370,7 @@ bool IFontManager::DeleteDynamicText(IDynamicText * pText)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IDynamicText>::DestroyObject(pText);
 		return true;
 	}
@@ -390,7 +390,7 @@ void IFontManager::DeleteAllTexts()
 		//static text didn't use a public font texture(ascii bitmap table),instead,
 		//a new texture is created for each static text
 		IStaticText* pText = IFactory<IStaticText>::GetObjectPtr(i);
-		m_pTexMgr->DeleteTexture(*pText->m_pTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(pText);
 	}
 

@@ -9,8 +9,6 @@ using namespace Noise3D;
 
 IStaticText::IStaticText()
 {
-	m_pTextureName = new N_UID;
-	m_pFontName = new N_UID;
 }
 
 IStaticText::~IStaticText()
@@ -22,7 +20,7 @@ NVECTOR2 IStaticText::GetFontSize()
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
 	IFontManager* pFontMgr = GetScene()->GetFontMgr();
-	return pFontMgr->GetFontSize(*m_pFontName);
+	return pFontMgr->GetFontSize(mFontName);
 }
 
 
@@ -34,7 +32,7 @@ void IStaticText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT p
 {
 
 	m_pGraphicObj = pCreatedObj;
-	*m_pTextureName = texName;
+	mTextureName = texName;
 
 	m_pGraphicObj->AddRectangle(
 		NVECTOR2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
@@ -59,7 +57,7 @@ void IStaticText::mFunction_UpdateGraphicObject()
 		IBasicContainerInfo::GetTopLeft(),
 		IBasicContainerInfo::GetBottomRight(),
 		NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f),
-		*m_pTextureName
+		mTextureName
 		);
 
 	//rectangle depth,used for 2D overlapping

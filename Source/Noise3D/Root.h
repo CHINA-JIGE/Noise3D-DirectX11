@@ -23,25 +23,17 @@ namespace Noise3D
 
 		IScene*	GetScenePtr();
 
-		HWND	CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
+		HWND		CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 
-		bool	InitD3D(HWND RenderHWND);
+		bool		Init();
 
-		void	ReleaseAll();
+		void		ReleaseAll();
 
-		void Mainloop();
+		void		Mainloop();
 
-		void	SetMainLoopFunction(void(*pFunction)(void));//function pointer
+		void		SetMainLoopFunction(void(*pFunction)(void));//function pointer
 
-		void	SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus);
-
-		HWND GetRenderWindowHWND();
-
-		HINSTANCE GetRenderWindowHINSTANCE();
-
-		int	 GetRenderWindowWidth();
-
-		int	 GetRenderWindowHeight();
+		void		SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus);
 
 	private:
 
@@ -60,7 +52,7 @@ namespace Noise3D
 		LPCWSTR			mRenderWindowTitle;
 		LPCWSTR			mRenderWindowClassName;
 		HINSTANCE		mRenderWindowHINSTANCE;
-		HWND				mRenderWindowHWND;
+		//HWND				mRenderWindowHWND;
 
 		//function pointer used to encapsule the "Main Loop" into the framwork
 		void(*m_pMainLoopFunction)(void);

@@ -19,9 +19,6 @@
     <Filter Include="GeneralBasicClass\_FileManager">
       <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeneralBasicClass\_2DBasicContainerInfo">
-      <UniqueIdentifier>{6aedf65b-3f88-4575-8baa-565ef35e2138}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
     </Filter>
@@ -103,6 +100,27 @@
     <Filter Include="NoiseGraphic\Scene\_ShaderVarManager">
       <UniqueIdentifier>{0be78f2c-c28e-4a82-bffc-5eb213a00ad6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere">
+      <UniqueIdentifier>{5e4f8378-64eb-4469-b54a-e00dcde3e888}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject">
+      <UniqueIdentifier>{5950aaeb-c2fb-45ba-b44e-679783d0afd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_Mesh">
+      <UniqueIdentifier>{d5830a96-b0b9-4523-b397-a261ac51a962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_Text">
+      <UniqueIdentifier>{00c3f576-3676-4eee-8c3a-5f3d86afe9f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\_2DBasicContainerInfo">
+      <UniqueIdentifier>{6aedf65b-3f88-4575-8baa-565ef35e2138}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\Infrastructure">
+      <UniqueIdentifier>{8f21c0d8-8af6-48b7-be67-bb3b7675b049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing">
+      <UniqueIdentifier>{b33968be-f8a9-479f-bd25-d1f10480aa56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -163,7 +181,7 @@
       <Filter>NoiseUtility\Timer</Filter>
     </ClInclude>
     <ClInclude Include="_2DBasicContainerInfo.h">
-      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
+      <Filter>NoiseGraphic\_2DBasicContainerInfo</Filter>
     </ClInclude>
     <ClInclude Include="IFactory.h">
       <Filter>GeneralBasicClass\_Factory</Filter>
@@ -235,6 +253,27 @@
     <ClInclude Include="_FbxLoader.h">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer_Atmosphere.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_Mesh.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_Text.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Text</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderInfrastructure.h">
+      <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_GraphicObj.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_PostProcessing.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="_BaseRenderModule.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -247,18 +286,6 @@
       <Filter>NoiseGraphic\Scene\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer_Atmosphere.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer_GraphicObj.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer_Mesh.cpp">
-      <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer_Text.cpp">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Atmosphere.cpp">
@@ -298,7 +325,7 @@
       <Filter>NoiseUtility\Timer</Filter>
     </ClCompile>
     <ClCompile Include="_2DBasicContainerInfo.cpp">
-      <Filter>GeneralBasicClass\_2DBasicContainerInfo</Filter>
+      <Filter>NoiseGraphic\_2DBasicContainerInfo</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextDynamic.cpp">
       <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic</Filter>
@@ -365,6 +392,24 @@
     </ClCompile>
     <ClCompile Include="_FbxLoader.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_Atmosphere.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_Mesh.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_Text.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Text</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderInfrastructure.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\Infrastructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_GraphicObj.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_GraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_PostProcessing.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

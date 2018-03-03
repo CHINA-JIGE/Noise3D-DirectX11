@@ -15,7 +15,7 @@
 
 using namespace Noise3D;
 
-ICamera::ICamera() :
+Noise3D::ICamera::ICamera() :
 	mRotateX_Pitch(0),
 	mRotateY_Yaw(0),
 	mRotateZ_Roll(0),
@@ -30,17 +30,17 @@ ICamera::ICamera() :
 	D3DXMatrixIdentity(&mMatrixView);
 }
 
-ICamera::~ICamera()
+Noise3D::ICamera::~ICamera()
 {
 };
 
 
-void ICamera::Destroy()
+void Noise3D::ICamera::Destroy()
 {
 
 };
 
-void	ICamera::SetLookAt(NVECTOR3 vLookat)
+void	Noise3D::ICamera::SetLookAt(NVECTOR3 vLookat)
 {
 	//pos and lookat can't superpose each other
 	NVECTOR3 dir = vLookat - mPosition;
@@ -50,7 +50,7 @@ void	ICamera::SetLookAt(NVECTOR3 vLookat)
 	mFunction_UpdateRotation();
 };
 
-void	ICamera::SetLookAt(float x,float y,float z)
+void	Noise3D::ICamera::SetLookAt(float x,float y,float z)
 {
 	NVECTOR3 tmpLookat(x,y,z);
 	//pos and lookat can't superpose each other
@@ -61,17 +61,17 @@ void	ICamera::SetLookAt(float x,float y,float z)
 	mFunction_UpdateRotation();
 };
 
-NVECTOR3	ICamera::GetLookAt()
+NVECTOR3	Noise3D::ICamera::GetLookAt()
 {
 	return  mLookat;
 };
 
-NVECTOR3 	ICamera::GetDirection()
+NVECTOR3 	Noise3D::ICamera::GetDirection()
 {
 	return mLookat-mPosition;
 }
 
-void	ICamera::SetPosition(NVECTOR3 vPos)
+void	Noise3D::ICamera::SetPosition(NVECTOR3 vPos)
 {
 	//pos and lookat can't superpose each other
 	NVECTOR3 dir = mLookat - vPos;
@@ -81,7 +81,7 @@ void	ICamera::SetPosition(NVECTOR3 vPos)
 	mFunction_UpdateRotation();
 }
 
-void	ICamera::SetPosition(float x,float y,float z)
+void	Noise3D::ICamera::SetPosition(float x,float y,float z)
 {
 	NVECTOR3 tmpPos(x,y,z);
 	NVECTOR3 dir = mLookat - tmpPos;
@@ -91,24 +91,24 @@ void	ICamera::SetPosition(float x,float y,float z)
 	mFunction_UpdateRotation();
 };
 
-NVECTOR3 ICamera::GetPosition()
+NVECTOR3 Noise3D::ICamera::GetPosition()
 {
 	return mPosition;
 };
 
-void	ICamera::Move(NVECTOR3 vRelativePos)
+void	Noise3D::ICamera::Move(NVECTOR3 vRelativePos)
 {
 	D3DXVec3Add(&mPosition,&mPosition,&vRelativePos);
 	D3DXVec3Add(&mLookat, &mLookat, &vRelativePos);
 
 };
 
-void	ICamera::Move(float relativeX,float relativeY,float relativeZ)
+void	Noise3D::ICamera::Move(float relativeX,float relativeY,float relativeZ)
 {
 	mPosition += NVECTOR3(relativeX, relativeY, relativeZ);
 };
 
-void	ICamera::SetRotation(float RX_Pitch,float RY_Yaw,float RZ_Roll)//要更新Lookat
+void	Noise3D::ICamera::SetRotation(float RX_Pitch,float RY_Yaw,float RZ_Roll)//要更新Lookat
 {
 	SetRotationX_Pitch(RX_Pitch);
 	SetRotationY_Yaw(RY_Yaw);
@@ -116,13 +116,13 @@ void	ICamera::SetRotation(float RX_Pitch,float RY_Yaw,float RZ_Roll)//要更新Look
 	mFunction_UpdateDirection();
 };
 
-void	ICamera::SetRotationY_Yaw(float angleY)
+void	Noise3D::ICamera::SetRotationY_Yaw(float angleY)
 {
 	mRotateY_Yaw = angleY;
 	mFunction_UpdateDirection();
 };
 
-void	ICamera::SetRotationX_Pitch(float AngleX)
+void	Noise3D::ICamera::SetRotationX_Pitch(float AngleX)
 {
 	//clamp to [-pi/2,pi/2]
 	mRotateX_Pitch = Clamp(AngleX, -MATH_PI / 2.0f, MATH_PI / 2.0f);
@@ -130,47 +130,47 @@ void	ICamera::SetRotationX_Pitch(float AngleX)
 	mFunction_UpdateDirection();
 };
 
-void	ICamera::SetRotationZ_Roll(float AngleZ)
+void	Noise3D::ICamera::SetRotationZ_Roll(float AngleZ)
 {
 	//roll翻滚不需要更新lookat
 	mRotateZ_Roll = AngleZ;
 }
 
-float ICamera::GetRotationY_Yaw()
+float Noise3D::ICamera::GetRotationY_Yaw()
 {
 	return mRotateY_Yaw;
 }
 
-float ICamera::GetRotationX_Pitch()
+float Noise3D::ICamera::GetRotationX_Pitch()
 {
 	return mRotateX_Pitch;
 }
 
-float ICamera::GetRotationZ_Roll()
+float Noise3D::ICamera::GetRotationZ_Roll()
 {
 	return mRotateZ_Roll;
 }
 
-void ICamera::RotateY_Yaw(float angleY)
+void Noise3D::ICamera::RotateY_Yaw(float angleY)
 {
 	SetRotationY_Yaw(mRotateY_Yaw + angleY);
 	mFunction_UpdateDirection();
 };
 
-void ICamera::RotateX_Pitch(float angleX)
+void Noise3D::ICamera::RotateX_Pitch(float angleX)
 {
 	float newAngle = mRotateX_Pitch + angleX;
 	SetRotationX_Pitch(newAngle);
 	mFunction_UpdateDirection();
 };
 
-void ICamera::RotateZ_Roll(float angleZ)
+void Noise3D::ICamera::RotateZ_Roll(float angleZ)
 {
 	SetRotationZ_Roll(mRotateZ_Roll + angleZ);
 	mFunction_UpdateDirection();
 };
 
-void ICamera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
+void Noise3D::ICamera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
 {
 	//...Yaw Angle Starts at Z axis ( left-handed system) 
 	/*		Z
@@ -206,7 +206,7 @@ void ICamera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
 
 }
 
-void ICamera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
+void Noise3D::ICamera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
 {
 	//...Yaw Angle Starts at Z axis ( left-handed system) 
 	/*		
@@ -242,32 +242,83 @@ void ICamera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
 		Move(relativePos);
 }
 
-void ICamera::fps_MoveUp(float fSignedDistance)
+void Noise3D::ICamera::fps_MoveUp(float fSignedDistance)
 {
 	mPosition += NVECTOR3(0, fSignedDistance, 0);
 	mLookat += NVECTOR3(0, fSignedDistance, 0);
 }
 
-void ICamera::GetViewMatrix(NMATRIX & outMat)
+void Noise3D::ICamera::GetViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
 	outMat = mMatrixView;
 }
 
-void ICamera::GetProjMatrix(NMATRIX & outMat)
+void Noise3D::ICamera::GetProjMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateProjMatrix();
 	outMat = mMatrixProjection;
 }
 
-void ICamera::GetInvViewMatrix(NMATRIX & outMat)
+void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
 	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixView);
 	if(invPtr==nullptr)ERROR_MSG("Camera : Inverse of View Matrix not exist!")
 }
 
-void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
+void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
+{
+	//NOTE: the position of camera won't be changed.
+	//compute and adjust intrinsic parameter(fov, aspectRatio....) and posture(rotation/lookat)
+	//to maximize the projection area (in pixel) of Qwerty 3D's virtual screen while the whole
+	//screen can be rendered to render target without being partially occluded.
+	//This function can increase the resolution of the down-sampling source for 
+	//Qwerty3D's Pass 2 (Qwerty Distortion)
+
+
+	//(2018.3.3)but optimal solution is too design...i'll go with a non-optimal solution now..
+	//Lookat = the gravitational center of screen descriptor vertices
+	//eulerAngleZ (roll) = 0;
+	//AspectRatio & fov = just big enough to hold the whole perspective projection of screen descriptor
+	const std::vector<N_DefaultVertex>& vb = *pScreenDescriptor->GetVertexBuffer();
+
+	//1. Adjust view matrix (lookat, roll angle). the center of virtual screen
+	NVECTOR3 scrCenterPos = { 0,0,0 };
+	for (auto v : vb)
+	{
+		scrCenterPos += v.Pos;
+	}
+	scrCenterPos /= float(vb.size());
+	ICamera::SetLookAt(scrCenterPos);
+	ICamera::SetRotationZ_Roll(0);
+
+	//2. Adjust projection matrix (fov & aspectRatio)
+	float halfBoundingRectWidth=0.0f;
+	float halfBoundingRectHeight = 0.0f;
+
+	//traverse vertices of scr descriptor to calculate a bounding rectangle, then fov/aspectRatio
+	for (auto v : vb)
+	{
+		NMATRIX viewMat;
+		ICamera::GetViewMatrix(viewMat);
+		NVECTOR3 posV = {
+			v.Pos.x *  viewMat.m[0][0] + v.Pos.y *  viewMat.m[1][0] + v.Pos.z *  viewMat.m[2][0] + 1.0f * viewMat.m[3][0],
+			v.Pos.x *  viewMat.m[0][1] + v.Pos.y *  viewMat.m[1][1] + v.Pos.z *  viewMat.m[2][1] + 1.0f * viewMat.m[3][1],
+			v.Pos.x *  viewMat.m[0][2] + v.Pos.y *  viewMat.m[1][2] + v.Pos.z *  viewMat.m[2][2] + 1.0f * viewMat.m[3][2]
+		};
+
+		//project to plane z=1
+		NVECTOR2 posH = { posV.x / posV.z,posV.y / posV.z };
+		if (halfBoundingRectWidth < abs(posH.x))halfBoundingRectWidth = abs(posH.x);
+		if (halfBoundingRectHeight < abs(posH.y))halfBoundingRectHeight = abs(posH.y);
+
+		//fovY = arctan(y/z), aspectRatio=width/height
+		ICamera::SetViewAngle_Radian(2.0f * atan(halfBoundingRectHeight / 1.0f), halfBoundingRectWidth / halfBoundingRectHeight);
+	}
+}
+
+void	Noise3D::ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 {
 	if ( (iNearPlaneZ >0) && (iFarPlaneZ>iNearPlaneZ))
 	{
@@ -276,15 +327,15 @@ void	ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 	}
 };
 
-void ICamera::SetViewAngle_Degree(float fViewAngleY,float fAspectRatio)
+void Noise3D::ICamera::SetViewAngle_Degree(float fovY_Degree,float fAspectRatio)
 {
-	if(fViewAngleY>0 && (mViewAngleY_Radian <180.0f)){mViewAngleY_Radian	=	fViewAngleY * MATH_PI / 180.0f;	}
+	if(fovY_Degree>0 && (mViewAngleY_Radian <180.0f)){ mViewAngleY_Radian	= fovY_Degree * MATH_PI / 180.0f;	}
 	if(fAspectRatio>0){mAspectRatio	= fAspectRatio;}
 }
 
-void ICamera::SetViewAngle_Radian(float fRadianViewAngleY, float fAspectRatio)
+void Noise3D::ICamera::SetViewAngle_Radian(float fovY_Radian, float fAspectRatio)
 {
-	if (fRadianViewAngleY>0 && (mViewAngleY_Radian <(MATH_PI))) { mViewAngleY_Radian = fRadianViewAngleY; }
+	if (fovY_Radian>0 && (mViewAngleY_Radian <(MATH_PI))) { mViewAngleY_Radian = fovY_Radian; }
 	if (fAspectRatio>0) { mAspectRatio = fAspectRatio; }
 };
 
@@ -294,7 +345,7 @@ void ICamera::SetViewAngle_Radian(float fRadianViewAngleY, float fAspectRatio)
 											PRIVATE	
 ************************************************************************/
 
-void	ICamera::mFunction_UpdateProjMatrix()
+void	Noise3D::ICamera::mFunction_UpdateProjMatrix()
 {
 	D3DXMatrixPerspectiveFovLH(
 		&mMatrixProjection,
@@ -303,62 +354,57 @@ void	ICamera::mFunction_UpdateProjMatrix()
 		mNearPlane,
 		mFarPlane);
 
-	//didn't know the major of matrix gen by D3DX
+	//(2018.x.xx)Id3dx11EffectMatrix.setMatrix is used, transpose can be neglected
 	//D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
 };
 
-void	ICamera::mFunction_UpdateViewMatrix()
+void	Noise3D::ICamera::mFunction_UpdateViewMatrix()
 {
-
 	NMATRIX	tmpMatrixTranslation;
 	NMATRIX	tmpMatrixRotation;
 	//先对齐原点
 	D3DXMatrixTranslation(&tmpMatrixTranslation, -mPosition.x, -mPosition.y, -mPosition.z);
-	//然后用yawpitchroll的逆阵转到view空间
+	//然后用yaw-pitch-roll的逆阵转到view空间
 	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotateY_Yaw, mRotateX_Pitch, mRotateZ_Roll);
-	//正交矩阵的转置是逆
+	//for ortho matrix, transpose=inverse
 	D3DXMatrixTranspose(&tmpMatrixRotation,&tmpMatrixRotation);
 	//先平移，再旋转
 	D3DXMatrixMultiply(&mMatrixView,&tmpMatrixTranslation,&tmpMatrixRotation);
-	//(2016.4.11)楼上貌似有点不对啊，他妈的shader居然一直写的是矩阵右乘！！！！
-	//一直是用行向量！！！
+
 	//D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
 };
 
-void	ICamera::mFunction_UpdateRotation()
+void	Noise3D::ICamera::mFunction_UpdateRotation()
 {
-	//main function: cope with rotation change after the direction changes
+	//main function: change Euler Angle after the direction changes
 
 	//update Direction
 	D3DXVec3Subtract(&mDirection,&mLookat,&mPosition);
 
-	//pitch角： tan = y/sqr(x^2+z^2))
-	/*	注意：	atan ranged [-pi/2,pi/2]  
+	//pitch angle： tan = y/sqr(x^2+z^2))
+	/*	CAUTION：	atan ranged [-pi/2,pi/2]  
 					atan2 ranged [-pi,pi] 		*/
 
-	NVECTOR3 radiusDir(mDirection.x, 0, mDirection.z);
+	NVECTOR3 xzProjDir(mDirection.x, 0, mDirection.z);
 	//always positive
-	float radiusLength = D3DXVec3Length(&radiusDir);
+	float radiusLength = D3DXVec3Length(&xzProjDir);
 	//atan2(y,x) , radiusLength is constantly positive, pitch angle will range [-pi/2,pi/2] 
 	//pitch : rotate downside is positive (the definition of rotation in left-handed frame)
 	mRotateX_Pitch = atan2(-mDirection.y,radiusLength );
 
-	//yaw角： tan = -x/z
+	//YAW： tan = -x/z
 	mRotateY_Yaw = atan2(mDirection.x,mDirection.z);//俯视图yaw是顺时针正角
 
-	//roll角：更新direction不会改变roll角 
-	//roll逆时针转是正角
+	//roll angle: direction update doesn't change ROLL angle
 };
 
-void	ICamera::mFunction_UpdateDirection()
+void	Noise3D::ICamera::mFunction_UpdateDirection()
 {
-	//主要功能：这个函数主要是为了处理姿态角改变带来的视线Direction变化
-
-	//要更新Lookat
+	//update lookat according to new posture
 	float tmpDirectionLength = D3DXVec3Length(&mDirection);
-	//直接用三角函数表达Direction	3dscanner的世界变换一章里面有
-	//!!!!!!!!!!!!!!!!!!!! (2016.7.21)负号会不会是-z，+x呢，看看射死大鸡怪的camera的这一段
-	mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
+	//z+ axis is the original posture.
+	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
+	mDirection.x =tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
 	mDirection.z =tmpDirectionLength* cos(mRotateY_Yaw)*cos(mRotateX_Pitch);
 	mDirection.y =tmpDirectionLength* sin(mRotateX_Pitch);
 	D3DXVec3Add(&mLookat,&mPosition,&mDirection);

@@ -89,13 +89,13 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âþ·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/checker.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
-	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
+	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
 	pNormalMap->ConvertTextureToGreyMap();
 	pNormalMap->ConvertHeightMapToNormalMap(10.0f);
 
@@ -130,6 +130,7 @@ BOOL Init3D(HWND hwnd)
 		IMesh* pMesh = pMeshMgr->GetMesh(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
+		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	}*/
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
@@ -159,7 +160,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetLookAt(0, 0, 0);
 
 
-	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 4.0f);
+	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
@@ -170,7 +171,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
-	dirLightDesc.specularIntensity = 0.7f;
+	dirLightDesc.specularIntensity =1.0f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
@@ -186,9 +187,8 @@ BOOL Init3D(HWND hwnd)
 	pointLightDesc.diffuseIntensity = 1.0f;
 	pPointLight1->SetDesc(pointLightDesc);*/
 
-
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0.1f, 1.0f, 1.0f);
+	Mat1.ambientColor = NVECTOR3(0, 0, 0);
 	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
@@ -196,7 +196,7 @@ BOOL Init3D(HWND hwnd)
 	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName ="EarthNormalMap";
-	Mat1.environmentMapName = "AtmoTexture";
+	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
@@ -205,6 +205,8 @@ BOOL Init3D(HWND hwnd)
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 500,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
+	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 300,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
 
 	return TRUE;
 };
@@ -229,16 +231,20 @@ void MainLoop()
 
 
 	//add to render list
-	for (auto& pMesh : meshList)pRenderer->AddObjectToRenderList(pMesh);
-	pRenderer->AddObjectToRenderList(pGraphicObjBuffer);
-	pRenderer->AddObjectToRenderList(pAtmos);
-	pRenderer->AddObjectToRenderList(pMyText_fps);
+	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
+	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	pRenderer->AddToRenderQueue(pMyText_fps);
+	pRenderer->SetActiveAtmosphere(pAtmos);
+	static N_PostProcessGreyScaleDesc desc;
+	desc.factorR = 0.3f;
+	desc.factorG = 0.59f;
+	desc.factorB = 0.11f;
+	pRenderer->AddToPostProcessList_GreyScale(desc);
+	//pRenderer->AddToPostProcessList_GreyScale(desc);
+	//pRenderer->AddToPostProcessList_GreyScale(desc);
 
 	//render
-	pRenderer->RenderMeshes();
-	pRenderer->RenderAtmosphere();
-	pRenderer->RenderGraphicObjects();
-	pRenderer->RenderTexts();
+	pRenderer->Render();
 
 	//present
 	pRenderer->PresentToScreen();

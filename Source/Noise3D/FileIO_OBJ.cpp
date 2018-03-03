@@ -63,6 +63,7 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		//, the combination will be 
 		//  vertex index  / texcoord index  /  vnormal index (for each vertex)
 		// like "1/3/4" "5/6/7"
+		//note that texcoord is optional (which might be missing)
 		if (currString == "f")
 		{
 			for (UINT i = 0;i < 3;++i)

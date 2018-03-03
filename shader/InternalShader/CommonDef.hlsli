@@ -8,7 +8,7 @@
 
 
 /**********************************************************************
-							INPUT   STRUCTURE    DEFINITION
+			SHADER	INPUT/OUTPUT   STRUCTURE    DEFINITION
 **************************************************************************/
 struct VS_INPUT_DRAW_MESH
 {
@@ -42,7 +42,6 @@ struct VS_OUTPUT_DRAW_MESH_GOURAUD
 	float2 texcoord:TEXCOORD;
 };
 
-
 struct VS_INPUT_SIMPLE
 {
 	float3 posL:POSITION;
@@ -57,6 +56,13 @@ struct VS_OUTPUT_SIMPLE
 	float2 texcoord:TEXCOORD;
 };
 
+struct VS_OUTPUT_QWERTY
+{
+	//for qwerty 3d
+	float4 posH : SV_POSITION;
+	float3 posV : POSITION;
+	float2 texcoord:TEXCOORD;
+};
 
 struct GS_INPUT_MINIZED
 {
@@ -212,3 +218,9 @@ cbuffer cbDrawText2D
 }
 
 Texture2D gColorMap2D;
+
+/*********************************************************
+								POST PROCESSING
+**********************************************************/
+//previous render target, use as post processing's shader input
+Texture2D gPreviousRenderTarget;

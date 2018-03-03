@@ -61,10 +61,10 @@ namespace Noise3D
 		protected:
 			bool		 IsPointInContainer(NVECTOR2 v);
 			bool		mIsEnabled;
-			NVECTOR2*	m_pPositionCenter;
+			NVECTOR2	mPositionCenter;
 			float		mWidth;
 			float		mHeight;
 			float		mPosZ;//the real "Z" coordinate of 2D triangle
-			NVECTOR4*	m_pBasicColor;
+			NVECTOR4	mBasicColor;
 		};
 }

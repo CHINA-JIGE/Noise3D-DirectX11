@@ -44,7 +44,7 @@ namespace Noise3D
 
 	private:
 
-		friend  IRenderer;
+		friend  class IRenderModuleForAtmosphere;
 		friend	IModelLoader;
 		friend	IFactory<IAtmosphere>;
 
