@@ -77,9 +77,9 @@ namespace Noise3D
 
 		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
 
-		const	std::vector<N_DefaultVertex>*		GetVertexBuffer();
+		const	std::vector<N_DefaultVertex>*	GetVertexBuffer() const;
 
-		const	std::vector<UINT>*	GetIndexBuffer();
+		const	std::vector<UINT>*	GetIndexBuffer() const;
 
 		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTransposeMat);
 

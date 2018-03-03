@@ -274,6 +274,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			const N_FbxMaterialInfo& fbxMat = m.matList.at(matID);
 			
 			//Create texture first (failed one will be deprecated)
+			//emmmm... seems that Cube Map is not supported by .fbx ??
 			std::string diffMapName = fbxMat.texMapInfo.diffMapName;
 			std::string normalMapName =fbxMat.texMapInfo.normalMapName;
 			std::string specMapName = fbxMat.texMapInfo.specMapName;
@@ -293,6 +294,9 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 
 			if (!diffMapName.empty())
 			{
+				//skip repeated map
+				if (pTexMgr->ValidateUID(diffMapName) == true)continue;
+
 				pTexDiff = pTexMgr->CreateTextureFromFile(diffMapPath, diffMapName, true, 0, 0, false);
 
 				if (pTexDiff == nullptr)
@@ -305,6 +309,9 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 
 			if (!normalMapName.empty())
 			{
+				//skip repeated map
+				if (pTexMgr->ValidateUID(normalMapName) == true)continue;
+
 				pTexNormal = pTexMgr->CreateTextureFromFile(normalMapPath, normalMapName, true, 0, 0, false);
 
 				if (pTexNormal == nullptr)
@@ -317,6 +324,9 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 
 			if (!emissiveMapName.empty())
 			{
+				//skip repeated map
+				if (pTexMgr->ValidateUID(emissiveMapName) == true)continue;
+
 				pTexEmissive = pTexMgr->CreateTextureFromFile(emissiveMapPath, emissiveMapName, true, 0, 0, false);
 
 				if (pTexEmissive == nullptr)
@@ -329,6 +339,9 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 
 			if (!specMapName.empty())
 			{
+				//skip repeated map
+				if (pTexMgr->ValidateUID(specMapName) == true)continue;
+
 				pTexSpec = pTexMgr->CreateTextureFromFile(specMapPath, specMapName, true, 0, 0, false);
 
 				if (pTexSpec == nullptr)

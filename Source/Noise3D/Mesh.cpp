@@ -172,12 +172,12 @@ void IMesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
 	}
 }
 
-const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()
+const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()const 
 {
 	return &mVB_Mem;
 }
 
-const std::vector<UINT>* IMesh::GetIndexBuffer()
+const std::vector<UINT>* IMesh::GetIndexBuffer() const
 {
 	return &mIB_Mem;
 }
