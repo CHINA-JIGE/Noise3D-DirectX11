@@ -1,0 +1,1 @@
+(2018.3.4)导出FBX模型的时候选择Y-axis up,导出Tangent和Binormal，勾上Triangulate

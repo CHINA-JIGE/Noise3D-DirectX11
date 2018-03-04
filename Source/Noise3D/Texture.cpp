@@ -10,11 +10,12 @@
 
 using namespace Noise3D;
 
-ITexture::ITexture()
+ITexture::ITexture():
+	m_pSRV(nullptr),
+	mWidth(0),
+	mHeight(0)
 {
-	m_pTextureUid = new N_UID("");
-	m_pSRV = nullptr;//shader resource view
-	mWidth = mHeight = 0;
+
 }
 
 ITexture::~ITexture()
@@ -31,7 +32,7 @@ bool ITexture::IsSysMemPixelBufferValid()
 
 N_UID ITexture::GetTextureName()
 {
-	return *m_pTextureUid;
+	return mTextureUid;
 }
 
 NOISE_TEXTURE_TYPE ITexture::GetTextureType()
@@ -67,17 +68,17 @@ void ITexture::SetPixel(UINT x, UINT y, const NVECTOR4 & color)
 			}
 			else
 			{
-				ERROR_MSG("SetPixel : Point out of range!");
+				ERROR_MSG("ITexture::SetPixel : Point out of range!");
 			}
 		}
 		else
 		{
-			ERROR_MSG("Set Pixel : texture type error,Only Common Texture can be modified.");
+			ERROR_MSG("ITexture::SetPixel : texture type error,Only Common Texture can be modified.");
 		}
 	}
 	else
 	{
-		ERROR_MSG("SetPixel : Texture ID or Texture Type invalid !!");
+		ERROR_MSG("ITexture::SetPixel : Texture ID or Texture Type invalid !!");
 	}
 }
 
@@ -109,6 +110,7 @@ NVECTOR4 ITexture::GetPixel(UINT x, UINT y)
 	return NVECTOR4(0, 0, 0, 0);
 }
 
+//less redundant bound check to increase efficiency
 bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
@@ -208,10 +210,10 @@ bool ITexture::UpdateToVideoMemory()
 
 bool ITexture::ConvertTextureToGreyMap()
 {
-	return ConvertTextureToGreyMapEx(0.3f, 0.59f, 0.1f);
+	return ConvertTextureToGreyMap(0.3f, 0.59f, 0.1f);
 }
 
-bool ITexture::ConvertTextureToGreyMapEx(float factorR, float factorG, float factorB)
+bool ITexture::ConvertTextureToGreyMap(float factorR, float factorG, float factorB)
 {
 	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON)== false)
 	{
@@ -270,7 +272,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 {
 	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON) == false)
 	{
-		ERROR_MSG("ConvertTextureToNormalMap:texture Type Invalid!");
+		ERROR_MSG("ITexture::ConvertTextureToNormalMap:texture Type Invalid!");
 		return false;
 	}
 
@@ -278,7 +280,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	//( actually the copy in mem will be modified)
 	if (!IsSysMemPixelBufferValid())
 	{
-		ERROR_MSG("ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted ! ");
+		ERROR_MSG("ITexture::ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted! ");
 		return false;
 	}
 
@@ -295,6 +297,9 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 		return y*picWidth + x;
 	};
 
+
+	//use a temp buffer to avoid calculated pixel from being affected by previous normal vectors' color;
+	std::vector<NVECTOR4> tmpNormalMap(mPixelBuffer.size());
 	//loop to generate normal map
 	for (UINT j = 0;j < picHeight;j++)
 	{
@@ -353,11 +358,13 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 			D3DXVec3Cross(&currentNormal, &v1, &v2);
 
 			//convert normal to Normal Map Color
-			mPixelBuffer.at(vertexID1) =
-				NVECTOR4((currentNormal.x + 1) / 2, (currentNormal.y + 1) / 2, (currentNormal.z + 1) / 2, 1.0f);
+			tmpNormalMap.at(vertexID1) =
+				NVECTOR4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f);
 		}
 	}
 
+	//copy calculated result
+	mPixelBuffer = std::move(tmpNormalMap);
 
 	//after modifying buffer in memory, update to GPU
 	ID3D11Resource* pTmpRes;
@@ -408,7 +415,7 @@ bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT p
 void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NVECTOR4>&& pixelBuff, bool isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
 {
 	m_pSRV = pSRV;
-	*m_pTextureUid = uid;
+	mTextureUid = uid;
 	mIsPixelBufferInMemValid = isSysMemBuffValid;
 	mPixelBuffer = pixelBuff;
 	mTextureType = type;

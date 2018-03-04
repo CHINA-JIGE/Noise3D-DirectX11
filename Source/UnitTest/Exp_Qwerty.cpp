@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	//create a window (using default window creation function)
 	HWND windowHWND;
-	windowHWND = pRoot->CreateRenderWindow(1280, 800, L"Hahaha Render Window", hInstance);
+	windowHWND = pRoot->CreateRenderWindow(1920, 1080, L"Hahaha Render Window", hInstance);
 
 	//initialize input engine (detection for keyboard and mouse input)
 	inputE.Initialize(hInstance, windowHWND);
@@ -67,8 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 1280;
-	const UINT bufferHeight = 800;
+	const UINT bufferWidth = 1920;
+	const UINT bufferHeight = 1080;
 
 	//³õÊ¼»¯Ê§°Ü
 	if (!pRoot->Init())return FALSE;
@@ -83,7 +83,7 @@ BOOL Init3D(HWND hwnd)
 	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
-	//pRenderer->SwitchToFullScreenMode();
+	pRenderer->SwitchToFullScreenMode();
 	pCamera = pScene->GetCamera();
 	pLightMgr = pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
@@ -149,7 +149,7 @@ BOOL Init3D(HWND hwnd)
 		NVECTOR3 modelPos = mesh->GetPosition();
 		for (auto v : *pTmpVB)
 		{
-			//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0, 0, 0, 1.0f));//draw the normal
+			//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 10.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0, 0, 0, 1.0f));//draw the normal
 			//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 10.0f* v.Tangent, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
 		}
 	}
@@ -176,7 +176,7 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(-1.0f, -1.0f, 0);
+	dirLightDesc.direction = NVECTOR3(-1.0f, -1.0f, 1.0f);
 	dirLightDesc.specularIntensity = 0.5f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);*/
@@ -188,29 +188,33 @@ BOOL Init3D(HWND hwnd)
 	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	pointLightDesc.mAttenuationFactor = 0.0001f;
 	pointLightDesc.mLightingRange = 1000.0f;
-	pointLightDesc.mPosition = NVECTOR3(0, 30, -40);
+	pointLightDesc.mPosition = NVECTOR3(0, 0, -40.0f);
 	pointLightDesc.specularIntensity = 1.0f;
 	pointLightDesc.diffuseIntensity = 1.0f;
 	pPointLight1->SetDesc(pointLightDesc);
 
 
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0, 0, 0);
+	Mat1.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
-	Mat1.normalMapBumpIntensity = 0.2f;
+	Mat1.normalMapBumpIntensity = 0.5f;
 	Mat1.environmentMapTransparency = 0.1f;
-	Mat1.diffuseMapName = "Earth";//"Earth");
+	//Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName = "EarthNormalMap";
 	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
 
 	//set material
 	//pMesh->SetMaterial("meshMat1");
+	for (auto mesh : meshList)
+	{
+		//mesh->SetMaterial("meshMat1");
+	}
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(1100.0f, 720.0f), NVECTOR2(1280.0f, 800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(1100.0f, 750.0f), NVECTOR2(1280.0f, 800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	//post process description init
@@ -242,11 +246,11 @@ void MainLoop()
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
-	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	//pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	//pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
 
-	//pRenderer->AddToPostProcessList_QwertyDistortion(qwertyDesc);
+	pRenderer->AddToPostProcessList_QwertyDistortion(qwertyDesc);
 
 	//render
 	pRenderer->Render();
@@ -262,15 +266,19 @@ void InputProcess()
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
 		//pCamera->fps_MoveRight(-0.5f, FALSE);
-		pCamera->SetPosition(-200.0f, 0, -250.0f);
+		pCamera->SetPosition(-300.0f, 0, -200.0f);
 		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+
 		//pCamera->SetPosition(-21.4182, 68.8494, -332.617);
 		//pCamera->SetRotation(0.180487, 6.26345, -0.521821);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_D))
 	{
-		pCamera->fps_MoveRight(0.5f, FALSE);
+		//pCamera->fps_MoveRight(0.5f, FALSE);
+		pCamera->SetPosition(300.0f, 0, -200.0f);
 		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		
+
 		//pCamera->SetPosition(2.86963, 137.022, -227.278);
 		//pCamera->SetRotation(0.692715, 0.00986241, 0.0255206);
 
@@ -278,7 +286,8 @@ void InputProcess()
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
 		pCamera->fps_MoveForward(0.5f, FALSE);
-		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+
 		//pCamera->SetPosition(-203.681, 13.3611, -172.219);
 		//pCamera->SetLookAt(0.122438, 0.867768, -0.0174778);
 
@@ -286,21 +295,24 @@ void InputProcess()
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
 	{
 		pCamera->fps_MoveForward(-0.5f, FALSE);
-		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+
 		//pCamera->SetPosition(170.0f, -100.0f, 0);
 		//pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_SPACE))
 	{
 		pCamera->fps_MoveUp(0.5f);
-		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		
 		//pCamera->SetPosition(170.0f, 0, 0);
 		//pCamera->SetLookAt(0, 0, 0);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_LCONTROL))
 	{
 		pCamera->fps_MoveUp(-0.5f);
-		pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+		
 		//pCamera->SetPosition(300.0f, 0, 0);
 		//pCamera->SetLookAt(0, 0, 0);
 	}

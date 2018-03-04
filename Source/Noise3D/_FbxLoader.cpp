@@ -259,8 +259,8 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 		for (int j = 0; j < 3; ++j)
 		{
 			int ctrlPointIndex = pMesh->GetPolygonVertex(i, j);
-			//int polygonVertexIndex = pMesh->GetPolygonVertexIndex(i)+j;
-			int polygonVertexIndex = i * 3 + j;
+			int polygonVertexIndex = pMesh->GetPolygonVertexIndex(i)+j;
+			//int polygonVertexIndex = i * 3 + j;
 
 			//load other vertex attributes for control points(or say, vertex, because
 			//control point could be split according to each vertex attribute
@@ -503,15 +503,15 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 		case FbxGeometryElement::eDirect:
 		{
 			v = pElement->GetDirectArray().GetAt(ctrlPointIndex);
+			break;
 		}
-		break;
 
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = pElement->GetIndexArray().GetAt(ctrlPointIndex);
 			v = pElement->GetDirectArray().GetAt(id);
+			break;
 		}
-		break;
 
 		default:
 			break;
@@ -526,14 +526,16 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 		case FbxGeometryElement::eDirect:
 		{
 			v = pElement->GetDirectArray().GetAt(polygonVertexIndex);
+			break;
 		}
-		break;
+
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = pElement->GetIndexArray().GetAt(polygonVertexIndex);
 			v = pElement->GetDirectArray().GetAt(id);
+			break;
 		}
-		break;
+
 		default:
 			break;
 		}

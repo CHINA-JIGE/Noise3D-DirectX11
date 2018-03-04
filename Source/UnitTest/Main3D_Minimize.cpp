@@ -27,12 +27,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	const UINT bufferWidth = 640;
 	const UINT bufferHeight = 480;
-	BOOL initSucceed = pRoot->InitD3D(windowHWND);
+	BOOL initSucceed = pRoot->Init();
 	if (!initSucceed)return FALSE;
 
 	//Get the only SCENE of Noise3D::Root
 	pScene = pRoot->GetScenePtr();
-	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
+	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight, windowHWND);
 
 	//register MAINLOOP function (it will be called every frame)
 	pRoot->SetMainLoopFunction(MainLoop);

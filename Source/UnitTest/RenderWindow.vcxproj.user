@@ -4,6 +4,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(SolutionDir)Exec\$(Configuration)\$(TargetFileName)</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)Exec\$(Configuration)\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>plane.png 30.0 0.3 0.59 0.11 dds</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>$(SolutionDir)Exec\$(Configuration)\$(TargetFileName)</LocalDebuggerCommand>

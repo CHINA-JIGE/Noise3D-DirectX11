@@ -66,7 +66,7 @@ namespace Noise3D
 
 		bool				ConvertTextureToGreyMap();
 
-		bool				ConvertTextureToGreyMapEx(float factorR, float factorG, float factorB);
+		bool				ConvertTextureToGreyMap(float factorR, float factorG, float factorB);
 
 		bool				ConvertHeightMapToNormalMap(float heightFieldScaleFactor = 10.0f);
 
@@ -93,8 +93,8 @@ namespace Noise3D
 
 		UINT		mWidth;
 		UINT		mHeight;
-		N_UID*		m_pTextureUid;
-		std::vector<NVECTOR4>	mPixelBuffer;
+		N_UID		mTextureUid;
+		std::vector<NVECTOR4>	mPixelBuffer;//a copy of pixel data in system memory
 		bool	mIsPixelBufferInMemValid;
 		ID3D11ShaderResourceView*	m_pSRV;//used by renderer,but d3d detail must be covered
 		NOISE_TEXTURE_TYPE mTextureType;

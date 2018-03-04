@@ -1,0 +1,1 @@
+生气得一批，居然INPUT_LAYOUT的Description里面的tangent只标记了R32G32，这就是说，顶点tangent的z分量从来就没有传入过gpu！这是用vs2015 v3的graphic debugger找出来的巨bug，实在是服气！
