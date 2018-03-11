@@ -25,7 +25,9 @@ namespace Noise3D
 
 			bool ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer);
 
-			bool ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, bool canOverlapOld);
+			bool ExportFile_PURE(NFilePath pFilePath, const std::vector<char>& pFileBuffer, bool canOverlapOld);
+
+			bool ExportFile_PURE(NFilePath pFilePath,const uint8_t* pData,size_t byteSize, bool canOverlapOld);
 
 		private:
 

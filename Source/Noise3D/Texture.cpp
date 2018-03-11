@@ -389,24 +389,114 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	return true;
 }
 
-bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat)
+bool ITexture::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat)
 {
 	HRESULT hr = S_OK;
-	ID3D11Texture2D* tmp_pResource;
-	m_pSRV->GetResource((ID3D11Resource**)&tmp_pResource);
-	//use d3dx11
-	hr = 
-		D3DX11SaveTextureToFileA(
-		g_pImmediateContext,
-		tmp_pResource,
-		D3DX11_IMAGE_FILE_FORMAT(picFormat),
-		filePath.c_str()
-	);
+	ID3D11Texture2D* pSrcTexture;
+	m_pSRV->GetResource((ID3D11Resource**)&pSrcTexture);
 
-	HR_DEBUG(hr, "ITexture£ºfailed to save texture!");
-	ReleaseCOM(tmp_pResource);
+	//create a temp texture that can be Map() and access by CPU
+	D3D11_TEXTURE2D_DESC tmpTexDesc;
+	ZeroMemory(&tmpTexDesc, sizeof(tmpTexDesc));
+	pSrcTexture->GetDesc(&tmpTexDesc);
+	tmpTexDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	tmpTexDesc.Usage = D3D11_USAGE_STAGING;
+	tmpTexDesc.BindFlags = 0;
+	tmpTexDesc.MiscFlags = 0;
 
-	return true;
+	ID3D11Texture2D* pCpuReadTexture = nullptr;
+	if (FAILED(g_pd3dDevice11->CreateTexture2D(&tmpTexDesc, nullptr, &pCpuReadTexture)))
+	{
+		ERROR_MSG("ITexture: failed to save texture. (failed to create intermediate texture2D.)");
+		return false;
+	}
+	else
+	{
+		g_pImmediateContext->CopyResource(pCpuReadTexture, pSrcTexture);
+	}
+
+	//then use Map() to get data
+	DirectX::Blob outFileData;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	g_pImmediateContext->Map(pCpuReadTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
+
+	switch (mTextureType)
+	{
+		case NOISE_TEXTURE_TYPE_COMMON:
+		{
+			DirectX::Image outImage;
+			outImage.pixels = (uint8_t*)mappedResource.pData;
+			outImage.format = tmpTexDesc.Format;
+			outImage.width = tmpTexDesc.Width;
+			outImage.height = tmpTexDesc.Height;
+			outImage.rowPitch = mappedResource.RowPitch;
+			outImage.slicePitch = mappedResource.DepthPitch;
+
+			//save texture to DirectX::Blob encoded in specific format
+			switch (picFormat)
+			{
+			//Supported by DirectXTex.WIC
+			case NOISE_IMAGE_FILE_FORMAT_BMP:
+				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_BMP), outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_JPG:
+				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_JPEG), outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_PNG:
+				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_PNG), outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_TIFF:
+				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_TIFF), outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_GIF:
+				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_GIF), outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_HDR:
+				DirectX::SaveToHDRMemory(outImage, outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_TGA:
+				DirectX::SaveToTGAMemory(outImage, outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_DDS:
+				DirectX::SaveToDDSMemory(outImage, DirectX::DDS_FLAGS_NONE, outFileData);
+				break;
+
+			case NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED:
+			default:
+				ERROR_MSG("ITexture: failed to save texture. image file format not supported!!");
+				return false;//invalid
+				break;
+			}
+
+			break;
+		}
+
+		case NOISE_TEXTURE_TYPE_CUBEMAP:
+		case NOISE_TEXTURE_TYPE_VOLUME:
+		default:
+		{
+			ERROR_MSG("ITexture: failed to save texture. ( target texture type not supported to save. )");
+			return false;
+			break;
+		}
+	}
+
+	//Unmap() and release temporary texture2d
+	g_pImmediateContext->Unmap(pCpuReadTexture, 0);
+	ReleaseCOM(pCpuReadTexture);
+
+	//Save to File
+	IFileIO fileIO;
+	bool saveSucceeded = fileIO.ExportFile_PURE(filePath, (uint8_t*)outFileData.GetBufferPointer(), outFileData.GetBufferSize(), true);
+
+	return saveSucceeded;
 }
 
 

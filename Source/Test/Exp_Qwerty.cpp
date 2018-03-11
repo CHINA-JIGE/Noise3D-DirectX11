@@ -100,11 +100,11 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../../../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
-	//ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
-	//pNormalMap->ConvertTextureToGreyMap();
-	//pNormalMap->ConvertHeightMapToNormalMap(0.03f);
-
+	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture");
+	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	pNormalMap->ConvertTextureToGreyMap();
+	pNormalMap->ConvertHeightMapToNormalMap(0.03f);
+	//pNormalMap->SaveTexture2DToFile("hahahNormal.tga", NOISE_IMAGE_FILE_FORMAT_TGA);
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
@@ -206,14 +206,14 @@ BOOL Init3D(HWND hwnd)
 	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "brick";//"Earth");
 	//Mat1.normalMapName = "EarthNormalMap";
-	//Mat1.environmentMapName = "AtmoTexture";
+	Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
 
 	//set material
 	//pMesh->SetMaterial("meshMat1");
 	for (auto mesh : meshList)
 	{
-		//mesh->SetMaterial("meshMat1");
+		mesh->SetMaterial("meshMat1");
 	}
 
 

@@ -137,7 +137,7 @@ ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	//enumerate file formats, and parse image file using different functions
 	std::string fileSubfix = gFunc_GetFileSubFixFromPath(filePath);
 	NOISE_IMAGE_FILE_FORMAT fileFormat = mFunction_GetImageFileFormat(fileSubfix);
-	DirectX::TexMetadata scrMetaData;//meta data is loaded from target image file
+	DirectX::TexMetadata srcMetaData;//meta data is loaded from target image file
 	DirectX::ScratchImage srcImage;
 
 	switch (fileFormat)
@@ -149,25 +149,25 @@ ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 		case NOISE_IMAGE_FILE_FORMAT_TIFF:
 		case NOISE_IMAGE_FILE_FORMAT_GIF:
 		{
-			DirectX::LoadFromWICMemory(&fileBuff.at(0), fileBuff.size(), DirectX::WIC_FLAGS_NONE, &scrMetaData, srcImage);
+			DirectX::LoadFromWICMemory(&fileBuff.at(0), fileBuff.size(), DirectX::WIC_FLAGS_NONE, &srcMetaData, srcImage);
 			break;
 		}
 
 		case NOISE_IMAGE_FILE_FORMAT_HDR:
 		{
-			DirectX::LoadFromHDRMemory(&fileBuff.at(0), fileBuff.size(), &scrMetaData, srcImage);
+			DirectX::LoadFromHDRMemory(&fileBuff.at(0), fileBuff.size(), &srcMetaData, srcImage);
 			break;
 		}
 
 		case NOISE_IMAGE_FILE_FORMAT_TGA:
 		{
-			DirectX::LoadFromTGAMemory(&fileBuff.at(0), fileBuff.size(), &scrMetaData, srcImage);
+			DirectX::LoadFromTGAMemory(&fileBuff.at(0), fileBuff.size(), &srcMetaData, srcImage);
 			break;
 		}
 
 		case NOISE_IMAGE_FILE_FORMAT_DDS :
 		{
-			DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(),DirectX::DDS_FLAGS_NONE , &scrMetaData, srcImage);
+			DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(),DirectX::DDS_FLAGS_NONE , &srcMetaData, srcImage);
 			break;
 		}
 
@@ -179,8 +179,8 @@ ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	}
 
 	//load and resize image data to a memory block
-	uint32_t resizedImageWidth = useDefaultSize ? scrMetaData.width : pixelWidth;
-	uint32_t resizedImageHeight = useDefaultSize ? scrMetaData.height : pixelHeight;
+	uint32_t resizedImageWidth = useDefaultSize ? srcMetaData.width : pixelWidth;
+	uint32_t resizedImageHeight = useDefaultSize ? srcMetaData.height : pixelHeight;
 
 	//re-sampling of original images
 
@@ -297,71 +297,54 @@ ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	return pTexObj;//invalid file or sth else
 }
 
-ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
+ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName)
 {
-	bool isFileNameValid;
-	for (UINT i = 0; i < 6;i++)
+	//read file to memory
+	IFileIO fileIO;
+	std::vector<char> fileBuff;
+	bool isReadFileSucceeded = fileIO.ImportFile_PURE(dds_FileName, fileBuff);
+	if (!isReadFileSucceeded)
 	{
-		//try opening a file
-		isFileNameValid = std::fstream(dds_FileName).good();
-
-		//check if  one of the texture id is illegal
-		if (!isFileNameValid)
-		{
-			ERROR_MSG("Noise Tex Mgr :CreateCubeTextureFromDDS : file not exist!! ; Index : ");
-			return nullptr;
-		}
+		ERROR_MSG("CreateTextureFromFile : failed to read file!!");
+		return nullptr;//invalid
 	}
 
-#pragma region CreateSRVFromDDS
-
-	//some settings about loading image
-	D3DX11_IMAGE_LOAD_INFO loadInfo;
-
-	//we must check if user want to use default image size
-	switch(faceSize)
+	//check if new name has been used
+	//count() will return 0 if given key dont exists
+	if (ValidateUID(cubeTextureName) == true)
 	{
-	case NOISE_CUBEMAP_SIZE_64x64:
-		loadInfo.Width = 64;
-		loadInfo.Height = 64;
-		break;
-	case NOISE_CUBEMAP_SIZE_128x128:
-		loadInfo.Width = 128;
-		loadInfo.Height = 128;
-		break;
-	case NOISE_CUBEMAP_SIZE_256x256:
-		loadInfo.Width = 256;
-		loadInfo.Height = 256;
-		break;
-	case NOISE_CUBEMAP_SIZE_512x512:
-		loadInfo.Width = 512;
-		loadInfo.Height = 512;
-		break;
-	case NOISE_CUBEMAP_SIZE_1024x1024:
-		loadInfo.Width = 1024;
-		loadInfo.Height = 1024;
-		break;
-	};
-	
+		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
+		return nullptr;//invalid
+	}
 
-	//continue filling the settings
-	loadInfo.Filter = D3DX11_FILTER_LINEAR;
-	loadInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-	loadInfo.Format = c_DefaultPixelDxgiFormat;
+#pragma region DirectXTex load Image
 
-	//create New Texture Object
-	HRESULT hr = S_OK;
+	//enumerate file formats, and parse image file using different functions
+	std::string fileSubfix = gFunc_GetFileSubFixFromPath(dds_FileName);
+	NOISE_IMAGE_FILE_FORMAT fileFormat = mFunction_GetImageFileFormat(fileSubfix);
+	if (fileFormat != NOISE_IMAGE_FILE_FORMAT_DDS)
+	{
+		ERROR_MSG("CreateCubeMapFromDDS : the input is not .dds file!!");
+		return nullptr;//invalid
+	}
 
-	//then endow a pointer to new SRV
+	//load image
+	DirectX::TexMetadata srcMetaData;//meta data is loaded from target image file
+	DirectX::ScratchImage srcImage;
+	DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(), DirectX::DDS_FLAGS_NONE, &srcMetaData, srcImage);
+
+#pragma endregion DirectXTex load Image
+
+#pragma region CreateSRV
+
+	//then assign a pointer to new SRV
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	D3DX11CreateShaderResourceViewFromFileA(
-		g_pd3dDevice11,
-		dds_FileName.c_str(),
-		&loadInfo,
-		nullptr,
-		&tmp_pSRV,
-		&hr
-		);
+	HRESULT hr = DirectX::CreateShaderResourceView(
+		g_pd3dDevice11
+		, srcImage.GetImages(),
+		srcImage.GetImageCount(),
+		srcMetaData,
+		&tmp_pSRV);
 
 	//................
 	if (FAILED(hr))
@@ -370,8 +353,7 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 		return nullptr;
 	}
 
-
-#pragma endregion CreateSRVFromDDS
+#pragma endregion CreateSRV
 
 	//Create a new Texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(cubeTextureName);

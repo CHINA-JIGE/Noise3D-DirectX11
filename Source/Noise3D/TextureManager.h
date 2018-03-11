@@ -17,7 +17,7 @@ namespace Noise3D
 
 		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
 
-		ITexture*		CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize);
+		ITexture*		CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName);
 
 		ITexture*		GetTexture(N_UID texName);
 
@@ -47,13 +47,6 @@ namespace Noise3D
 		const DXGI_FORMAT c_DefaultPixelDxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		NOISE_IMAGE_FILE_FORMAT mFunction_GetImageFileFormat(const std::string& fileSubfix);
-
-		//void mFunction_LoadPixelBuffer(uint32_t resizedWidth, uint32_t resizedHeight, std::vector<NColor4u>& targetPixelBuff,const DirectX::TexMetadata& metaData, const DirectX::ScratchImage& image);
-
-		//ITexture*		mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight);
-
-		//ITexture*		mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight);
-	
 	};
 
 }

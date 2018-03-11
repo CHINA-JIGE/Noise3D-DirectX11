@@ -52,23 +52,49 @@ bool IFileIO::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer
 
 	//allocate new memory block , initialized with 0
 	byteBuffer.resize(static_fileSize,0);
-	while (!fileIn.eof())
-	{
-		fileIn.read(&byteBuffer.at(0), static_fileSize);
-	}
+	fileIn.read(&byteBuffer.at(0), static_fileSize);
 
 	fileIn.close();
 
 	return true;
 }
 
-bool IFileIO::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffer, bool canOverlapOld)
+bool IFileIO::ExportFile_PURE(NFilePath pFilePath, const std::vector<char>& pFileBuffer, bool canOverlapOld)
+{
+	std::ofstream fileOut;
+
+	//can we overlap the old file??
+	if(canOverlapOld)
+	{
+		fileOut.open(pFilePath, std::ios::binary | std::ios::trunc);
+	}
+	else
+	{
+		fileOut.open(pFilePath, std::ios::binary | std::ios::app);
+	}
+
+	//check if we have successfully opened the file
+	if (!fileOut.is_open())
+	{
+		ERROR_MSG("FileManager : Cannot Open File !!");
+		return false;
+	}
+
+	fileOut.write(&pFileBuffer.at(0), pFileBuffer.size());
+
+	//close file
+	fileOut.close();
+
+	return true;
+}
+
+bool Noise3D::IFileIO::ExportFile_PURE(NFilePath pFilePath, const uint8_t * pData, size_t byteSize, bool canOverlapOld)
 {
 
 	std::ofstream fileOut;
 
 	//can we overlap the old file??
-	if(canOverlapOld)
+	if (canOverlapOld)
 	{
 		fileOut.open(pFilePath, std::ios::binary | std::ios::trunc);
 	}
@@ -85,13 +111,8 @@ bool IFileIO::ExportFile_PURE(NFilePath pFilePath, std::vector<char>* pFileBuffe
 	}
 
 	//...........
-	UINT i = 0;char tmpC = 0;
-	for (i = 0;i < pFileBuffer->size();i++)
-	{
-		fileOut.put(pFileBuffer->at(i));
-	}
+	fileOut.write((char*)pData, byteSize);
 
-	//¹Ø±ÕÎÄ¼þ
 	fileOut.close();
 
 	return true;

@@ -9,14 +9,6 @@
 
 namespace Noise3D
 {
-	enum NOISE_CUBEMAP_SIZE
-	{
-		NOISE_CUBEMAP_SIZE_64x64 = 0,
-		NOISE_CUBEMAP_SIZE_128x128 = 1,
-		NOISE_CUBEMAP_SIZE_256x256 = 2,
-		NOISE_CUBEMAP_SIZE_512x512 = 3,
-		NOISE_CUBEMAP_SIZE_1024x1024 = 4,
-	};
 
 	enum NOISE_TEXTURE_TYPE
 	{
@@ -72,7 +64,7 @@ namespace Noise3D
 
 		bool				ConvertHeightMapToNormalMap(float heightFieldScaleFactor = 10.0f);
 
-		bool				SaveTextureToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat);
+		bool				SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat);
 
 	private:
 

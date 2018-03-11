@@ -13,7 +13,7 @@
 #define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
 #include <D3D11.h>
-#include <D3DX\D3DX11.h>
+#include <D3DX\D3DX11.h>//D3DXCompile
 #include <D3DX\DxErr.h>
 #include <D3DX\D3DX10math.h>
 #include <d3dx11effect.h>//fx11
