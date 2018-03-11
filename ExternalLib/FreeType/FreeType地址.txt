@@ -1,0 +1,2 @@
+freetype官网，https://www.freetype.org/download.html
+(2018.3.10)现在用的是2.6.1

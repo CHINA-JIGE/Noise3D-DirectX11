@@ -12,7 +12,7 @@ namespace Noise3D
 		{
 			UINT width;
 			UINT height;
-			std::vector<NVECTOR4> bitmapBuffer;
+			std::vector<NColor4u> bitmapBuffer;
 		};
 
 		struct N_FontObject
@@ -72,10 +72,10 @@ namespace Noise3D
 			//init freetype library and internal objects , invoked by IScene
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
 			//get bitmap of a single WCHAR
-			void			mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
-			//used for creating Bitmap Table (combining char pixel blocks)
-			void			mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
-			//Use GetBitmapOfString() to create ascii bitmap table
+			void			mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
+			//create Bitmap Table of a w-char string (combining char pixel blocks)
+			void			mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
+			//Use GetBitmapOfString() to create ascii bitmap table, then Ascii char can be dynamically refered via texture coordinate
 			bool		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 
 		private:

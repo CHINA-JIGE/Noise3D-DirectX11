@@ -200,7 +200,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 
 	//now get the whole bitmap from user-input string
 	N_Font_Bitmap tmpFontBitmap;
-	mFunction_GetBitmapOfString(
+	mFunction_GetBitmapOfWString(
 		*IFactory<N_FontObject>::GetObjectPtr(fontName),//font ID validated
 		contentString,
 		boundaryWidth,
@@ -447,7 +447,7 @@ bool IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicO
 	return true;
 }
 
-void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
+void IFontManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
 {
 	//didn't check fontID here , only be able to get the bitmap
 	
@@ -488,7 +488,6 @@ void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targ
 	//the reference of FontObj finally come here to get bitmap size for each char
 	fontObj.mAsciiCharSizeList.push_back(NVECTOR2(float(charWidth), float(charHeight)));
 
-	//output to references
 	for (int i = 0;i < charWidth*charHeight;i++)
 	{
 		if (charBitmap.buffer[i])
@@ -496,23 +495,23 @@ void IFontManager::mFunction_GetBitmapOfChar(N_FontObject& fontObj, wchar_t targ
 			//add colors to user-defined buffer (greyScaleIntensity * color)
 			float greyScaleColor = float(charBitmap.buffer[i]) / 256.0f;
 			outFontBitmap.bitmapBuffer.push_back(
-				NVECTOR4(
+				NColor4u(NVECTOR4(
 					greyScaleColor *textColor.x,
 					greyScaleColor* textColor.y,
 					greyScaleColor* textColor.z,
-					greyScaleColor));
+					greyScaleColor)));
 		}
 		else
 			//current pixel  is black (not in glyph)
 		{
-			outFontBitmap.bitmapBuffer.push_back(NVECTOR4(0, 0, 0, 0));
+			outFontBitmap.bitmapBuffer.push_back(NColor4u(0, 0, 0, 0));
 		}
 	}
 	outFontBitmap.height = charHeight;
 	outFontBitmap.width = charWidth;
 }
 
-void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
+void	IFontManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//arbitrarily get a wchar to Get the basic size of char
 	N_Font_Bitmap singleCharBitmap;
@@ -540,9 +539,9 @@ void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstri
 	{
 
 		//get the bitmap of each char, later combine them into a string in an adequate layout
-		mFunction_GetBitmapOfChar(fontObj, targetString.at(i), singleCharBitmap, textColor);
+		mFunction_GetBitmapOfWChar(fontObj, targetString.at(i), singleCharBitmap, textColor);
 
-		//we will prevent every word from being incomplete , so goto next line 
+		//we will prevent every word from being incompletely displayed. (thus last word will be put in next line)
 		if (currentCharTopLeftX + singleCharBitmap.width + wordSpacingOffset >= boundaryWidth)
 		{
 			//go to next line
@@ -575,7 +574,7 @@ void	IFontManager::mFunction_GetBitmapOfString(N_FontObject& fontObj, std::wstri
 				if (globalPixelID < outputBitmapPixelCount)
 				{
 					//alpha !=0 , not background color
-					if (singleCharBitmap.bitmapBuffer.at(localPixelID).w != 0)
+					if (singleCharBitmap.bitmapBuffer.at(localPixelID).a != 0)
 					{
 						outFontBitmap.bitmapBuffer.at(globalPixelID) = singleCharBitmap.bitmapBuffer.at(localPixelID);
 					}
@@ -623,7 +622,7 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	
 	//-----Up to now,the texture is still a pure color bitmap-------
 	//-----we are gonna write an ASCII bitmap table to it (code 0~127)--
-	std::vector<NVECTOR4> pixelBuff(tablePxWidth*tablePxHeight);
+	std::vector<NColor4u> pixelBuff(tablePxWidth*tablePxHeight);
 
 	for (UINT rowID = 0;rowID < tableRowCount;rowID++)
 	{
@@ -631,7 +630,8 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		{
 
 			N_Font_Bitmap tmpFontBitmap;
-			mFunction_GetBitmapOfChar(fontObj,rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
+			mFunction_GetBitmapOfWChar(fontObj,rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
+			
 			for (UINT localY = 0;localY < charHeight;localY++)
 			{
 				for (UINT localX = 0;localX < charWidth;localX++)

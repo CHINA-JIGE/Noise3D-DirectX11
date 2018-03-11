@@ -143,8 +143,8 @@ void RenderProcess_Phong::mFunction_ComputeLightColor(int lightTypeID, int light
 	float3 specularColor3 = float3(0, 0, 0);
 	float4 envMapColor4 = float4(0, 0, 0, 0);
 	float3 deviatedNormalW = float3(0, 0, 0);
-	float3 lightVecTBN = float3(0, 0, 0);
-	float3 Vec_toCamTBN = float3(0, 0, 0);
+	//float3 lightVecTBN = float3(0, 0, 0);
+	//float3 Vec_toCamTBN = float3(0, 0, 0);
 	float   diffuseCosFactor = 0.0f;
 
 	albedo3	=	SampleFromDiffuseMap(mTexcoord, bDiffMap);
@@ -152,20 +152,20 @@ void RenderProcess_Phong::mFunction_ComputeLightColor(int lightTypeID, int light
 	specularColor3 = SampleFromSpecularMap(mTexcoord, bSpecMap);
 	TransformCoord_TBN_XYZ(normalTBN, mTangentW, mNormalW, deviatedNormalW);
 	envMapColor4	= SampleFromEnvironmentMap(mVecToCamW, deviatedNormalW, bEnvMap);//we must get the alpha to blend
-	TransformCoord_XYZ_TBN(mVecToCamW, mTangentW, mNormalW, Vec_toCamTBN);
-	TransformCoord_XYZ_TBN(unitLightVecW, mTangentW, mNormalW, lightVecTBN);
+	//TransformCoord_XYZ_TBN(mVecToCamW, mTangentW, mNormalW, Vec_toCamTBN);
+	//TransformCoord_XYZ_TBN(unitLightVecW, mTangentW, mNormalW, lightVecTBN);
 
     //diffuse cos factor
 	diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, unitLightVecW, normalize(deviatedNormalW));
 	//diffuseCosFactor = mFunction_ComputeDiffuseCosineFactor(lightTypeID, lightIndex, lightVecTBN, normalize(normalTBN));
-
 
     float4 ambient4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 diffuse4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float4 specular4 = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	//final ambient ... "*" for 2 vectors stand for a component - wise multiplication (components are multiplied respectively)
-	ambient4 = float4(gMaterial.mAmbientColor*lightAmbientColor3, 1.0f);
+	//ambient4 = float4(gMaterial.mAmbientColor*lightAmbientColor3, 1.0f);
+	ambient4 = float4(gMaterial.mAmbientColor*albedo3*lightAmbientColor3, 1.0f);//ambient light simulate average indirect light
 
 	//if this pixel can be lit .... and this judgement is some sort of optimization
 	if (diffuseCosFactor > 0.0f)

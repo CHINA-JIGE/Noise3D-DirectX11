@@ -1,0 +1,8 @@
+外部静态库(.lib)都得自己上网下载sdk或者下载开源项目自行编译来配置
+（没办法啦是这么麻烦的了
+每个外部依赖的静态库，按照\$(PlatformTarget)\$(Configuration)\xxx.lib来放置
+例如\Effects11\x86\Debug\effects11_d.lib
+然后自己在iVisual Studio里面链接好lib，链接路径：
+$(SolutionDir)ExternalLib\外部库名字\lib\$(PlatformTarget)\$(Configuration)\
+
+那么记得相应地改一下\ExternalInclude，头文件和.lib还是要配对好点嘛

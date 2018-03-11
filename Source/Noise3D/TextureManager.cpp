@@ -22,6 +22,7 @@ ITextureManager::~ITextureManager()
 	DeleteAllTexture();
 }
 
+
 //--------------------------------TEXTURE CREATION-----------------------------
 ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory)
 {
@@ -44,7 +45,7 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;*/
 
 	//assign a lot of same NVECTOR4 color to vector
-	std::vector<NVECTOR4> initPixelBuffer(pixelWidth*pixelHeight, color);
+	std::vector<NColor4u> initPixelBuffer(pixelWidth*pixelHeight, color);
 
 
 	//texture2D desc (create a default usage texture)
@@ -54,7 +55,7 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 	texDesc.Height = pixelHeight;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Format = c_DefaultPixelDxgiFormat;// DXGI_FORMAT_R32G32B32A32_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;//allow update subresource
@@ -113,172 +114,187 @@ ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth
 
 ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight,bool keepCopyInMemory)
 {
-
-	if (keepCopyInMemory)
+	//read file to memory
+	IFileIO fileIO;
+	std::vector<char> fileBuff;
+	bool isReadFileSucceeded = fileIO.ImportFile_PURE(filePath, fileBuff);
+	if (!isReadFileSucceeded)
 	{
-		return mFunction_CreateTextureFromFile_KeepACopyInMemory(filePath, texName, useDefaultSize, pixelWidth, pixelHeight);
+		ERROR_MSG("CreateTextureFromFile : failed to read file!!");
+		return nullptr;//invalid
+	}
+
+	//check if new name has been used
+	//count() will return 0 if given key dont exists
+	if (ValidateUID(texName) == true)
+	{
+		ERROR_MSG("CreateTextureFromFile : Texture name has been used!!");
+		return nullptr;//invalid
+	}
+
+#pragma region DirectXTex load Image
+
+	//enumerate file formats, and parse image file using different functions
+	std::string fileSubfix = gFunc_GetFileSubFixFromPath(filePath);
+	NOISE_IMAGE_FILE_FORMAT fileFormat = mFunction_GetImageFileFormat(fileSubfix);
+	DirectX::TexMetadata scrMetaData;//meta data is loaded from target image file
+	DirectX::ScratchImage srcImage;
+
+	switch (fileFormat)
+	{
+		//Supported by DirectXTex.WIC
+		case NOISE_IMAGE_FILE_FORMAT_BMP:
+		case NOISE_IMAGE_FILE_FORMAT_JPG:
+		case NOISE_IMAGE_FILE_FORMAT_PNG:
+		case NOISE_IMAGE_FILE_FORMAT_TIFF:
+		case NOISE_IMAGE_FILE_FORMAT_GIF:
+		{
+			DirectX::LoadFromWICMemory(&fileBuff.at(0), fileBuff.size(), DirectX::WIC_FLAGS_NONE, &scrMetaData, srcImage);
+			break;
+		}
+
+		case NOISE_IMAGE_FILE_FORMAT_HDR:
+		{
+			DirectX::LoadFromHDRMemory(&fileBuff.at(0), fileBuff.size(), &scrMetaData, srcImage);
+			break;
+		}
+
+		case NOISE_IMAGE_FILE_FORMAT_TGA:
+		{
+			DirectX::LoadFromTGAMemory(&fileBuff.at(0), fileBuff.size(), &scrMetaData, srcImage);
+			break;
+		}
+
+		case NOISE_IMAGE_FILE_FORMAT_DDS :
+		{
+			DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(),DirectX::DDS_FLAGS_NONE , &scrMetaData, srcImage);
+			break;
+		}
+
+		case NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED:
+		default:
+			ERROR_MSG("CreateTextureFromFile : image file format not supported!! format:"+ fileSubfix);
+			return nullptr;//invalid
+			break;
+	}
+
+	//load and resize image data to a memory block
+	uint32_t resizedImageWidth = useDefaultSize ? scrMetaData.width : pixelWidth;
+	uint32_t resizedImageHeight = useDefaultSize ? scrMetaData.height : pixelHeight;
+
+	//re-sampling of original images
+
+	DirectX::ScratchImage resizedImage;
+	DirectX::ScratchImage convertedImage;
+
+	//resize the image
+	DirectX::Resize(
+		srcImage.GetImages(), 
+		srcImage.GetImageCount(),
+		srcImage.GetMetadata(), 
+		resizedImageWidth, 
+		resizedImageHeight,
+		DirectX::TEX_FILTER_DEFAULT,//DirectX::TEX_FILTER_LINEAR,
+		resizedImage);
+
+	//pixel format conversion (this format must match the format defined in ID3D11Texture2D desc)
+	if (resizedImage.GetMetadata().format != c_DefaultPixelDxgiFormat)
+	{
+		DirectX::Convert(
+			resizedImage.GetImages(),
+			resizedImage.GetImageCount(),
+			resizedImage.GetMetadata(),
+			c_DefaultPixelDxgiFormat,
+			DirectX::TEX_FILTER_DEFAULT,
+			DirectX::TEX_THRESHOLD_DEFAULT,
+			convertedImage);
 	}
 	else
 	{
-		return mFunction_CreateTextureFromFile_DirectlyLoadToGpu(filePath, texName, useDefaultSize, pixelWidth, pixelHeight);
-	}
-	return nullptr;
-}
-
-ITexture* ITextureManager::CreateCubeMapFromFiles(NFilePath fileName[6], N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
-{
-	HRESULT hr = S_OK;
-
-
-#pragma region LoadDataToBufferArray
-	//create temporary textures , so we should mark the ID to delete it later
-	std::string tmpTexName[6];
-	UINT cubeMapWidth = 0;
-
-	//...what size to use
-	switch (faceSize)
-	{
-	case NOISE_CUBEMAP_SIZE_64x64:
-		cubeMapWidth = 64;
-		break;
-	case NOISE_CUBEMAP_SIZE_128x128:
-		cubeMapWidth = 128;
-		break;
-	case NOISE_CUBEMAP_SIZE_256x256:
-		cubeMapWidth = 256;
-		break;
-	case NOISE_CUBEMAP_SIZE_512x512:
-		cubeMapWidth = 512;
-		break;
-	case NOISE_CUBEMAP_SIZE_1024x1024:
-		cubeMapWidth = 1024;
-		break;
-	};
-
-	//create temporary textures
-	for (UINT i = 0; i < 6;i++)
-	{
-		 tmpTexName[i] = "cubeMapTmpTexure" +std::to_string(i);
-		ITexture* pTexture = CreateTextureFromFile(
-			fileName[i], 
-			tmpTexName[i].c_str(),
-			false,
-			cubeMapWidth, 
-			cubeMapWidth, 
-			true);
-
-		//one of the texture failed loading
-		if (pTexture==nullptr)
-		{
-			for (UINT j = 0;j <= i;j++)
-			{
-				//delete previously created temporary textures
-				DeleteTexture(tmpTexName[j]);
-			}
-
-			ERROR_MSG("ITextureMgr :CreateCubeMapFromFiles:create face from file failed ! face ID : ");
-			return nullptr;
-		}
+		//copy
+		convertedImage.InitializeFromImage(*resizedImage.GetImages());
 	}
 
+#pragma endregion DirectXTex load Image
 
-	//combine 4 buffers
-	std::vector<NVECTOR4> pixelBuffer[6];
-	for (UINT i = 0;i < 6;i++)
-	{
-		auto srcPartialBuffer = IFactory<ITexture>::GetObjectPtr(tmpTexName[i])->mPixelBuffer;
-		//assign values for each buffer
-		pixelBuffer[i].assign(srcPartialBuffer.begin(), srcPartialBuffer.end());
-	}
+#pragma region CreateTexture2D & SRV
 
-	//delete temporary textures after copying data to pixelBuffer(s)
-	for (UINT k = 0;k < 6;k++)DeleteTexture(tmpTexName[k]);
-
-#pragma endregion LoadDataToBufferArray
-
-
-#pragma region CreateCubeMap
-	//we must check if new texture name has been used
-	/*std::string cubemapNameString(cubeTextureName);
-	for (auto t : *m_pTextureObjectList)
-	{
-		if (t.mTexName == cubemapNameString)
-		{
-			DEBUG_MSG1("NoiseTexMgr:CreateCubeMapFromFiles : Texture name has been used!!");
-			return NOISE_MACRO_INVALID_TEXTURE_ID;//invalid
-		}
-	}*/
-
-
-	//cube map is similar to texture arrays
+	//texture2D desc (create a default usage texture)
 	D3D11_TEXTURE2D_DESC texDesc;
-	D3D11_SHADER_RESOURCE_VIEW_DESC SRViewDesc;
-	D3D11_SUBRESOURCE_DATA texInitDataDesc[6];
-	for (UINT i = 0;i < 6;i++)
-	{
-		texInitDataDesc[i].pSysMem = &pixelBuffer[i].at(0);
-		texInitDataDesc[i].SysMemPitch = cubeMapWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE;
-		texInitDataDesc[i].SysMemSlicePitch = 0;
-	}
-
-	//2 description need to be updated
 	ZeroMemory(&texDesc, sizeof(texDesc));
-	texDesc.Width = cubeMapWidth;
-	texDesc.Height = cubeMapWidth;
+	texDesc.Width = resizedImageWidth;//determined by the loaded picture
+	texDesc.Height = resizedImageHeight;
 	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 6;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	texDesc.CPUAccessFlags = 0;
+	texDesc.ArraySize = 1;
+	texDesc.Format = c_DefaultPixelDxgiFormat;//DXGI_FORMAT_R32G32B32A32_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;//allow update subresource
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	texDesc.CPUAccessFlags = NULL;
+	texDesc.MiscFlags = NULL;
 
-	ZeroMemory(&SRViewDesc, sizeof(SRViewDesc));
+	//SRV desc
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRViewDesc;
 	SRViewDesc.Format = texDesc.Format;
-	SRViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	SRViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	SRViewDesc.TextureCube.MipLevels = texDesc.MipLevels;
+	SRViewDesc.TextureCube.MostDetailedMip = 0;
 
+	//init data
+	D3D11_SUBRESOURCE_DATA texInitDataDesc;
+	texInitDataDesc.pSysMem = convertedImage.GetPixels() ;// &pixelBuffer.at(0);
+	texInitDataDesc.SysMemPitch = (texDesc.Width) * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE;//bytesize for 1 row
+	texInitDataDesc.SysMemSlicePitch = 0;//available for tex3D
 
-	//create id3d11texture2D
-	ID3D11Texture2D* pCubeMapTexture2D;
-	hr = g_pd3dDevice11->CreateTexture2D(&texDesc, &texInitDataDesc[0], &pCubeMapTexture2D);
+	//create ID3D11Texture2D first 
+	ID3D11Texture2D* pTmpTexture2D;
+	HRESULT hr = g_pd3dDevice11->CreateTexture2D(&texDesc, &texInitDataDesc, &pTmpTexture2D);
 	if (FAILED(hr))
 	{
-		ERROR_MSG("NoiseTexMgr:CreateCubeMapFromFiles : Create new cube map failed!!");
+		ReleaseCOM(pTmpTexture2D);
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11Texture2D failed!");
 		return nullptr;
 	}
 
-	
-	//we disable texture modification of Cube Map for the time being...
-	/*N_TextureObject tmpTexObj;
-	tmpTexObj.mIsPixelBufferInMemValid = false;
-	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_CUBEMAP;*/
-
-	//create SRV from texture2D
+	//Create SRV from texture 2D (to a tmp textureObject)
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
-	hr = g_pd3dDevice11->CreateShaderResourceView(
-		pCubeMapTexture2D,
-		&SRViewDesc,
-		&tmp_pSRV);
-
+	hr = g_pd3dDevice11->CreateShaderResourceView(pTmpTexture2D, &SRViewDesc, &tmp_pSRV);
 	if (FAILED(hr))
 	{
-		//new temporary tex obj should be dumped
-		ERROR_MSG("NoiseTexMgr:CreateCubeMapFromFiles : Create SRV failed!!");
+		ReleaseCOM(pTmpTexture2D);
+		ERROR_MSG("CreateTextureFromFile : Create ID3D11SRV failed!");
 		return nullptr;
 	}
 
-#pragma endregion CreateCubeMap
+#pragma endregion CreateTexture2D & SRV
 
-	//Create a new Texture object
-	ITexture* pTexObj = IFactory<ITexture>::CreateObject(cubeTextureName);
-	std::vector<NVECTOR4> emptyBuff;
-	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_CUBEMAP);
+	//clear tmp interfaces
+	ReleaseCOM(pTmpTexture2D);
 
-	return pTexObj;
+	//at last, create a new texture object ptr
+	ITexture* pTexObj = IFactory<ITexture>::CreateObject(texName);
+	if (keepCopyInMemory)
+	{
+		uint32_t pixelCount = resizedImageWidth*resizedImageHeight;
+		uint8_t* pData = convertedImage.GetPixels();
+		std::vector<NColor4u> pixelBuffer(pixelCount);
+
+		//copy data of converted image to ITexture's system memory
+		for (uint32_t pixelId = 0; pixelId<pixelCount; ++pixelId)
+		{
+			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId*NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
+		}
+
+		pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), true, NOISE_TEXTURE_TYPE_COMMON);
+	}
+	else
+	{
+		std::vector<NColor4u> emptyBuff;
+		pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_COMMON);
+	}
+
+	return pTexObj;//invalid file or sth else
 }
 
 ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, NOISE_CUBEMAP_SIZE faceSize)
@@ -331,7 +347,7 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 	//continue filling the settings
 	loadInfo.Filter = D3DX11_FILTER_LINEAR;
 	loadInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-	loadInfo.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	loadInfo.Format = c_DefaultPixelDxgiFormat;
 
 	//create New Texture Object
 	HRESULT hr = S_OK;
@@ -359,7 +375,7 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 
 	//Create a new Texture object
 	ITexture* pTexObj = IFactory<ITexture>::CreateObject(cubeTextureName);
-	std::vector<NVECTOR4> emptyBuff;
+	std::vector<NColor4u> emptyBuff;
 	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_CUBEMAP);
 
 	//return new texObj ptr
@@ -369,12 +385,6 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 ITexture * ITextureManager::GetTexture(N_UID texName)
 {
 	return IFactory<ITexture>::GetObjectPtr(texName);
-}
-
-ITexture * Noise3D::ITextureManager::BakeLightMapForMesh(IMesh * pMesh)
-{
-	ERROR_MSG("Light map baking hasn't implemented!");
-	return nullptr;
 }
 
 UINT	 ITextureManager::GetTextureCount()
@@ -431,7 +441,7 @@ bool ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 		break;
 
 	case D3D11_SRV_DIMENSION_TEXTURE3D:
-		if (texType != NOISE_TEXTURE_TYPE_VOLUMN)
+		if (texType != NOISE_TEXTURE_TYPE_VOLUME)
 		{
 			return false;
 		}
@@ -452,10 +462,26 @@ bool ITextureManager::ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType)
 
 
 /*************************************************************
-							P R I V A T E
+									P R I V A T E
 *************************************************************/
+NOISE_IMAGE_FILE_FORMAT Noise3D::ITextureManager::mFunction_GetImageFileFormat(const std::string & fileSubfix)
+{
+	std::string lowCaseSubfix;
+	for (auto c : fileSubfix)lowCaseSubfix.push_back(::tolower(c));
 
-ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+	if (lowCaseSubfix == "bmp" )return NOISE_IMAGE_FILE_FORMAT_BMP;
+	if (lowCaseSubfix == "png")return NOISE_IMAGE_FILE_FORMAT_PNG;
+	if (lowCaseSubfix == "jpg")return NOISE_IMAGE_FILE_FORMAT_JPG;
+	if (lowCaseSubfix == "tiff")return NOISE_IMAGE_FILE_FORMAT_TIFF;
+	if (lowCaseSubfix == "gif")return NOISE_IMAGE_FILE_FORMAT_GIF;
+	if (lowCaseSubfix == "tga")return NOISE_IMAGE_FILE_FORMAT_TGA;
+	if (lowCaseSubfix == "hdr")return NOISE_IMAGE_FILE_FORMAT_HDR;
+	if (lowCaseSubfix == "dds")return NOISE_IMAGE_FILE_FORMAT_DDS;
+	return NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED;
+}
+
+
+/*ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -522,9 +548,9 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_DirectlyLoadToGpu(NFi
 	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(emptyBuff), false, NOISE_TEXTURE_TYPE_COMMON);
 
 	return pTexObj;//invalid file or sth else
-}
+}*/
 
-ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
+/*ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFilePath filePath, std::string& texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight)
 {
 	//!!!!!!!!!!!!!!!!File Size Maybe a problem???
 
@@ -578,7 +604,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 
 	//create texture from files
 	ID3D11Texture2D* pOriginTexture2D;
-	D3DX11CreateTextureFromFileA(
+	/*D3DX11CreateTextureFromFileA(
 		g_pd3dDevice11,
 		filePath.c_str(),
 		&loadInfo,
@@ -598,6 +624,7 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 	pOriginTexture2D->GetDesc(&originTexDesc);
 
 	//I DONT KNOW WHY CreateTextureFromFile()  WILL CHANGE THE SIZE OF TEXTURE !!
+	//(2018.3.9)the 'pitch' can be round off to the multiple of 4 to make mem access faster
 	UINT loadedTexWidth = mappedSubresource.RowPitch / NOISE_MACRO_DEFAULT_COLOR_BYTESIZE;//loadedTexDesc.Width;
 	UINT loadedTexHeight = originTexDesc.Height;
 
@@ -678,4 +705,4 @@ ITexture* ITextureManager::mFunction_CreateTextureFromFile_KeepACopyInMemory(NFi
 	pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), true, NOISE_TEXTURE_TYPE_COMMON);
 
 	return pTexObj;
-}
+}*/

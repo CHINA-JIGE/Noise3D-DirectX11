@@ -126,9 +126,19 @@ using namespace Noise3D;
 /*_declspec(dllexport)*/ std::string Noise3D::gFunc_GetFileNameFromPath(std::string completeFilePath)
 {
 	//Get the directory which the file lies on 
+	//Note that if find_last_of() failed, a int(-1) will be returned
 	int pos1 = completeFilePath.find_last_of('/');
 	int pos2 = completeFilePath.find_last_of('\\');
 	std::string result = completeFilePath.substr(max(pos1, pos2) + 1);
+	return result;
+}
+
+/*_declspec(dllexport)*/ std::string Noise3D::gFunc_GetFileSubFixFromPath(std::string path)
+{
+	//Get the directory which the file lies on 
+	size_t pos = path.find_last_of('.');
+	if (pos == std::string::npos)return "";//'.' not found, no subfix
+	std::string result = path.substr(pos+1);
 	return result;
 };
 
@@ -140,8 +150,7 @@ using namespace Noise3D;
 /*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Lerp(NVECTOR3 v1, NVECTOR3 v2, float t)
 {
 	return NVECTOR3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));
-}
-;
+};
 
 /*_declspec(dllexport)*/ inline float Noise3D::Clamp(float val, float min, float max)
 	{

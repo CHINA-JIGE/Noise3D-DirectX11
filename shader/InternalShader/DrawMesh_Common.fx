@@ -79,7 +79,7 @@ float3	SampleFromNormalMap(float2 TexCoord,uniform bool enableNormalMap)
 		float3 tmpNormalTBN = normSampleColor;
 		//x: [0,1] , y[0.5,1], z: [0,1];
 		//x & z~[0,1] map to [-1,1]
-		tmpNormalTBN = 2 * tmpNormalTBN - 1;
+		tmpNormalTBN = 2.0f * tmpNormalTBN - 1.0f;
 		//scale bump mapping (0,1,0) + scale* offsetVector
 		tmpNormalTBN = normalize(float3(0,1.0f,0) + gMaterial.mNormalMapBumpIntensity *(float3(tmpNormalTBN.x, 0, tmpNormalTBN.z)));
 		return tmpNormalTBN;

@@ -45,16 +45,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SOLUTIONDIR)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\x86\Debug\;$(SolutionDir)ExternalLib\FreeType\lib;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\FreeType\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\Effects11\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\DirectXTex\lib\$(PlatformTarget)\$(Configuration)\;$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\x86\Release;$(SolutionDir)ExternalLib\FreeType\lib;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SOLUTIONDIR)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\FreeType\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\Effects11\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\DirectXTex\lib\$(PlatformTarget)\$(Configuration)\;$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
     <TargetExt>.lib</TargetExt>
@@ -66,8 +66,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -88,7 +87,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11d.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;user32.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11d.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;user32.lib;libfbxsdk-md.lib;DirectXTex_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <ShowProgress>true</ShowProgress>
@@ -105,7 +104,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>Async</ExceptionHandling>
       <MinimalRebuild>true</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
@@ -125,7 +124,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;Effects11.lib;user32.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;Effects11.lib;user32.lib;libfbxsdk-md.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

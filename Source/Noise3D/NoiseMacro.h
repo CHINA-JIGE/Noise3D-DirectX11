@@ -6,8 +6,6 @@
 
 ************************************************************************/
 
-//若COM已经不存在了就不用释放了
-//宏名及一个空格后就是要替换的文本
 #pragma once
 
 #define NOISE_MACRO_INVALID_ID			UINT_MAX
@@ -18,7 +16,7 @@
 
 #define NOISE_MACRO_DEFAULT_MATERIAL_NAME ""//"NoIsE_3d_DeFaUlT_MaTeRiAl"//default material name
 
-#define NOISE_MACRO_DEFAULT_COLOR_BYTESIZE 16U //DXGI_FORMAT_R32G32B32A32_FLOAT 128bit 16bytes
+#define NOISE_MACRO_DEFAULT_COLOR_BYTESIZE 4U //DXGI_FORMAT_R8G8B8A8_UNORM 32bit 4bytes
 
 #define NOISE_MACRO_FUNCTION_EXTERN_CALL   //A mark that indicates this function is called by external function or friend class
 
@@ -33,7 +31,7 @@
 
 #define MATH_PI 3.1415926f
 
-//释放一个COM对象
+//Release an COM object
 #define ReleaseCOM(ComPointer)\
 				if(ComPointer!=nullptr)\
 				{\
@@ -42,7 +40,7 @@
 				}\
 
 
-//调试：调试弹框
+//debug msg for HRESULT
 #define HR_DEBUG(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\
@@ -50,7 +48,7 @@
 				return false;\
 				};\
 
-//调试：调试弹框
+
 #define HR_DEBUG_CREATETEX(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\

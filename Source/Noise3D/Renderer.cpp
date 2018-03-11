@@ -8,44 +8,42 @@
 
 #include "Noise3D.h"
 
-using namespace Noise3D;
-
-IRenderer::IRenderer():
+Noise3D::IRenderer::IRenderer():
 	IFactory<IRenderInfrastructure>(1)
 {
 }
 
-IRenderer::~IRenderer()
+Noise3D::IRenderer::~IRenderer()
 {
 	IFactory<IRenderInfrastructure>::DestroyAllObject();
 };
 
-void IRenderer::AddToRenderQueue(IMesh * obj)
+void Noise3D::IRenderer::AddToRenderQueue(IMesh * obj)
 {
 	IRenderModuleForMesh::AddToRenderQueue(obj);
 }
 
-void IRenderer::AddToRenderQueue(IGraphicObject * obj)
+void Noise3D::IRenderer::AddToRenderQueue(IGraphicObject * obj)
 {
 	IRenderModuleForGraphicObject::AddToRenderQueue(obj);
 }
 
-void IRenderer::AddToRenderQueue(IDynamicText * obj)
+void Noise3D::IRenderer::AddToRenderQueue(IDynamicText * obj)
 {
 	IRenderModuleForText::AddToRenderQueue(obj);
 }
 
-void IRenderer::AddToRenderQueue(IStaticText * obj)
+void Noise3D::IRenderer::AddToRenderQueue(IStaticText * obj)
 {
 	IRenderModuleForText::AddToRenderQueue(obj);
 }
 
-void IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
+void Noise3D::IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
 {
 	IRenderModuleForAtmosphere::SetActiveAtmosphere(obj);
 }
 
-void IRenderer::Render()
+void Noise3D::IRenderer::Render()
 {
 	//this affects the decision of Render Targets
 	m_pRenderInfrastructure->SetPostProcessRemainingPassCount(IRenderModuleForPostProcessing::GetPostProcessPassCount());
@@ -59,12 +57,12 @@ void IRenderer::Render()
 	
 }
 
-void	IRenderer::ClearBackground(const NVECTOR4& color)
+void	Noise3D::IRenderer::ClearBackground(const NVECTOR4& color)
 {
 	m_pRenderInfrastructure->ClearRtvAndDsv(color);
 };
 
-void	IRenderer::PresentToScreen()
+void	Noise3D::IRenderer::PresentToScreen()
 {
 	m_pRenderInfrastructure->SwapChainPresent();
 
@@ -77,27 +75,37 @@ void	IRenderer::PresentToScreen()
 };
 
 
-UINT IRenderer::GetBackBufferWidth()
+UINT Noise3D::IRenderer::GetBackBufferWidth()
 {
 	return m_pRenderInfrastructure->GetBackBufferWidth();
 };
 
-UINT IRenderer::GetBackBufferHeight()
+UINT Noise3D::IRenderer::GetBackBufferHeight()
 {
 	return m_pRenderInfrastructure->GetBackBufferHeight();
 }
 
-HWND IRenderer::GetRenderWindowHWND()
+HWND Noise3D::IRenderer::GetRenderWindowHWND()
 {
 	return m_pRenderInfrastructure->GetRenderWindowHWND();
 }
 
-void IRenderer::SwitchToFullScreenMode()
+uint32_t Noise3D::IRenderer::GetRenderWindowWidth()
+{
+	return m_pRenderInfrastructure->GetRenderWindowWidth();
+}
+
+uint32_t Noise3D::IRenderer::GetRenderWindowHeight()
+{
+	return m_pRenderInfrastructure->GetRenderWindowHeight();
+}
+
+void Noise3D::IRenderer::SwitchToFullScreenMode()
 {
 	m_pRenderInfrastructure->SwitchToFullScreenMode();
 }
 
-void IRenderer::SwitchToWindowedMode()
+void Noise3D::IRenderer::SwitchToWindowedMode()
 {
 	m_pRenderInfrastructure->SwitchToWindowedMode();
 }
@@ -105,7 +113,7 @@ void IRenderer::SwitchToWindowedMode()
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-bool	IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
+bool	Noise3D::IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
 {
 	//1. try to init a unique render infrastructure 
 	//(failure could affect the creation of IRenderer)

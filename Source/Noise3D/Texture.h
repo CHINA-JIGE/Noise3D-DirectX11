@@ -22,18 +22,20 @@ namespace Noise3D
 	{
 		NOISE_TEXTURE_TYPE_COMMON = 0,
 		NOISE_TEXTURE_TYPE_CUBEMAP = 1,
-		NOISE_TEXTURE_TYPE_VOLUMN = 2,
+		NOISE_TEXTURE_TYPE_VOLUME = 2,
 	};
 
-	enum NOISE_TEXTURE_SAVE_FORMAT
+	enum NOISE_IMAGE_FILE_FORMAT
 	{
-		NOISE_TEXTURE_SAVE_FORMAT_BMP = D3DX11_IFF_BMP,
-		NOISE_TEXTURE_SAVE_FORMAT_JPG = D3DX11_IFF_JPG,
-		NOISE_TEXTURE_SAVE_FORMAT_PNG = D3DX11_IFF_PNG,
-		NOISE_TEXTURE_SAVE_FORMAT_DDS = D3DX11_IFF_DDS,
-		NOISE_TEXTURE_SAVE_FORMAT_TIFF = D3DX11_IFF_TIFF,
-		NOISE_TEXTURE_SAVE_FORMAT_GIF = D3DX11_IFF_GIF,
-		NOISE_TEXTURE_SAVE_FORMAT_WMP = D3DX11_IFF_WMP,
+		NOISE_IMAGE_FILE_FORMAT_BMP,//Supported by DirectXTex.WIC
+		NOISE_IMAGE_FILE_FORMAT_JPG,//Supported by  DirectXTex.WIC
+		NOISE_IMAGE_FILE_FORMAT_PNG,//Supported by  DirectXTex.WIC
+		NOISE_IMAGE_FILE_FORMAT_TIFF,//Supported by  DirectXTex.WIC
+		NOISE_IMAGE_FILE_FORMAT_GIF,//Supported by  DirectXTex.WIC
+		NOISE_IMAGE_FILE_FORMAT_TGA,//supported by DirectXTex
+		NOISE_IMAGE_FILE_FORMAT_HDR,//supported by DirectXTex
+		NOISE_IMAGE_FILE_FORMAT_DDS,//supported by DirectXTex
+		NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED = 0xffff
 	};
 
 	class /*declspec(dllexport)*/ ITexture
@@ -48,21 +50,21 @@ namespace Noise3D
 
 		bool				IsTextureType(NOISE_TEXTURE_TYPE type);
 
-		UINT				GetWidth();
+		UINT			GetWidth();
 
-		UINT				GetHeight();
+		UINT			GetHeight();
 
-		void					SetPixel(UINT x, UINT y, const NVECTOR4& color);
+		void				SetPixel(UINT x, UINT y, const NColor4u& color);
 
-		NVECTOR4		GetPixel(UINT x, UINT y);
+		NColor4u		GetPixel(UINT x, UINT y);
 
-		bool				SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+		bool				SetPixelArray(const std::vector<NColor4u>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		bool				SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+		bool				SetPixelArray(std::vector<NColor4u>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		bool				GetPixelArray(std::vector<NVECTOR4>& outColorArray);
+		bool				GetPixelArray(std::vector<NColor4u>& outColorArray);
 
-		bool				UpdateToVideoMemory();
+		bool				UpdateToVideoMemory();//update image's memory data to video memory
 
 		bool				ConvertTextureToGreyMap();
 
@@ -70,7 +72,7 @@ namespace Noise3D
 
 		bool				ConvertHeightMapToNormalMap(float heightFieldScaleFactor = 10.0f);
 
-		bool				SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat);
+		bool				SaveTextureToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat);
 
 	private:
 
@@ -87,14 +89,14 @@ namespace Noise3D
 		void	  NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitTexture(
 			ID3D11ShaderResourceView* pSRV,
 			const N_UID& uid,
-			std::vector<NVECTOR4>&& pixelBuff,
+			std::vector<NColor4u>&& pixelBuff,
 			bool isSysMemBuffValid,
 			NOISE_TEXTURE_TYPE type);
 
 		UINT		mWidth;
 		UINT		mHeight;
 		N_UID		mTextureUid;
-		std::vector<NVECTOR4>	mPixelBuffer;//a copy of pixel data in system memory
+		std::vector<NColor4u>	mPixelBuffer;//a copy of pixel data in system memory
 		bool	mIsPixelBufferInMemValid;
 		ID3D11ShaderResourceView*	m_pSRV;//used by renderer,but d3d detail must be covered
 		NOISE_TEXTURE_TYPE mTextureType;

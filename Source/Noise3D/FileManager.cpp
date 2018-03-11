@@ -30,24 +30,21 @@ IFileIO::IFileIO()
 
 bool IFileIO::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer)
 {
-	//文件输入流
 	std::ifstream fileIn(pFilePath, std::ios::binary);
 
-	//文件不存在就return
 	if (!fileIn.is_open()) 
 	{
 		ERROR_MSG("FileManager : Cannot Open File !!");
 		return false;
 	}
 
-	//指针移到文件尾
+	//file pointer move to eof
 	fileIn.seekg(0, std::ios_base::end);
 
-	//指针指着文件尾，当前位置就是大小
+	//get file size
 	int static_fileSize = (int)fileIn.tellg();
 
-
-	//指针移到文件头
+	//file pointer move to the beginning
 	fileIn.seekg(0, std::ios_base::beg);
 
 	//...........
@@ -57,17 +54,10 @@ bool IFileIO::ImportFile_PURE(NFilePath pFilePath, std::vector<char>& byteBuffer
 	byteBuffer.resize(static_fileSize,0);
 	while (!fileIn.eof())
 	{
-		
 		fileIn.read(&byteBuffer.at(0), static_fileSize);
-		//逐字节读取
-		//fileIn.get(tmpC);
-		//pFileBuffer->push_back(tmpC);
 	}
 
-
-	//关闭文件
 	fileIn.close();
-
 
 	return true;
 }

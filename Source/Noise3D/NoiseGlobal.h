@@ -58,6 +58,8 @@ namespace Noise3D
 
 	extern	/*_declspec(dllexport)*/  std::string gFunc_GetFileNameFromPath(std::string completeFilePath);
 
+	extern	/*_declspec(dllexport)*/  std::string gFunc_GetFileSubFixFromPath(std::string path);
+
 	extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
 	extern /*_declspec(dllexport)*/ NVECTOR3 Lerp(NVECTOR3 v1, NVECTOR3 v2, float t);

@@ -62,6 +62,8 @@ namespace Noise3D
 
 		void		SwitchToWindowedMode();
 
+		//void	BakeLightMapForMesh(IMesh* pMesh);//bake light map for static scenes,automatic uv flatten is required.
+
 	private:
 
 		//extern init by IScene

@@ -55,7 +55,7 @@ UINT ITexture::GetHeight()
 	return mHeight;
 }
 
-void ITexture::SetPixel(UINT x, UINT y, const NVECTOR4 & color)
+void ITexture::SetPixel(UINT x, UINT y, const NColor4u & color)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -82,7 +82,7 @@ void ITexture::SetPixel(UINT x, UINT y, const NVECTOR4 & color)
 	}
 }
 
-NVECTOR4 ITexture::GetPixel(UINT x, UINT y)
+NColor4u ITexture::GetPixel(UINT x, UINT y)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -111,7 +111,7 @@ NVECTOR4 ITexture::GetPixel(UINT x, UINT y)
 }
 
 //less redundant bound check to increase efficiency
-bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
+bool ITexture::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -132,7 +132,7 @@ bool ITexture::SetPixelArray(const std::vector<NVECTOR4>& in_ColorArray)
 	return false;
 }
 
-bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
+bool ITexture::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -153,7 +153,7 @@ bool ITexture::SetPixelArray(std::vector<NVECTOR4>&& in_ColorArray)
 	return false;
 }
 
-bool ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
+bool ITexture::GetPixelArray(std::vector<NColor4u>& outColorArray)
 {
 	if (IsSysMemPixelBufferValid())
 	{
@@ -166,6 +166,8 @@ bool ITexture::GetPixelArray(std::vector<NVECTOR4>& outColorArray)
 	}
 }
 
+//if user modified pixels via setPixel()/setPixelArray(), 
+//then UpdateToVideoMem() should be called after modification.
 bool ITexture::UpdateToVideoMemory()
 {
 
@@ -244,8 +246,9 @@ bool ITexture::ConvertTextureToGreyMap(float factorR, float factorG, float facto
 	//convert their RGBs to same value under some rules
 	for (auto& c : mPixelBuffer)
 	{
-		float greyScale = factorR *c.x + factorG*c.y + factorB*c.z;
-		c = NVECTOR4(greyScale, greyScale, greyScale, c.w);
+		//float greyScale = factorR *c.x + factorG*c.y + factorB*c.z;
+		float greyScale = factorR *c.r + factorG*c.g + factorB*c.b;
+		c = NColor4u(uint8_t(greyScale), uint8_t(greyScale), uint8_t(greyScale), c.a);
 	}
 
 	//after modifying buffer in memory, update to GPU
@@ -299,7 +302,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 
 
 	//use a temp buffer to avoid calculated pixel from being affected by previous normal vectors' color;
-	std::vector<NVECTOR4> tmpNormalMap(mPixelBuffer.size());
+	std::vector<NColor4u> tmpNormalMap(mPixelBuffer.size());
 	//loop to generate normal map
 	for (UINT j = 0;j < picHeight;j++)
 	{
@@ -349,17 +352,17 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 			}
 
 			//after confirm 3 vertices composing a triangle, apply CROSS operation
-			NVECTOR4 color1 = mPixelBuffer.at(vertexID1);
-			NVECTOR4 color2 = mPixelBuffer.at(vertexID2);
-			NVECTOR4 color3 = mPixelBuffer.at(vertexID3);
+			NColor4u color1 = mPixelBuffer.at(vertexID1);
+			NColor4u color2 = mPixelBuffer.at(vertexID2);
+			NColor4u color3 = mPixelBuffer.at(vertexID3);
 			//because it's grey map , so we can only use one color channel
-			NVECTOR3	v1 = NVECTOR3(1.0f, 0, heightFieldScaleFactor* (color2.x - color1.x));
-			NVECTOR3	v2 = NVECTOR3(0, 1.0f, heightFieldScaleFactor* (color3.x - color1.x));
+			NVECTOR3	v1 = NVECTOR3(1.0f, 0, heightFieldScaleFactor* (color2.r - color1.r));
+			NVECTOR3	v2 = NVECTOR3(0, 1.0f, heightFieldScaleFactor* (color3.r - color1.r));
 			D3DXVec3Cross(&currentNormal, &v1, &v2);
 
 			//convert normal to Normal Map Color
 			tmpNormalMap.at(vertexID1) =
-				NVECTOR4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f);
+				NColor4u(NVECTOR4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f));
 		}
 	}
 
@@ -386,19 +389,21 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	return true;
 }
 
-bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT picFormat)
+bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat)
 {
 	HRESULT hr = S_OK;
 	ID3D11Texture2D* tmp_pResource;
 	m_pSRV->GetResource((ID3D11Resource**)&tmp_pResource);
 	//use d3dx11
-	hr = D3DX11SaveTextureToFileA(
+	hr = 
+		D3DX11SaveTextureToFileA(
 		g_pImmediateContext,
 		tmp_pResource,
 		D3DX11_IMAGE_FILE_FORMAT(picFormat),
 		filePath.c_str()
 	);
-	HR_DEBUG(hr, "ITexture£ºSave Texture Failed!");
+
+	HR_DEBUG(hr, "ITexture£ºfailed to save texture!");
 	ReleaseCOM(tmp_pResource);
 
 	return true;
@@ -412,7 +417,7 @@ bool ITexture::SaveTextureToFile(NFilePath filePath, NOISE_TEXTURE_SAVE_FORMAT p
 ********************************************************************/
 
 //invoked by texture manager
-void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NVECTOR4>&& pixelBuff, bool isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
+void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NColor4u>&& pixelBuff, bool isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
 {
 	m_pSRV = pSRV;
 	mTextureUid = uid;
