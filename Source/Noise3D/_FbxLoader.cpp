@@ -201,7 +201,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 
 	N_FbxMeshInfo& refCurrentMesh = m_pRefOutResult->meshDataList.back();
 	std::vector<N_DefaultVertex>&	refVertexBuffer = refCurrentMesh.vertexBuffer;
-	std::vector<UINT>&	refIndexBuffer = refCurrentMesh.indexBuffer;
+	std::vector<uint32_t>&	refIndexBuffer = refCurrentMesh.indexBuffer;
 	refCurrentMesh.name = pNode->GetName();
 
 	//---------------------------MESH TRANSFORMATION--------------------------
@@ -259,8 +259,10 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 		for (int j = 0; j < 3; ++j)
 		{
 			int ctrlPointIndex = pMesh->GetPolygonVertex(i, j);
-			int polygonVertexIndex = pMesh->GetPolygonVertexIndex(i)+j;
-			//int polygonVertexIndex = i * 3 + j;
+			int uvIndex = pMesh->GetTextureUVIndex(i, j);
+			//int polygonVertexIndex = pMesh->GetPolygonVertexIndex(i)+j;
+			int polygonVertexIndex = i * 3 + j;
+
 
 			//load other vertex attributes for control points(or say, vertex, because
 			//control point could be split according to each vertex attribute
@@ -279,14 +281,15 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 
 			//texture coordinates could be multiple layers, but we only support 1 layer here
 			NVECTOR2 texcoord;
-			mFunction_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, 0, texcoord);
+			mFunction_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, uvIndex, 0, texcoord);
 
-			//if current control point has been loaded
+			//if current control point has been loaded before,then we should test and 
+			//determine whether we should split the vertex
 			if (ctrlPointDirtyMarkArray.at(ctrlPointIndex) == true)
 			{
 				N_DefaultVertex existedV = refVertexBuffer.at(ctrlPointIndex);
 				N_DefaultVertex currentV;
-				currentV.Pos = refVertexBuffer.at(ctrlPointIndex).Pos;
+				currentV.Pos = existedV.Pos;
 				currentV.Color = color;
 				currentV.Normal = normal;
 				currentV.TexCoord = texcoord;
@@ -296,13 +299,13 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 				if (existedV != currentV)
 				{
 					refVertexBuffer.push_back(currentV);
-					//index of split vertex
+					//index of new vertex of splitting
 					refIndexBuffer.at(polygonVertexIndex) = refVertexBuffer.size() - 1;
 				}
 			}
 			else
 			{
-				//current vertex not dirty, attributes need to be configure
+				//current vertex not dirty, attributes need to be initialized
 				N_DefaultVertex& v = refVertexBuffer.at(ctrlPointIndex);
 				v.Color = color;
 				v.Normal = normal;
@@ -548,7 +551,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 	outTangent.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int uvIndex, int uvLayer, NVECTOR2 & outTexcoord)
+void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, NVECTOR2 & outTexcoord)
 {
 	if (pMesh->GetElementUVCount() < 1)
 	{
@@ -556,7 +559,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 		return;
 	}
 
-	FbxGeometryElementUV* pElement = pMesh->GetElementUV();
+	FbxGeometryElementUV* pElement = pMesh->GetElementUV(uvLayer);
 
 	//target vector
 	FbxVector2& v = pElement->GetDirectArray().GetAt(0);
@@ -591,19 +594,14 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 	{
 		switch (pElement->GetReferenceMode())
 		{
-		case FbxGeometryElement::eDirect:
-		{
-		//in the following tutorial, eDirect case is combined with eIndexToDirect.... for unknown reason
-		//file:///F:/1VS%20PROJECT/3D/_%E8%B5%84%E6%96%99/%E5%9F%BA%E4%BA%8EFBX%20SDK%E7%9A%84FBX%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90%E4%B8%8E%E5%8A%A0%E8%BD%BD%20-%EF%BC%88%E4%B8%80%EF%BC%89%20-%20BugRunner%E7%9A%84%E4%B8%93%E6%A0%8F%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET.htm
-			v = pElement->GetDirectArray().GetAt(uvIndex);
-		}
-		break;
-		case FbxGeometryElement::eIndexToDirect:
-		{
-			int id = pElement->GetIndexArray().GetAt(uvIndex);
-			v = pElement->GetDirectArray().GetAt(id);
-		}
-		break;
+			//this 2 case can be combined using uvIndex(tested 2018.3.14)
+			case FbxGeometryElement::eDirect:
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				v = pElement->GetDirectArray().GetAt(uvIndex);
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -611,8 +609,11 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 	break;
 	}
 
+	//对不起我又要说一句中文，1.0f - texcoord.y 是几个意思？
+	//黑人问号.jpg ？？
+	//不就是导出的文件是 Y-Axis up吗？
 	outTexcoord.x = float(v.mData[0]);
-	outTexcoord.y = float(v.mData[1]);
+	outTexcoord.y = float(1.0f - v.mData[1]);
 }
 
 void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3 & outBinormal)

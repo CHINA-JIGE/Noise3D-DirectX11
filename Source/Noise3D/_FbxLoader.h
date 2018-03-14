@@ -39,7 +39,7 @@ namespace Noise3D
 
 		N_UID	name;
 		std::vector<N_DefaultVertex> vertexBuffer;
-		std::vector<UINT> indexBuffer;
+		std::vector<uint32_t> indexBuffer;
 		std::vector<N_MeshSubsetInfo> subsetList;
 		std::vector<N_FbxMaterialInfo> matList;
 		NVECTOR3 pos;//world translation
@@ -99,7 +99,7 @@ namespace Noise3D
 		void		mFunction_LoadMesh_VertexTangent(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3& outTangent);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex UV is defined
-		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int uvIndex, int uvLayer, NVECTOR2& outTexcoord);
+		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, NVECTOR2& outTexcoord);
 
 		//Actually i don't want to import binormal at first. 
 		//But the handness of tangent space basis could not determine without binormal(what a big pit!!)

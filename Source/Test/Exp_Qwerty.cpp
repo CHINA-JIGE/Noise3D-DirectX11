@@ -92,18 +92,18 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
 	//diffuse map
-	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", true, 1024, 1024, false);
 	//pTexMgr->CreateTextureFromFile("../../../media/jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../../../model/qwerty/arc18_filtered.PNG", "brick", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../model/qwerty/arc18_filtered.PNG", "brick", false, 256, 256, false);
 	//pTexMgr->CreateTextureFromFile("../../../model/qwerty/xxxCompleteMap.tga", "brick", FALSE, 512, 512, FALSE);
 
-	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", false, 256, 256, false);
 	//pTexMgr->CreateTextureFromFile("../../../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
-	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", true, 0, 0, false);
 	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture");
-	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
-	pNormalMap->ConvertTextureToGreyMap();
-	pNormalMap->ConvertHeightMapToNormalMap(0.03f);
+	//ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	//pNormalMap->ConvertTextureToGreyMap();
+	//pNormalMap->ConvertHeightMapToNormalMap(0.03f);
 	//pNormalMap->SaveTexture2DToFile("hahahNormal.tga", NOISE_IMAGE_FILE_FORMAT_TGA);
 
 	//create font texture
@@ -126,7 +126,7 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX("../../../model/qwerty/testScene4.FBX", res);
+	pModelLoader->LoadFile_FBX("../../../model/qwerty/testRoom.fbx", res);
 	//pModelLoader->LoadFile_FBX("../../../model/treeScene/treeScene.FBX", res);
 	//IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	//pModelLoader->LoadFile_OBJ(pMesh, "../../../model/qwerty/qwertyScene1.obj");
@@ -186,9 +186,9 @@ BOOL Init3D(HWND hwnd)
 
 	pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
 	N_PointLightDesc pointLightDesc;
-	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.ambientColor = NVECTOR3(1.0, 1.0, 1.0);
+	pointLightDesc.diffuseColor = NVECTOR3(0, 0, 0);
+	pointLightDesc.specularColor = NVECTOR3(0, 0, 0);
 	pointLightDesc.mAttenuationFactor = 0.0001f;
 	pointLightDesc.mLightingRange = 1000.0f;
 	pointLightDesc.mPosition = NVECTOR3(0, 0, -40.0f);
@@ -206,14 +206,14 @@ BOOL Init3D(HWND hwnd)
 	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "brick";//"Earth");
 	//Mat1.normalMapName = "EarthNormalMap";
-	Mat1.environmentMapName = "AtmoTexture";
+	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
 
 	//set material
 	//pMesh->SetMaterial("meshMat1");
 	for (auto mesh : meshList)
 	{
-		mesh->SetMaterial("meshMat1");
+		//mesh->SetMaterial("meshMat1");
 	}
 
 

@@ -1,0 +1,8 @@
+这个fbx的顶点位置、变换、uv什么的导入的转换真实匪夷所思啊？
+虽然我3dsmax里面导出的坐标是Y-axis up的，然后在Noise3D进来还是要转换一波的嘛
+结果各种转换就很匪夷所思：
+1.translation是 (-x,y,-z)
+2.scale是(x,z,y)
+3.rotation是(-x,-z,-y)
+4.vertex pos等顶点属性是 (x,z,y)
+5.uv更过分，(x, 1.0-y)，我？？？？？？？？

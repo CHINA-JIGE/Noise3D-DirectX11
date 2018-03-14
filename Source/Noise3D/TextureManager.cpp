@@ -340,8 +340,8 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 	//then assign a pointer to new SRV
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 	HRESULT hr = DirectX::CreateShaderResourceView(
-		g_pd3dDevice11
-		, srcImage.GetImages(),
+		g_pd3dDevice11,
+		srcImage.GetImages(),
 		srcImage.GetImageCount(),
 		srcMetaData,
 		&tmp_pSRV);
