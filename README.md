@@ -16,8 +16,9 @@ FBXSDK(autodesk的FBX模型导入\导出\处理SDK)
 DirectXTex（图片/纹理加载）：https://github.com/Microsoft/DirectXTex
 Effects11（shader组织框架）：https://github.com/Microsoft/FX11
 
-//////////////////////////////////////////////////////////////////////////////
-Some simple features are implemented:
+------------------------------------------------------
+
+实现了一些简单的功能：
 
 --Normal Mapping
 
@@ -47,9 +48,9 @@ Some simple features are implemented:
 
 --post processing
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+--------------------------------------------------
 
-Utility:
+一些小工具
 
 --Timer
 
@@ -58,6 +59,3 @@ Utility:
 --Voxelizer
 
 --Marching Cube Mesh Reconstructor
-
-In the future my own 3d Scanner (data processing pipeline) will be combined into this engine as an Utility.
-
