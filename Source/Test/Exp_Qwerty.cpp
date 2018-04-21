@@ -117,7 +117,7 @@ BOOL Init3D(HWND hwnd)
 
 	//---------------------INIT QWERTY----------------
 	pScreenDescriptor = pMeshMgr->CreateMesh("screen");
-	pModelLoader->LoadFile_OBJ(pScreenDescriptor,"../../../model/qwerty/AsusZenbook-Screen-XY.obj");
+	//pModelLoader->LoadFile_OBJ(pScreenDescriptor,"../../../model/qwerty/AsusZenbook-Screen-XY.obj");
 	//meshList.push_back(pScreenDescriptor);
 	pScreenDescriptor->SetPosition(0, 0, 0);
 	pScreenDescriptor->SetCullMode(NOISE_CULLMODE_NONE);
@@ -126,7 +126,7 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX("../../../model/qwerty/testRoom.fbx", res);
+	pModelLoader->LoadFile_FBX("../../../model/qwerty/testRoom-177x100.FBX", res);
 	//pModelLoader->LoadFile_FBX("../../../model/treeScene/treeScene.FBX", res);
 	//IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	//pModelLoader->LoadFile_OBJ(pMesh, "../../../model/qwerty/qwertyScene1.obj");
@@ -221,6 +221,12 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(1100.0f, 750.0f), NVECTOR2(1280.0f, 800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
+	pGraphicObjBuffer->AddPoint3D({ 1.0f,1.0f,1.0f });
+	pGraphicObjBuffer->AddPoint3D({ 2.0f,1.0f,1.0f });
+	pGraphicObjBuffer->AddPoint3D({ 3.0f,1.0f,1.0f });
+	pGraphicObjBuffer->AddPoint3D({ 4.0f,1.0f,1.0f });
+
+
 	//post process description init
 	greyScaleDesc.factorR = 0.3f;
 	greyScaleDesc.factorG = 0.59f;
@@ -250,7 +256,7 @@ void MainLoop()
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
-	//pRenderer->AddToRenderQueue(pGraphicObjBuffer);
+	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	//pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
 
@@ -267,10 +273,15 @@ void InputProcess()
 {
 	inputE.Update();
 
+	static float t = 0.0f;
+	t += 0.0006f;
+	pCamera->SetPosition(300.0f * sinf(t), 0, -300.0f);
+	pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
+
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
 		pCamera->fps_MoveRight(-0.5f, FALSE);
-		//pCamera->SetPosition(-300.0f, 0, -200.0f);
+		//pCamera->SetPosition(-500.0f, 0, -700.0f);
 		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
 
 		//pCamera->SetPosition(-21.4182, 68.8494, -332.617);
@@ -290,6 +301,7 @@ void InputProcess()
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
 		pCamera->fps_MoveForward(0.5f, FALSE);
+		//pCamera->SetPosition(0, 100.0f, -200.0f);
 		//pCamera->OptimizeForQwertyPass1(pScreenDescriptor);
 
 		//pCamera->SetPosition(-203.681, 13.3611, -172.219);

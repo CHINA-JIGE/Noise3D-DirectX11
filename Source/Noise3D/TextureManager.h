@@ -15,6 +15,8 @@ namespace Noise3D
 	public:
 		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = false);
 
+		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory = false);
+
 		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
 
 		ITexture*		CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName);

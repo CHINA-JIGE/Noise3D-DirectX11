@@ -147,6 +147,11 @@ using namespace Noise3D;
 		return(a + (b - a)*t);
 	}
 
+/*_declspec(dllexport)*/ inline NVECTOR2 Noise3D::Lerp(NVECTOR2 a, NVECTOR2 b, float t)
+{
+	return NVECTOR2(Lerp(a.x,b.x,t),Lerp(a.y,b.y,t));
+}
+
 /*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Lerp(NVECTOR3 v1, NVECTOR3 v2, float t)
 {
 	return NVECTOR3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));

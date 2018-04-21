@@ -214,11 +214,31 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
 	refCurrentMesh.scale = NVECTOR3(float(scale4.mData[0]), float(scale4.mData[2]), float(scale4.mData[1]));
 
+	//euler angle decomposition from 3dsmax to noise3d
+	//		R=Y1X2Z3 (right-handed, z-up) z~roll, x-pitch, y-yaw
+	//			[c1c3+s1s2s3		c3s1s2-c1s3		c2s1	]
+	//		=	[c2s3					c2c3					-s2	]
+	//			[c1s2s3-c3s1		c1c3s2+s1s3	c1c2	]
+	//initial extraction(right-handed)
+	//XYZ(yaw pitch roll) --> YXZ(yaw pitch roll)
 	FbxVector4 rotate4 = pNode->EvaluateLocalRotation();
-	refCurrentMesh.rotation = NVECTOR3(
-		-float(rotate4.mData[0]) / 180.0f *MATH_PI,
-		-float(rotate4.mData[2]) / 180.0f *MATH_PI,//negative for handness conversion
-		-float(rotate4.mData[1]) / 180.0f *MATH_PI);
+	float rx = float(rotate4.mData[0]) / 180.0f *MATH_PI;
+	float ry = float(rotate4.mData[1]) / 180.0f *MATH_PI;
+	float rz = float(rotate4.mData[2]) / 180.0f *MATH_PI;
+	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
+	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
+	D3DXMATRIX mat;
+	D3DXMatrixRotationYawPitchRoll(&mat, rz, ry, rx);
+	float s2 = mat.m[1][2];
+	float noiseEulerY = atan2(mat.m[0][2], mat.m[2][2]);
+	float noiseEulerX = asin(-mat.m[1][2]);
+	float noiseEulerZ = (s2 == 1.0f ? MATH_PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
+
+	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);
+	/*refCurrentMesh.rotation = NVECTOR3(
+		float(rotate4.mData[0]) / 180.0f *MATH_PI,
+		float(rotate4.mData[2]) / 180.0f *MATH_PI,
+		float(rotate4.mData[1]) / 180.0f *MATH_PI);*/
 
 	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer

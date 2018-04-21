@@ -36,15 +36,15 @@ namespace Noise3D
 
 		void		mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName);
 
-		void		mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera, std::vector<IGraphicObject*>* pList);
+		void		mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera, IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera, std::vector<IGraphicObject*>* pList);
+		void		mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera, IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderLine2DInList(std::vector<IGraphicObject*>* pList);
+		void		mFunction_GraphicObj_RenderLine2D(IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderPoint2DInList(std::vector<IGraphicObject*>* pList);
+		void		mFunction_GraphicObj_RenderPoint2DInList(IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphicObject*>* pList);
+		void		mFunction_GraphicObj_RenderTriangle2DInList(IGraphicObject* pGObj);
 
 		std::vector <IGraphicObject*>	mRenderList_GO; //list of object to be rendererd
 

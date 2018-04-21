@@ -32,13 +32,16 @@ void IRenderModuleForGraphicObject::RenderGraphicObjects()
 	m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 
 	//render various kinds of primitives
-	m_pRefRI->SetDepthStencilState(true);
-	if (pCamera != nullptr)mFunction_GraphicObj_RenderLine3DInList(pCamera, &mRenderList_GO);
-	if (pCamera != nullptr)mFunction_GraphicObj_RenderPoint3DInList(pCamera, &mRenderList_GO);
-	m_pRefRI->SetDepthStencilState(false);
-	mFunction_GraphicObj_RenderLine2DInList(&mRenderList_GO);
-	mFunction_GraphicObj_RenderPoint2DInList(&mRenderList_GO);
-	mFunction_GraphicObj_RenderTriangle2DInList(&mRenderList_GO);
+	for (auto pObj : mRenderList_GO)
+	{
+		m_pRefRI->SetDepthStencilState(true);
+		if (pCamera != nullptr)mFunction_GraphicObj_RenderLine3DInList(pCamera, pObj);
+		if (pCamera != nullptr)mFunction_GraphicObj_RenderPoint3DInList(pCamera, pObj);
+		m_pRefRI->SetDepthStencilState(false);
+		mFunction_GraphicObj_RenderLine2D(pObj);
+		mFunction_GraphicObj_RenderPoint2DInList(pObj);
+		mFunction_GraphicObj_RenderTriangle2DInList(pObj);
+	}
 }
 
 void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
@@ -85,140 +88,120 @@ void	IRenderModuleForGraphicObject::mFunction_AddToRenderList_GraphicObj(IGraphi
 	}
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera,std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera, IGraphicObject* pGObj)
 {
 	//update camera related matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
 
-	for (UINT i = 0;i < pList->size();i++)
-	{
-		IGraphicObject* pGObj = pList->at(i);
-		UINT vCount = pGObj->GetLine3DCount() * 2;
-		if (vCount == 0)continue;
+	UINT vCount = pGObj->GetLine3DCount() * 2;
+	if (vCount == 0)return;
 
-		//IA settings
-		ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-		m_pRefRI->SetBlendState(pGObj->GetBlendMode());
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+	//IA settings
+	ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
+	m_pRefRI->SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
 
-		//draw
-		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
-	}
+	//draw
+	m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera,std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera, IGraphicObject* pGObj)
 {
 	//update camera related matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
 
-	for (UINT i = 0;i < pList->size();i++)
-	{
-		IGraphicObject* pGObj = pList->at(i);
-		UINT vCount = pGObj->GetPoint3DCount();
-		if (vCount == 0)continue;
+	UINT vCount = pGObj->GetPoint3DCount();
+	if (vCount == 0)return;
 
-		//IA settings
-		ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-		m_pRefRI->SetBlendState(pGObj->GetBlendMode());
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+	//IA settings
+	ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
+	m_pRefRI->SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
-		//draw
-		m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
-	}
+	//draw
+	m_pFX_Tech_Solid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
+
 
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2DInList(std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2D(IGraphicObject* pGObj)
 {
-	for (UINT i = 0;i < pList->size();i++)
-	{
-		IGraphicObject* pGObj = pList->at(i);
-		UINT vCount = pGObj->GetLine2DCount() * 2;
-		if (vCount == 0)continue;
+	UINT vCount = pGObj->GetLine2DCount() * 2;
+	if (vCount == 0)return;
 
-		//IA settings
-		ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-		m_pRefRI->SetBlendState(pGObj->GetBlendMode());
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
+	//IA settings
+	ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
+	m_pRefRI->SetRasterState(NOISE_FILLMODE_WIREFRAME, NOISE_CULLMODE_NONE);
 
-		//draw
-		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
-	}
+	//draw
+	m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2DInList(std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2DInList(IGraphicObject* pGObj)
 {
-	for (UINT i = 0;i < pList->size();i++)
-	{
-		IGraphicObject* pGObj = pList->at(i);
-		UINT vCount = pGObj->GetPoint2DCount() * 2;
-		if (vCount == 0)continue;
+	UINT vCount = pGObj->GetPoint2DCount() * 2;
+	if (vCount == 0)return;
 
-		//IA settings
-		ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-		m_pRefRI->SetBlendState(pGObj->GetBlendMode());
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
+	//IA settings
+	ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
+	m_pRefRI->SetRasterState(NOISE_FILLMODE_POINT, NOISE_CULLMODE_NONE);
 
-		//draw
-		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
-	}
-
+	//draw
+	m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2DInList(std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2DInList(IGraphicObject* pGObj)
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
-	for (UINT i = 0;i < pList->size();i++)
+	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
+	m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
+
+	//----------------------1,draw common triangle----------------------
+	ID3D11Buffer* tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//traverse all region list , to decide use which tech to draw (textured or not)
+	m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	UINT vCount = pGObj->GetTriangle2DCount() * 3;
+	if (vCount>0)g_pImmediateContext->Draw(pGObj->GetTriangle2DCount() * 3, 0);
+
+
+	//---------------------2,draw (solid/textured) rectangles---------------------
+	tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
+	m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	for (auto tmpRegion : *(pGObj->m_pRectSubsetInfoList))
 	{
-		IGraphicObject* pGObj = pList->at(i);
-		m_pRefRI->SetBlendState(pGObj->GetBlendMode());
-		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-
-		//----------------------1,draw common triangle----------------------
-		ID3D11Buffer* tmp_pVB = pList->at(i)->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//traverse all region list , to decide use which tech to draw (textured or not)
-		m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		UINT vCount = pGObj->GetTriangle2DCount() * 3;
-		if (vCount>0)g_pImmediateContext->Draw(pGObj->GetTriangle2DCount() * 3, 0);
-
-
-		//---------------------2,draw (solid/textured) rectangles---------------------
-		tmp_pVB = pGObj->m_pVB_GPU[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, tmp_pVB, nullptr, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		for (auto tmpRegion : *(pGObj->m_pRectSubsetInfoList))
+		//if current Rectangle disable Texture ,then draw in a solid way
+		//thus validate the UID first
+		if (pTexMgr->ValidateUID(tmpRegion.texName) == false)
 		{
-			//if current Rectangle disable Texture ,then draw in a solid way
-			//thus validate the UID first
-			if (pTexMgr->ValidateUID(tmpRegion.texName)== false)
-			{
-				//draw with solid texture
-				m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-			}
-			else
-			{
-				//current subset have available texture, update SRV
-				mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texName);
-				m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-			}
-
-			//draw 
-			vCount = tmpRegion.vertexCount;
-			if (vCount>0)g_pImmediateContext->Draw(tmpRegion.vertexCount, tmpRegion.startID);
+			//draw with solid texture
+			m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+		}
+		else
+		{
+			//current subset have available texture, update SRV
+			mFunction_GraphicObj_Update_RenderTextured2D(tmpRegion.texName);
+			m_pFX_Tech_Textured2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 		}
 
+		//draw 
+		vCount = tmpRegion.vertexCount;
+		if (vCount>0)g_pImmediateContext->Draw(tmpRegion.vertexCount, tmpRegion.startID);
 	}
+
 }
 
 //invoked by RenderTriangle(when needed)

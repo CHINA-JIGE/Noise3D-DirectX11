@@ -26,6 +26,11 @@ ITextureManager::~ITextureManager()
 //--------------------------------TEXTURE CREATION-----------------------------
 ITexture* ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory)
 {
+	return ITextureManager::CreatePureColorTexture(texName, pixelWidth, pixelHeight, NColor4u(color), keepCopyInMemory);
+};
+
+ITexture * Noise3D::ITextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory)
+{
 	//create New Texture Object
 	HRESULT hr = S_OK;
 
