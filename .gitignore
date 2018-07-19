@@ -17,6 +17,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#GenFiles
+*.lib
+*.pdb
+
+
 #Compiled shader/effect
 *.fxo
 
