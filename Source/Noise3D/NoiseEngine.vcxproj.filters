@@ -235,9 +235,6 @@
     <ClInclude Include="_BasicRenderSettings.h">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
-    <ClInclude Include="_SpatialHashTable.h">
-      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
-    </ClInclude>
     <ClInclude Include="Ut_Voxelizer.h">
       <Filter>NoiseUtility\Voxelizer</Filter>
     </ClInclude>
@@ -374,9 +371,6 @@
     </ClCompile>
     <ClCompile Include="_GeometryMeshGenerator.cpp">
       <Filter>NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator</Filter>
-    </ClCompile>
-    <ClCompile Include="_SpatialHashTable.cpp">
-      <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
     </ClCompile>
     <ClCompile Include="Ut_Voxelizer.cpp">
       <Filter>NoiseUtility\Voxelizer</Filter>

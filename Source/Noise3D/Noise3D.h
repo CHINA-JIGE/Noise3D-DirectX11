@@ -49,6 +49,7 @@
 
 //DirectX Math
 //#include <DirectXMath\DirectXMath.h>
+#include <DirectXMath\SimpleMath\SimpleMath.h>
 
 //------------
 #include "NoiseMacro.h"
@@ -56,7 +57,6 @@
 #include "NoiseGlobal.h"
 #include "IFactory.h"
 #include "_2DBasicContainerInfo.h"
-#include "_SpatialHashTable.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"

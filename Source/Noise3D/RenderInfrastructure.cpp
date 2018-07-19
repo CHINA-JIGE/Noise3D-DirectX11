@@ -703,7 +703,8 @@ bool	IRenderInfrastructure::mFunction_Init_CreateEffectFromFile(NFilePath fxPath
 	ID3D10Blob*	compilationMsg;
 
 	//±àÒëfxÎÄ¼þ
-	hr = D3DX11CompileFromFileA(
+	::MultiByteToWideChar()
+	hr = D3DX11CompileEffectFromFile(
 		fxPath.c_str(), 0, 0, 0, "fx_5_0",
 		shaderFlags, 0, 0, &compiledFX,
 		&compilationMsg, 0);

@@ -10,14 +10,14 @@ using namespace DirectX;
 namespace Noise3D
 {
 
-	typedef		DirectX::XMFLOAT2	NVECTOR2;
-	typedef		DirectX::XMFLOAT3	NVECTOR3;
-	typedef		DirectX::XMFLOAT4	NVECTOR4;
-	typedef		DirectX::XMMATRIX	NMATRIX;
-	typedef		std::string				NFilePath;
-	typedef		std::string				NString;
-	typedef		std::string				N_UID;
-	typedef		DirectX::XMVECTOR	NColor4f;
+	typedef		SimpleMath::Vector2 	NVECTOR2;
+	typedef		SimpleMath::Vector3 	NVECTOR3;
+	typedef		SimpleMath::Vector4 	NVECTOR4;
+	typedef		SimpleMath::Matrix		NMATRIX;
+	typedef		std::string		NFilePath;
+	typedef		std::string		NString;
+	typedef		std::string		N_UID;
+	typedef		SimpleMath::Color 	NColor4f;
 
 	struct NColor4u
 	{

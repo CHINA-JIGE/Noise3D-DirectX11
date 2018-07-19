@@ -181,7 +181,6 @@
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
     <ClInclude Include="_BasicRenderSettings.h" />
-    <ClInclude Include="_SpatialHashTable.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -244,7 +243,6 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
-    <ClCompile Include="_SpatialHashTable.cpp" />
     <ClCompile Include="Ut_Voxelizer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
