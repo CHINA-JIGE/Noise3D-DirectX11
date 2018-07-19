@@ -34,7 +34,6 @@ using namespace Noise3D;
 	};
 
 
-
 	/*-----------------------------全局接口-----------------------------*/
 
 	ID3D11Device*					Noise3D::g_pd3dDevice11 = nullptr;

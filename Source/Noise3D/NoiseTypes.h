@@ -5,17 +5,19 @@
 ************************************************************************/
 
 #pragma once
+using namespace DirectX;
 
 namespace Noise3D
 {
-	typedef		D3DXVECTOR2	NVECTOR2;
-	typedef		D3DXVECTOR3	NVECTOR3;
-	typedef		D3DXVECTOR4	NVECTOR4;
-	typedef		D3DXMATRIX		NMATRIX;
+
+	typedef		DirectX::XMFLOAT2	NVECTOR2;
+	typedef		DirectX::XMFLOAT3	NVECTOR3;
+	typedef		DirectX::XMFLOAT4	NVECTOR4;
+	typedef		DirectX::XMMATRIX	NMATRIX;
 	typedef		std::string				NFilePath;
 	typedef		std::string				NString;
 	typedef		std::string				N_UID;
-	typedef		D3DXVECTOR4	NColor4f;
+	typedef		DirectX::XMVECTOR	NColor4f;
 
 	struct NColor4u
 	{

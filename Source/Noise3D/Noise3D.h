@@ -13,10 +13,10 @@
 #define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
 #include <D3D11.h>
-#include <D3DX\D3DX11.h>//D3DXCompile
-#include <D3DX\DxErr.h>
-#include <D3DX\D3DX10math.h>
-#include <d3dx11effect.h>//fx11
+//#include <D3DX\D3DX11.h>//D3DXCompile
+//#include <D3DX\DxErr.h>
+//#include <D3DX\D3DX10math.h>
+
 #include <dinput.h>
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
@@ -30,6 +30,9 @@
 #include <unordered_map>
 #include <map>
 
+//Microsoft's Effects11/FX11
+#include <Effects11\d3dx11effect.h>
+
 //FreeType for font&text
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -41,8 +44,12 @@
 //FbxSdk for model loader
 #include <fbxsdk.h>
 
-//directXTex
+//DirectX Tex
 #include <DirectXTex\DirectXTex.h>
+
+//DirectX Math
+//#include <DirectXMath\DirectXMath.h>
+
 //------------
 #include "NoiseMacro.h"
 #include "NoiseTypes.h"
