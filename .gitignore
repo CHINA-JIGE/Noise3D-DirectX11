@@ -21,6 +21,13 @@ $RECYCLE.BIN/
 *.lib
 *.pdb
 
+#temp dir
+/temp/
+
+#pre-compiled header
+/pch/
+/ipch/
+
 
 #Compiled shader/effect
 *.fxo
@@ -30,6 +37,7 @@ $RECYCLE.BIN/
 *.tlog
 *.log
 *.cod
+*.opendb
 
 # =========================
 # Operating System Files
