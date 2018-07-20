@@ -10,6 +10,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 IMesh::IMesh():
 	mRotationX_Pitch(0.0f),
@@ -23,8 +24,9 @@ IMesh::IMesh():
 	m_pVB_Gpu(nullptr),
 	m_pIB_Gpu(nullptr)
 {
-	D3DXMatrixIdentity(&mMatrixWorld);
-	D3DXMatrixIdentity(&mMatrixWorldInvTranspose);
+
+	mMatrixWorld = XMMatrixIdentity();
+	mMatrixWorldInvTranspose = XMMatrixIdentity();
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
@@ -309,38 +311,31 @@ bool IMesh::mFunction_UpdateDataToVideoMem()
 
 void	IMesh::mFunction_UpdateWorldMatrix()
 {
-	D3DXMATRIX	tmpMatrixScaling;
-	D3DXMATRIX	tmpMatrixTranslation;
-	D3DXMATRIX	tmpMatrixRotation;
-	D3DXMATRIX	tmpMatrix;
-	float tmpDeterminant;
+	NMATRIX	tmpMatrixScaling;
+	NMATRIX	tmpMatrixTranslation;
+	NMATRIX	tmpMatrixRotation;
+	NMATRIX	tmpMatrix;
 
 	//initialize
-	D3DXMatrixIdentity(&tmpMatrix);
+	tmpMatrix = XMMatrixIdentity();
 		
 	//1.scale
-	D3DXMatrixScaling(&tmpMatrixScaling, mScaleX, mScaleY, mScaleZ);
+	tmpMatrixScaling = XMMatrixScaling(mScaleX, mScaleY, mScaleZ);
 
 	//2.rotate
-	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotationY_Yaw, mRotationX_Pitch, mRotationZ_Roll);
+	tmpMatrixRotation = XMMatrixRotationRollPitchYaw(mRotationX_Pitch, mRotationY_Yaw, mRotationZ_Roll);
 
 	//3.translate
-	D3DXMatrixTranslation(&tmpMatrixTranslation, mPosition.x, mPosition.y, mPosition.z);
+	tmpMatrixTranslation = XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z);
 
 	//4.concatenate scaling/rotation/translation（跟viewMatrix有点区别）
-	D3DXMatrixMultiply(&tmpMatrix,&tmpMatrixScaling,&tmpMatrixRotation);
-	D3DXMatrixMultiply(&mMatrixWorld, &tmpMatrix, &tmpMatrixTranslation);
+	tmpMatrix = XMMatrixMultiply(tmpMatrixScaling, tmpMatrixRotation);
+	mMatrixWorld = XMMatrixMultiply(tmpMatrix, tmpMatrixTranslation);
 
 	//world InvTranspose for normal transformation
-	D3DXMatrixInverse(&mMatrixWorldInvTranspose,&tmpDeterminant,&mMatrixWorld);
-
-	//Be careful about the row/column major of the matrix and transposes
-	//D3DXMatrixTranspose(&mMatrixWorld,&mMatrixWorld);
-
-	//Transpose of worldInverse 
-	//(2018.2.12 there was a bug here, that the source matrix is set to 'tmpMatrix'!!)
-	//god damn it @#$%#^
-	D3DXMatrixTranspose(&mMatrixWorldInvTranspose,&mMatrixWorldInvTranspose);
+	mMatrixWorldInvTranspose = XMMatrixInverse(nullptr, mMatrixWorld);
+	if (XMMatrixIsInfinite(mMatrixWorldInvTranspose))ERROR_MSG("Mesh: World Inv not exist! determinant == 0 ! ");
+	mMatrixWorldInvTranspose.Transpose();
 }
 
 void IMesh::mFunction_ComputeBoundingBox()
@@ -370,8 +365,8 @@ void IMesh::mFunction_ComputeBoundingBox()
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, &mPosition);
-	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, &mPosition);
+	mBoundingBox.max += mPosition;
+	mBoundingBox.min += mPosition;
 }
 
 void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
@@ -400,6 +395,6 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	D3DXVec3Add(&mBoundingBox.max, &mBoundingBox.max, &mPosition);
-	D3DXVec3Add(&mBoundingBox.min, &mBoundingBox.min, &mPosition);
+	mBoundingBox.max += mPosition;
+	mBoundingBox.min += mPosition;
 }

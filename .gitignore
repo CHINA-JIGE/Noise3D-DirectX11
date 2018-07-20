@@ -27,7 +27,8 @@ $RECYCLE.BIN/
 #pre-compiled header
 /pch/
 /ipch/
-
+/Exec/
+/Media/
 
 #Compiled shader/effect
 *.fxo

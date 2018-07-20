@@ -97,7 +97,7 @@ namespace Noise3D
 
 		bool		mFunction_Init_CreateDepthStencilState();
 
-		bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
+		//bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
 		const uint32_t cMsaaSampleCount = 1;
 		HWND		mRenderWindowHWND;

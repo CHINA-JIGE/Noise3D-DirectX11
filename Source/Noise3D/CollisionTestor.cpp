@@ -10,6 +10,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 ICollisionTestor::ICollisionTestor():
 	m_pRefShaderVarMgr(nullptr)

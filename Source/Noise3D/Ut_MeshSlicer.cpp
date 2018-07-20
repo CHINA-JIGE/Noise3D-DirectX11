@@ -693,7 +693,7 @@ bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 
 			//if we can weld v1 to line strip tail 
 			tmpV = *tailPoint - tmpLineSegment.v1;
-			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
+			if (tmpV.Length() < SAME_POINT_DIST_THRESHOLD)
 			{
 				currLineStrip->pointList.push_back(tmpLineSegment.v2);
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
@@ -706,7 +706,7 @@ bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 
 			//if we can weld v2 to line strip tail 
 			tmpV = *tailPoint - tmpLineSegment.v2;
-			if (D3DXVec3Length(&tmpV) < SAME_POINT_DIST_THRESHOLD)
+			if (tmpV.Length() < SAME_POINT_DIST_THRESHOLD)
 			{
 				currLineStrip->pointList.push_back(tmpLineSegment.v1);
 				currLineStrip->normalList.push_back(tmpLineSegment.normal);
@@ -725,9 +725,9 @@ bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 
 NVECTOR3 IMeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 {
-	//and you want to know why the projection is the normal , refer to the tech doc
+	//to know the reason of why the projection is the normal , refer to the tech doc
 	NVECTOR3 outNormal(triangleNormal.x,0, triangleNormal.z);
-	D3DXVec3Normalize(&outNormal,&outNormal);
+	outNormal.Normalize();
 	return outNormal;
 }
 

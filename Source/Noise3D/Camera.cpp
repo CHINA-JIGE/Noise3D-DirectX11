@@ -14,7 +14,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
-using namespace DirectX::SimpleMath;
+using namespace Noise3D::Ut;
 
 Noise3D::ICamera::ICamera() :
 	mRotateX_Pitch(0),
@@ -263,10 +263,9 @@ void Noise3D::ICamera::GetProjMatrix(NMATRIX & outMat)
 void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
-	XMVECTOR det;
-	auto outMat = DirectX::XMMatrixInverse(nullptr, mMatrixView);
+	outMat = XMMatrixInverse(nullptr, mMatrixView);
 	//if the inverse doesn't exist, then matrix will be set to infinite
-	if (DirectX::XMMatrixIsInfinite(outMat))ERROR_MSG("Camera : Inverse of View Matrix not exist!");
+	if (XMMatrixIsInfinite(outMat))ERROR_MSG("Camera : Inverse of View Matrix not exist!");
 }
 
 void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)

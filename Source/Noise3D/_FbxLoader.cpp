@@ -227,18 +227,14 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	float rz = float(rotate4.mData[2]) / 180.0f *MATH_PI;
 	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
 	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
-	D3DXMATRIX mat;
-	D3DXMatrixRotationYawPitchRoll(&mat, rz, ry, rx);
+	NMATRIX mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
+	//D3DXMatrixRotationYawPitchRoll(&mat, rz, ry, rx);//yaw, pitch, roll
 	float s2 = mat.m[1][2];
 	float noiseEulerY = atan2(mat.m[0][2], mat.m[2][2]);
 	float noiseEulerX = asin(-mat.m[1][2]);
 	float noiseEulerZ = (s2 == 1.0f ? MATH_PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
 
 	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);
-	/*refCurrentMesh.rotation = NVECTOR3(
-		float(rotate4.mData[0]) / 180.0f *MATH_PI,
-		float(rotate4.mData[2]) / 180.0f *MATH_PI,
-		float(rotate4.mData[1]) / 180.0f *MATH_PI);*/
 
 	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer

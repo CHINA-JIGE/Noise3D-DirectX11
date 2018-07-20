@@ -138,8 +138,8 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		else
 		{
 			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
-			D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
-			D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
+			tmpCompleteV.Tangent = tmpCompleteV.Normal.Cross(tmpVec);
+			tmpCompleteV.Tangent.Normalize();
 		}
 		//.......
 		refVertexBuffer.at(i) = (tmpCompleteV);

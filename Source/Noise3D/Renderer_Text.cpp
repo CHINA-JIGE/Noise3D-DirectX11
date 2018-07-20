@@ -8,6 +8,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 IRenderModuleForText::IRenderModuleForText()
 {
@@ -80,8 +81,8 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, 
 		HRESULT hr = S_OK;
 
 		//update text color infos
-		float* pColorData = (float*)pText->m_pTextColor;
-		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
+		//float* pColorData = (float*)pText->m_pTextColor;
+		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, *pText->m_pTextColor);
 
 		//update textures
 		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,uid);

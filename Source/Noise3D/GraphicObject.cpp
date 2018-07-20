@@ -11,6 +11,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 #define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
 

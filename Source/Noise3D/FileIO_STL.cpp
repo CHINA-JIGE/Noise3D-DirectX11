@@ -101,8 +101,7 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 		NVECTOR3 triNorm(0, 0, 0);
 
 		//normal vector of this triangle
-		D3DXVec3Cross(&triNorm, &edge1, &edge2);
-
+		triNorm = edge1.Cross(edge2);
 
 		//a facet normal
 		REINTERPRET_WRITE(triNorm.x);
@@ -189,8 +188,7 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 		NVECTOR3 triNorm(0, 0, 0);
 
 		//normal vector of this triangle
-		D3DXVec3Cross(&triNorm, &edge1, &edge2);
-
+		triNorm = edge1.Cross(edge2);
 
 		//a facet normal
 		REINTERPRET_WRITE(triNorm.x);

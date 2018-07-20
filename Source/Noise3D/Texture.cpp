@@ -9,6 +9,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 ITexture::ITexture():
 	m_pSRV(nullptr),
@@ -358,7 +359,8 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 			//because it's grey map , so we can only use one color channel
 			NVECTOR3	v1 = NVECTOR3(1.0f, 0, heightFieldScaleFactor* (color2.r - color1.r));
 			NVECTOR3	v2 = NVECTOR3(0, 1.0f, heightFieldScaleFactor* (color3.r - color1.r));
-			D3DXVec3Cross(&currentNormal, &v1, &v2);
+			currentNormal = v1.Cross(v2);
+			//D3DXVec3Cross(&currentNormal, &v1, &v2);
 
 			//convert normal to Normal Map Color
 			tmpNormalMap.at(vertexID1) =

@@ -103,8 +103,8 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh)
 		//all attribute multiply the same factor
 		N_DefaultVertex& v = uniqueVertexList.at(i);
 		v *= (1.0f / float(vertexRepeatCountList.at(i)));
-		D3DXVec3Normalize(&v.Normal,&v.Normal);
-		D3DXVec3Normalize(&v.Tangent, &v.Tangent);
+		v.Normal.Normalize();
+		v.Tangent.Normalize();
 	}
 
 	//remember!!! update to GPU
@@ -194,8 +194,8 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 		//all attribute multiply the same factor
 		N_DefaultVertex& v = uniqueVertexList.at(i);
 		v *= (1.0f / float(vertexRepeatCountList.at(i)));
-		D3DXVec3Normalize(&v.Normal, &v.Normal);
-		D3DXVec3Normalize(&v.Tangent, &v.Tangent);
+		v.Normal.Normalize();
+		v.Tangent.Normalize();
 	}
 
 	//remember!!! update to GPU
@@ -285,8 +285,8 @@ void IModelProcessor::MeshSimplify(IMesh * pTargetMesh, float PositionEqualThres
 		//all attribute multiply the same factor
 		N_DefaultVertex& v = uniqueVertexList.at(i);
 		v *= (1.0f / float(vertexRepeatCountList.at(i)));
-		D3DXVec3Normalize(&v.Normal, &v.Normal);
-		D3DXVec3Normalize(&v.Tangent, &v.Tangent);
+		v.Normal.Normalize();
+		v.Tangent.Normalize();
 	}
 
 	//remember!!! update to GPU

@@ -102,7 +102,7 @@ float IBasicContainerInfo::GetHeight()
 
 bool IBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
 {
-	return gFunc_IsPointInRect2D(
+	return Ut::IsPointInRect2D(
 		v,
 		mPositionCenter - NVECTOR2(mWidth / 2, mHeight / 2),
 		mPositionCenter + NVECTOR2(mWidth / 2, mHeight / 2)

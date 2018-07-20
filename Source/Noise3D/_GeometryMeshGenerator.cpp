@@ -659,8 +659,8 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 {
 	NVECTOR3 tmpNormal;
 	N_DefaultVertex tmpCompleteV;
-	D3DXVec3Cross(&tmpNormal, &vBasisVector1, &vBasisVector2);
-	D3DXVec3Normalize(&tmpNormal, &tmpNormal);
+	tmpNormal = vBasisVector1.Cross(vBasisVector2);
+	tmpNormal.Normalize();
 
 	for (UINT i = 0;i < StepCount1;i++)
 	{
@@ -669,9 +669,8 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 			tmpCompleteV.Normal = tmpNormal;
 			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
 			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
-			NVECTOR3 normalizedTangent;
-			D3DXVec3Normalize(&normalizedTangent,&vBasisVector1);
-			tmpCompleteV.Tangent = normalizedTangent;
+			tmpCompleteV.Tangent = vBasisVector1;
+			tmpCompleteV.Tangent.Normalize();
 			tmpCompleteV.TexCoord = NVECTOR2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
 			outVerticeList.push_back(tmpCompleteV);
 		}
@@ -704,8 +703,8 @@ inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
 	UINT i = 0, j = 0;
 	NVECTOR3 tmpNormal;
 	N_SimpleVertex tmpCompleteV;
-	D3DXVec3Cross(&tmpNormal, &vBasisVector1, &vBasisVector2);
-	D3DXVec3Normalize(&tmpNormal, &tmpNormal);
+	tmpNormal = vBasisVector1.Cross(vBasisVector2);
+	tmpNormal.Normalize();
 
 	for (i = 0;i < StepCount1;i++)
 	{

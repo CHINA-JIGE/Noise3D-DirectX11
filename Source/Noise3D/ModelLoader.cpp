@@ -147,8 +147,8 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 		NVECTOR2 outTexCoord(0, 0);
 		NVECTOR3 tmpP = vPoint - vBoxCenter;
 
-		//投影到单位球上
-		D3DXVec3Normalize(&tmpP, &tmpP);
+		//project to unit sphere
+		tmpP.Normalize();
 
 		//反三角函数算球坐标系坐标，然后角度值映射到[0,1]
 		float angleYaw = 0.0f;
@@ -185,8 +185,10 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 		else
 		{
 			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
-			D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
-			D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
+			tmpCompleteV.Tangent = tmpCompleteV.Normal.Cross(tmpVec);
+			//D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
+			tmpCompleteV.Tangent.Normalize();
+			//D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
 		}
 		tmpCompleteV.TexCoord = ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
 		completeVertexList.push_back(tmpCompleteV);
@@ -280,11 +282,11 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			std::string specMapName = fbxMat.texMapInfo.specMapName;
 			std::string emissiveMapName = fbxMat.texMapInfo.emissiveMapName;
 
-			std::string modelFileFolder = Noise3D::gFunc_GetFileFolderFromPath(filePath);
-			std::string diffMapPath = modelFileFolder + Noise3D::gFunc_GetFileNameFromPath(fbxMat.texMapInfo.diffMapFilePath);
-			std::string normalMapPath = modelFileFolder + Noise3D::gFunc_GetFileNameFromPath(fbxMat.texMapInfo.normalMapFilePath);
-			std::string specMapPath = modelFileFolder + Noise3D::gFunc_GetFileNameFromPath(fbxMat.texMapInfo.specMapFilePath);
-			std::string emissiveMapPath = modelFileFolder + Noise3D::gFunc_GetFileNameFromPath(fbxMat.texMapInfo.emissiveMapFilePath);
+			std::string modelFileFolder = Ut::GetFileFolderFromPath(filePath);
+			std::string diffMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.diffMapFilePath);
+			std::string normalMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.normalMapFilePath);
+			std::string specMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.specMapFilePath);
+			std::string emissiveMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.emissiveMapFilePath);
 
 			ITexture* pTexDiff = nullptr;
 			ITexture* pTexNormal = nullptr;
