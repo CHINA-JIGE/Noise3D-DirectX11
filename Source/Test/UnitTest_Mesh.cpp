@@ -67,7 +67,7 @@ BOOL Init3D(HWND hwnd)
 	const UINT bufferHeight = 720;
 
 	//³õÊ¼»¯Ê§°Ü
-	if (!pRoot->InitD3D(hwnd))return FALSE;
+	if (!pRoot->Init())return FALSE;
 	
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
@@ -79,7 +79,7 @@ BOOL Init3D(HWND hwnd)
 	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
 
 
-	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,TRUE);
+	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight,hwnd);
 	pCamera = pScene->GetCamera();
 	pLightMgr=pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
@@ -89,20 +89,20 @@ BOOL Init3D(HWND hwnd)
 
 
 	//Âþ·´ÉäÌùÍ¼
-	pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	pTexMgr->CreateTextureFromFile("../../../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../../../media/sky.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
+	//pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
-	pTexMgr->CreateTextureFromFile("../../../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	pTexMgr->CreateCubeMapFromDDS("../../../media/UniverseEnv.dds", "AtmoTexture", NOISE_CUBEMAP_SIZE_256x256);
-	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../../../media/Earth.jpg", "EarthNormalMap", FALSE, 512, 512, TRUE);
-	pNormalMap->ConvertTextureToGreyMap();
-	pNormalMap->ConvertHeightMapToNormalMap(10.0f);
+	//pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	//pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture");
+	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	//pNormalMap->ConvertTextureToGreyMap();
+	//pNormalMap->ConvertHeightMapToNormalMap(10.0f);
 
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
-	pFontMgr->CreateFontFromFile("../media/STXINWEI.ttf", "myFont", 24);
+	pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
 	pMyText_fps= pFontMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
@@ -114,15 +114,14 @@ BOOL Init3D(HWND hwnd)
 
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	pModelLoader = pScene->GetModelLoader();
-	//N_SceneLoadingResult res;
+	N_SceneLoadingResult res;
 	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
-	//pModelLoader->LoadFile_FBX("../model/treeScene/treeScene.FBX", res);
+	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
 	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
-	//pModelLoader->LoadPlane(pMesh, 40.0f, 40.0f, 5, 5);
 	pMesh->SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-	//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh);
 	/*for (auto & name : res.meshNameList)
@@ -195,7 +194,7 @@ BOOL Init3D(HWND hwnd)
 	Mat1.normalMapBumpIntensity = 0.2f;
 	Mat1.environmentMapTransparency = 0.1f;
 	Mat1.diffuseMapName = "Earth";//"Earth");
-	Mat1.normalMapName ="EarthNormalMap";
+	Mat1.normalMapName = "EarthNormalMap";
 	//Mat1.environmentMapName = "AtmoTexture";
 	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
@@ -226,7 +225,7 @@ void MainLoop()
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS << "fps :" << NTimer.GetFPS() << std::endl;
+	tmpS << "fps :" << NTimer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
 
@@ -239,8 +238,6 @@ void MainLoop()
 	desc.factorR = 0.3f;
 	desc.factorG = 0.59f;
 	desc.factorB = 0.11f;
-	pRenderer->AddToPostProcessList_GreyScale(desc);
-	//pRenderer->AddToPostProcessList_GreyScale(desc);
 	//pRenderer->AddToPostProcessList_GreyScale(desc);
 
 	//render
