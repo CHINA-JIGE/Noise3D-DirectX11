@@ -11,6 +11,7 @@
 
 namespace Noise3D
 {
+	class IMesh;
 	typedef std::vector<std::vector<UINT>> N_AdjacentList;
 
 

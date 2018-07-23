@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CollisionTestor.h" />
+    <ClInclude Include="IResourceManager.h" />
     <ClInclude Include="Renderer_Atmosphere.h" />
     <ClInclude Include="Renderer_GraphicObj.h" />
     <ClInclude Include="Renderer_Mesh.h" />

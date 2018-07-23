@@ -210,8 +210,8 @@ bool ICollisionTestor::mFunction_Init()
 
 
 	//SO Buffer initial data
-	N_MinizedVertex initArr[c_maxSOVertexCount];
-	ZeroMemory(initArr, sizeof(N_MinizedVertex) * c_maxSOVertexCount);
+	N_MinimizedVertex initArr[c_maxSOVertexCount];
+	ZeroMemory(initArr, sizeof(N_MinimizedVertex) * c_maxSOVertexCount);
 	D3D11_SUBRESOURCE_DATA initData;
 	ZeroMemory(&initData, sizeof(initData));
 	initData.pSysMem = initArr;
@@ -221,7 +221,7 @@ bool ICollisionTestor::mFunction_Init()
 	// 1. GPU writeable SO buffer
 	D3D11_BUFFER_DESC desc;
 	desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
-	desc.ByteWidth = c_maxSOVertexCount * sizeof(N_MinizedVertex);//only float4 position
+	desc.ByteWidth = c_maxSOVertexCount * sizeof(N_MinimizedVertex);//only float4 position
 	desc.CPUAccessFlags = NULL;
 	desc.Usage = D3D11_USAGE_DEFAULT;//the slowest usage but read from VideoMem is allowed
 	desc.MiscFlags = NULL;

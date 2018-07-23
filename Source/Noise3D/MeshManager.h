@@ -22,7 +22,7 @@ namespace Noise3D
 
 		bool					DestroyMesh(N_UID meshName);
 
-		bool					DestroyMesh(IMesh* ppMesh);
+		bool					DestroyMesh(IMesh* pMesh);
 
 		void					DestroyAllMesh();
 

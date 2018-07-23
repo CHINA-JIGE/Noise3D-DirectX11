@@ -16,7 +16,7 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ ISweepingTrailManager :
-		public IFactory<ISweepingTrailManager>
+		public IFactory<ISweepingTrail>
 	{
 	public:
 

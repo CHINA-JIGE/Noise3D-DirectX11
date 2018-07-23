@@ -124,6 +124,9 @@
     <Filter Include="NoiseGraphic\Scene\SweepingTrail">
       <UniqueIdentifier>{74a7bdb1-d6f8-4701-ba01-decf7d83c92c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneralBasicClass\_Manager">
+      <UniqueIdentifier>{df909552-fa4a-4554-9ba2-e2e64cb1e14c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -279,6 +282,9 @@
     </ClInclude>
     <ClInclude Include="GraphicObjManager.h">
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="IResourceManager.h">
+      <Filter>GeneralBasicClass\_Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

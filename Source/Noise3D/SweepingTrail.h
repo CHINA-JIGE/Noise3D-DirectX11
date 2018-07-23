@@ -17,7 +17,6 @@
 namespace Noise3D
 {
 
-
 	class ISweepingTrail
 	{
 	public:
@@ -37,11 +36,11 @@ namespace Noise3D
 		//1. header line segment's position 
 		//2. tail line segments position
 		//3. every vertices' uv (actually only texcoord.u changes)
-		void Update();
+		void Update(float deltaTime);
 
 	private:
 
-		friend ISweepingTrailManager;
+		friend class ISweepingTrailManager;
 		friend IFactory<ISweepingTrail>;
 
 		ISweepingTrail();
@@ -49,6 +48,13 @@ namespace Noise3D
 		~ISweepingTrail();
 
 
-		std::vector<Noise3D::Ut::
+		//cooled down line segments list (free/dynamic header and tail line segment are not included)
+		std::vector<Noise3D::N_LineSegment> mCooledDownLineSegments;
+		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
+		N_LineSegment mFreeTail;//keep approaching to the second last line segment
+		float mHeaderCoolDownTime;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
+		float mTailShrinkingSpeed;//the last quad's shrinking speed/ last LS's moving speed/ last LS's u-texcoord decreasing speed
+
+		float mHeaderCoolDownTimer;
 	};
 }

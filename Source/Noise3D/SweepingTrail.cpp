@@ -18,10 +18,30 @@
 
 #include "Noise3D.h"
 
+using namespace Noise3D;
+
 Noise3D::ISweepingTrail::ISweepingTrail()
 {
 }
 
 Noise3D::ISweepingTrail::~ISweepingTrail()
 {
+
 }
+
+void Noise3D::ISweepingTrail::SetHeaderLineSegment(N_LineSegment lineSeg)
+{
+}
+
+void Noise3D::ISweepingTrail::SetHeaderCoolDownTime(float duration)
+{
+}
+
+void Noise3D::ISweepingTrail::SetTailShrinkingSpeed(float duration)
+{
+}
+
+void Noise3D::ISweepingTrail::Update(float deltaTime)
+{
+}
+

@@ -57,7 +57,6 @@ namespace Noise3D
 		2,T should friend IFactory<T> (IFactory should have access to its constructor)
 	*/
 
-
 	//maxCount is the max count of child that can be created.
 	template<typename objType>
 	class /*_declspec(dllexport)*/ IFactory
@@ -66,10 +65,14 @@ namespace Noise3D
 		IFactory() = delete;
 
 		//constructor
-		IFactory(const UINT maxCount) {
-			mMaxObjectCount = maxCount;
+		IFactory(const UINT maxCount):
+			mMaxObjectCount(maxCount),
+		m_pChildObjectList ( new std::vector<N_ChildObjectInfo<objType>>),
+		m_pUidToIndexHashTable (new std::unordered_map<N_UID, UINT>)
+		{
+			/*mMaxObjectCount = maxCount;
 			m_pChildObjectList = new std::vector<N_ChildObjectInfo<objType>>;
-			m_pUidToIndexHashTable = new std::unordered_map<N_UID, UINT>;
+			m_pUidToIndexHashTable = new std::unordered_map<N_UID, UINT>;*/
 		};
 
 		//destructor
@@ -87,8 +90,8 @@ namespace Noise3D
 		{
 			/*if (objUID == N_UID(""))
 			{
-				ERROR_MSG("IFactory: UID invalid, can't be empty.");
-				return nullptr;
+			ERROR_MSG("IFactory: UID invalid, can't be empty.");
+			return nullptr;
 			}*/
 
 			//the count of child object is  limited
@@ -117,7 +120,7 @@ namespace Noise3D
 			}
 		};
 
-		 objType*	GetObjectPtr(UINT objIndex) const
+		objType*	GetObjectPtr(UINT objIndex) const
 		{
 			if (objIndex < m_pChildObjectList->size())
 			{
@@ -129,7 +132,7 @@ namespace Noise3D
 			}
 		}
 
-		 objType*	GetObjectPtr(N_UID objUID) const
+		objType*	GetObjectPtr(N_UID objUID) const
 		{
 			//get number index from UID-index hash map
 			auto iter = m_pUidToIndexHashTable->find(objUID);
@@ -151,7 +154,7 @@ namespace Noise3D
 			}
 		}
 
-		 UINT		GetObjectID(N_UID uid) const
+		UINT		GetObjectID(N_UID uid) const
 		{
 			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
@@ -165,20 +168,20 @@ namespace Noise3D
 			}
 		}
 
-		 N_UID	GetUID(UINT index) const
+		N_UID	GetUID(UINT index) const
 		{
-			 if (index < m_pChildObjectList->size())
-			 {
-				 auto& obj = m_pChildObjectList->at(index);
-				 return obj._uid;
-			 }
-			 else
-			 {
-				 return "";//index invalid
-			 }
+			if (index < m_pChildObjectList->size())
+			{
+				auto& obj = m_pChildObjectList->at(index);
+				return obj._uid;
+			}
+			else
+			{
+				return "";//index invalid
+			}
 		}
 
-	  UINT		GetObjectCount()  const
+		UINT		GetObjectCount()  const
 		{
 			return m_pChildObjectList->size();
 		}
@@ -263,7 +266,7 @@ namespace Noise3D
 		{
 			if (pObject != nullptr)
 			{
-				for (UINT i = 0;i < m_pChildObjectList->size(); i++)
+				for (UINT i = 0; i < m_pChildObjectList->size(); i++)
 				{
 					//uid-ptr pair,find pObject by linearly comparation
 					auto childObjInfo = m_pChildObjectList->at(i);
@@ -305,6 +308,5 @@ namespace Noise3D
 		//UID - index mapping, the UINT is index for vector
 		std::unordered_map<N_UID, UINT>*					m_pUidToIndexHashTable;
 	};
-
 
 }

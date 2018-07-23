@@ -24,7 +24,7 @@ namespace Noise3D
 
 		bool		DeleteMaterial(N_UID matName);
 
-		void			DeleteAllMaterial();
+		void		DeleteAllMaterial();
 
 		bool		ValidateUID(N_UID matName);
 
