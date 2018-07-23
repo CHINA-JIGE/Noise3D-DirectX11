@@ -117,7 +117,7 @@ BOOL Init3D(HWND hwnd)
 	N_SceneLoadingResult res;
 	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
-	IMesh* pMesh = pMeshMgr->CreateResource("testModel");
+	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
 	pMesh->SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
