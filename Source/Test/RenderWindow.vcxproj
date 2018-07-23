@@ -111,6 +111,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="UnitTest_SweepingTrail.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Noise3D\NoiseEngine.vcxproj">

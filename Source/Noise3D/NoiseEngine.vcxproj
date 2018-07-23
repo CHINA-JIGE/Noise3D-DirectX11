@@ -70,6 +70,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +108,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

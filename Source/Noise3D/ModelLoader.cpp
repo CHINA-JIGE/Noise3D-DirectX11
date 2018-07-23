@@ -244,7 +244,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	for (auto& m : fbxResult.meshDataList)
 	{
 		//***1.Create Mesh
-		IMesh* pMesh = pMeshMgr->CreateMesh(m.name);
+		IMesh* pMesh = pMeshMgr->CreateResource(m.name);
 		if (pMesh == nullptr)
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"
@@ -258,7 +258,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: Mesh failed to load: mesh name:" 
 				+ m.name);
-			pMeshMgr->DestroyMesh(m.name); 
+			pMeshMgr->DestroyResource(m.name); 
 			continue;
 		}
 	

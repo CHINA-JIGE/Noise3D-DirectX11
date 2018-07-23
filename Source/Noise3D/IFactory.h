@@ -154,7 +154,7 @@ namespace Noise3D
 			}
 		}
 
-		UINT		GetObjectID(N_UID uid) const
+		UINT	GetObjectID(N_UID uid) const
 		{
 			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
@@ -181,7 +181,7 @@ namespace Noise3D
 			}
 		}
 
-		UINT		GetObjectCount()  const
+		UINT	GetObjectCount()  const
 		{
 			return m_pChildObjectList->size();
 		}
@@ -198,7 +198,7 @@ namespace Noise3D
 			}
 		};
 
-		bool	DestroyObject(UINT objIndex)
+		bool		DestroyObject(UINT objIndex)
 		{
 			auto iter = m_pChildObjectList->begin();
 
@@ -230,7 +230,7 @@ namespace Noise3D
 			return true;
 		}
 
-		bool	DestroyObject(N_UID objUID)
+		bool		DestroyObject(N_UID objUID)
 		{
 			auto iter = m_pUidToIndexHashTable->find(objUID);
 			//if UID of the object do exist
@@ -262,7 +262,7 @@ namespace Noise3D
 			}
 		}
 
-		bool	DestroyObject(objType* pObject)
+		bool		DestroyObject(objType* pObject)
 		{
 			if (pObject != nullptr)
 			{

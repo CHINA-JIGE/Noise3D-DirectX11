@@ -38,24 +38,21 @@ namespace Noise3D
 			IFactory<resource_t>::DestroyAllObject();
 		};
 
-
-		/*virtual resource_t*	CreateResource(N_UID objName) { return IFactory<resource_t>::CreateObject(objName); }
+		virtual resource_t*	CreateResource(N_UID objName) { return IFactory<resource_t>::CreateObject(objName); }
 
 		virtual resource_t*	GetResource(N_UID objName) { return IFactory<resource_t>::GetObjectPtr(objName);}
 
 		virtual resource_t*	GetResource(UINT index) { return IFactory<resource_t>::GetObjectPtr(index); }
 
-		virtual bool	DestroyResource(N_UID objName) { return IFactory<resource_t>::Destroy(objName); }
+		virtual bool	DestroyResource(N_UID objName) { return IFactory<resource_t>::DestroyObject(objName); }
 
-		virtual  bool	DestroyResource(resource_t* pObj) { return IFactory<resource_t>::Destroy(pObj); }
+		virtual  bool	DestroyResource(resource_t* pObj) { return IFactory<resource_t>::DestroyObject(pObj); }
 
-		virtual void	DestroyAllResources() { IFactory<resource_t>()::DestroyAllObject(); }
+		virtual void	DestroyAllResources() { IFactory<resource_t>::DestroyAllObject(); }
 
-		virtual UINT GetResourceCount() { IFactory<resource_t>()::GetObjectCount(); }
+		virtual UINT GetResourceCount() { return  IFactory<resource_t>::GetObjectCount(); }
 
 		virtual bool	IsResourceExisted(N_UID objName) { return  IFactory<resource_t>::FindUid(objName); }
-
-		virtual bool	IsResourceExisted(resource_t* pObj) { return  IFactory<resource_t>::FindUid(pObj); }*/
 
 	protected:
 

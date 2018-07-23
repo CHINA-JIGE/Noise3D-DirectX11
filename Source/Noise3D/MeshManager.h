@@ -10,11 +10,12 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ IMeshManager:
-		public IFactory<IMesh>
+		//public IFactory<IMesh>
+		public IResourceManager<IMesh>
 	{
 	public:
 
-		IMesh*				CreateMesh(N_UID meshName);
+		/*IMesh*				CreateMesh(N_UID meshName);
 
 		IMesh*				GetMesh(N_UID meshName);
 
@@ -28,7 +29,7 @@ namespace Noise3D
 
 		UINT				GetMeshCount();
 
-		bool					IsMeshExisted(N_UID meshName);
+		bool					IsMeshExisted(N_UID meshName);*/
 
 	private:
 
