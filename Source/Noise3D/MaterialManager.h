@@ -8,8 +8,6 @@
 
 namespace Noise3D
 {
-
-
 	class /*_declspec(dllexport)*/ IMaterialManager
 		:public IFactory<IMaterial>
 	{

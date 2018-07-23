@@ -95,7 +95,6 @@ namespace Noise3D
 		friend class ICollisionTestor;
 		friend IFactory<IMesh>;
 
-		//¹¹Ôìº¯Êý
 		IMesh();
 
 		~IMesh();

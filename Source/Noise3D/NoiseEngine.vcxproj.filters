@@ -121,6 +121,9 @@
     <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing">
       <UniqueIdentifier>{b33968be-f8a9-479f-bd25-d1f10480aa56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\SweepingTrail">
+      <UniqueIdentifier>{74a7bdb1-d6f8-4701-ba01-decf7d83c92c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -201,9 +204,6 @@
     <ClInclude Include="Lights.h">
       <Filter>NoiseGraphic\Scene\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicObjMgr.h">
-      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
@@ -271,6 +271,15 @@
     <ClInclude Include="_BaseRenderModule.h">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="SweepingTrail.h">
+      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="SweepingTrailManager.h">
+      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicObjManager.h">
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -335,9 +344,6 @@
     </ClCompile>
     <ClCompile Include="Lights.cpp">
       <Filter>NoiseGraphic\Scene\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicObjMgr.cpp">
-      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -404,6 +410,15 @@
     </ClCompile>
     <ClCompile Include="Renderer_PostProcessing.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
+    </ClCompile>
+    <ClCompile Include="SweepingTrail.cpp">
+      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="SweepingTrailManager.cpp">
+      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicObjManager.cpp">
+      <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

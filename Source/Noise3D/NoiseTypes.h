@@ -92,7 +92,7 @@ namespace Noise3D
 		NVECTOR2 TexCoord;
 	};
 
-	struct N_MinizedVertex 
+	struct N_MinimizedVertex 
 	{
 		NVECTOR3 pos;
 	};
@@ -104,5 +104,16 @@ namespace Noise3D
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};
+
+	struct N_LineSegment
+	{
+		N_LineSegment() {}
+
+		N_LineSegment(const NVECTOR3& _v1, const NVECTOR3& _v2) { vert1 = _v1; vert2 = _v2; }
+
+		NVECTOR3 vert1;
+		NVECTOR3 vert2;
+	};
+
 
 };
