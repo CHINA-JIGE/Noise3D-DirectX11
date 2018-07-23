@@ -10,7 +10,7 @@
 
 using namespace Noise3D;
 
-/*IMesh * IMeshManager::CreateMesh(N_UID meshName)
+IMesh * IMeshManager::CreateMesh(N_UID meshName)
 {
 	return IFactory<IMesh>::CreateObject(meshName);
 }
@@ -48,19 +48,19 @@ UINT IMeshManager::GetMeshCount()
 bool Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
 {
 	return IFactory<IMesh>::FindUid(meshName);
-}*/
+}
 
 /***********************************************************************
 								P R I V A T E					                    
 ***********************************************************************/
 
 
-IMeshManager::IMeshManager():IResourceManager<IMesh>(50000)
+IMeshManager::IMeshManager():IFactory<IMesh>(50000)
 {
 
 }
 
 IMeshManager::~IMeshManager()
 {
-	IResourceManager<IMesh>::DestroyAllResources();
+	IFactory<IMesh>::DestroyAllObject();
 }

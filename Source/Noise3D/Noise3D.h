@@ -52,7 +52,7 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
-#include "IResourceManager.h"
+//#include "IResourceManager.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"

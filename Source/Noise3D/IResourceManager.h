@@ -15,7 +15,7 @@
 
 
 #pragma once
-
+/*
 namespace Noise3D
 {
 	//maxCount is the max count of child that can be created.
@@ -23,7 +23,7 @@ namespace Noise3D
 	//but overriding Factory<> functions is DANGEROUS and complicated, so IResourceManager provides a simple encapsulation of 
 	//IFactory and can be overrided by some specific Manager class.
 	template<typename resource_t>
-	class /*_declspec(dllexport)*/ IResourceManager:
+	class IResourceManager:
 		IFactory<resource_t>
 	{
 	public:
@@ -58,3 +58,4 @@ namespace Noise3D
 
 	};
 };
+*/
