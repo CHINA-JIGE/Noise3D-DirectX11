@@ -20,28 +20,75 @@
 
 using namespace Noise3D;
 
-Noise3D::ISweepingTrail::ISweepingTrail()
+Noise3D::ISweepingTrail::ISweepingTrail() :
+	mHeaderCoolDownTimeThreshold(20.0f),
+	mHeaderCoolDownTimer(0.0f),
+	mTailQuadCollapseDuration(20.0f),
+	mTailQuadCollapsingTimer(0.0f)
 {
 }
 
 Noise3D::ISweepingTrail::~ISweepingTrail()
 {
-
+	ReleaseCOM(m_pVB_Gpu);
 }
 
 void Noise3D::ISweepingTrail::SetHeaderLineSegment(N_LineSegment lineSeg)
 {
+	mFreeHeader = lineSeg;
 }
 
 void Noise3D::ISweepingTrail::SetHeaderCoolDownTime(float duration)
 {
+	mHeaderCoolDownTimeThreshold = duration;
 }
 
-void Noise3D::ISweepingTrail::SetTailShrinkingSpeed(float duration)
+void Noise3D::ISweepingTrail::SetTailCollapsedTime(float duration)
 {
+	mTailQuadCollapseDuration = duration;
 }
 
 void Noise3D::ISweepingTrail::Update(float deltaTime)
 {
+	mFunction_UpdateHeaderPos();
+	mFunction_UpdateTailPos();
+	mFunction_UpdateUV();
 }
 
+/*****************************************************************
+
+
+*****************************************************************/
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpuBuffer(UINT maxVertexCount)
+{
+	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
+	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
+	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
+	UINT vertexCount = mVB_Mem.size();
+
+	//Simple Vertex!
+	D3D11_BUFFER_DESC vbd;
+	vbd.ByteWidth = sizeof(N_SweepingTrailVertexType)* vertexCount;
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+	//create gpu vertex buffer
+	int hr = 0;
+	hr = D3D::g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
+	HR_DEBUG(hr, "SweepingTrail : Failed to create vertex pool ! ");
+}
+
+void Noise3D::ISweepingTrail::mFunction_UpdateHeaderPos()
+{
+}
+
+void Noise3D::ISweepingTrail::mFunction_UpdateTailPos()
+{
+}
+
+void Noise3D::ISweepingTrail::mFunction_UpdateUV()
+{
+}

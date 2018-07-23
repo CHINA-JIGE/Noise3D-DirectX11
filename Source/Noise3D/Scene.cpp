@@ -25,6 +25,7 @@ IScene::IScene():
 	 IFactory<ILightManager>(1),
 	 IFactory<ITextureManager>(2),//scene/font-internal
 	 IFactory<IMaterialManager>(1),
+	IFactory<ISweepingTrailManager>(1),
 	IFactory<IGraphicObjectManager>(2),//scene/font-internal
 	 IFactory<IAtmosphere>(1),
 	IFactory<IFontManager>(1),
@@ -143,6 +144,16 @@ IMaterialManager * IScene::GetMaterialMgr()
 		IFactory<IMaterialManager>::CreateObject(uid);
 	}
 	return IFactory<IMaterialManager>::GetObjectPtr(uid);
+}
+
+ISweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
+{
+	const N_UID uid = "sceneSweepingTrailMgr";
+	if (IFactory<ISweepingTrailManager>::FindUid(uid) == false)
+	{
+		IFactory<ISweepingTrailManager>::CreateObject(uid);
+	}
+	return IFactory<ISweepingTrailManager>::GetObjectPtr(uid);
 }
 
 IAtmosphere * IScene::GetAtmosphere()

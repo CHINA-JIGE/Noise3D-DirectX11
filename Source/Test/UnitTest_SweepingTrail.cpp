@@ -20,6 +20,7 @@ IMaterialManager*	pMatMgr;
 ITextureManager*	pTexMgr;
 IGraphicObjectManager*	pGraphicObjMgr;
 IGraphicObject*	pGraphicObjBuffer;
+ISweepingTrailManager* pSweepingTrailMgr;
 ILightManager* pLightMgr;
 IDirLightD*		pDirLight1;
 IPointLightD*	pPointLight1;
@@ -63,8 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 1080;
-	const UINT bufferHeight = 720;
+	const UINT bufferWidth = 1280;
+	const UINT bufferHeight = 800;
 
 	//³õÊ¼»¯Ê§°Ü
 	if (!pRoot->Init())return FALSE;
@@ -74,11 +75,6 @@ BOOL Init3D(HWND hwnd)
 
 	//retrieve meshMgr and Create new mesh
 	pMeshMgr = pScene->GetMeshMgr();
-
-	//use "myMesh1" string to initialize UID (unique-Identifier)
-	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
-
-
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
 	pCamera = pScene->GetCamera();
 	pLightMgr = pScene->GetLightMgr();
@@ -86,19 +82,13 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr = pScene->GetTextureMgr();
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
+	pSweepingTrailMgr = pScene->GetSweepingTraillMgr();
 
 
-	//Âþ·´ÉäÌùÍ¼
+
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	//pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture");
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
-	//pNormalMap->ConvertTextureToGreyMap();
-	//pNormalMap->ConvertHeightMapToNormalMap(10.0f);
-
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
@@ -203,8 +193,6 @@ void MainLoop()
 	incrNum += 0.001f;
 	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
 
-
-	//GUIMgr.Update();
 	InputProcess();
 	pRenderer->ClearBackground();
 	NTimer.NextTick();
