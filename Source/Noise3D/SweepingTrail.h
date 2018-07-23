@@ -63,11 +63,13 @@ namespace Noise3D
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
 
 		//line segments list (free/dynamic header and tail line segments are INCLUDED)
-		//1.keep updating by "SetHeader" until certain 'cool down time' is reached
-		//2.keep approaching to the second last line segment
+
+		
 		std::vector<Noise3D::N_LineSegment> mLineSegments;
-		//N_LineSegment mFreeHeader
-		//N_LineSegment mFreeTail;
+		N_LineSegment mFreeHeader;//.keep updating by "SetHeader" until certain 'cool down time' is reached
+		N_LineSegment mFreeTail;//2.keep approaching to the second last line segment
+		bool mIsHeaderActive;
+		bool mIsTailActive;
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mTailQuadCollapseDuration;//the last quad's collapsing time (which affects last LS's u-texcoord decreasing speed)
 

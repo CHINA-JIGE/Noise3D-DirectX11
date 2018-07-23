@@ -21,6 +21,8 @@
 using namespace Noise3D;
 
 Noise3D::ISweepingTrail::ISweepingTrail() :
+	mIsHeaderActive(false),
+	mIsTailActive(false),
 	mHeaderCoolDownTimeThreshold(20.0f),
 	mHeaderCoolDownTimer(0.0f),
 	mTailQuadCollapseDuration(20.0f),
