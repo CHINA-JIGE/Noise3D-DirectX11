@@ -27,7 +27,11 @@ namespace Noise3D
 		void SetHeaderLineSegment(N_LineSegment lineSeg);
 
 		//time limit of cooling down the header line segment and GENERATE a new "free" header
-		void SetHeaderCoolDownTime(float duration);
+		void SetHeaderCoolDownTimeThreshold(float duration);
+
+		//the "snake" cool down based on movement distance of  the header
+		//void SetHeaderCoolDownDistance(float distance);
+
 
 		//how many time it takes to collapse the last quad into one line segment (and removed)
 		//e.g. if duration==10.0f, then the last quad will de-generate into a line segment after 10ms, and the tail
@@ -51,28 +55,33 @@ namespace Noise3D
 
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGpuBuffer(UINT vertexPoolSize);
 
-		void mFunction_UpdateHeaderPos();
+		void mFunction_CoolDownHeader();// CoolingDown
 
-		void mFunction_UpdateTailPos();
+		void mFunction_MoveAndCollapseTail();//Collapsing & Movement
 
-		void mFunction_UpdateUV();
+		void mFunction_UpdateVertexBufferInMem();//Pos and UV
 
+		void mFunction_UpdateToGpuBuffer();
+
+		float mFunction_Util_DistanceBetweenLine(N_LineSegment& line1,N_LineSegment& line2);
 
 		typedef N_SimpleVertex N_SweepingTrailVertexType;
-		std::vector<N_SweepingTrailVertexType>	mVB_Mem;//vertex in CPU memory
+		std::vector<N_SweepingTrailVertexType>	mVB_Mem;//actual vertices in CPU memory, updated based on line segment list
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
+		UINT mGpuVertexPoolCapacity;
 
-		//line segments list (free/dynamic header and tail line segments are INCLUDED)
-
-		
+		//line segments list (free/dynamic HEADER line segments are EXCLUDED)
 		std::vector<Noise3D::N_LineSegment> mLineSegments;
-		N_LineSegment mFreeHeader;//.keep updating by "SetHeader" until certain 'cool down time' is reached
-		N_LineSegment mFreeTail;//2.keep approaching to the second last line segment
+		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
+		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
+		N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
 		bool mIsHeaderActive;
 		bool mIsTailActive;
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
+		//float mHeaderCoolDownDistanceThreshold;//if the distance between the first & second line is larger than given distance, the header segment will be fixed down and add to "Cooled down line segments"
 		float mTailQuadCollapseDuration;//the last quad's collapsing time (which affects last LS's u-texcoord decreasing speed)
 
+		//timer (initially 0, increment)
 		float mHeaderCoolDownTimer;
 		float mTailQuadCollapsingTimer;
 	};

@@ -23,10 +23,11 @@ using namespace Noise3D;
 Noise3D::ISweepingTrail::ISweepingTrail() :
 	mIsHeaderActive(false),
 	mIsTailActive(false),
-	mHeaderCoolDownTimeThreshold(20.0f),
+	//mHeaderCoolDownDistanceThreshold(1.0f),
 	mHeaderCoolDownTimer(0.0f),
-	mTailQuadCollapseDuration(20.0f),
-	mTailQuadCollapsingTimer(0.0f)
+	mTailQuadCollapsingTimer(0.0f),
+	mHeaderCoolDownTimeThreshold(20.0f),
+	mTailQuadCollapseDuration(20.0f)
 {
 }
 
@@ -38,12 +39,18 @@ Noise3D::ISweepingTrail::~ISweepingTrail()
 void Noise3D::ISweepingTrail::SetHeaderLineSegment(N_LineSegment lineSeg)
 {
 	mFreeHeader = lineSeg;
+	if (!mIsHeaderActive)mIsHeaderActive = true;
 }
 
-void Noise3D::ISweepingTrail::SetHeaderCoolDownTime(float duration)
+void Noise3D::ISweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)
 {
 	mHeaderCoolDownTimeThreshold = duration;
 }
+
+/*void Noise3D::ISweepingTrail::SetHeaderCoolDownDistance(float distance)
+{
+	mHeaderCoolDownDistanceThreshold = distance;
+}*/
 
 void Noise3D::ISweepingTrail::SetTailCollapsedTime(float duration)
 {
@@ -52,9 +59,24 @@ void Noise3D::ISweepingTrail::SetTailCollapsedTime(float duration)
 
 void Noise3D::ISweepingTrail::Update(float deltaTime)
 {
-	mFunction_UpdateHeaderPos();
-	mFunction_UpdateTailPos();
-	mFunction_UpdateUV();
+	//timer add
+	mTailQuadCollapsingTimer += deltaTime;
+
+	//ensure that there is at least one cooled down line segment
+	if (mLineSegments.empty())
+	{
+		mLineSegments.push_back(mFreeHeader);
+	}
+
+	//..
+	if (!mIsTailActive)
+	{
+		mFreeTail_Current = mFreeHeader;
+	}
+
+	mFunction_CoolDownHeader();
+	mFunction_MoveAndCollapseTail();
+	mFunction_UpdateVertexBufferInMem();
 }
 
 /*****************************************************************
@@ -66,11 +88,12 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
 	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
-	UINT vertexCount = mVB_Mem.size();
+	mVB_Mem.resize(maxVertexCount);
+	mGpuVertexPoolCapacity = sizeof(N_SweepingTrailVertexType)* maxVertexCount;
 
 	//Simple Vertex!
 	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_SweepingTrailVertexType)* vertexCount;
+	vbd.ByteWidth = mGpuVertexPoolCapacity;
 	vbd.Usage = D3D11_USAGE_DYNAMIC;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -83,14 +106,60 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	HR_DEBUG(hr, "SweepingTrail : Failed to create vertex pool ! ");
 }
 
-void Noise3D::ISweepingTrail::mFunction_UpdateHeaderPos()
+void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 {
+	//if fixed line segment exist
+	if (mLineSegments.size() > 0)
+	{
+		//"distance between lines"
+		//vector.back() is the second front line segment
+		N_LineSegment& line1 = mFreeHeader;
+		N_LineSegment& line2 = mLineSegments.back();
+		float vertexDist1 = (line1.vert1 - line2.vert1).Length();
+		float vertexDist2 = (line1.vert2 - line2.vert2).Length();
+		float lineDist = max(vertexDist1, vertexDist2);
+
+		//cool down current header, and GENERATE a NEW free segment (push to back)
+		//note that when a new line segment cool down, we use "push back"
+		//thus vector.back() is right after the header of the line sequence
+		if (lineDist >= mHeaderCoolDownDistanceThreshold)
+		{
+			mLineSegments.push_back(mFreeHeader);
+		}
+	}
 }
 
-void Noise3D::ISweepingTrail::mFunction_UpdateTailPos()
+void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 {
+	//if at least one fixed line segment exists
+	if (mLineSegments.size() > 0)
+	{
+		
+	}
 }
 
-void Noise3D::ISweepingTrail::mFunction_UpdateUV()
+void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
 {
+
+}
+
+void Noise3D::ISweepingTrail::mFunction_UpdateToGpuBuffer()
+{
+	//not all of the vertices can be updated
+	uint32_t updateByteSize = min(mVB_Mem.size() * sizeof(N_SweepingTrailVertexType) , mGpuVertexPoolCapacity);
+
+	//update to gpu
+	//(2018.7.24)if the vertex pool capacity is exceeded, then some of the front vertices won't be uploaded.
+	D3D11_MAPPED_SUBRESOURCE mappedRes;
+	D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE, NULL, &mappedRes);
+	memcpy_s(mappedRes.pData, updateByteSize, &mVB_Mem.at(0), updateByteSize);
+	D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
+}
+
+float Noise3D::ISweepingTrail::mFunction_Util_DistanceBetweenLine(N_LineSegment & line1, N_LineSegment & line2)
+{
+	float vertexDist1 = (line1.vert1 - line2.vert1).Length();
+	float vertexDist2 = (line1.vert2 - line2.vert2).Length();
+	float lineDist = max(vertexDist1, vertexDist2);
+	return lineDist;
 }
