@@ -30,9 +30,6 @@
 using namespace Noise3D;
 
 Noise3D::ISweepingTrail::ISweepingTrail() :
-	//mIsHeaderActive(false),
-	//mIsTailActive(false),
-	//mHeaderCoolDownDistanceThreshold(1.0f),
 	mHeaderCoolDownTimer(0.0f),
 	mTailQuadCollapsingTimer(0.0f),
 	mHeaderCoolDownTimeThreshold(20.0f),

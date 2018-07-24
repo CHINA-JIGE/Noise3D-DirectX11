@@ -38,6 +38,11 @@ void Noise3D::IRenderer::AddToRenderQueue(IStaticText * obj)
 	IRenderModuleForText::AddToRenderQueue(obj);
 }
 
+void Noise3D::IRenderer::AddToRenderQueue(ISweepingTrail * obj)
+{
+	IRenderModuleForSweepingTrailFX::AddToRenderQueue(obj);
+}
+
 void Noise3D::IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
 {
 	IRenderModuleForAtmosphere::SetActiveAtmosphere(obj);

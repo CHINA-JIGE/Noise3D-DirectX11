@@ -16,6 +16,7 @@
 #include "Renderer_Mesh.h"
 #include "Renderer_Text.h"
 #include "Renderer_PostProcessing.h"
+#include "Renderer_SweepingTrail.h"
 
 namespace Noise3D
 {
@@ -25,13 +26,13 @@ namespace Noise3D
 		public IRenderModuleForGraphicObject,
 		public IRenderModuleForMesh,
 		public IRenderModuleForText,
+		public IRenderModuleForSweepingTrailFX,
 		public IRenderModuleForPostProcessing
 	{
 	public:
 
 		//explicitly overload 'AddToRenderQueue' 
 		//prevent functions with same names are HIDDEN
-
 		void		AddToRenderQueue(IMesh* obj);
 
 		void		AddToRenderQueue(IGraphicObject* obj);
@@ -39,6 +40,8 @@ namespace Noise3D
 		void		AddToRenderQueue(IDynamicText* obj);
 
 		void		AddToRenderQueue(IStaticText* obj);
+
+		void		AddToRenderQueue(ISweepingTrail* obj);
 
 		void		SetActiveAtmosphere(IAtmosphere* obj);
 
@@ -61,8 +64,6 @@ namespace Noise3D
 		void		SwitchToFullScreenMode();
 
 		void		SwitchToWindowedMode();
-
-		//void	BakeLightMapForMesh(IMesh* pMesh);//bake light map for static scenes,automatic uv flatten is required.
 
 	private:
 
