@@ -14,6 +14,15 @@
 			of the last quad (Meanwhile, the u coord of the tail vertices is maintained to 1)
 	6. (2018.7.23)the headers' vertices u coord should be 0, while the tail should be 1.
 
+
+	vector of line segment (vector index 0-->n, line/vertex index n-->0)
+	v_n	-----		......	-----		v_3	------	v_1
+	  |										  |					  |
+	v_n-1 -----	......	-----		v_2	------	v_0
+
+	sweeping trail moving direction
+	--------------------->
+
 ************************************************************************/
 
 #include "Noise3D.h"
@@ -21,8 +30,8 @@
 using namespace Noise3D;
 
 Noise3D::ISweepingTrail::ISweepingTrail() :
-	mIsHeaderActive(false),
-	mIsTailActive(false),
+	//mIsHeaderActive(false),
+	//mIsTailActive(false),
 	//mHeaderCoolDownDistanceThreshold(1.0f),
 	mHeaderCoolDownTimer(0.0f),
 	mTailQuadCollapsingTimer(0.0f),
@@ -39,7 +48,7 @@ Noise3D::ISweepingTrail::~ISweepingTrail()
 void Noise3D::ISweepingTrail::SetHeaderLineSegment(N_LineSegment lineSeg)
 {
 	mFreeHeader = lineSeg;
-	if (!mIsHeaderActive)mIsHeaderActive = true;
+	//if (!mIsHeaderActive)mIsHeaderActive = true;
 }
 
 void Noise3D::ISweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)
@@ -60,28 +69,31 @@ void Noise3D::ISweepingTrail::SetTailCollapsedTime(float duration)
 void Noise3D::ISweepingTrail::Update(float deltaTime)
 {
 	//timer add
+	mHeaderCoolDownTimer += deltaTime;
 	mTailQuadCollapsingTimer += deltaTime;
 
 	//ensure that there is at least one cooled down line segment
-	if (mLineSegments.empty())
+	if (mFixedLineSegments.empty())
 	{
-		mLineSegments.push_back(mFreeHeader);
-	}
-
-	//..
-	if (!mIsTailActive)
-	{
+		mFixedLineSegments.push_back(mFreeHeader);
+		//maybe it's in initial state, reset the tail
+		mFreeTail_Start = mFreeHeader;
 		mFreeTail_Current = mFreeHeader;
 	}
 
 	mFunction_CoolDownHeader();
 	mFunction_MoveAndCollapseTail();
 	mFunction_UpdateVertexBufferInMem();
+	mFunction_UpdateToGpuBuffer();
+}
+
+bool Noise3D::ISweepingTrail::IsRenderable()
+{
+	return mFixedLineSegments.size()>0;
 }
 
 /*****************************************************************
-
-
+											PRIVATE
 *****************************************************************/
 bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpuBuffer(UINT maxVertexCount)
 {
@@ -109,22 +121,14 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 {
 	//if fixed line segment exist
-	if (mLineSegments.size() > 0)
+	if (mFixedLineSegments.size() > 0)
 	{
-		//"distance between lines"
-		//vector.back() is the second front line segment
-		N_LineSegment& line1 = mFreeHeader;
-		N_LineSegment& line2 = mLineSegments.back();
-		float vertexDist1 = (line1.vert1 - line2.vert1).Length();
-		float vertexDist2 = (line1.vert2 - line2.vert2).Length();
-		float lineDist = max(vertexDist1, vertexDist2);
-
 		//cool down current header, and GENERATE a NEW free segment (push to back)
 		//note that when a new line segment cool down, we use "push back"
 		//thus vector.back() is right after the header of the line sequence
-		if (lineDist >= mHeaderCoolDownDistanceThreshold)
+		if (mHeaderCoolDownTimer >= mHeaderCoolDownTimeThreshold)
 		{
-			mLineSegments.push_back(mFreeHeader);
+			mFixedLineSegments.push_back(mFreeHeader);
 		}
 	}
 }
@@ -132,24 +136,56 @@ void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 {
 	//if at least one fixed line segment exists
-	if (mLineSegments.size() > 0)
+	if (mFixedLineSegments.size() > 0)
 	{
-		
+		//1.collapse last quad & degenerate
+		//OR
+		//2.move the last line segment
+		if (mTailQuadCollapsingTimer >= mTailQuadCollapseDuration)
+		{
+			mFreeTail_Start = mFixedLineSegments.front();
+			mFreeTail_Current = mFixedLineSegments.front();
+			mFixedLineSegments.erase(mFixedLineSegments.begin());//pop the last fixed line from the vector's front
+		}
+		else
+		{
+			//the tail keeps moving to the second last line segment. when the last LS reached the second last,
+			//the previous last LS can be removed (thus previous last quad has DEGENERATE into a LS)
+			float tailLerpRatio = mTailQuadCollapsingTimer / mTailQuadCollapseDuration;
+			mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.front().vert1, tailLerpRatio);
+			mFreeTail_Current.vert2 = Ut::Lerp(mFreeTail_Start.vert2, mFixedLineSegments.front().vert2, tailLerpRatio);
+		}
 	}
 }
 
 void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
 {
+	if (mFixedLineSegments.size() > 0)
+	{
+		//2 line segment, 2triangles, 6 vertices
+		const int c_quadVertexCount = 6;
 
+		//+2 stands for head and tail
+		uint32_t vertexCount = (mFixedLineSegments.size() + 2 - 1) * c_quadVertexCount;
+		mVB_Mem.resize(vertexCount);
+
+		//generate quad
+		mFunction_Util_GenQuad(mFreeHeader, mFixedLineSegments.front(), &mVB_Mem.at(c_quadVertexCount *0));
+		for (int i = 0; i < mFixedLineSegments.size() - 1; ++i)
+		{
+			mFunction_Util_GenQuad(mFixedLineSegments.at(i), mFixedLineSegments.at(i + 1), &mVB_Mem.at(c_quadVertexCount * (i + 1)));
+		}
+		mFunction_Util_GenQuad(mFixedLineSegments.back(), mFreeTail_Current, &mVB_Mem.at(vertexCount - 6));
+
+	}
 }
 
 void Noise3D::ISweepingTrail::mFunction_UpdateToGpuBuffer()
 {
-	//not all of the vertices can be updated
 	uint32_t updateByteSize = min(mVB_Mem.size() * sizeof(N_SweepingTrailVertexType) , mGpuVertexPoolCapacity);
 
 	//update to gpu
-	//(2018.7.24)if the vertex pool capacity is exceeded, then some of the front vertices won't be uploaded.
+	//(2018.7.24)if vertex size in memory exceeds GPU vertex pool capacity, then some of the front vertices won't be uploaded.
 	D3D11_MAPPED_SUBRESOURCE mappedRes;
 	D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE, NULL, &mappedRes);
 	memcpy_s(mappedRes.pData, updateByteSize, &mVB_Mem.at(0), updateByteSize);
@@ -162,4 +198,31 @@ float Noise3D::ISweepingTrail::mFunction_Util_DistanceBetweenLine(N_LineSegment 
 	float vertexDist2 = (line1.vert2 - line2.vert2).Length();
 	float lineDist = max(vertexDist1, vertexDist2);
 	return lineDist;
+}
+
+//gen quad to given mem position (6 vertices occupied)
+void Noise3D::ISweepingTrail::mFunction_Util_GenQuad(N_LineSegment & front, N_LineSegment & back, N_SimpleVertex* quad)
+{
+	/*
+	vector of line segment (vector index 0-->n, line/vertex index n-->0)
+	v_n	-----		......	-----		v_3	------	v_1
+	  |										  |					  |
+	v_n-1 -----	......	-----		v_2	------	v_0
+
+	sweeping trail moving direction
+	--------------------->*/
+
+	//Position
+	//021
+	quad[0].Pos = front.vert1;
+	quad[1].Pos = back.vert1;
+	quad[2].Pos = front.vert2;
+	//123
+	quad[3].Pos = front.vert2;
+	quad[4].Pos = back.vert1;
+	quad[5].Pos = back.vert2;
+
+	//UV, all texcoord.u decreases in a constant rate (then clamp [0,1])
+	//ensure that the tail line segment' texcoord.u is 0 (if the front's texcoord.u >1, clamp)
+
 }

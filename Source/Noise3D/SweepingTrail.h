@@ -10,6 +10,10 @@
 		swinging in the air, following by a colored 'trail'.
 
 		picture ref:https://blog.csdn.net/cbbbc/article/details/70863580
+
+		you can "SetHeaderLineSegment" every frame to indicate the head of trail,
+		and the trail quad sequence will automatically generate as long as 
+		you call "Update(dt)" every frame.
 ************************************************************************/
 
 #pragma once
@@ -44,6 +48,8 @@ namespace Noise3D
 		//3. every vertices' uv (actually only texcoord.u changes)
 		void Update(float deltaTime);
 
+		bool IsRenderable();
+
 	private:
 
 		friend class ISweepingTrailManager;
@@ -65,24 +71,27 @@ namespace Noise3D
 
 		float mFunction_Util_DistanceBetweenLine(N_LineSegment& line1,N_LineSegment& line2);
 
+		void mFunction_Util_GenQuad(N_LineSegment& front, N_LineSegment& back, N_SimpleVertex* quad);
+
 		typedef N_SimpleVertex N_SweepingTrailVertexType;
 		std::vector<N_SweepingTrailVertexType>	mVB_Mem;//actual vertices in CPU memory, updated based on line segment list
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
 		UINT mGpuVertexPoolCapacity;
 
 		//line segments list (free/dynamic HEADER line segments are EXCLUDED)
-		std::vector<Noise3D::N_LineSegment> mLineSegments;
+		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
 		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
 		N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
-		bool mIsHeaderActive;
-		bool mIsTailActive;
+		//bool mIsHeaderActive;
+		//bool mIsTailActive;
+
+
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
+		float mHeaderCoolDownTimer;	//timer (initially 0, increment)
 		//float mHeaderCoolDownDistanceThreshold;//if the distance between the first & second line is larger than given distance, the header segment will be fixed down and add to "Cooled down line segments"
 		float mTailQuadCollapseDuration;//the last quad's collapsing time (which affects last LS's u-texcoord decreasing speed)
-
-		//timer (initially 0, increment)
-		float mHeaderCoolDownTimer;
-		float mTailQuadCollapsingTimer;
+		float mTailQuadCollapsingTimer; //timer (initially 0, increment)
+		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp
 	};
 }
