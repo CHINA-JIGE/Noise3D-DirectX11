@@ -21,6 +21,18 @@ IRenderModuleForMesh::~IRenderModuleForMesh()
 	ReleaseCOM(m_pFX_Tech_DrawMesh);
 }
 
+
+void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
+{
+	mRenderList_Mesh.push_back(obj);
+}
+
+
+
+
+/***********************************************************
+									PROTECTED
+************************************************************/
 void	IRenderModuleForMesh::RenderMeshes()
 {
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
@@ -49,7 +61,7 @@ void	IRenderModuleForMesh::RenderMeshes()
 
 		//every mesh subset(one for each material)
 		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
-		for (UINT j = 0;j < meshSubsetCount;j++)
+		for (UINT j = 0; j < meshSubsetCount; j++)
 		{
 			//subset info
 			UINT currSubsetIndicesCount = pMesh->mSubsetInfoList.at(j).primitiveCount * 3;
@@ -62,25 +74,13 @@ void	IRenderModuleForMesh::RenderMeshes()
 			//in shader compilation stage).  N switches of multiple mapping will produce 2^N
 			//passes for the c++ host program to choose. 
 			//'passID' will be computed to choose appropriate pass.
-			ID3DX11EffectPass* pPass = mFunction_RenderMeshInList_UpdatePerSubset(pMesh,j);
+			ID3DX11EffectPass* pPass = mFunction_RenderMeshInList_UpdatePerSubset(pMesh, j);
 			pPass->Apply(0, g_pImmediateContext);
 			g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
-			
+
 		}
 	}
 }
-
-void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
-{
-	mRenderList_Mesh.push_back(obj);
-}
-
-
-
-
-/***********************************************************
-									PROTECTED
-************************************************************/
 
 void IRenderModuleForMesh::ClearRenderList()
 {

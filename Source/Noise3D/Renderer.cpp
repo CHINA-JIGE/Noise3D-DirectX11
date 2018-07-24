@@ -55,9 +55,9 @@ void Noise3D::IRenderer::Render()
 
 	IRenderModuleForMesh::RenderMeshes();
 	IRenderModuleForAtmosphere::RenderAtmosphere();
+	IRenderModuleForSweepingTrailFX::RenderSweepingTrails();
 	IRenderModuleForGraphicObject::RenderGraphicObjects();
 	IRenderModuleForText::RenderTexts();
-
 	IRenderModuleForPostProcessing::PostProcess();
 	
 }
@@ -141,6 +141,7 @@ bool	Noise3D::IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWN
 	IRenderModuleForGraphicObject::Initialize(m_pRenderInfrastructure, pSVM);
 	IRenderModuleForMesh::Initialize(m_pRenderInfrastructure, pSVM);
 	IRenderModuleForText::Initialize(m_pRenderInfrastructure, pSVM);
+	IRenderModuleForSweepingTrailFX::Initialize(m_pRenderInfrastructure, pSVM);
 	IRenderModuleForPostProcessing::Initialize(m_pRenderInfrastructure, pSVM);
 
 	return true;

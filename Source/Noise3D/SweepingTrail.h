@@ -20,6 +20,8 @@
 
 namespace Noise3D
 {
+	//if every line segment
+
 
 	class ISweepingTrail:
 		public CRenderSettingBlendMode,
@@ -40,7 +42,7 @@ namespace Noise3D
 		//how many time it takes to collapse the last quad into one line segment (and removed)
 		//e.g. if duration==10.0f, then the last quad will de-generate into a line segment after 10ms, and the tail
 		//segment will be DESTROYED.
-		void SetTailCollapsedTime(float duration);
+		//void SetTailCollapsedTime(float duration);
 
 		//updating vertices (to gpu vertex buffer):
 		//1. header line segment's position 
