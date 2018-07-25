@@ -462,7 +462,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	//check multi-sample capability
 	//the support level of MSAA might vary among hardwares
 	bool enableMSAA = false;
-	UINT msaaQuality = 0;//query via d3d11
+	UINT msaaQuality=0;//query via d3d11
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, cMsaaSampleCount, &msaaQuality);
 	if (msaaQuality > 0)enableMSAA = true;

@@ -121,7 +121,10 @@
     <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing">
       <UniqueIdentifier>{b33968be-f8a9-479f-bd25-d1f10480aa56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\SweepingTrail">
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail">
+      <UniqueIdentifier>{cecf2b4a-b5df-46c4-91d3-da5f7e2ca258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\SweepingTrailFX">
       <UniqueIdentifier>{74a7bdb1-d6f8-4701-ba01-decf7d83c92c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -272,13 +275,16 @@
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="SweepingTrail.h">
-      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+      <Filter>NoiseGraphic\Scene\SweepingTrailFX</Filter>
     </ClInclude>
     <ClInclude Include="SweepingTrailManager.h">
-      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+      <Filter>NoiseGraphic\Scene\SweepingTrailFX</Filter>
     </ClInclude>
     <ClInclude Include="GraphicObjManager.h">
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_SweepingTrail.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -412,13 +418,16 @@
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_PostProcessing</Filter>
     </ClCompile>
     <ClCompile Include="SweepingTrail.cpp">
-      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+      <Filter>NoiseGraphic\Scene\SweepingTrailFX</Filter>
     </ClCompile>
     <ClCompile Include="SweepingTrailManager.cpp">
-      <Filter>NoiseGraphic\Scene\SweepingTrail</Filter>
+      <Filter>NoiseGraphic\Scene\SweepingTrailFX</Filter>
     </ClCompile>
     <ClCompile Include="GraphicObjManager.cpp">
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_SweepingTrail.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

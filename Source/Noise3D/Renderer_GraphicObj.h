@@ -42,9 +42,9 @@ namespace Noise3D
 
 		void		mFunction_GraphicObj_RenderLine2D(IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderPoint2DInList(IGraphicObject* pGObj);
+		void		mFunction_GraphicObj_RenderPoint2D(IGraphicObject* pGObj);
 
-		void		mFunction_GraphicObj_RenderTriangle2DInList(IGraphicObject* pGObj);
+		void		mFunction_GraphicObj_RenderTriangle2D(IGraphicObject* pGObj);
 
 		std::vector <IGraphicObject*>	mRenderList_GO; //list of object to be rendererd
 

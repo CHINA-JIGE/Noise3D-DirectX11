@@ -18,8 +18,9 @@
 	vector of line segment (vector index 0-->n, line/vertex index n-->0)
 	v_n	-----		......	-----		v_3	------	v_1
 	  |										  |					  |
-	v_n-1 -----	......	-----		v_2	------	v_0
-
+	v_n-1 -----	......	-----		v_2	------	v_0(free header)
+	(free tail)
+(approaching the 2nd last LS)
 	sweeping trail moving direction
 	--------------------->
 
@@ -31,9 +32,8 @@ using namespace Noise3D;
 
 Noise3D::ISweepingTrail::ISweepingTrail() :
 	mHeaderCoolDownTimer(0.0f),
-	mTailQuadCollapsingTimer(0.0f),
 	mHeaderCoolDownTimeThreshold(20.0f),
-	mTailQuadCollapseDuration(20.0f)
+	mMaxLifeTimeOfLS(1000.0f)
 {
 }
 
@@ -53,21 +53,25 @@ void Noise3D::ISweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)
 	mHeaderCoolDownTimeThreshold = duration;
 }
 
+void Noise3D::ISweepingTrail::SetMaxLifeTimeOfLineSegment(float duration)
+{
+	mMaxLifeTimeOfLS = duration;
+}
+
+uint32_t Noise3D::ISweepingTrail::GetActiveVerticesCount()
+{
+	return mVB_Mem.size();
+}
+
 /*void Noise3D::ISweepingTrail::SetHeaderCoolDownDistance(float distance)
 {
 	mHeaderCoolDownDistanceThreshold = distance;
 }*/
 
-void Noise3D::ISweepingTrail::SetTailCollapsedTime(float duration)
-{
-	mTailQuadCollapseDuration = duration;
-}
-
 void Noise3D::ISweepingTrail::Update(float deltaTime)
 {
 	//timer add
 	mHeaderCoolDownTimer += deltaTime;
-	mTailQuadCollapsingTimer += deltaTime;
 
 	//ensure that there is at least one cooled down line segment
 	if (mFixedLineSegments.empty())
@@ -86,7 +90,7 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 
 bool Noise3D::ISweepingTrail::IsRenderable()
 {
-	return mFixedLineSegments.size()>0;
+	return mVB_Mem.size()>=6;//at least a quad(emmm, ideally it should have at least 2 quads)
 }
 
 /*****************************************************************
@@ -96,8 +100,8 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 {
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
 	mVB_Mem.resize(maxVertexCount);
+	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
 	mGpuVertexPoolCapacity = sizeof(N_SweepingTrailVertexType)* maxVertexCount;
 
 	//Simple Vertex!
@@ -113,6 +117,8 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	int hr = 0;
 	hr = D3D::g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
 	HR_DEBUG(hr, "SweepingTrail : Failed to create vertex pool ! ");
+
+	return true;
 }
 
 void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
@@ -126,6 +132,7 @@ void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 		if (mHeaderCoolDownTimer >= mHeaderCoolDownTimeThreshold)
 		{
 			mFixedLineSegments.push_back(mFreeHeader);
+			mHeaderCoolDownTimer = 0.0f;
 		}
 	}
 }
@@ -138,7 +145,7 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 		//1.collapse last quad & degenerate
 		//OR
 		//2.move the last line segment
-		if (mTailQuadCollapsingTimer >= mTailQuadCollapseDuration)
+		if (mTailQuadCollapsingRatio>= 1.0f)
 		{
 			mFreeTail_Start = mFixedLineSegments.front();
 			mFreeTail_Current = mFixedLineSegments.front();
@@ -148,9 +155,16 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 		{
 			//the tail keeps moving to the second last line segment. when the last LS reached the second last,
 			//the previous last LS can be removed (thus previous last quad has DEGENERATE into a LS)
-			float tailLerpRatio = mTailQuadCollapsingTimer / mTailQuadCollapseDuration;
-			mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.front().vert1, tailLerpRatio);
-			mFreeTail_Current.vert2 = Ut::Lerp(mFreeTail_Start.vert2, mFixedLineSegments.front().vert2, tailLerpRatio);
+			//!!!!:An important point: the collapsing time of the last quad == the header cool down threshold
+			//!!!because every line segment has their own 'Life Time'. When a line segment is cooled down, its own
+			//life timer start from 0 and tick.
+			//And now i want ensure that the last LS's texcoord u maintain 1.0f(while it life timer is exactly equals to 'MaxLifeTime'
+			//so the last LS must move to adapt, the lerp ratio is computed below
+			float tailLSLifeTimer = mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size() + 2 - 1);
+			mTailQuadCollapsingRatio = (tailLSLifeTimer - mMaxLifeTimeOfLS) / mHeaderCoolDownTimeThreshold;
+			mTailQuadCollapsingRatio = Ut::Clamp(mTailQuadCollapsingRatio, 0.0f, 1.0f);
+			mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.front().vert1, mTailQuadCollapsingRatio);
+			mFreeTail_Current.vert2 = Ut::Lerp(mFreeTail_Start.vert2, mFixedLineSegments.front().vert2, mTailQuadCollapsingRatio);
 		}
 	}
 }
@@ -159,20 +173,33 @@ void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
 {
 	if (mFixedLineSegments.size() > 0)
 	{
-		//2 line segment, 2triangles, 6 vertices
+		//2 line segment, 2 triangles, 6 vertices
 		const int c_quadVertexCount = 6;
 
 		//+2 stands for head and tail
 		uint32_t vertexCount = (mFixedLineSegments.size() + 2 - 1) * c_quadVertexCount;
 		mVB_Mem.resize(vertexCount);
 
-		//generate quad
-		mFunction_Util_GenQuad(mFreeHeader, mFixedLineSegments.front(), &mVB_Mem.at(c_quadVertexCount *0));
-		for (int i = 0; i < mFixedLineSegments.size() - 1; ++i)
+		//generate quads
+		//header quad(header is moving)
+		mFunction_UtGenQuad(
+			mFreeHeader, mFixedLineSegments.back(),
+			mFunction_UtComputeLSLifeTimer(0), mFunction_UtComputeLSLifeTimer(1) ,
+			&mVB_Mem.at(c_quadVertexCount *0));
+
+		//middle quads
+		for (uint32_t i = 0; i < mFixedLineSegments.size() - 1; ++i)
 		{
-			mFunction_Util_GenQuad(mFixedLineSegments.at(i), mFixedLineSegments.at(i + 1), &mVB_Mem.at(c_quadVertexCount * (i + 1)));
+			mFunction_UtGenQuad(
+				mFixedLineSegments.at(i), mFixedLineSegments.at(i + 1),
+				mFunction_UtComputeLSLifeTimer(i+2), mFunction_UtComputeLSLifeTimer(i+1),//free header is counted in
+				&mVB_Mem.at(c_quadVertexCount * (i + 1)));
 		}
-		mFunction_Util_GenQuad(mFixedLineSegments.back(), mFreeTail_Current, &mVB_Mem.at(vertexCount - 6));
+
+		//tail quad(tail is moving to collapse)
+		mFunction_UtGenQuad(mFixedLineSegments.front(), mFreeTail_Current, 
+			mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size()), mMaxLifeTimeOfLS,
+			&mVB_Mem.at(vertexCount - 6));
 
 	}
 }
@@ -184,12 +211,17 @@ void Noise3D::ISweepingTrail::mFunction_UpdateToGpuBuffer()
 	//update to gpu
 	//(2018.7.24)if vertex size in memory exceeds GPU vertex pool capacity, then some of the front vertices won't be uploaded.
 	D3D11_MAPPED_SUBRESOURCE mappedRes;
-	D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE, NULL, &mappedRes);
+	HRESULT hr = D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mappedRes);
+	if(FAILED(hr))
+	{
+		ERROR_MSG("SweepingTrail: Failed to update vertices.");
+		return;
+	}
 	memcpy_s(mappedRes.pData, updateByteSize, &mVB_Mem.at(0), updateByteSize);
 	D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
 }
 
-float Noise3D::ISweepingTrail::mFunction_Util_DistanceBetweenLine(N_LineSegment & line1, N_LineSegment & line2)
+float Noise3D::ISweepingTrail::mFunction_UtDistanceBetweenLine(N_LineSegment & line1, N_LineSegment & line2)
 {
 	float vertexDist1 = (line1.vert1 - line2.vert1).Length();
 	float vertexDist2 = (line1.vert2 - line2.vert2).Length();
@@ -197,14 +229,25 @@ float Noise3D::ISweepingTrail::mFunction_Util_DistanceBetweenLine(N_LineSegment 
 	return lineDist;
 }
 
+//compute current life time elapsed of line segment in given position
+float Noise3D::ISweepingTrail::mFunction_UtComputeLSLifeTimer(int index)
+{
+	//index==0, free header						|
+	//index==1, free header+1 fixed LS   |--|
+	//index==2, free header+2 fixed LS	|--|-----|
+	//index==3, free header+3 fixed LS	|--|-----|-----|
+	if (index == 0)return 0.0f;
+	return (mHeaderCoolDownTimer + (index-1) * mHeaderCoolDownTimeThreshold);
+}
+
 //gen quad to given mem position (6 vertices occupied)
-void Noise3D::ISweepingTrail::mFunction_Util_GenQuad(N_LineSegment & front, N_LineSegment & back, N_SimpleVertex* quad)
+void Noise3D::ISweepingTrail::mFunction_UtGenQuad(N_LineSegment & front, N_LineSegment & back, float frontLifeTimer, float backLifeTimer, N_SimpleVertex* quad)
 {
 	/*
 	vector of line segment (vector index 0-->n, line/vertex index n-->0)
-	v_n	-----		......	-----		v_3	------	v_1
+	v_n	-----		......	-----		v_3	------	v_1		(v=1.0f)
 	  |										  |					  |
-	v_n-1 -----	......	-----		v_2	------	v_0
+	v_n-1 -----	......	-----		v_2	------	v_0		(v=0.0f)
 
 	sweeping trail moving direction
 	--------------------->*/
@@ -214,6 +257,7 @@ void Noise3D::ISweepingTrail::mFunction_Util_GenQuad(N_LineSegment & front, N_Li
 	quad[0].Pos = front.vert1;
 	quad[1].Pos = back.vert1;
 	quad[2].Pos = front.vert2;
+
 	//123
 	quad[3].Pos = front.vert2;
 	quad[4].Pos = back.vert1;
@@ -221,5 +265,19 @@ void Noise3D::ISweepingTrail::mFunction_Util_GenQuad(N_LineSegment & front, N_Li
 
 	//UV, all texcoord.u decreases in a constant rate (then clamp [0,1])
 	//ensure that the tail line segment' texcoord.u is 0 (if the front's texcoord.u >1, clamp)
+	quad[0].TexCoord = NVECTOR2(frontLifeTimer	/ mMaxLifeTimeOfLS , 0.0f);
+	quad[1].TexCoord = NVECTOR2(backLifeTimer / mMaxLifeTimeOfLS, 0.0f);
+	quad[2].TexCoord = NVECTOR2(frontLifeTimer / mMaxLifeTimeOfLS, 1.0f);
 
+	quad[3].TexCoord = NVECTOR2(frontLifeTimer / mMaxLifeTimeOfLS, 1.0f);
+	quad[4].TexCoord = NVECTOR2(backLifeTimer / mMaxLifeTimeOfLS, 0.0f);
+	quad[5].TexCoord = NVECTOR2(backLifeTimer / mMaxLifeTimeOfLS, 1.0f);
+
+	quad[0].Color = NVECTOR4(1.0f,0.0f,0.0f, 1.0f);
+	quad[1].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+	quad[2].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+
+	quad[3].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+	quad[4].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+	quad[5].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
 }

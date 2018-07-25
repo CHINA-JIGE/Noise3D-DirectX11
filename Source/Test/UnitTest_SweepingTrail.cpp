@@ -21,6 +21,7 @@ ITextureManager*	pTexMgr;
 IGraphicObjectManager*	pGraphicObjMgr;
 IGraphicObject*	pGraphicObjBuffer;
 ISweepingTrailManager* pSweepingTrailMgr;
+ISweepingTrail* pSweepingTrail;
 ILightManager* pLightMgr;
 IDirLightD*		pDirLight1;
 IPointLightD*	pPointLight1;
@@ -29,7 +30,7 @@ IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
 
-Ut::ITimer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::ITimer timer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 Ut::IInputEngine inputE;
 
 //Main Entry
@@ -41,7 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	//create a window (using default window creation function)
 	HWND windowHWND;
-	windowHWND = pRoot->CreateRenderWindow(960, 720, L"Hahaha Render Window", hInstance);
+	windowHWND = pRoot->CreateRenderWindow(1280, 800, L"Hahaha Render Window", hInstance);
 
 	//initialize input engine (detection for keyboard and mouse input)
 	inputE.Initialize(hInstance, windowHWND);
@@ -67,13 +68,12 @@ BOOL Init3D(HWND hwnd)
 	const UINT bufferWidth = 1280;
 	const UINT bufferHeight = 800;
 
-	//兜兵晒払移
+	//init fail
 	if (!pRoot->Init())return FALSE;
 
 	//query pointer to IScene
 	pScene = pRoot->GetScenePtr();
 
-	//retrieve meshMgr and Create new mesh
 	pMeshMgr = pScene->GetMeshMgr();
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
 	pCamera = pScene->GetCamera();
@@ -84,8 +84,6 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 	pSweepingTrailMgr = pScene->GetSweepingTraillMgr();
 
-
-
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
@@ -95,13 +93,11 @@ BOOL Init3D(HWND hwnd)
 	pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
 	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
+	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(300, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-
 	//------------------MESH INITIALIZATION----------------
-
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
@@ -137,7 +133,7 @@ BOOL Init3D(HWND hwnd)
 
 	//----------------------------------------------------------
 
-	pCamera->SetPosition(2.0f, 0, 0);
+	pCamera->SetPosition(20.0f, 0, 0);
 	pCamera->SetLookAt(0, 0, 0);
 	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
@@ -153,7 +149,7 @@ BOOL Init3D(HWND hwnd)
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
-	//！！！！！！菊高！！！！！！！！
+	//---------------Light-----------------
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
 	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
@@ -164,49 +160,43 @@ BOOL Init3D(HWND hwnd)
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
-	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0, 0, 0);
-	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.specularSmoothLevel = 40;
-	Mat1.normalMapBumpIntensity = 0.2f;
-	Mat1.environmentMapTransparency = 0.1f;
-	Mat1.diffuseMapName = "Earth";//"Earth");
-	Mat1.normalMapName = "EarthNormalMap";
-	//Mat1.environmentMapName = "AtmoTexture";
-	IMaterial* pMat = pMatMgr->CreateMaterial("meshMat1", Mat1);
-
-	//set material
-	pMesh->SetMaterial("meshMat1");
-
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
+	//*********************  sweeping trail  *************************
+	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
+	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(500.0f);
+	pSweepingTrail->SetMaxLifeTimeOfLineSegment(2000.0f);
+
 	return TRUE;
 };
-
 
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	incrNum += 0.001f;
+	incrNum += 0.05f;
 	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
 
 	InputProcess();
 	pRenderer->ClearBackground();
-	NTimer.NextTick();
+	timer.NextTick();
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS << "fps :" << NTimer.GetFPS();// << std::endl;
+	tmpS << "fps :" << timer.GetFPS() << "vertex count:" << pSweepingTrail->GetActiveVerticesCount();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
+	pSweepingTrail->SetHeaderLineSegment(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), -5.0f, 10.0f*cosf(incrNum)), NVECTOR3(10.0f*sinf(incrNum), 5.0f, 10.0f*cosf(incrNum))));
+	pSweepingTrail->Update(10.0f);
 
 	//add to render list
-	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
+	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
 	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	pRenderer->AddToRenderQueue(pMyText_fps);
+	pRenderer->AddToRenderQueue(pSweepingTrail);
 	pRenderer->SetActiveAtmosphere(pAtmos);
 	static N_PostProcessGreyScaleDesc desc;
 	desc.factorR = 0.3f;
@@ -263,7 +253,6 @@ void InputProcess()
 	}
 
 };
-
 
 void Cleanup()
 {

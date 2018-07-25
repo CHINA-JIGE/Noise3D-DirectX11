@@ -36,12 +36,11 @@ void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
 void	IRenderModuleForMesh::RenderMeshes()
 {
 	ICamera* const tmp_pCamera = GetScene()->GetCamera();
+	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	mFunction_RenderMeshInList_UpdateRarely();
 
 	mFunction_RenderMeshInList_UpdatePerFrame();
-
-	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	//for every mesh
 	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)

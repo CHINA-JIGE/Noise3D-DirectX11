@@ -26,7 +26,6 @@ namespace Noise3D
 		public IFactory<IModelProcessor>,
 		public IFactory<ICollisionTestor>
 	{
-
 	public:
 
 		void								ReleaseAllChildObject();
@@ -49,7 +48,7 @@ namespace Noise3D
 
 		IGraphicObjectManager*	GetGraphicObjMgr();
 
-		IAtmosphere*				GetAtmosphere();
+		IAtmosphere*					GetAtmosphere();
 
 		IFontManager*				GetFontMgr();
 

@@ -37,7 +37,7 @@ namespace Noise3D
 
 		void		mFunction_SweepingTrail_Update(ISweepingTrail*const pTrail);
 
-		std::vector <ISweepingTrail*>	mRenderList_SweepingTrails; //list of object to be rendererd
+		std::vector <ISweepingTrail*> 	mRenderList_SweepingTrails; //list of object to be rendererd
 
 		ID3DX11EffectTechnique*	m_pFX_DrawSolid3D;//(2018.7.24)Currently Sweeping trails don't need customized shader
 

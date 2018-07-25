@@ -19,6 +19,26 @@ Noise3D::ISweepingTrailManager::~ISweepingTrailManager()
 	IFactory<ISweepingTrail>::DestroyAllObject();
 }
 
+ISweepingTrail * Noise3D::ISweepingTrailManager::CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount)
+{
+	if (IFactory<ISweepingTrail>::FindUid(objName))
+	{
+		ERROR_MSG("CreateSweepingTrail: UID existed!");
+		return nullptr;
+	}
+
+	auto pTrail = IFactory<ISweepingTrail>::CreateObject(objName);
+	if (!pTrail->mFunction_InitGpuBuffer(maxVertexCount))
+	{
+		ERROR_MSG("CreateSweepingTrail: Failed to init Gpu buffer!");
+		IFactory<ISweepingTrail>::DestroyObject(objName);
+		return nullptr;
+	}
+
+	//init succeed
+	return pTrail;
+}
+
 ISweepingTrail * Noise3D::ISweepingTrailManager::GetSweepingTrail(N_UID objName)
 {
 	return IFactory<ISweepingTrail>::GetObjectPtr(objName);

@@ -22,6 +22,14 @@ IRenderModuleForGraphicObject::~IRenderModuleForGraphicObject()
 	ReleaseCOM(m_pFX_Tech_Textured2D);
 }
 
+void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
+{
+	if (pObj != nullptr)mFunction_AddToRenderList_GraphicObj(pObj,&mRenderList_GO);
+}
+
+/***********************************************************************
+										PROTECTED
+************************************************************************/
 void IRenderModuleForGraphicObject::RenderGraphicObjects()
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
@@ -41,19 +49,11 @@ void IRenderModuleForGraphicObject::RenderGraphicObjects()
 		if (pCamera != nullptr)mFunction_GraphicObj_RenderPoint3DInList(pCamera, pObj);
 		m_pRefRI->SetDepthStencilState(false);
 		mFunction_GraphicObj_RenderLine2D(pObj);
-		mFunction_GraphicObj_RenderPoint2DInList(pObj);
-		mFunction_GraphicObj_RenderTriangle2DInList(pObj);
+		mFunction_GraphicObj_RenderPoint2D(pObj);
+		mFunction_GraphicObj_RenderTriangle2D(pObj);
 	}
 }
 
-void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
-{
-	if (pObj != nullptr)mFunction_AddToRenderList_GraphicObj(pObj,&mRenderList_GO);
-}
-
-/***********************************************************************
-										PROTECTED
-************************************************************************/
 void IRenderModuleForGraphicObject::ClearRenderList()
 {
 	mRenderList_GO.clear();
@@ -146,7 +146,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2D(IGraphicOb
 	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2DInList(IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2D(IGraphicObject* pGObj)
 {
 	UINT vCount = pGObj->GetPoint2DCount() * 2;
 	if (vCount == 0)return;
@@ -162,7 +162,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2DInList(IGr
 	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2DInList(IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraphicObject* pGObj)
 {
 	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
 

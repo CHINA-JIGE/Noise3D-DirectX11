@@ -137,6 +137,7 @@
     <ClInclude Include="Renderer_Text.h" />
     <ClInclude Include="RenderInfrastructure.h" />
     <ClInclude Include="Renderer_PostProcessing.h" />
+    <ClInclude Include="Renderer_SweepingTrail.h" />
     <ClInclude Include="SweepingTrail.h" />
     <ClInclude Include="SweepingTrailManager.h" />
     <ClInclude Include="_BaseRenderModule.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="Renderer_PostProcessing.cpp" />
     <ClCompile Include="RenderInfrastructure.cpp" />
+    <ClCompile Include="Renderer_SweepingTrail.cpp" />
     <ClCompile Include="SweepingTrail.cpp" />
     <ClCompile Include="SweepingTrailManager.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />

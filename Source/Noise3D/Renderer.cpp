@@ -58,6 +58,7 @@ void Noise3D::IRenderer::Render()
 	IRenderModuleForSweepingTrailFX::RenderSweepingTrails();
 	IRenderModuleForGraphicObject::RenderGraphicObjects();
 	IRenderModuleForText::RenderTexts();
+
 	IRenderModuleForPostProcessing::PostProcess();
 	
 }
