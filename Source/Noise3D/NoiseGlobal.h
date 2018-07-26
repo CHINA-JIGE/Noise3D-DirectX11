@@ -81,6 +81,7 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
+		extern /*_declspec(dllexport)*/ NVECTOR3 CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t);
 	}
 
 

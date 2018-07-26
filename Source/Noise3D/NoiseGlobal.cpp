@@ -179,9 +179,15 @@ using namespace Noise3D;
 	return (val >= min ? (val <= max ? val : max) : min);
 }
 
-/*_declspec(dllexport)*/ NVECTOR3 Noise3D::Ut::Clamp(const NVECTOR3 & target, const NVECTOR3 & min, const NVECTOR3 & max)
+/*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Ut::Clamp(const NVECTOR3 & target, const NVECTOR3 & min, const NVECTOR3 & max)
 {
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
+}
+
+/*_declspec(dllexport)*/  inline NVECTOR3 Noise3D::Ut::CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t)
+{
+	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
+	return (2.0f * t * t * t - 3.0f * t * t + 1.0f) * v1 + (t * t * t - 2.0f * t * t + t) * t1 + (-2.0f * t * t * t + 3.0f * t * t) * v2 + (t * t * t - t * t) * t2;
 };
 
 
