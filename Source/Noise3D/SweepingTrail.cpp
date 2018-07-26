@@ -27,6 +27,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+#include "SweepingTrail.h"
 
 using namespace Noise3D;
 
@@ -42,10 +43,20 @@ Noise3D::ISweepingTrail::~ISweepingTrail()
 	ReleaseCOM(m_pVB_Gpu);
 }
 
-void Noise3D::ISweepingTrail::SetHeaderLineSegment(N_LineSegment lineSeg)
+void Noise3D::ISweepingTrail::SetHeader(N_LineSegment lineSeg)
 {
 	mFreeHeader = lineSeg;
 	//if (!mIsHeaderActive)mIsHeaderActive = true;
+}
+
+N_LineSegment Noise3D::ISweepingTrail::GetHeader()
+{
+	return mFreeHeader;
+}
+
+NVECTOR3 Noise3D::ISweepingTrail::GetHeaderCenterPos()
+{
+	return (mFreeHeader.vert1+mFreeHeader.vert2)/2.0f;
 }
 
 void Noise3D::ISweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)

@@ -137,11 +137,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetLookAt(0, 0, 0);
 	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	//use bounding box of mesh to init camera pos
-	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();
-	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
-	float rotateY = meshAABB.max.y*1.3f;
-	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
+	pCamera->SetPosition(0, 0, 100.0f);
 	pCamera->SetLookAt(0, 0, 0);
 
 
@@ -161,15 +157,16 @@ BOOL Init3D(HWND hwnd)
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(1080.0f, 780.0f), NVECTOR2(1280.0f,800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
-	pSweepingTrail->SetHeaderCoolDownTimeThreshold(10.0f);
-	pSweepingTrail->SetMaxLifeTimeOfLineSegment(100.0f);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(100.0f);
+	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
+	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
 
 	return TRUE;
 };
@@ -177,9 +174,8 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	incrNum += 0.04f;
-	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
-	::Sleep(50);
+	incrNum += 0.01f;
+	//::Sleep(50);
 
 	InputProcess();
 	pRenderer->ClearBackground();
@@ -190,8 +186,8 @@ void MainLoop()
 	tmpS << "fps :" << timer.GetFPS() << "vertex count:" << pSweepingTrail->GetActiveVerticesCount();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
-	pSweepingTrail->SetHeaderLineSegment(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), -5.0f, 10.0f*cosf(incrNum)), NVECTOR3(10.0f*sinf(incrNum), 5.0f, 10.0f*cosf(incrNum))));
-	pSweepingTrail->Update(2.0f);
+	//pSweepingTrail->SetHeaderLineSegment(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), -5.0f, 10.0f*cosf(incrNum)), NVECTOR3(10.0f*sinf(incrNum), 5.0f, 10.0f*cosf(incrNum))));
+	pSweepingTrail->Update((float)timer.GetInterval());
 
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
@@ -240,6 +236,19 @@ void InputProcess()
 	{
 		pCamera->fps_MoveUp(-0.1f);
 	}
+
+	//Sweeping Trail movement
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_J))
+	{
+		 N_LineSegment ls = pSweepingTrail->GetHeader();
+		pSweepingTrail->SetHeader(N_LineSegment( ls.vert1 +NVECTOR3(0.1f,0.0f,0.0f), ls.vert2+NVECTOR3(0.1f, 0.0f, 0.0f)));
+	}
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_K))
+	{
+		N_LineSegment ls = pSweepingTrail->GetHeader();
+		pSweepingTrail->SetHeader(N_LineSegment(ls.vert1 + NVECTOR3(-0.1f, -0.0f, 0.0f), ls.vert2 + NVECTOR3(-0.1f, -0.0f, 0.0f)));
+	}
+
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{

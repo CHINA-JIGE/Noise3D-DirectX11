@@ -11,7 +11,7 @@
 
 		picture ref:https://blog.csdn.net/cbbbc/article/details/70863580
 
-		you can "SetHeaderLineSegment" every frame to indicate the head of trail,
+		you can "SetHeader" every frame to indicate the head of trail,
 		and the trail quad sequence will automatically generate as long as 
 		you call "Update(dt)" every frame.
 ************************************************************************/
@@ -30,7 +30,11 @@ namespace Noise3D
 	public:
 
 		//set current header line segments (in World space coordinate)
-		void SetHeaderLineSegment(N_LineSegment lineSeg);
+		void SetHeader(N_LineSegment lineSeg);
+
+		N_LineSegment GetHeader();
+
+		NVECTOR3 GetHeaderCenterPos();
 
 		//time limit of cooling down the header line segment and GENERATE a new "free" header
 		//unit: Milli-second
@@ -60,6 +64,7 @@ namespace Noise3D
 		friend class ISweepingTrailManager;
 		friend IFactory<ISweepingTrail>;
 		friend class IRenderModuleForSweepingTrailFX;
+		typedef N_SimpleVertex N_SweepingTrailVertexType;
 
 		ISweepingTrail();
 
@@ -77,10 +82,8 @@ namespace Noise3D
 
 		float mFunction_UtComputeLSLifeTimer(int index);
 
-		void mFunction_UtGenQuad(N_LineSegment& front, N_LineSegment& back, float frontLifeTimer, float backLifeTimer,N_SimpleVertex* quad);
+		void mFunction_UtGenQuad(N_LineSegment& front, N_LineSegment& back, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);
 
-		typedef N_SimpleVertex N_SweepingTrailVertexType;
-		//std::vector<N_SweepingTrailVertexType>	mVB_Mem;//actual vertices in CPU memory, updated based on line segment list
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
 		UINT mGpuVertexPoolCapacity;
 
