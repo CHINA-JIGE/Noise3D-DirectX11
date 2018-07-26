@@ -71,9 +71,7 @@ namespace Noise3D
 
 		void mFunction_MoveAndCollapseTail();//Collapsing & Movement
 
-		void mFunction_UpdateVertexBufferInMem();//Pos and UV
-
-		void mFunction_UpdateToGpuBuffer();
+		void mFunction_GenVerticesAndUpdateToGpuBuffer();//Pos and UV
 
 		float mFunction_UtDistanceBetweenLine(N_LineSegment& line1,N_LineSegment& line2);
 
@@ -82,7 +80,7 @@ namespace Noise3D
 		void mFunction_UtGenQuad(N_LineSegment& front, N_LineSegment& back, float frontLifeTimer, float backLifeTimer,N_SimpleVertex* quad);
 
 		typedef N_SimpleVertex N_SweepingTrailVertexType;
-		std::vector<N_SweepingTrailVertexType>	mVB_Mem;//actual vertices in CPU memory, updated based on line segment list
+		//std::vector<N_SweepingTrailVertexType>	mVB_Mem;//actual vertices in CPU memory, updated based on line segment list
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
 		UINT mGpuVertexPoolCapacity;
 

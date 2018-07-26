@@ -60,7 +60,7 @@ void Noise3D::ISweepingTrail::SetMaxLifeTimeOfLineSegment(float duration)
 
 uint32_t Noise3D::ISweepingTrail::GetActiveVerticesCount()
 {
-	return mVB_Mem.size();
+	return 6 * (mFixedLineSegments.size()+1) ;
 }
 
 /*void Noise3D::ISweepingTrail::SetHeaderCoolDownDistance(float distance)
@@ -84,13 +84,12 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 
 	mFunction_CoolDownHeader();
 	mFunction_MoveAndCollapseTail();
-	mFunction_UpdateVertexBufferInMem();
-	mFunction_UpdateToGpuBuffer();
+	mFunction_GenVerticesAndUpdateToGpuBuffer();
 }
 
 bool Noise3D::ISweepingTrail::IsRenderable()
 {
-	return mVB_Mem.size()>=6;//at least a quad(emmm, ideally it should have at least 2 quads)
+	return !mFixedLineSegments.empty();//at least a quad(emmm, ideally it should have at least 2 quads)
 }
 
 /*****************************************************************
@@ -100,8 +99,8 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 {
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	mVB_Mem.resize(maxVertexCount);
-	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
+	std::vector<N_SweepingTrailVertexType> tmpVec(maxVertexCount);
+	tmpInitData_Vertex.pSysMem = &tmpVec.at(0);
 	mGpuVertexPoolCapacity = sizeof(N_SweepingTrailVertexType)* maxVertexCount;
 
 	//Simple Vertex!
@@ -166,7 +165,7 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 	}
 }
 
-void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
+void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 {
 	if (mFixedLineSegments.size() > 0)
 	{
@@ -175,47 +174,45 @@ void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
 
 		//+2 stands for head and tail
 		uint32_t vertexCount = (mFixedLineSegments.size() + 2 - 1) * c_quadVertexCount;
-		mVB_Mem.resize(vertexCount);
 
-		//generate quads
+		//****Map*****
+		//(2018.7.24)if vertex size in memory exceeds GPU vertex pool capacity, then some of the front vertices won't be uploaded.
+		uint32_t updateByteSize = min(vertexCount * sizeof(N_SweepingTrailVertexType), mGpuVertexPoolCapacity);
+		D3D11_MAPPED_SUBRESOURCE mappedRes;
+		HRESULT hr = D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mappedRes);
+		if (FAILED(hr))
+		{
+			ERROR_MSG("SweepingTrail: Failed to update vertices.");
+			return;
+		}
+
+		//generate quads (directly to mapped area)
 		//header quad(header is moving)
+		N_SweepingTrailVertexType* tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData +(c_quadVertexCount * 0);
 		mFunction_UtGenQuad(
 			mFreeHeader, mFixedLineSegments.front(),
 			mFunction_UtComputeLSLifeTimer(0), mFunction_UtComputeLSLifeTimer(1) ,
-			&mVB_Mem.at(c_quadVertexCount *0));
+			tmpMemAddr);
 
 		//middle quads
 		for (int i =0; i< mFixedLineSegments.size()-1; ++i)
 		{
+			tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + (c_quadVertexCount * (i + 1));
 			mFunction_UtGenQuad(
 				mFixedLineSegments.at(i+0), mFixedLineSegments.at(i+1),
 				mFunction_UtComputeLSLifeTimer(i+0+1), mFunction_UtComputeLSLifeTimer(i+1+1),//free header is counted in
-				&mVB_Mem.at(c_quadVertexCount * (i + 1)));
+				tmpMemAddr);
 		}
 
 		//tail quad(tail is moving to collapse)
+		tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + (vertexCount- 1*c_quadVertexCount);
 		mFunction_UtGenQuad(mFixedLineSegments.back(), mFreeTail_Current, 
 			mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size()), mMaxLifeTimeOfLS,
-			&mVB_Mem.at(vertexCount - 6));
+			tmpMemAddr);
 
+		//**********Unmap***************
+		D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
 	}
-}
-
-void Noise3D::ISweepingTrail::mFunction_UpdateToGpuBuffer()
-{
-	uint32_t updateByteSize = min(mVB_Mem.size() * sizeof(N_SweepingTrailVertexType) , mGpuVertexPoolCapacity);
-
-	//update to gpu
-	//(2018.7.24)if vertex size in memory exceeds GPU vertex pool capacity, then some of the front vertices won't be uploaded.
-	D3D11_MAPPED_SUBRESOURCE mappedRes;
-	HRESULT hr = D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mappedRes);
-	if(FAILED(hr))
-	{
-		ERROR_MSG("SweepingTrail: Failed to update vertices.");
-		return;
-	}
-	memcpy_s(mappedRes.pData, updateByteSize, &mVB_Mem.at(0), updateByteSize);
-	D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
 }
 
 float Noise3D::ISweepingTrail::mFunction_UtDistanceBetweenLine(N_LineSegment & line1, N_LineSegment & line2)
@@ -238,7 +235,7 @@ float Noise3D::ISweepingTrail::mFunction_UtComputeLSLifeTimer(int index)
 }
 
 //gen quad to given mem position (6 vertices occupied)
-void Noise3D::ISweepingTrail::mFunction_UtGenQuad(N_LineSegment & front, N_LineSegment & back, float frontLifeTimer, float backLifeTimer, N_SimpleVertex* quad)
+void Noise3D::ISweepingTrail::mFunction_UtGenQuad(N_LineSegment & front, N_LineSegment & back, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType * quad)
 {
 	/*
 	vector of line segment (vector index 0-->n, line/vertex index n-->0)
