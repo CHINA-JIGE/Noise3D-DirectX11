@@ -167,9 +167,9 @@ BOOL Init3D(HWND hwnd)
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-	pSweepingTrail->SetHeaderCoolDownTimeThreshold(500.0f);
-	pSweepingTrail->SetMaxLifeTimeOfLineSegment(2000.0f);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(10.0f);
+	pSweepingTrail->SetMaxLifeTimeOfLineSegment(100.0f);
 
 	return TRUE;
 };
@@ -177,8 +177,9 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	incrNum += 0.05f;
+	incrNum += 0.04f;
 	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	::Sleep(50);
 
 	InputProcess();
 	pRenderer->ClearBackground();
@@ -190,7 +191,7 @@ void MainLoop()
 	pMyText_fps->SetTextAscii(tmpS.str());
 
 	pSweepingTrail->SetHeaderLineSegment(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), -5.0f, 10.0f*cosf(incrNum)), NVECTOR3(10.0f*sinf(incrNum), 5.0f, 10.0f*cosf(incrNum))));
-	pSweepingTrail->Update(10.0f);
+	pSweepingTrail->Update(2.0f);
 
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);

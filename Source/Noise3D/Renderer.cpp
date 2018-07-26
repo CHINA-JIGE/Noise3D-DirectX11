@@ -77,6 +77,7 @@ void	Noise3D::IRenderer::PresentToScreen()
 	IRenderModuleForGraphicObject::ClearRenderList();
 	IRenderModuleForMesh::ClearRenderList();
 	IRenderModuleForText::ClearRenderList();
+	IRenderModuleForSweepingTrailFX::ClearRenderList();
 	IRenderModuleForPostProcessing::ClearRenderList();//no use
 };
 

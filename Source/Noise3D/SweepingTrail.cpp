@@ -15,14 +15,14 @@
 	6. (2018.7.23)the headers' vertices u coord should be 0, while the tail should be 1.
 
 
-	vector of line segment (vector index 0-->n, line/vertex index n-->0)
-	v_n	-----		......	-----		v_3	------	v_1
-	  |										  |					  |
-	v_n-1 -----	......	-----		v_2	------	v_0(free header)
-	(free tail)
-(approaching the 2nd last LS)
+	vector of line segment (vector index 0-->n, line/vertex index 0-->n)
+	v_0	-----	 v_2	......	-----		v_n-3	------	v_n-1
+	  |											  |						  |
+	v_1 -----	v_3  ......	-----		v_n-2	------	v_n-0(free tail)(approaching the 2nd last LS)
+	(free header)							
+
 	sweeping trail moving direction
-	--------------------->
+	<---------------------
 
 ************************************************************************/
 
@@ -126,12 +126,12 @@ void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 	//if fixed line segment exist
 	if (mFixedLineSegments.size() > 0)
 	{
-		//cool down current header, and GENERATE a NEW free segment (push to back)
-		//note that when a new line segment cool down, we use "push back"
-		//thus vector.back() is right after the header of the line sequence
+		//cool down current header, and GENERATE a NEW free segment (add to front)
+		//note that when a new line segment cool down, we "add front"
+		//thus vector.front() is right after the header of the line sequence
 		if (mHeaderCoolDownTimer >= mHeaderCoolDownTimeThreshold)
 		{
-			mFixedLineSegments.push_back(mFreeHeader);
+			mFixedLineSegments.insert(mFixedLineSegments.begin(), mFreeHeader);
 			mHeaderCoolDownTimer = 0.0f;
 		}
 	}
@@ -142,29 +142,26 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 	//if at least one fixed line segment exists
 	if (mFixedLineSegments.size() > 0)
 	{
-		//1.collapse last quad & degenerate
-		//OR
-		//2.move the last line segment
-		if (mTailQuadCollapsingRatio>= 1.0f)
+
+		//the tail keeps moving to the second last line segment. when the last LS reached the second last,
+		//the previous last LS can be removed (thus previous last quad has DEGENERATE into a LS)
+		//!!!!:An important point: the collapsing time of the last quad == the header cool down threshold
+		//!!!because every line segment has their own 'Life Time'. When a line segment is cooled down, its own
+		//life timer start from 0 and tick.
+		//And now i want ensure that the last LS's texcoord u maintain 1.0f(while it life timer is exactly equals to 'MaxLifeTime'
+		//so the last LS must move to adapt, the lerp ratio is computed below
+		float tailLSLifeTimer = mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size() + 2 - 1);
+		mTailQuadCollapsingRatio = (tailLSLifeTimer - mMaxLifeTimeOfLS) / mHeaderCoolDownTimeThreshold;
+		mTailQuadCollapsingRatio = Ut::Clamp(mTailQuadCollapsingRatio, 0.0f, 1.0f);
+		mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.back().vert1, mTailQuadCollapsingRatio);
+		mFreeTail_Current.vert2 = Ut::Lerp(mFreeTail_Start.vert2, mFixedLineSegments.back().vert2, mTailQuadCollapsingRatio);
+
+		//collapse last quad & degenerate
+		if (mTailQuadCollapsingRatio >= 1.0f)
 		{
-			mFreeTail_Start = mFixedLineSegments.front();
-			mFreeTail_Current = mFixedLineSegments.front();
-			mFixedLineSegments.erase(mFixedLineSegments.begin());//pop the last fixed line from the vector's front
-		}
-		else
-		{
-			//the tail keeps moving to the second last line segment. when the last LS reached the second last,
-			//the previous last LS can be removed (thus previous last quad has DEGENERATE into a LS)
-			//!!!!:An important point: the collapsing time of the last quad == the header cool down threshold
-			//!!!because every line segment has their own 'Life Time'. When a line segment is cooled down, its own
-			//life timer start from 0 and tick.
-			//And now i want ensure that the last LS's texcoord u maintain 1.0f(while it life timer is exactly equals to 'MaxLifeTime'
-			//so the last LS must move to adapt, the lerp ratio is computed below
-			float tailLSLifeTimer = mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size() + 2 - 1);
-			mTailQuadCollapsingRatio = (tailLSLifeTimer - mMaxLifeTimeOfLS) / mHeaderCoolDownTimeThreshold;
-			mTailQuadCollapsingRatio = Ut::Clamp(mTailQuadCollapsingRatio, 0.0f, 1.0f);
-			mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.front().vert1, mTailQuadCollapsingRatio);
-			mFreeTail_Current.vert2 = Ut::Lerp(mFreeTail_Start.vert2, mFixedLineSegments.front().vert2, mTailQuadCollapsingRatio);
+			mFreeTail_Start = mFixedLineSegments.back();
+			mFreeTail_Current = mFixedLineSegments.back();
+			mFixedLineSegments.pop_back();//pop the last fixed line from the vector's back
 		}
 	}
 }
@@ -183,21 +180,21 @@ void Noise3D::ISweepingTrail::mFunction_UpdateVertexBufferInMem()
 		//generate quads
 		//header quad(header is moving)
 		mFunction_UtGenQuad(
-			mFreeHeader, mFixedLineSegments.back(),
+			mFreeHeader, mFixedLineSegments.front(),
 			mFunction_UtComputeLSLifeTimer(0), mFunction_UtComputeLSLifeTimer(1) ,
 			&mVB_Mem.at(c_quadVertexCount *0));
 
 		//middle quads
-		for (uint32_t i = 0; i < mFixedLineSegments.size() - 1; ++i)
+		for (int i =0; i< mFixedLineSegments.size()-1; ++i)
 		{
 			mFunction_UtGenQuad(
-				mFixedLineSegments.at(i), mFixedLineSegments.at(i + 1),
-				mFunction_UtComputeLSLifeTimer(i+2), mFunction_UtComputeLSLifeTimer(i+1),//free header is counted in
+				mFixedLineSegments.at(i+0), mFixedLineSegments.at(i+1),
+				mFunction_UtComputeLSLifeTimer(i+0+1), mFunction_UtComputeLSLifeTimer(i+1+1),//free header is counted in
 				&mVB_Mem.at(c_quadVertexCount * (i + 1)));
 		}
 
 		//tail quad(tail is moving to collapse)
-		mFunction_UtGenQuad(mFixedLineSegments.front(), mFreeTail_Current, 
+		mFunction_UtGenQuad(mFixedLineSegments.back(), mFreeTail_Current, 
 			mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size()), mMaxLifeTimeOfLS,
 			&mVB_Mem.at(vertexCount - 6));
 
@@ -273,11 +270,11 @@ void Noise3D::ISweepingTrail::mFunction_UtGenQuad(N_LineSegment & front, N_LineS
 	quad[4].TexCoord = NVECTOR2(backLifeTimer / mMaxLifeTimeOfLS, 0.0f);
 	quad[5].TexCoord = NVECTOR2(backLifeTimer / mMaxLifeTimeOfLS, 1.0f);
 
-	quad[0].Color = NVECTOR4(1.0f,0.0f,0.0f, 1.0f);
-	quad[1].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
-	quad[2].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+	quad[0].Color = NVECTOR4(quad[0].TexCoord.x, quad[0].TexCoord.y,0.0f, 1.0f);
+	quad[1].Color = NVECTOR4(quad[1].TexCoord.x, quad[1].TexCoord.y, 0.0f, 1.0f);
+	quad[2].Color = NVECTOR4(quad[2].TexCoord.x, quad[2].TexCoord.y, 0.0f, 1.0f);
 
-	quad[3].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
-	quad[4].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
-	quad[5].Color = NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+	quad[3].Color = NVECTOR4(quad[3].TexCoord.x, quad[3].TexCoord.y, 0.0f, 1.0f);
+	quad[4].Color = NVECTOR4(quad[4].TexCoord.x, quad[4].TexCoord.y, 0.0f, 1.0f);
+	quad[5].Color = NVECTOR4(quad[5].TexCoord.x, quad[5].TexCoord.y, 0.0f, 1.0f);
 }
