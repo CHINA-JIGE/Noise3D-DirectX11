@@ -132,6 +132,10 @@ namespace Noise3D
 		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
 		uint32_t mLastDrawnVerticesCount;
 
+		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
+		NVECTOR3 mFreeTailTangent1;
+		NVECTOR3 mFreeTailTangent2;
+
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mHeaderCoolDownTimer;	//timer (initially 0, increment)
 		float mMaxLifeTimeOfLS;//the maximum time each line segment can live

@@ -183,6 +183,9 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 		{
 			mFreeTail_Start = mFixedLineSegments.back();
 			mFreeTail_Current = mFixedLineSegments.back();
+
+			//store the 2nd last tangents to new free tail tangent
+			mFunction_UtEstimateTangent(mFixedLineSegments.size(), mFreeTailTangent1, mFreeTailTangent2);
 			mFixedLineSegments.pop_back();//pop the last fixed line from the vector's back
 			mTailQuadCollapsingRatio = 0.0f;
 		}
@@ -205,30 +208,6 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 			ERROR_MSG("SweepingTrail: Failed to update vertices.");
 			return;
 		}
-
-		/*N_GenQuadInfo tmpInfo;
-		//generate quads (directly to mapped area)
-		//header quad(header is moving)
-		if (vertexIndexOffset > maxStartVertexIndex)return;//not enought space, exit
-		N_SweepingTrailVertexType* tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + vertexIndexOffset;
-		tmpInfo.frontPos1 = mFreeHeader.vert1;
-		tmpInfo.frontPos2 = mFreeHeader.vert2;
-		tmpInfo.backPos1 = mFixedLineSegments.front().vert1;
-		tmpInfo.backPos2 = mFixedLineSegments.front().vert2;
-		mFunction_UtEstimateTangent(0, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
-		mFunction_UtEstimateTangent(1, tmpInfo.backTangent1, tmpInfo.backTangent2);*/
-
-		/*auto func_GetLS_GenQuad = [&](int index)->N_LineSegment
-		{
-			//header
-			if (index == 0)return mFreeHeader;
-			//tail
-			if (index == mFixedLineSegments.size() + 2 - 1)return mFreeTail_Start;
-			//middle
-			if (mFixedLineSegments.size() > 0)return mFixedLineSegments.at(index - 1);
-			//it shouldn't run to here
-			return mFreeHeader;
-		};*/
 
 		int vertexIndexOffset = 0;
 		int totalRegionCount = mFixedLineSegments.size() + 2 - 1;
@@ -254,8 +233,6 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 			//interpolation of the last region is dealt with differently (to ensure that the tail collapses on history path)
 			if (i == totalRegionCount - 1)
 			{
-				//Gen the last interpolated quad (behaviour is different with the front quads)
-			//vertexIndexOffset += mFunction_UtGenLastQuad(mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
 				tmpInfo.collapsingFactor = mTailQuadCollapsingRatio;
 			}
 			//Gen normal interpolated Quads
@@ -345,78 +322,6 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	return (desc.interpolation_steps) * c_quadVertexCount;
 }
 
-/*int Noise3D::ISweepingTrail::mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType * quad)
-{
-	/*
-	vector of line segment (vector index 0-->n, line/vertex index 0-->n)
-	v_0	-----	 v_2	......	-----		v_n-3	------	v_n-1
-	|											  |						  |
-	v_1 -----	v_3  ......	-----		v_n-2	------	v_n-0(free tail)(approaching the 2nd last LS)
-	(free header)
-
-	sweeping trail moving direction
-	<---------------------
-	
-
-	//Cubic Hermite interplation is used between each passed-in pair of line segments
-	float unitRatio = 1.0f / mInterpolationStepCount;
-	for (int i = 0; i < mInterpolationStepCount; ++i)
-	{
-		//pre-interpolationStartFactor is usually 1.0f (but the tail LS's factor will be smaller than 1.0f because the tail keep approaching the second last LS)
-		float startInterpRatio = (1.0f-mTailQuadCollapsingRatio) *  i * unitRatio;
-		float endInterpRatio = (1.0f - mTailQuadCollapsingRatio) *(i + 1) * unitRatio;
-
-		//front line segment in interpolaton(start and end line segment is passed in as function param)
-		N_LineSegment& startLine = mFixedLineSegments.back();
-		N_LineSegment& endLine = mFreeTail_Start;
-		NVECTOR3 start_t1, start_t2, end_t1, end_t2;
-		mFunction_UtEstimateTangent(mFixedLineSegments.size() , start_t1, start_t2);
-		mFunction_UtEstimateTangent(mFixedLineSegments.size()+1, end_t1, end_t2);
-
-		NVECTOR3 interpFrontPos1 = Ut::CubicHermite(startLine.vert1, endLine.vert1, start_t1, end_t1, startInterpRatio);
-		NVECTOR3 interpFrontPos2 = Ut::CubicHermite(startLine.vert2, endLine.vert2, start_t2, end_t2, startInterpRatio);
-		NVECTOR3 interpBackPos1 = Ut::CubicHermite(startLine.vert1, endLine.vert1, start_t1, end_t1, endInterpRatio);
-		NVECTOR3 interpBackPos2 = Ut::CubicHermite(startLine.vert2, endLine.vert2, start_t2, end_t2, endInterpRatio);
-		//Position
-		//021
-		quad[i * 6 + 0].Pos = interpFrontPos1;
-		quad[i * 6 + 1].Pos = interpBackPos1;
-		quad[i * 6 + 2].Pos = interpFrontPos2;
-
-		//123
-		quad[i * 6 + 3].Pos = interpFrontPos2;
-		quad[i * 6 + 4].Pos = interpBackPos1;
-		quad[i * 6 + 5].Pos = interpBackPos2;
-
-		//UV, all texcoord.u decreases in a constant rate (then clamp [0,1])
-		//ensure that the tail line segment' texcoord.u is 0 (if the front's texcoord.u >1, clamp)
-		float frontTexcoordU = Ut::Lerp(frontLifeTimer / mMaxLifeTimeOfLS, backLifeTimer / mMaxLifeTimeOfLS, startInterpRatio);
-		float backTexcoordU = Ut::Lerp(frontLifeTimer / mMaxLifeTimeOfLS, backLifeTimer / mMaxLifeTimeOfLS, endInterpRatio);
-
-		quad[i * 6 + 0].TexCoord = NVECTOR2(frontTexcoordU, 0.0f);
-		quad[i * 6 + 1].TexCoord = NVECTOR2(backTexcoordU, 0.0f);
-		quad[i * 6 + 2].TexCoord = NVECTOR2(frontTexcoordU, 1.0f);
-
-		quad[i * 6 + 3].TexCoord = NVECTOR2(frontTexcoordU, 1.0f);
-		quad[i * 6 + 4].TexCoord = NVECTOR2(backTexcoordU, 0.0f);
-		quad[i * 6 + 5].TexCoord = NVECTOR2(backTexcoordU, 1.0f);
-
-		quad[i * 6 + 0].Color = NVECTOR4(quad[i * 6 + 0].TexCoord.x, quad[i * 6 + 0].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 1].Color = NVECTOR4(quad[i * 6 + 1].TexCoord.x, quad[i * 6 + 1].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 2].Color = NVECTOR4(quad[i * 6 + 2].TexCoord.x, quad[i * 6 + 2].TexCoord.y, 0.0f, 1.0f);
-
-		quad[i * 6 + 3].Color = NVECTOR4(quad[i * 6 + 3].TexCoord.x, quad[i * 6 + 3].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 4].Color = NVECTOR4(quad[i * 6 + 4].TexCoord.x, quad[i * 6 + 4].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 5].Color = NVECTOR4(quad[i * 6 + 5].TexCoord.x, quad[i * 6 + 5].TexCoord.y, 0.0f, 1.0f);
-
-	}
-
-	//vertices generated
-	//2 line segment, 2 triangles, 6 vertices
-	const int c_quadVertexCount = 6;
-	return mInterpolationStepCount* c_quadVertexCount;
-}*/
-
 void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
 {
 	//1. the first and second header
@@ -432,26 +337,16 @@ void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegment
 	//2. the first and second tail
 	if (currentLineSegmentIndex == mFixedLineSegments.size()+1)
 	{
-		outTangent1 = mFreeTail_Start.vert1 - mFixedLineSegments.back().vert1;
+		/*outTangent1 = mFreeTail_Start.vert1 - mFixedLineSegments.back().vert1;
 		outTangent1 *= mCubicHermiteTangentScale;
 		outTangent2 = mFreeTail_Start.vert2 - mFixedLineSegments.back().vert2;
-		outTangent2 *= mCubicHermiteTangentScale;
+		outTangent2 *= mCubicHermiteTangentScale;*/
+		outTangent1 = mFreeTailTangent1;
+		outTangent2 = mFreeTailTangent2;
 		return;
 	}
 
 	//3.the middle line segments
-	/*auto func_GetLS_TangentEstimate = [&](int index)->N_LineSegment
-	{
-		//header
-		if (index == 0)return mFreeHeader;
-		//tail
-		if (index == mFixedLineSegments.size() + 2 - 1)return mFreeTail_Start;
-		//middle 
-		if (mFixedLineSegments.size() > 0)return mFixedLineSegments.at(index - 1);
-		//it shouldn't run to here
-		return mFreeHeader;
-	};*/
-
 	assert(mFixedLineSegments.size() > 0);
 	N_LineSegment frontLS = mFunction_UtGetLineSegment(currentLineSegmentIndex - 1);
 	N_LineSegment backLS = mFunction_UtGetLineSegment(currentLineSegmentIndex + 1);

@@ -159,13 +159,13 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	//*********************  sweeping trail  *************************
-	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
+	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 1000);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(5);
+	pSweepingTrail->SetInterpolationStepCount(10);
 	pSweepingTrail->SetCubicHermiteTangentScale(0.7f);
 
 	return TRUE;
