@@ -50,7 +50,7 @@ void Noise3D::IRenderModuleForSweepingTrailFX::RenderSweepingTrails()
 
 		//draw
 		m_pFX_DrawSolid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (pTrail->IsRenderable())g_pImmediateContext->Draw(pTrail->GetActiveVerticesCount(), 0);
+		if (pTrail->IsRenderable())g_pImmediateContext->Draw(pTrail->GetLastDrawnVerticesCount(), 0);
 	}
 }
 

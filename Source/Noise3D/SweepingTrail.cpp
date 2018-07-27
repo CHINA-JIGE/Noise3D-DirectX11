@@ -32,6 +32,11 @@
 using namespace Noise3D;
 
 Noise3D::ISweepingTrail::ISweepingTrail() :
+	mInterpolationStepCount(1),
+	mLastDrawnVerticesCount(0),
+	mCubicHermiteTangentScale(0.5f),
+	mGpuVertexPoolByteCapacity(0),
+	mGpuPoolMaxVertexCount(0),
 	mHeaderCoolDownTimer(0.0f),
 	mHeaderCoolDownTimeThreshold(20.0f),
 	mMaxLifeTimeOfLS(1000.0f)
@@ -69,20 +74,21 @@ void Noise3D::ISweepingTrail::SetMaxLifeTimeOfLineSegment(float duration)
 	mMaxLifeTimeOfLS = duration;
 }
 
-uint32_t Noise3D::ISweepingTrail::GetActiveVerticesCount()
+uint32_t Noise3D::ISweepingTrail::GetLastDrawnVerticesCount()
 {
-	return 6 * (mFixedLineSegments.size()+1) ;
+	return mLastDrawnVerticesCount ;
 }
 
 void Noise3D::ISweepingTrail::SetInterpolationStepCount(uint32_t count)
 {
+	if (count == 0)count = 1;
 	mInterpolationStepCount = count;
 }
 
-/*void Noise3D::ISweepingTrail::SetHeaderCoolDownDistance(float distance)
+void Noise3D::ISweepingTrail::SetCubicHermiteTangentScale(float length)
 {
-	mHeaderCoolDownDistanceThreshold = distance;
-}*/
+	mCubicHermiteTangentScale = length;
+}
 
 void Noise3D::ISweepingTrail::Update(float deltaTime)
 {
@@ -118,6 +124,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	std::vector<N_SweepingTrailVertexType> tmpVec(maxVertexCount);
 	tmpInitData_Vertex.pSysMem = &tmpVec.at(0);
 	mGpuVertexPoolByteCapacity = sizeof(N_SweepingTrailVertexType)* maxVertexCount;
+	mGpuPoolMaxVertexCount = maxVertexCount;
 
 	//Simple Vertex!
 	D3D11_BUFFER_DESC vbd;
@@ -131,7 +138,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	//create gpu vertex buffer
 	int hr = 0;
 	hr = D3D::g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
-	HR_DEBUG(hr, "SweepingTrail : Failed to create vertex pool ! ");
+	HR_DEBUG(hr, "SweepingTrail : Failed to create vertex pool !");
 
 	return true;
 }
@@ -181,7 +188,6 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 	}
 }
 
-
 void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 {
 	if (mFixedLineSegments.size() > 0)
@@ -189,7 +195,7 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 		//****Map*****
 		//(2018.7.24)if vertex size in memory exceeds GPU vertex pool capacity, then some of the front vertices won't be uploaded.
 		//pre-caution for index-out-of-range situation
-		int maxStartVertexIndex = mGpuVertexPoolByteCapacity - sizeof(N_SweepingTrailVertexType) * mInterpolationStepCount * 6;
+		int maxStartVertexIndex = mGpuPoolMaxVertexCount - mInterpolationStepCount * 6;
 
 		D3D11_MAPPED_SUBRESOURCE mappedRes;
 		HRESULT hr = D3D::g_pImmediateContext->Map(m_pVB_Gpu, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mappedRes);
@@ -199,24 +205,19 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 			return;
 		}
 
-		int vertexIndexOffset = 0;
-		N_GenQuadInfo info;
+		/*N_GenQuadInfo tmpInfo;
 		//generate quads (directly to mapped area)
 		//header quad(header is moving)
 		if (vertexIndexOffset > maxStartVertexIndex)return;//not enought space, exit
 		N_SweepingTrailVertexType* tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + vertexIndexOffset;
-		info.frontPos1 = mFreeHeader.vert1;
-		info.frontPos2 = mFreeHeader.vert2;
-		info.frontTangent1 = mFixedLineSegments.front().vert1 - mFreeHeader.vert1;
-		info.frontTangent2 = mFixedLineSegments.front().vert2 - mFreeHeader.vert2;
-		info.backPos1 = mFixedLineSegments.front().vert1;
-		info.backPos2 = mFixedLineSegments.front().vert2;
-		info.backTangent1 = 
+		tmpInfo.frontPos1 = mFreeHeader.vert1;
+		tmpInfo.frontPos2 = mFreeHeader.vert2;
+		tmpInfo.backPos1 = mFixedLineSegments.front().vert1;
+		tmpInfo.backPos2 = mFixedLineSegments.front().vert2;
+		mFunction_UtEstimateTangent(0, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
+		mFunction_UtEstimateTangent(1, tmpInfo.backTangent1, tmpInfo.backTangent2);*/
 
-		vertexIndexOffset += mFunction_UtGenQuad(
-			mFreeHeader, mFixedLineSegments.front(),
-			mFunction_UtComputeLSLifeTimer(0), mFunction_UtComputeLSLifeTimer(1) ,
-			tmpMemAddr);
+		/*vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLSLifeTimer(0), mFunction_UtComputeLSLifeTimer(1) ,tmpMemAddr);
 
 		//middle quads
 		for (int i =0; i< mFixedLineSegments.size()-1; ++i)
@@ -236,19 +237,37 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 
 		mFunction_UtGenQuad(mFixedLineSegments.back(), mFreeTail_Current, 
 			mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size()), mMaxLifeTimeOfLS,
-			tmpMemAddr);
+			tmpMemAddr);*/
+
+		int vertexIndexOffset = 0;
+		int totalRegionCount = mFixedLineSegments.size() + 2 - 1;
+		for (int i = 0; i < totalRegionCount; ++i)//be careful of corner cases
+		{
+			if (vertexIndexOffset > maxStartVertexIndex)
+			{
+				return;//not enought space, exit
+			}
+			N_SweepingTrailVertexType* tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + vertexIndexOffset;
+			N_GenQuadInfo tmpInfo;
+			N_LineSegment frontLS = mFunction_UtGetLineSegment(i);
+			N_LineSegment backLS = mFunction_UtGetLineSegment(i+1);
+			tmpInfo.interpolation_steps = mInterpolationStepCount;
+			tmpInfo.frontPos1 = frontLS.vert1;
+			tmpInfo.frontPos2 = frontLS.vert2;
+			tmpInfo.backPos1 = backLS.vert1;
+			tmpInfo.backPos2 = backLS.vert2;
+			//uses adjacent vertices to estimate current vertex's tangent, CORNER CASES are dealt with inside the function
+			mFunction_UtEstimateTangent(i, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
+			mFunction_UtEstimateTangent(i+1, tmpInfo.backTangent1, tmpInfo.backTangent2);
+
+			//Gen interpolated Quads
+			vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i+1), tmpMemAddr);
+		}
 
 		//**********Unmap***************
 		D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
+		mLastDrawnVerticesCount = vertexIndexOffset;
 	}
-}
-
-float Noise3D::ISweepingTrail::mFunction_UtDistanceBetweenLine(N_LineSegment & line1, N_LineSegment & line2)
-{
-	float vertexDist1 = (line1.vert1 - line2.vert1).Length();
-	float vertexDist2 = (line1.vert2 - line2.vert2).Length();
-	float lineDist = max(vertexDist1, vertexDist2);
-	return lineDist;
 }
 
 //compute current life time elapsed of line segment in given position
@@ -325,4 +344,49 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	//2 line segment, 2 triangles, 6 vertices
 	const int c_quadVertexCount = 6;
 	return (desc.interpolation_steps) * c_quadVertexCount;
+}
+
+void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
+{
+	//1. the first and second header
+	if (currentLineSegmentIndex == 0)
+	{
+		outTangent1 = mFixedLineSegments.front().vert1- mFreeHeader.vert1;
+		outTangent2 = mFixedLineSegments.front().vert2-  mFreeHeader.vert2 ;
+		return;
+	}
+
+	//2. the first and second tail
+	if (currentLineSegmentIndex == mFixedLineSegments.size()+1)
+	{
+		outTangent1 = mFreeTail_Current.vert1 - mFixedLineSegments.back().vert1;
+		outTangent2 = mFreeTail_Current.vert2 - mFixedLineSegments.back().vert2;
+		return;
+	}
+
+	//3.the middle line segments
+	assert(mFixedLineSegments.size() > 0);
+	N_LineSegment frontLS = mFunction_UtGetLineSegment(currentLineSegmentIndex - 1);
+	N_LineSegment backLS = mFunction_UtGetLineSegment(currentLineSegmentIndex + 1);
+	outTangent1 = backLS.vert1 - frontLS.vert1;
+	//outTangent1.Normalize();
+	//outTangent1 *= mCubicHermiteTangentScale;
+	outTangent1 *= mCubicHermiteTangentScale;
+
+	outTangent2 = backLS.vert2 - frontLS.vert2;
+	//outTangent2.Normalize();
+	//outTangent2 *= mCubicHermiteTangentScale;
+	outTangent2 *= mCubicHermiteTangentScale;
+}
+
+inline N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)
+{
+	//header
+	if (index == 0)return mFreeHeader;
+	//tail
+	if (index == mFixedLineSegments.size() + 2 - 1)return mFreeTail_Current;
+	//middle 
+	if (mFixedLineSegments.size() > 0)return mFixedLineSegments.at(index - 1);
+	//it shouldn't run to here
+	return mFreeHeader;
 }

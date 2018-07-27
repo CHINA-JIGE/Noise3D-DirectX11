@@ -49,10 +49,13 @@ namespace Noise3D
 		void SetMaxLifeTimeOfLineSegment(float duration_ms);
 
 		//
-		uint32_t GetActiveVerticesCount();
+		uint32_t GetLastDrawnVerticesCount();
 
 		//spline interpolation steps (count of sub-regions divided into)
 		void SetInterpolationStepCount(uint32_t count);
+
+		//set the length of Cubic Hermite Interpolation's tangent scale (normally [0,1])
+		void SetCubicHermiteTangentScale(float scale);
 
 		//updating vertices (to gpu vertex buffer):
 		//1. header line segment's position 
@@ -98,9 +101,6 @@ namespace Noise3D
 		//Gen actually vertices to draw
 		void mFunction_GenVerticesAndUpdateToGpuBuffer();
 
-		//
-		float mFunction_UtDistanceBetweenLine(N_LineSegment& line1,N_LineSegment& line2);
-
 		//calculate given line segment's life timer
 		float mFunction_UtComputeLSLifeTimer(int index);
 
@@ -110,8 +110,12 @@ namespace Noise3D
 		//estimate tangent of given point
 		void mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
 
+		//seperating header and tail from the middle fixed line segment brings a lot of troubling corner cases...
+		N_LineSegment mFunction_UtGetLineSegment(int index);
+
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
-		UINT mGpuVertexPoolByteCapacity;
+		uint32_t mGpuVertexPoolByteCapacity;
+		uint32_t mGpuPoolMaxVertexCount;
 
 		//line segments list (free/dynamic HEADER line segments are EXCLUDED)
 		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
@@ -119,7 +123,9 @@ namespace Noise3D
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
 		N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
-		int mInterpolationStepCount;//steps for cubic hermite interpolation
+		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
+		float mCubicHermiteTangentScale;
+		uint32_t mLastDrawnVerticesCount;
 
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mHeaderCoolDownTimer;	//timer (initially 0, increment)

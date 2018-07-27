@@ -161,10 +161,12 @@ BOOL Init3D(HWND hwnd)
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
-	pSweepingTrail->SetHeaderCoolDownTimeThreshold(30.0f);
-	pSweepingTrail->SetMaxLifeTimeOfLineSegment(100.0f);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
+	pSweepingTrail->SetMaxLifeTimeOfLineSegment(130.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
+	pSweepingTrail->SetInterpolationStepCount(10);
+	pSweepingTrail->SetCubicHermiteTangentScale(0.5f);
 
 	return TRUE;
 };
@@ -172,8 +174,8 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	incrNum += 1.0f;
-	::Sleep(33);
+	incrNum += 0.3f;
+	::Sleep(100);
 
 	InputProcess();
 	pRenderer->ClearBackground();
@@ -181,11 +183,11 @@ void MainLoop()
 
 	//update fps lable
 	std::stringstream tmpS;
-	tmpS << "fps :" << timer.GetFPS() << "__vertex count:" << pSweepingTrail->GetActiveVerticesCount();// << std::endl;
+	tmpS << "fps :" << timer.GetFPS() << "__vertex count:" << pSweepingTrail->GetLastDrawnVerticesCount();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(2.0f*sinf(incrNum), 0, 2.0f*cosf(incrNum))));
-	pSweepingTrail->Update(33.0f);
+	pSweepingTrail->Update(10.0f);
 
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
@@ -212,27 +214,27 @@ void InputProcess()
 
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_A))
 	{
-		pCamera->fps_MoveRight(-0.1f, FALSE);
+		pCamera->fps_MoveRight(-0.02f * timer.GetInterval() , FALSE);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_D))
 	{
-		pCamera->fps_MoveRight(0.1f, FALSE);
+		pCamera->fps_MoveRight(0.02f * timer.GetInterval(), FALSE);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
 	{
-		pCamera->fps_MoveForward(0.1f, FALSE);
+		pCamera->fps_MoveForward(0.02f* timer.GetInterval(), FALSE);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
 	{
-		pCamera->fps_MoveForward(-0.1f, FALSE);
+		pCamera->fps_MoveForward(-0.02f* timer.GetInterval(), FALSE);
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_SPACE))
 	{
-		pCamera->fps_MoveUp(0.1f);
+		pCamera->fps_MoveUp(0.02f* timer.GetInterval());
 	}
 	if (inputE.IsKeyPressed(Ut::NOISE_KEY_LCONTROL))
 	{
-		pCamera->fps_MoveUp(-0.1f);
+		pCamera->fps_MoveUp(-0.02f* timer.GetInterval());
 	}
 
 	//Sweeping Trail movement
