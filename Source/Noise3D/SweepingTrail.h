@@ -70,6 +70,8 @@ namespace Noise3D
 		//curved interpolation is needed, use tangent for Cubic Hermite
 		struct N_GenQuadInfo
 		{
+			N_GenQuadInfo() :interpolation_steps(1) {};
+
 			uint32_t interpolation_steps;//final sub-regions count. e.g. 5 steps, each 0.2 lerp ratio, 4 cuts
 			NVECTOR3 frontPos1;
 			NVECTOR3 frontPos2;
@@ -106,6 +108,8 @@ namespace Noise3D
 
 		//generated interpolated quad group(between a pair of line segment)
 		int mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
+
+		int mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
 
 		//estimate tangent of given point
 		void mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);

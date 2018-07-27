@@ -163,10 +163,10 @@ BOOL Init3D(HWND hwnd)
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
-	pSweepingTrail->SetMaxLifeTimeOfLineSegment(130.0f);
+	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
 	pSweepingTrail->SetInterpolationStepCount(10);
-	pSweepingTrail->SetCubicHermiteTangentScale(0.5f);
+	pSweepingTrail->SetCubicHermiteTangentScale(0.7f);
 
 	return TRUE;
 };
@@ -174,11 +174,11 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	incrNum += 0.3f;
-	::Sleep(100);
+	incrNum += 0.2f;
+	::Sleep(500);
 
 	InputProcess();
-	pRenderer->ClearBackground();
+	pRenderer->ClearBackground(NVECTOR4(0.7f,0.7f,0.7f,1.0f));
 	timer.NextTick();
 
 	//update fps lable
@@ -186,7 +186,7 @@ void MainLoop()
 	tmpS << "fps :" << timer.GetFPS() << "__vertex count:" << pSweepingTrail->GetLastDrawnVerticesCount();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 
-	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(2.0f*sinf(incrNum), 0, 2.0f*cosf(incrNum))));
+	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(5.0f*sinf(incrNum), 0, 5.0f*cosf(incrNum))));
 	pSweepingTrail->Update(10.0f);
 
 	//add to render list
@@ -194,7 +194,7 @@ void MainLoop()
 	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->AddToRenderQueue(pSweepingTrail);
-	pRenderer->SetActiveAtmosphere(pAtmos);
+	//pRenderer->SetActiveAtmosphere(pAtmos);
 	static N_PostProcessGreyScaleDesc desc;
 	desc.factorR = 0.3f;
 	desc.factorG = 0.59f;
