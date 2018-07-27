@@ -224,7 +224,7 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 			if (index == 0)return mFreeHeader;
 			//tail
 			if (index == mFixedLineSegments.size() + 2 - 1)return mFreeTail_Start;
-			//middle 
+			//middle
 			if (mFixedLineSegments.size() > 0)return mFixedLineSegments.at(index - 1);
 			//it shouldn't run to here
 			return mFreeHeader;
@@ -239,38 +239,34 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 				return;//not enought mem space, exit
 			}
 			N_SweepingTrailVertexType* tmpMemAddr = (N_SweepingTrailVertexType*)mappedRes.pData + vertexIndexOffset;
+			N_GenQuadInfo tmpInfo;
+			N_LineSegment frontLS = mFunction_UtGetLineSegment(i);
+			N_LineSegment backLS = mFunction_UtGetLineSegment(i + 1);
+			tmpInfo.interpolation_steps = mInterpolationStepCount;
+			tmpInfo.frontPos1 = frontLS.vert1;
+			tmpInfo.frontPos2 = frontLS.vert2;
+			tmpInfo.backPos1 = backLS.vert1;
+			tmpInfo.backPos2 = backLS.vert2;
+			//uses adjacent vertices to estimate current vertex's tangent, CORNER CASES are dealt with inside the function
+			mFunction_UtEstimateTangent(i, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
+			mFunction_UtEstimateTangent(i + 1, tmpInfo.backTangent1, tmpInfo.backTangent2);
 
 			//interpolation of the last region is dealt with differently (to ensure that the tail collapses on history path)
 			if (i == totalRegionCount - 1)
 			{
 				//Gen the last interpolated quad (behaviour is different with the front quads)
-				vertexIndexOffset += mFunction_UtGenLastQuad(mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
+			//vertexIndexOffset += mFunction_UtGenLastQuad(mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
+				tmpInfo.collapsingFactor = mTailQuadCollapsingRatio;
 			}
-			else
-			{
-				N_GenQuadInfo tmpInfo;
-				N_LineSegment frontLS = mFunction_UtGetLineSegment(i);
-				N_LineSegment backLS = mFunction_UtGetLineSegment(i + 1);
-				tmpInfo.interpolation_steps = mInterpolationStepCount;
-				tmpInfo.frontPos1 = frontLS.vert1;
-				tmpInfo.frontPos2 = frontLS.vert2;
-				tmpInfo.backPos1 = backLS.vert1;
-				tmpInfo.backPos2 = backLS.vert2;
-				//uses adjacent vertices to estimate current vertex's tangent, CORNER CASES are dealt with inside the function
-				mFunction_UtEstimateTangent(i, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
-				mFunction_UtEstimateTangent(i + 1, tmpInfo.backTangent1, tmpInfo.backTangent2);
+			//Gen normal interpolated Quads
+			vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
 
-				//Gen normal interpolated Quads
-				vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
-			}
+			//**********Unmap***************
+			D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
+			mLastDrawnVerticesCount = vertexIndexOffset;
 		}
-
-		//**********Unmap***************
-		D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
-		mLastDrawnVerticesCount = vertexIndexOffset;
 	}
 }
-
 //compute current life time elapsed of line segment in given position
 float Noise3D::ISweepingTrail::mFunction_UtComputeLSLifeTimer(int index)
 {
@@ -300,9 +296,9 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	float unitRatio = 1.0f / desc.interpolation_steps;
 	for (int i = 0; i < desc.interpolation_steps; ++i)
 	{
-		//pre-interpolationStartFactor is usually 1.0f (but the tail LS's factor will be smaller than 1.0f because the tail keep approaching the second last LS)
-		float frontLerpRatio = i * unitRatio;
-		float backLerpRatio = (i + 1) * unitRatio;
+		//tailCollapsingFactor is usually 0.0f (but the tail LS's factor will be larger than 0.0f because the tail keep approaching the second last LS)
+		float frontLerpRatio = (1.0f - desc.collapsingFactor) *  i * unitRatio;
+		float backLerpRatio = (1.0f - desc.collapsingFactor) * (i + 1) * unitRatio;
 
 		//front line segment in interpolaton(start and end line segment is passed in as function param)
 		NVECTOR3 interpFrontPos1	=	Ut::CubicHermite(desc.frontPos1, desc.backPos1, desc.frontTangent1 ,desc.backTangent1 , frontLerpRatio);
@@ -349,7 +345,7 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	return (desc.interpolation_steps) * c_quadVertexCount;
 }
 
-int Noise3D::ISweepingTrail::mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType * quad)
+/*int Noise3D::ISweepingTrail::mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType * quad)
 {
 	/*
 	vector of line segment (vector index 0-->n, line/vertex index 0-->n)
@@ -360,7 +356,7 @@ int Noise3D::ISweepingTrail::mFunction_UtGenLastQuad(float frontLifeTimer, float
 
 	sweeping trail moving direction
 	<---------------------
-	*/
+	
 
 	//Cubic Hermite interplation is used between each passed-in pair of line segments
 	float unitRatio = 1.0f / mInterpolationStepCount;
@@ -419,7 +415,7 @@ int Noise3D::ISweepingTrail::mFunction_UtGenLastQuad(float frontLifeTimer, float
 	//2 line segment, 2 triangles, 6 vertices
 	const int c_quadVertexCount = 6;
 	return mInterpolationStepCount* c_quadVertexCount;
-}
+}*/
 
 void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
 {
@@ -465,7 +461,7 @@ void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegment
 	outTangent2 *= mCubicHermiteTangentScale;
 }
 
-N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)
+inline N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)
 {
 	//header
 	if (index == 0)return mFreeHeader;

@@ -161,11 +161,11 @@ BOOL Init3D(HWND hwnd)
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 500);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(10);
+	pSweepingTrail->SetInterpolationStepCount(5);
 	pSweepingTrail->SetCubicHermiteTangentScale(0.7f);
 
 	return TRUE;
@@ -175,7 +175,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.2f;
-	::Sleep(500);
+	::Sleep(100);
 
 	InputProcess();
 	pRenderer->ClearBackground(NVECTOR4(0.7f,0.7f,0.7f,1.0f));

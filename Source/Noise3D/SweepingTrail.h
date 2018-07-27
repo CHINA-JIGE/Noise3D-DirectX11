@@ -70,9 +70,10 @@ namespace Noise3D
 		//curved interpolation is needed, use tangent for Cubic Hermite
 		struct N_GenQuadInfo
 		{
-			N_GenQuadInfo() :interpolation_steps(1) {};
+			N_GenQuadInfo() :interpolation_steps(1), collapsingFactor(0.0f){};
 
 			uint32_t interpolation_steps;//final sub-regions count. e.g. 5 steps, each 0.2 lerp ratio, 4 cuts
+			float collapsingFactor;//for tail quad, mTailCollapsingFactor should be passed in
 			NVECTOR3 frontPos1;
 			NVECTOR3 frontPos2;
 			NVECTOR3 frontTangent1;//estimated tangent (for Cubic Hermite Spline)
@@ -109,7 +110,7 @@ namespace Noise3D
 		//generated interpolated quad group(between a pair of line segment)
 		int mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
 
-		int mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
+		//int mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
 
 		//estimate tangent of given point
 		void mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
@@ -128,12 +129,11 @@ namespace Noise3D
 		N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
 		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
-		float mCubicHermiteTangentScale;
+		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
 		uint32_t mLastDrawnVerticesCount;
 
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mHeaderCoolDownTimer;	//timer (initially 0, increment)
-		//float mHeaderCoolDownDistanceThreshold;//if the distance between the first & second line is larger than given distance, the header segment will be fixed down and add to "Cooled down line segments"
 		float mMaxLifeTimeOfLS;//the maximum time each line segment can live
 
 	};
