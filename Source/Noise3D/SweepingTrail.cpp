@@ -39,7 +39,9 @@ Noise3D::ISweepingTrail::ISweepingTrail() :
 	mGpuPoolMaxVertexCount(0),
 	mHeaderCoolDownTimer(0.0f),
 	mHeaderCoolDownTimeThreshold(20.0f),
-	mMaxLifeTimeOfLS(1000.0f)
+	mMaxLifeTimeOfLS(1000.0f),
+	mFreeTailTangent1(233.0f,666.0f,666.0f),
+	mFreeTailTangent2(233.0f, 666.0f, 666.0f)
 {
 }
 
@@ -101,7 +103,8 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 		mFixedLineSegments.push_back(mFreeHeader);
 		//maybe it's in initial state, reset the tail
 		mFreeTail_Start = mFreeHeader;
-		//mFreeTail_Current = mFreeHeader;
+		mFreeTailTangent1 = NVECTOR3(0, 0, 0);
+		mFreeTailTangent2 = NVECTOR3(0, 0, 0);
 	}
 
 	mFunction_CoolDownHeader();
@@ -112,6 +115,19 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 bool Noise3D::ISweepingTrail::IsRenderable()
 {
 	return !mFixedLineSegments.empty();//at least a quad(emmm, ideally it should have at least 2 quads)
+}
+
+void Noise3D::ISweepingTrail::GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList)
+{
+	//copy the tangent list outside for debug use
+	outList = mTangentList;
+}
+
+void Noise3D::ISweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList)
+{
+	outList = mFixedLineSegments;
+	outList.insert(outList.begin(), mFreeHeader);
+	outList.push_back(mFreeTail_Start);
 }
 
 /*****************************************************************
@@ -182,10 +198,9 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 		if (mTailQuadCollapsingRatio >= 1.0f)
 		{
 			mFreeTail_Start = mFixedLineSegments.back();
-			//mFreeTail_Current = mFixedLineSegments.back();
 
 			//store the 2nd last tangents to new free tail tangent
-			mFunction_UtEstimateTangent(mFixedLineSegments.size()-1, mFreeTailTangent1, mFreeTailTangent2);
+			mFunction_UtGetTangent(mFixedLineSegments.size()-1, mFreeTailTangent1, mFreeTailTangent2);
 			//mFreeTailTangent1 = mTangentList.at(mTangentList.size()-2).first;
 			//mFreeTailTangent2 = mTangentList.at(mTangentList.size() - 2).second;
 			mFixedLineSegments.pop_back();//pop the last fixed line from the vector's back
@@ -214,7 +229,7 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 		}
 
 		int vertexIndexOffset = 0;
-		int totalRegionCount = mFixedLineSegments.size() + 2 - 1;
+		int totalRegionCount = mFixedLineSegments.size() + 1;
 		for (int i = 0; i < totalRegionCount; ++i)//be careful of corner cases
 		{
 			if (vertexIndexOffset > maxStartVertexIndex)
@@ -231,8 +246,12 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 			tmpInfo.backPos1 = backLS.vert1;
 			tmpInfo.backPos2 = backLS.vert2;
 			//uses adjacent vertices to estimate current vertex's tangent, CORNER CASES are dealt with inside the function
-			mFunction_UtEstimateTangent(i, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
-			mFunction_UtEstimateTangent(i + 1, tmpInfo.backTangent1, tmpInfo.backTangent2);
+			tmpInfo.frontTangent1 = mTangentList.at(i).first;
+			tmpInfo.frontTangent2 = mTangentList.at(i).second;
+			tmpInfo.backTangent1 = mTangentList.at(i+1).first;
+			tmpInfo.backTangent2 = mTangentList.at(i+1).second;
+			//mFunction_UtGetTangent(i, tmpInfo.frontTangent1, tmpInfo.frontTangent2);
+			//mFunction_UtGetTangent(i + 1, tmpInfo.backTangent1, tmpInfo.backTangent2);
 
 			//interpolation of the last region is dealt with differently (to ensure that the tail collapses on history path)
 			if (i == totalRegionCount - 1)
@@ -349,45 +368,10 @@ void Noise3D::ISweepingTrail::mFunction_UtEstimateTangents()
 	mTangentList.at(mFixedLineSegments.size() + 1).second = mFreeTailTangent2;
 }
 
-void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
+void Noise3D::ISweepingTrail::mFunction_UtGetTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
 {
 	outTangent1 = mTangentList.at(currentLineSegmentIndex).first;
 	outTangent2 = mTangentList.at(currentLineSegmentIndex).second;
-}
-
-void Noise3D::ISweepingTrail::mFunction_UtEstimateTangent2(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
-{
-	//mesh is generated from header to tail, so tangent is headed to the tail
-	//1. the header
-	if (currentLineSegmentIndex == 0)
-	{
-		outTangent1 = mFixedLineSegments.front().vert1- mFreeHeader.vert1;
-		outTangent1 *= mCubicHermiteTangentScale;
-		outTangent2 = mFixedLineSegments.front().vert2-  mFreeHeader.vert2 ;
-		outTangent2 *= mCubicHermiteTangentScale;
-		return;
-	}
-
-	//2. the tail
-	if (currentLineSegmentIndex == mFixedLineSegments.size()+1)
-	{
-		/*outTangent1 = mFreeTail_Start.vert1 - mFixedLineSegments.back().vert1;
-		outTangent1 *= mCubicHermiteTangentScale;
-		outTangent2 = mFreeTail_Start.vert2 - mFixedLineSegments.back().vert2;
-		outTangent2 *= mCubicHermiteTangentScale;*/
-		outTangent1 = mFreeTailTangent1;
-		outTangent2 = mFreeTailTangent2;
-		return;
-	}
-
-	//3.the middle line segments
-	assert(mFixedLineSegments.size() > 0);
-	N_LineSegment frontLS = mFunction_UtGetLineSegment(currentLineSegmentIndex - 1);
-	N_LineSegment backLS = mFunction_UtGetLineSegment(currentLineSegmentIndex + 1);
-	outTangent1 = backLS.vert1 - frontLS.vert1;
-	outTangent1 *= mCubicHermiteTangentScale;
-	outTangent2 = backLS.vert2 - frontLS.vert2;
-	outTangent2 *= mCubicHermiteTangentScale;
 }
 
 inline N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)

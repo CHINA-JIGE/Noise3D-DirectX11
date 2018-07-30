@@ -65,6 +65,11 @@ namespace Noise3D
 
 		bool IsRenderable();
 
+		//for debug use. Copy the whole list to outside. This might cause performance overhead, plz be noticed.
+		void GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList);
+
+		void GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList);
+
 	private:
 
 		//curved interpolation is needed, use tangent for Cubic Hermite
@@ -112,13 +117,13 @@ namespace Noise3D
 
 		//estimate tangent of given point
 		void mFunction_UtEstimateTangents();
-		void mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
-		void mFunction_UtEstimateTangent2(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
 
+		void mFunction_UtGetTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
 
 		//seperating header and tail from the middle fixed line segment brings a lot of troubling corner cases...
 		N_LineSegment mFunction_UtGetLineSegment(int index);
 
+		//...
 		ID3D11Buffer*	 m_pVB_Gpu;//(2018.7.23)simple vertex
 		uint32_t mGpuVertexPoolByteCapacity;
 		uint32_t mGpuPoolMaxVertexCount;
@@ -127,7 +132,6 @@ namespace Noise3D
 		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
 		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
-		//N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
 		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
 		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
