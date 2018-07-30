@@ -40,8 +40,8 @@ Noise3D::ISweepingTrail::ISweepingTrail() :
 	mHeaderCoolDownTimer(0.0f),
 	mHeaderCoolDownTimeThreshold(20.0f),
 	mMaxLifeTimeOfLS(1000.0f),
-	mFreeTailTangent1(233.0f,666.0f,666.0f),
-	mFreeTailTangent2(233.0f, 666.0f, 666.0f)
+	mFreeTailTangent1(0,0,0),
+	mFreeTailTangent2(0, 0, 0)
 {
 }
 
@@ -52,8 +52,9 @@ Noise3D::ISweepingTrail::~ISweepingTrail()
 
 void Noise3D::ISweepingTrail::SetHeader(N_LineSegment lineSeg)
 {
+	//store prev state of Free header for tangent estimation
+	mFreeHeader_PreviousState = mFreeHeader;
 	mFreeHeader = lineSeg;
-	//if (!mIsHeaderActive)mIsHeaderActive = true;
 }
 
 N_LineSegment Noise3D::ISweepingTrail::GetHeader()
@@ -103,12 +104,14 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 		mFixedLineSegments.push_back(mFreeHeader);
 		//maybe it's in initial state, reset the tail
 		mFreeTail_Start = mFreeHeader;
+		mFreeHeader_PreviousState = mFreeHeader;
 		mFreeTailTangent1 = NVECTOR3(0, 0, 0);
 		mFreeTailTangent2 = NVECTOR3(0, 0, 0);
 	}
 
 	mFunction_CoolDownHeader();
 	mFunction_MoveAndCollapseTail();
+	mFunction_EstimateTangents();
 	mFunction_GenVerticesAndUpdateToGpuBuffer();
 }
 
@@ -200,18 +203,38 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 			mFreeTail_Start = mFixedLineSegments.back();
 
 			//store the 2nd last tangents to new free tail tangent
-			mFunction_UtGetTangent(mFixedLineSegments.size()-1, mFreeTailTangent1, mFreeTailTangent2);
-			//mFreeTailTangent1 = mTangentList.at(mTangentList.size()-2).first;
-			//mFreeTailTangent2 = mTangentList.at(mTangentList.size() - 2).second;
+			mFreeTailTangent1 = mTangentList.at(mTangentList.size() - 2).first;
+			mFreeTailTangent2 = mTangentList.at(mTangentList.size() - 2).second;
 			mFixedLineSegments.pop_back();//pop the last fixed line from the vector's back
 			mTailQuadCollapsingRatio = 0.0f;
 		}
 	}
 }
 
+void Noise3D::ISweepingTrail::mFunction_EstimateTangents()
+{
+	mTangentList.resize(mFixedLineSegments.size() + 2);
+	mTangentList.at(0).first = mFreeHeader_PreviousState.vert1 - mFreeHeader.vert1;
+	mTangentList.at(0).first *= mCubicHermiteTangentScale;
+	mTangentList.at(0).second = mFreeHeader_PreviousState.vert2 - mFreeHeader.vert2;
+	mTangentList.at(0).second *= mCubicHermiteTangentScale;
+
+	for (int i = 1; i <= mFixedLineSegments.size(); ++i)
+	{
+		N_LineSegment frontLS = mFunction_UtGetLineSegment(i - 1);
+		N_LineSegment backLS = mFunction_UtGetLineSegment(i + 1);
+		mTangentList.at(i).first = backLS.vert1 - frontLS.vert1;
+		mTangentList.at(i).first *= mCubicHermiteTangentScale;
+		mTangentList.at(i).second = backLS.vert2 - frontLS.vert2;
+		mTangentList.at(i).second *= mCubicHermiteTangentScale;
+	}
+
+	mTangentList.at(mFixedLineSegments.size() + 1).first = mFreeTailTangent1;
+	mTangentList.at(mFixedLineSegments.size() + 1).second = mFreeTailTangent2;
+}
+
 void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 {
-	mFunction_UtEstimateTangents();
 
 	if (mFixedLineSegments.size() > 0)
 	{
@@ -268,6 +291,8 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 	}
 
 }
+
+
 //compute current life time elapsed of line segment in given position
 float Noise3D::ISweepingTrail::mFunction_UtComputeLSLifeTimer(int index)
 {
@@ -344,34 +369,6 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	//2 line segment, 2 triangles, 6 vertices
 	const int c_quadVertexCount = 6;
 	return (desc.interpolation_steps) * c_quadVertexCount;
-}
-
-void Noise3D::ISweepingTrail::mFunction_UtEstimateTangents()
-{
-	mTangentList.resize(mFixedLineSegments.size() + 2);
-	mTangentList.at(0).first = mFixedLineSegments.front().vert1 - mFreeHeader.vert1;
-	mTangentList.at(0).first *= mCubicHermiteTangentScale;
-	mTangentList.at(0).second = mFixedLineSegments.front().vert2 - mFreeHeader.vert2;
-	mTangentList.at(0).second *= mCubicHermiteTangentScale;
-
-	for (int i = 1; i <= mFixedLineSegments.size(); ++i)
-	{
-		N_LineSegment frontLS = mFunction_UtGetLineSegment(i - 1);
-		N_LineSegment backLS = mFunction_UtGetLineSegment(i + 1);
-		mTangentList.at(i).first = backLS.vert1 - frontLS.vert1;
-		mTangentList.at(i).first *= mCubicHermiteTangentScale;
-		mTangentList.at(i).second = backLS.vert2 - frontLS.vert2;
-		mTangentList.at(i).second *= mCubicHermiteTangentScale;
-	}
-
-	mTangentList.at(mFixedLineSegments.size() + 1).first = mFreeTailTangent1;
-	mTangentList.at(mFixedLineSegments.size() + 1).second = mFreeTailTangent2;
-}
-
-void Noise3D::ISweepingTrail::mFunction_UtGetTangent(int currentLineSegmentIndex, NVECTOR3 & outTangent1, NVECTOR3 & outTangent2)
-{
-	outTangent1 = mTangentList.at(currentLineSegmentIndex).first;
-	outTangent2 = mTangentList.at(currentLineSegmentIndex).second;
 }
 
 inline N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)

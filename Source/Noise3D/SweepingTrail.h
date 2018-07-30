@@ -106,6 +106,9 @@ namespace Noise3D
 		//Collapsing & Movement
 		void mFunction_MoveAndCollapseTail();
 
+		//estimate tangent of given point
+		void mFunction_EstimateTangents();
+
 		//Gen actually vertices to draw
 		void mFunction_GenVerticesAndUpdateToGpuBuffer();
 
@@ -114,11 +117,6 @@ namespace Noise3D
 
 		//generated interpolated quad group(between a pair of line segment)
 		int mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
-
-		//estimate tangent of given point
-		void mFunction_UtEstimateTangents();
-
-		void mFunction_UtGetTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
 
 		//seperating header and tail from the middle fixed line segment brings a lot of troubling corner cases...
 		N_LineSegment mFunction_UtGetLineSegment(int index);
@@ -131,15 +129,16 @@ namespace Noise3D
 		//line segments list (free/dynamic HEADER line segments are EXCLUDED)
 		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
 		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
+		N_LineSegment mFreeHeader_PreviousState;//store previous free header LS to optimize header's tangent
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
 		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
 		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
 		uint32_t mLastDrawnVerticesCount;
 
-		std::vector< std::pair<NVECTOR3,NVECTOR3>> mTangentList;
-		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
-		NVECTOR3 mFreeTailTangent1;
+		//Tangents for Hermite Interpolation
+		std::vector< std::pair<NVECTOR3, NVECTOR3>> mTangentList;
+		NVECTOR3 mFreeTailTangent1;		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
 		NVECTOR3 mFreeTailTangent2;
 
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"

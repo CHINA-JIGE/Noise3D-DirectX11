@@ -136,8 +136,8 @@ BOOL Init3D(HWND hwnd)
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(10);
-	pSweepingTrail->SetCubicHermiteTangentScale(0.7f);
+	pSweepingTrail->SetInterpolationStepCount(3);
+	pSweepingTrail->SetCubicHermiteTangentScale(0.6f);
 
 	return TRUE;
 };
@@ -146,7 +146,8 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.2f;
-	::Sleep(1000);
+	if (incrNum > 10.0f)incrNum = 10.0f;
+	::Sleep(100);
 
 	InputProcess();
 	pRenderer->ClearBackground(NVECTOR4(0.7f,0.7f,0.7f,1.0f));
@@ -169,9 +170,8 @@ void MainLoop()
 		pGO_TanList->AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, tgList.size()*2);
 		pGO_TanList->SetLine3D(2 * i + 0,vList.at(i).vert1,vList.at(i).vert1 + tgList.at(i).first,NVECTOR4(0,0,1.0f,1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
 		pGO_TanList->SetLine3D(2 * i + 1,vList.at(i).vert2, vList.at(i).vert2 + tgList.at(i).second, NVECTOR4(0, 1.0f, 1.0f, 1.0f), NVECTOR4(0, 1.0f, 1.0f, 1.0f));
-		//pGO_TanList->SetLine3D(2 * i + 1,pSweepingTrail->GetHeader().vert1, pSweepingTrail->GetHeader().vert1 + tgList.at(0).second, NVECTOR4(0, 1.0f, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
 	}
-
+	
 
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
