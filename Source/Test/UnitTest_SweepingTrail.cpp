@@ -237,18 +237,6 @@ void InputProcess()
 		pCamera->fps_MoveUp(-0.02f* timer.GetInterval());
 	}
 
-	//Sweeping Trail movement
-	/*if (inputE.IsKeyPressed(Ut::NOISE_KEY_J))
-	{
-		 N_LineSegment ls = pSweepingTrail->GetHeader();
-		pSweepingTrail->SetHeader(N_LineSegment( ls.vert1 +NVECTOR3(0.1f,0.0f,0.0f), ls.vert2+NVECTOR3(0.1f, 0.0f, 0.0f)));
-	}
-	if (inputE.IsKeyPressed(Ut::NOISE_KEY_K))
-	{
-		N_LineSegment ls = pSweepingTrail->GetHeader();
-		pSweepingTrail->SetHeader(N_LineSegment(ls.vert1 + NVECTOR3(-0.1f, -0.0f, 0.0f), ls.vert2 + NVECTOR3(-0.1f, -0.0f, 0.0f)));
-	}*/
-
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{

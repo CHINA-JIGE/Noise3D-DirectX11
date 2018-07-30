@@ -110,10 +110,11 @@ namespace Noise3D
 		//generated interpolated quad group(between a pair of line segment)
 		int mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
 
-		//int mFunction_UtGenLastQuad(float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
-
 		//estimate tangent of given point
+		void mFunction_UtEstimateTangents();
 		void mFunction_UtEstimateTangent(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
+		void mFunction_UtEstimateTangent2(int currentLineSegmentIndex, NVECTOR3& outTangent1, NVECTOR3& outTangent2);
+
 
 		//seperating header and tail from the middle fixed line segment brings a lot of troubling corner cases...
 		N_LineSegment mFunction_UtGetLineSegment(int index);
@@ -126,12 +127,13 @@ namespace Noise3D
 		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
 		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
-		N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
+		//N_LineSegment mFreeTail_Current;//the tail LS keep approaching to the second last LS.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
 		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
 		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
 		uint32_t mLastDrawnVerticesCount;
 
+		std::vector< std::pair<NVECTOR3,NVECTOR3>> mTangentList;
 		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
 		NVECTOR3 mFreeTailTangent1;
 		NVECTOR3 mFreeTailTangent2;
