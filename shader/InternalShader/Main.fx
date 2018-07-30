@@ -13,8 +13,8 @@
 #include "DrawSky.hlsli"
 #include "DrawSolid3D.hlsli"
 #include "Picking.hlsli"
+#include "DrawSweepingTrail.hlsli"
 #include "PostProcessing.hlsli"
-
 
 
 //implementation
@@ -25,6 +25,7 @@
 #include "DrawSky.fx"
 #include "DrawSolid3D.fx"
 #include "Picking.fx"
+#include "DrawSweepingTrail.fx"
 #include "PostProcess_SimpleEffects.fx"
 #include "PostProcess_Qwerty.fx"
 

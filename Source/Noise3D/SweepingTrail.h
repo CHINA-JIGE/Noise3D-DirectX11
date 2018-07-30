@@ -51,6 +51,8 @@ namespace Noise3D
 		//
 		uint32_t GetLastDrawnVerticesCount();
 
+		uint32_t GetActiveVerticesCount();
+
 		//spline interpolation steps (count of sub-regions divided into)
 		void SetInterpolationStepCount(uint32_t count);
 
@@ -63,7 +65,9 @@ namespace Noise3D
 		//3. every vertices' uv (actually only texcoord.u changes)
 		void Update(float deltaTime);
 
-		bool IsRenderable();
+		void SetTextureName(N_UID texName);
+
+		N_UID GetTextureName();
 
 		//for debug use. Copy the whole list to outside. This might cause performance overhead, plz be noticed.
 		void GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList);
@@ -113,7 +117,7 @@ namespace Noise3D
 		void mFunction_GenVerticesAndUpdateToGpuBuffer();
 
 		//calculate given line segment's life timer
-		float mFunction_UtComputeLSLifeTimer(int index);
+		float mFunction_UtComputeLifeTimer(int lineSegmentIndex);
 
 		//generated interpolated quad group(between a pair of line segment)
 		int mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad);	//return vertices generated
@@ -144,6 +148,9 @@ namespace Noise3D
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mHeaderCoolDownTimer;	//timer (initially 0, increment)
 		float mMaxLifeTimeOfLS;//the maximum time each line segment can live
+
+		//Texture
+		N_UID mTextureUid;
 
 	};
 }

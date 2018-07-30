@@ -16,7 +16,7 @@ Noise3D::IRenderModuleForSweepingTrailFX::IRenderModuleForSweepingTrailFX()
 
 Noise3D::IRenderModuleForSweepingTrailFX::~IRenderModuleForSweepingTrailFX()
 {
-	ReleaseCOM(m_pFX_DrawSolid3D);
+	ReleaseCOM(m_pFX_DrawSweepingTrail);
 }
 
 void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(ISweepingTrail * pTrail)
@@ -49,8 +49,9 @@ void Noise3D::IRenderModuleForSweepingTrailFX::RenderSweepingTrails()
 		mFunction_SweepingTrail_Update(pTrail);
 
 		//draw
-		m_pFX_DrawSolid3D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
-		if (pTrail->IsRenderable())g_pImmediateContext->Draw(pTrail->GetLastDrawnVerticesCount(), 0);
+		m_pFX_DrawSweepingTrail->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+		if (pTrail->GetActiveVerticesCount()>0)g_pImmediateContext->Draw(pTrail->GetActiveVerticesCount(), 0);
+
 	}
 }
 
@@ -63,7 +64,7 @@ bool Noise3D::IRenderModuleForSweepingTrailFX::Initialize(IRenderInfrastructure 
 {
 	m_pRefRI = pRI;
 	m_pRefShaderVarMgr = pShaderVarMgr;
-	m_pFX_DrawSolid3D = g_pFX->GetTechniqueByName("DrawSolid3D");
+	m_pFX_DrawSweepingTrail = g_pFX->GetTechniqueByName("DrawSweepingTrail");
 	return true;
 }
 
@@ -74,4 +75,12 @@ bool Noise3D::IRenderModuleForSweepingTrailFX::Initialize(IRenderInfrastructure 
 void Noise3D::IRenderModuleForSweepingTrailFX::mFunction_SweepingTrail_Update(ISweepingTrail * const pTrail)
 {
 	//update texture
+	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	ITexture* pTex = pTexMgr->GetTexture(pTrail->GetTextureName());
+	if (pTex && pTex->IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+	{
+		auto pSRV = m_pRefRI->GetTextureSRV(pTex);
+		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, pSRV);
+	}
+
 }

@@ -27,6 +27,9 @@
     <Filter Include="PostProcessing">
       <UniqueIdentifier>{41c84a7b-f01a-4818-a7b3-e56fa3cacb91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DrawSweepingTrail">
+      <UniqueIdentifier>{0b03a9ff-6905-4bcd-9ebe-fa1d77b8a98f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Draw2D.fx">
@@ -80,5 +83,13 @@
     <None Include="PostProcess_Qwerty.fx">
       <Filter>PostProcessing</Filter>
     </None>
+    <None Include="DrawSweepingTrail.hlsli">
+      <Filter>DrawSweepingTrail</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="DrawSweepingTrail.fx">
+      <Filter>DrawSweepingTrail</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

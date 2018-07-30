@@ -82,6 +82,11 @@ uint32_t Noise3D::ISweepingTrail::GetLastDrawnVerticesCount()
 	return mLastDrawnVerticesCount ;
 }
 
+uint32_t Noise3D::ISweepingTrail::GetActiveVerticesCount()
+{
+	return Ut::Clamp( (mFixedLineSegments.size()+1) * mInterpolationStepCount * 6,0, mGpuPoolMaxVertexCount);
+}
+
 void Noise3D::ISweepingTrail::SetInterpolationStepCount(uint32_t count)
 {
 	if (count == 0)count = 1;
@@ -115,9 +120,14 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 	mFunction_GenVerticesAndUpdateToGpuBuffer();
 }
 
-bool Noise3D::ISweepingTrail::IsRenderable()
+void Noise3D::ISweepingTrail::SetTextureName(N_UID texName)
 {
-	return !mFixedLineSegments.empty();//at least a quad(emmm, ideally it should have at least 2 quads)
+	mTextureUid = texName;
+}
+
+N_UID Noise3D::ISweepingTrail::GetTextureName()
+{
+	return mTextureUid;
 }
 
 void Noise3D::ISweepingTrail::GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList)
@@ -191,7 +201,7 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 		//life timer start from 0 and tick.
 		//And now i want ensure that the last LS's texcoord u maintain 1.0f(while it life timer is exactly equals to 'MaxLifeTime'
 		//so the last LS must move to adapt, the lerp ratio is computed below
-		float tailLSLifeTimer = mFunction_UtComputeLSLifeTimer(mFixedLineSegments.size() + 2 - 1);
+		float tailLSLifeTimer = mFunction_UtComputeLifeTimer(mFixedLineSegments.size() + 2 - 1);
 		mTailQuadCollapsingRatio = (tailLSLifeTimer - mMaxLifeTimeOfLS) / mHeaderCoolDownTimeThreshold;
 		mTailQuadCollapsingRatio = Ut::Clamp(mTailQuadCollapsingRatio, 0.0f, 1.0f);
 		//mFreeTail_Current.vert1 = Ut::Lerp(mFreeTail_Start.vert1, mFixedLineSegments.back().vert1, mTailQuadCollapsingRatio);
@@ -213,6 +223,7 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 
 void Noise3D::ISweepingTrail::mFunction_EstimateTangents()
 {
+	//angle bisector
 	mTangentList.resize(mFixedLineSegments.size() + 2);
 	mTangentList.at(0).first = mFreeHeader_PreviousState.vert1 - mFreeHeader.vert1;
 	mTangentList.at(0).first *= mCubicHermiteTangentScale;
@@ -282,7 +293,7 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 				tmpInfo.collapsingFactor = mTailQuadCollapsingRatio;
 			}
 			//Gen normal interpolated Quads
-			vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLSLifeTimer(i), mFunction_UtComputeLSLifeTimer(i + 1), tmpMemAddr);
+			vertexIndexOffset += mFunction_UtGenQuad(tmpInfo, mFunction_UtComputeLifeTimer(i), mFunction_UtComputeLifeTimer(i + 1), tmpMemAddr);
 
 			//**********Unmap***************
 			D3D::g_pImmediateContext->Unmap(m_pVB_Gpu, 0);
@@ -292,9 +303,8 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 
 }
 
-
 //compute current life time elapsed of line segment in given position
-float Noise3D::ISweepingTrail::mFunction_UtComputeLSLifeTimer(int index)
+float Noise3D::ISweepingTrail::mFunction_UtComputeLifeTimer(int index)
 {
 	//index==0, free header						|
 	//index==1, free header+1 fixed LS   |--|
@@ -355,13 +365,23 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 		quad[i * 6 + 4].TexCoord = NVECTOR2(backTexcoordU, 0.0f);
 		quad[i * 6 + 5].TexCoord = NVECTOR2(backTexcoordU, 1.0f);
 
-		quad[i * 6 + 0].Color = NVECTOR4(quad[i * 6 + 0].TexCoord.x, quad[i * 6 + 0].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 1].Color = NVECTOR4(quad[i * 6 + 1].TexCoord.x, quad[i * 6 + 1].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 2].Color = NVECTOR4(quad[i * 6 + 2].TexCoord.x, quad[i * 6 + 2].TexCoord.y, 0.0f, 1.0f);
 
-		quad[i * 6 + 3].Color = NVECTOR4(quad[i * 6 + 3].TexCoord.x, quad[i * 6 + 3].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 4].Color = NVECTOR4(quad[i * 6 + 4].TexCoord.x, quad[i * 6 + 4].TexCoord.y, 0.0f, 1.0f);
-		quad[i * 6 + 5].Color = NVECTOR4(quad[i * 6 + 5].TexCoord.x, quad[i * 6 + 5].TexCoord.y, 0.0f, 1.0f);
+		for (int j = 0; j < 6; ++j)
+		{
+			//texcoord u indicates normalized life timer
+			float normalizedLifeTimer = quad[i * 6 + j].TexCoord.x;
+			float fadeOutThreshold = 0.7f;
+			float alpha = 1.0f;
+			if (normalizedLifeTimer < fadeOutThreshold)
+			{
+				alpha = 1.0f;
+			}
+			else
+			{
+				alpha = (1.0f - normalizedLifeTimer) / (1.0f - fadeOutThreshold);
+			}
+			quad[i * 6 + j].Color = NVECTOR4(1.0f, 1.0f, 1.0f, alpha);
+		}
 
 	}
 

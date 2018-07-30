@@ -85,8 +85,9 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 	pSweepingTrailMgr = pScene->GetSweepingTraillMgr();
 
-	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", true, 1024, 1024, false);
+	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", false, 256, 256, false);
+	pTexMgr->CreateTextureFromFile("../media/blade.jpg", "bladeTrail", true, 512, 512, false);
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
 
 	//create font texture
@@ -98,9 +99,6 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-
-	pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
-	pGO_TanList = pGraphicObjMgr->CreateGraphicObj("tanList");
 
 	//----------------------------------------------------------
 
@@ -126,18 +124,21 @@ BOOL Init3D(HWND hwnd)
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
+	pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
+	pGO_TanList = pGraphicObjMgr->CreateGraphicObj("tanList");
 	pGO_Axis->AddRectangle(NVECTOR2(1080.0f, 780.0f), NVECTOR2(1280.0f,800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 1000);
-	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pSweepingTrail->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
+	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(200.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(3);
+	pSweepingTrail->SetInterpolationStepCount(5);
 	pSweepingTrail->SetCubicHermiteTangentScale(0.6f);
+	pSweepingTrail->SetTextureName("bladeTrail");
 
 	return TRUE;
 };
@@ -146,11 +147,11 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.2f;
-	if (incrNum > 10.0f)incrNum = 10.0f;
+	//if (incrNum > 10.0f)incrNum = 10.0f;
 	::Sleep(100);
 
 	InputProcess();
-	pRenderer->ClearBackground(NVECTOR4(0.7f,0.7f,0.7f,1.0f));
+	pRenderer->ClearBackground(NVECTOR4(0.2f,0.2f,0.2f,1.0f));
 	timer.NextTick();
 
 	//update fps lable
@@ -161,7 +162,7 @@ void MainLoop()
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(5.0f*sinf(incrNum), 0, 5.0f*cosf(incrNum))));
 	pSweepingTrail->Update(10.0f);
 
-	std::vector<N_LineSegment> vList;
+	/*std::vector<N_LineSegment> vList;
 	std::vector<std::pair<NVECTOR3, NVECTOR3>> tgList;
 	pSweepingTrail->GetTangentList(tgList);
 	pSweepingTrail->GetVerticesList(vList);
@@ -171,7 +172,7 @@ void MainLoop()
 		pGO_TanList->SetLine3D(2 * i + 0,vList.at(i).vert1,vList.at(i).vert1 + tgList.at(i).first,NVECTOR4(0,0,1.0f,1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
 		pGO_TanList->SetLine3D(2 * i + 1,vList.at(i).vert2, vList.at(i).vert2 + tgList.at(i).second, NVECTOR4(0, 1.0f, 1.0f, 1.0f), NVECTOR4(0, 1.0f, 1.0f, 1.0f));
 	}
-	
+	*/
 
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);

@@ -39,7 +39,7 @@ namespace Noise3D
 
 		std::vector <ISweepingTrail*> 	mRenderList_SweepingTrails; //list of object to be rendererd
 
-		ID3DX11EffectTechnique*	m_pFX_DrawSolid3D;//(2018.7.24)Currently Sweeping trails don't need customized shader
+		ID3DX11EffectTechnique*	m_pFX_DrawSweepingTrail;//(2018.7.24)Currently Sweeping trails don't need customized shader
 
 		IRenderInfrastructure*			m_pRefRI;//common D3D operations/states
 
