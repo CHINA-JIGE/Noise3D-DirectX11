@@ -23,6 +23,7 @@ IGraphicObject*	pGO_Axis;
 IGraphicObject*	pGO_TanList;
 ISweepingTrailManager* pSweepingTrailMgr;
 ISweepingTrail* pSweepingTrail;
+ISweepingTrail* pSweepingTrail_Wire;
 ILightManager* pLightMgr;
 IDirLightD*		pDirLight1;
 IPointLightD*	pPointLight1;
@@ -131,6 +132,7 @@ BOOL Init3D(HWND hwnd)
 
 	//*********************  sweeping trail  *************************
 	pSweepingTrail = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail", 1000);
+	pSweepingTrail_Wire = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail_Wire", 1000);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
 	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
@@ -140,6 +142,13 @@ BOOL Init3D(HWND hwnd)
 	pSweepingTrail->SetCubicHermiteTangentScale(0.6f);
 	pSweepingTrail->SetTextureName("bladeTrail");
 
+	pSweepingTrail_Wire->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pSweepingTrail_Wire->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+	pSweepingTrail_Wire->SetHeaderCoolDownTimeThreshold(50.0f);
+	pSweepingTrail_Wire->SetMaxLifeTimeOfLineSegment(200.0f);
+	pSweepingTrail_Wire->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
+	pSweepingTrail_Wire->SetInterpolationStepCount(5);
+	pSweepingTrail_Wire->SetCubicHermiteTangentScale(0.6f);
 	return TRUE;
 };
 
@@ -162,6 +171,9 @@ void MainLoop()
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(5.0f*sinf(incrNum), 0, 5.0f*cosf(incrNum))));
 	pSweepingTrail->Update(10.0f);
 
+	pSweepingTrail_Wire->SetHeader(N_LineSegment(NVECTOR3(10.0f*sinf(incrNum), 0, 10.0f*cosf(incrNum)), NVECTOR3(5.0f*sinf(incrNum), 0, 5.0f*cosf(incrNum))));
+	pSweepingTrail_Wire->Update(10.0f);
+
 	/*std::vector<N_LineSegment> vList;
 	std::vector<std::pair<NVECTOR3, NVECTOR3>> tgList;
 	pSweepingTrail->GetTangentList(tgList);
@@ -180,6 +192,7 @@ void MainLoop()
 	pRenderer->AddToRenderQueue(pGO_TanList);
 	pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->AddToRenderQueue(pSweepingTrail);
+	pRenderer->AddToRenderQueue(pSweepingTrail_Wire);
 	//pRenderer->SetActiveAtmosphere(pAtmos);
 	static N_PostProcessGreyScaleDesc desc;
 	desc.factorR = 0.3f;
