@@ -48,13 +48,14 @@ namespace Noise3D
 		//unit: Milli-second
 		void SetMaxLifeTimeOfLineSegment(float duration_ms);
 
-		//
-		uint32_t GetLastDrawnVerticesCount();
-
+		//vertice count generated this frame(updated after calling Update(dt))
 		uint32_t GetActiveVerticesCount();
 
-		//spline interpolation steps (count of sub-regions divided into)
+		//Cubic Hermite interpolation steps (count of sub-regions divided into)
 		void SetInterpolationStepCount(uint32_t count);
+
+		//Cubic Hermite interpolation steps of the free header quad (count of sub-regions divided into)
+		void SetFreeHeaderInterpolationStepCount(uint32_t count);
 
 		//set the length of Cubic Hermite Interpolation's tangent scale (normally [0,1])
 		void SetCubicHermiteTangentScale(float scale);
@@ -133,12 +134,13 @@ namespace Noise3D
 		//line segments list (free/dynamic HEADER line segments are EXCLUDED)
 		std::vector<Noise3D::N_LineSegment> mFixedLineSegments;
 		N_LineSegment mFreeHeader;//keep updating by "SetHeader" until certain 'cool down time' is reached
-		N_LineSegment mFreeHeader_PreviousState;//store previous free header LS to optimize header's tangent
+		//N_LineSegment mFreeHeader_PreviousState;//store previous free header LS to optimize header's tangent
 		N_LineSegment mFreeTail_Start;//the tail LS keep approaching to the second last LS. And the lerp start should be saved.
 		float mTailQuadCollapsingRatio;//[0,1] ratio for the line segment vertex to lerp from mFreeTail_Start to mFreeTail_Current
 		uint32_t mInterpolationStepCount;//steps for cubic hermite interpolation
+		uint32_t mFreeHeaderInterpStepCount;
 		float mCubicHermiteTangentScale;//scale the tangent length for cubic hermite interp
-		uint32_t mLastDrawnVerticesCount;
+		uint32_t mGeneratedVerticesCount;//updated after each "update" call
 
 		//Tangents for Hermite Interpolation
 		std::vector< std::pair<NVECTOR3, NVECTOR3>> mTangentList;

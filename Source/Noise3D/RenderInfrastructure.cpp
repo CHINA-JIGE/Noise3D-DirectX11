@@ -34,7 +34,7 @@ IRenderInfrastructure::IRenderInfrastructure():
 	m_pBlendState_Opaque(nullptr),
 	m_pDepthStencilState_DisableDepthTest(nullptr),
 	m_pDepthStencilState_EnableDepthTest(nullptr),
-	m_pSamplerState_FilterLinear(nullptr),
+	m_pSamplerState_FilterLinearWrap(nullptr),
 	mRenderWindowHWND(0)
 {
 }
@@ -53,7 +53,7 @@ IRenderInfrastructure::~IRenderInfrastructure()
 	ReleaseCOM(m_pBlendState_Opaque);
 	ReleaseCOM(m_pDepthStencilState_DisableDepthTest);
 	ReleaseCOM(m_pDepthStencilState_EnableDepthTest);
-	ReleaseCOM(m_pSamplerState_FilterLinear);
+	ReleaseCOM(m_pSamplerState_FilterLinearWrap);
 	ReleaseCOM(m_pDepthStencilViewOfBackBuffer);
 	ReleaseCOM(m_pRenderTargetViewOfBackBuffer);
 	ReleaseCOM(m_pSwapChain);
@@ -257,9 +257,14 @@ void IRenderInfrastructure::SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_
 {
 	switch (mode)
 	{
-		case NOISE_SAMPLERMODE::LINEAR:
+		case NOISE_SAMPLERMODE::LINEAR_WRAP:
 		{
-			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinear);
+			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinearWrap);
+			break;
+		}
+		case NOISE_SAMPLERMODE::LINEAR_CLAMP:
+		{
+			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinearClamp);
 			break;
 		}
 
@@ -662,8 +667,19 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSamplerState()
 	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samDesc.MaxAnisotropy = 4;
-	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinear);
-	HR_DEBUG(hr, "Create Sampler State failed!!");
+	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinearWrap);
+	HR_DEBUG(hr, "IRenderInfrastructure : Create Sampler State failed!!");
+
+
+	ZeroMemory(&samDesc, sizeof(samDesc));
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samDesc.MaxAnisotropy = 4;
+	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinearClamp);
+	HR_DEBUG(hr, "IRenderInfrastructure : Create Sampler State failed!!");
 
 	return true;
 };

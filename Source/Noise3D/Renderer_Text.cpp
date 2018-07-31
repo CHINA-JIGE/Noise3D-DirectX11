@@ -22,7 +22,7 @@ void IRenderModuleForText::RenderTexts()
 {
 	m_pRefRI->SetDepthStencilState(false);
 	m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
-	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
 
 	//render dynamic/static texts
 	mFunction_TextGraphicObj_Render(&mRenderList_TextDynamic);

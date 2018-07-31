@@ -53,7 +53,7 @@ void	IRenderModuleForMesh::RenderMeshes()
 		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pRefRI->SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
 		m_pRefRI->SetBlendState(pMesh->GetBlendMode());
-		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
 		m_pRefRI->SetDepthStencilState(true);
 		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 
