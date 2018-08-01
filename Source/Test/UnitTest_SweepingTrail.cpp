@@ -6,6 +6,7 @@ void MainLoop();
 void Cleanup();
 void	InputProcess();
 void	InputProcess2();
+void InputProcess3();
 
 using namespace Noise3D;
 
@@ -104,9 +105,9 @@ BOOL Init3D(HWND hwnd)
 
 	//----------------------------------------------------------
 
-	pCamera->SetPosition(0, 50.0f, 0);
+	pCamera->SetPosition(0, 100.0f, 0);
 	pCamera->SetLookAt(0, 0, 0);
-	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
+	pCamera->SetViewAngle_Radian(MATH_PI / 3.0f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 
 
@@ -129,6 +130,9 @@ BOOL Init3D(HWND hwnd)
 	pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
 	pGO_Axis->AddRectangle(NVECTOR2(1080.0f, 780.0f), NVECTOR2(1280.0f,800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pGO_Axis->AddLine3D({ 0,0,0 }, { 100.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,100.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,0,100.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
 	pGO_TanList = pGraphicObjMgr->CreateGraphicObj("tanList");
 	pGO_TanList->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
@@ -137,11 +141,11 @@ BOOL Init3D(HWND hwnd)
 	pSweepingTrail_Wire = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail_Wire", 1000);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
-	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(100.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(1000.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(2);
-	pSweepingTrail->SetFreeHeaderInterpolationStepCount(2);
+	pSweepingTrail->SetInterpolationStepCount(5);
+	pSweepingTrail->SetFreeHeaderInterpolationStepCount(5);
 	pSweepingTrail->SetCubicHermiteTangentScale(0.5f);
 	pSweepingTrail->SetTextureName("bladeTrail");
 
@@ -158,13 +162,10 @@ BOOL Init3D(HWND hwnd)
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	static float incrNum2 = 0.0f;
-	incrNum2 += 0.2f;
-	incrNum += 0.2f * abs(sinf(incrNum2));
 	//if (incrNum > 10.0f)incrNum = 10.0f;
 	//::Sleep(100);
 
-	InputProcess2();
+	InputProcess3();
 	pRenderer->ClearBackground(NVECTOR4(0.2f,0.2f,0.2f,1.0f));
 	timer.NextTick();
 
@@ -300,6 +301,43 @@ void InputProcess2()
 
 };
 
+void InputProcess3()
+{
+	inputE.Update();
+
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_W))
+	{
+		pCamera->fps_MoveUp(-0.02f*  (float)timer.GetInterval());
+	}
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_S))
+	{
+		pCamera->fps_MoveUp(0.02f*  (float)timer.GetInterval());
+	}
+
+	static NVECTOR3 pos = NVECTOR3(0, 0, 0);
+	static NVECTOR3 prevPos = NVECTOR3(0, 0, 0);
+	NVECTOR3 deltaV;
+	static float len = 2.0f;
+	static float angle = 0.0f;
+	prevPos = pos;
+	float posX = ((float(inputE.GetMouseScrPosX()) / float(pRenderer->GetRenderWindowWidth())) - 0.5f) * 2.0f * 76.975f;
+	float posY = (-(float(inputE.GetMouseScrPosY()) / float(pRenderer->GetRenderWindowHeight())) + 0.5f) * 2.0f * 57.735f;
+	pos = NVECTOR3(posX, 0, posY);
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_I))angle += 0.01f * timer.GetInterval();
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_K))angle -= 0.01f * timer.GetInterval();
+
+	//if (deltaV.Length() == 0)angle = 0;
+	//else 	angle = atan2(deltaV.z, deltaV.x);
+	NVECTOR3 lineOffset = len * NVECTOR3(cosf(angle), 0, sinf(angle));
+	pSweepingTrail->SetHeader(N_LineSegment(pos + lineOffset, pos - lineOffset));
+
+	//quit main loop and terminate program
+	if (inputE.IsKeyPressed(Ut::NOISE_KEY_ESCAPE))
+	{
+		pRoot->SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
+	}
+
+};
 
 void Cleanup()
 {
