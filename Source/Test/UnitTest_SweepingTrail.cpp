@@ -141,11 +141,11 @@ BOOL Init3D(HWND hwnd)
 	pSweepingTrail_Wire = pSweepingTrailMgr->CreateSweepingTrail("myFX_Trail_Wire", 1000);
 	pSweepingTrail->SetBlendMode(NOISE_BLENDMODE_ADDITIVE);
 	pSweepingTrail->SetFillMode(NOISE_FILLMODE_SOLID);
-	pSweepingTrail->SetHeaderCoolDownTimeThreshold(100.0f);
+	pSweepingTrail->SetHeaderCoolDownTimeThreshold(50.0f);
 	pSweepingTrail->SetMaxLifeTimeOfLineSegment(1000.0f);
 	pSweepingTrail->SetHeader(N_LineSegment(NVECTOR3(0.0f, -10.0f, 0.0f), NVECTOR3(0.0, 10.0f, 0.0f)));
-	pSweepingTrail->SetInterpolationStepCount(5);
-	pSweepingTrail->SetFreeHeaderInterpolationStepCount(5);
+	pSweepingTrail->SetInterpolationStepCount(3);
+	pSweepingTrail->SetFreeHeaderInterpolationStepCount(3);
 	pSweepingTrail->SetCubicHermiteTangentScale(0.5f);
 	pSweepingTrail->SetTextureName("bladeTrail");
 

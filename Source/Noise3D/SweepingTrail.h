@@ -20,8 +20,6 @@
 
 namespace Noise3D
 {
-	//if every line segment
-
 
 	class ISweepingTrail:
 		public CRenderSettingBlendMode,
