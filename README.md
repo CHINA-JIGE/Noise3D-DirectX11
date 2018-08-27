@@ -11,23 +11,23 @@
 
 ----------------------
 ##  依赖库(Dependencies)
-* FreeType（字体库）：https://www.freetype.org/
-* FBXSDK(autodesk的FBX模型导入\导出\处理SDK)，自己去autodesk网站下载
-* DirectXTex（图片/纹理加载）：https://github.com/Microsoft/DirectXTex
-* Effects11（shader组织框架）：https://github.com/Microsoft/FX11
-* DirectXMath(2018.7.19)：https://github.com/Microsoft/DirectXMath
+* <b>FreeType</b>(字体库)</b>：https://www.freetype.org/
+* <b>FBXSDK</b>(autodesk的FBX模型导入\导出\处理SDK)，自己去autodesk网站下载
+* <b>DirectXTex</b>(图片/纹理加载)：https://github.com/Microsoft/DirectXTex
+* <b>Effects11</b>(shader组织框架)：https://github.com/Microsoft/FX11
+* <b>SimpleMath</b>(DirectXMath wrapper，在DirectXTK下有SimpleMath的封装实现)(2018.7.19)：https://github.com/Microsoft/DirectXTK
 
 ### 注意：
 * 这些文件得自己去build，然后把相应的include和lib文件copy到\ExternalInclude和\ExternalLib里面。
 * \ExternalInclude里面有一些其他版本的第三方库的头文件，可以根据自己需求魔改成新的版本
 * \ExternalLib里面是装第三方库的.lib静态库文件的，自己build好32-bit的debug/release放到对应的路径
 * 可能需要修改一下Noise3D VS项目里面的链接选项。
-* Noise3D项目会生成一个
+* DirectXMath是一个用SSE指令实现了SIMD优化的数学库，在Win8.1 SDK开始提供，当然也可以在github上找到这个开源库 https://github.com/Microsoft/DirectXMath 。SimpleMath是DirectXMath的一个轻度封装的头文件，在DirectXTK项目下，不需要编译lib。DirectXMath大部分都是内联实现，即使不内联的好像也是开源的，include header就好了)
 
 ----------------------
 
 ## Features
-* Material:Diffuse, Normal Mapping, Specular Mapping, Cube Map(reflection)
+* 材质Material：Diffuse Map, Normal Map, Specular Map, Cube Map(reflection)
 
 * 在内存端的纹理的逐像素修改，也有高度图-->灰度图-->法线图的接口（转法线图的卷积核大小为2x2）
 
@@ -41,16 +41,17 @@
 
 * 文字渲染
 
-* 模型加载: .stl， .obj， .fbx (.3ds is deprecated due to unstability)
+* 模型加载: .stl， .obj， .fbx (.3ds格式不开源，实现不稳定，不建议使用)
 
 * 碰撞检测器(not stable)：GPU加速的ray-mesh求交。（以后应该会换成基于第三方物理引擎里面的碰撞检测）
 
-* 模型处理器(not stable):网格简化（not robust)；
+* 模型处理器(not stable):网格简化 (很不稳定，还没实现几何坍缩类的算法，不建议使用)；
 
 * 后处理(Renderer)：post processing
     * 转灰度
     * Qwerty Distortion (之前用来做另一个项目Qwerty 3D时候做的，应该是没什么卵用了)
 
+* 拖尾特效(Sweeping Trail)
 --------------------------------------------------
 
 ## 一些小工具类
