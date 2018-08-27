@@ -551,7 +551,7 @@ void	IFontManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstr
 
 	
 		//get alignment offset 
-		currentCharAlignmentOffsetY = gFunc_GetCharAlignmentOffsetPixelY(CharBoundarySizeY, singleCharBitmap.height, targetString.at(i));
+		currentCharAlignmentOffsetY = Ut::GetCharAlignmentOffsetPixelY(CharBoundarySizeY, singleCharBitmap.height, targetString.at(i));
 
 
 		UINT outputBitmapPixelCount = outFontBitmap.bitmapBuffer.size();

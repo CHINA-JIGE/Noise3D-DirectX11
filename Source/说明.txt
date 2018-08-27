@@ -1,3 +1,5 @@
 /Noise3D 文件夹下是Noise3D渲染引擎的主体
 /Test 文件夹下就是测试小项目，每个cpp就是可以直接#include "Noisd3d.h"和链接Noisd3d.lib来运行的程序
 /NoiseGUI 是2015-2016年做残了的GUI系统，所以就废弃了，有机会再集成个靠谱的GUI的系统
+
+(2018.7.19)原本是有链接旧版(DirectX SDK 2010 June)的lib$(DXSDK_DIR)Lib\$(PlatformTarget)\ ，现在试试用Win8.1 SDK

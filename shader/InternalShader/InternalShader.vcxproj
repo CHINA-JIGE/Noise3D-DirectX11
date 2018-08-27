@@ -132,6 +132,7 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
     <None Include="DrawMesh.hlsli" />
     <None Include="DrawSky.hlsli" />
     <None Include="DrawSolid3D.hlsli" />
+    <None Include="DrawSweepingTrail.hlsli" />
     <None Include="PostProcessing.hlsli" />
     <None Include="Main.fx">
       <FileType>Document</FileType>
@@ -174,6 +175,11 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DrawSweepingTrail.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

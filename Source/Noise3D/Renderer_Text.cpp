@@ -8,6 +8,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 IRenderModuleForText::IRenderModuleForText()
 {
@@ -21,7 +22,7 @@ void IRenderModuleForText::RenderTexts()
 {
 	m_pRefRI->SetDepthStencilState(false);
 	m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
-	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
 
 	//render dynamic/static texts
 	mFunction_TextGraphicObj_Render(&mRenderList_TextDynamic);
@@ -80,8 +81,8 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, 
 		HRESULT hr = S_OK;
 
 		//update text color infos
-		float* pColorData = (float*)pText->m_pTextColor;
-		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, pColorData);
+		//float* pColorData = (float*)pText->m_pTextColor;
+		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, *pText->m_pTextColor);
 
 		//update textures
 		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,uid);

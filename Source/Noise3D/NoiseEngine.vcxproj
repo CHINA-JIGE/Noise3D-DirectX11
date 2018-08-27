@@ -46,14 +46,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\FreeType\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\Effects11\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\DirectXTex\lib\$(PlatformTarget)\$(Configuration)\;$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\$(PlatformTarget)\;$(SolutionDir)ExternalLib\FreeType\$(PlatformTarget)\;$(SolutionDir)ExternalLib\Effects11\$(PlatformTarget)\;$(SolutionDir)ExternalLib\DirectXTex\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\FreeType\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\Effects11\lib\$(PlatformTarget)\$(Configuration)\;$(SolutionDir)ExternalLib\DirectXTex\lib\$(PlatformTarget)\$(Configuration)\;$(DXSDK_DIR)Lib\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)ExternalLib\FBXSDK\$(PlatformTarget)\;$(SolutionDir)ExternalLib\FreeType\$(PlatformTarget)\;$(SolutionDir)ExternalLib\Effects11\$(PlatformTarget)\;$(SolutionDir)ExternalLib\DirectXTex\$(PlatformTarget)\;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)ExternalInclude\;$(SolutionDir)Source\Noise3D\;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)temp\$(Configuration)_$(ProjectName)\</IntDir>
@@ -70,6 +70,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,7 +88,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;Effects11d.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;user32.lib;libfbxsdk-md.lib;DirectXTex_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;Effects11_d.lib;dinput8.lib;freetype.lib;user32.lib;libfbxsdk_d-md.lib;DirectXTex_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <ShowProgress>true</ShowProgress>
@@ -107,6 +108,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>Noise3D.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,7 +126,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx10.lib;dxgi.lib;dxerr.lib;dxguid.lib;dinput8.lib;freetype261.lib;Effects11.lib;user32.lib;libfbxsdk-md.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;dinput8.lib;freetype.lib;Effects11.lib;user32.lib;libfbxsdk-md.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -135,11 +137,14 @@
     <ClInclude Include="Renderer_Text.h" />
     <ClInclude Include="RenderInfrastructure.h" />
     <ClInclude Include="Renderer_PostProcessing.h" />
+    <ClInclude Include="Renderer_SweepingTrail.h" />
+    <ClInclude Include="SweepingTrail.h" />
+    <ClInclude Include="SweepingTrailManager.h" />
     <ClInclude Include="_BaseRenderModule.h" />
     <ClInclude Include="_FbxLoader.h" />
     <ClInclude Include="FileIO_OBJ.h" />
     <ClInclude Include="FileIO_STL.h" />
-    <ClInclude Include="GraphicObjMgr.h" />
+    <ClInclude Include="GraphicObjManager.h" />
     <ClInclude Include="ShaderVarManager.h" />
     <ClInclude Include="Ut_MCMeshReconstructor.h" />
     <ClInclude Include="ModelProcessor.h" />
@@ -181,7 +186,6 @@
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
     <ClInclude Include="_BasicRenderSettings.h" />
-    <ClInclude Include="_SpatialHashTable.h" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -193,6 +197,9 @@
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="Renderer_PostProcessing.cpp" />
     <ClCompile Include="RenderInfrastructure.cpp" />
+    <ClCompile Include="Renderer_SweepingTrail.cpp" />
+    <ClCompile Include="SweepingTrail.cpp" />
+    <ClCompile Include="SweepingTrailManager.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />
     <ClCompile Include="ShaderVarManager.cpp" />
     <ClCompile Include="Ut_MCMeshReconstructor.cpp" />
@@ -204,7 +211,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="GraphicObjMgr.cpp" />
+    <ClCompile Include="GraphicObjManager.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -244,7 +251,6 @@
     </ClCompile>
     <ClCompile Include="Ut_MeshSlicer.cpp" />
     <ClCompile Include="Ut_Timer.cpp" />
-    <ClCompile Include="_SpatialHashTable.cpp" />
     <ClCompile Include="Ut_Voxelizer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

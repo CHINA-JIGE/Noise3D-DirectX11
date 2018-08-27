@@ -8,6 +8,8 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
+
 
  IRenderModuleForPostProcessing::IRenderModuleForPostProcessing():
 	m_pOffScreenRenderTargetView_A(nullptr),
@@ -72,7 +74,7 @@ void IRenderModuleForPostProcessing::PostProcess()
 		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::POST_PROCESSING);
 		m_pRefRI->SetDepthStencilState(false);
 		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
-		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DRAW_2D_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
 		m_pRefRI->SetBlendState(NOISE_BLENDMODE_OPAQUE);
 
 		//remaining task count must be updated so that the RTV and DSV can be 

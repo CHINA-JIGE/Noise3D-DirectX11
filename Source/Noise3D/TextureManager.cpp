@@ -10,6 +10,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 ITextureManager::ITextureManager():
 	IFactory<ITexture>(50000)//maxCount of Textures
@@ -140,7 +141,7 @@ ITexture* ITextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 #pragma region DirectXTex load Image
 
 	//enumerate file formats, and parse image file using different functions
-	std::string fileSubfix = gFunc_GetFileSubFixFromPath(filePath);
+	std::string fileSubfix = Ut::GetFileSubFixFromPath(filePath);
 	NOISE_IMAGE_FILE_FORMAT fileFormat = mFunction_GetImageFileFormat(fileSubfix);
 	DirectX::TexMetadata srcMetaData;//meta data is loaded from target image file
 	DirectX::ScratchImage srcImage;
@@ -325,7 +326,7 @@ ITexture* ITextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cu
 #pragma region DirectXTex load Image
 
 	//enumerate file formats, and parse image file using different functions
-	std::string fileSubfix = gFunc_GetFileSubFixFromPath(dds_FileName);
+	std::string fileSubfix = Ut::GetFileSubFixFromPath(dds_FileName);
 	NOISE_IMAGE_FILE_FORMAT fileFormat = mFunction_GetImageFileFormat(fileSubfix);
 	if (fileFormat != NOISE_IMAGE_FILE_FORMAT_DDS)
 	{

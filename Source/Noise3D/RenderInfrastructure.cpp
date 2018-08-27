@@ -10,6 +10,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
 IRenderInfrastructure::IRenderInfrastructure():
 	mPostProcessRemainingPassCount(0),
@@ -33,7 +34,7 @@ IRenderInfrastructure::IRenderInfrastructure():
 	m_pBlendState_Opaque(nullptr),
 	m_pDepthStencilState_DisableDepthTest(nullptr),
 	m_pDepthStencilState_EnableDepthTest(nullptr),
-	m_pSamplerState_FilterLinear(nullptr),
+	m_pSamplerState_FilterLinearWrap(nullptr),
 	mRenderWindowHWND(0)
 {
 }
@@ -52,7 +53,7 @@ IRenderInfrastructure::~IRenderInfrastructure()
 	ReleaseCOM(m_pBlendState_Opaque);
 	ReleaseCOM(m_pDepthStencilState_DisableDepthTest);
 	ReleaseCOM(m_pDepthStencilState_EnableDepthTest);
-	ReleaseCOM(m_pSamplerState_FilterLinear);
+	ReleaseCOM(m_pSamplerState_FilterLinearWrap);
 	ReleaseCOM(m_pDepthStencilViewOfBackBuffer);
 	ReleaseCOM(m_pRenderTargetViewOfBackBuffer);
 	ReleaseCOM(m_pSwapChain);
@@ -256,9 +257,14 @@ void IRenderInfrastructure::SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_
 {
 	switch (mode)
 	{
-		case NOISE_SAMPLERMODE::LINEAR:
+		case NOISE_SAMPLERMODE::LINEAR_WRAP:
 		{
-			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinear);
+			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinearWrap);
+			break;
+		}
+		case NOISE_SAMPLERMODE::LINEAR_CLAMP:
+		{
+			m_pRefShaderVarMgr->SetSampler(sampler, 0, m_pSamplerState_FilterLinearClamp);
 			break;
 		}
 
@@ -461,7 +467,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSwapChainAndRTVandDSVandViewpor
 	//check multi-sample capability
 	//the support level of MSAA might vary among hardwares
 	bool enableMSAA = false;
-	UINT msaaQuality = 0;//query via d3d11
+	UINT msaaQuality=0;//query via d3d11
 	g_pd3dDevice11->CheckMultisampleQualityLevels(
 		DXGI_FORMAT_R8G8B8A8_UNORM, cMsaaSampleCount, &msaaQuality);
 	if (msaaQuality > 0)enableMSAA = true;
@@ -661,8 +667,19 @@ bool	IRenderInfrastructure::mFunction_Init_CreateSamplerState()
 	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samDesc.MaxAnisotropy = 4;
-	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinear);
-	HR_DEBUG(hr, "Create Sampler State failed!!");
+	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinearWrap);
+	HR_DEBUG(hr, "IRenderInfrastructure : Create Sampler State failed!!");
+
+
+	ZeroMemory(&samDesc, sizeof(samDesc));
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samDesc.MaxAnisotropy = 4;
+	hr = g_pd3dDevice11->CreateSamplerState(&samDesc, &m_pSamplerState_FilterLinearClamp);
+	HR_DEBUG(hr, "IRenderInfrastructure : Create Sampler State failed!!");
 
 	return true;
 };
@@ -690,39 +707,35 @@ bool	IRenderInfrastructure::mFunction_Init_CreateDepthStencilState()
 	return true;
 };
 
-bool	IRenderInfrastructure::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
+/*bool	IRenderInfrastructure::mFunction_Init_CreateEffectFromFile(NFilePath fxPath)
 {
 	HRESULT hr = S_OK;
 
-	DWORD shaderFlags = 0;
+	DWORD hlslFlags = 0;
 #if defined(DEBUG)||defined(_DEBUG)
-	shaderFlags |= D3D10_SHADER_DEBUG;
-	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
+	hlslFlags |= D3DCOMPILE_DEBUG;
+	hlslFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
+
+	DWORD fxFlags = 0;
+
 	ID3D10Blob*	compiledFX;
 	ID3D10Blob*	compilationMsg;
 
-	//编译fx文件
-	hr = D3DX11CompileFromFileA(
-		fxPath.c_str(), 0, 0, 0, "fx_5_0",
-		shaderFlags, 0, 0, &compiledFX,
-		&compilationMsg, 0);
+	//pInclude: A pointer to a ID3DInclude for handling include files. 
+	//Can be set to D3D_COMPILE_STANDARD_FILE_INCLUDE when using D3DCompile #46 or later. 
+	//Setting this to nullptr will cause an error if the source contains an #include statement.
+	hr = D3DX11CompileEffectFromFile(
+		Ut::ConvertAnsiStrToWStr( fxPath).c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, hlslFlags,
+		fxFlags, D3D::g_pd3dDevice11 ,&D3D::g_pFX,
+		&compilationMsg);
 
-	//看看编译有无错误信息
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		ERROR_MSG("Noise Renderer : Shader Compilation Failed !!");
+		ERROR_MSG("IRenderer : Shader/Effect Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 
-
-	hr = D3DX11CreateEffectFromMemory(
-		compiledFX->GetBufferPointer(),
-		compiledFX->GetBufferSize(),
-		0, g_pd3dDevice11, &g_pFX, nullptr);
-
-	HR_DEBUG(hr, "Create Basic Effect Fail!");
-
 	return true;
-};
+};*/

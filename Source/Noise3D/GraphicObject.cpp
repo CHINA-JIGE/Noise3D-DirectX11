@@ -11,8 +11,10 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
 
-#define NOT_IDENTICAL_THEN_ASSIGN(a,b) if(a!=b){a=b;canUpdate=true;}
+//#define ASSIGN_VERTEX_VALUE(a,b) if(a!=b){a=b;canUpdate=true;}
+#define ASSIGN_VERTEX_VALUE(a,b) {a=b;canUpdate=true;}
 
 IGraphicObject::IGraphicObject()
 {
@@ -760,16 +762,11 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 		//		--------|--------->
 		//				   |		SCR SPACE
 		//				   |
-		/*m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.x = vertexIter->x + m_pBaseScreenSpacePosOffset->x;
-		m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.y= vertexIter->y + m_pBaseScreenSpacePosOffset->y;
-		m_pVB_Mem[buffType]->at(iVertexStartID + i).Color = *colorIter++;
-		m_pVB_Mem[buffType]->at(iVertexStartID + i).TexCoord = *texcoordIter++;
-		++vertexIter;*/
 
-		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.x, vertexIter->x + m_pBaseScreenSpacePosOffset->x);
-		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.y, vertexIter->y + m_pBaseScreenSpacePosOffset->y);
-		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).Color, *colorIter);
-		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i).TexCoord,*texcoordIter);
+		ASSIGN_VERTEX_VALUE(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.x, vertexIter->x + m_pBaseScreenSpacePosOffset->x);
+		ASSIGN_VERTEX_VALUE(m_pVB_Mem[buffType]->at(iVertexStartID + i).Pos.y, vertexIter->y + m_pBaseScreenSpacePosOffset->y);
+		ASSIGN_VERTEX_VALUE(m_pVB_Mem[buffType]->at(iVertexStartID + i).Color, *colorIter);
+		ASSIGN_VERTEX_VALUE(m_pVB_Mem[buffType]->at(iVertexStartID + i).TexCoord,*texcoordIter);
 		++colorIter;
 		++texcoordIter;
 		++vertexIter;
@@ -808,7 +805,7 @@ void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 			*texcoordIter++
 		};
 
-		NOT_IDENTICAL_THEN_ASSIGN(m_pVB_Mem[buffType]->at(iVertexStartID + i), tmpVertex);
+		ASSIGN_VERTEX_VALUE(m_pVB_Mem[buffType]->at(iVertexStartID + i), tmpVertex);
 		//m_pVB_Mem[buffType]->at(iVertexStartID + i) = tmpVertex;
 	}
 

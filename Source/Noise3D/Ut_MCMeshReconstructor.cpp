@@ -125,13 +125,13 @@ float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float 
 	float w = (sampleCoordZ - float(baseIndexZ));
 
 	//2, tri-linear interpolation
-	float lerpAB = Noise3D::Lerp(val[0], val[1], u);
-	float lerpCD = Noise3D::Lerp(val[2], val[3], u);
-	float lerpEF = Noise3D::Lerp(val[4], val[5], u);
-	float lerpGH = Noise3D::Lerp(val[6], val[7], u);
-	float lerpABCD = Noise3D::Lerp(lerpAB, lerpCD, w);
-	float lerpEFGH = Noise3D::Lerp(lerpEF, lerpGH, w);
-	float resampleValue = Noise3D::Lerp(lerpABCD, lerpEFGH, v);
+	float lerpAB = Lerp(val[0], val[1], u);
+	float lerpCD = Lerp(val[2], val[3], u);
+	float lerpEF = Lerp(val[4], val[5], u);
+	float lerpGH = Lerp(val[6], val[7], u);
+	float lerpABCD = Lerp(lerpAB, lerpCD, w);
+	float lerpEFGH = Lerp(lerpEF, lerpGH, w);
+	float resampleValue = Lerp(lerpABCD, lerpEFGH, v);
 
 	return resampleValue;
 	//return val[0];

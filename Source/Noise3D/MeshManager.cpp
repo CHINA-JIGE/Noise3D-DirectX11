@@ -62,5 +62,5 @@ IMeshManager::IMeshManager():IFactory<IMesh>(50000)
 
 IMeshManager::~IMeshManager()
 {
-	DestroyAllMesh();
+	IFactory<IMesh>::DestroyAllObject();
 }

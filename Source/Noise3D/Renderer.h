@@ -5,6 +5,15 @@
 				desc: transfer data to Graphic memory
 				and use gpu to render
 
+		//procedure to integrate one more render module
+		//1.define a render module class that inherit 'IRenderInfrastructure'
+		//2. implement some of the interfaces(Initialize, ClearRenderList, RenderXXXX, AddToRenderQueue...)
+				note that a ref-RI and ShaderVarMgr should be passed in. Technique should be initialized here too.)
+		//3. write specific render setting and draw call in the render module ( make full use of RI and ShaderVarMgr)
+		//3. IRenderer inherit from IRenderModuleXXX
+		//4. invoke "IRenderModuleXXX::initialize" in IRenderer's initalizer
+		//5. invoke "IRenderModuleXXX::ClearRenderList" in IRenderer's "PresentToScreen"
+
 ************************************************************************/
 
 #pragma once
@@ -16,6 +25,7 @@
 #include "Renderer_Mesh.h"
 #include "Renderer_Text.h"
 #include "Renderer_PostProcessing.h"
+#include "Renderer_SweepingTrail.h"
 
 namespace Noise3D
 {
@@ -25,13 +35,13 @@ namespace Noise3D
 		public IRenderModuleForGraphicObject,
 		public IRenderModuleForMesh,
 		public IRenderModuleForText,
+		public IRenderModuleForSweepingTrailFX,
 		public IRenderModuleForPostProcessing
 	{
 	public:
 
 		//explicitly overload 'AddToRenderQueue' 
 		//prevent functions with same names are HIDDEN
-
 		void		AddToRenderQueue(IMesh* obj);
 
 		void		AddToRenderQueue(IGraphicObject* obj);
@@ -39,6 +49,8 @@ namespace Noise3D
 		void		AddToRenderQueue(IDynamicText* obj);
 
 		void		AddToRenderQueue(IStaticText* obj);
+
+		void		AddToRenderQueue(ISweepingTrail* obj);
 
 		void		SetActiveAtmosphere(IAtmosphere* obj);
 
@@ -61,8 +73,6 @@ namespace Noise3D
 		void		SwitchToFullScreenMode();
 
 		void		SwitchToWindowedMode();
-
-		//void	BakeLightMapForMesh(IMesh* pMesh);//bake light map for static scenes,automatic uv flatten is required.
 
 	private:
 

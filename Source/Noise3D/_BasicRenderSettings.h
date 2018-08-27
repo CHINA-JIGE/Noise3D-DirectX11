@@ -42,7 +42,8 @@ namespace Noise3D
 
 	enum NOISE_SAMPLERMODE
 	{
-		LINEAR
+		LINEAR_WRAP,
+		LINEAR_CLAMP
 	};
 
 	class CRenderSettingFillMode
@@ -126,7 +127,7 @@ namespace Noise3D
 
 		CRenderSettingSamplerMode()
 		{
-			mSamplerMode = NOISE_SAMPLERMODE::LINEAR;
+			mSamplerMode = NOISE_SAMPLERMODE::LINEAR_WRAP;
 		}
 
 		void SetSamplerMode(NOISE_SAMPLERMODE mode) { mSamplerMode = mode; }

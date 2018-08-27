@@ -8,6 +8,8 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
+
 
 IRenderModuleForAtmosphere::IRenderModuleForAtmosphere()
 {
@@ -47,7 +49,7 @@ void IRenderModuleForAtmosphere::RenderAtmosphere()
 		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::SIMPLE, pAtmo->m_pVB_Gpu, pAtmo->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_BACK);
 		m_pRefRI->SetBlendState(NOISE_BLENDMODE_OPAQUE);
-		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
 		m_pRefRI->SetDepthStencilState(true);
 		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
 

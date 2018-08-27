@@ -1,13 +1,15 @@
 
 /***********************************************************************
 
-							Desc:  Noise Mesh Renderer (D3D)
+							Desc:  Render Module for mesh
 	
 ************************************************************************/
 
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::D3D;
+
 
 IRenderModuleForMesh::IRenderModuleForMesh()
 {
@@ -19,54 +21,6 @@ IRenderModuleForMesh::~IRenderModuleForMesh()
 	ReleaseCOM(m_pFX_Tech_DrawMesh);
 }
 
-void	IRenderModuleForMesh::RenderMeshes()
-{
-	ICamera* const tmp_pCamera = GetScene()->GetCamera();
-
-	mFunction_RenderMeshInList_UpdateRarely();
-
-	mFunction_RenderMeshInList_UpdatePerFrame();
-
-	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
-
-	//for every mesh
-	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
-	{
-		IMesh* const pMesh = mRenderList_Mesh.at(i);
-
-		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
-
-		//IA/OM settings
-		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_pRefRI->SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
-		m_pRefRI->SetBlendState(pMesh->GetBlendMode());
-		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR);
-		m_pRefRI->SetDepthStencilState(true);
-		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
-
-
-		//every mesh subset(one for each material)
-		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
-		for (UINT j = 0;j < meshSubsetCount;j++)
-		{
-			//subset info
-			UINT currSubsetIndicesCount = pMesh->mSubsetInfoList.at(j).primitiveCount * 3;
-			UINT currSubsetStartIndex = pMesh->mSubsetInfoList.at(j).startPrimitiveID * 3;
-
-			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			//ATTENTION!! : each subset might have different materials, hences different
-			//texture combinations. In consideration of efficiency, texture operations will be 
-			//turned on/off by UNIFORM bool in shader(so each mapping will be turn on/off
-			//in shader compilation stage).  N switches of multiple mapping will produce 2^N
-			//passes for the c++ host program to choose. 
-			//'passID' will be computed to choose appropriate pass.
-			ID3DX11EffectPass* pPass = mFunction_RenderMeshInList_UpdatePerSubset(pMesh,j);
-			pPass->Apply(0, g_pImmediateContext);
-			g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
-			
-		}
-	}
-}
 
 void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
 {
@@ -79,6 +33,53 @@ void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
 /***********************************************************
 									PROTECTED
 ************************************************************/
+void	IRenderModuleForMesh::RenderMeshes()
+{
+	ICamera* const tmp_pCamera = GetScene()->GetCamera();
+	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
+
+	mFunction_RenderMeshInList_UpdateRarely();
+
+	mFunction_RenderMeshInList_UpdatePerFrame();
+
+	//for every mesh
+	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
+	{
+		IMesh* const pMesh = mRenderList_Mesh.at(i);
+
+		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
+
+		//IA/OM settings
+		m_pRefRI->SetInputAssembler(IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pRefRI->SetRasterState(pMesh->GetFillMode(), pMesh->GetCullMode());
+		m_pRefRI->SetBlendState(pMesh->GetBlendMode());
+		m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
+		m_pRefRI->SetDepthStencilState(true);
+		m_pRefRI->SetRtvAndDsv(IRenderInfrastructure::NOISE_RENDER_STAGE::NORMAL_DRAWING);
+
+
+		//every mesh subset(one for each material)
+		UINT meshSubsetCount = pMesh->mSubsetInfoList.size();
+		for (UINT j = 0; j < meshSubsetCount; j++)
+		{
+			//subset info
+			UINT currSubsetIndicesCount = pMesh->mSubsetInfoList.at(j).primitiveCount * 3;
+			UINT currSubsetStartIndex = pMesh->mSubsetInfoList.at(j).startPrimitiveID * 3;
+
+			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//ATTENTION!! : each subset might have different materials, hences different
+			//texture combinations. In consideration of efficiency, texture operations will be 
+			//turned on/off by UNIFORM bool in shader(so each mapping will be turn on/off
+			//in shader compilation stage).  N switches of multiple mapping will produce 2^N
+			//passes for the c++ host program to choose. 
+			//'passID' will be computed to choose appropriate pass.
+			ID3DX11EffectPass* pPass = mFunction_RenderMeshInList_UpdatePerSubset(pMesh, j);
+			pPass->Apply(0, g_pImmediateContext);
+			g_pImmediateContext->DrawIndexed(currSubsetIndicesCount, currSubsetStartIndex, 0);
+
+		}
+	}
+}
 
 void IRenderModuleForMesh::ClearRenderList()
 {

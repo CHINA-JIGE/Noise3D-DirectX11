@@ -19,13 +19,13 @@ namespace Noise3D
 		public IFactory<ITextureManager>,
 		public IFactory<IMaterialManager>,
 		public IFactory<IGraphicObjectManager>,
+		public IFactory<ISweepingTrailManager>,
 		public IFactory<IAtmosphere>,
 		public IFactory<IFontManager>,
 		public IFactory<IModelLoader>,
 		public IFactory<IModelProcessor>,
 		public IFactory<ICollisionTestor>
 	{
-
 	public:
 
 		void								ReleaseAllChildObject();
@@ -44,9 +44,11 @@ namespace Noise3D
 
 		IMaterialManager*		GetMaterialMgr();
 
-		IAtmosphere*				GetAtmosphere();
+		ISweepingTrailManager*		GetSweepingTraillMgr();
 
-		IGraphicObjectManager*		GetGraphicObjMgr();
+		IGraphicObjectManager*	GetGraphicObjMgr();
+
+		IAtmosphere*					GetAtmosphere();
 
 		IFontManager*				GetFontMgr();
 

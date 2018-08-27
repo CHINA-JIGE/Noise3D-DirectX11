@@ -13,10 +13,6 @@
 #define WIN32_LEAN_AND_MEAN // exclude rarely used info from WINDOWS.h
 
 #include <D3D11.h>
-#include <D3DX\D3DX11.h>//D3DXCompile
-#include <D3DX\DxErr.h>
-#include <D3DX\D3DX10math.h>
-#include <d3dx11effect.h>//fx11
 #include <dinput.h>
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
@@ -30,7 +26,10 @@
 #include <unordered_map>
 #include <map>
 
-//FreeType for font&text
+//Third Party : Microsoft's Effects11/FX11
+#include <Effects11\d3dx11effect.h>
+
+//Third Party : FreeType for font&text
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_ERRORS_H
@@ -38,34 +37,42 @@
 #include FT_IMAGE_H
 #include FT_RENDER_H
 
-//FbxSdk for model loader
+//Third Party : FbxSdk for model loader
 #include <fbxsdk.h>
 
-//directXTex
+//Third Party : DirectX Tex
 #include <DirectXTex\DirectXTex.h>
+
+//Third Party : DirectX Math's wrapper class SimpleMath
+//#include <DirectXMath\DirectXMath.h>
+#include <DirectXMath\SimpleMath\SimpleMath.h>
+
 //------------
 #include "NoiseMacro.h"
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
+//#include "IResourceManager.h"
 #include "_2DBasicContainerInfo.h"
-#include "_SpatialHashTable.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
-#include "Mesh.h"
+
 #include "ModelProcessor.h"
-#include "Lights.h"
 #include "Camera.h"
-#include "Material.h"
-#include "Texture.h"
 #include "Atmosphere.h"
-#include "GraphicObject.h"
+#include "Mesh.h"
 #include "MeshManager.h"
+#include "Lights.h"
 #include "LightManager.h"
+#include "Texture.h"
 #include "TextureManager.h"
+#include "Material.h"
 #include "MaterialManager.h"
-#include "GraphicObjMgr.h"
+#include "GraphicObject.h"
+#include "GraphicObjManager.h"
+#include "SweepingTrail.h"
+#include "SweepingTrailManager.h"
 #include "CollisionTestor.h"
 #include "ModelLoader.h"
 #include "ShaderVarManager.h"
@@ -75,6 +82,7 @@
 #include "Text_TextDynamic.h"
 #include "Text_TextStatic.h"
 #include "Text_FontManager.h"
+
 //-------------Core Class-------------
 #include "Renderer.h"
 #include "Root.h"

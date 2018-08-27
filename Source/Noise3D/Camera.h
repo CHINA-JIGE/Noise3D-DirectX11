@@ -84,6 +84,8 @@ namespace Noise3D
 
 		~ICamera();
 
+		const float c_IdentityPosDistThreshold = 0.0001f;
+
 		void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateProjMatrix();//invoked before update to shader
 		void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateViewMatrix();
 		void		mFunction_UpdateRotation();

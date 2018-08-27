@@ -12,7 +12,7 @@
 using namespace Noise3D;
 
 ILightManager::ILightManager():
-	 IFactory<IDirLightD>(10),
+	IFactory<IDirLightD>(10),
 	IFactory<IPointLightD>(10),
 	IFactory<ISpotLightD>(10),
 	IFactory<IDirLightS>(50),
@@ -234,7 +234,6 @@ bool ILightManager::DeleteSpotLightS(ISpotLightS * pLight)
 	return IFactory<ISpotLightS>::DestroyObject(pLight);
 }
 
-
 void	ILightManager::SetDynamicLightingEnabled(bool isEnabled)
 {
 	mIsDynamicLightingEnabled = isEnabled;
@@ -269,7 +268,7 @@ UINT	ILightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
 		break;
 	
 	case NOISE_LIGHT_TYPE_DYNAMIC_SPOT :
-		return IFactory<ISpotLightD>::GetObjectCount(); 
+		return IFactory<ISpotLightD>::GetObjectCount();
 		break;
 
 	case NOISE_LIGHT_TYPE_STATIC_SPOT:

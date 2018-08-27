@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-								h£ºNoiseMeshManager
+								h£ºMeshManager
 
 ************************************************************************/
 
@@ -14,19 +14,19 @@ namespace Noise3D
 	{
 	public:
 
-		IMesh*					CreateMesh(N_UID meshName);
+		IMesh*				CreateMesh(N_UID meshName);
 
-		IMesh*					GetMesh(N_UID meshName);
+		IMesh*				GetMesh(N_UID meshName);
 
-		IMesh*					GetMesh(UINT index);
+		IMesh*				GetMesh(UINT index);
 
 		bool					DestroyMesh(N_UID meshName);
 
-		bool					DestroyMesh(IMesh* ppMesh);
+		bool					DestroyMesh(IMesh* pMesh);
 
-		void						DestroyAllMesh();
+		void					DestroyAllMesh();
 
-		UINT					GetMeshCount();
+		UINT				GetMeshCount();
 
 		bool					IsMeshExisted(N_UID meshName);
 

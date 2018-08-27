@@ -17,6 +17,19 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#GenFiles
+*.lib
+*.pdb
+
+#temp dir
+/temp/
+
+#pre-compiled header
+/pch/
+/ipch/
+/Exec/
+/Media/
+
 #Compiled shader/effect
 *.fxo
 
@@ -25,6 +38,7 @@ $RECYCLE.BIN/
 *.tlog
 *.log
 *.cod
+*.opendb
 
 # =========================
 # Operating System Files

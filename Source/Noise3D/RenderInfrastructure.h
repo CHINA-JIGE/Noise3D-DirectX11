@@ -97,7 +97,7 @@ namespace Noise3D
 
 		bool		mFunction_Init_CreateDepthStencilState();
 
-		bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
+		//bool		mFunction_Init_CreateEffectFromFile(NFilePath fxPath);
 
 		const uint32_t cMsaaSampleCount = 1;
 		HWND		mRenderWindowHWND;
@@ -126,6 +126,7 @@ namespace Noise3D
 		ID3D11BlendState*					m_pBlendState_ColorMultiply;
 		ID3D11DepthStencilState*		m_pDepthStencilState_EnableDepthTest;
 		ID3D11DepthStencilState*		m_pDepthStencilState_DisableDepthTest;
-		ID3D11SamplerState*				m_pSamplerState_FilterLinear;
+		ID3D11SamplerState*				m_pSamplerState_FilterLinearWrap;
+		ID3D11SamplerState*				m_pSamplerState_FilterLinearClamp;
 	};
 }

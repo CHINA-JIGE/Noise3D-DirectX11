@@ -5,17 +5,19 @@
 ************************************************************************/
 
 #pragma once
+using namespace DirectX;
 
 namespace Noise3D
 {
-	typedef		D3DXVECTOR2	NVECTOR2;
-	typedef		D3DXVECTOR3	NVECTOR3;
-	typedef		D3DXVECTOR4	NVECTOR4;
-	typedef		D3DXMATRIX		NMATRIX;
-	typedef		std::string				NFilePath;
-	typedef		std::string				NString;
-	typedef		std::string				N_UID;
-	typedef		D3DXVECTOR4	NColor4f;
+
+	typedef		SimpleMath::Vector2 	NVECTOR2;
+	typedef		SimpleMath::Vector3 	NVECTOR3;
+	typedef		SimpleMath::Vector4 	NVECTOR4;
+	typedef		SimpleMath::Matrix		NMATRIX;
+	typedef		std::string		NFilePath;
+	typedef		std::string		NString;
+	typedef		std::string		N_UID;
+	typedef		SimpleMath::Color 	NColor4f;
 
 	struct NColor4u
 	{
@@ -90,7 +92,7 @@ namespace Noise3D
 		NVECTOR2 TexCoord;
 	};
 
-	struct N_MinizedVertex 
+	struct N_MinimizedVertex 
 	{
 		NVECTOR3 pos;
 	};
@@ -102,5 +104,16 @@ namespace Noise3D
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};
+
+	struct N_LineSegment
+	{
+		N_LineSegment() {}
+
+		N_LineSegment(const NVECTOR3& _v1, const NVECTOR3& _v2) { vert1 = _v1; vert2 = _v2; }
+
+		NVECTOR3 vert1;
+		NVECTOR3 vert2;
+	};
+
 
 };

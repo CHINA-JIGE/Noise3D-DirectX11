@@ -14,6 +14,7 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+using namespace Noise3D::Ut;
 
 Noise3D::ICamera::ICamera() :
 	mRotateX_Pitch(0),
@@ -26,8 +27,8 @@ Noise3D::ICamera::ICamera() :
 	mNearPlane(1.0f),
 	mFarPlane(1000.0f)
 {
-	D3DXMatrixPerspectiveFovLH(&mMatrixProjection,mViewAngleY_Radian,mAspectRatio,mNearPlane,mFarPlane);
-	D3DXMatrixIdentity(&mMatrixView);
+	mMatrixProjection = DirectX::XMMatrixPerspectiveFovLH(mViewAngleY_Radian, mAspectRatio, mNearPlane, mFarPlane);
+	mMatrixView = DirectX::XMMatrixIdentity();
 }
 
 Noise3D::ICamera::~ICamera()
@@ -44,7 +45,7 @@ void	Noise3D::ICamera::SetLookAt(NVECTOR3 vLookat)
 {
 	//pos and lookat can't superpose each other
 	NVECTOR3 dir = vLookat - mPosition;
-	if (D3DXVec3Length(&dir) < 0.0001f)return;
+	if (dir.Length() < c_IdentityPosDistThreshold)return;
 
 	mLookat=vLookat;
 	mFunction_UpdateRotation();
@@ -55,7 +56,7 @@ void	Noise3D::ICamera::SetLookAt(float x,float y,float z)
 	NVECTOR3 tmpLookat(x,y,z);
 	//pos and lookat can't superpose each other
 	NVECTOR3 dir = tmpLookat - mPosition;
-	if (D3DXVec3Length(&dir) < 0.0001f)return;
+	if (dir.Length() < c_IdentityPosDistThreshold)return;
 
 	mLookat=tmpLookat;
 	mFunction_UpdateRotation();
@@ -75,7 +76,7 @@ void	Noise3D::ICamera::SetPosition(NVECTOR3 vPos)
 {
 	//pos and lookat can't superpose each other
 	NVECTOR3 dir = mLookat - vPos;
-	if (D3DXVec3Length(&dir) < 0.0001f)return;
+	if (dir.Length()  < 0.0001f)return;
 
 	mPosition=vPos;
 	mFunction_UpdateRotation();
@@ -85,7 +86,7 @@ void	Noise3D::ICamera::SetPosition(float x,float y,float z)
 {
 	NVECTOR3 tmpPos(x,y,z);
 	NVECTOR3 dir = mLookat - tmpPos;
-	if (D3DXVec3Length(&dir) < 0.0001f)return;
+	if (dir.Length()  < c_IdentityPosDistThreshold)return;
 
 	mPosition=tmpPos;
 	mFunction_UpdateRotation();
@@ -98,9 +99,8 @@ NVECTOR3 Noise3D::ICamera::GetPosition()
 
 void	Noise3D::ICamera::Move(NVECTOR3 vRelativePos)
 {
-	D3DXVec3Add(&mPosition,&mPosition,&vRelativePos);
-	D3DXVec3Add(&mLookat, &mLookat, &vRelativePos);
-
+	mPosition += vRelativePos;
+	mLookat += vRelativePos;
 };
 
 void	Noise3D::ICamera::Move(float relativeX,float relativeY,float relativeZ)
@@ -263,8 +263,9 @@ void Noise3D::ICamera::GetProjMatrix(NMATRIX & outMat)
 void Noise3D::ICamera::GetInvViewMatrix(NMATRIX & outMat)
 {
 	mFunction_UpdateViewMatrix();
-	auto invPtr = D3DXMatrixInverse(&outMat, nullptr, &mMatrixView);
-	if(invPtr==nullptr)ERROR_MSG("Camera : Inverse of View Matrix not exist!")
+	outMat = XMMatrixInverse(nullptr, mMatrixView);
+	//if the inverse doesn't exist, then matrix will be set to infinite
+	if (XMMatrixIsInfinite(outMat))ERROR_MSG("Camera : Inverse of View Matrix not exist!");
 }
 
 void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
@@ -347,12 +348,12 @@ void Noise3D::ICamera::SetViewAngle_Radian(float fovY_Radian, float fAspectRatio
 
 void	Noise3D::ICamera::mFunction_UpdateProjMatrix()
 {
-	D3DXMatrixPerspectiveFovLH(
-		&mMatrixProjection,
+	mMatrixProjection = DirectX::XMMatrixPerspectiveFovLH(
 		mViewAngleY_Radian,
 		mAspectRatio,
 		mNearPlane,
 		mFarPlane);
+
 
 	//(2018.x.xx)Id3dx11EffectMatrix.setMatrix is used, transpose can be neglected
 	//D3DXMatrixTranspose(&mMatrixProjection,&mMatrixProjection);
@@ -360,16 +361,19 @@ void	Noise3D::ICamera::mFunction_UpdateProjMatrix()
 
 void	Noise3D::ICamera::mFunction_UpdateViewMatrix()
 {
-	NMATRIX	tmpMatrixTranslation;
-	NMATRIX	tmpMatrixRotation;
+	NMATRIX		tmpMatrixTranslation;
+	NMATRIX		tmpMatrixRotation;
 	//先对齐原点
-	D3DXMatrixTranslation(&tmpMatrixTranslation, -mPosition.x, -mPosition.y, -mPosition.z);
+	tmpMatrixTranslation = DirectX::XMMatrixTranslation(-mPosition.x, -mPosition.y, -mPosition.z);
+
 	//然后用yaw-pitch-roll的逆阵转到view空间
-	D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotateY_Yaw, mRotateX_Pitch, mRotateZ_Roll);
+	tmpMatrixRotation = DirectX::XMMatrixRotationRollPitchYaw(mRotateX_Pitch, mRotateY_Yaw, mRotateZ_Roll);	//D3DXMatrixRotationYawPitchRoll(&tmpMatrixRotation, mRotateY_Yaw, mRotateX_Pitch, mRotateZ_Roll);
+
 	//for ortho matrix, transpose=inverse
-	D3DXMatrixTranspose(&tmpMatrixRotation,&tmpMatrixRotation);
+	tmpMatrixRotation = DirectX::XMMatrixTranspose(tmpMatrixRotation);
+
 	//先平移，再旋转
-	D3DXMatrixMultiply(&mMatrixView,&tmpMatrixTranslation,&tmpMatrixRotation);
+	mMatrixView = DirectX::XMMatrixMultiply(tmpMatrixTranslation, tmpMatrixRotation);
 
 	//D3DXMatrixTranspose(&mMatrixView,&mMatrixView);
 };
@@ -379,7 +383,7 @@ void	Noise3D::ICamera::mFunction_UpdateRotation()
 	//main function: change Euler Angle after the direction changes
 
 	//update Direction
-	D3DXVec3Subtract(&mDirection,&mLookat,&mPosition);
+	mDirection = mLookat - mPosition;
 
 	//pitch angle： tan = y/sqr(x^2+z^2))
 	/*	CAUTION：	atan ranged [-pi/2,pi/2]  
@@ -387,7 +391,7 @@ void	Noise3D::ICamera::mFunction_UpdateRotation()
 
 	NVECTOR3 xzProjDir(mDirection.x, 0, mDirection.z);
 	//always positive
-	float radiusLength = D3DXVec3Length(&xzProjDir);
+	float radiusLength = xzProjDir.Length();
 	//atan2(y,x) , radiusLength is constantly positive, pitch angle will range [-pi/2,pi/2] 
 	//pitch : rotate downside is positive (the definition of rotation in left-handed frame)
 	mRotateX_Pitch = atan2(-mDirection.y,radiusLength );
@@ -401,11 +405,11 @@ void	Noise3D::ICamera::mFunction_UpdateRotation()
 void	Noise3D::ICamera::mFunction_UpdateDirection()
 {
 	//update lookat according to new posture
-	float tmpDirectionLength = D3DXVec3Length(&mDirection);
+	float tmpDirectionLength = mDirection.Length();
 	//z+ axis is the original posture.
 	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
 	mDirection.x =tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
 	mDirection.z =tmpDirectionLength* cos(mRotateY_Yaw)*cos(mRotateX_Pitch);
 	mDirection.y =tmpDirectionLength* sin(mRotateX_Pitch);
-	D3DXVec3Add(&mLookat,&mPosition,&mDirection);
+	mLookat = mPosition + mDirection;
 };
