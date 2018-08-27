@@ -9,12 +9,12 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-IVoxelizer::IVoxelizer():
+Voxelizer::Voxelizer():
 	mIsInitialized(false)
 {
 }
 
-bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ)
+bool Voxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ)
 {
 
 	mIntersectXCoordLayers.resize(cubeCountY);
@@ -39,7 +39,7 @@ bool IVoxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cube
 	return true;
 }
 
-bool IVoxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
+bool Voxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
 {
 	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ, cubeWidth, cubeHeight, cubeDepth);
 
@@ -55,7 +55,7 @@ bool IVoxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<
 }
 
 
-void IVoxelizer::Voxelize()
+void Voxelizer::Voxelize()
 {
 	if (!mIsInitialized)
 	{
@@ -85,7 +85,7 @@ void IVoxelizer::Voxelize()
 	mFunction_Rasterize(lineSegmentList);
 }
 
-void  IVoxelizer::GetVoxelizedModel(IVoxelizedModel& outModel)
+void  Voxelizer::GetVoxelizedModel(VoxelizedModel& outModel)
 {
 	outModel = mVoxelizedModel;
 }
@@ -96,7 +96,7 @@ void  IVoxelizer::GetVoxelizedModel(IVoxelizedModel& outModel)
 
 *********************************************************/
 
-void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& lineSegList)
+void Voxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& lineSegList)
 {
 	//1.
 	for (auto& line : lineSegList)
@@ -152,7 +152,7 @@ void IVoxelizer::mFunction_Rasterize(const std::vector<N_LayeredLineSegment2D>& 
 
 }
 
-void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSegment2D& line, UINT scanlineRowID, float y)
+void Voxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSegment2D& line, UINT scanlineRowID, float y)
 {
 
 	//v1,v2 are transformed into NORMALIZED space, valued in [0,1]
@@ -211,7 +211,7 @@ void IVoxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSeg
 }
 
 
-void IVoxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layerID)
+void Voxelizer::mFunction_PadInnerArea(N_IntersectXCoordList& layer, UINT layerID)
 {
 	//Scan Line Padding , horizontal line scans from top to bottom
 	UINT cubeCountX = mVoxelizedModel.GetVoxelCountX();

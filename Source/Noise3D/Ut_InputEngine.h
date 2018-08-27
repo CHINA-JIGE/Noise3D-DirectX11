@@ -13,12 +13,12 @@ namespace Noise3D
 
 	namespace Ut
 	{
-		class /*_declspec(dllexport)*/ IInputEngine
+		class /*_declspec(dllexport)*/ InputEngine
 		{
 		public:
 
 			//¹¹Ôìº¯Êý
-			IInputEngine();
+			InputEngine();
 
 			bool		Initialize(HINSTANCE hinstance, HWND hwnd);
 

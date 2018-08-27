@@ -9,14 +9,14 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-IVoxelizedModel::IVoxelizedModel():
+VoxelizedModel::VoxelizedModel():
 	mCubeCountX(0),
 	mCubeCountY(0),
 	mCubeCountZ(0)
 {
 }
 
-IVoxelizedModel::IVoxelizedModel(const IVoxelizedModel & model)
+VoxelizedModel::VoxelizedModel(const VoxelizedModel & model)
 {
 	mCubeWidth = model.mCubeWidth;
 	mCubeHeight = model.mCubeHeight;
@@ -28,7 +28,7 @@ IVoxelizedModel::IVoxelizedModel(const IVoxelizedModel & model)
 	mVoxelArray = model.mVoxelArray;
 }
 
-bool IVoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
+bool VoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
 {
 	//	  Y|        
 	//		|      /Z
@@ -80,57 +80,57 @@ bool IVoxelizedModel::Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t 
 	return true;
 }
 
-float IVoxelizedModel::GetVoxelWidth() const
+float VoxelizedModel::GetVoxelWidth() const
 {
 	return mCubeWidth;
 }
 
-float IVoxelizedModel::GetVoxelHeight() const
+float VoxelizedModel::GetVoxelHeight() const
 {
 	return mCubeHeight;
 }
 
-float IVoxelizedModel::GetVoxelDepth() const
+float VoxelizedModel::GetVoxelDepth() const
 {
 	return mCubeDepth;
 }
 
-UINT IVoxelizedModel::GetVoxelCountX() const
+UINT VoxelizedModel::GetVoxelCountX() const
 {
 	return mCubeCountX;
 }
 
-UINT IVoxelizedModel::GetVoxelCountY() const
+UINT VoxelizedModel::GetVoxelCountY() const
 {
 	return mCubeCountY;
 }
 
-UINT IVoxelizedModel::GetVoxelCountZ() const
+UINT VoxelizedModel::GetVoxelCountZ() const
 {
 	return mCubeCountZ;
 }
 
-UINT IVoxelizedModel::GetVoxelCount() const
+UINT VoxelizedModel::GetVoxelCount() const
 {
 	return mCubeCountX * mCubeCountY * mCubeCountZ;
 }
 
-float IVoxelizedModel::GetModelWidth() const
+float VoxelizedModel::GetModelWidth() const
 {
 	return GetVoxelCountX() * GetVoxelWidth();
 }
 
-float IVoxelizedModel::GetModelHeight() const
+float VoxelizedModel::GetModelHeight() const
 {
 	return GetVoxelCountY() * GetVoxelHeight();
 }
 
-float IVoxelizedModel::GetModelDepth() const
+float VoxelizedModel::GetModelDepth() const
 {
 	return GetVoxelCountZ() * GetVoxelDepth();
 }
 
-byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
+byte VoxelizedModel::GetVoxel(int x, int y, int z)const
 {
 	if (x < 0 || y < 0 || z < 0)return 0;
 
@@ -150,7 +150,7 @@ byte IVoxelizedModel::GetVoxel(int x, int y, int z)const
 	}
 }
 
-void IVoxelizedModel::SetVoxel(int b, UINT x, UINT y, UINT z)
+void VoxelizedModel::SetVoxel(int b, UINT x, UINT y, UINT z)
 {
 	//voxel bits are all packed into uint32_t 
 	/*if (x < mCubeCountX && y < mCubeCountY&& z < mCubeCountZ)
@@ -175,7 +175,7 @@ void IVoxelizedModel::SetVoxel(int b, UINT x, UINT y, UINT z)
 	mVoxelArray.at(packedIndex) |= (val << bitOffset);
 }
 
-void IVoxelizedModel::SetVoxel(int b, UINT startX, UINT endX, UINT y, UINT z)
+void VoxelizedModel::SetVoxel(int b, UINT startX, UINT endX, UINT y, UINT z)
 {
 	int val = b != 0 ? 1 : 0;
 	uint32_t startBitIndex = (y * mCubeCountZ + z) * mCubeCountX + startX;//index of bit, y * mCubeCountX * mCubeCountZ + z * mCubeCountX + x;
@@ -230,7 +230,7 @@ void IVoxelizedModel::SetVoxel(int b, UINT startX, UINT endX, UINT y, UINT z)
 
 }
 
-bool IVoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
+bool VoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 {
 	if (GetVoxelCount() > 10000000)
 	{
@@ -285,13 +285,13 @@ bool IVoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 		{
 			for (int x = 0; x < mCubeCountX; ++x)
 			{
-				byte val = IVoxelizedModel::GetVoxel(x, y, z);
-				byte val_xm = IVoxelizedModel::GetVoxel(x-1, y, z);//x-minus
-				byte val_xp = IVoxelizedModel::GetVoxel(x+1, y, z);//x-plus
-				byte val_ym = IVoxelizedModel::GetVoxel(x, y-1, z);//y-minus
-				byte val_yp = IVoxelizedModel::GetVoxel(x, y+1, z);//y-plus
-				byte val_zm = IVoxelizedModel::GetVoxel(x, y, z-1);//z-minus
-				byte val_zp = IVoxelizedModel::GetVoxel(x, y, z+1);//z-plus
+				byte val = VoxelizedModel::GetVoxel(x, y, z);
+				byte val_xm = VoxelizedModel::GetVoxel(x-1, y, z);//x-minus
+				byte val_xp = VoxelizedModel::GetVoxel(x+1, y, z);//x-plus
+				byte val_ym = VoxelizedModel::GetVoxel(x, y-1, z);//y-minus
+				byte val_yp = VoxelizedModel::GetVoxel(x, y+1, z);//y-plus
+				byte val_zm = VoxelizedModel::GetVoxel(x, y, z-1);//z-minus
+				byte val_zp = VoxelizedModel::GetVoxel(x, y, z+1);//z-plus
 				if (val == 1)
 				{
 					//cube position
@@ -324,7 +324,7 @@ bool IVoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 	return IFileIO::ExportFile_STL_Binary(STL_filePath,"Noise Voxelized Model",vertexList);
 }
 
-bool IVoxelizedModel::SaveToFile_NVM(NFilePath NVM_filePath)
+bool VoxelizedModel::SaveToFile_NVM(NFilePath NVM_filePath)
 {
 	std::ofstream outFile(NVM_filePath, std::ios::binary);
 	if (!outFile.is_open())
@@ -350,7 +350,7 @@ bool IVoxelizedModel::SaveToFile_NVM(NFilePath NVM_filePath)
 	return true;
 }
 
-bool IVoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
+bool VoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
 {
 	if (GetVoxelCount() > 20000000)
 	{
@@ -381,7 +381,7 @@ bool IVoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
 		{
 			for (uint32_t x = 0; x < mCubeCountX; ++x)
 			{
-				outFile << int( IVoxelizedModel::GetVoxel(x, y, z));
+				outFile << int( VoxelizedModel::GetVoxel(x, y, z));
 			}
 			outFile << std::endl;
 		}
@@ -392,7 +392,7 @@ bool IVoxelizedModel::SaveToFile_TXT(NFilePath TXT_filePath)
 	return true;
 }
 
-bool IVoxelizedModel::LoadFromFile_NVM(NFilePath NVM_filePath)
+bool VoxelizedModel::LoadFromFile_NVM(NFilePath NVM_filePath)
 {
 	std::ifstream inFile(NVM_filePath, std::ios::binary);
 	if (!inFile.is_open())
@@ -412,7 +412,7 @@ bool IVoxelizedModel::LoadFromFile_NVM(NFilePath NVM_filePath)
 	READ(mCubeCountY);
 	READ(mCubeCountZ);
 
-	IVoxelizedModel::Resize(mCubeCountX, mCubeCountY, mCubeCountZ,1.0f,1.0f,1.0f);
+	VoxelizedModel::Resize(mCubeCountX, mCubeCountY, mCubeCountZ,1.0f,1.0f,1.0f);
 	inFile.read((char*)&mVoxelArray.at(0), mVoxelArray.size() * sizeof(uint32_t));
 	inFile.close();
 

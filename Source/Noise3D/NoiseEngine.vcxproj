@@ -138,6 +138,7 @@
     <ClInclude Include="RenderInfrastructure.h" />
     <ClInclude Include="Renderer_PostProcessing.h" />
     <ClInclude Include="Renderer_SweepingTrail.h" />
+    <ClInclude Include="SHProjector.h" />
     <ClInclude Include="SweepingTrail.h" />
     <ClInclude Include="SweepingTrailManager.h" />
     <ClInclude Include="_BaseRenderModule.h" />

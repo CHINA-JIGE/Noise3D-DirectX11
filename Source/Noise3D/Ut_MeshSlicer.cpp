@@ -11,7 +11,7 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-IMeshSlicer::IMeshSlicer():
+MeshSlicer::MeshSlicer():
 	mBoundingBox_Min(0, 0, 0),
 	mBoundingBox_Max(0, 0, 0),
 	mCurrentStep(0)
@@ -19,7 +19,7 @@ IMeshSlicer::IMeshSlicer():
 
 }
 
-bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vb, const std::vector<UINT>& ib)
+bool MeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vb, const std::vector<UINT>& ib)
 {
 	mCurrentStep = 1;
 
@@ -54,7 +54,7 @@ bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>&
 	return true;
 }
 
-bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultVertex>& vb)
+bool MeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultVertex>& vb)
 {
 	mCurrentStep = 1;
 
@@ -81,7 +81,7 @@ bool IMeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultV
 	return true;
 }
 
-bool IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
+bool MeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 {
 	mCurrentStep = 1;
 
@@ -114,7 +114,7 @@ bool IMeshSlicer::Step1_LoadPrimitiveMeshFromSTLFile(NFilePath pFilePath)
 	return true;
 }
 
-void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
+void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 {
 	if (mCurrentStep != 2)
 	{
@@ -351,7 +351,7 @@ void IMeshSlicer::Step2_Intersection(UINT iLayerCount)
 	mCurrentStep = 3;
 }
 
-void	IMeshSlicer::Step3_GenerateLineStrip()
+void	MeshSlicer::Step3_GenerateLineStrip()
 {
 	if (mCurrentStep != 3)
 	{
@@ -415,7 +415,7 @@ void	IMeshSlicer::Step3_GenerateLineStrip()
 	mCurrentStep = 4;
 }
 
-bool IMeshSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
+bool MeshSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
 {
 	bool isSucceeded;
 	isSucceeded = mFunction_ImportFile_NOISELAYER(filePath, &mLineStripBuffer);
@@ -423,7 +423,7 @@ bool IMeshSlicer::Step3_LoadLineStripsFrom_NOISELAYER_File(char * filePath)
 	return isSucceeded;
 }
 
-bool IMeshSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
+bool MeshSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
 {
 	if (mCurrentStep != 4)
 	{
@@ -436,12 +436,12 @@ bool IMeshSlicer::Step4_SaveLayerDataToFile(NFilePath filePath)
 	return isSucceeded;
 }
 
-UINT IMeshSlicer::GetLineSegmentCount()
+UINT MeshSlicer::GetLineSegmentCount()
 {
 	return mLineSegmentBuffer.size();
 }
 
-void IMeshSlicer::GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outBuffer)
+void MeshSlicer::GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outBuffer)
 {
 	outBuffer.clear();
 	outBuffer.reserve(mLineSegmentBuffer.size());
@@ -467,12 +467,12 @@ void IMeshSlicer::GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outB
 
 }
 
-UINT IMeshSlicer::GetLineStripCount()
+UINT MeshSlicer::GetLineStripCount()
 {
 	return mLineStripBuffer.size();
 }
 
-void IMeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index)
+void MeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index)
 {
 	if (index < mLineStripBuffer.size())
 	{
@@ -481,7 +481,7 @@ void IMeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT inde
 	}
 }
 
-N_Box IMeshSlicer::GetBoundingBox()
+N_Box MeshSlicer::GetBoundingBox()
 {
 	return N_Box(mBoundingBox_Min,mBoundingBox_Max);
 }
@@ -491,7 +491,7 @@ N_Box IMeshSlicer::GetBoundingBox()
 /************************************************************************
 											P R I V A T E
 ************************************************************************/
-void		IMeshSlicer::mFunction_ComputeBoundingBox()
+void		MeshSlicer::mFunction_ComputeBoundingBox()
 {
 	//compute Bounding box : override 1
 
@@ -513,7 +513,7 @@ void		IMeshSlicer::mFunction_ComputeBoundingBox()
 
 }
 
-bool	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
+bool	MeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
 {
 
 	//some obvious wrong input check
@@ -551,7 +551,7 @@ bool	IMeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, fl
 	return false;
 }
 
-void		IMeshSlicer::mFunction_GenerateLayerTileInformation()
+void		MeshSlicer::mFunction_GenerateLayerTileInformation()
 {
 	//preprocess , generate line segment Info for each layer tile for optimization
 	// if 1 or 2 of the line segment vertex is(are) right on the tile, then line seg ID will be recorded in a std::vector of this tile
@@ -595,7 +595,7 @@ void		IMeshSlicer::mFunction_GenerateLayerTileInformation()
 
 }
 
-void		IMeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X, UINT & tileID_Z)
+void		MeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X, UINT & tileID_Z)
 {
 	//this function will return index(2 integers) that can be used to locate element in 2D array
 
@@ -616,7 +616,7 @@ void		IMeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X
 	 if (tileID_Z == c_LayerTileStepCount)tileID_Z--;
 };
 
-IMeshSlicer::N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
+MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
 {
 	N_IntersectionResult outResult;
 
@@ -664,7 +664,7 @@ IMeshSlicer::N_IntersectionResult	IMeshSlicer::mFunction_HowManyVertexOnThisLaye
 	return outResult;
 }
 
-bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
+bool MeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
 {
 	//........used to judge if two point can be weld together
 	float						tmpPointDist = 0;
@@ -723,7 +723,7 @@ bool IMeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT c
 	return false;
 }
 
-NVECTOR3 IMeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
+NVECTOR3 MeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 {
 	//to know the reason of why the projection is the normal , refer to the tech doc
 	NVECTOR3 outNormal(triangleNormal.x,0, triangleNormal.z);
@@ -732,7 +732,7 @@ NVECTOR3 IMeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
 }
 
 //.NOISELAYER loader
-bool IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
+bool MeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer)
 {
 	if (!pLineStripBuffer)
 	{
@@ -827,7 +827,7 @@ bool IMeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vect
 }
 
 //.NOISELAYER exporter
-bool IMeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld)
+bool MeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld)
 {
 	std::ofstream fileOut;
 

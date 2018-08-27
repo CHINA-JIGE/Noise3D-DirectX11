@@ -18,13 +18,13 @@ namespace Noise3D
 			NOISE_TIMER_TIMEUNIT_SECOND = 1
 		};
 
-		class /*_declspec(dllexport)*/ ITimer
+		class /*_declspec(dllexport)*/ Timer
 		{
 		public:
 
-			ITimer();
+			Timer();
 
-			ITimer(NOISE_TIMER_TIMEUNIT timeUnit);
+			Timer(NOISE_TIMER_TIMEUNIT timeUnit);
 
 			//在函数名后加const表示此函数不会修改类成员
 			//暂停后不再加

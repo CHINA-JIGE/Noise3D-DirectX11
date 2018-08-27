@@ -127,6 +127,12 @@
     <Filter Include="NoiseGraphic\Scene\SweepingTrailFX">
       <UniqueIdentifier>{74a7bdb1-d6f8-4701-ba01-decf7d83c92c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\GI">
+      <UniqueIdentifier>{52a8c0e3-b373-4673-b074-60180c4f1a4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\SHLighting">
+      <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -285,6 +291,9 @@
     </ClInclude>
     <ClInclude Include="Renderer_SweepingTrail.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
+    </ClInclude>
+    <ClInclude Include="SHProjector.h">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
