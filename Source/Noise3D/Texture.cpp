@@ -1,8 +1,8 @@
 
 /***********************************************************************
 
-                           cpp£ºITexture, provide interface for user to 
-						   modified something
+                cpp£ºITexture, provide interface for user to 
+				 modified something
 
 ************************************************************************/
 
@@ -433,7 +433,7 @@ bool ITexture::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT p
 			outImage.height = tmpTexDesc.Height;
 			outImage.rowPitch = mappedResource.RowPitch;
 			outImage.slicePitch = mappedResource.DepthPitch;
-
+			
 			//save texture to DirectX::Blob encoded in specific format
 			switch (picFormat)
 			{

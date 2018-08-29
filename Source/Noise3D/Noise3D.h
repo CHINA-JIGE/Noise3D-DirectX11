@@ -88,6 +88,10 @@
 #include "Root.h"
 #include "Scene.h"
 
+//--------GI: Spherical Harmonic----------
+#include "SHCommon.h"
+#include "SHProjector.h"
+
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"
 #include "Ut_MeshSlicer.h"

@@ -295,6 +295,9 @@
     <ClInclude Include="SHProjector.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
+    <ClInclude Include="SHCommon.h">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -437,6 +440,12 @@
     </ClCompile>
     <ClCompile Include="Renderer_SweepingTrail.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
+    </ClCompile>
+    <ClCompile Include="SHProjector.cpp">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="SHCommon.cpp">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
