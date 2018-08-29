@@ -68,10 +68,26 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	case 13: result = shTermFactor[13] * x * (4*z*z - x*x - y*y); break;
 	case 14: result = shTermFactor[14] * (x*x - y*y) *z; break;
 	case 15: result = shTermFactor[15] * (x*x - 3*y*y)*x; break;
+	default: result = 0.0f; ERROR_MSG("SH function: not supported if band index is larger than 3!"); break;
 	}
+
+	return result;
 }
 
 float Noise3D::GI::SH(int l, int m, float theta, float phi)
 {
+	NVECTOR3 vec = { sinf(theta)*cosf(phi),sinf(theta)*sinf(phi), cos(theta) };
+	return SH(l, m, vec);
+}
 
+float Noise3D::GI::SH_n(int l, int m, NVECTOR3 dir)
+{
+	ERROR_MSG("NOT Implemented!");
+	return 0.0f;
+}
+
+float Noise3D::GI::SH_n(int l, int m, float theta, float phi)
+{
+	ERROR_MSG("NOT Implemented!");
+	return 0.0f;
 }

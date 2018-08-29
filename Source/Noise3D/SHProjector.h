@@ -22,33 +22,45 @@ namespace Noise3D
 	namespace GI
 	{
 
-		//an interface that user can implement to pass in to 'ProjectIrradianceLightPredicate'
-		struct N_SH_IRRADIANCE_SAMPLE_INTERFACE
+		//an interface that user can implement to pass in as the input of light source
+		struct N_SH_SPHERICAL_FUNC_INTERFACE
 		{
-			NColor4f Sample(const NVECTOR3& dir);
+			virtual NColor4f Eval(const NVECTOR3& dir)=0;
 		};
 
-		class  /*_declspec(dllexport)*/ SHProjector
+
+		//a general Spherical Harmonic projector of a given spherical function
+		class /*_declspec(dllexport)*/ SHProjector
+		{
+		public:
+
+			//low order SH functions is optimized with hardcoded terms
+			void Project_LowOrder(NOISE_SH_ORDER shOrder, uint32_t monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
+
+			//SH functions is implemented using recursive method of Spherical Harmonic Terms
+			void Project_NOrder(uint32_t highestOrderIndex, uint32_t monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
+		};
+
+
+		class  /*_declspec(dllexport)*/ SHIrradianceProjector
 		{
 		public:
 
 			//environment irradiance map is sampled via a texture that is spherically mapped like a world map
-			void ProjectIrradianceSphericalMap(N_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
+			void ProjectIrradianceSphericalMap(NOISE_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
 
 			//environment irradiance map is sampled via 6 textures on a cube map //+X,-X,+Y,-Y,+Z,-Z in the same texture organized in a flattened box pattern
-			void ProjectIrradianceCubeMap6Faces(N_SH_ORDER shOrder, ITexture* pTexArray[6], std::vector<float>& outSHCoefficient);
+			void ProjectIrradianceCubeMap6Faces(NOISE_SH_ORDER shOrder, ITexture* pTexArray[6], std::vector<float>& outSHCoefficient);
 
 			//environment irradiance map is sampled via cube map texture 
-			void ProjectIrradianceCubeMap(N_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
+			void ProjectIrradianceCubeMap(NOISE_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
 
 			//environment irradiance map is sampled via predicate given by user
-			void ProjectIrradianceLightPredicate(N_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
-
-			//not implemented
-			void ProjectTransferFunction();
+			void ProjectIrradianceLightPredicate(NOISE_SH_ORDER shOrder, ITexture* pTex, std::vector<float>& outSHCoefficient);
 
 		private:
 
 		};
+
 	}
 };

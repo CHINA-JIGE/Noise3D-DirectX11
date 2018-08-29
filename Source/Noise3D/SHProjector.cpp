@@ -10,8 +10,7 @@
 
 using namespace Noise3D;
 
-
-void Noise3D::GI::SHProjector::ProjectTransferFunction()
+void Noise3D::GI::SHProjector::Project_LowOrder(NOISE_SH_ORDER shOrder, uint32_t monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE * pTargetFunc, std::vector<float>& outSHCoefficient)
 {
-	ERROR_MSG("Not implemented!");
+
 }
