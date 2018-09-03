@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <random>
 
 //Third Party : Microsoft's Effects11/FX11
 #include <Effects11\d3dx11effect.h>
@@ -89,6 +90,7 @@
 #include "Scene.h"
 
 //--------GI: Spherical Harmonic----------
+#include "RandomSampleGenerator.h"
 #include "SHCommon.h"
 #include "SHProjector.h"
 

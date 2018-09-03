@@ -21,24 +21,27 @@ namespace Noise3D
 {
 	namespace GI
 	{
+		//an interface that user can implement to pass in as the input of data
+		struct N_SH_SPHERICAL_REAL_FUNC_INTERFACE { virtual float Eval(const NVECTOR3& dir)=0;	};
 
-		//an interface that user can implement to pass in as the input of light source
-		struct N_SH_SPHERICAL_FUNC_INTERFACE
-		{
-			virtual NColor4f Eval(const NVECTOR3& dir)=0;
-		};
-
+		struct N_SH_SPHERICAL_VEC4_FUNC_INTERFACE { virtual NVECTOR4 Eval(const NVECTOR3& dir) = 0; };
 
 		//a general Spherical Harmonic projector of a given spherical function
 		class /*_declspec(dllexport)*/ SHProjector
 		{
 		public:
 
-			//low order SH functions is optimized with hardcoded terms
-			void Project_LowOrder(NOISE_SH_ORDER shOrder, uint32_t monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
+			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
+			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_n())
+			void Project(int highestOrderIndex, int monteCarloSampleCount, N_SH_SPHERICAL_REAL_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
+		
+			//template functions seems not necessary. A little bit redundancy is ok to implement several input format (e.g float, vec4)
+			void Project(int highestOrderIndex, int monteCarloSampleCount, N_SH_SPHERICAL_VEC4_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
 
-			//SH functions is implemented using recursive method of Spherical Harmonic Terms
-			void Project_NOrder(uint32_t highestOrderIndex, uint32_t monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE* pTargetFunc, std::vector<float>& outSHCoefficient);
+
+		private:
+		
+		
 		};
 
 

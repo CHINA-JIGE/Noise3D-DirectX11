@@ -133,6 +133,9 @@
     <Filter Include="NoiseGraphic\GI\SHLighting">
       <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\GI\Common">
+      <UniqueIdentifier>{c3fca04f-cbb8-4d60-9566-df5081aa6b0f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -298,6 +301,9 @@
     <ClInclude Include="SHCommon.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
+    <ClInclude Include="RandomSampleGenerator.h">
+      <Filter>NoiseGraphic\GI\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -446,6 +452,9 @@
     </ClCompile>
     <ClCompile Include="SHCommon.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSampleGenerator.cpp">
+      <Filter>NoiseGraphic\GI\Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
