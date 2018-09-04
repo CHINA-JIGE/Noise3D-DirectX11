@@ -295,14 +295,14 @@
     <ClInclude Include="Renderer_SweepingTrail.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClInclude>
-    <ClInclude Include="SHProjector.h">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
-    </ClInclude>
     <ClInclude Include="SHCommon.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
     <ClInclude Include="RandomSampleGenerator.h">
       <Filter>NoiseGraphic\GI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="SHVector.h">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -447,14 +447,14 @@
     <ClCompile Include="Renderer_SweepingTrail.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClCompile>
-    <ClCompile Include="SHProjector.cpp">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
-    </ClCompile>
     <ClCompile Include="SHCommon.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
     <ClCompile Include="RandomSampleGenerator.cpp">
       <Filter>NoiseGraphic\GI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="SHVector.cpp">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

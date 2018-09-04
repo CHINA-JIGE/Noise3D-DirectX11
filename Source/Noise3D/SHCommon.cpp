@@ -39,7 +39,7 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	};
 
 	//map 2-dimension index to flattened array index(described in the <Gritty Detail> paper)
-	int index = l*(l+1) + m;
+	int index = SH_FlattenIndex(l,m);
 	float result = 0.0f;
 	float x = dir.x, y = dir.y, z = dir.z;
 
@@ -90,4 +90,9 @@ float Noise3D::GI::SH_n(int l, int m, float theta, float phi)
 {
 	ERROR_MSG("NOT Implemented!");
 	return 0.0f;
+}
+
+int Noise3D::GI::SH_FlattenIndex(int l, int m)
+{
+	return l*(l + 1) + m;
 }

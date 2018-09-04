@@ -92,7 +92,7 @@
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"
 #include "SHCommon.h"
-#include "SHProjector.h"
+#include "SHVector.h"
 
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"

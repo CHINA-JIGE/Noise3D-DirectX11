@@ -140,7 +140,7 @@
     <ClInclude Include="Renderer_PostProcessing.h" />
     <ClInclude Include="Renderer_SweepingTrail.h" />
     <ClInclude Include="SHCommon.h" />
-    <ClInclude Include="SHProjector.h" />
+    <ClInclude Include="SHVector.h" />
     <ClInclude Include="SweepingTrail.h" />
     <ClInclude Include="SweepingTrailManager.h" />
     <ClInclude Include="_BaseRenderModule.h" />
@@ -203,7 +203,7 @@
     <ClCompile Include="RenderInfrastructure.cpp" />
     <ClCompile Include="Renderer_SweepingTrail.cpp" />
     <ClCompile Include="SHCommon.cpp" />
-    <ClCompile Include="SHProjector.cpp" />
+    <ClCompile Include="SHVector.cpp" />
     <ClCompile Include="SweepingTrail.cpp" />
     <ClCompile Include="SweepingTrailManager.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />
