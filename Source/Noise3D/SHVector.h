@@ -22,11 +22,16 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		//an interface that user can implement to pass in as the input of data
+		//an interface that user can implement to pass in as the input of data(spherical function)
 		template <typename T>
-		struct N_SH_SPHERICAL_FUNC_INTERFACE 
+		struct ISphericalFunc 
 		{
 			virtual T Eval(const NVECTOR3& dir)=0;	
+		};
+
+		class ISphericalTextureSampler : public ISphericalFunc<float>
+		{
+
 		};
 
 		//a general Spherical Harmonic coefficent vector class (several operation on SH coefficients are available)
@@ -39,7 +44,7 @@ namespace Noise3D
 
 			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
 			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_n())
-			void Project(int highestOrder, int monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE<float>* pTargetFunc);
+			void Project(int highestOrder, int monteCarloSampleCount, ISphericalFunc<float>* pTargetFunc);
 
 			//reconstruct SH signal and evaluate spherical function value in given direction
 			float Eval(NVECTOR3 dir);

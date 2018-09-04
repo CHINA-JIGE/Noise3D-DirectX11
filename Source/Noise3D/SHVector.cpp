@@ -16,7 +16,7 @@ Noise3D::GI::SHVector::SHVector():
 
 }
 
-void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount, N_SH_SPHERICAL_FUNC_INTERFACE<float>* pTargetFunc)
+void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount, ISphericalFunc<float>* pTargetFunc)
 {
 	if (highestOrder < 0)
 	{

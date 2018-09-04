@@ -32,5 +32,8 @@
     <ClCompile Include="UnitTest_SweepingTrail.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_SH.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
