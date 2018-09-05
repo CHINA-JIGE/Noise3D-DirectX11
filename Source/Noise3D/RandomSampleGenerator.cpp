@@ -8,6 +8,8 @@
 
 using namespace Noise3D;
 
+std::default_random_engine Noise3D::GI::RandomSampleGenerator::mRandomEngine = std::default_random_engine();
+
 std::uniform_real_distribution<float> Noise3D::GI::RandomSampleGenerator::mCanonicalDist = std::uniform_real_distribution<float>(0.0, 1.0f);
 
 Noise3D::GI::RandomSampleGenerator::RandomSampleGenerator()

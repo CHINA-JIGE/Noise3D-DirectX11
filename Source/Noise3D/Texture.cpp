@@ -106,7 +106,7 @@ NColor4u ITexture::GetPixel(UINT x, UINT y)
 	}
 	else
 	{
-		ERROR_MSG("GetPixel :Texture Type invalid !!");
+		ERROR_MSG("GetPixel : didn't keep a copy in memory !!!");
 	}
 	return NVECTOR4(0, 0, 0, 0);
 }

@@ -304,6 +304,9 @@
     <ClInclude Include="SHVector.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
+    <ClInclude Include="ISphericalFunc.h">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -454,6 +457,9 @@
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClCompile>
     <ClCompile Include="SHVector.cpp">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="ISphericalFunc.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
   </ItemGroup>

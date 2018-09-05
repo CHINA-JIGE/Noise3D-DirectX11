@@ -2,11 +2,10 @@
 #include <sstream>
 
 BOOL Init3D(HWND hwnd);
+void SHPreprocess();
 void MainLoop();
 void Cleanup();
 void	InputProcess();
-void	InputProcess2();
-void InputProcess3();
 
 using namespace Noise3D;
 
@@ -20,13 +19,11 @@ IMeshManager* pMeshMgr;
 std::vector<IMesh*> meshList;
 IMaterialManager*	pMatMgr;
 ITextureManager*	pTexMgr;
+ITexture* pOriginTex;
+ITexture* pShTex;
 IGraphicObjectManager*	pGraphicObjMgr;
 IGraphicObject*	pGO_Axis;
-IGraphicObject*	pGO_TanList;
-ILightManager* pLightMgr;
-IDirLightD*		pDirLight1;
-IPointLightD*	pPointLight1;
-ISpotLightD*	pSpotLight1;
+IGraphicObject*	pGO_GUI;
 IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
@@ -78,16 +75,14 @@ BOOL Init3D(HWND hwnd)
 	pMeshMgr = pScene->GetMeshMgr();
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
 	pCamera = pScene->GetCamera();
-	pLightMgr = pScene->GetLightMgr();
 	pMatMgr = pScene->GetMaterialMgr();
 	pTexMgr = pScene->GetTextureMgr();
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
-	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", true, 1024, 1024, false);
-	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", false, 256, 256, false);
-	pTexMgr->CreateTextureFromFile("../media/blade.jpg", "bladeTrail", true, 512, 512, false);
-	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
+	pOriginTex = pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Tex", true, 512, 512, true);
+	pShTex = pTexMgr->CreatePureColorTexture("ShTex", 512, 512, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
+	SHPreprocess();
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
@@ -111,37 +106,34 @@ BOOL Init3D(HWND hwnd)
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
-	//---------------Light-----------------
-	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
-	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(1.0f, -1.0f, 0);
-	dirLightDesc.specularIntensity = 1.0f;
-	dirLightDesc.diffuseIntensity = 1.0f;
-	pDirLight1->SetDesc(dirLightDesc);
 
-	//bottom right
-	pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
+	/*pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
 	pGO_Axis->AddRectangle(NVECTOR2(1080.0f, 780.0f), NVECTOR2(1280.0f,800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pGO_Axis->AddLine3D({ 0,0,0 }, { 100.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,100.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
-	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,0,100.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
-	pGO_TanList = pGraphicObjMgr->CreateGraphicObj("tanList");
-	pGO_TanList->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,0,100.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });*/
+	pGO_GUI = pGraphicObjMgr->CreateGraphicObj("tanList");
+	pGO_GUI->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	pGO_GUI->AddRectangle(NVECTOR2(50.0f, 50.0f), NVECTOR2(50.0f + 512.0f, 50.0f+512.0f), NVECTOR4(1.0f, 0, 0, 1.0f), "Tex");
+	pGO_GUI->AddRectangle(NVECTOR2(50.0f+512.0f+30.0f, 50.0f), NVECTOR2(50.0f + 512.0f + 30.0f + 512.0f, 50.0f + 512.0f), NVECTOR4(1.0f, 0, 0, 1.0f), "ShTex");
 
 	return TRUE;
 };
 
+void SHPreprocess()
+{
+	GI::SHVector shvec;
+	GI::ISphericalMappingTextureSampler defaultSphFunc;
+	defaultSphFunc.SetTexture(pOriginTex);
+	shvec.Project(3, 10000, &defaultSphFunc);
+}
+
 void MainLoop()
 {
 	static float incrNum = 0.0;
-	//if (incrNum > 10.0f)incrNum = 10.0f;
-	//::Sleep(100);
 
-	InputProcess3();
+	InputProcess();
 	pRenderer->ClearBackground(NVECTOR4(0.2f,0.2f,0.2f,1.0f));
 	timer.NextTick();
 
@@ -154,7 +146,7 @@ void MainLoop()
 	//add to render list
 	//for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
 	pRenderer->AddToRenderQueue(pGO_Axis);
-	pRenderer->AddToRenderQueue(pGO_TanList);
+	pRenderer->AddToRenderQueue(pGO_GUI);
 	pRenderer->AddToRenderQueue(pMyText_fps);
 
 	//render

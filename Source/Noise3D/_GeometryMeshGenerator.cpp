@@ -155,25 +155,6 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 		//the first column will be duplicated to achieve adequate texture mapping
 		for(int j = 0; j <int(iColumnCount)+1 ; j++)
 		{
-			/*//the Y coord of  current ring 
-			tmpY = fRadius *sin( MATH_PI/2 - (i+1) *StepLength_AngleY);
-
-			////Pythagoras theorem(勾股定理)
-			tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY); 
-
-			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos( j*StepLength_AngleXZ);
-
-			//...
-			tmpZ = tmpRingRadius * sin( j*StepLength_AngleXZ);
-
-			//...
-			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-
-			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount),(float)i /(iRingCount-1));
-
-			k++;*/
 			//TOP || BOTTOM
 			if (i == -1)
 			{

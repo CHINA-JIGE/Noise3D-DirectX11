@@ -16,9 +16,9 @@ Noise3D::GI::SHVector::SHVector():
 
 }
 
-void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount, ISphericalFunc<float>* pTargetFunc)
+void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NVECTOR3>* pTargetFunc)
 {
-	if (highestOrder < 0)
+	if (highestOrderIndex < 0)
 	{
 		ERROR_MSG("SHVector: SH order index should be positive.");
 		return;
@@ -31,8 +31,8 @@ void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount,
 	}
 
 	//n-order SH have n^2 coefficients in total
-	mOrder = highestOrder;
-	uint32_t coefficientCount = highestOrder * highestOrder;
+	mOrder = highestOrderIndex;
+	int coefficientCount = highestOrderIndex * highestOrderIndex;
 	mCoefficients.resize(coefficientCount);
 
 	//select the version of Spherical Harmonic function(low order is optimized)
@@ -46,7 +46,7 @@ void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount,
 
 		//for every direction sample, calculate all of its SH coefficient by convolving f(x) and corresponding SH function value
 		//L--band index
-		for (int L = 0; L < highestOrder; ++L)
+		for (int L = 0; L <= highestOrderIndex; ++L)
 		{
 			//M--coefficient index inside a SH band
 			for (int M = -L; M <= L; ++M)
@@ -69,9 +69,10 @@ void Noise3D::GI::SHVector::Project(int highestOrder, int monteCarloSampleCount,
 	}
 }
 
-float Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
+NVECTOR3 Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 {
-	float result = 0.0f;
+	//float result = 0.0f;
+	NVECTOR3 result = { 0,0,0 };
 	for (int L = 0; L < mOrder; ++L)
 	{
 		//M--coefficient index inside a SH band
@@ -84,7 +85,7 @@ float Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 }
 
 
-float Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
+NVECTOR3 Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 {
 	//(a1,a2,a3,a4,.....,0,0,0)
 	//dot
@@ -94,16 +95,19 @@ float Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 		WARNING_MSG("SHVector: rhs dimension not match. Extra dimension will be neglected.");
 	}
 
-	float result = 0.0f;
+	//float result = 0.0f;
+	NVECTOR3 result = { 0,0,0 };
 	int minOrder = min(mOrder, rhs.GetOrder());
 	int coefficientCount = minOrder * minOrder;
 	for (int i = 0; i < coefficientCount; ++i)
 	{
 		result += mCoefficients.at(i) * rhs.mCoefficients.at(i);
 	}
+
+	return result;
 }
 
-void Noise3D::GI::SHVector::GetCoefficients(std::vector<float>& outList)
+void Noise3D::GI::SHVector::GetCoefficients(std::vector<NVECTOR3>& outList)
 {
 	outList = mCoefficients;
 }
@@ -113,16 +117,16 @@ int Noise3D::GI::SHVector::GetOrder()const
 	return mOrder;
 }
 
-void Noise3D::GI::SHVector::SetCoefficients(int highestOrder, const std::vector<float>& list)
+void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::vector<NVECTOR3>& list)
 {
 	//n order, n^2 coefficient
-	if (highestOrder * highestOrder != list.size())
+	if (highestOrderIndex * highestOrderIndex != list.size())
 	{
 		ERROR_MSG("SHVector: n order SH vector has n^2 coefficients, input param not match!");
 		return;
 	}
 
-	mOrder = highestOrder;
+	mOrder = highestOrderIndex;
 	mCoefficients = list;
 }
 
@@ -132,8 +136,6 @@ void Noise3D::GI::SHVector::SetCoefficients(int highestOrder, const std::vector<
 									PRIVATE
 
 **********************************************************/
-
-
 
 void Noise3D::GI::SHVector::mFunction_DetermineSHFuncVersion()
 {

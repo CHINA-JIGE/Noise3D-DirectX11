@@ -11,9 +11,9 @@ using namespace Noise3D;
 
 float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 {
-#define SH_ASSERT(expr, prompt) if(!expr){ERROR_MSG(prompt);return 0.0f;}
+#define SH_ASSERT(expr, prompt) if(!(expr)){ERROR_MSG(prompt);return 0.0f;}
 
-	SH_ASSERT(dir.Length >= 0.01f, "SH function:  dir length is less than threshold");
+	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
 	SH_ASSERT(l <= 3, "SH function: not supported if band index is larger than 3");
 	SH_ASSERT(l >= 0, "SH function: band index l should be positive");
 	SH_ASSERT(abs(m) <= l, "SH function: coefficient index m is out of range");

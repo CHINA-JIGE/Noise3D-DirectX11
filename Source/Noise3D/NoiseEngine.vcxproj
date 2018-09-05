@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CollisionTestor.h" />
+    <ClInclude Include="ISphericalFunc.h" />
     <ClInclude Include="RandomSampleGenerator.h" />
     <ClInclude Include="Renderer_Atmosphere.h" />
     <ClInclude Include="Renderer_GraphicObj.h" />
@@ -198,6 +199,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="ISphericalFunc.cpp" />
     <ClCompile Include="RandomSampleGenerator.cpp" />
     <ClCompile Include="Renderer_PostProcessing.cpp" />
     <ClCompile Include="RenderInfrastructure.cpp" />

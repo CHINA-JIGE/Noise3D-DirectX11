@@ -91,6 +91,7 @@
 
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"
+#include "ISphericalFunc.h"
 #include "SHCommon.h"
 #include "SHVector.h"
 

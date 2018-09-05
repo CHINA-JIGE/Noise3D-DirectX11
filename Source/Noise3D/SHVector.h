@@ -22,20 +22,8 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		//an interface that user can implement to pass in as the input of data(spherical function)
-		template <typename T>
-		struct ISphericalFunc 
-		{
-			virtual T Eval(const NVECTOR3& dir)=0;	
-		};
-
-		class ISphericalTextureSampler : public ISphericalFunc<float>
-		{
-
-		};
-
 		//a general Spherical Harmonic coefficent vector class (several operation on SH coefficients are available)
-		//template <typename T>
+		//template <typename T> but if i use template in early dev phase, i can't take advantage of intelli-sense
 		class /*_declspec(dllexport)*/ SHVector
 		{
 		public:
@@ -44,27 +32,27 @@ namespace Noise3D
 
 			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
 			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_n())
-			void Project(int highestOrder, int monteCarloSampleCount, ISphericalFunc<float>* pTargetFunc);
+			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NVECTOR3>* pTargetFunc);
 
 			//reconstruct SH signal and evaluate spherical function value in given direction
-			float Eval(NVECTOR3 dir);
+			NVECTOR3 Eval(NVECTOR3 dir);
 
 			//perform SH-based integration (common usage is integration between spherical irradiance function
 			//& transfer function to get the final illuminated color) (Actually a dot product of 2 SH vectors)
 			//if the 2 operand's dimension are not equal, 0 will be used to pad to calculate dot product
-			float Integrate(const SHVector& rhs);
+			NVECTOR3 Integrate(const SHVector& rhs);
 
 			//
 			void Rotate(float theta, float phi);
 
 			//get SH coefficient
-			void GetCoefficients(std::vector<float>& outList);
+			void GetCoefficients(std::vector<NVECTOR3>& outList);
 
 			//get current SH order
 			int GetOrder() const;
 
-			//manually set 
-			void SetCoefficients(int highestOrder, const std::vector<float>& list);
+			//manually set coefficient (rgb, 3 channels, 1 NVECTOR3 stands for 1 coefficient in RGB channel seperately)
+			void SetCoefficients(int highestOrderIndex, const std::vector<NVECTOR3>& list);
 
 		private:
 		
@@ -78,7 +66,8 @@ namespace Noise3D
 			int mOrder;
 
 			//SH coefficients
-			std::vector<float> mCoefficients;
+			//std::vector<float> mCoefficients;
+			std::vector<NVECTOR3> mCoefficients;
 
 		};
 
