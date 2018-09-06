@@ -17,19 +17,19 @@ void Noise3D::GI::ISphericalMappingTextureSampler::SetTexture(ITexture * pTex)
 
 NVECTOR3 Noise3D::GI::ISphericalMappingTextureSampler::Eval(const NVECTOR3 & dir)
 {
-	//pitch, left-handed
-	float theta = atan2(-dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
+	//pitch, left-handed [-pi/2,pi/2]
+	float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
 
 	//yaw, start from z, left-handed
-	float phi = atan2(dir.x, dir.z);
+	float yaw = atan2(dir.x, dir.z);
 
 	//mapped to [0,1]
-	float normalizedU= (phi / (2.0f * MATH_PI));
-	float normalizedV = -(theta *  MATH_PI) - 0.5f;
+	float normalizedU= (yaw / (2.0f * MATH_PI) + 0.5f);
+	float normalizedV = (pitch /  MATH_PI) + 0.5f;
 	uint32_t width = m_pTex->GetWidth();
 	uint32_t height = m_pTex->GetHeight();
 	uint32_t x = uint32_t(float(width) * normalizedU);
-	uint32_t y = uint32_t(height * normalizedV);
+	uint32_t y = uint32_t(float(height) * normalizedV);
 	if (x == width) x = width - 1;
 	if (y == height) y = height - 1;
 

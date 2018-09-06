@@ -409,7 +409,7 @@ void	Noise3D::ICamera::mFunction_UpdateDirection()
 	//z+ axis is the original posture.
 	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
 	mDirection.x =tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
+	mDirection.y = tmpDirectionLength* sin(mRotateX_Pitch);
 	mDirection.z =tmpDirectionLength* cos(mRotateY_Yaw)*cos(mRotateX_Pitch);
-	mDirection.y =tmpDirectionLength* sin(mRotateX_Pitch);
 	mLookat = mPosition + mDirection;
 };

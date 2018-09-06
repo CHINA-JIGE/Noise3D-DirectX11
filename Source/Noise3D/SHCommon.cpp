@@ -11,7 +11,7 @@ using namespace Noise3D;
 
 float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 {
-#define SH_ASSERT(expr, prompt) if(!(expr)){ERROR_MSG(prompt);return 0.0f;}
+#define SH_ASSERT(expr, prompt) if((expr)==false){ERROR_MSG(prompt);return 0.0f;}
 
 	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
 	SH_ASSERT(l <= 3, "SH function: not supported if band index is larger than 3");
@@ -74,9 +74,9 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	return result;
 }
 
-float Noise3D::GI::SH(int l, int m, float theta, float phi)
+float Noise3D::GI::SH(int l, int m, float yaw, float pitch)
 {
-	NVECTOR3 vec = { sinf(theta)*cosf(phi),sinf(theta)*sinf(phi), cos(theta) };
+	NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
 	return SH(l, m, vec);
 }
 

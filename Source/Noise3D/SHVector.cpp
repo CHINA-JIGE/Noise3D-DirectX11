@@ -10,8 +10,7 @@
 using namespace Noise3D;
 
 Noise3D::GI::SHVector::SHVector():
-	mOrder(0),
-	m_pSHFunc(nullptr)
+	mOrder(0)
 {
 
 }
@@ -32,11 +31,8 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 
 	//n-order SH have n^2 coefficients in total
 	mOrder = highestOrderIndex;
-	int coefficientCount = highestOrderIndex * highestOrderIndex;
+	int coefficientCount = (highestOrderIndex+1) * (highestOrderIndex+1);//0-based index
 	mCoefficients.resize(coefficientCount);
-
-	//select the version of Spherical Harmonic function(low order is optimized)
-	mFunction_DetermineSHFuncVersion();
 
 	//compute SH coefficients by convolving
 	GI::RandomSampleGenerator randomGen;
@@ -53,7 +49,9 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 			{
 				//convolve target spherical function 'pTargetFunc f(x)' with convolution kernel pSHFunc
 				//now just sum them up on sphere surface, monte-carlo integration's division will be done later
-				mCoefficients.at(SH_FlattenIndex(L, M)) += pTargetFunc->Eval(dir) *  m_pSHFunc(L, M, dir);
+				NVECTOR3 color = pTargetFunc->Eval(dir);
+				float sphFunc = GI::SH(L, M, dir);
+				mCoefficients.at(SH_FlattenIndex(L, M)) += color * sphFunc;
 			}
 		}
 	}
@@ -73,14 +71,15 @@ NVECTOR3 Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 {
 	//float result = 0.0f;
 	NVECTOR3 result = { 0,0,0 };
-	for (int L = 0; L < mOrder; ++L)
+	for (int L = 0; L <= mOrder; ++L)
 	{
 		//M--coefficient index inside a SH band
 		for (int M = -L; M <= L; ++M)
 		{
-			result += mCoefficients.at(SH_FlattenIndex(L, M)) * m_pSHFunc(L, M, dir);
+			result += mCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
 		}
 	}
+	result = Noise3D::Ut::Clamp(result, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 	return result;
 }
 
@@ -136,16 +135,3 @@ void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::ve
 									PRIVATE
 
 **********************************************************/
-
-void Noise3D::GI::SHVector::mFunction_DetermineSHFuncVersion()
-{
-	//(manual Polymorphism hahahahahaha), redirect SH function pointer
-	if (mOrder <= 3)
-	{
-		m_pSHFunc = GI::SH;
-	}
-	else
-	{
-		m_pSHFunc = GI::SH_n;
-	}
-}

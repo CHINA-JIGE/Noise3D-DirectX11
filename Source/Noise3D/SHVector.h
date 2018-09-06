@@ -55,12 +55,9 @@ namespace Noise3D
 			void SetCoefficients(int highestOrderIndex, const std::vector<NVECTOR3>& list);
 
 		private:
-		
-			//determine which version of SH function (pointer) to use according to SH order
-			void mFunction_DetermineSHFuncVersion();
 
 			//manual polymorphism. choose SH function's version according to SH order
-			float(*m_pSHFunc)(int l, int m, NVECTOR3 dir);
+			//float(*m_pSHFunc)(int l, int m, NVECTOR3 dir);
 
 			//SH order/highest band index
 			int mOrder;

@@ -63,8 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 BOOL Init3D(HWND hwnd)
 {
-	const UINT bufferWidth = 1280;
-	const UINT bufferHeight = 800;
+	const UINT bufferWidth = 1200;
+	const UINT bufferHeight = 600;
 
 	//init fail
 	if (!pRoot->Init())return FALSE;
@@ -80,7 +80,7 @@ BOOL Init3D(HWND hwnd)
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
-	pOriginTex = pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Tex", true, 512, 512, true);
+	pOriginTex = pTexMgr->CreateTextureFromFile("../media/chuyin.jpg", "Tex", true, 512, 512, true);
 	pShTex = pTexMgr->CreatePureColorTexture("ShTex", 512, 512, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
 	SHPreprocess();
 
@@ -127,6 +127,26 @@ void SHPreprocess()
 	GI::ISphericalMappingTextureSampler defaultSphFunc;
 	defaultSphFunc.SetTexture(pOriginTex);
 	shvec.Project(3, 10000, &defaultSphFunc);
+
+	uint32_t width = pShTex->GetWidth();
+	uint32_t height = pShTex->GetHeight();
+	std::vector<NColor4u> colorBuff(width*height);
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			float normalizedU = float(x) / float(width);//[0,1]
+			float normalizedV = float(y) / float(height);//[0,1]
+			float yaw = (normalizedU - 0.5f) * 2.0f * MATH_PI;//[-pi,pi]
+			float pitch = (normalizedV - 0.5f) * MATH_PI;//[pi/2,-pi/2]
+			NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch)};
+			NVECTOR3 reconstructedColor = shvec.Eval(dir);
+			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			colorBuff.at(y*width + x) = color;
+		}
+	}
+	pShTex->SetPixelArray(colorBuff);
+	pShTex->UpdateToVideoMemory();
 }
 
 void MainLoop()
