@@ -10,7 +10,7 @@
 4. (2018.7.19)现在正在把旧的D3DX deprecate掉。逐渐用上Win8.1 SDK的东西<br/>
 
 ----------------------
-##  依赖库(Dependencies)
+##  Noise3D的外部依赖库(External Dependencies)
 * <b>FreeType</b>(字体库)</b>：https://www.freetype.org/
 * <b>FBXSDK</b>(autodesk的FBX模型导入\导出\处理SDK)，自己去autodesk网站下载
 * <b>DirectXTex</b>(图片/纹理加载)：https://github.com/Microsoft/DirectXTex
@@ -23,6 +23,10 @@
 * \ExternalLib里面是装第三方库的.lib静态库文件的，自己build好32-bit的debug/release放到对应的路径
 * 可能需要修改一下Noise3D VS项目里面的链接选项。
 * DirectXMath是一个用SSE指令实现了SIMD优化的数学库，在Win8.1 SDK开始提供，当然也可以在github上找到这个开源库 https://github.com/Microsoft/DirectXMath 。SimpleMath是DirectXMath的一个轻度封装的头文件，在DirectXTK项目下，不需要编译lib。DirectXMath大部分都是内联实现，即使不内联的好像也是开源的，include header就好了)
+
+----------------------
+##  解决方案其他项目的外部依赖库(External Dependencies)
+* <b>Qt 5.6.2</b>(QtShLightingUtility)
 
 ----------------------
 
@@ -52,6 +56,8 @@
     * Qwerty Distortion (之前用来做另一个项目Qwerty 3D时候做的，应该是没什么卵用了)
 
 * 拖尾特效(Sweeping Trail)
+
+* Spherical Harmonics Basic
 --------------------------------------------------
 
 ## 一些小工具类

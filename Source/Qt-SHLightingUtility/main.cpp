@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "QtSHLightingUtility.h"
+#include "QtSHLightingUtApp.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	QtSHLightingUtility w;
+	QtSHLightingUtApp w;
 	w.show();
 	return app.exec();
 }
