@@ -15,7 +15,7 @@ public:
 
 	~Main3DApp();
 
-	void InitNoise3D(HWND hwnd);
+	bool InitNoise3D(HWND hwnd, UINT canvasWidth, UINT canvasHeight);
 
 	void UpdateFrame();//invoked per frame
 
@@ -31,7 +31,6 @@ private:
 	Noise3D::IRenderer* m_pRenderer;
 	Noise3D::IScene* m_pScene;
 	Noise3D::ICamera* m_pCamera;
-	Noise3D::IAtmosphere* m_pAtmos;
 	Noise3D::IModelLoader* m_pModelLoader;
 	Noise3D::IMeshManager* m_pMeshMgr;
 	std::vector<Noise3D::IMesh*> mMeshList;

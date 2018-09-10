@@ -13,6 +13,8 @@ class GUISHLightingApp : public QMainWindow
 public:
 	GUISHLightingApp(QWidget *parent = Q_NULLPTR);
 
+	~GUISHLightingApp();
+
 public slots:
 
 	void Slot_Menu_Exit();
@@ -25,6 +27,11 @@ public slots:
 
 	void Slot_UpdateFrame();
 
+protected:
+		
+	void paintEvent(QPaintEvent* ev)override;
+
+	QPaintEngine* paintEngine() const override;
 
 private:
 
