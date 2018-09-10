@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Resource object code
 **
-** Created by: The Resource Compiler for Qt version 5.6.2
+** Created by: The Resource Compiler for Qt version 5.7.0
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -26,21 +26,21 @@ namespace QT_NAMESPACE {
 }
 #endif
 
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_QtSHLightingUtility)();
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_QtSHLightingUtility)()
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_GUISHLightingApp)();
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_GUISHLightingApp)()
 {
     return 1;
 }
 
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_QtSHLightingUtility)();
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_QtSHLightingUtility)()
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_GUISHLightingApp)();
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_GUISHLightingApp)()
 {
     return 1;
 }
 
 namespace {
    struct initializer {
-       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_QtSHLightingUtility)(); }
-       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_QtSHLightingUtility)(); }
+       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_GUISHLightingApp)(); }
+       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_GUISHLightingApp)(); }
    } dummy;
 }

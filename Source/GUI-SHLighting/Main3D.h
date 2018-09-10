@@ -5,6 +5,8 @@
 ***************************************************/
 #pragma once
 
+#include <Noise3D.h>
+
 class Main3DApp
 {
 public:

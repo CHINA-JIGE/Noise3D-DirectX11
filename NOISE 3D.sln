@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Noise3d", "Source\Noise3D\N
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderWindow", "Source\Test\RenderWindow.vcxproj", "{380D0EC0-85A9-4A96-836F-C64C070D1121}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Qt-SHLightingUtility", "Source\Qt-SHLightingUtility\Qt-SHLightingUtility.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI-SHLighting", "Source\GUI-SHLighting\GUI-SHLighting.vcxproj", "{3296C9BD-B600-4702-8BBB-ED5535F34CE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,14 +39,16 @@ Global
 		{380D0EC0-85A9-4A96-836F-C64C070D1121}.Release|x64.ActiveCfg = Release|Win32
 		{380D0EC0-85A9-4A96-836F-C64C070D1121}.Release|x86.ActiveCfg = Release|Win32
 		{380D0EC0-85A9-4A96-836F-C64C070D1121}.Release|x86.Build.0 = Release|Win32
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.ActiveCfg = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x86.ActiveCfg = Debug|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.ActiveCfg = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x86.ActiveCfg = Release|x64
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Debug|Win32.Build.0 = Debug|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Debug|x64.ActiveCfg = Debug|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Debug|x86.ActiveCfg = Debug|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Debug|x86.Build.0 = Debug|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|Win32.ActiveCfg = Release|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|Win32.Build.0 = Release|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x64.ActiveCfg = Release|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x86.ActiveCfg = Release|Win32
+		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
