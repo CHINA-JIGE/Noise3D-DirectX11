@@ -33,15 +33,15 @@ public:
     QAction *actionAbout;
     QAction *actionExit;
     QWidget *centralwidget;
-    QTextBrowser *textBrowser;
+    QTextBrowser *textBrowser_filePath;
     QLabel *label_MonteCarlo;
     QPushButton *btn_SelectSphericalMap;
     QFrame *line;
     QPushButton *btn_ComputeSH;
     QLabel *label_envMapPath;
     QTextEdit *textEdit_3;
-    QTextEdit *textEdit_2;
-    QTextEdit *textEdit;
+    QTextEdit *textEdit_shOrder;
+    QTextEdit *textEdit_monteCarlo;
     QLabel *label_SHOrder;
     QPushButton *btn_SelectCubeMap;
     QLabel *label_CalSHCoeff;
@@ -56,24 +56,25 @@ public:
         if (SHLightingGuiApp->objectName().isEmpty())
             SHLightingGuiApp->setObjectName(QStringLiteral("SHLightingGuiApp"));
         SHLightingGuiApp->resize(1200, 680);
+        SHLightingGuiApp->setMaximumSize(QSize(1200, 680));
         actionAbout = new QAction(SHLightingGuiApp);
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
         actionExit = new QAction(SHLightingGuiApp);
         actionExit->setObjectName(QStringLiteral("actionExit"));
         centralwidget = new QWidget(SHLightingGuiApp);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
-        textBrowser = new QTextBrowser(centralwidget);
-        textBrowser->setObjectName(QStringLiteral("textBrowser"));
-        textBrowser->setGeometry(QRect(840, 40, 321, 21));
+        textBrowser_filePath = new QTextBrowser(centralwidget);
+        textBrowser_filePath->setObjectName(QStringLiteral("textBrowser_filePath"));
+        textBrowser_filePath->setGeometry(QRect(840, 50, 321, 21));
         QFont font;
         font.setFamily(QStringLiteral("Microsoft YaHei UI Light"));
         font.setPointSize(8);
-        textBrowser->setFont(font);
-        textBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textBrowser_filePath->setFont(font);
+        textBrowser_filePath->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textBrowser_filePath->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         label_MonteCarlo = new QLabel(centralwidget);
         label_MonteCarlo->setObjectName(QStringLiteral("label_MonteCarlo"));
-        label_MonteCarlo->setGeometry(QRect(840, 210, 141, 31));
+        label_MonteCarlo->setGeometry(QRect(840, 220, 141, 31));
         QFont font1;
         font1.setFamily(QStringLiteral("Microsoft YaHei UI Light"));
         font1.setPointSize(10);
@@ -82,60 +83,60 @@ public:
         label_MonteCarlo->setFont(font1);
         btn_SelectSphericalMap = new QPushButton(centralwidget);
         btn_SelectSphericalMap->setObjectName(QStringLiteral("btn_SelectSphericalMap"));
-        btn_SelectSphericalMap->setGeometry(QRect(1010, 70, 151, 51));
+        btn_SelectSphericalMap->setGeometry(QRect(1010, 80, 151, 51));
         QFont font2;
         font2.setFamily(QStringLiteral("Microsoft YaHei UI Light"));
         font2.setPointSize(10);
         btn_SelectSphericalMap->setFont(font2);
         line = new QFrame(centralwidget);
         line->setObjectName(QStringLiteral("line"));
-        line->setGeometry(QRect(820, 10, 20, 591));
+        line->setGeometry(QRect(820, 20, 20, 591));
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         btn_ComputeSH = new QPushButton(centralwidget);
         btn_ComputeSH->setObjectName(QStringLiteral("btn_ComputeSH"));
-        btn_ComputeSH->setGeometry(QRect(840, 560, 321, 41));
+        btn_ComputeSH->setGeometry(QRect(840, 570, 321, 41));
         btn_ComputeSH->setFont(font2);
         label_envMapPath = new QLabel(centralwidget);
         label_envMapPath->setObjectName(QStringLiteral("label_envMapPath"));
-        label_envMapPath->setGeometry(QRect(840, 10, 251, 31));
+        label_envMapPath->setGeometry(QRect(840, 20, 251, 31));
         label_envMapPath->setFont(font1);
         textEdit_3 = new QTextEdit(centralwidget);
         textEdit_3->setObjectName(QStringLiteral("textEdit_3"));
-        textEdit_3->setGeometry(QRect(840, 310, 321, 241));
+        textEdit_3->setGeometry(QRect(840, 320, 321, 241));
         textEdit_3->setFont(font2);
         textEdit_3->setInputMethodHints(Qt::ImhDigitsOnly|Qt::ImhMultiLine);
         textEdit_3->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         textEdit_3->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textEdit_2 = new QTextEdit(centralwidget);
-        textEdit_2->setObjectName(QStringLiteral("textEdit_2"));
-        textEdit_2->setGeometry(QRect(840, 170, 181, 21));
-        textEdit_2->setFont(font2);
-        textEdit_2->setInputMethodHints(Qt::ImhDigitsOnly);
-        textEdit_2->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textEdit_2->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textEdit = new QTextEdit(centralwidget);
-        textEdit->setObjectName(QStringLiteral("textEdit"));
-        textEdit->setGeometry(QRect(840, 240, 181, 21));
-        textEdit->setFont(font2);
-        textEdit->setInputMethodHints(Qt::ImhDigitsOnly);
-        textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_shOrder = new QTextEdit(centralwidget);
+        textEdit_shOrder->setObjectName(QStringLiteral("textEdit_shOrder"));
+        textEdit_shOrder->setGeometry(QRect(840, 180, 181, 21));
+        textEdit_shOrder->setFont(font2);
+        textEdit_shOrder->setInputMethodHints(Qt::ImhDigitsOnly);
+        textEdit_shOrder->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_shOrder->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_monteCarlo = new QTextEdit(centralwidget);
+        textEdit_monteCarlo->setObjectName(QStringLiteral("textEdit_monteCarlo"));
+        textEdit_monteCarlo->setGeometry(QRect(840, 250, 181, 21));
+        textEdit_monteCarlo->setFont(font2);
+        textEdit_monteCarlo->setInputMethodHints(Qt::ImhDigitsOnly);
+        textEdit_monteCarlo->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_monteCarlo->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         label_SHOrder = new QLabel(centralwidget);
         label_SHOrder->setObjectName(QStringLiteral("label_SHOrder"));
-        label_SHOrder->setGeometry(QRect(840, 140, 141, 31));
+        label_SHOrder->setGeometry(QRect(840, 150, 141, 31));
         label_SHOrder->setFont(font1);
         btn_SelectCubeMap = new QPushButton(centralwidget);
         btn_SelectCubeMap->setObjectName(QStringLiteral("btn_SelectCubeMap"));
-        btn_SelectCubeMap->setGeometry(QRect(840, 70, 151, 51));
+        btn_SelectCubeMap->setGeometry(QRect(840, 80, 151, 51));
         btn_SelectCubeMap->setFont(font2);
         label_CalSHCoeff = new QLabel(centralwidget);
         label_CalSHCoeff->setObjectName(QStringLiteral("label_CalSHCoeff"));
-        label_CalSHCoeff->setGeometry(QRect(840, 280, 141, 31));
+        label_CalSHCoeff->setGeometry(QRect(840, 290, 141, 31));
         label_CalSHCoeff->setFont(font1);
         renderCanvas = new QWidget(centralwidget);
         renderCanvas->setObjectName(QStringLiteral("renderCanvas"));
-        renderCanvas->setGeometry(QRect(20, 10, 800, 600));
+        renderCanvas->setGeometry(QRect(20, 20, 800, 600));
         QFont font3;
         font3.setPointSize(11);
         renderCanvas->setFont(font3);
@@ -168,9 +169,9 @@ public:
         actionAbout->setText(QApplication::translate("SHLightingGuiApp", "About", 0));
         actionExit->setText(QApplication::translate("SHLightingGuiApp", "Exit", 0));
 #ifndef QT_NO_STATUSTIP
-        textBrowser->setStatusTip(QString());
+        textBrowser_filePath->setStatusTip(QString());
 #endif // QT_NO_STATUSTIP
-        textBrowser->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        textBrowser_filePath->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI Light'; font-size:8pt; font-weight:400; font-style:normal;\">\n"
@@ -184,12 +185,12 @@ public:
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI Light'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", 0));
-        textEdit_2->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        textEdit_shOrder->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI Light'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'SimSun'; font-size:9pt;\">3</span></p></body></html>", 0));
-        textEdit->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        textEdit_monteCarlo->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI Light'; font-size:10pt; font-weight:400; font-style:normal;\">\n"

@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <qtimer.h>
+#include <qevent.h>
 #include <QtWidgets/QMainWindow>
 #include "Main3D.h"
 #include "GeneratedFiles/ui_GUISHLighting.h"
@@ -15,6 +16,8 @@ public:
 
 	~GUISHLightingApp();
 
+	void UpdateFrame();
+
 public slots:
 
 	void Slot_Menu_Exit();
@@ -25,17 +28,21 @@ public slots:
 
 	void Slot_LoadCubeMap();
 
-	void Slot_UpdateFrame();
+	//void Slot_MouseInputProcess(QMouseEvent * ev);
 
 protected:
 		
-	void paintEvent(QPaintEvent* ev)override;
+	//repetitive callback to update frame
+	virtual void timerEvent(QTimerEvent* ev) override;
 
-	QPaintEngine* paintEngine() const override;
+	virtual void mouseMoveEvent(QMouseEvent* ev) override;
+
+	virtual void mousePressEvent(QMouseEvent* ev) override;
+
+	//virtual void mouseReleaseEvent(QMouseEvent* ev) override;
 
 private:
 
 	Ui::SHLightingGuiApp mUI;
-	QTimer mMainLoopDriverTimer;
 	Main3DApp mMain3dApp;
 };

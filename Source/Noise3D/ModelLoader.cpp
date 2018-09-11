@@ -20,7 +20,7 @@ IModelLoader::~IModelLoader()
 
 };
 
-bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
+bool IModelLoader::LoadPlane(IMesh * const pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
 	if (pTargetMesh == nullptr)return false;
 
@@ -40,7 +40,7 @@ bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UI
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
+bool IModelLoader::LoadBox(IMesh * const pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
 {
 	if (iDepthStep <= 2) { iDepthStep = 2; }
 	if (iWidthStep <= 2) { iWidthStep = 2; }
@@ -60,7 +60,7 @@ bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, flo
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
+bool IModelLoader::LoadSphere(IMesh * const pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -78,7 +78,7 @@ bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCo
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
+bool IModelLoader::LoadCylinder(IMesh * const pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -96,7 +96,7 @@ bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeigh
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
+bool IModelLoader::LoadCustomizedModel(IMesh * const pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
 {
 	//"Out of Boundary" check for indices
 	for (auto& index : indicesList)
@@ -115,7 +115,7 @@ bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
+bool IModelLoader::LoadFile_STL(IMesh * const pTargetMesh, NFilePath pFilePath)
 {
 	std::vector<UINT>			tmpIndexList;
 	std::vector<NVECTOR3> tmpVertexList;
@@ -204,7 +204,7 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath filePath)
+bool IModelLoader::LoadFile_OBJ(IMesh * const pTargetMesh, NFilePath filePath)
 {
 	std::vector<N_DefaultVertex> tmpCompleteVertexList;
 	std::vector<UINT>	tmpIndexList;
@@ -389,7 +389,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	}
 }
 
-bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
+bool IModelLoader::LoadSkyDome(IAtmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -415,7 +415,7 @@ bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo,N_UID textureName, float fRad
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
+bool IModelLoader::LoadSkyBox(IAtmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;

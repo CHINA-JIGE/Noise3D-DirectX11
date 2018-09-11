@@ -5,26 +5,24 @@ GUISHLightingApp::GUISHLightingApp(QWidget *parent)
 {
 	mUI.setupUi(this);
 
-	//setAttribute(Qt::WA_PaintOnScreen, true);
-	mMainLoopDriverTimer.setTimerType(Qt::TimerType::PreciseTimer);
-	mMainLoopDriverTimer.setInterval(1);
-	mMainLoopDriverTimer.start(1);
+	setAttribute(Qt::WA_PaintOnScreen, true);
+
+	//but i dont why a QTimer doesn't work (no repetitive callbacks)
+	GUISHLightingApp::QObject::startTimer(0, Qt::TimerType::PreciseTimer);
 
 	//"register "signal&slot (must after setupUI)
 	connect(mUI.btn_SelectSphericalMap, &QPushButton::clicked, this, &GUISHLightingApp::Slot_LoadSphericalTexture);
 	connect(mUI.actionExit, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_Exit);
 	connect(mUI.actionAbout, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_About);
+	//connect(mUI.renderCanvas, SIGNAL(mousePressEvent), this, SLOT(Slot_MouseInputProcess));
 
-	//setup timer driven (no interval) frame update loop
-	connect(&mMainLoopDriverTimer, SIGNAL(timeout), this, SLOT(update));
-
-	bool initSucceeded = mMain3dApp.InitNoise3D(HWND(mUI.renderCanvas->winId()),UINT(mUI.renderCanvas->width()), UINT(mUI.renderCanvas->height()));
+	bool initSucceeded = mMain3dApp.InitNoise3D(HWND(mUI.renderCanvas->winId()), HWND(this->winId()) ,UINT(mUI.renderCanvas->width()), UINT(mUI.renderCanvas->height()));
 	if (!initSucceeded)
 	{
 		QMessageBox msg;
-		msg.setText("The document has been modified.");
-		msg.setInformativeText("Do you want to save your changes?");
+		msg.setText("Initialization of Noise3D failed!");
 		msg.setStandardButtons(QMessageBox::Yes);
+		msg.setWindowTitle("Critical Error!");
 		msg.setIcon(QMessageBox::Icon::Critical);
 		msg.exec();
 	}
@@ -36,9 +34,14 @@ GUISHLightingApp::~GUISHLightingApp()
 	mMain3dApp.Cleanup();
 }
 
+void GUISHLightingApp::UpdateFrame()
+{
+	mMain3dApp.UpdateFrame();
+}
+
 void GUISHLightingApp::Slot_Menu_About()
 {
-	QMessageBox::information(this, tr("About"), tr("Author:sunhonglian. Timi J2 internal use only."));
+	QMessageBox::information(this, tr("About"), tr("Author:sunhonglian."));
 }
 
 void GUISHLightingApp::Slot_Menu_Exit()
@@ -55,10 +58,14 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 {
 }
 
-void GUISHLightingApp::Slot_UpdateFrame()
+
+/*void GUISHLightingApp::Slot_MouseInputProcess(QMouseEvent * ev)
 {
-	mMain3dApp.UpdateFrame();
-}
+	if (ev->button() == Qt::MouseButton::LeftButton)
+	{
+		QMessageBox::information(this, "123", "233");
+	}
+}*/
 
 /***********************************************
 
@@ -66,12 +73,29 @@ void GUISHLightingApp::Slot_UpdateFrame()
 
 ***************************************************/
 
-void GUISHLightingApp::paintEvent(QPaintEvent * ev)
+void GUISHLightingApp::timerEvent(QTimerEvent * ev)
 {
-	mMain3dApp.UpdateFrame();
+	GUISHLightingApp::UpdateFrame();
 }
 
-QPaintEngine * GUISHLightingApp::paintEngine() const
+void GUISHLightingApp::mouseMoveEvent(QMouseEvent * ev)
 {
-	return nullptr;
+	
+}
+
+void GUISHLightingApp::mousePressEvent(QMouseEvent * ev)
+{
+	if (ev->button() == Qt::MouseButton::LeftButton)
+	{
+		//calculate local pos with repsect to renderCanvas
+		/*QPoint TL1 = mUI.renderCanvas->geometry().topLeft();
+		QPoint TL2 = mUI.centralwidget->geometry().topLeft();
+		QPoint localPos = ev->pos()-TL1-TL2;*/
+
+		mUI.textBrowser_filePath->setText(QString::number(localPos.x()) +"," + QString::number(localPos.y()));
+		if (mUI.renderCanvas->geometry().contains(localPos))
+		{
+				QMessageBox::information(this, "123", "233");
+		}
+	}
 }
