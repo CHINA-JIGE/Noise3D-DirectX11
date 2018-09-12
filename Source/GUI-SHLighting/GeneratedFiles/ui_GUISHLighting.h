@@ -45,7 +45,6 @@ public:
     QLabel *label_SHOrder;
     QPushButton *btn_SelectCubeMap;
     QLabel *label_CalSHCoeff;
-    QWidget *renderCanvas;
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuHelp;
@@ -134,12 +133,6 @@ public:
         label_CalSHCoeff->setObjectName(QStringLiteral("label_CalSHCoeff"));
         label_CalSHCoeff->setGeometry(QRect(840, 290, 141, 31));
         label_CalSHCoeff->setFont(font1);
-        renderCanvas = new QWidget(centralwidget);
-        renderCanvas->setObjectName(QStringLiteral("renderCanvas"));
-        renderCanvas->setGeometry(QRect(20, 20, 800, 600));
-        QFont font3;
-        font3.setPointSize(11);
-        renderCanvas->setFont(font3);
         SHLightingGuiApp->setCentralWidget(centralwidget);
         menubar = new QMenuBar(SHLightingGuiApp);
         menubar->setObjectName(QStringLiteral("menubar"));

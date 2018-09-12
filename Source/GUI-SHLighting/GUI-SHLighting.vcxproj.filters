@@ -8,6 +8,9 @@
     <ClCompile Include="Main3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widget_RenderCanvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -38,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GUISHLightingApp.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widget_RenderCanvas.h">
       <Filter>Source Files</Filter>
     </QtMoc>
   </ItemGroup>

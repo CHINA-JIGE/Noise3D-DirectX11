@@ -5,7 +5,8 @@
 #include <qevent.h>
 #include <QtWidgets/QMainWindow>
 #include "Main3D.h"
-#include "GeneratedFiles/ui_GUISHLighting.h"
+#include "Widget_RenderCanvas.h"
+#include "ui_GUISHLighting.h"
 
 class GUISHLightingApp : public QMainWindow
 {
@@ -15,8 +16,6 @@ public:
 	GUISHLightingApp(QWidget *parent = Q_NULLPTR);
 
 	~GUISHLightingApp();
-
-	void UpdateFrame();
 
 public slots:
 
@@ -30,19 +29,9 @@ public slots:
 
 	//void Slot_MouseInputProcess(QMouseEvent * ev);
 
-protected:
-		
-	//repetitive callback to update frame
-	virtual void timerEvent(QTimerEvent* ev) override;
-
-	virtual void mouseMoveEvent(QMouseEvent* ev) override;
-
-	virtual void mousePressEvent(QMouseEvent* ev) override;
-
-	//virtual void mouseReleaseEvent(QMouseEvent* ev) override;
 
 private:
 
 	Ui::SHLightingGuiApp mUI;
-	Main3DApp mMain3dApp;
+	Widget_RenderCanvas* m_pRenderCanvas;//customized widget (manually created)
 };

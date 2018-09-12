@@ -124,6 +124,22 @@ void Main3DApp::UpdateFrame()
 	m_pRenderer->PresentToScreen();
 }
 
+void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
+{
+	if (index == 0)
+	{
+		m_pMeshOriginal->RotateX_Pitch(deltaPitch);
+		m_pMeshOriginal->RotateY_Yaw(deltaYaw);
+	}
+	else if (index == 1)
+	{
+		m_pMeshSh->RotateX_Pitch(deltaPitch);
+		m_pMeshSh->RotateY_Yaw(deltaYaw);
+	}
+
+	return;
+}
+
 void Main3DApp::Cleanup()
 {
 	m_pRoot->ReleaseAll();

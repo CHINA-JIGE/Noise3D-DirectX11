@@ -19,6 +19,8 @@ public:
 
 	void UpdateFrame();//invoked per frame
 
+	void RotateBall(int index, float deltaYaw, float deltaPitch);
+
 	void Cleanup();
 
 private:
