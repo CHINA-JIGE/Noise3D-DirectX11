@@ -40,6 +40,6 @@ private:
 	Main3DApp mMain3dApp;
 	
 	bool mIsLeftMouseDown;
-	bool mIsPrevCursorPosInitialized;
+	bool mIsPrevCursorPosInitialized;//is it initialized before every drag?
 	QPoint mPrevCursorPos;
 };

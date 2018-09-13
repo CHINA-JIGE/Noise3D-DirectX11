@@ -57,9 +57,19 @@ void Widget_RenderCanvas::timerEvent(QTimerEvent * ev)
 
 void Widget_RenderCanvas::mouseMoveEvent(QMouseEvent * ev)
 {
+	//init cursor pos for once
+	if (!mIsPrevCursorPosInitialized)
+	{
+		mPrevCursorPos = ev->pos();
+		mIsPrevCursorPosInitialized = true;
+	}
+
 	if (mIsLeftMouseDown)
 	{
-		mMain3dApp.RotateBall(0, float(ev->pos().rx())/100.0f,0.0f);
+		QPoint deltaCursorPos = ev->pos() - mPrevCursorPos;
+		mMain3dApp.RotateBall(0, -float(deltaCursorPos.x()) *0.002f, 0.0f);// float(deltaCursorPos.y()) *0.002f);//left ball
+		mMain3dApp.RotateBall(1, -float(deltaCursorPos.x()) *0.002f, 0.0f);// float(deltaCursorPos.y()) *0.002f);//right ball
+		mPrevCursorPos = ev->pos();
 	}
 }
 
@@ -70,5 +80,9 @@ void Widget_RenderCanvas::mousePressEvent(QMouseEvent * ev)
 
 void Widget_RenderCanvas::mouseReleaseEvent(QMouseEvent * ev)
 {
-	if (ev->button() == Qt::MouseButton::LeftButton)mIsLeftMouseDown = false;
+	if (ev->button() == Qt::MouseButton::LeftButton) 
+	{
+		mIsPrevCursorPosInitialized = false;
+		mIsLeftMouseDown = false; 
+	}
 }
