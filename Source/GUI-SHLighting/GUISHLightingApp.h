@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <qtimer.h>
 #include <qevent.h>
+#include <qfiledialog.h>
+#include <qtextcodec.h>
 #include <QtWidgets/QMainWindow>
 #include "Main3D.h"
 #include "Widget_RenderCanvas.h"
@@ -27,11 +29,12 @@ public slots:
 
 	void Slot_LoadCubeMap();
 
-	//void Slot_MouseInputProcess(QMouseEvent * ev);
-
+	void Slot_ComputeShCoefficient();
 
 private:
 
 	Ui::SHLightingGuiApp mUI;
 	Widget_RenderCanvas* m_pRenderCanvas;//customized widget (manually created)
+	std::string mFilePath;
+	SH_TEXTURE_TYPE mTextureType;
 };

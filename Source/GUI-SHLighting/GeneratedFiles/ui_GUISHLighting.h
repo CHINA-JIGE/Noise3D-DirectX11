@@ -39,7 +39,7 @@ public:
     QFrame *line;
     QPushButton *btn_ComputeSH;
     QLabel *label_envMapPath;
-    QTextEdit *textEdit_3;
+    QTextEdit *textEdit_ShCoefficient;
     QTextEdit *textEdit_shOrder;
     QTextEdit *textEdit_monteCarlo;
     QLabel *label_SHOrder;
@@ -100,13 +100,13 @@ public:
         label_envMapPath->setObjectName(QStringLiteral("label_envMapPath"));
         label_envMapPath->setGeometry(QRect(840, 20, 251, 31));
         label_envMapPath->setFont(font1);
-        textEdit_3 = new QTextEdit(centralwidget);
-        textEdit_3->setObjectName(QStringLiteral("textEdit_3"));
-        textEdit_3->setGeometry(QRect(840, 320, 321, 241));
-        textEdit_3->setFont(font2);
-        textEdit_3->setInputMethodHints(Qt::ImhDigitsOnly|Qt::ImhMultiLine);
-        textEdit_3->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        textEdit_3->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_ShCoefficient = new QTextEdit(centralwidget);
+        textEdit_ShCoefficient->setObjectName(QStringLiteral("textEdit_ShCoefficient"));
+        textEdit_ShCoefficient->setGeometry(QRect(840, 320, 321, 241));
+        textEdit_ShCoefficient->setFont(font2);
+        textEdit_ShCoefficient->setInputMethodHints(Qt::ImhDigitsOnly|Qt::ImhMultiLine);
+        textEdit_ShCoefficient->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        textEdit_ShCoefficient->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         textEdit_shOrder = new QTextEdit(centralwidget);
         textEdit_shOrder->setObjectName(QStringLiteral("textEdit_shOrder"));
         textEdit_shOrder->setGeometry(QRect(840, 180, 181, 21));
@@ -173,7 +173,7 @@ public:
         btn_SelectSphericalMap->setText(QApplication::translate("SHLightingGuiApp", "\351\200\211\346\213\251\346\231\256\351\200\232\347\272\271\347\220\206(\347\220\203\351\235\242\346\230\240\345\260\204)", 0));
         btn_ComputeSH->setText(QApplication::translate("SHLightingGuiApp", "\350\256\241\347\256\227SH\347\263\273\346\225\260", 0));
         label_envMapPath->setText(QApplication::translate("SHLightingGuiApp", "<html><head/><body><p>\347\216\257\345\242\203\350\264\264\345\233\276\346\226\207\344\273\266\350\267\257\345\276\204:</p></body></html>", 0));
-        textEdit_3->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        textEdit_ShCoefficient->setHtml(QApplication::translate("SHLightingGuiApp", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Microsoft YaHei UI Light'; font-size:10pt; font-weight:400; font-style:normal;\">\n"

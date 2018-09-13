@@ -39,6 +39,11 @@ void Widget_RenderCanvas::Initialize(QRect region)
 	}
 }
 
+Main3DApp & Widget_RenderCanvas::GetMain3dApp()
+{
+	return mMain3dApp;
+}
+
 void Widget_RenderCanvas::UpdateFrame()
 {
 	mMain3dApp.UpdateFrame();
@@ -67,8 +72,8 @@ void Widget_RenderCanvas::mouseMoveEvent(QMouseEvent * ev)
 	if (mIsLeftMouseDown)
 	{
 		QPoint deltaCursorPos = ev->pos() - mPrevCursorPos;
-		mMain3dApp.RotateBall(0, -float(deltaCursorPos.x()) *0.002f, 0.0f);// float(deltaCursorPos.y()) *0.002f);//left ball
-		mMain3dApp.RotateBall(1, -float(deltaCursorPos.x()) *0.002f, 0.0f);// float(deltaCursorPos.y()) *0.002f);//right ball
+		mMain3dApp.RotateBall(0, -float(deltaCursorPos.x()) * 0.002f, 0.0f);//left ball
+		mMain3dApp.RotateBall(1, -float(deltaCursorPos.x()) * 0.002f, 0.0f);//right ball
 		mPrevCursorPos = ev->pos();
 	}
 }

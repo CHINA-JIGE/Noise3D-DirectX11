@@ -7,6 +7,12 @@
 
 #include <Noise3D.h>
 
+enum SH_TEXTURE_TYPE
+{
+	COMMON,
+	CUBE_MAP
+};
+
 class Main3DApp
 {
 public:
@@ -19,15 +25,23 @@ public:
 
 	void UpdateFrame();//invoked per frame
 
+	bool LoadOriginalTexture(std::string filePath);
+
+	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
+
 	void RotateBall(int index, float deltaYaw, float deltaPitch);
 
 	void Cleanup();
 
 private:
 
-	void mFunction_InputProcess();//keyboard, mouse, etc.
+	const char* c_originTexName = "Tex";
+	const char* c_ShTexName = "ShTex";
+	const int c_defaultTexWidth = 512;
 
-	void mFunction_SHPreprocess();
+	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
+
+	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 
 	Noise3D::IRoot* m_pRoot;
 	Noise3D::IRenderer* m_pRenderer;

@@ -6,7 +6,6 @@
 #include <qevent.h>
 #include <QtWidgets/QMainWindow>
 #include "Main3D.h"
-#include "ui_Widget_RenderCanvas.h"
 
 //3d Render Canvas widget
 class Widget_RenderCanvas : public QWidget
@@ -19,6 +18,8 @@ public:
 	~Widget_RenderCanvas();
 
 	void Initialize(QRect region);
+
+	Main3DApp& GetMain3dApp();
 
 protected:
 

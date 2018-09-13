@@ -36,9 +36,10 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pModelLoader = m_pScene->GetModelLoader();
 
 	//2 textures
-	m_pOriginTex = m_pTexMgr->CreateTextureFromFile("../media/example.jpg", "Tex", true, 512, 512, true);
-	m_pShTex = m_pTexMgr->CreatePureColorTexture("ShTex", 512, 512, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
-	mFunction_SHPreprocess();
+	m_pOriginTex = m_pTexMgr->CreateTextureFromFile("../media/example.jpg", c_originTexName, true, 512, 512, true);
+	m_pShTex = m_pTexMgr->CreatePureColorTexture(c_ShTexName, c_defaultTexWidth, c_defaultTexWidth, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
+	std::vector<NVECTOR3> tmpShVector;
+	mFunction_SHPreprocess_SphericalMap(3,10000, tmpShVector);
 
 	//light to exhibit base color
 	IDirLightD* pLight = m_pLightMgr->CreateDynamicDirLight("light");
@@ -98,9 +99,6 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 
 void Main3DApp::UpdateFrame()
 {
-	//keyboard & mouse
-	mFunction_InputProcess();
-
 	//clear background
 	m_pRenderer->ClearBackground(NVECTOR4(0.2f, 0.2f, 0.2f, 1.0f));
 	mTimer.NextTick();
@@ -124,6 +122,43 @@ void Main3DApp::UpdateFrame()
 	m_pRenderer->PresentToScreen();
 }
 
+bool Main3DApp::LoadOriginalTexture(std::string filePath)
+{
+	//reload texture
+	if (m_pOriginTex != nullptr)
+	{
+		m_pTexMgr->DeleteTexture(c_originTexName);
+		m_pOriginTex = m_pTexMgr->CreateTextureFromFile(filePath, c_originTexName, true, c_defaultTexWidth, c_defaultTexWidth, true);
+	}
+
+	if (m_pOriginTex == nullptr)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
+{
+	switch (texType)
+	{
+	case SH_TEXTURE_TYPE::CUBE_MAP:
+	{
+		mFunction_SHPreprocess_CubeMap(shOrder, monteCarloSampleCount, outShVector);
+		break;
+	}
+	default:
+	case SH_TEXTURE_TYPE::COMMON:
+	{
+		mFunction_SHPreprocess_SphericalMap(shOrder, monteCarloSampleCount, outShVector);
+		break;
+	}
+	}
+
+	return true;
+}
+
 void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 {
 	if (index == 0)
@@ -145,23 +180,19 @@ void Main3DApp::Cleanup()
 	m_pRoot->ReleaseAll();
 }
 
+
 /*************************************************
 
 								PRIVATE
 
 *************************************************/
-
-void Main3DApp::mFunction_InputProcess()
-{
-
-}
-
-void Main3DApp::mFunction_SHPreprocess()
+void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
 {
 	GI::SHVector shvec;
 	GI::ISphericalMappingTextureSampler defaultSphFunc;
 	defaultSphFunc.SetTexture(m_pOriginTex);
-	shvec.Project(3, 10000, &defaultSphFunc);
+	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
+	shvec.GetCoefficients(outShVector);
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
@@ -182,4 +213,8 @@ void Main3DApp::mFunction_SHPreprocess()
 	}
 	m_pShTex->SetPixelArray(colorBuff);
 	m_pShTex->UpdateToVideoMemory();
+}
+
+void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector)
+{
 }
