@@ -136,6 +136,9 @@
     <Filter Include="NoiseGraphic\GI\Common">
       <UniqueIdentifier>{c3fca04f-cbb8-4d60-9566-df5081aa6b0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneralBasicClass\_Transform">
+      <UniqueIdentifier>{b7bc9a6a-883c-43a7-8817-1a524f61ffe9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -307,6 +310,12 @@
     <ClInclude Include="ISphericalFunc.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>GeneralBasicClass\_Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidTransform.h">
+      <Filter>GeneralBasicClass\_Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -461,6 +470,12 @@
     </ClCompile>
     <ClCompile Include="ISphericalFunc.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>GeneralBasicClass\_Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidTransform.cpp">
+      <Filter>GeneralBasicClass\_Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

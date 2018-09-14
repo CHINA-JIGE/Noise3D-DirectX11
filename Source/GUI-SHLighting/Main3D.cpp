@@ -171,6 +171,10 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 
 void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 {
+	/*NQUATERNION q;
+	NMATRIX m;*/
+	
+
 	if (index == 0)
 	{
 		m_pMeshOriginal->RotateX_Pitch(deltaPitch);
@@ -225,6 +229,6 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 	m_pShTex->UpdateToVideoMemory();
 }
 
-void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector)
+void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
 {
 }

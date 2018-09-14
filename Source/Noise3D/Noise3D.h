@@ -53,11 +53,12 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
-//#include "IResourceManager.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
+#include "Transform.h"
+#include "RigidTransform.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"

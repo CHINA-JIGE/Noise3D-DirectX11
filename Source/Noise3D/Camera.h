@@ -16,9 +16,9 @@ namespace Noise3D
 
 		void				Destroy();
 
-		void				SetLookAt(NVECTOR3 vLookat);//要更新旋转角
+		void				SetLookAt(NVECTOR3 vLookat);
 
-		void				SetLookAt(float x, float y, float z);//要更新旋转角
+		void				SetLookAt(float x, float y, float z);
 
 		NVECTOR3	GetLookAt();
 
