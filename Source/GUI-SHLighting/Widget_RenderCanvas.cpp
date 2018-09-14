@@ -60,6 +60,11 @@ void Widget_RenderCanvas::timerEvent(QTimerEvent * ev)
 	Widget_RenderCanvas::UpdateFrame();
 }
 
+void Widget_RenderCanvas::keyReleaseEvent(QKeyEvent * ev)
+{
+
+}
+
 void Widget_RenderCanvas::mouseMoveEvent(QMouseEvent * ev)
 {
 	//init cursor pos for once

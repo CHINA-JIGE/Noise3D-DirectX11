@@ -118,13 +118,41 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 	//compute SH texture
 	std::vector<NVECTOR3> shVector;
 	m_pRenderCanvas->GetMain3dApp().ComputeShTexture(mTextureType, shOrder, monteCarloSampleCount, shVector);
+
+	//output to text edit in given format
 	QString output;
-	output += "Channel R:";
-	for (int i = 0; i < shVector.size(); ++i)output += QString::number(shVector.at(i).x) + QString(" ")+ QString("\n");
-	output += "Channel G:";
-	for (int i = 0; i < shVector.size(); ++i)output += QString::number(shVector.at(i).y) + QString(" ") + QString("\n");
-	output += "Channel B:";
-	for (int i = 0; i < shVector.size(); ++i)output += QString::number(shVector.at(i).z) + QString(" ") + QString("\n");
+	output += "<font color=red><b>Channel R:</b></font><font color=black><br/>";
+	for (int L = 0; L <= shOrder; ++L)
+	{
+		output += QString("<b>Band ")+QString::number(L)+QString(": </b><br/>");
+		for (int M = -L; M <= L; ++M)
+		{
+			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).x) + QString(" ");
+		}
+		output += QString("<br/>");
+	}
+
+	output += "<font color=Green><b>Channel G:</b></font><font color=black><br/>";
+	for (int L = 0; L <= shOrder; ++L)
+	{
+		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+		for (int M = -L; M <= L; ++M)
+		{
+			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).y) + QString(" ");
+		}
+		output += QString("<br/>");
+	}
+
+	output += "<font color=Blue><b>Channel B:</b></font><font color=black><br/>";
+	for (int L = 0; L <= shOrder; ++L)
+	{
+		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+		for (int M = -L; M <= L; ++M)
+		{
+			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).z) + QString(" ");
+		}
+		output += QString("<br/>");
+	}
 
 	mUI.textEdit_ShCoefficient->setText(output);
 }

@@ -65,12 +65,12 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	//2 Spheres for visualizing SH texture
 	m_pMeshOriginal = m_pMeshMgr->CreateMesh("sphereOriginal");
 	m_pModelLoader->LoadSphere(m_pMeshOriginal, 1.0f, 30, 30);
-	m_pMeshOriginal->SetPosition(NVECTOR3(-1.5f, 0, 0));
+	m_pMeshOriginal->SetPosition(c_ballPos1);
 	m_pMeshOriginal->SetMaterial("Mat1");
 
 	m_pMeshSh = m_pMeshMgr->CreateMesh("sphereSh");
 	m_pModelLoader->LoadSphere(m_pMeshSh, 1.0f, 30, 30);
-	m_pMeshSh->SetPosition(NVECTOR3(1.5f, 0, 0));
+	m_pMeshSh->SetPosition(c_ballPos2);
 	m_pMeshSh->SetMaterial("Mat2");
 
 	//create font texture and top-left fps label
@@ -94,6 +94,15 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pGO_GUI->AddRectangle(NVECTOR2(75.0f, 75.0f), 100.0f,100.0f, NVECTOR4(1.0f, 0, 0, 1.0f), "Tex");
 	m_pGO_GUI->AddRectangle(NVECTOR2(200.0f, 75.0f),100.0f,100.0f, NVECTOR4(1.0f, 0, 0, 1.0f), "ShTex");
 
+	m_pGO_Axis = m_pGraphicObjMgr->CreateGraphicObj("Axis");
+	m_pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f+1.5f, 0, 0), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f, 1.5f, 0), NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f, 0, 1.5f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f + 1.5f, 0, 0), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f, 1.5f, 0), NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f, 0, 1.5f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+
 	return true;
 }
 
@@ -113,6 +122,7 @@ void Main3DApp::UpdateFrame()
 	m_pRenderer->AddToRenderQueue(m_pMeshOriginal);
 	m_pRenderer->AddToRenderQueue(m_pMeshSh);
 	m_pRenderer->AddToRenderQueue(m_pGO_GUI);
+	m_pRenderer->AddToRenderQueue(m_pGO_Axis);
 	m_pRenderer->AddToRenderQueue(m_pMyText_fps);
 
 	//render

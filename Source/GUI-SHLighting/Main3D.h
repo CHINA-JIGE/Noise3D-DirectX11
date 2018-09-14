@@ -38,6 +38,8 @@ private:
 	const char* c_originTexName = "Tex";
 	const char* c_ShTexName = "ShTex";
 	const int c_defaultTexWidth = 512;
+	const Noise3D::NVECTOR3 c_ballPos1 = Noise3D::NVECTOR3(-1.5f, 0, 0);
+	const Noise3D::NVECTOR3 c_ballPos2 = Noise3D::NVECTOR3(1.5f, 0, 0);
 
 	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 
@@ -59,9 +61,10 @@ private:
 	Noise3D::ITexture* m_pShTex;
 	Noise3D::IGraphicObjectManager*	m_pGraphicObjMgr;
 	Noise3D::IGraphicObject*	m_pGO_GUI;
+	Noise3D::IGraphicObject*	m_pGO_Axis;
 	Noise3D::IFontManager* m_pFontMgr;
 	Noise3D::IDynamicText* m_pMyText_fps;
 
 	Noise3D::Ut::Timer mTimer;// (Noise3D::Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
-	//Noise3D::Ut::InputEngine mInputE;
+
 };

@@ -30,6 +30,8 @@ protected:
 	//repetitive callback to update frame
 	virtual void timerEvent(QTimerEvent* ev) override;
 
+	virtual void keyReleaseEvent(QKeyEvent* ev) override;
+
 	virtual void mouseMoveEvent(QMouseEvent* ev) override;
 
 	virtual void mousePressEvent(QMouseEvent* ev) override;
