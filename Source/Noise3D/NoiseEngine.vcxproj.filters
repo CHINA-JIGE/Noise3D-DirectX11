@@ -310,7 +310,7 @@
     <ClInclude Include="ISphericalFunc.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
+    <ClInclude Include="AffineTransform.h">
       <Filter>GeneralBasicClass\_Transform</Filter>
     </ClInclude>
     <ClInclude Include="RigidTransform.h">
@@ -471,7 +471,7 @@
     <ClCompile Include="ISphericalFunc.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
+    <ClCompile Include="AffineTransform.cpp">
       <Filter>GeneralBasicClass\_Transform</Filter>
     </ClCompile>
     <ClCompile Include="RigidTransform.cpp">

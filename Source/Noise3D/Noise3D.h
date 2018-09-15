@@ -57,8 +57,8 @@
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
-#include "Transform.h"
 #include "RigidTransform.h"
+#include "AffineTransform.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"
