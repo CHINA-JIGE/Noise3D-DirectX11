@@ -235,7 +235,7 @@ void Noise3D::ISweepingTrail::mFunction_EstimateTangents()
 	mTangentList.at(0).second = mFixedLineSegments.front().vert2 - mFreeHeader.vert2;
 	mTangentList.at(0).second *= mCubicHermiteTangentScale;
 
-	for (int i = 1; i <= mFixedLineSegments.size(); ++i)
+	for (int i = 1; i <= int(mFixedLineSegments.size()); ++i)
 	{
 		N_LineSegment frontLS = mFunction_UtGetLineSegment(i - 1);
 		N_LineSegment backLS = mFunction_UtGetLineSegment(i + 1);

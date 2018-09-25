@@ -34,8 +34,8 @@ IFontManager* pFontMgr;
 IDynamicText* pMyText_fps;
 
 
-Ut::ITimer timer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
-Ut::IInputEngine inputE;
+Ut::Timer timer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::InputEngine inputE;
 
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)

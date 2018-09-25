@@ -46,7 +46,7 @@ NVECTOR3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()
 
 NVECTOR2 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Azimulthal()
 {
-	std::uniform_real_distribution<> canonicalDist(0.0f, 1.0f);
+	std::uniform_real_distribution<float> canonicalDist(0.0f, 1.0f);
 	float var1 = canonicalDist(mRandomEngine);
 	float var2 = canonicalDist(mRandomEngine);
 
