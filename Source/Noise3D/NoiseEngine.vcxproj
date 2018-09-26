@@ -130,6 +130,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CameraTransform.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
     <ClInclude Include="ISphericalFunc.h" />
@@ -200,6 +201,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraTransform.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
     <ClCompile Include="ISphericalFunc.cpp" />

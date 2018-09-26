@@ -316,6 +316,9 @@
     <ClInclude Include="RigidTransform.h">
       <Filter>GeneralBasicClass\_Transform</Filter>
     </ClInclude>
+    <ClInclude Include="CameraTransform.h">
+      <Filter>NoiseGraphic\Scene\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -476,6 +479,9 @@
     </ClCompile>
     <ClCompile Include="RigidTransform.cpp">
       <Filter>GeneralBasicClass\_Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraTransform.cpp">
+      <Filter>NoiseGraphic\Scene\Camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

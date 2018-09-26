@@ -1,7 +1,7 @@
 
 /*******************************************************************
 
-								cpp£ºITransform
+								cpp£ºRigidTransform
 			Desc: an interface for different kinds of transform 
 			forms and their conversion
 
@@ -21,6 +21,160 @@ void Noise3D::RigidTransform::SetPosition(float x, float y, float z)
 	mPosition = NVECTOR3(x, y, z);
 }
 
+NVECTOR3 Noise3D::RigidTransform::GetPosition()
+{
+	return mPosition;
+}
+
+NVECTOR3 Noise3D::RigidTransform::GetEulerAngle()
+{
+	//Quaternion--->Matrix
+	NMATRIX rotMat;
+	RigidTransform::GetRotationMatrix(rotMat);
+
+	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
+	NVECTOR3 euler = mFunc_RotationMatrixToEuler(rotMat);
+
+	return euler;
+}
+
+NQUATERNION Noise3D::RigidTransform::GetQuaternion()
+{
+	return mQuaternion;
+}
+
+void Noise3D::RigidTransform::GetRotationMatrix(NMATRIX & outMat)
+{
+	//Quaternion---->Matrix
+	//ref.1 : https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Conversion_to_and_from_the_matrix_representation
+	//ref.2 : Tomas K.M. , Eric H., Naty H.. Real Time Rendering 3rd Edition , p76-p77, 2008.
+	//here we use COLUMN vector
+	/*
+				[1-2y^2-2z^2		2xy-2zw				2xz+2yw			]
+	R(q) =	[2xy+2zw				1-2x^2-2z^2		2yz-2xw			]
+				[2xz-2yw				2yz+2xw				1-2x^2-2y^2	]
+	*/
+	outMat = XMMatrixRotationQuaternion(mQuaternion);
+}
+
+
+void Noise3D::RigidTransform::Rotate(NVECTOR3 axis, float angle)
+{
+	//AxisAngle---->Quaternion
+	// COLUMN vector
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+	/*Axis(x,y,z), angle(a)
+					[xsin(a/2)	]
+	q(x,y,z=	[ysin(a/2)	]
+					[zsin(a/2)	]
+					[cos(y/2)	]
+	*/
+	NQUATERNION deltaRotQ= XMQuaternionRotationAxis(axis, angle);
+	RigidTransform::Rotate(deltaRotQ);
+}
+
+void Noise3D::RigidTransform::Rotate(NQUATERNION q)
+{
+	//to combine two quaternion rotation, just use it like rotation matrix
+	//(left-multiply a quaternion)
+	//https://math.stackexchange.com/questions/331539/combining-rotation-quaternions
+	//https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+	mQuaternion = q * mQuaternion;
+}
+
+void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
+{
+	NVECTOR3 euler = RigidTransform::GetEulerAngle();
+
+	//rotate with delta euler angle
+	euler += NVECTOR3(pitch_x, yaw_y, roll_z);
+
+	//Euler---->Quaternion
+	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
+	q(x,y,z) = qy * qx * qz
+		[0				]	[sin(x/2)	]	[0				]
+	=	[sin(y/2)	] *	[0				] *	[0				]
+		[0				]	[0				]	[sin(z/2)	]
+		[cos(y/2)	]	[cos(x/2	]	[cos(z/2)	]
+
+		[cos(y/2)sin(x/2)cos(z/2)+sin(y/2)cos(x/2)sin(z/2)	]
+	=	[sin(y/2)cos(x/2)cos(z/2)-cos(y/2)sin(x/2)sin(z/2)	]
+		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
+		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
+	*/
+	mQuaternion = XMQuaternionRotationRollPitchYaw(euler.x, euler.y, euler.z);
+
+}
+
+bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
+{
+	//top left 3x3 must be orthonormal
+	bool isOrtho = mFunc_CheckTopLeft3x3Orthonomal(deltaRotMat);
+	if (!isOrtho)
+	{
+		ERROR_MSG("RigidTransform: failed to (delta) Rotate with matrix because top left 3x3 sub-matrix isn't orthonormal.");
+		return false;
+	}
+
+	//Quaternion---->Matrix
+	NMATRIX currentMat;
+	RigidTransform::GetRotationMatrix(currentMat);
+
+	//left-multiply/concatenate a delta rotation matrix
+	currentMat = deltaRotMat * currentMat;
+
+	//Matrix---->Quaternion
+	mQuaternion =  XMQuaternionRotationMatrix(currentMat);
+
+	return true;
+}
+
+void Noise3D::RigidTransform::SetRotation(NVECTOR3 axis, float angle)
+{
+	//AxisAngle---->Quaternion
+	// COLUMN vector
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+	/*Axis(x,y,z), angle(a)
+					[xsin(a/2)	]
+	q(x,y,z=	[ysin(a/2)	]
+					[zsin(a/2)	]
+					[cos(y/2)	]
+	*/
+	mQuaternion =  XMQuaternionRotationAxis(axis,angle);
+}
+
+void Noise3D::RigidTransform::SetRotation(NQUATERNION q)
+{
+	if (q.Length() != 1.0f)
+	{
+		ERROR_MSG("SetRotation: Error! input is not a unit quaternion!");
+		return;
+	}
+	mQuaternion = q;
+}
+
+void Noise3D::RigidTransform::SetRotation(float pitch_x, float yaw_y, float roll_z)
+{
+	//Euler---->Quaternion
+	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
+	q(x,y,z) = qy * qx * qz
+		[0				]	[sin(x/2)	]	[0				]
+	=	[sin(y/2)	] *	[0				] *	[0				]
+		[0				]	[0				]	[sin(z/2)	]
+		[cos(y/2)	]	[cos(x/2	]	[cos(z/2)	]
+
+		[cos(y/2)sin(x/2)cos(z/2)+sin(y/2)cos(x/2)sin(z/2)	]
+	=	[sin(y/2)cos(x/2)cos(z/2)-cos(y/2)sin(x/2)sin(z/2)	]
+		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
+		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
+	*/
+	mQuaternion = XMQuaternionRotationRollPitchYaw(pitch_x, yaw_y, roll_z);
+}
+
 bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)
 {
 	//top left 3x3 must be orthonormal
@@ -31,24 +185,14 @@ bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)
 		return false;
 	}
 
-	//1.Matrix
-	mRotationMatrix = mat;
-	mRotationMatrix.m[3][3] = 1.0f;//homogeneous coordinate
-
-	//2.Quaternion
+	//Matrix---->Quaternion
 	XMQuaternionRotationMatrix(mat);
-
-	//3.Euler angle
-	NVECTOR3 euler = mFunc_RotationMatrixToEuler(mRotationMatrix);
-	mEulerX_Pitch = euler.x;
-	mEulerY_Yaw = euler.y;
-	mEulerZ_Roll = euler.z;
 }
 
 NMATRIX Noise3D::RigidTransform::GetTransformMatrix()
-{ 
+{
 	NMATRIX out;
-	out = mRotationMatrix;
+	RigidTransform::GetRotationMatrix(out);
 	out.m[3][0] = 0.0f;
 	out.m[3][1] = 0.0f;
 	out.m[3][2] = 0.0f;
@@ -60,107 +204,24 @@ NMATRIX Noise3D::RigidTransform::GetTransformMatrix()
 	return out;
 }
 
-void Noise3D::RigidTransform::SetEulerX_Pitch(float angleX)
+NVECTOR3 Noise3D::RigidTransform::TransformVector(NVECTOR3 vec)
 {
-	//1.Euler angle
-	mEulerX_Pitch = angleX;
+	NVECTOR3 outVec = NVECTOR3(0, 0, 0);
+	if (vec != NVECTOR3(0, 0, 0))
+	{
+		//Quaternion Rotation: R(q) = qpq^(-1), with p=(vec3, 0), a pure quaternion
+		//https://zh.wikipedia.org/wiki/%E5%9B%9B%E5%85%83%E6%95%B0%E4%B8%8E%E7%A9%BA%E9%97%B4%E6%97%8B%E8%BD%AC
+		NQUATERNION v = NQUATERNION(vec.x, vec.y, vec.z, 0);
+		NQUATERNION q = mQuaternion;
+		NQUATERNION q_inv = XMQuaternionInverse(mQuaternion);
+		NQUATERNION p_rotated = q * v *q_inv;
+		//extract rotated vector
+		outVec = NVECTOR3(p_rotated.x, p_rotated.y, p_rotated.z);
+	}
 
-	//2.Rotation matrix
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.matrix.xmmatrixrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-	R(x,y,z) = Ry * Rx * Rz
-		[c1c3+s1s2s3		c3s1s2-c1s3			c2s1	]
-	=	[c2s3					c2c3						-s2	]
-		[c1s2s3-s1c3		s1s3+c1c3s2		c1c2	]
-	*/
-	XMMatrixRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
-
-	//3.Quaternion
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-	q(x,y,z) = qy * qx * qz
-		[0				]	[sin(x/2)	]	[0				]
-	=	[sin(y/2)	] *	[0				] *	[0				]
-		[0				]	[0				]	[sin(z/2)	]
-		[cos(y/2)	]	[cos(x/2	]	[cos(z/2)	]
-
-		[cos(y/2)sin(x/2)cos(z/2)+sin(y/2)cos(x/2)sin(z/2)	]
-	=	[sin(y/2)cos(x/2)cos(z/2)-cos(y/2)sin(x/2)sin(z/2)	]
-		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
-		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
-	*/
-	XMQuaternionRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
-}
-
-void Noise3D::RigidTransform::SetEulerY_Yaw(float angleY)
-{
-	//1.Euler angle
-	mEulerY_Yaw = angleY;
-
-	//2.Rotation matrix
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.matrix.xmmatrixrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-	R(x,y,z) = Ry * Rx * Rz
-		[c1c3+s1s2s3		c3s1s2-c1s3			c2s1	]
-	=	[c2s3					c2c3						-s2	]
-		[c1s2s3-s1c3		s1s3+c1c3s2		c1c2	]
-	*/
-	XMMatrixRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
-
-	//3.Quaternion
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-	q(x,y,z) = qy * qx * qz
-		[0				]	[sin(x/2)	]	[0				]
-	=	[sin(y/2)	] *	[0				] *	[0				]
-		[0				]	[0				]	[sin(z/2)	]
-		[cos(y/2)	]	[cos(x/2	]	[cos(z/2)	]
-
-		[cos(y/2)sin(x/2)cos(z/2)+sin(y/2)cos(x/2)sin(z/2)	]
-	=	[sin(y/2)cos(x/2)cos(z/2)-cos(y/2)sin(x/2)sin(z/2)	]
-		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
-		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
-	*/
-	XMQuaternionRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
-
-}
-
-void Noise3D::RigidTransform::SetEulerZ_Roll(float angleZ)
-{
-	//1.Euler angle
-	mEulerZ_Roll = angleZ;
-
-	//2.Rotation matrix
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.matrix.xmmatrixrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-		R(x,y,z) = Ry * Rx * Rz
-		[c1c3+s1s2s3		c3s1s2-c1s3			c2s1	]
-	=	[c2s3					c2c3						-s2	]
-		[c1s2s3-s1c3		s1s3+c1c3s2		c1c2	]
-	*/
-	XMMatrixRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
-
-	//3.Quaternion
-	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/microsoft.directx_sdk.quaternion.xmquaternionrotationrollpitchyaw%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
-		q(x,y,z) = qy * qx * qz
-		[0				]	[sin(x/2)	]	[0				]
-	=	[sin(y/2)	] *	[0				] *	[0				]
-		[0				]	[0				]	[sin(z/2)	]
-		[cos(y/2)	]	[cos(x/2	]	[cos(z/2)	]
-
-		[cos(y/2)sin(x/2)cos(z/2)+sin(y/2)cos(x/2)sin(z/2)	]
-	=	[sin(y/2)cos(x/2)cos(z/2)-cos(y/2)sin(x/2)sin(z/2)	]
-		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
-		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
-	*/
-	XMQuaternionRotationRollPitchYaw(mEulerX_Pitch, mEulerY_Yaw, mEulerZ_Roll);
+	//plus translation
+	outVec += mPosition;
+	return outVec;
 }
 
 /****************************************************
@@ -211,7 +272,7 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 					break;
 				}
 			}
-			else//non-diagonal
+			else//non-diagonal elements
 			{
 				if (!func_tolerantEqual(mat1.m[i][j], 0.0f, 0.001f))
 				{
@@ -230,7 +291,7 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	return isOrthonormal;
 }
 
-void Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat)
+NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat)
 {
 	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
 	R(x,y,z) = Ry * Rx * Rz
@@ -246,11 +307,13 @@ void Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat)
 	
 	WARNING : gimbal lock situation (c2==0) should be carefully dealt with
 	*/
+	NVECTOR3 outEuler = NVECTOR3(0,0,0);
+
 	if (mat.m[1][2] != 1.0f && mat.m[1][2] != -1.0f)
 	{
-		mEulerX_Pitch = asinf(-mat.m[1][2]);
-		mEulerY_Yaw = atan2f(mat.m[0][2], mat.m[2][2]);
-		mEulerZ_Roll = atan2f(mat.m[1][0], mat.m[1][1]);
+		outEuler.x = asinf(-mat.m[1][2]);//pitch
+		outEuler.y = atan2f(mat.m[0][2], mat.m[2][2]);//yaw
+		outEuler.z = atan2f(mat.m[1][0], mat.m[1][1]);//roll
 	}
 	else
 	{
@@ -268,13 +331,15 @@ void Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat)
 		*/
 		if (mat.m[1][2] == -1.0f)
 		{
-			mEulerX_Pitch = MATH_PI / 2.0f;
-			mEulerZ_Roll = mEulerY_Yaw - atan2f(mat.m[0][1], mat.m[0][0]);	//yaw_y - roll_z = atan2(m01,m00) , 2 DOF left
+			outEuler.x = MATH_PI / 2.0f;
+			outEuler.z = 0.0f;
+			outEuler.y = outEuler.z + atan2f(mat.m[0][1], mat.m[0][0]);	//yaw_y - roll_z = atan2(m01,m00) , 2 DOF left
 		}
 		else//-sin(pitch) = 1.0f
 		{
-			mEulerX_Pitch = -MATH_PI / 2.0f;
-			mEulerZ_Roll = -mEulerY_Yaw + atan2f(-mat.m[0][1], mat.m[0][0]);//yaw_y + roll_z = atan2(-m01,m00), 2 DOF
+			outEuler.x = -MATH_PI / 2.0f;
+			outEuler.z = 0.0f;
+			outEuler.y = -outEuler.z + atan2f(-mat.m[0][1], mat.m[0][0]);//yaw_y + roll_z = atan2(-m01,m00), 2 DOF
 		}
 	}
 }
