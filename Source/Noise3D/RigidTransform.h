@@ -39,19 +39,23 @@ namespace Noise3D
 
 		void		SetPosition(float x, float y, float z);
 
+		void		Move(NVECTOR3 deltaPos);
+
+		void		Move(float dx, float dy, float dz);
+
 		//get value
-		NVECTOR3	GetPosition();
+		NVECTOR3	GetPosition() const;
 
-		NVECTOR3	GetEulerAngle();
+		NVECTOR3	GetEulerAngle() const;
 
-		NQUATERNION GetQuaternion();
+		NQUATERNION GetQuaternion() const;
 
-		void GetRotationMatrix(NMATRIX& outMat);
+		void GetRotationMatrix(NMATRIX& outMat) const;
 
 		//delta rotation
 		void		Rotate(NVECTOR3 axis, float angle);//left-handed rotate
 
-		void		Rotate(NQUATERNION q);
+		bool		Rotate(NQUATERNION q);
 
 		void		Rotate(float pitch_x, float yaw_y, float roll_z);
 
@@ -60,13 +64,13 @@ namespace Noise3D
 		//set absolute rotation
 		void		SetRotation(NVECTOR3 axis, float angle);
 
-		void		SetRotation(NQUATERNION q);
+		bool		SetRotation(NQUATERNION q);
 
 		void		SetRotation(float pitch_x, float yaw_y, float roll_z);
 
 		bool		SetRotation(const NMATRIX& mat);//top left 3x3 sub - matrix must be a orthonormal
 
-		NMATRIX		GetTransformMatrix();
+		NMATRIX		GetTransformMatrix() const;
 
 		//apply rigid transformation to vector/point and output
 		NVECTOR3 TransformVector(NVECTOR3 vec);
@@ -75,7 +79,7 @@ namespace Noise3D
 
 		bool mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX& mat);
 
-		NVECTOR3 mFunc_RotationMatrixToEuler(const NMATRIX& mat);
+		NVECTOR3 mFunc_RotationMatrixToEuler(const NMATRIX& mat) const;
 
 
 		//Rotation is stored as Quaternion (2018.9.14, like Unity, quaternion could be the main representation of rotation on CPU-end)

@@ -188,6 +188,10 @@ using namespace Noise3D;
 {
 	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
 	return (2.0f * t * t * t - 3.0f * t * t + 1.0f) * v1 + (t * t * t - 2.0f * t * t + t) * t1 + (-2.0f * t * t * t + 3.0f * t * t) * v2 + (t * t * t - t * t) * t2;
+}
+bool Noise3D::Ut::TolerantEqual(float lhs, float rhs, float errorLimit)
+{
+	return (abs(lhs - rhs) < errorLimit);
 };
 
 

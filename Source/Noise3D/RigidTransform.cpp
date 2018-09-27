@@ -11,6 +11,11 @@
 
 using namespace Noise3D;
 
+//WARNING: 
+//1.DirectXMath generate ROW major matrix
+//2. XM-generated matrix elements are accessed with m[ROW][COLOMN]
+//3. Effects11::SetMatrix will also re-arrange the memory layout (transpose again, not identical to memcpy to constant buffer)
+
 void Noise3D::RigidTransform::SetPosition(NVECTOR3 vPos)
 {
 	mPosition = vPos;
@@ -21,12 +26,22 @@ void Noise3D::RigidTransform::SetPosition(float x, float y, float z)
 	mPosition = NVECTOR3(x, y, z);
 }
 
-NVECTOR3 Noise3D::RigidTransform::GetPosition()
+void Noise3D::RigidTransform::Move(NVECTOR3 deltaPos)
+{
+	mPosition += deltaPos;
+}
+
+void Noise3D::RigidTransform::Move(float dx, float dy, float dz)
+{
+	mPosition += NVECTOR3(dx, dy, dz);
+}
+
+NVECTOR3 Noise3D::RigidTransform::GetPosition() const 
 {
 	return mPosition;
 }
 
-NVECTOR3 Noise3D::RigidTransform::GetEulerAngle()
+NVECTOR3 Noise3D::RigidTransform::GetEulerAngle() const
 {
 	//Quaternion--->Matrix
 	NMATRIX rotMat;
@@ -38,12 +53,12 @@ NVECTOR3 Noise3D::RigidTransform::GetEulerAngle()
 	return euler;
 }
 
-NQUATERNION Noise3D::RigidTransform::GetQuaternion()
+NQUATERNION Noise3D::RigidTransform::GetQuaternion() const 
 {
 	return mQuaternion;
 }
 
-void Noise3D::RigidTransform::GetRotationMatrix(NMATRIX & outMat)
+void Noise3D::RigidTransform::GetRotationMatrix(NMATRIX & outMat) const
 {
 	//Quaternion---->Matrix
 	//ref.1 : https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Conversion_to_and_from_the_matrix_representation
@@ -73,13 +88,20 @@ void Noise3D::RigidTransform::Rotate(NVECTOR3 axis, float angle)
 	RigidTransform::Rotate(deltaRotQ);
 }
 
-void Noise3D::RigidTransform::Rotate(NQUATERNION q)
+bool Noise3D::RigidTransform::Rotate(NQUATERNION q)
 {
+	if (!Ut::TolerantEqual(q.Length(),1.0f, 0.0001f))
+	{
+		ERROR_MSG("SetRotation: Error! input is not a unit quaternion!");
+		return false;
+	}
+
 	//to combine two quaternion rotation, just use it like rotation matrix
 	//(left-multiply a quaternion)
 	//https://math.stackexchange.com/questions/331539/combining-rotation-quaternions
 	//https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
 	mQuaternion = q * mQuaternion;
+	return true;
 }
 
 void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
@@ -105,7 +127,6 @@ void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
 		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
 	*/
 	mQuaternion = XMQuaternionRotationRollPitchYaw(euler.x, euler.y, euler.z);
-
 }
 
 bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
@@ -145,14 +166,15 @@ void Noise3D::RigidTransform::SetRotation(NVECTOR3 axis, float angle)
 	mQuaternion =  XMQuaternionRotationAxis(axis,angle);
 }
 
-void Noise3D::RigidTransform::SetRotation(NQUATERNION q)
+bool Noise3D::RigidTransform::SetRotation(NQUATERNION q)
 {
-	if (q.Length() != 1.0f)
+	if (!Ut::TolerantEqual(q.Length() ,1.0f, 0.0001f))
 	{
 		ERROR_MSG("SetRotation: Error! input is not a unit quaternion!");
-		return;
+		return false;
 	}
 	mQuaternion = q;
+	return true;
 }
 
 void Noise3D::RigidTransform::SetRotation(float pitch_x, float yaw_y, float roll_z)
@@ -186,10 +208,11 @@ bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)
 	}
 
 	//Matrix---->Quaternion
-	XMQuaternionRotationMatrix(mat);
+	mQuaternion = XMQuaternionRotationMatrix(mat);
+	return true;
 }
 
-NMATRIX Noise3D::RigidTransform::GetTransformMatrix()
+NMATRIX Noise3D::RigidTransform::GetTransformMatrix() const
 {
 	NMATRIX out;
 	RigidTransform::GetRotationMatrix(out);
@@ -242,12 +265,6 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	[ C ]							[0 0 1]
 	*/
 
-	auto func_tolerantEqual = [](float lhs, float rhs, float errorLimit = 0.001f)->bool
-	{
-	//a little numerical error can be tolerated
-	return (abs(lhs-rhs) < errorLimit);
-	};
-
 	NMATRIX T = mat.Transpose();
 	NMATRIX mat1 = mat * T;
 	NMATRIX mat2 = T * mat;
@@ -261,12 +278,12 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 			//diagonal elements
 			if (i == j)
 			{
-				if (!func_tolerantEqual(mat1.m[i][j], 1.0f, 0.001f))
+				if (!Ut::TolerantEqual(mat1.m[i][j], 1.0f, 0.001f))
 				{
 					isOrthonormal = false;
 					break;
 				}
-				if (!func_tolerantEqual(mat2.m[i][j], 1.0f, 0.001f))
+				if (!Ut::TolerantEqual(mat2.m[i][j], 1.0f, 0.001f))
 				{
 					isOrthonormal = false;
 					break;
@@ -274,12 +291,12 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 			}
 			else//non-diagonal elements
 			{
-				if (!func_tolerantEqual(mat1.m[i][j], 0.0f, 0.001f))
+				if (!Ut::TolerantEqual(mat1.m[i][j], 0.0f, 0.001f))
 				{
 					isOrthonormal = false;
 					break;
 				}
-				if (!func_tolerantEqual(mat2.m[i][j], 0.0f, 0.001f))
+				if (!Ut::TolerantEqual(mat2.m[i][j], 0.0f, 0.001f))
 				{
 					isOrthonormal = false;
 					break;
@@ -291,15 +308,14 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	return isOrthonormal;
 }
 
-NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat)
+NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat) const
 {
 	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
+	COLUMN MAJOR
 	R(x,y,z) = Ry * Rx * Rz
 		[c1c3+s1s2s3		c3s1s2-c1s3			c2s1	]
 	=	[c2s3					c2c3						-s2	]
 		[c1s2s3-s1c3		s1s3+c1c3s2		c1c2	]
-	*/
-
 	/*
 	yaw_Y = atan2(s1c2,c1c3)=atan2(m02,m22)
 	pitch_X = arcsin(s2)=arcsin(-m12)
@@ -307,39 +323,67 @@ NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & ma
 	
 	WARNING : gimbal lock situation (c2==0) should be carefully dealt with
 	*/
+
+	/*
+	DirectXMath ROW Major :
+	R(x,y,z) = Ry * Rx * Rz
+		[c1c3+s1s2s3		c2s3		c1s2s3-s1c3		]
+	=	[c3s1s2-c1s3		c2c3		s1s3+c1c3s2	]
+		[c2s1					-s2		c1c2					]
+
+		yaw_Y = atan2(s1c2,c1c3)=atan2(m20,m22)
+		pitch_X = arcsin(s2)=arcsin(-m21)
+		roll_Z = atan2(c2s3, c2c3)=atan2(m01,m11)
+	/*
+
+	*/
 	NVECTOR3 outEuler = NVECTOR3(0,0,0);
 
-	if (mat.m[1][2] != 1.0f && mat.m[1][2] != -1.0f)
+	//XM-generated row major matrix
+	if (mat.m[2][1] != 1.0f && mat.m[2][1] != -1.0f)
 	{
-		outEuler.x = asinf(-mat.m[1][2]);//pitch
-		outEuler.y = atan2f(mat.m[0][2], mat.m[2][2]);//yaw
-		outEuler.z = atan2f(mat.m[1][0], mat.m[1][1]);//roll
+		outEuler.x = asinf(-mat.m[2][1]);//pitch
+		outEuler.y = atan2f(mat.m[2][0], mat.m[2][2]);//yaw
+		outEuler.z = atan2f(mat.m[0][1], mat.m[1][1]);//roll
 	}
 	else
 	{
 		//gimbal lock case, the matrix degenerate into:
 		/*
-		1. when pitch==-pi/2
+		1. when pitch== - pi/2 
+		(column major)
 				[ cos(y+z)			-sin(y+z)		0]
 		R=	[0						0					1]
 				[-sin(y+z)			-cos(y+z)		0]
 
+		(row major)
+				[ cos(y+z)		0		-sin(y+z)	]
+		R=	[-sin(y+z)		0		-cos(y+z)	]
+				[0					1		0				]
+
 		2. when pitch==pi/2
-				[ cos(y-z)			sin(y-z)			0]
-		R=	[0						0					1]
-				[-sin(y-z)			cos(y-z)		0]
+		(column major)
+				[ cos(y-z)			-sin(y-z)		0]
+		R=	[0						0					-1]
+				[sin(y-z)			cos(y-z)		0]
+
+		(row major)
+				[cos(y-z)		0		sin(y-z)	]
+		R=	[-sin(y-z)		0		cos(y-z)	]
+				[0					-1		0				]
 		*/
-		if (mat.m[1][2] == -1.0f)
+		if (mat.m[2][1] == -1.0f)//-sin(pitch)=-1.0f, pitch=pi/2
 		{
 			outEuler.x = MATH_PI / 2.0f;
-			outEuler.z = 0.0f;
-			outEuler.y = outEuler.z + atan2f(mat.m[0][1], mat.m[0][0]);	//yaw_y - roll_z = atan2(m01,m00) , 2 DOF left
+			outEuler.z = 0.0f;//arbitrarily set a value
+			outEuler.y = outEuler.z + atan2f(mat.m[0][2], mat.m[0][0]);	//yaw_y - roll_z = atan2(m02,m00) , 2 DOF left (row major)
 		}
-		else//-sin(pitch) = 1.0f
+		else//-sin(pitch) = 1.0f, pitch = -pi/2
 		{
 			outEuler.x = -MATH_PI / 2.0f;
 			outEuler.z = 0.0f;
-			outEuler.y = -outEuler.z + atan2f(-mat.m[0][1], mat.m[0][0]);//yaw_y + roll_z = atan2(-m01,m00), 2 DOF
+			outEuler.y = -outEuler.z + atan2f(-mat.m[1][0], mat.m[0][0]);//yaw_y + roll_z = atan2(-m10,m00), 2 DOF (row major)
 		}
 	}
+	return outEuler;
 }
