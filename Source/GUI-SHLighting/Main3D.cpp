@@ -85,7 +85,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	//Camera
 	m_pCamera->SetPosition(0, 0, -5.0f);
 	m_pCamera->SetLookAt(0, 0, 0);
-	m_pCamera->SetViewAngle_Radian(MATH_PI / 3.0f, 1.333333333f);
+	m_pCamera->SetViewAngle_Radian(Ut::PI / 3.0f, 1.333333333f);
 	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);
 
 	//draw 2d texture
@@ -171,9 +171,6 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 
 void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 {
-	/*NQUATERNION q;
-	NMATRIX m;*/
-	
 
 	if (index == 0)
 	{
@@ -217,8 +214,8 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 		{
 			float normalizedU = float(x) / float(width);//[0,1]
 			float normalizedV = float(y) / float(height);//[0,1]
-			float yaw = (normalizedU - 0.5f) * 2.0f * MATH_PI;//[-pi,pi]
-			float pitch = (normalizedV - 0.5f) * MATH_PI;//[pi/2,-pi/2]
+			float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
+			float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
 			NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
 			NVECTOR3 reconstructedColor = shvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
