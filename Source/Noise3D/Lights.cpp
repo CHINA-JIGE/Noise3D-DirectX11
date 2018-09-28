@@ -148,7 +148,7 @@ ISpotLightD::ISpotLightD()
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 1.0f;
 	mLightDesc.mLightingRange = 100.0f;
-	mLightDesc.mLightingAngle = MATH_PI / 4;
+	mLightDesc.mLightingAngle = Ut::PI / 4.0f;
 	mLightDesc.diffuseIntensity = 0.5;
 	mLightDesc.mLitAt = NVECTOR3(1.0f, 0, 0);
 	mLightDesc.mPosition = NVECTOR3(0, 0, 0);
@@ -188,7 +188,7 @@ void ISpotLightD::SetLitAt(const NVECTOR3 & vLitAt)
 void ISpotLightD::SetLightingAngle(float coneAngle_Rad)
 {
 	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
-	mLightDesc.mLightingAngle = Clamp(coneAngle_Rad, 0.0f, MATH_PI-0.001f);
+	mLightDesc.mLightingAngle = Clamp(coneAngle_Rad, 0.0f, Ut::PI-0.001f);
 }
 
 void ISpotLightD::SetLightingRange(float range)
@@ -323,6 +323,6 @@ bool ISpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
 	}
 
 	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
-	mLightDesc.mLightingAngle = Clamp(desc.mLightingAngle, 0.0f, MATH_PI - 0.001f);
+	mLightDesc.mLightingAngle = Clamp(desc.mLightingAngle, 0.0f, Ut::PI - 0.001f);
 	return true;
 }

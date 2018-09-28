@@ -14,7 +14,7 @@ Noise3D::ICamera::ICamera() :
 	mRotateX_Pitch(0),
 	mRotateY_Yaw(0),
 	mRotateZ_Roll(0),
-	mViewAngleY_Radian((float)60 / 180 * MATH_PI),
+	mViewAngleY_Radian((float)60 / 180 * Ut::PI),
 	mAspectRatio(1.5f),
 	mPosition(0, 0, 0),
 	mLookat(1.0f, 0, 0),
@@ -119,7 +119,7 @@ void	Noise3D::ICamera::SetRotationY_Yaw(float angleY)
 void	Noise3D::ICamera::SetRotationX_Pitch(float AngleX)
 {
 	//clamp to [-pi/2,pi/2]
-	mRotateX_Pitch = Clamp(AngleX, -MATH_PI / 2.0f, MATH_PI / 2.0f);
+	mRotateX_Pitch = Clamp(AngleX, -Ut::PI / 2.0f, Ut::PI / 2.0f);
 
 	mFunction_UpdateDirection();
 };
@@ -324,13 +324,13 @@ void	Noise3D::ICamera::SetViewFrustumPlane(float iNearPlaneZ,float iFarPlaneZ)
 
 void Noise3D::ICamera::SetViewAngle_Degree(float fovY_Degree,float fAspectRatio)
 {
-	if(fovY_Degree>0 && (mViewAngleY_Radian <180.0f)){ mViewAngleY_Radian	= fovY_Degree * MATH_PI / 180.0f;	}
+	if(fovY_Degree>0 && (mViewAngleY_Radian <180.0f)){ mViewAngleY_Radian	= fovY_Degree * Ut::PI / 180.0f;	}
 	if(fAspectRatio>0){mAspectRatio	= fAspectRatio;}
 }
 
 void Noise3D::ICamera::SetViewAngle_Radian(float fovY_Radian, float fAspectRatio)
 {
-	if (fovY_Radian>0 && (mViewAngleY_Radian <(MATH_PI))) { mViewAngleY_Radian = fovY_Radian; }
+	if (fovY_Radian>0 && (mViewAngleY_Radian <(Ut::PI))) { mViewAngleY_Radian = fovY_Radian; }
 	if (fAspectRatio>0) { mAspectRatio = fAspectRatio; }
 };
 
@@ -366,7 +366,7 @@ void	Noise3D::ICamera::mFunction_UpdateViewMatrix()
 	//for ortho matrix, transpose=inverse
 	tmpMatrixRotation = DirectX::XMMatrixTranspose(tmpMatrixRotation);
 
-	//先平移，再旋转
+	//(row-major multiplication)
 	mMatrixView = DirectX::XMMatrixMultiply(tmpMatrixTranslation, tmpMatrixRotation);
 
 	//D3DXMatrixTranspose(&mMatrixView,&mMatrixView);

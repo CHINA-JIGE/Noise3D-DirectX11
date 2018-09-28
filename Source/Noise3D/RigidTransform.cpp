@@ -16,6 +16,12 @@ using namespace Noise3D;
 //2. XM-generated matrix elements are accessed with m[ROW][COLOMN]
 //3. Effects11::SetMatrix will also re-arrange the memory layout (transpose again, not identical to memcpy to constant buffer)
 
+Noise3D::RigidTransform::RigidTransform():
+	mPosition(0,0,0),
+	mQuaternion(XMQuaternionIdentity())
+{
+}
+
 void Noise3D::RigidTransform::SetPosition(NVECTOR3 vPos)
 {
 	mPosition = vPos;
@@ -374,13 +380,13 @@ NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & ma
 		*/
 		if (mat.m[2][1] == -1.0f)//-sin(pitch)=-1.0f, pitch=pi/2
 		{
-			outEuler.x = MATH_PI / 2.0f;
+			outEuler.x = Ut::PI / 2.0f;
 			outEuler.z = 0.0f;//arbitrarily set a value
 			outEuler.y = outEuler.z + atan2f(mat.m[0][2], mat.m[0][0]);	//yaw_y - roll_z = atan2(m02,m00) , 2 DOF left (row major)
 		}
 		else//-sin(pitch) = 1.0f, pitch = -pi/2
 		{
-			outEuler.x = -MATH_PI / 2.0f;
+			outEuler.x = -Ut::PI / 2.0f;
 			outEuler.z = 0.0f;
 			outEuler.y = -outEuler.z + atan2f(-mat.m[1][0], mat.m[0][0]);//yaw_y + roll_z = atan2(-m10,m00), 2 DOF (row major)
 		}

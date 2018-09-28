@@ -55,6 +55,8 @@ namespace Noise3D
 	//Global utility function
 	namespace Ut
 	{
+		const float PI = 3.141592653f;
+
 		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
 		extern /*_declspec(dllexport)*/ int	GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);

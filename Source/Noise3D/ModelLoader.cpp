@@ -162,8 +162,8 @@ bool IModelLoader::LoadFile_STL(IMesh * const pTargetMesh, NFilePath pFilePath)
 		angleYaw = atan2(tmpP.z, tmpP.x);
 
 		//map to [0,1]
-		outTexCoord.x = (angleYaw + MATH_PI) / (2.0f * MATH_PI);
-		outTexCoord.y = (anglePitch + (MATH_PI / 2.0f)) / MATH_PI;
+		outTexCoord.x = (angleYaw + Ut::PI) / (2.0f * Ut::PI);
+		outTexCoord.y = (anglePitch + (Ut::PI / 2.0f)) / Ut::PI;
 
 		return outTexCoord;
 	};

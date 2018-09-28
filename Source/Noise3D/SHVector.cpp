@@ -57,7 +57,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 	}
 
 	//weight = 1.0f/(p(x)) = 1.0f/ (1.0f/4pi)) = 4pi
-	constexpr float c_sampleWeight = 4.0f * MATH_PI;
+	constexpr float c_sampleWeight = 4.0f * Ut::PI;
 	float mulFactor = c_sampleWeight / float(monteCarloSampleCount);
 
 	//done summing up sample value, do the division of numerical integration

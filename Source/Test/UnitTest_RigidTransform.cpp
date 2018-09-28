@@ -141,9 +141,9 @@ int main()
 	std::cout << "------------------------------" << std::endl;
 
 	//----------absolute rotation : matrix,  Gimbal lock---
-	oldEuler = NVECTOR3(MATH_PI / 2.0f, 0.123f, 0.789f);
+	oldEuler = NVECTOR3(Ut::PI / 2.0f, 0.123f, 0.789f);
 	t.SetPosition(NVECTOR3(-1.0f, 5.0f , -1.0f));
-	matXM = XMMatrixRotationRollPitchYaw(MATH_PI / 2.0f, 0.123f, 0.789f);
+	matXM = XMMatrixRotationRollPitchYaw(Ut::PI / 2.0f, 0.123f, 0.789f);
 	b = t.SetRotation(matXM);
 	m = t.GetTransformMatrix();
 	euler = t.GetEulerAngle();
@@ -155,10 +155,10 @@ int main()
 	OutputEuler(oldEuler);
 	std::cout << "------------------------------" << std::endl;
 
-	//----------absolute rotation : quaternion,  Gimbal lock---
-	oldEuler = NVECTOR3(-MATH_PI / 2.0f, 0.123f, 0.789f);
+	//----------absolute rotation : quaternion,  Gimbal lock --------
+	oldEuler = NVECTOR3(-Ut::PI / 2.0f, 0.123f, 0.789f);
 	t.SetPosition(NVECTOR3(-1.0f, 5.0f, -1.0f));
-	deltaRotQ = XMQuaternionRotationRollPitchYaw(-MATH_PI / 2.0f, 0.123f, 0.789f);
+	deltaRotQ = XMQuaternionRotationRollPitchYaw(-Ut::PI / 2.0f, 0.123f, 0.789f);
 	t.SetRotation(deltaRotQ);
 	m = t.GetTransformMatrix();
 	euler = t.GetEulerAngle();
@@ -169,6 +169,27 @@ int main()
 	OutputMatrix(matXM);
 	OutputEuler(oldEuler);
 	std::cout << "------------------------------" << std::endl;
+
+	//----------QuaternionToMatrix formula (correct)(remember to transpose)--------
+	t.SetPosition(NVECTOR3(-1.0f, 5.0f, -1.0f));
+	NQUATERNION q = XMQuaternionRotationAxis(NVECTOR3(1.0f, 2.0f, 3.0f), 4.0f);
+	float x = q.x, y = q.y, z = q.z, w = q.w;
+	matXM = XMMatrixRotationQuaternion(q);
+	OutputMatrix(matXM);
+
+	NMATRIX myMat;
+	myMat.m[0][0] = 1.0f - 2.0f*y*y - 2.0f * z*z;
+	myMat.m[0][1] = 2.0f * x*y - 2.0f * z*w;
+	myMat.m[0][2] = 2.0f * x*z + 2.0f * y*w;
+	myMat.m[1][0] = 2.0f * x*y + 2.0f * z*w;
+	myMat.m[1][1] = 1.0f - 2.0f * x*x - 2.0f * z*z;
+	myMat.m[1][2] = 2.0f * y*z - 2.0f * x * w;
+	myMat.m[2][0] = 2.0f * x * z - 2.0f * y* w ;
+	myMat.m[2][1] = 2.0f *y * z + 2.0f * x * w;
+	myMat.m[2][2] = 1.0f - 2.0f*x*x - 2.0f * y *y;
+	OutputMatrix(myMat);
+	std::cout << "------------------------------" << std::endl;
+
 
 	system("pause");
 	return 0;

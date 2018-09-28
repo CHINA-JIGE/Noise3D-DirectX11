@@ -24,8 +24,8 @@ NVECTOR3 Noise3D::GI::ISphericalMappingTextureSampler::Eval(const NVECTOR3 & dir
 	float yaw = atan2(dir.x, dir.z);
 
 	//mapped to [0,1]
-	float normalizedU= (yaw / (2.0f * MATH_PI) + 0.5f);
-	float normalizedV = (pitch /  MATH_PI) + 0.5f;
+	float normalizedU= (yaw / (2.0f * Ut::PI) + 0.5f);
+	float normalizedV = (pitch /  Ut::PI) + 0.5f;
 	uint32_t width = m_pTex->GetWidth();
 	uint32_t height = m_pTex->GetHeight();
 	uint32_t x = uint32_t(float(width) * normalizedU);

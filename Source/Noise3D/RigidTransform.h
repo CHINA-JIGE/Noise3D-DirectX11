@@ -35,6 +35,8 @@ namespace Noise3D
 	{
 	public:
 
+		RigidTransform();
+
 		void		SetPosition(NVECTOR3 vPos);
 
 		void		SetPosition(float x, float y, float z);
@@ -80,7 +82,6 @@ namespace Noise3D
 		bool mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX& mat);
 
 		NVECTOR3 mFunc_RotationMatrixToEuler(const NMATRIX& mat) const;
-
 
 		//Rotation is stored as Quaternion (2018.9.14, like Unity, quaternion could be the main representation of rotation on CPU-end)
 		NQUATERNION mQuaternion;
