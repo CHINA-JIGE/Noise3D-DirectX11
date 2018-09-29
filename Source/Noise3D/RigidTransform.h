@@ -59,6 +59,7 @@ namespace Noise3D
 
 		bool		Rotate(NQUATERNION q);
 
+		//use euler angle to construct one delta rotation(not simply adds euler angles)
 		void		Rotate(float pitch_x, float yaw_y, float roll_z);
 
 		bool		Rotate(const NMATRIX& deltaRotMat);
@@ -71,6 +72,8 @@ namespace Noise3D
 		void		SetRotation(float pitch_x, float yaw_y, float roll_z);
 
 		bool		SetRotation(const NMATRIX& mat);//top left 3x3 sub - matrix must be a orthonormal
+
+		void		InvertRotation();
 
 		NMATRIX		GetTransformMatrix() const;
 

@@ -218,6 +218,12 @@ bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)
 	return true;
 }
 
+void Noise3D::RigidTransform::InvertRotation()
+{
+	//q^(-1)=q*/|q|
+	mQuaternion = XMQuaternionInverse(mQuaternion);
+}
+
 NMATRIX Noise3D::RigidTransform::GetTransformMatrix() const
 {
 	NMATRIX out;

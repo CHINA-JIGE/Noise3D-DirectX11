@@ -67,4 +67,7 @@ private:
 
 	Noise3D::Ut::Timer mTimer;// (Noise3D::Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 
+	//object fixed, camera's orbit rotation is easy; but camera fixed, object's orbit rotation can't be dealt with trivially
+	float mOrbitYaw;
+	float mOrbitPitch;
 };

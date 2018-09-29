@@ -77,10 +77,11 @@ void Widget_RenderCanvas::mouseMoveEvent(QMouseEvent * ev)
 	if (mIsLeftMouseDown)
 	{
 		QPoint deltaCursorPos = ev->pos() - mPrevCursorPos;
-		mMain3dApp.RotateBall(0, -float(deltaCursorPos.x()) * 0.002f, float(deltaCursorPos.y()) * 0.002f);//left ball
-		mMain3dApp.RotateBall(1, -float(deltaCursorPos.x()) * 0.002f, float(deltaCursorPos.y()) * 0.002f);//right ball
+		mMain3dApp.RotateBall(0, float(deltaCursorPos.x()) * 0.002f, float(deltaCursorPos.y()) * 0.002f);//left ball
+		mMain3dApp.RotateBall(1, float(deltaCursorPos.x()) * 0.002f, float(deltaCursorPos.y()) * 0.002f);//right ball
 		mPrevCursorPos = ev->pos();
 	}
+
 }
 
 void Widget_RenderCanvas::mousePressEvent(QMouseEvent * ev)

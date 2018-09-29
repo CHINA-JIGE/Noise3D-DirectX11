@@ -3,7 +3,9 @@
 using namespace Noise3D;
 
 Main3DApp::Main3DApp():
-	mTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND)
+	mTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND),
+	mOrbitPitch(0),
+	mOrbitYaw(0)
 {
 
 }
@@ -171,16 +173,39 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 
 void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 {
+	//object fixed, camera's orbit rotation is easy; 
+	//but camera fixed, object's orbit rotation are the inverse rotation
+	RigidTransform t;
+	mOrbitPitch += deltaPitch;
+	mOrbitYaw += deltaYaw;
+	mOrbitPitch = Ut::Clamp(mOrbitPitch, -Ut::PI / 2.0f, Ut::PI / 2.0f);
 
+	//rotate coord frame
+	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
+	NVECTOR3 axisDirX = t.TransformVector(NVECTOR3(1.5f, 0, 0));
+	NVECTOR3 axisDirY = t.TransformVector(NVECTOR3(0, 1.5f, 0));
+	NVECTOR3 axisDirZ = t.TransformVector(NVECTOR3(0, 0, 1.5f));
+
+	m_pGO_Axis->SetLine3D(0, c_ballPos1, c_ballPos1 + axisDirX, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(1, c_ballPos1, c_ballPos1 + axisDirY, NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(2, c_ballPos1, c_ballPos1 + axisDirZ, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+
+	m_pGO_Axis->SetLine3D(3, c_ballPos2, c_ballPos2 + axisDirX, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(4, c_ballPos2, c_ballPos2 + axisDirY, NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(5, c_ballPos2, c_ballPos2 + axisDirZ, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+
+	//the original version of orbit rotation should be a camera rotation
+	//orbitMat = XMMatrixTranspose(orbitMat);
+	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
+	t.InvertRotation();
+	NVECTOR3 euler=  t.GetEulerAngle();
 	if (index == 0)
 	{
-		m_pMeshOriginal->RotateX_Pitch(deltaPitch);
-		m_pMeshOriginal->RotateY_Yaw(deltaYaw);
+		m_pMeshOriginal->SetRotation(euler.x, euler.y, euler.z);
 	}
 	else if (index == 1)
 	{
-		m_pMeshSh->RotateX_Pitch(deltaPitch);
-		m_pMeshSh->RotateY_Yaw(deltaYaw);
+		m_pMeshSh->SetRotation(euler.x, euler.y, euler.z);
 	}
 
 	return;
