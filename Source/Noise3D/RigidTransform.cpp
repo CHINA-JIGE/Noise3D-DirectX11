@@ -8,6 +8,7 @@
 *******************************************************************/
 
 #include <Noise3D.h>
+#include "RigidTransform.h"
 
 using namespace Noise3D;
 
@@ -199,6 +200,11 @@ void Noise3D::RigidTransform::SetRotation(float pitch_x, float yaw_y, float roll
 		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
 	*/
 	mQuaternion = XMQuaternionRotationRollPitchYaw(pitch_x, yaw_y, roll_z);
+}
+
+void Noise3D::RigidTransform::SetRotation(NVECTOR3 eulerAngles)
+{
+	RigidTransform::SetRotation(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 }
 
 bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)

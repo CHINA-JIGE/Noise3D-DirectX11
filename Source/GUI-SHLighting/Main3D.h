@@ -33,6 +33,8 @@ public:
 
 	void Cleanup();
 
+	void	SetCamProjType(bool isPerspective);
+
 private:
 
 	const char* c_originTexName = "Tex";
@@ -64,6 +66,7 @@ private:
 	Noise3D::IGraphicObject*	m_pGO_Axis;
 	Noise3D::IFontManager* m_pFontMgr;
 	Noise3D::IDynamicText* m_pMyText_fps;
+	Noise3D::IDynamicText* m_pMyText_camProjType;
 
 	Noise3D::Ut::Timer mTimer;// (Noise3D::Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 

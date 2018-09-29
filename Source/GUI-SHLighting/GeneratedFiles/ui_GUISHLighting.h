@@ -32,6 +32,8 @@ class Ui_SHLightingGuiApp
 public:
     QAction *actionAbout;
     QAction *actionExit;
+    QAction *actionCameraOrthographic;
+    QAction *actionCameraPerspective;
     QWidget *centralwidget;
     QTextBrowser *textBrowser_filePath;
     QLabel *label_MonteCarlo;
@@ -48,6 +50,7 @@ public:
     QMenuBar *menubar;
     QMenu *menuFile;
     QMenu *menuHelp;
+    QMenu *menuCamera;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *SHLightingGuiApp)
@@ -60,6 +63,10 @@ public:
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
         actionExit = new QAction(SHLightingGuiApp);
         actionExit->setObjectName(QStringLiteral("actionExit"));
+        actionCameraOrthographic = new QAction(SHLightingGuiApp);
+        actionCameraOrthographic->setObjectName(QStringLiteral("actionCameraOrthographic"));
+        actionCameraPerspective = new QAction(SHLightingGuiApp);
+        actionCameraPerspective->setObjectName(QStringLiteral("actionCameraPerspective"));
         centralwidget = new QWidget(SHLightingGuiApp);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         textBrowser_filePath = new QTextBrowser(centralwidget);
@@ -141,15 +148,20 @@ public:
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuHelp = new QMenu(menubar);
         menuHelp->setObjectName(QStringLiteral("menuHelp"));
+        menuCamera = new QMenu(menubar);
+        menuCamera->setObjectName(QStringLiteral("menuCamera"));
         SHLightingGuiApp->setMenuBar(menubar);
         statusbar = new QStatusBar(SHLightingGuiApp);
         statusbar->setObjectName(QStringLiteral("statusbar"));
         SHLightingGuiApp->setStatusBar(statusbar);
 
         menubar->addAction(menuFile->menuAction());
+        menubar->addAction(menuCamera->menuAction());
         menubar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionExit);
         menuHelp->addAction(actionAbout);
+        menuCamera->addAction(actionCameraOrthographic);
+        menuCamera->addAction(actionCameraPerspective);
 
         retranslateUi(SHLightingGuiApp);
 
@@ -161,6 +173,8 @@ public:
         SHLightingGuiApp->setWindowTitle(QApplication::translate("SHLightingGuiApp", "Spherical Harmonic Lighting Utility - sunhonglian", 0));
         actionAbout->setText(QApplication::translate("SHLightingGuiApp", "About", 0));
         actionExit->setText(QApplication::translate("SHLightingGuiApp", "Exit", 0));
+        actionCameraOrthographic->setText(QApplication::translate("SHLightingGuiApp", "Orthographic", 0));
+        actionCameraPerspective->setText(QApplication::translate("SHLightingGuiApp", "Perspective", 0));
 #ifndef QT_NO_STATUSTIP
         textBrowser_filePath->setStatusTip(QString());
 #endif // QT_NO_STATUSTIP
@@ -193,6 +207,7 @@ public:
         label_CalSHCoeff->setText(QApplication::translate("SHLightingGuiApp", "<html><head/><body><p>\350\276\223\345\207\272\347\220\203\350\260\220\347\263\273\346\225\260:</p></body></html>", 0));
         menuFile->setTitle(QApplication::translate("SHLightingGuiApp", "File", 0));
         menuHelp->setTitle(QApplication::translate("SHLightingGuiApp", "Help", 0));
+        menuCamera->setTitle(QApplication::translate("SHLightingGuiApp", "Camera", 0));
     } // retranslateUi
 
 };

@@ -14,6 +14,8 @@ GUISHLightingApp::GUISHLightingApp(QWidget *parent)
 	connect(mUI.actionExit, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_Exit);
 	connect(mUI.actionAbout, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_About);
 	connect(mUI.btn_ComputeSH, &QPushButton::clicked, this, &GUISHLightingApp::Slot_ComputeShCoefficient);
+	connect(mUI.actionCameraOrthographic, &QAction::triggered, this, &GUISHLightingApp::Slot_CameraProj_Ortho);
+	connect(mUI.actionCameraPerspective, &QAction::triggered, this, &GUISHLightingApp::Slot_CameraProj_Perspective);
 
 	//init text codec(to support Chinese?)
 	QTextCodec::setCodecForLocale(QTextCodec::codecForLocale());
@@ -156,6 +158,17 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 
 	mUI.textEdit_ShCoefficient->setText(output);
 }
+
+void GUISHLightingApp::Slot_CameraProj_Ortho()
+{
+	m_pRenderCanvas->GetMain3dApp().SetCamProjType(false);
+}
+
+void GUISHLightingApp::Slot_CameraProj_Perspective()
+{
+	m_pRenderCanvas->GetMain3dApp().SetCamProjType(true);
+}
+
 
 /***********************************************
 

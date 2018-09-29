@@ -31,6 +31,8 @@ namespace Noise3D
 
 			int		GetLineSpacingOffset();
 
+			void		SetSpacePixelWidth(int width);
+
 			void		SetWordSpacingOffset(int offset);
 
 			int		GetWordSpacingOffset();
@@ -62,6 +64,7 @@ namespace Noise3D
 			UINT			mCharBoundarySizeY;
 			int				mWordSpacingOffset;
 			int				mLineSpacingOffset;
+			int				mSpacePixelWidth;//pixel width of char space ' '
 			N_UID			mTextureName;//which bitmap texture to refer to
 			std::string		mTextContent;//the target "string"
 			bool				mIsTextContentChanged;

@@ -11,7 +11,8 @@ IDynamicText::IDynamicText():
 	mWordSpacingOffset(0),
 	mLineSpacingOffset(0),
 	mIsTextContentChanged(true),
-	mIsSizeChanged(true)
+	mIsSizeChanged(true),
+	mSpacePixelWidth(4)
 {
 }
 
@@ -94,6 +95,10 @@ void IDynamicText::SetLineSpacingOffset(int offset)
 int IDynamicText::GetLineSpacingOffset()
 {
 	return mLineSpacingOffset;
+}
+void Noise3D::IDynamicText::SetSpacePixelWidth(int width)
+{
+	mSpacePixelWidth = width;
 };
 
 
@@ -268,8 +273,9 @@ void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectT
 
 #pragma endregion UpdateTexcoord
 
-
+		//pixel size in bitmap table (glyph)
 		NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(currentChar);
+		if (currentChar == ' ')realCharBitmapPixelSize.x = float(mSpacePixelWidth);
 
 
 #pragma region UpdatePositionOfSubRects

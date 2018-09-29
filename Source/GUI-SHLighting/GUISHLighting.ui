@@ -324,7 +324,15 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuCamera">
+    <property name="title">
+     <string>Camera</string>
+    </property>
+    <addaction name="actionCameraOrthographic"/>
+    <addaction name="actionCameraPerspective"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCamera"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -336,6 +344,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionCameraOrthographic">
+   <property name="text">
+    <string>Orthographic</string>
+   </property>
+  </action>
+  <action name="actionCameraPerspective">
+   <property name="text">
+    <string>Perspective</string>
    </property>
   </action>
  </widget>

@@ -80,15 +80,23 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
 	m_pMyText_fps = m_pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	m_pMyText_fps->SetTextColor(NVECTOR4(0, 0.8f, 0.7f, 0.5f));
+	m_pMyText_fps->SetSpacePixelWidth(4);//width of space
 	m_pMyText_fps->SetDiagonal(NVECTOR2(canvasWidth-80.0f, 20), NVECTOR2(canvasWidth, 60));
-	m_pMyText_fps->SetFont("myFont");
 	m_pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
+	m_pMyText_camProjType = m_pFontMgr->CreateDynamicTextA("myFont", "camTypeLabel", "Camera Mode: Perspective", 300, 100, NVECTOR4(0, 0, 0, 1.0f), 1, 0);
+	m_pMyText_camProjType->SetTextColor(NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	m_pMyText_camProjType->SetSpacePixelWidth(4);//width of space
+	m_pMyText_camProjType->SetDiagonal(NVECTOR2(canvasWidth - 400.0f, 20), NVECTOR2(canvasWidth-100.0f, 60));
+	m_pMyText_camProjType->SetBlendMode(NOISE_BLENDMODE_ALPHA);
+
 	//Camera
+	m_pCamera->SetProjectionType(true);
+	m_pCamera->SetOrthoViewSize(6.0f, 6.0f * canvasHeight / float(canvasWidth));//orthographic proj
+	m_pCamera->SetViewAngle_Radian(Ut::PI / 3.0f, 1.333333333f);//perspective proj
+	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);//perspective proj
 	m_pCamera->SetPosition(0, 0, -5.0f);
-	m_pCamera->SetLookAt(0, 0, 0);
-	m_pCamera->SetViewAngle_Radian(Ut::PI / 3.0f, 1.333333333f);
-	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);
+	m_pCamera->LookAt(0, 0, 0);
 
 	//draw 2d texture
 	m_pGO_GUI = m_pGraphicObjMgr->CreateGraphicObj("tanList");
@@ -126,6 +134,7 @@ void Main3DApp::UpdateFrame()
 	m_pRenderer->AddToRenderQueue(m_pGO_GUI);
 	m_pRenderer->AddToRenderQueue(m_pGO_Axis);
 	m_pRenderer->AddToRenderQueue(m_pMyText_fps);
+	m_pRenderer->AddToRenderQueue(m_pMyText_camProjType);
 
 	//render
 	m_pRenderer->Render();
@@ -212,6 +221,20 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 void Main3DApp::Cleanup()
 {
 	m_pRoot->ReleaseAll();
+}
+
+void Main3DApp::SetCamProjType(bool isPerspective)
+{
+	m_pCamera->SetProjectionType(isPerspective);
+	if (isPerspective)
+	{
+		m_pMyText_camProjType->SetTextAscii("Camera Mode: Perspective");
+	}
+	else
+	{
+		m_pMyText_camProjType->SetTextAscii("Camera Mode: Orthographic");
+
+	}
 }
 
 

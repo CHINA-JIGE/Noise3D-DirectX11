@@ -71,6 +71,8 @@ namespace Noise3D
 
 		void		SetRotation(float pitch_x, float yaw_y, float roll_z);
 
+		void		SetRotation(NVECTOR3 eulerAngles);
+
 		bool		SetRotation(const NMATRIX& mat);//top left 3x3 sub - matrix must be a orthonormal
 
 		void		InvertRotation();

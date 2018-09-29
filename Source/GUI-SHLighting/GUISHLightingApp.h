@@ -31,6 +31,10 @@ public slots:
 
 	void Slot_ComputeShCoefficient();
 
+	void	Slot_CameraProj_Ortho();
+
+	void	Slot_CameraProj_Perspective();
+
 private:
 
 	Ui::SHLightingGuiApp mUI;
