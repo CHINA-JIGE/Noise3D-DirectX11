@@ -195,17 +195,15 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 	m_pGO_Axis->SetLine3D(5, c_ballPos2, c_ballPos2 + axisDirZ, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
 
 	//the original version of orbit rotation should be a camera rotation
-	//orbitMat = XMMatrixTranspose(orbitMat);
 	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
 	t.InvertRotation();
-	NVECTOR3 euler=  t.GetEulerAngle();
 	if (index == 0)
 	{
-		m_pMeshOriginal->SetRotation(euler.x, euler.y, euler.z);
+		m_pMeshOriginal->SetRotation(t.GetQuaternion());
 	}
 	else if (index == 1)
 	{
-		m_pMeshSh->SetRotation(euler.x, euler.y, euler.z);
+		m_pMeshSh->SetRotation(t.GetQuaternion());
 	}
 
 	return;

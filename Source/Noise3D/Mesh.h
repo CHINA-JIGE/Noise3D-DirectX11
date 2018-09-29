@@ -23,7 +23,8 @@ namespace Noise3D
 		: public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
-		public CRenderSettingShadeMode
+		public CRenderSettingShadeMode,
+		public AffineTransform
 	{
 	public:
 
@@ -36,41 +37,6 @@ namespace Noise3D
 
 		void		GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList);
 
-		void		SetPosition(float x, float y, float z);
-
-		void		SetPosition(const NVECTOR3& pos);
-
-		NVECTOR3 GetPosition();
-
-		//Radian angle
-		void		SetRotation(float angleX, float angleY, float angleZ);
-
-		void		SetRotationX_Pitch(float angleX);
-
-		void		SetRotationY_Yaw(float angleY);
-
-		void		SetRotationZ_Roll(float angleZ);
-
-		void		RotateX_Pitch(float angleX);//relatively
-
-		void		RotateY_Yaw(float angleY);//relatively
-
-		void		RotateZ_Roll(float angleZ);//relatively
-
-		float		GetRotationX_Pitch();
-
-		float		GetRotationY_Yaw();
-
-		float		GetRotationZ_Roll();
-
-		void		SetScale(float scaleX, float scaleY, float scaleZ);
-
-		void		SetScaleX(float scaleX);
-
-		void		SetScaleY(float scaleY);
-
-		void		SetScaleZ(float scaleZ);
-
 		UINT	GetIndexCount();
 
 		UINT	GetTriangleCount();
@@ -81,15 +47,13 @@ namespace Noise3D
 
 		const	std::vector<UINT>*	GetIndexBuffer() const;
 
-		void		GetWorldMatrix(NMATRIX& outWorldMat,NMATRIX& outWorldInvTransposeMat);
-
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
 		N_Box	ComputeBoundingBox();
 
 	private:
 
 		friend class IRenderModuleForMesh;
-		friend class IRenderModuleForPostProcessing;//ref by qwerty
+		friend class IRenderModuleForPostProcessing;//ref by qwerty3d
 		friend class IModelLoader;
 		friend class IModelProcessor;
 		friend class ICollisionTestor;
@@ -104,9 +68,6 @@ namespace Noise3D
 		
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
 
-		//invoked by NoiseRenderer
-		void		mFunction_UpdateWorldMatrix();
-
 		//this function use the vertex list of vector<N_DefaultVertex>
 		void		mFunction_ComputeBoundingBox();
 
@@ -116,19 +77,7 @@ namespace Noise3D
 
 		ID3D11Buffer*						m_pVB_Gpu;
 		ID3D11Buffer*						m_pIB_Gpu;
-
-		float										mRotationX_Pitch;
-		float										mRotationY_Yaw;
-		float										mRotationZ_Roll;
-		float										mScaleX;
-		float										mScaleY;
-		float										mScaleZ;
-
-		NVECTOR3							mPosition;
 		N_Box									mBoundingBox;
-
-		NMATRIX										mMatrixWorld;
-		NMATRIX										mMatrixWorldInvTranspose;
 		std::vector<N_DefaultVertex>	mVB_Mem;//vertex in CPU memory
 		std::vector<UINT>						mIB_Mem;//index in CPU memory
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset

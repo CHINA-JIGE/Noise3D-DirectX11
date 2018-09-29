@@ -1,9 +1,7 @@
 
 /***********************************************************************
 
-							class：NoiseMesh
-
-				Desc: encapsule a Mesh class that can be 
+										Mesh
 
 ***********************************************************************/
 
@@ -13,20 +11,10 @@ using namespace Noise3D;
 using namespace Noise3D::D3D;
 
 IMesh::IMesh():
-	mRotationX_Pitch(0.0f),
-	mRotationY_Yaw(0.0f),
-	mRotationZ_Roll(0.0f),
-	mScaleX(1.0f),
-	mScaleY(1.0f),
-	mScaleZ(1.0f),
-	mPosition(0,0,0),
 	mBoundingBox({0,0,0},{0,0,0}),
 	m_pVB_Gpu(nullptr),
 	m_pIB_Gpu(nullptr)
 {
-
-	mMatrixWorld = XMMatrixIdentity();
-	mMatrixWorldInvTranspose = XMMatrixIdentity();
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
@@ -64,98 +52,6 @@ void IMesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
 	outRefSubsetList = mSubsetInfoList;
 }
 
-
-void IMesh::SetPosition(float x,float y,float z)
-{
-	mPosition.x =x;
-	mPosition.y =y;
-	mPosition.z =z;
-}
-
-void IMesh::SetPosition(const NVECTOR3 & pos)
-{
-	mPosition = pos;
-}
-
-NVECTOR3 IMesh::GetPosition()
-{
-	return mPosition;
-}
-
-void IMesh::SetRotation(float angleX, float angleY, float angleZ)
-{
-	mRotationX_Pitch	= angleX;
-	mRotationY_Yaw		= angleY;
-	mRotationZ_Roll		= angleZ;
-}
-
-void IMesh::SetRotationX_Pitch(float angleX)
-{
-	mRotationX_Pitch = angleX;
-};
-
-void IMesh::SetRotationY_Yaw(float angleY)
-{
-	mRotationY_Yaw = angleY;
-};
-
-void IMesh::SetRotationZ_Roll(float angleZ)
-{
-	mRotationZ_Roll = angleZ;
-}
-
-void IMesh::RotateX_Pitch(float angleX)
-{
-	mRotationX_Pitch += angleX;
-}
-
-void IMesh::RotateY_Yaw(float angleY)
-{
-	mRotationY_Yaw += angleY;
-}
-
-void IMesh::RotateZ_Roll(float angleZ)
-{
-	mRotationZ_Roll += angleZ;
-}
-
-float IMesh::GetRotationX_Pitch()
-{
-	return mRotationX_Pitch;
-}
-
-float IMesh::GetRotationY_Yaw()
-{
-	return mRotationY_Yaw;
-}
-
-float IMesh::GetRotationZ_Roll()
-{
-	return mRotationZ_Roll;
-}
-
-void IMesh::SetScale(float scaleX, float scaleY, float scaleZ)
-{
-	mScaleX = scaleX;
-	mScaleY = scaleY;
-	mScaleZ = scaleZ;
-}
-
-void IMesh::SetScaleX(float scaleX)
-{
-	mScaleX = scaleX;
-}
-
-void IMesh::SetScaleY(float scaleY)
-{
-	mScaleY = scaleY;
-}
-
-void IMesh::SetScaleZ(float scaleZ)
-{
-	mScaleZ = scaleZ;
-}
-
 UINT IMesh::GetIndexCount()
 {
 	return mIB_Mem.size();
@@ -182,13 +78,6 @@ const std::vector<N_DefaultVertex>*		IMesh::GetVertexBuffer()const
 const std::vector<UINT>* IMesh::GetIndexBuffer() const
 {
 	return &mIB_Mem;
-}
-
-void IMesh::GetWorldMatrix(NMATRIX & outWorldMat, NMATRIX& outWorldInvTransposeMat)
-{
-	mFunction_UpdateWorldMatrix();
-	outWorldMat = mMatrixWorld;
-	outWorldInvTransposeMat = mMatrixWorldInvTranspose;
 }
 
 N_Box IMesh::ComputeBoundingBox()
@@ -308,36 +197,6 @@ bool IMesh::mFunction_UpdateDataToVideoMem()
 	return true;
 };
 
-
-void	IMesh::mFunction_UpdateWorldMatrix()
-{
-	NMATRIX	tmpMatrixScaling;
-	NMATRIX	tmpMatrixTranslation;
-	NMATRIX	tmpMatrixRotation;
-	NMATRIX	tmpMatrix;
-
-	//initialize
-	tmpMatrix = XMMatrixIdentity();
-		
-	//1.scale
-	tmpMatrixScaling = XMMatrixScaling(mScaleX, mScaleY, mScaleZ);
-
-	//2.rotate
-	tmpMatrixRotation = XMMatrixRotationRollPitchYaw(mRotationX_Pitch, mRotationY_Yaw, mRotationZ_Roll);
-
-	//3.translate
-	tmpMatrixTranslation = XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z);
-
-	//4.concatenate scaling/rotation/translation（跟viewMatrix有点区别）
-	tmpMatrix = XMMatrixMultiply(tmpMatrixScaling, tmpMatrixRotation);
-	mMatrixWorld = XMMatrixMultiply(tmpMatrix, tmpMatrixTranslation);
-
-	//world InvTranspose for normal transformation
-	mMatrixWorldInvTranspose = XMMatrixInverse(nullptr, mMatrixWorld);
-	if (XMMatrixIsInfinite(mMatrixWorldInvTranspose))ERROR_MSG("Mesh: World Inv not exist! determinant == 0 ! ");
-	mMatrixWorldInvTranspose.Transpose();
-}
-
 void IMesh::mFunction_ComputeBoundingBox()
 {
 	//计算包围盒.......重载1
@@ -365,8 +224,8 @@ void IMesh::mFunction_ComputeBoundingBox()
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	mBoundingBox.max += mPosition;
-	mBoundingBox.min += mPosition;
+	mBoundingBox.max += AffineTransform::GetPosition();
+	mBoundingBox.min += AffineTransform::GetPosition();
 }
 
 void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
@@ -395,6 +254,6 @@ void IMesh::mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer)
 		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
 		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
 	}
-	mBoundingBox.max += mPosition;
-	mBoundingBox.min += mPosition;
+	mBoundingBox.max += AffineTransform::GetPosition();
+	mBoundingBox.min += AffineTransform::GetPosition();
 }

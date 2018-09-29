@@ -50,8 +50,7 @@ NVECTOR3 Noise3D::RigidTransform::GetPosition() const
 NVECTOR3 Noise3D::RigidTransform::GetEulerAngle() const
 {
 	//Quaternion--->Matrix
-	NMATRIX rotMat;
-	RigidTransform::GetRotationMatrix(rotMat);
+	NMATRIX rotMat=RigidTransform::GetRotationMatrix();
 
 	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
 	NVECTOR3 euler = mFunc_RotationMatrixToEuler(rotMat);
@@ -64,7 +63,7 @@ NQUATERNION Noise3D::RigidTransform::GetQuaternion() const
 	return mQuaternion;
 }
 
-void Noise3D::RigidTransform::GetRotationMatrix(NMATRIX & outMat) const
+NMATRIX Noise3D::RigidTransform::GetRotationMatrix() const
 {
 	//Quaternion---->Matrix
 	//ref.1 : https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Conversion_to_and_from_the_matrix_representation
@@ -75,7 +74,7 @@ void Noise3D::RigidTransform::GetRotationMatrix(NMATRIX & outMat) const
 	R(q) =	[2xy+2zw				1-2x^2-2z^2		2yz-2xw			]
 				[2xz-2yw				2yz+2xw				1-2x^2-2y^2	]
 	*/
-	outMat = XMMatrixRotationQuaternion(mQuaternion);
+	return XMMatrixRotationQuaternion(mQuaternion);
 }
 
 
@@ -146,8 +145,7 @@ bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
 	}
 
 	//Quaternion---->Matrix
-	NMATRIX currentMat;
-	RigidTransform::GetRotationMatrix(currentMat);
+	NMATRIX currentMat=RigidTransform::GetRotationMatrix();
 
 	//left-multiply/concatenate a delta rotation matrix
 	currentMat = deltaRotMat * currentMat;
@@ -226,8 +224,7 @@ void Noise3D::RigidTransform::InvertRotation()
 
 NMATRIX Noise3D::RigidTransform::GetTransformMatrix() const
 {
-	NMATRIX out;
-	RigidTransform::GetRotationMatrix(out);
+	NMATRIX out=RigidTransform::GetRotationMatrix();
 	out.m[3][0] = 0.0f;
 	out.m[3][1] = 0.0f;
 	out.m[3][2] = 0.0f;
@@ -257,6 +254,12 @@ NVECTOR3 Noise3D::RigidTransform::TransformVector(NVECTOR3 vec)
 	//plus translation
 	outVec += mPosition;
 	return outVec;
+}
+
+void Noise3D::RigidTransform::SetTransform(const RigidTransform & t)
+{
+	SetRotation(t.GetQuaternion());
+	SetPosition(t.GetPosition());
 }
 
 /****************************************************

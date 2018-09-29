@@ -52,7 +52,7 @@ namespace Noise3D
 
 		NQUATERNION GetQuaternion() const;
 
-		void GetRotationMatrix(NMATRIX& outMat) const;
+		NMATRIX GetRotationMatrix() const;
 
 		//delta rotation
 		void		Rotate(NVECTOR3 axis, float angle);//left-handed rotate
@@ -75,10 +75,12 @@ namespace Noise3D
 
 		void		InvertRotation();
 
-		NMATRIX		GetTransformMatrix() const;
+		NMATRIX	 GetTransformMatrix() const;
 
 		//apply rigid transformation to vector/point and output
 		NVECTOR3 TransformVector(NVECTOR3 vec);
+
+		void		SetTransform(const RigidTransform& t);
 
 	private:
 

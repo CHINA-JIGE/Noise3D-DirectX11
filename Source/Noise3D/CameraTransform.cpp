@@ -11,11 +11,14 @@ using namespace Noise3D;
 using namespace Noise3D::Ut;
 
 Noise3D::CameraTransform::CameraTransform():
+	mIsPerspective(true),
 	mViewAngleY_Radian((float)60 / 180 * Ut::PI),
 	mAspectRatio(1.5f),
 	mLookat(1.0f, 0, 0),
 	mNearPlane(1.0f),
-	mFarPlane(1000.0f)
+	mFarPlane(1000.0f),
+	mOrthoViewWidth(1.0f),
+	mOrthoViewHeight(1.0f)
 {
 }
 
@@ -61,6 +64,11 @@ NVECTOR3 Noise3D::CameraTransform::GetDirection()
 	return mLookat- RigidTransform::GetPosition();
 }
 
+void Noise3D::CameraTransform::SetProjectionType(bool isPerspective)
+{
+	mIsPerspective = isPerspective;
+}
+
 void Noise3D::CameraTransform::GetViewMatrix(NMATRIX & outMat)
 {
 	//WARNING: Row-Major matrix
@@ -70,8 +78,9 @@ void Noise3D::CameraTransform::GetViewMatrix(NMATRIX & outMat)
 	NMATRIX tmpTranslationMat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z);
 	
 	//rotate the align the camera view dir to +z/-z axis
-	NMATRIX tmpRotationMat;
-	RigidTransform::GetRotationMatrix(tmpRotationMat);
+	NMATRIX tmpRotationMat=RigidTransform::GetRotationMatrix();
+
+	////inverse
 	tmpRotationMat = tmpRotationMat.Transpose();
 
 	//combine 2 ROW-MAJOR matrix, translate first, rotate later
@@ -80,11 +89,15 @@ void Noise3D::CameraTransform::GetViewMatrix(NMATRIX & outMat)
 
 void Noise3D::CameraTransform::GetProjMatrix(NMATRIX & outMat)
 {
-	outMat = XMMatrixPerspectiveFovLH(
-		mViewAngleY_Radian,
-		mAspectRatio,
-		mNearPlane,
-		mFarPlane);
+	if (mIsPerspective)
+	{
+		outMat = XMMatrixPerspectiveFovLH(mViewAngleY_Radian, mAspectRatio, mNearPlane, mFarPlane);
+	}
+	else
+	{
+		outMat = XMMatrixOrthographicLH(mOrthoViewWidth, mOrthoViewHeight, mNearPlane, mFarPlane);
+	}
+
 }
 
 void Noise3D::CameraTransform::GetInvViewMatrix(NMATRIX & outMat)
@@ -112,6 +125,12 @@ void Noise3D::CameraTransform::SetViewAngle_Radian(float fovY_Radian, float fAsp
 {
 	mViewAngleY_Radian = fovY_Radian;
 	mAspectRatio = fAspectRatio;
+}
+
+void Noise3D::CameraTransform::SetOrthoViewSize(float width, float height)
+{
+	if (width > 0.0f)mOrthoViewWidth = width;
+	if (height > 0.0f)mOrthoViewHeight = height;
 }
 
 void Noise3D::CameraTransform::mFunc_UpdateViewDir()

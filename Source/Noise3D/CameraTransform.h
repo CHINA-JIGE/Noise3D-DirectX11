@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h£ºCamera
+                           h£ºCameraTransform
 
 ************************************************************************/
 
@@ -29,17 +29,21 @@ namespace Noise3D
 
 		NVECTOR3	GetDirection();
 
+		void				SetProjectionType(bool isPerspective=true);//true for perspective, false for orthographic
+
 		void				GetViewMatrix(NMATRIX& outMat);
 
 		void				GetProjMatrix(NMATRIX& outMat);
 
 		void				GetInvViewMatrix(NMATRIX& outMat);
 
-		void				SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);
+		void				SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);//for perspective
 
-		void				SetViewAngle_Degree(float fovY_Degree, float fAspectRatio);
+		void				SetViewAngle_Degree(float fovY_Degree, float fAspectRatio);//for perspective
 
-		void				SetViewAngle_Radian(float fovY_Radian, float fAspectRatio);
+		void				SetViewAngle_Radian(float fovY_Radian, float fAspectRatio);//for perspective
+
+		void				SetOrthoViewSize(float width, float height);//for orhtographic
 
 	private:
 
@@ -50,9 +54,12 @@ namespace Noise3D
 		void				mFunc_UpdateRotation();
 
 		NVECTOR3	mLookat;
+		bool		mIsPerspective;
 		float		mViewAngleY_Radian;//radian
 		float		mAspectRatio;
 		float		mNearPlane;
 		float		mFarPlane;
+		float		mOrthoViewWidth;
+		float		mOrthoViewHeight;
 	};
 }
