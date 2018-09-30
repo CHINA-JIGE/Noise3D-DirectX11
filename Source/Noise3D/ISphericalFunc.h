@@ -25,7 +25,7 @@ namespace Noise3D
 		{
 		public:
 
-			void SetTexture(ITexture* pTex);
+			void SetTexturePtr(ITexture* pTex);
 
 			//evaluate a spherical function value by sampling a texture
 			virtual NVECTOR3 Eval(const NVECTOR3& dir) override;

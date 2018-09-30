@@ -9,7 +9,7 @@
 
 using namespace Noise3D;
 
-void Noise3D::GI::ISphericalMappingTextureSampler::SetTexture(ITexture * pTex)
+void Noise3D::GI::ISphericalMappingTextureSampler::SetTexturePtr(ITexture * pTex)
 {
 	if (pTex == nullptr)ERROR_MSG("ISphericalFunc: Texture pointer invalid!");
 	m_pTex = pTex;

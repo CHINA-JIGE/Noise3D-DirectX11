@@ -247,7 +247,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 {
 	GI::SHVector shvec;
 	GI::ISphericalMappingTextureSampler defaultSphFunc;
-	defaultSphFunc.SetTexture(m_pOriginTex);
+	defaultSphFunc.SetTexturePtr(m_pOriginTex);
 	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	shvec.GetCoefficients(outShVector);
 
