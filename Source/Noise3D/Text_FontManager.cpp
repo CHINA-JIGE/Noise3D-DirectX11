@@ -183,7 +183,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	N_UID tmpTextureName="Internal_Static_Tex" +textObjectName;
 
 	//Create a pure color Texture
-	ITexture* pTexture= m_pTexMgr->CreatePureColorTexture(
+	Texture2D* pTex= m_pTexMgr->CreatePureColorTexture(
 		tmpTextureName,
 		boundaryWidth,
 		boundaryHeight,
@@ -192,7 +192,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		);
 
 	//check if texture creation success
-	if (pTexture==nullptr)
+	if (pTex ==nullptr)
 	{
 		ERROR_MSG("CreateStaticTextW : Create Bitmap Table Texture failed!");
 		return nullptr;
@@ -211,15 +211,15 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		0);
 
 	//copy bitmap to texture 
-	pTexture->SetPixelArray(std::move(tmpFontBitmap.bitmapBuffer));
+	pTex->SetPixelArray(std::move(tmpFontBitmap.bitmapBuffer));
 
 	//update a texture in the identity of FONT MGR (which match the Required Access Permission)
 	bool UpdateToGMSuccess = false;
-	UpdateToGMSuccess = pTexture->UpdateToVideoMemory();
+	UpdateToGMSuccess = pTex->UpdateToVideoMemory();
 	if (!UpdateToGMSuccess)
 	{
 		ERROR_MSG("CreateStaticTextW : Create Text Bitmap failed!!");
-		m_pTexMgr->DeleteTexture(tmpTextureName);
+		m_pTexMgr->DeleteTexture2D(tmpTextureName);
 		return nullptr;
 	}
 
@@ -322,7 +322,7 @@ bool IFontManager::DeleteStaticText(N_UID textName)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(textName);
 		return true;
 	}
@@ -338,7 +338,7 @@ bool IFontManager::DeleteStaticText(IStaticText * pText)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(pText);
 		return true;
 	}
@@ -370,7 +370,7 @@ bool IFontManager::DeleteDynamicText(IDynamicText * pText)
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IDynamicText>::DestroyObject(pText);
 		return true;
 	}
@@ -390,7 +390,7 @@ void IFontManager::DeleteAllTexts()
 		//static text didn't use a public font texture(ascii bitmap table),instead,
 		//a new texture is created for each static text
 		IStaticText* pText = IFactory<IStaticText>::GetObjectPtr(i);
-		m_pTexMgr->DeleteTexture(pText->mTextureName);//the appearance of text is expressed as a texture
+		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<IStaticText>::DestroyObject(pText);
 	}
 
@@ -403,7 +403,7 @@ void IFontManager::DeleteAllFonts()
 	for (UINT i = 0;i < IFactory<N_FontObject>::GetObjectCount();++i)
 	{
 		N_FontObject* pFontObj = IFactory<N_FontObject>::GetObjectPtr(i);
-		m_pTexMgr->DeleteTexture(pFontObj->mInternalTextureName);
+		m_pTexMgr->DeleteTexture2D(pFontObj->mInternalTextureName);
 	}
 	IFactory<N_FontObject>::DestroyAllObject();
 
@@ -414,7 +414,7 @@ void IFontManager::DeleteAllFonts()
 										P R I V A T E
 ************************************************************************/
 
-bool IFontManager::mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
+bool IFontManager::mFunction_Init(TextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
 {
 	//Init FreeType Library
 	FT_Error ftInitError = FT_Init_FreeType(&m_FTLibrary);
@@ -605,7 +605,7 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 	fontObj.mInternalTextureName = "AsciiBitmapTable" + fontName;//not same with the public FONT NAME
 
 	//Create a pure color Texture
-	 ITexture* pTexture = m_pTexMgr->CreatePureColorTexture(
+	 Texture2D* pTex = m_pTexMgr->CreatePureColorTexture(
 		 fontObj.mInternalTextureName,
 		tablePxWidth,
 		tablePxHeight,
@@ -614,7 +614,7 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		);
 
 	//check if texture creation success
-	if (pTexture==nullptr)
+	if (pTex ==nullptr)
 	{
 		ERROR_MSG("CreateFontFromFile : Create Bitmap Table Texture failed!");
 		return false;
@@ -649,9 +649,9 @@ bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontOb
 		}
 	}
 
-	pTexture->SetPixelArray(pixelBuff);
+	pTex->SetPixelArray(pixelBuff);
 	//update a texture to Graphic Memory
-	pTexture->UpdateToVideoMemory();
+	pTex->UpdateToVideoMemory();
 
 	return true;
 }

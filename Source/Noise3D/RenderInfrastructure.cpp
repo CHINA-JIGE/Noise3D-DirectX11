@@ -405,9 +405,27 @@ IShaderVariableManager * IRenderInfrastructure::GetRefToShaderVarMgr()
 	return m_pRefShaderVarMgr;
 }
 
-ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(ITextureManager* pMgr,N_UID uid)
+ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(TextureManager* pMgr,N_UID uid, NOISE_TEXTURE_TYPE type)
 {
-	return pMgr->GetObjectPtr(uid)->m_pSRV;
+	ITexture* pTex = nullptr; 
+	switch (type)
+	{
+		case NOISE_TEXTURE_TYPE::COMMON2D:
+		{
+			pTex = pMgr->IFactory<Texture2D>::GetObjectPtr(uid);
+			break;
+		}
+		case NOISE_TEXTURE_TYPE::CUBEMAP:
+		{
+			pTex = pMgr->IFactory<TextureCubeMap>::GetObjectPtr(uid);
+			break;
+		}
+		default:
+			ERROR_MSG("RenderInfrastructure: Critical Error! Plz fix the bug...");
+			break;
+	}
+
+	return pTex->m_pSRV;
 }
 
 ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(ITexture * pTex)

@@ -239,7 +239,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	IScene* pScene = Noise3D::GetScene();
 	IMeshManager*		pMeshMgr	= pScene->GetMeshMgr();
 	IMaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
-	ITextureManager*	pTexMgr		= pScene->GetTextureMgr();
+	TextureManager*	pTexMgr		= pScene->GetTextureMgr();
 
 	for (auto& m : fbxResult.meshDataList)
 	{
@@ -297,7 +297,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!diffMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(diffMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(diffMapName) == true)continue;
 
 				pTexDiff = pTexMgr->CreateTextureFromFile(diffMapPath, diffMapName, true, 0, 0, false);
 
@@ -312,7 +312,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!normalMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(normalMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(normalMapName) == true)continue;
 
 				pTexNormal = pTexMgr->CreateTextureFromFile(normalMapPath, normalMapName, true, 0, 0, false);
 
@@ -327,7 +327,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!emissiveMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(emissiveMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(emissiveMapName) == true)continue;
 
 				pTexEmissive = pTexMgr->CreateTextureFromFile(emissiveMapPath, emissiveMapName, true, 0, 0, false);
 
@@ -342,7 +342,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!specMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(specMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(specMapName) == true)continue;
 
 				pTexSpec = pTexMgr->CreateTextureFromFile(specMapPath, specMapName, true, 0, 0, false);
 
@@ -365,7 +365,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!matName.empty())
 			{
 				if (pMatMgr->ValidateUID(matName) == true)continue;//material that is already created
-				IMaterial* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
+				Material* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{
 					WARNING_MSG("Model Loader: Load FBX scene: Material failed to load: material name:"
@@ -389,7 +389,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	}
 }
 
-bool IModelLoader::LoadSkyDome(IAtmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
+bool IModelLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -415,7 +415,7 @@ bool IModelLoader::LoadSkyDome(IAtmosphere * const pAtmo,N_UID textureName, floa
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSkyBox(IAtmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
+bool IModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -590,7 +590,7 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * const pAtmo, N_UID texture, float fW
 	//!!!!!materials have not been created. The Creation of materials will be done
 	//by current Scene Tex&Mat Manager	
 	IMaterialManager* pMatMgr = GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
 
 														   //Get the directory where the file locates
 	std::string modelFileDirectory = GetFileDirectory(pFilePath);

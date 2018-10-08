@@ -32,7 +32,7 @@ void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
 ************************************************************************/
 void IRenderModuleForGraphicObject::RenderGraphicObjects()
 {
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
 	ICamera* const pCamera = GetScene()->GetCamera();
 
@@ -164,7 +164,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2D(IGraphicO
 
 void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraphicObject* pGObj)
 {
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
 	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
 	m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
@@ -187,7 +187,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraph
 	{
 		//if current Rectangle disable Texture ,then draw in a solid way
 		//thus validate the UID first
-		if (pTexMgr->ValidateUID(tmpRegion.texName) == false)
+		if (pTexMgr->ValidateTex2D(tmpRegion.texName) == false)
 		{
 			//draw with solid texture
 			m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -210,12 +210,12 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraph
 void	IRenderModuleForGraphicObject::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 {
 	//validate texture type
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	bool IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	bool IsUidValid = pTexMgr->ValidateTex2D(texName);
 
 	if (IsUidValid)
 	{
-		auto*  tmp_pSRV=m_pRefRI->GetTextureSRV(pTexMgr,texName);
+		ID3D11ShaderResourceView*  tmp_pSRV=m_pRefRI->GetTextureSRV(pTexMgr,texName,IRenderInfrastructure::NOISE_TEXTURE_TYPE::COMMON2D);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }

@@ -73,10 +73,10 @@ void		IRenderModuleForText::mFunction_AddToRenderList_Text(IBasicTextInfo * pTex
 	}
 }
 
-void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText)
+void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, TextureManager* pTexMgr, IBasicTextInfo* pText)
 {
 
-	if (pTexMgr->ValidateUID(uid)==true)
+	if (pTexMgr->ValidateTex2D(uid)==true)
 	{
 		HRESULT hr = S_OK;
 
@@ -85,7 +85,7 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, 
 		m_pRefShaderVarMgr->SetVector4(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::TEXT_COLOR4, *pText->m_pTextColor);
 
 		//update textures
-		auto tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,uid);
+		ID3D11ShaderResourceView* tmp_pSRV = m_pRefRI->GetTextureSRV(pTexMgr,uid,IRenderInfrastructure::NOISE_TEXTURE_TYPE::COMMON2D );
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }
@@ -113,7 +113,7 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Render(std::vector<IBasicTe
 
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr
-			bool texUidValid = pFontMgr->m_pTexMgr->ValidateUID(tmpRegion.texName, NOISE_TEXTURE_TYPE_COMMON);
+			bool texUidValid = pFontMgr->m_pTexMgr->ValidateTex2D(tmpRegion.texName);
 
 			//if current Rectangle disable Texture ,then draw in a solid way
 			if (texUidValid== false)

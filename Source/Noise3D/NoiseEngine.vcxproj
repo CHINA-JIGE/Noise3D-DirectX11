@@ -133,6 +133,10 @@
     <ClInclude Include="CameraTransform.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
+    <ClInclude Include="HardwareIndexBuffer.h" />
+    <ClInclude Include="HardwareVertexBuffer.h" />
+    <ClInclude Include="ITexture.h" />
+    <ClInclude Include="TextureCubeMap.h" />
     <ClInclude Include="ISphericalFunc.h" />
     <ClInclude Include="RigidTransform.h" />
     <ClInclude Include="RandomSampleGenerator.h" />
@@ -155,7 +159,7 @@
     <ClInclude Include="ShaderVarManager.h" />
     <ClInclude Include="Ut_MCMeshReconstructor.h" />
     <ClInclude Include="ModelProcessor.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
@@ -204,6 +208,9 @@
     <ClCompile Include="CameraTransform.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
+    <ClCompile Include="HardwareIndexBuffer.cpp" />
+    <ClCompile Include="HardwareVertexBuffer.cpp" />
+    <ClCompile Include="TextureCubeMap.cpp" />
     <ClCompile Include="ISphericalFunc.cpp" />
     <ClCompile Include="RigidTransform.cpp" />
     <ClCompile Include="RandomSampleGenerator.cpp" />
@@ -226,7 +233,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="GraphicObjManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />

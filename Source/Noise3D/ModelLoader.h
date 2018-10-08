@@ -12,7 +12,7 @@
 namespace Noise3D
 {
 	class IMesh;
-	class IAtmosphere;
+	class Atmosphere;
 
 	//name lists of loaded objects (e.g. from .fbx)
 	struct N_SceneLoadingResult
@@ -47,9 +47,9 @@ namespace Noise3D
 		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
 		void		LoadFile_FBX(NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
 
-		bool		LoadSkyDome(IAtmosphere* const pAtmo,N_UID texture, float fRadiusXZ, float fHeight);
+		bool		LoadSkyDome(Atmosphere* const pAtmo,N_UID texture, float fRadiusXZ, float fHeight);
 
-		bool		LoadSkyBox(IAtmosphere* const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth);
+		bool		LoadSkyBox(Atmosphere* const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth);
 
 	private:
 

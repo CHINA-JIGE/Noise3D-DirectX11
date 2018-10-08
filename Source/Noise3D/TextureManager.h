@@ -9,42 +9,50 @@
 namespace Noise3D
 {
 
-	class /*_declspec(dllexport)*/ ITextureManager :
-		public IFactory<ITexture>
+	class /*_declspec(dllexport)*/ TextureManager :
+		public IFactory<Texture2D>,
+		public IFactory<TextureCubeMap>
 	{
 	public:
-		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = false);
+		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = false);
 
-		ITexture*		CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory = false);
+		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory = false);
 
-		ITexture*		CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
+		Texture2D*	CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
 
-		ITexture*		CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName);
+		TextureCubeMap*	CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName);
 
-		ITexture*		GetTexture(N_UID texName);
+		Texture2D*	GetTexture2D(N_UID texName);
 
-		UINT			GetTextureCount();
+		TextureCubeMap*	GetTextureCubeMap(N_UID texName);
 
-		bool				DeleteTexture(ITexture* pTex);
+		uint32_t		GetTexture2DCount();
 
-		bool				DeleteTexture(N_UID texName);
+		uint32_t		GetTextureCubeMapCount();
+
+		bool				DeleteTexture(Texture2D* pTex);
+
+		bool				DeleteTexture(TextureCubeMap* pTex);
+
+		bool				DeleteTexture2D(N_UID texName);
+
+		bool				DeleteTextureCubeMap(N_UID texName);
 
 		void				DeleteAllTexture();
 
-		bool				ValidateUID(N_UID texName);
+		bool				ValidateTex2D(N_UID texName);
 
-		bool				ValidateUID(N_UID texName, NOISE_TEXTURE_TYPE texType);
+		bool				ValidateTexCubeMap(N_UID texName);
 
 	private:
 
 		friend class IRenderInfrastructure;
 
-		friend IFactory<ITextureManager>;
+		friend IFactory<TextureManager>;
 
-		//¹¹Ôìº¯Êý
-		ITextureManager();
+		TextureManager();
 
-		~ITextureManager();
+		~TextureManager();
 
 		const DXGI_FORMAT c_DefaultPixelDxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 

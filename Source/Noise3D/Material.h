@@ -1,6 +1,6 @@
 /***********************************************************************
 
-                           h£ºIMaterial & Desc
+                           h£ºMaterial & Desc
 
 ************************************************************************/
 #pragma once
@@ -9,8 +9,8 @@ namespace Noise3D
 {
 	//When structure of material is modified, several things should be carefully
 	//dealt with:
-	//1, Set methods of IMaterial
-	//2, SetDesc method of IMaterial
+	//1, Set methods of Material
+	//2, SetDesc method of Material
 	//3, N_CbPerSubset
 	//4, structure in shaders
 
@@ -69,7 +69,7 @@ namespace Noise3D
 
 
 
-	class IMaterial
+	class Material
 	{
 	public:
 
@@ -112,11 +112,11 @@ namespace Noise3D
 
 	private:
 
-		friend class IFactory<IMaterial>;
+		friend class IFactory<Material>;
 
-		IMaterial();
+		Material();
 
-		~IMaterial();
+		~Material();
 
 		N_MaterialDesc mMatDesc;
 	};

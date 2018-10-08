@@ -29,6 +29,12 @@ namespace Noise3D
 			DEFAULT,
 			SIMPLE
 		};
+
+		enum NOISE_TEXTURE_TYPE
+		{
+			COMMON2D,
+			CUBEMAP
+		};
 		
 		bool		Init(UINT bufferWidth, UINT bufferHeight,HWND renderWindowHandle);
 
@@ -63,7 +69,7 @@ namespace Noise3D
 		IShaderVariableManager*		GetRefToShaderVarMgr();
 
 		//serve as intermediate role
-		ID3D11ShaderResourceView* GetTextureSRV(ITextureManager* pMgr, N_UID uid);
+		ID3D11ShaderResourceView* GetTextureSRV(TextureManager* pMgr, N_UID uid, NOISE_TEXTURE_TYPE type);
 
 		ID3D11ShaderResourceView* GetTextureSRV(ITexture* pTex);
 
@@ -105,14 +111,14 @@ namespace Noise3D
 		uint32_t	mBackBufferHeight;
 		uint32_t	mPostProcessRemainingPassCount;
 
-		IDXGISwapChain*						m_pSwapChain;
-		ID3D11RenderTargetView*			m_pRenderTargetViewOfBackBuffer;//RTV for back buffer
-		ID3D11DepthStencilView*			m_pDepthStencilViewOfBackBuffer;//DSV for back buffer
-		IShaderVariableManager*			m_pRefShaderVarMgr;//singleton of shader var manager
-		ID3D11RenderTargetView*			m_pRefOffScreenRtv_A;//RTV for RTT
-		ID3D11DepthStencilView*			m_pRefOffScreenDsv_A;//DSV for RTT
-		ID3D11RenderTargetView*			m_pRefOffScreenRtv_B;//RTV for RTT
-		ID3D11DepthStencilView*			m_pRefOffScreenDsv_B;//DSV for RTT
+		IDXGISwapChain*					m_pSwapChain;
+		ID3D11RenderTargetView*		m_pRenderTargetViewOfBackBuffer;//RTV for back buffer
+		ID3D11DepthStencilView*		m_pDepthStencilViewOfBackBuffer;//DSV for back buffer
+		IShaderVariableManager*		m_pRefShaderVarMgr;//singleton of shader var manager
+		ID3D11RenderTargetView*		m_pRefOffScreenRtv_A;//RTV for RTT
+		ID3D11DepthStencilView*		m_pRefOffScreenDsv_A;//DSV for RTT
+		ID3D11RenderTargetView*		m_pRefOffScreenRtv_B;//RTV for RTT
+		ID3D11DepthStencilView*		m_pRefOffScreenDsv_B;//DSV for RTT
 
 		ID3D11RasterizerState*			m_pRasterState_Solid_CullNone;
 		ID3D11RasterizerState*			m_pRasterState_Solid_CullBack;

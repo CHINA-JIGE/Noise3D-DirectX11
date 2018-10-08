@@ -16,11 +16,11 @@ namespace Noise3D
 		public IFactory<ICamera>,
 		public IFactory<IMeshManager>,
 		public IFactory<ILightManager>,
-		public IFactory<ITextureManager>,
+		public IFactory<TextureManager>,
 		public IFactory<IMaterialManager>,
 		public IFactory<IGraphicObjectManager>,
 		public IFactory<ISweepingTrailManager>,
-		public IFactory<IAtmosphere>,
+		public IFactory<Atmosphere>,
 		public IFactory<IFontManager>,
 		public IFactory<IModelLoader>,
 		public IFactory<IModelProcessor>,
@@ -40,7 +40,7 @@ namespace Noise3D
 
 		ILightManager*			GetLightMgr();
 
-		ITextureManager*		GetTextureMgr();
+		TextureManager*		GetTextureMgr();
 
 		IMaterialManager*		GetMaterialMgr();
 
@@ -48,7 +48,7 @@ namespace Noise3D
 
 		IGraphicObjectManager*	GetGraphicObjMgr();
 
-		IAtmosphere*					GetAtmosphere();
+		Atmosphere*					GetAtmosphere();
 
 		IFontManager*				GetFontMgr();
 
@@ -67,7 +67,7 @@ namespace Noise3D
 		~IScene();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
-		ITextureManager*				mFunction_GetTexMgrInsideFontMgr();
+		TextureManager*				mFunction_GetTexMgrInsideFontMgr();
 
 		IGraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
 

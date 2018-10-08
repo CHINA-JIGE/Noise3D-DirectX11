@@ -43,7 +43,7 @@ void Noise3D::IRenderer::AddToRenderQueue(ISweepingTrail * obj)
 	IRenderModuleForSweepingTrailFX::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::SetActiveAtmosphere(IAtmosphere * obj)
+void Noise3D::IRenderer::SetActiveAtmosphere(Atmosphere * obj)
 {
 	IRenderModuleForAtmosphere::SetActiveAtmosphere(obj);
 }

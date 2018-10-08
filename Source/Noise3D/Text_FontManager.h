@@ -70,7 +70,7 @@ namespace Noise3D
 
 		private:
 			//init freetype library and internal objects , invoked by IScene
-			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(ITextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
+			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(TextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr);
 			//get bitmap of a single WCHAR
 			void			mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
 			//create Bitmap Table of a w-char string (combining char pixel blocks)
@@ -88,7 +88,7 @@ namespace Noise3D
 
 			~IFontManager();
 
-			ITextureManager*				m_pTexMgr;//created by IScene, internal texture manager (ascii bitmap table/static Bitmap)
+			TextureManager*				m_pTexMgr;//created by IScene, internal texture manager (ascii bitmap table/static Bitmap)
 			
 			IGraphicObjectManager*	m_pGraphicObjMgr;//Created by IScene, assign GObj to every TextObj
 

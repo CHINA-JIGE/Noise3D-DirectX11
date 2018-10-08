@@ -36,7 +36,7 @@ namespace Noise3D
 
 		void		mFunction_AddToRenderList_Text(IBasicTextInfo* pText, std::vector<IBasicTextInfo*>* pList);
 
-		void		mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText);
+		void		mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, TextureManager* pTexMgr, IBasicTextInfo* pText);
 
 		void		mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList);
 

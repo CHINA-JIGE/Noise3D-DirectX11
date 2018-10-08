@@ -52,7 +52,7 @@ namespace Noise3D
 
 		void		AddToRenderQueue(ISweepingTrail* obj);
 
-		void		SetActiveAtmosphere(IAtmosphere* obj);
+		void		SetActiveAtmosphere(Atmosphere* obj);
 
 		void		Render();//render object in a fixed order
 

@@ -23,11 +23,11 @@ IScene::IScene():
 	 IFactory<ICamera>(1),
 	IFactory<IMeshManager>(1),
 	 IFactory<ILightManager>(1),
-	 IFactory<ITextureManager>(2),//scene/font-internal
+	 IFactory<TextureManager>(2),//scene/font-internal
 	 IFactory<IMaterialManager>(1),
 	IFactory<ISweepingTrailManager>(1),
 	IFactory<IGraphicObjectManager>(2),//scene/font-internal
-	 IFactory<IAtmosphere>(1),
+	 IFactory<Atmosphere>(1),
 	IFactory<IFontManager>(1),
 	IFactory<IModelLoader>(1),
 	IFactory<IModelProcessor>(1),
@@ -48,9 +48,9 @@ void	IScene::ReleaseAllChildObject()
 	IFactory<IRenderer>::DestroyAllObject();
 	IFactory<ICamera>::DestroyAllObject();
 	IFactory<ILightManager>::DestroyAllObject();
-	IFactory<ITextureManager>::DestroyAllObject();
+	IFactory<TextureManager>::DestroyAllObject();
 	IFactory<IMaterialManager>::DestroyAllObject();
-	IFactory<IAtmosphere>::DestroyAllObject();
+	IFactory<Atmosphere>::DestroyAllObject();
 	IFactory<IGraphicObjectManager>::DestroyAllObject();
 	IFactory<ICollisionTestor>::DestroyAllObject();
 }
@@ -126,14 +126,14 @@ ILightManager * IScene::GetLightMgr()
 	return IFactory<ILightManager>::GetObjectPtr(uid);
 }
 
-ITextureManager * IScene::GetTextureMgr()
+TextureManager * IScene::GetTextureMgr()
 {
 	const N_UID uid = "sceneTexMgr";
-	if (IFactory<ITextureManager>::FindUid(uid) == false)
+	if (IFactory<TextureManager>::FindUid(uid) == false)
 	{
-		IFactory<ITextureManager>::CreateObject(uid);
+		IFactory<TextureManager>::CreateObject(uid);
 	}
-	return IFactory<ITextureManager>::GetObjectPtr(uid);
+	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
 IMaterialManager * IScene::GetMaterialMgr()
@@ -156,14 +156,14 @@ ISweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
 	return IFactory<ISweepingTrailManager>::GetObjectPtr(uid);
 }
 
-IAtmosphere * IScene::GetAtmosphere()
+Atmosphere * IScene::GetAtmosphere()
 {
 	const N_UID uid = "sceneAtmos";
-	if (IFactory<IAtmosphere>::FindUid(uid) == false)
+	if (IFactory<Atmosphere>::FindUid(uid) == false)
 	{
-		IFactory<IAtmosphere>::CreateObject(uid);
+		IFactory<Atmosphere>::CreateObject(uid);
 	}
-	return IFactory<IAtmosphere>::GetObjectPtr(uid);
+	return IFactory<Atmosphere>::GetObjectPtr(uid);
 }
 
 IGraphicObjectManager * IScene::GetGraphicObjMgr()
@@ -252,15 +252,15 @@ ICollisionTestor * IScene::GetCollisionTestor()
                                           P R I V A T E                       
 ************************************************************************/
 
-ITextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
+TextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
 {
 	//get internal texMgr singleton instance
 	const N_UID uid = "TexMgrOfFont";
-	if (IFactory<ITextureManager>::FindUid(uid) == false)
+	if (IFactory<TextureManager>::FindUid(uid) == false)
 	{
-		IFactory<ITextureManager>::CreateObject(uid);
+		IFactory<TextureManager>::CreateObject(uid);
 	}
-	return IFactory<ITextureManager>::GetObjectPtr(uid);
+	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
 IGraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()

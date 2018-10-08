@@ -13,7 +13,7 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-IAtmosphere::IAtmosphere()
+Atmosphere::Atmosphere()
 	: mFogEnabled(false),
 	mSkyDomeRadiusXZ(100),
 	mSkyDomeHeight(100),
@@ -29,25 +29,25 @@ IAtmosphere::IAtmosphere()
 
 }
 
-IAtmosphere::~IAtmosphere()
+Atmosphere::~Atmosphere()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
 }
 
 
-void		IAtmosphere::SetFogEnabled(bool isEnabled)
+void		Atmosphere::SetFogEnabled(bool isEnabled)
 {
 	mFogEnabled = isEnabled;
 	mFogCanUpdateToGpu = true;
 }
 
-bool IAtmosphere::IsFogEnabled()
+bool Atmosphere::IsFogEnabled()
 {
 	return mFogEnabled;
 }
 
-void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
+void		Atmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 {
 	//perhaps i can skip checking the size comparison between NEAR & FAR
 
@@ -67,18 +67,18 @@ void		IAtmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
 	mFogCanUpdateToGpu = true;
 }
 
-void		IAtmosphere::SetSkyDomeTexture(N_UID matName)
+void		Atmosphere::SetSkyDomeTexture(N_UID matName)
 {
 	//validation will be done in NoiseRenderer
 	mSkyDomeTexName = matName;
 }
 
-void		IAtmosphere::SetSkyBoxTexture(N_UID cubeMapMatName)
+void		Atmosphere::SetSkyBoxTexture(N_UID cubeMapMatName)
 {
 	mSkyBoxCubeTexName = cubeMapMatName;
 }
 
-N_UID IAtmosphere::GetSkyTextureUID()
+N_UID Atmosphere::GetSkyTextureUID()
 {
 	if (mSkyType == NOISE_ATMOSPHERE_SKYTYPE::NOISE_ATMOSPHERE_SKYTYPE_BOX)
 	{
@@ -94,22 +94,22 @@ N_UID IAtmosphere::GetSkyTextureUID()
 	}
 }
 
-NOISE_ATMOSPHERE_SKYTYPE IAtmosphere::GetSkyType()
+NOISE_ATMOSPHERE_SKYTYPE Atmosphere::GetSkyType()
 {
 	return mSkyType;
 }
 
-float IAtmosphere::GetSkyboxWidth()
+float Atmosphere::GetSkyboxWidth()
 {
 	return mSkyBoxWidth;
 }
 
-float IAtmosphere::GetSkyboxHeight()
+float Atmosphere::GetSkyboxHeight()
 {
 	return mSkyBoxHeight;
 }
 
-float IAtmosphere::GetSkyboxDepth()
+float Atmosphere::GetSkyboxDepth()
 {
 	return mSkyBoxDepth;
 }
@@ -119,7 +119,7 @@ float IAtmosphere::GetSkyboxDepth()
 									PRIVATE
 *****************************************************************/
 
-bool  IAtmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const std::vector<UINT>& targetIB)
+bool  Atmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);

@@ -10,70 +10,70 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-IMaterial::IMaterial()
+Material::Material()
 {
 }
 
-IMaterial::~IMaterial()
+Material::~Material()
 {
 }
 
-void IMaterial::SetAmbientColor(const NVECTOR3 & color)
+void Material::SetAmbientColor(const NVECTOR3 & color)
 {
 	mMatDesc.ambientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
-void IMaterial::SetDiffuseColor(const NVECTOR3 & color)
+void Material::SetDiffuseColor(const NVECTOR3 & color)
 {
 	mMatDesc.diffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
-void IMaterial::SetSpecularColor(const NVECTOR3 & color)
+void Material::SetSpecularColor(const NVECTOR3 & color)
 {
 	mMatDesc.specularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
 }
 
-void IMaterial::SetSpecularSmoothLevel(int level)
+void Material::SetSpecularSmoothLevel(int level)
 {
 	mMatDesc.specularSmoothLevel = Clamp(level, 0, 100);
 }
 
-void IMaterial::SetNormalMapBumpIntensity(float normalized_intensity)
+void Material::SetNormalMapBumpIntensity(float normalized_intensity)
 {
 	mMatDesc.normalMapBumpIntensity = Clamp(normalized_intensity, 0.0f, 1.0f);
 }
 
-void IMaterial::SetEnvironmentMappingTransparency(float transparency)
+void Material::SetEnvironmentMappingTransparency(float transparency)
 {
 	mMatDesc.environmentMapTransparency = Clamp(transparency, 0.0f, 1.0f);
 }
 
-void IMaterial::SetTransparency(float transparency)
+void Material::SetTransparency(float transparency)
 {
 	mMatDesc.transparency = Clamp(transparency, 0.0f, 1.0f);
 }
 
-void IMaterial::SetDiffuseMap(const N_UID & diffMapName)
+void Material::SetDiffuseMap(const N_UID & diffMapName)
 {
 	mMatDesc.diffuseMapName = diffMapName;
 }
 
-void IMaterial::SetNormalMap(const N_UID & normMapName)
+void Material::SetNormalMap(const N_UID & normMapName)
 {
 	mMatDesc.normalMapName = normMapName;
 }
 
-void IMaterial::SetSpecularMap(const N_UID & specMapName)
+void Material::SetSpecularMap(const N_UID & specMapName)
 {
 	mMatDesc.specularMapName = specMapName;
 }
 
-void IMaterial::SetEnvMap(const N_UID & environmentMapName)
+void Material::SetEnvMap(const N_UID & environmentMapName)
 {
 	mMatDesc.environmentMapName = environmentMapName;
 }
 
-void IMaterial::SetDesc(const N_MaterialDesc & desc)
+void Material::SetDesc(const N_MaterialDesc & desc)
 {
 	SetAmbientColor(desc.ambientColor);
 	SetDiffuseColor(desc.diffuseColor);
@@ -89,7 +89,7 @@ void IMaterial::SetDesc(const N_MaterialDesc & desc)
 	SetEnvMap(desc.environmentMapName);
 }
 
-void IMaterial::GetDesc(N_MaterialDesc & outDesc)
+void Material::GetDesc(N_MaterialDesc & outDesc)
 {
 	outDesc = mMatDesc;
 }

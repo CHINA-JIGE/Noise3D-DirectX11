@@ -1,8 +1,7 @@
 
 /***********************************************************************
 
-                cpp£ºITexture, provide interface for user to 
-				 modified something
+                ITexture, interface for common 2d texture
 
 ************************************************************************/
 
@@ -11,7 +10,7 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-ITexture::ITexture():
+Texture2D::Texture2D():
 	m_pSRV(nullptr),
 	mWidth(0),
 	mHeight(0)
@@ -19,63 +18,24 @@ ITexture::ITexture():
 
 }
 
-ITexture::~ITexture()
+Texture2D::~Texture2D()
 {
-	//safe_release SRV  interface
-	ReleaseCOM(m_pSRV);
-	mPixelBuffer.clear();
 }
 
-bool ITexture::IsSysMemPixelBufferValid()
-{
-	return mIsPixelBufferInMemValid;
-}
-
-N_UID ITexture::GetTextureName()
-{
-	return mTextureUid;
-}
-
-NOISE_TEXTURE_TYPE ITexture::GetTextureType()
-{
-	return mTextureType;
-}
-
-bool ITexture::IsTextureType(NOISE_TEXTURE_TYPE type)
-{
-	return (type==mTextureType);
-}
-
-UINT ITexture::GetWidth()
-{
-	return mWidth;
-}
-
-UINT ITexture::GetHeight()
-{
-	return mHeight;
-}
-
-void ITexture::SetPixel(UINT x, UINT y, const NColor4u & color)
+void Texture2D::SetPixel(UINT x, UINT y, const NColor4u & color)
 {
 	if (mIsPixelBufferInMemValid)
 	{
-		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		if (x >= 0 && x < mWidth && y >= 0 && y < mHeight)
 		{
-			if (x >= 0 && x < mWidth && y >= 0 && y < mHeight)
-			{
-				UINT pixelIndex = y*mWidth + x;
-				mPixelBuffer.at(pixelIndex) = color;
-			}
-			else
-			{
-				ERROR_MSG("ITexture::SetPixel : Point out of range!");
-			}
+			UINT pixelIndex = y*mWidth + x;
+			mPixelBuffer.at(pixelIndex) = color;
 		}
 		else
 		{
-			ERROR_MSG("ITexture::SetPixel : texture type error,Only Common Texture can be modified.");
+			ERROR_MSG("ITexture::SetPixel : Point out of range!");
 		}
+
 	}
 	else
 	{
@@ -83,26 +43,20 @@ void ITexture::SetPixel(UINT x, UINT y, const NColor4u & color)
 	}
 }
 
-NColor4u ITexture::GetPixel(UINT x, UINT y)
+NColor4u Texture2D::GetPixel(UINT x, UINT y)
 {
 	if (mIsPixelBufferInMemValid)
 	{
-		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		if (x >= 0 && x < mWidth && y >= 0 && y < mHeight)
 		{
-			if (x >= 0 && x < mWidth && y >= 0 && y < mHeight)
-			{
-				UINT pixelIndex = y*mWidth + x;
-				return mPixelBuffer.at(pixelIndex);
-			}
-			else
-			{
-				ERROR_MSG("GetPixel : Point out of range!");
-			}
+			UINT pixelIndex = y*mWidth + x;
+			return mPixelBuffer.at(pixelIndex);
 		}
 		else
 		{
-			ERROR_MSG("GetPixel : texture type error,Only Common Texture can be modified.");
+			ERROR_MSG("GetPixel : Point out of range!");
 		}
+
 	}
 	else
 	{
@@ -112,49 +66,43 @@ NColor4u ITexture::GetPixel(UINT x, UINT y)
 }
 
 //less redundant bound check to increase efficiency
-bool ITexture::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
+bool Texture2D::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
-		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		//check if the array size matches
+		if (in_ColorArray.size() == mPixelBuffer.size())
 		{
-			//check if the array size matches
-			if (in_ColorArray.size() == mPixelBuffer.size())
-			{
-				mPixelBuffer.assign(in_ColorArray.begin(), in_ColorArray.end());
-				return true;
-			}
-			else
-			{
-				ERROR_MSG("SetPixelArray : array size didn't match.");
-			}
+			mPixelBuffer.assign(in_ColorArray.begin(), in_ColorArray.end());
+			return true;
+		}
+		else
+		{
+			ERROR_MSG("SetPixelArray : array size didn't match.");
 		}
 	}
 	return false;
 }
 
-bool ITexture::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
+bool Texture2D::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
 {
 	if (mIsPixelBufferInMemValid)
 	{
-		if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+		//check if the array size matches
+		if (in_ColorArray.size() == mPixelBuffer.size())
 		{
-			//check if the array size matches
-			if (in_ColorArray.size() == mPixelBuffer.size())
-			{
-				mPixelBuffer = std::move(in_ColorArray);
-				return true;
-			}
-			else
-			{
-				ERROR_MSG("SetPixelArray : array size didn't match.");
-			}
+			mPixelBuffer = std::move(in_ColorArray);
+			return true;
+		}
+		else
+		{
+			ERROR_MSG("SetPixelArray : array size didn't match.");
 		}
 	}
 	return false;
 }
 
-bool ITexture::GetPixelArray(std::vector<NColor4u>& outColorArray)
+bool Texture2D::GetPixelArray(std::vector<NColor4u>& outColorArray)
 {
 	if (IsSysMemPixelBufferValid())
 	{
@@ -169,61 +117,44 @@ bool ITexture::GetPixelArray(std::vector<NColor4u>& outColorArray)
 
 //if user modified pixels via setPixel()/setPixelArray(), 
 //then UpdateToVideoMem() should be called after modification.
-bool ITexture::UpdateToVideoMemory()
+bool Texture2D::UpdateToVideoMemory()
 {
-
-	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+	if (IsSysMemPixelBufferValid())
 	{
-		if (IsSysMemPixelBufferValid())
-		{
+		//after modifying buffer in memory, update to GPU
+		ID3D11Resource* pTmpRes;
+		//resource reference count will increase ,so remember to release
+		//so getResource() actually gets a interface to the resource BOUND to the view.
+		m_pSRV->GetResource(&pTmpRes);
 
-			//after modifying buffer in memory, update to GPU
-			ID3D11Resource* pTmpRes;
-			//resource reference count will increase ,so remember to release
-			//so getResource() actually gets a interface to the resource BOUND to the view.
-			m_pSRV->GetResource(&pTmpRes);
+		//update resource which is bound to the corresponding SRV
+		g_pImmediateContext->UpdateSubresource(
+			pTmpRes,
+			0,
+			NULL,
+			&mPixelBuffer.at(0),
+			mWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
+			NULL);
 
-			//update resource which is bound to the corresponding SRV
-			g_pImmediateContext->UpdateSubresource(
-				pTmpRes,
-				0,
-				NULL,
-				&mPixelBuffer.at(0),
-				mWidth * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE,
-				NULL);
-
-			ReleaseCOM(pTmpRes);
-		}
-		else
-		{
-			//mIsPixelBufferInMemValid==false
-			ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
-			return false;
-		}
+		ReleaseCOM(pTmpRes);
 	}
 	else
 	{
-		//texID = ==Noise_macro_invalid_Texture_ID
-		ERROR_MSG("UpdateTextureToGraphicMemory : Texture Type invalid!!");
+		//mIsPixelBufferInMemValid==false
+		ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
 		return false;
 	}
 
 	return true;
 }
 
-bool ITexture::ConvertTextureToGreyMap()
+bool Texture2D::ConvertTextureToGreyMap()
 {
 	return ConvertTextureToGreyMap(0.3f, 0.59f, 0.1f);
 }
 
-bool ITexture::ConvertTextureToGreyMap(float factorR, float factorG, float factorB)
+bool Texture2D::ConvertTextureToGreyMap(float factorR, float factorG, float factorB)
 {
-	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON)== false)
-	{
-		ERROR_MSG("ConvertTextureToGreyMap:texture Type Invalid!");
-		return false;
-	}
-
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the sysMem block will be modified)
 	if (!IsSysMemPixelBufferValid())
@@ -272,14 +203,8 @@ bool ITexture::ConvertTextureToGreyMap(float factorR, float factorG, float facto
 	return false;
 }
 
-bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
+bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 {
-	if (IsTextureType(NOISE_TEXTURE_TYPE_COMMON) == false)
-	{
-		ERROR_MSG("ITexture::ConvertTextureToNormalMap:texture Type Invalid!");
-		return false;
-	}
-
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the copy in mem will be modified)
 	if (!IsSysMemPixelBufferValid())
@@ -391,7 +316,7 @@ bool ITexture::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	return true;
 }
 
-bool ITexture::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat)
+bool Texture2D::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT picFormat)
 {
 	HRESULT hr = S_OK;
 	ID3D11Texture2D* pSrcTexture;
@@ -422,73 +347,59 @@ bool ITexture::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT p
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	g_pImmediateContext->Map(pCpuReadTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
 
-	switch (mTextureType)
+
+	DirectX::Image outImage;
+	outImage.pixels = (uint8_t*)mappedResource.pData;
+	outImage.format = tmpTexDesc.Format;
+	outImage.width = tmpTexDesc.Width;
+	outImage.height = tmpTexDesc.Height;
+	outImage.rowPitch = mappedResource.RowPitch;
+	outImage.slicePitch = mappedResource.DepthPitch;
+
+	//save texture to DirectX::Blob encoded in specific format
+	switch (picFormat)
 	{
-		case NOISE_TEXTURE_TYPE_COMMON:
-		{
-			DirectX::Image outImage;
-			outImage.pixels = (uint8_t*)mappedResource.pData;
-			outImage.format = tmpTexDesc.Format;
-			outImage.width = tmpTexDesc.Width;
-			outImage.height = tmpTexDesc.Height;
-			outImage.rowPitch = mappedResource.RowPitch;
-			outImage.slicePitch = mappedResource.DepthPitch;
-			
-			//save texture to DirectX::Blob encoded in specific format
-			switch (picFormat)
-			{
-			//Supported by DirectXTex.WIC
-			case NOISE_IMAGE_FILE_FORMAT_BMP:
-				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_BMP), outFileData);
-				break;
+		//Supported by DirectXTex.WIC
+	case NOISE_IMAGE_FILE_FORMAT_BMP:
+		DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_BMP), outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_JPG:
-				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_JPEG), outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_JPG:
+		DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_JPEG), outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_PNG:
-				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_PNG), outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_PNG:
+		DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_PNG), outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_TIFF:
-				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_TIFF), outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_TIFF:
+		DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_TIFF), outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_GIF:
-				DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_GIF), outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_GIF:
+		DirectX::SaveToWICMemory(outImage, DirectX::WIC_FLAGS_NONE, DirectX::GetWICCodec(DirectX::WIC_CODEC_GIF), outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_HDR:
-				DirectX::SaveToHDRMemory(outImage, outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_HDR:
+		DirectX::SaveToHDRMemory(outImage, outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_TGA:
-				DirectX::SaveToTGAMemory(outImage, outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_TGA:
+		DirectX::SaveToTGAMemory(outImage, outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_DDS:
-				DirectX::SaveToDDSMemory(outImage, DirectX::DDS_FLAGS_NONE, outFileData);
-				break;
+	case NOISE_IMAGE_FILE_FORMAT_DDS:
+		DirectX::SaveToDDSMemory(outImage, DirectX::DDS_FLAGS_NONE, outFileData);
+		break;
 
-			case NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED:
-			default:
-				ERROR_MSG("ITexture: failed to save texture. image file format not supported!!");
-				return false;//invalid
-				break;
-			}
-
-			break;
-		}
-
-		case NOISE_TEXTURE_TYPE_CUBEMAP:
-		case NOISE_TEXTURE_TYPE_VOLUME:
-		default:
-		{
-			ERROR_MSG("ITexture: failed to save texture. ( target texture type not supported to save. )");
-			return false;
-			break;
-		}
+	case NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED:
+	default:
+		ERROR_MSG("ITexture: failed to save texture. image file format not supported!!");
+		return false;//invalid
+		break;
 	}
+
+
 
 	//Unmap() and release temporary texture2d
 	g_pImmediateContext->Unmap(pCpuReadTexture, 0);
@@ -509,13 +420,12 @@ bool ITexture::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT p
 ********************************************************************/
 
 //invoked by texture manager
-void NOISE_MACRO_FUNCTION_EXTERN_CALL ITexture::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NColor4u>&& pixelBuff, bool isSysMemBuffValid, NOISE_TEXTURE_TYPE type)
+void NOISE_MACRO_FUNCTION_EXTERN_CALL Texture2D::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NColor4u>&& pixelBuff, bool isSysMemBuffValid)
 {
 	m_pSRV = pSRV;
 	mTextureUid = uid;
 	mIsPixelBufferInMemValid = isSysMemBuffValid;
 	mPixelBuffer = pixelBuff;
-	mTextureType = type;
 
 	//get the size of Texture
 	ID3D11Texture2D* pTmpRes;

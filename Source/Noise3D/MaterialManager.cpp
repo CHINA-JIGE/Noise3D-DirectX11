@@ -14,25 +14,25 @@
 using namespace Noise3D;
 
 IMaterialManager::IMaterialManager()
-	:IFactory<IMaterial>(100000)
+	:IFactory<Material>(100000)
 {
 	mFunction_CreateDefaultMaterial();
 }
 
 IMaterialManager::~IMaterialManager()
 {
-	IFactory<IMaterial>::DestroyAllObject();
+	IFactory<Material>::DestroyAllObject();
 }
 
-IMaterial* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
+Material* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
 {
-	if (IFactory<IMaterial>::FindUid(matName))
+	if (IFactory<Material>::FindUid(matName))
 	{
 		ERROR_MSG("IMaterialManager: material name exist! mat creation failed! name:" + matName);
 		return nullptr;
 	}
 
-	IMaterial* pMat = IFactory<IMaterial>::CreateObject(matName);
+	Material* pMat = IFactory<Material>::CreateObject(matName);
 	pMat->SetDesc(matDesc);
 	return pMat;
 }
@@ -41,17 +41,17 @@ IMaterial* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& 
 UINT IMaterialManager::GetMaterialCount()
 {
 	//minus 1 means ruling out default mat
-	return  IFactory<IMaterial>::GetObjectCount() - 1;
+	return  IFactory<Material>::GetObjectCount() - 1;
 }
 
-IMaterial*		IMaterialManager::GetDefaultMaterial()
+Material*		IMaterialManager::GetDefaultMaterial()
 {
-	return IFactory<IMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	return IFactory<Material>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
 
-IMaterial* IMaterialManager::GetMaterial(N_UID matName)
+Material* IMaterialManager::GetMaterial(N_UID matName)
 {
-	return IFactory<IMaterial>::GetObjectPtr(matName);
+	return IFactory<Material>::GetObjectPtr(matName);
 };
 
 bool IMaterialManager::DeleteMaterial(N_UID matName)
@@ -61,19 +61,19 @@ bool IMaterialManager::DeleteMaterial(N_UID matName)
 		ERROR_MSG("DeleteMaterial: default material can't be deleted...(how lucky you are- -.)");
 		return false;
 	}
-	return IFactory<IMaterial>::DestroyObject(matName);
+	return IFactory<Material>::DestroyObject(matName);
 }
 
 void IMaterialManager::DeleteAllMaterial()
 {
-	IFactory<IMaterial>::DestroyAllObject();
+	IFactory<Material>::DestroyAllObject();
 	//we delete user-created material, not the internal default one
 	mFunction_CreateDefaultMaterial();
 }
 
 bool IMaterialManager::ValidateUID(N_UID matName)
 {
-	return IFactory<IMaterial>::FindUid(matName);
+	return IFactory<Material>::FindUid(matName);
 };
 
 /**********************************************************
@@ -99,6 +99,6 @@ void IMaterialManager::mFunction_CreateDefaultMaterial()
 	defaultMatDesc.normalMapName = "";
 
 	
-	IMaterial* pMat = IFactory<IMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	Material* pMat = IFactory<Material>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 	pMat->SetDesc(defaultMatDesc);
 }

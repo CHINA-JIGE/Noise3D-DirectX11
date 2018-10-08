@@ -138,7 +138,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 {
 	//we dont accept invalid material ,but accept invalid texture
 	IScene* pScene = GetScene();
-	ITextureManager*		pTexMgr = pScene->GetTextureMgr();
+	TextureManager*		pTexMgr = pScene->GetTextureMgr();
 	IMaterialManager*		pMatMgr = pScene->GetMaterialMgr();
 	IMeshManager*			pMeshMgr = pScene->GetMeshMgr();
 
@@ -165,27 +165,14 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 	//Validate textures
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 
-	ITexture* pDiffMap = pTexMgr->GetTexture(tmpMat.diffuseMapName);
-	ITexture* pNormalMap = pTexMgr->GetTexture(tmpMat.normalMapName);
-	ITexture* pSpecMap = pTexMgr->GetTexture(tmpMat.specularMapName);
-	ITexture* pEnvMap = pTexMgr->GetTexture(tmpMat.environmentMapName);
-	bool isDiffuseMapValid = false;
-	bool	isNormalMapValid = false;
-	bool isSpecularMapValid = false;
-	bool isEnvMapValid = false;
-
-	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	if(pDiffMap)			isDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isDiffuseMapValid = false;
-
-	if (pNormalMap)	isNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isNormalMapValid = false;
-
-	if (pSpecMap)		isSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isSpecularMapValid = false;
-
-	if (pEnvMap)		isEnvMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
-						else	isEnvMapValid = false;
+	ITexture* pDiffMap = pTexMgr->GetTexture2D(tmpMat.diffuseMapName);
+	ITexture* pNormalMap = pTexMgr->GetTexture2D(tmpMat.normalMapName);
+	ITexture* pSpecMap = pTexMgr->GetTexture2D(tmpMat.specularMapName);
+	TextureCubeMap* pEnvMap = pTexMgr->GetTextureCubeMap(tmpMat.environmentMapName);
+	bool isDiffuseMapValid = (pDiffMap!=nullptr);
+	bool	isNormalMapValid = (pNormalMap!=nullptr);
+	bool isSpecularMapValid = (pSpecMap!=nullptr);
+	bool isEnvMapValid = (pEnvMap!=nullptr);
 
 	//update textures, bound corresponding ShaderResourceView to the pipeline
 	//if tetxure is  valid ,then set diffuse map

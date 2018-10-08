@@ -16,7 +16,7 @@ namespace Noise3D
 	{
 	public:
 
-		void	SetActiveAtmosphere(IAtmosphere* pAtmo);
+		void	SetActiveAtmosphere(Atmosphere* pAtmo);
 
 	protected:
 
@@ -35,12 +35,12 @@ namespace Noise3D
 
 	private:
 
-		void		mFunction_Atmosphere_UpdateFogParameters(IAtmosphere*const pAtmo);
+		void		mFunction_Atmosphere_UpdateFogParameters(Atmosphere*const pAtmo);
 
-		void		mFunction_Atmosphere_UpdateSkyParameters(IAtmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome);
+		void		mFunction_Atmosphere_UpdateSkyParameters(Atmosphere*const pAtmo, bool& outEnabledSkybox, bool& outEnabledSkydome);
 
 
-		std::vector <IAtmosphere*>	mRenderList_Atmosphere; //list of object to be rendererd
+		std::vector <Atmosphere*>	mRenderList_Atmosphere; //list of object to be rendererd
 
 		ID3DX11EffectTechnique*	m_pFX_Tech_DrawSky;
 
