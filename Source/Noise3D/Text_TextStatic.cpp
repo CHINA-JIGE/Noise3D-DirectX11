@@ -19,7 +19,7 @@ NVECTOR2 StaticText::GetFontSize()
 {
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
-	TextManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetTextMgr();
 	return pFontMgr->GetFontSize(mFontName);
 }
 

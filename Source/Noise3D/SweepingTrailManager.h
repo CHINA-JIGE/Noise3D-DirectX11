@@ -36,7 +36,7 @@ namespace Noise3D
 
 	private:
 
-		friend  class IScene;
+		friend  class SceneManager;
 
 		friend IFactory<SweepingTrailManager>;
 

@@ -109,7 +109,7 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Render(std::vector<IBasicTe
 		//---------------------draw rectangles---------------------
 		for (auto tmpRegion : *(pList->at(i)->m_pGraphicObj->m_pRectSubsetInfoList))
 		{
-			TextManager* pFontMgr = GetScene()->GetFontMgr();
+			TextManager* pFontMgr = GetScene()->GetTextMgr();
 
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr

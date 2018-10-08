@@ -47,26 +47,26 @@ private:
 
 	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 
-	Noise3D::IRoot* m_pRoot;
-	Noise3D::IRenderer* m_pRenderer;
-	Noise3D::IScene* m_pScene;
-	Noise3D::ICamera* m_pCamera;
-	Noise3D::ILightManager* m_pLightMgr;
-	Noise3D::IDirLightD* m_pLight;
-	Noise3D::IModelLoader* m_pModelLoader;
-	Noise3D::IMeshManager* m_pMeshMgr;
-	Noise3D::IMesh* m_pMeshOriginal;
-	Noise3D::IMesh* m_pMeshSh;
-	Noise3D::IMaterialManager*	m_pMatMgr;
+	Noise3D::Root* m_pRoot;
+	Noise3D::Renderer* m_pRenderer;
+	Noise3D::SceneManager* m_pScene;
+	Noise3D::Camera* m_pCamera;
+	Noise3D::LightManager* m_pLightMgr;
+	Noise3D::DirLightD* m_pLight;
+	Noise3D::ModelLoader* m_pModelLoader;
+	Noise3D::MeshManager* m_pMeshMgr;
+	Noise3D::Mesh* m_pMeshOriginal;
+	Noise3D::Mesh* m_pMeshSh;
+	Noise3D::MaterialManager*	m_pMatMgr;
 	Noise3D::TextureManager*	m_pTexMgr;
-	Noise3D::ITexture* m_pOriginTex;
-	Noise3D::ITexture* m_pShTex;
-	Noise3D::IGraphicObjectManager*	m_pGraphicObjMgr;
-	Noise3D::IGraphicObject*	m_pGO_GUI;
-	Noise3D::IGraphicObject*	m_pGO_Axis;
-	Noise3D::IFontManager* m_pFontMgr;
-	Noise3D::IDynamicText* m_pMyText_fps;
-	Noise3D::IDynamicText* m_pMyText_camProjType;
+	Noise3D::Texture2D* m_pOriginTex;
+	Noise3D::Texture2D* m_pShTex;
+	Noise3D::GraphicObjectManager*	m_pGraphicObjMgr;
+	Noise3D::GraphicObject* m_pGO_GUI;
+	Noise3D::GraphicObject* m_pGO_Axis;
+	Noise3D::TextManager* m_pTextMgr;
+	Noise3D::DynamicText* m_pMyText_fps;
+	Noise3D::DynamicText* m_pMyText_camProjType;
 
 	Noise3D::Ut::Timer mTimer;// (Noise3D::Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
 

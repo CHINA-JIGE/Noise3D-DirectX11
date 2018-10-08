@@ -137,7 +137,7 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(Mesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
-	IScene* pScene = GetScene();
+	SceneManager* pScene = GetScene();
 	TextureManager*		pTexMgr = pScene->GetTextureMgr();
 	MaterialManager*		pMatMgr = pScene->GetMaterialMgr();
 	MeshManager*			pMeshMgr = pScene->GetMeshMgr();

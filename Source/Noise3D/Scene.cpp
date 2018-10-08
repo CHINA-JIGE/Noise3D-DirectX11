@@ -7,7 +7,7 @@
 					
 ************************************************************************/
 
-//!!!!!!!!!IMPORTANT : when a new class need to be bound to IScene,remember to modify
+//!!!!!!!!!IMPORTANT : when a new class need to be bound to SceneManager,remember to modify
 // 1. Inheritance
 // 2. Destructor
 // 3. Corresponding Creation method
@@ -18,7 +18,7 @@
 using namespace Noise3D;
 
 
-IScene::IScene():
+SceneManager::SceneManager():
 	 IFactory<Renderer>(1),
 	 IFactory<Camera>(1),
 	IFactory<MeshManager>(1),
@@ -36,13 +36,13 @@ IScene::IScene():
 
 }
 
-IScene::~IScene()
+SceneManager::~SceneManager()
 {
 	ReleaseAllChildObject();
 }
 
 
-void	IScene::ReleaseAllChildObject()
+void	SceneManager::ReleaseAllChildObject()
 {
 	IFactory<MeshManager>::DestroyAllObject();
 	IFactory<Renderer>::DestroyAllObject();
@@ -56,7 +56,7 @@ void	IScene::ReleaseAllChildObject()
 }
 
 //first time to init RENDERER
-Renderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
+Renderer * SceneManager::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
 {
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<Renderer>::FindUid(uid) == false)
@@ -72,19 +72,19 @@ Renderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND rende
 		else
 		{
 			IFactory<Renderer>::DestroyObject(uid);
-			ERROR_MSG("IScene: Renderer Initialization failed.");
+			ERROR_MSG("SceneManager: Renderer Initialization failed.");
 			return nullptr;
 		}
 	}
 	return IFactory<Renderer>::GetObjectPtr(uid);
 }
 
-Renderer * IScene::GetRenderer()
+Renderer * SceneManager::GetRenderer()
 {
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<Renderer>::FindUid(uid) == false)
 	{
-		ERROR_MSG("IScene: GetRenderer() : Renderer must be initialized by CreateRenderer() method.");
+		ERROR_MSG("SceneManager: GetRenderer() : Renderer must be initialized by CreateRenderer() method.");
 		return nullptr;
 	}
 	else
@@ -95,7 +95,7 @@ Renderer * IScene::GetRenderer()
 };
 
 
-MeshManager * IScene::GetMeshMgr()
+MeshManager * SceneManager::GetMeshMgr()
 {
 	static const N_UID uid = "sceneMeshMgr";
 	if (IFactory<MeshManager>::FindUid(uid) == false)
@@ -106,7 +106,7 @@ MeshManager * IScene::GetMeshMgr()
 };
 
 
-Camera * IScene::GetCamera()
+Camera * SceneManager::GetCamera()
 {
 	const N_UID uid = "sceneCamera";
 	if (IFactory<Camera>::FindUid(uid) == false)
@@ -116,7 +116,7 @@ Camera * IScene::GetCamera()
 	return IFactory<Camera>::GetObjectPtr(uid);
 }
 
-LightManager * IScene::GetLightMgr()
+LightManager * SceneManager::GetLightMgr()
 {
 	const N_UID uid = "sceneLightMgr";
 	if (IFactory<LightManager>::FindUid(uid) == false)
@@ -126,7 +126,7 @@ LightManager * IScene::GetLightMgr()
 	return IFactory<LightManager>::GetObjectPtr(uid);
 }
 
-TextureManager * IScene::GetTextureMgr()
+TextureManager * SceneManager::GetTextureMgr()
 {
 	const N_UID uid = "sceneTexMgr";
 	if (IFactory<TextureManager>::FindUid(uid) == false)
@@ -136,7 +136,7 @@ TextureManager * IScene::GetTextureMgr()
 	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
-MaterialManager * IScene::GetMaterialMgr()
+MaterialManager * SceneManager::GetMaterialMgr()
 {
 	const N_UID uid = "sceneMatMgr";
 	if (IFactory<MaterialManager>::FindUid(uid) == false)
@@ -146,7 +146,7 @@ MaterialManager * IScene::GetMaterialMgr()
 	return IFactory<MaterialManager>::GetObjectPtr(uid);
 }
 
-SweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
+SweepingTrailManager * Noise3D::SceneManager::GetSweepingTraillMgr()
 {
 	const N_UID uid = "sceneSweepingTrailMgr";
 	if (IFactory<SweepingTrailManager>::FindUid(uid) == false)
@@ -156,7 +156,7 @@ SweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
 	return IFactory<SweepingTrailManager>::GetObjectPtr(uid);
 }
 
-Atmosphere * IScene::GetAtmosphere()
+Atmosphere * SceneManager::GetAtmosphere()
 {
 	const N_UID uid = "sceneAtmos";
 	if (IFactory<Atmosphere>::FindUid(uid) == false)
@@ -166,7 +166,7 @@ Atmosphere * IScene::GetAtmosphere()
 	return IFactory<Atmosphere>::GetObjectPtr(uid);
 }
 
-GraphicObjectManager * IScene::GetGraphicObjMgr()
+GraphicObjectManager * SceneManager::GetGraphicObjMgr()
 {
 	const N_UID uid = "sceneGObjMgr";
 	if (IFactory<GraphicObjectManager>::FindUid(uid) == false)
@@ -176,7 +176,7 @@ GraphicObjectManager * IScene::GetGraphicObjMgr()
 	return IFactory<GraphicObjectManager>::GetObjectPtr(uid);
 }
 
-TextManager * IScene::GetFontMgr()
+TextManager * SceneManager::GetTextMgr()
 {
 	const N_UID uid = "sceneFontMgr";
 	if (IFactory<TextManager>::FindUid(uid) == false)
@@ -195,14 +195,14 @@ TextManager * IScene::GetFontMgr()
 		else
 		{
 			IFactory<TextManager>::DestroyObject(uid);
-			ERROR_MSG("IScene: Font Manager Initialization failed.");
+			ERROR_MSG("SceneManager: Font Manager Initialization failed.");
 			return nullptr;
 		}
 	}
 	return IFactory<TextManager>::GetObjectPtr(uid);
 }
 
-ModelLoader * IScene::GetModelLoader()
+ModelLoader * SceneManager::GetModelLoader()
 {
 	const N_UID uid = "sceneModelLoader";
 	if (IFactory<ModelLoader>::FindUid(uid) == false)
@@ -212,7 +212,7 @@ ModelLoader * IScene::GetModelLoader()
 	return IFactory<ModelLoader>::GetObjectPtr(uid);
 }
 
-ModelProcessor * Noise3D::IScene::GetModelProcessor()
+ModelProcessor * Noise3D::SceneManager::GetModelProcessor()
 {
 	const N_UID uid = "sceneModelProcessor";
 	if (IFactory<ModelProcessor>::FindUid(uid) == false)
@@ -222,7 +222,7 @@ ModelProcessor * Noise3D::IScene::GetModelProcessor()
 	return IFactory<ModelProcessor>::GetObjectPtr(uid);
 }
 
-CollisionTestor * IScene::GetCollisionTestor()
+CollisionTestor * SceneManager::GetCollisionTestor()
 {
 	const N_UID uid = "sceneCollisionTestor";
 	if (IFactory<CollisionTestor>::FindUid(uid) == false)
@@ -239,7 +239,7 @@ CollisionTestor * IScene::GetCollisionTestor()
 		else
 		{
 			IFactory<CollisionTestor>::DestroyObject(uid);
-			ERROR_MSG("IScene: Collision Testor Initialization failed.");
+			ERROR_MSG("SceneManager: Collision Testor Initialization failed.");
 			return nullptr;
 		}
 	}
@@ -252,7 +252,7 @@ CollisionTestor * IScene::GetCollisionTestor()
                                           P R I V A T E                       
 ************************************************************************/
 
-TextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
+TextureManager * SceneManager::mFunction_GetTexMgrInsideFontMgr()
 {
 	//get internal texMgr singleton instance
 	const N_UID uid = "TexMgrOfFont";
@@ -263,7 +263,7 @@ TextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
 	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
-GraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
+GraphicObjectManager * SceneManager::mFunction_GetGObjMgrInsideFontMgr()
 {
 	//get internal GObjMgr singleton instance
 	const N_UID uid = "GObjMgrOfFont";
@@ -274,7 +274,7 @@ GraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
 	return IFactory<GraphicObjectManager>::GetObjectPtr(uid);
 }
 
- IScene * Noise3D::GetScene()
+ SceneManager * Noise3D::GetScene()
 {
 	return GetRoot()->GetScenePtr();
 }

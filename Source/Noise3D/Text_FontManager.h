@@ -69,7 +69,7 @@ namespace Noise3D
 			void			DeleteAllFonts();
 
 		private:
-			//init freetype library and internal objects , invoked by IScene
+			//init freetype library and internal objects , invoked by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(TextureManager* in_created_pTexMgr, GraphicObjectManager* in_created_pGObjMgr);
 			//get bitmap of a single WCHAR
 			void			mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
@@ -79,7 +79,7 @@ namespace Noise3D
 			bool		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 
 		private:
-			friend	class IScene;//create internal object
+			friend	class SceneManager;//create internal object
 			friend  class IRenderModuleForText;
 			friend  DynamicText;
 			friend	IFactory<TextManager>;
@@ -88,9 +88,9 @@ namespace Noise3D
 
 			~TextManager();
 
-			TextureManager*				m_pTexMgr;//created by IScene, internal texture manager (ascii bitmap table/static Bitmap)
+			TextureManager*				m_pTexMgr;//created by SceneManager, internal texture manager (ascii bitmap table/static Bitmap)
 			
-			GraphicObjectManager*	m_pGraphicObjMgr;//Created by IScene, assign GObj to every TextObj
+			GraphicObjectManager*	m_pGraphicObjMgr;//Created by SceneManager, assign GObj to every TextObj
 
 			FT_Library					m_FTLibrary;
 			bool							mIsFTInitialized;

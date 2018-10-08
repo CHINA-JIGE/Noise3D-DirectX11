@@ -55,7 +55,7 @@ using namespace Noise3D::D3D;
 
 //Constructor
 Root::Root() :
-	IFactory<IScene>(1)
+	IFactory<SceneManager>(1)
 {
 	mRenderWindowTitle = L"Noise 3D - Render Window";
 	m_pMainLoopFunction = nullptr;
@@ -70,15 +70,15 @@ Root::~Root()
 	ReleaseAll();
 }
 
-IScene* Root::GetScenePtr()
+SceneManager* Root::GetScenePtr()
 {
 	const N_UID sceneUID = "myScene";
 	//first time to get a ScenePtr,Create one
-	if (IFactory<IScene>::GetObjectCount() == 0)
+	if (IFactory<SceneManager>::GetObjectCount() == 0)
 	{
-		IFactory<IScene>::CreateObject(sceneUID);
+		IFactory<SceneManager>::CreateObject(sceneUID);
 	}
-	return IFactory<IScene>::GetObjectPtr(sceneUID);
+	return IFactory<SceneManager>::GetObjectPtr(sceneUID);
 }
 
 HWND Root::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
@@ -174,9 +174,9 @@ bool Root::Init()
 void Root::ReleaseAll()
 {
 
-	IScene* pScene = GetScenePtr();
+	SceneManager* pScene = GetScenePtr();
 	pScene->ReleaseAllChildObject();
-	IFactory<IScene>::DestroyAllObject();//delete the only scene
+	IFactory<SceneManager>::DestroyAllObject();//delete the only scene
 
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);

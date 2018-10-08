@@ -17,11 +17,11 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ Root 
-	: private IFileIO, public IFactory<IScene>
+	: private IFileIO, public IFactory<SceneManager>
 	{
 	public:
 
-		IScene*	GetScenePtr();
+		SceneManager*	GetScenePtr();
 
 		HWND		CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 

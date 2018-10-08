@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	class ModelLoader;
 
-		class /*_declspec(dllexport)*/ IScene:
+		class /*_declspec(dllexport)*/ SceneManager:
 		public IFactory<Renderer>,
 		public IFactory<Camera>,
 		public IFactory<MeshManager>,
@@ -50,7 +50,7 @@ namespace Noise3D
 
 		Atmosphere*					GetAtmosphere();
 
-		TextManager*				GetFontMgr();
+		TextManager*				GetTextMgr();
 
 		ModelLoader*				GetModelLoader();
 
@@ -60,11 +60,11 @@ namespace Noise3D
 
 	private:
 
-		friend class IFactory<IScene>;
+		friend class IFactory<SceneManager>;
 
-		IScene();
+		SceneManager();
 
-		~IScene();
+		~SceneManager();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
 		TextureManager*				mFunction_GetTexMgrInsideFontMgr();
@@ -74,6 +74,6 @@ namespace Noise3D
 	};
 
 
-		extern IScene* GetScene();
+		extern SceneManager* GetScene();
 
 }

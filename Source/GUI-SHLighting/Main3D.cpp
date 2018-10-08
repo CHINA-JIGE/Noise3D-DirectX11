@@ -44,7 +44,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	mFunction_SHPreprocess_SphericalMap(3,10000, tmpShVector);
 
 	//light to exhibit base color
-	IDirLightD* pLight = m_pLightMgr->CreateDynamicDirLight("light");
+	DirLightD* pLight = m_pLightMgr->CreateDynamicDirLight("light");
 	pLight->SetAmbientColor(NVECTOR3(1.0f, 1.0f, 1.0f));
 	pLight->SetDirection(NVECTOR3(-1.0f, -1.0f, 0));
 
@@ -54,14 +54,14 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	matDesc1.diffuseColor = NVECTOR3(0, 0, 0);
 	matDesc1.specularColor = NVECTOR3(0, 0, 0);
 	matDesc1.diffuseMapName = "Tex";
-	IMaterial* pMat1 = m_pMatMgr->CreateMaterial("Mat1", matDesc1);
+	Material* pMat1 = m_pMatMgr->CreateMaterial("Mat1", matDesc1);
 
 	N_MaterialDesc matDesc2;
 	matDesc2.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
 	matDesc2.diffuseColor = NVECTOR3(0, 0, 0);
 	matDesc2.specularColor = NVECTOR3(0, 0, 0);
 	matDesc2.diffuseMapName = "ShTex";
-	IMaterial* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
+	Material* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
 
 
 	//2 Spheres for visualizing SH texture
@@ -76,15 +76,15 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pMeshSh->SetMaterial("Mat2");
 
 	//create font texture and top-left fps label
-	m_pFontMgr = m_pScene->GetFontMgr();
-	m_pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	m_pMyText_fps = m_pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
+	m_pTextMgr = m_pScene->GetTextMgr();
+	m_pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
+	m_pMyText_fps = m_pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	m_pMyText_fps->SetTextColor(NVECTOR4(0, 0.8f, 0.7f, 0.5f));
 	m_pMyText_fps->SetSpacePixelWidth(4);//width of space
 	m_pMyText_fps->SetDiagonal(NVECTOR2(canvasWidth-80.0f, 20), NVECTOR2(canvasWidth, 60));
 	m_pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-	m_pMyText_camProjType = m_pFontMgr->CreateDynamicTextA("myFont", "camTypeLabel", "Camera Mode: Perspective", 300, 100, NVECTOR4(0, 0, 0, 1.0f), 1, 0);
+	m_pMyText_camProjType = m_pTextMgr->CreateDynamicTextA("myFont", "camTypeLabel", "Camera Mode: Perspective", 300, 100, NVECTOR4(0, 0, 0, 1.0f), 1, 0);
 	m_pMyText_camProjType->SetTextColor(NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 	m_pMyText_camProjType->SetSpacePixelWidth(4);//width of space
 	m_pMyText_camProjType->SetDiagonal(NVECTOR2(canvasWidth - 400.0f, 20), NVECTOR2(canvasWidth-100.0f, 60));
@@ -148,7 +148,7 @@ bool Main3DApp::LoadOriginalTexture(std::string filePath)
 	//reload texture
 	if (m_pOriginTex != nullptr)
 	{
-		m_pTexMgr->DeleteTexture(c_originTexName);
+		m_pTexMgr->DeleteTexture2D(c_originTexName);
 		m_pOriginTex = m_pTexMgr->CreateTextureFromFile(filePath, c_originTexName, true, c_defaultTexWidth, c_defaultTexWidth, true);
 	}
 

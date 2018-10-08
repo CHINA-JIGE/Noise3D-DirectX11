@@ -11,7 +11,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ CameraS:
+	class /*_declspec(dllexport)*/ Camera:
 		public CameraTransform
 	{
 	public:

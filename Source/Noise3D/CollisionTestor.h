@@ -31,7 +31,7 @@ namespace Noise3D
 
 		friend IFactory<CollisionTestor>;
 
-		friend IScene;
+		friend SceneManager;
 
 		bool mFunction_Init();
 

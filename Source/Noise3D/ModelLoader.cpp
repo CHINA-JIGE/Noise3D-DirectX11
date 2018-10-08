@@ -236,7 +236,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 	mFbxLoader.LoadSceneFromFbx(filePath, fbxResult, true, false);
 
 	//create mesh object in Noise3D with the data loaded from fbx
-	IScene* pScene = Noise3D::GetScene();
+	SceneManager* pScene = Noise3D::GetScene();
 	MeshManager*		pMeshMgr	= pScene->GetMeshMgr();
 	MaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
 	TextureManager*	pTexMgr		= pScene->GetTextureMgr();

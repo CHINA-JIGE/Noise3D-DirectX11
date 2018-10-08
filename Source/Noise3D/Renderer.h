@@ -76,12 +76,12 @@ namespace Noise3D
 
 	private:
 
-		//extern init by IScene
+		//extern init by SceneManager
 		bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT bufferWidth, UINT bufferHeight, HWND renderWindowHandle);
 
 	private:
 
-		friend IScene;//for external init
+		friend SceneManager;//for external init
 
 		friend IFactory<Renderer>;
 
