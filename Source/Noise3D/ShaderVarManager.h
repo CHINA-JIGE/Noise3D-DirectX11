@@ -141,7 +141,7 @@ namespace Noise3D
 		//only specific friend class can inherit shader var manager
 		friend class IRenderInfrastructure;
 
-		friend class ICollisionTestor;
+		friend class CollisionTestor;
 
 		IShaderVariableManager();
 

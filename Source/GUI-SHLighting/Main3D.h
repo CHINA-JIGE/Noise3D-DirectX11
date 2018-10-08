@@ -58,7 +58,7 @@ private:
 	Noise3D::IMesh* m_pMeshOriginal;
 	Noise3D::IMesh* m_pMeshSh;
 	Noise3D::IMaterialManager*	m_pMatMgr;
-	Noise3D::ITextureManager*	m_pTexMgr;
+	Noise3D::TextureManager*	m_pTexMgr;
 	Noise3D::ITexture* m_pOriginTex;
 	Noise3D::ITexture* m_pShTex;
 	Noise3D::IGraphicObjectManager*	m_pGraphicObjMgr;

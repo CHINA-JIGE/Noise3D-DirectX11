@@ -11,7 +11,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ ICamera:
+	class /*_declspec(dllexport)*/ CameraS:
 		public CameraTransform
 	{
 	public:
@@ -24,17 +24,17 @@ namespace Noise3D
 
 		void				fps_MoveUp(float fSignedDistance);
 
-		void				OptimizeForQwertyPass1(const IMesh* pScreenDescriptor);
+		void				OptimizeForQwertyPass1(const Mesh* pScreenDescriptor);
 
 	private:
 
-		friend  class IRenderer;
+		friend  class Renderer;
 
-		friend IFactory<ICamera>;
+		friend IFactory<Camera>;
 
-		ICamera();
+		Camera();
 
-		~ICamera();
+		~Camera();
 
 	};
 

@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IMaterialManager
+	class /*_declspec(dllexport)*/ MaterialManager
 		:public IFactory<Material>
 	{
 	public:
@@ -32,11 +32,11 @@ namespace Noise3D
 
 		friend  class IScene;
 
-		friend IFactory<IMaterialManager>;
+		friend IFactory<MaterialManager>;
 
-		IMaterialManager();
+		MaterialManager();
 
-		~IMaterialManager();
+		~MaterialManager();
 
 		void		mFunction_CreateDefaultMaterial();
 

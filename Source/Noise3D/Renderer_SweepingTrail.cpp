@@ -19,7 +19,7 @@ Noise3D::IRenderModuleForSweepingTrailFX::~IRenderModuleForSweepingTrailFX()
 	ReleaseCOM(m_pFX_DrawSweepingTrail);
 }
 
-void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(ISweepingTrail * pTrail)
+void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(SweepingTrail * pTrail)
 {
 	mRenderList_SweepingTrails.push_back(pTrail);
 }
@@ -31,7 +31,7 @@ void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(ISweepingTrail *
 void Noise3D::IRenderModuleForSweepingTrailFX::RenderSweepingTrails()
 {
 	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	ICamera* const pCamera = GetScene()->GetCamera();
+	Camera* const pCamera = GetScene()->GetCamera();
 	//update view/proj matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
 
@@ -71,7 +71,7 @@ bool Noise3D::IRenderModuleForSweepingTrailFX::Initialize(IRenderInfrastructure 
 										PRIVATE
 ***********************************************************/
 
-void Noise3D::IRenderModuleForSweepingTrailFX::mFunction_SweepingTrail_Update(ISweepingTrail * const pTrail)
+void Noise3D::IRenderModuleForSweepingTrailFX::mFunction_SweepingTrail_Update(SweepingTrail * const pTrail)
 {
 	//update texture
 	TextureManager* pTexMgr = GetScene()->GetTextureMgr();

@@ -90,7 +90,7 @@ namespace Noise3D
 
 
 	//---------------------Dynamic Directional Light------------------
-	class IDirLightD : public IBaseLight
+	class DirLightD : public IBaseLight
 	{
 	public:
 
@@ -102,11 +102,11 @@ namespace Noise3D
 
 
 	private:
-		friend IFactory<IDirLightD>;
+		friend IFactory<DirLightD>;
 
-		IDirLightD();
+		DirLightD();
 
-		~IDirLightD();
+		~DirLightD();
 
 		N_DirLightDesc mLightDesc;
 
@@ -114,7 +114,7 @@ namespace Noise3D
 
 
 	//-----------------------Dynamic Point Light--------------------
-	class IPointLightD : public IBaseLight
+	class PointLightD : public IBaseLight
 	{
 	public:
 
@@ -130,18 +130,18 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<IPointLightD>;
+		friend IFactory<PointLightD>;
 
-		IPointLightD();
+		PointLightD();
 
-		~IPointLightD();
+		~PointLightD();
 
 		N_PointLightDesc mLightDesc;
 	};
 
 
 	//-----------------------Dynamic Spot Light------------------
-	class ISpotLightD:public IBaseLight
+	class SpotLightD:public IBaseLight
 	{
 	public:
 
@@ -161,11 +161,11 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<ISpotLightD>;
+		friend IFactory<SpotLightD>;
 
-		ISpotLightD();
+		SpotLightD();
 
-		~ISpotLightD();
+		~SpotLightD();
 
 		N_SpotLightDesc mLightDesc;
 
@@ -177,7 +177,7 @@ namespace Noise3D
 	//------------------Static Directional Light------------------
 	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
 	//2.immutable after initialization
-	class IDirLightS
+	class DirLightS
 	{
 	public:
 
@@ -185,13 +185,13 @@ namespace Noise3D
 
 	private:
 
-		friend class ILightManager;
+		friend class LightManager;
 
-		friend IFactory<IDirLightS>;
+		friend IFactory<DirLightS>;
 
-		IDirLightS();
+		DirLightS();
 
-		~IDirLightS();
+		~DirLightS();
 
 		//the IFactory<> didn't accept constructor with parameters... 
 		//thus an additional Init() func should be implemented and invoked by lightMgr
@@ -204,7 +204,7 @@ namespace Noise3D
 	//----------------------Static Point Light------------------
 	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
 	//2.immutable after initialization
-	class IPointLightS
+	class PointLightS
 	{
 	public:
 
@@ -212,13 +212,13 @@ namespace Noise3D
 
 	private:
 
-		friend class ILightManager;
+		friend class LightManager;
 
-		friend IFactory<IPointLightS>;
+		friend IFactory<PointLightS>;
 
-		IPointLightS();
+		PointLightS();
 
-		~IPointLightS();
+		~PointLightS();
 
 		bool	mFunction_Init(const N_PointLightDesc& desc);
 
@@ -229,7 +229,7 @@ namespace Noise3D
 	//------------------Static Spot Light--------------------
 	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
 	//2.immutable after initialization
-	class ISpotLightS
+	class SpotLightS
 	{
 	public:
 
@@ -237,13 +237,13 @@ namespace Noise3D
 
 	private:
 
-		friend class ILightManager;
+		friend class LightManager;
 
-		friend IFactory<ISpotLightS>;
+		friend IFactory<SpotLightS>;
 
-		ISpotLightS();
+		SpotLightS();
 
-		~ISpotLightS();
+		~SpotLightS();
 
 		bool	mFunction_Init(const N_SpotLightDesc& desc);
 

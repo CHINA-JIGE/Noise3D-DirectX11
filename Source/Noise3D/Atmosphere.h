@@ -34,7 +34,7 @@ namespace Noise3D
 		NOISE_ATMOSPHERE_SKYTYPE GetSkyType();
 
 		//SET xxx is not available here because the size of sky box is fixed
-		//when IModelLoader load the real model of sky
+		//when ModelLoader load the real model of sky
 		float	GetSkyboxWidth();
 
 		float	GetSkyboxHeight();
@@ -45,7 +45,7 @@ namespace Noise3D
 	private:
 
 		friend  class IRenderModuleForAtmosphere;
-		friend  class IModelLoader;
+		friend  class ModelLoader;
 		friend	IFactory<Atmosphere>;
 
 		//¹¹Ôìº¯Êý

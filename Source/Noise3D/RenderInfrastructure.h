@@ -3,7 +3,7 @@
 
 							IRenderInfracstructure
 		encapsulation of common, low-level D3D operation/states
-		init by IFactory in IRenderer, and provide service for other
+		init by IFactory in Renderer, and provide service for other
 		render modules
 
 ************************************************************************/
@@ -62,7 +62,7 @@ namespace Noise3D
 		//clear render target view(s) and depth stencil view(s)
 		void		ClearRtvAndDsv(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
 
-		void		UpdateCameraMatrix(ICamera* const pCamera);
+		void		UpdateCameraMatrix(Camera* const pCamera);
 
 		void		SwapChainPresent();
 

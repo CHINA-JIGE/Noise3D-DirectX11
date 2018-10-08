@@ -29,12 +29,12 @@ void IRenderModuleForText::RenderTexts()
 	mFunction_TextGraphicObj_Render(&mRenderList_TextStatic);
 }
 
-void IRenderModuleForText::AddToRenderQueue(IDynamicText * obj)
+void IRenderModuleForText::AddToRenderQueue(DynamicText * obj)
 {
 	mFunction_AddToRenderList_Text(obj, &mRenderList_TextDynamic);
 }
 
-void IRenderModuleForText::AddToRenderQueue(IStaticText * obj)
+void IRenderModuleForText::AddToRenderQueue(StaticText * obj)
 {
 	mFunction_AddToRenderList_Text(obj, &mRenderList_TextStatic);
 }
@@ -109,7 +109,7 @@ void		IRenderModuleForText::mFunction_TextGraphicObj_Render(std::vector<IBasicTe
 		//---------------------draw rectangles---------------------
 		for (auto tmpRegion : *(pList->at(i)->m_pGraphicObj->m_pRectSubsetInfoList))
 		{
-			IFontManager* pFontMgr = GetScene()->GetFontMgr();
+			TextManager* pFontMgr = GetScene()->GetFontMgr();
 
 			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//THIS TEXTURE MANAGER BELONGS TO FONT MGR,not the same as scene tex mgr

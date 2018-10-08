@@ -22,7 +22,7 @@ IRenderModuleForMesh::~IRenderModuleForMesh()
 }
 
 
-void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
+void IRenderModuleForMesh::AddToRenderQueue(Mesh* obj)
 {
 	mRenderList_Mesh.push_back(obj);
 }
@@ -35,7 +35,7 @@ void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
 ************************************************************/
 void	IRenderModuleForMesh::RenderMeshes()
 {
-	ICamera* const tmp_pCamera = GetScene()->GetCamera();
+	Camera* const tmp_pCamera = GetScene()->GetCamera();
 	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	mFunction_RenderMeshInList_UpdateRarely();
@@ -45,7 +45,7 @@ void	IRenderModuleForMesh::RenderMeshes()
 	//for every mesh
 	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
 	{
-		IMesh* const pMesh = mRenderList_Mesh.at(i);
+		Mesh* const pMesh = mRenderList_Mesh.at(i);
 
 		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
 
@@ -107,7 +107,7 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdateRarely()
 void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 {
 	//-------Update Dynamic Light-------
-	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
+	LightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
 	UINT dirLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
 	UINT pointLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
@@ -134,13 +134,13 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 	}
 };
 
-ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
+ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(Mesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
 	IScene* pScene = GetScene();
 	TextureManager*		pTexMgr = pScene->GetTextureMgr();
-	IMaterialManager*		pMatMgr = pScene->GetMaterialMgr();
-	IMeshManager*			pMeshMgr = pScene->GetMeshMgr();
+	MaterialManager*		pMatMgr = pScene->GetMaterialMgr();
+	MeshManager*			pMeshMgr = pScene->GetMeshMgr();
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
@@ -243,7 +243,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 	return pPass;
 };
 
-void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)
+void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* const pMesh)
 {
 	//update world/worldInv matrix
 	NMATRIX worldMat,worldInvTransposeMat;

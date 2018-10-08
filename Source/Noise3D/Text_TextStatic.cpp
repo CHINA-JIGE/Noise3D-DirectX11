@@ -7,19 +7,19 @@
 
 using namespace Noise3D;
 
-IStaticText::IStaticText()
+StaticText::StaticText()
 {
 }
 
-IStaticText::~IStaticText()
+StaticText::~StaticText()
 {
 }
 
-NVECTOR2 IStaticText::GetFontSize()
+NVECTOR2 StaticText::GetFontSize()
 {
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
-	IFontManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetFontMgr();
 	return pFontMgr->GetFontSize(mFontName);
 }
 
@@ -28,7 +28,7 @@ NVECTOR2 IStaticText::GetFontSize()
 											P R I V A T E
 ************************************************************************/
 
-void IStaticText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight,NVECTOR4 color,N_UID texName)
+void StaticText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight,NVECTOR4 color,N_UID texName)
 {
 
 	m_pGraphicObj = pCreatedObj;
@@ -48,7 +48,7 @@ void IStaticText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT p
 	IBasicContainerInfo::SetHeight(float(pxHeight));
 }
 
-void IStaticText::mFunction_UpdateGraphicObject()
+void StaticText::mFunction_UpdateGraphicObject()
 {
 	//in case other font has been deleted 
 

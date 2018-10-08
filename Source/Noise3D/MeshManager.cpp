@@ -3,51 +3,51 @@
 
 							class£ºMeshManager
 
-				description: manager class to manage IMesh
+				description: manager class to manage Mesh
 
 ***********************************************************************/
 #include "Noise3D.h"
 
 using namespace Noise3D;
 
-IMesh * IMeshManager::CreateMesh(N_UID meshName)
+Mesh * MeshManager::CreateMesh(N_UID meshName)
 {
-	return IFactory<IMesh>::CreateObject(meshName);
+	return IFactory<Mesh>::CreateObject(meshName);
 }
 
-IMesh * IMeshManager::GetMesh(N_UID meshName)
+Mesh * MeshManager::GetMesh(N_UID meshName)
 {
-	return IFactory<IMesh>::GetObjectPtr(meshName);
+	return IFactory<Mesh>::GetObjectPtr(meshName);
 }
 
-IMesh * IMeshManager::GetMesh(UINT index)
+Mesh * MeshManager::GetMesh(UINT index)
 {
-	return IFactory<IMesh>::GetObjectPtr(index);
+	return IFactory<Mesh>::GetObjectPtr(index);
 }
 
-bool IMeshManager::DestroyMesh(N_UID meshName)
+bool MeshManager::DestroyMesh(N_UID meshName)
 {
-	return IFactory<IMesh>::DestroyObject(meshName);
+	return IFactory<Mesh>::DestroyObject(meshName);
 }
 
-bool IMeshManager::DestroyMesh(IMesh* ppMesh)
+bool MeshManager::DestroyMesh(Mesh* ppMesh)
 {
-	return IFactory<IMesh>::DestroyObject(ppMesh);
+	return IFactory<Mesh>::DestroyObject(ppMesh);
 }
 
-void IMeshManager::DestroyAllMesh()
+void MeshManager::DestroyAllMesh()
 {
-	IFactory<IMesh>::DestroyAllObject();
+	IFactory<Mesh>::DestroyAllObject();
 }
 
-UINT IMeshManager::GetMeshCount()
+UINT MeshManager::GetMeshCount()
 {
-	return IFactory<IMesh>::GetObjectCount();
+	return IFactory<Mesh>::GetObjectCount();
 }
 
-bool Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
+bool Noise3D::MeshManager::IsMeshExisted(N_UID meshName)
 {
-	return IFactory<IMesh>::FindUid(meshName);
+	return IFactory<Mesh>::FindUid(meshName);
 }
 
 /***********************************************************************
@@ -55,12 +55,12 @@ bool Noise3D::IMeshManager::IsMeshExisted(N_UID meshName)
 ***********************************************************************/
 
 
-IMeshManager::IMeshManager():IFactory<IMesh>(50000)
+MeshManager::MeshManager():IFactory<Mesh>(50000)
 {
 
 }
 
-IMeshManager::~IMeshManager()
+MeshManager::~MeshManager()
 {
-	IFactory<IMesh>::DestroyAllObject();
+	IFactory<Mesh>::DestroyAllObject();
 }

@@ -19,7 +19,7 @@ namespace Noise3D
 	};
 
 
-	class /*_declspec(dllexport)*/ IMesh
+	class /*_declspec(dllexport)*/ Mesh
 		: public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
@@ -54,14 +54,14 @@ namespace Noise3D
 
 		friend class IRenderModuleForMesh;
 		friend class IRenderModuleForPostProcessing;//ref by qwerty3d
-		friend class IModelLoader;
-		friend class IModelProcessor;
-		friend class ICollisionTestor;
-		friend IFactory<IMesh>;
+		friend class ModelLoader;
+		friend class ModelProcessor;
+		friend class CollisionTestor;
+		friend IFactory<Mesh>;
 
-		IMesh();
+		Mesh();
 
-		~IMesh();
+		~Mesh();
 
 		//this function could be externally invoked by ModelLoader..etc
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);

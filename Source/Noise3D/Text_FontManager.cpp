@@ -23,16 +23,16 @@ N_FontObject::~N_FontObject()
 };
 
 
-IFontManager::IFontManager():
+TextManager::TextManager():
 	IFactory<N_FontObject>(5000),
-	IFactory<IDynamicText>(100000),
-	IFactory<IStaticText>(100000)
+	IFactory<DynamicText>(100000),
+	IFactory<StaticText>(100000)
 {
 	mIsFTInitialized = false;
 	m_FTLibrary		= nullptr;
 }
 
-IFontManager::~IFontManager()
+TextManager::~TextManager()
 {
 	//FT faces will be deleted, then erase font objects
 	IFactory<N_FontObject>::DestroyAllObject();
@@ -42,11 +42,11 @@ IFontManager::~IFontManager()
 	//m_pTexMgr->DeleteAllTexture();//font texture
 	//m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
 
-	IFactory<IStaticText>::DestroyAllObject();
-	IFactory<IDynamicText>::DestroyAllObject();
+	IFactory<StaticText>::DestroyAllObject();
+	IFactory<DynamicText>::DestroyAllObject();
 }
 
-bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
+bool	 TextManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT fontSize, float fontAspectRatio)
 {
 
 	//open font file (.ttf ,etc.)
@@ -132,7 +132,7 @@ bool	 IFontManager::CreateFontFromFile(NFilePath filePath, N_UID fontName, UINT 
 	return true;
 }
 
-bool	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
+bool	TextManager::SetFontSize(N_UID fontName, UINT  fontSize)
 {
 	if (IFactory<N_FontObject>::FindUid(fontName)== false)
 	{
@@ -149,21 +149,21 @@ bool	IFontManager::SetFontSize(N_UID fontName, UINT  fontSize)
 	return false;
 }
 
-bool IFontManager::IsFontExisted(N_UID fontName)
+bool TextManager::IsFontExisted(N_UID fontName)
 {
 	return IFactory<N_FontObject>::FindUid(fontName);
 }
 
-IStaticText*	 IFontManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+StaticText*	 TextManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//conver WString to AsciiString
 	std::wstring tmpWString;
 	tmpWString.assign(contentString.begin(), contentString.end());
-	IStaticText* pText = CreateStaticTextW(fontName, textObjectName,tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset);
+	StaticText* pText = CreateStaticTextW(fontName, textObjectName,tmpWString, boundaryWidth, boundaryHeight, textColor, wordSpacingOffset, lineSpacingOffset);
 	return pText;
 };
 
-IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//check fontName if it repeats
 	if (IFactory<N_FontObject>::FindUid(fontName) == false)
@@ -172,7 +172,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 		return nullptr;
 	}
 
-	if (IFactory<IStaticText>::FindUid(textObjectName) == true)
+	if (IFactory<StaticText>::FindUid(textObjectName) == true)
 	{
 		ERROR_MSG("CreateStaticTextW: static Text UID existed!");
 		return nullptr;
@@ -225,11 +225,11 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 
 
 	//------------initialize the graphic object of the TEXT------------
-	IStaticText* pText = IFactory<IStaticText>::CreateObject(textObjectName);
+	StaticText* pText = IFactory<StaticText>::CreateObject(textObjectName);
 
 	//create internal GraphicObj for static Text
 	N_UID tmpGraphicObjectName = "Internal_Static_GObj" + textObjectName;
-	IGraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	GraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
 	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
@@ -241,7 +241,7 @@ IStaticText*	 IFontManager::CreateStaticTextW(N_UID fontName, N_UID textObjectNa
 	return pText;
 }
 
-IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+DynamicText*	 TextManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
 
@@ -253,14 +253,14 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 	}
 
 
-	if (IFactory<IDynamicText>::FindUid(textObjectName) == true)
+	if (IFactory<DynamicText>::FindUid(textObjectName) == true)
 	{
 		ERROR_MSG("CreateDynamicTextA: dynamic Text UID existed!");
 		return nullptr;
 	}
 
 	//create a dynamic text
-	IDynamicText* pText = IFactory<IDynamicText>::CreateObject(textObjectName);
+	DynamicText* pText = IFactory<DynamicText>::CreateObject(textObjectName);
 	if (pText == nullptr)
 	{
 		ERROR_MSG("CreateDynamicTextA: text ptr creation failed.");
@@ -286,14 +286,14 @@ IDynamicText*	 IFontManager::CreateDynamicTextA(N_UID fontName, N_UID textObject
 
 	//------------initialize the graphic object of the TEXT------------
 	N_UID tmpGraphicObjectName = "Internal_Dyn_GObj" + textObjectName;
-	IGraphicObject* pObj = m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	GraphicObject* pObj = m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
 	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
 	return pText;
 }
 
-NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
+NVECTOR2 TextManager::GetFontSize(N_UID fontName)
 {
 	float fontWidth = 0.0f; float fontHeight = 0.0f;
 	if (IFactory<N_FontObject>::FindUid(fontName)==true)
@@ -305,25 +305,25 @@ NVECTOR2 IFontManager::GetFontSize(N_UID fontName)
 	return NVECTOR2(fontWidth,fontHeight);
 }
 
-bool IFontManager::DeleteFont(N_UID fontName)
+bool TextManager::DeleteFont(N_UID fontName)
 {
 	return IFactory<N_FontObject>::DestroyObject(fontName);
 }
 
-void IFontManager::DeleteAllFont()
+void TextManager::DeleteAllFont()
 {
 	IFactory<N_FontObject>::DestroyAllObject();
 }
 
-bool IFontManager::DeleteStaticText(N_UID textName)
+bool TextManager::DeleteStaticText(N_UID textName)
 {
 	// delete internal graphicObj and corresponding texture
-	IStaticText* pText=  IFactory<IStaticText>::GetObjectPtr(textName);
+	StaticText* pText=  IFactory<StaticText>::GetObjectPtr(textName);
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
-		IFactory<IStaticText>::DestroyObject(textName);
+		IFactory<StaticText>::DestroyObject(textName);
 		return true;
 	}
 	else
@@ -332,14 +332,14 @@ bool IFontManager::DeleteStaticText(N_UID textName)
 	}
 }
 
-bool IFontManager::DeleteStaticText(IStaticText * pText)
+bool TextManager::DeleteStaticText(StaticText * pText)
 {
 	// delete internal graphicObj
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
-		IFactory<IStaticText>::DestroyObject(pText);
+		IFactory<StaticText>::DestroyObject(pText);
 		return true;
 	}
 	else
@@ -348,14 +348,14 @@ bool IFontManager::DeleteStaticText(IStaticText * pText)
 	}
 }
 
-bool IFontManager::DeleteDynamicText(N_UID textName)
+bool TextManager::DeleteDynamicText(N_UID textName)
 {
 	// delete internal graphicObj and corresponding texture
-	IDynamicText* pText = IFactory<IDynamicText>::GetObjectPtr(textName);
+	DynamicText* pText = IFactory<DynamicText>::GetObjectPtr(textName);
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
-		IFactory<IDynamicText>::DestroyObject(textName);
+		IFactory<DynamicText>::DestroyObject(textName);
 		return true;
 	}
 	else
@@ -364,14 +364,14 @@ bool IFontManager::DeleteDynamicText(N_UID textName)
 	}
 }
 
-bool IFontManager::DeleteDynamicText(IDynamicText * pText)
+bool TextManager::DeleteDynamicText(DynamicText * pText)
 {
 	// delete internal graphicObj and corresponding texture
 	if (pText != nullptr)
 	{
 		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
-		IFactory<IDynamicText>::DestroyObject(pText);
+		IFactory<DynamicText>::DestroyObject(pText);
 		return true;
 	}
 	else
@@ -380,25 +380,25 @@ bool IFontManager::DeleteDynamicText(IDynamicText * pText)
 	}
 }
 
-void IFontManager::DeleteAllTexts()
+void TextManager::DeleteAllTexts()
 {
 	//all texts own a private GObject
 	m_pGraphicObjMgr->DestroyAllGraphicObj();
 
-	for (UINT i = 0;i < IFactory<IStaticText>::GetObjectCount();++i)
+	for (UINT i = 0;i < IFactory<StaticText>::GetObjectCount();++i)
 	{
 		//static text didn't use a public font texture(ascii bitmap table),instead,
 		//a new texture is created for each static text
-		IStaticText* pText = IFactory<IStaticText>::GetObjectPtr(i);
+		StaticText* pText = IFactory<StaticText>::GetObjectPtr(i);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
-		IFactory<IStaticText>::DestroyObject(pText);
+		IFactory<StaticText>::DestroyObject(pText);
 	}
 
-	IFactory<IDynamicText>::DestroyAllObject();
+	IFactory<DynamicText>::DestroyAllObject();
 
 }
 
-void IFontManager::DeleteAllFonts()
+void TextManager::DeleteAllFonts()
 {
 	for (UINT i = 0;i < IFactory<N_FontObject>::GetObjectCount();++i)
 	{
@@ -414,7 +414,7 @@ void IFontManager::DeleteAllFonts()
 										P R I V A T E
 ************************************************************************/
 
-bool IFontManager::mFunction_Init(TextureManager* in_created_pTexMgr, IGraphicObjectManager* in_created_pGObjMgr)
+bool TextManager::mFunction_Init(TextureManager* in_created_pTexMgr, GraphicObjectManager* in_created_pGObjMgr)
 {
 	//Init FreeType Library
 	FT_Error ftInitError = FT_Init_FreeType(&m_FTLibrary);
@@ -447,7 +447,7 @@ bool IFontManager::mFunction_Init(TextureManager* in_created_pTexMgr, IGraphicOb
 	return true;
 }
 
-void IFontManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
+void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
 {
 	//didn't check fontID here , only be able to get the bitmap
 	
@@ -511,7 +511,7 @@ void IFontManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t tar
 	outFontBitmap.width = charWidth;
 }
 
-void	IFontManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
+void	TextManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//arbitrarily get a wchar to Get the basic size of char
 	N_Font_Bitmap singleCharBitmap;
@@ -593,7 +593,7 @@ void	IFontManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstr
 	outFontBitmap.height = boundaryHeight;
 }
 
-bool IFontManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
+bool TextManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
 {
 	//define the width /height of bitmap Table , Ascii code 0~127
 	UINT tablePxWidth = charWidth*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;

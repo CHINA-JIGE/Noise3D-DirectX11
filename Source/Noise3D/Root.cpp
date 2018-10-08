@@ -12,49 +12,49 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-/*_declspec(dllexport)*/ IRoot* Noise3D::GetRoot()
+/*_declspec(dllexport)*/ Root* Noise3D::GetRoot()
 {
-	class IRootCreation :public IFactory<IRoot>
+	class IRootCreation :public IFactory<Root>
 	{
 	public:
 
-		IRootCreation() :IFactory<IRoot>(1) {};
+		IRootCreation() :IFactory<Root>(1) {};
 
 		~IRootCreation() {}
 
-		IRoot* GetRoot()
+		Root* GetRoot()
 		{
 			static int rootCount = 0;
 			//if a Root was never created, create one
 			if (rootCount == 0)
 			{
 				rootCount++;
-				m_pRoot = IFactory<IRoot>::CreateObject("Root");
+				m_pRoot = IFactory<Root>::CreateObject("Root");
 				return m_pRoot;
 			}
 			else
 			{
-				//return the existed IRoot
+				//return the existed Root
 				return m_pRoot;
 			}
 
 		};
 
 	private:
-		friend class IFactory<IRoot>;
+		friend class IFactory<Root>;
 
-		IRoot* m_pRoot;
+		Root* m_pRoot;
 	};
 
 	static IRootCreation rootCreationFactory;
-	static IRoot* ptr = rootCreationFactory.GetRoot();
+	static Root* ptr = rootCreationFactory.GetRoot();
 	return  ptr;
 };
 
 
 
 //Constructor
-IRoot::IRoot() :
+Root::Root() :
 	IFactory<IScene>(1)
 {
 	mRenderWindowTitle = L"Noise 3D - Render Window";
@@ -64,13 +64,13 @@ IRoot::IRoot() :
 	mMainBackBufferWidth = 0;
 }
 
-IRoot::~IRoot()
+Root::~Root()
 {
 	m_pMainLoopFunction = nullptr;
 	ReleaseAll();
 }
 
-IScene* IRoot::GetScenePtr()
+IScene* Root::GetScenePtr()
 {
 	const N_UID sceneUID = "myScene";
 	//first time to get a ScenePtr,Create one
@@ -81,7 +81,7 @@ IScene* IRoot::GetScenePtr()
 	return IFactory<IScene>::GetObjectPtr(sceneUID);
 }
 
-HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
+HWND Root::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance)
 {
 
 	WNDCLASS wndclass;
@@ -109,7 +109,7 @@ HWND IRoot::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR window
 	return outHWND;
 };
 
-bool IRoot::Init()
+bool Root::Init()
 {
 	HRESULT hr = S_OK;
 
@@ -162,7 +162,7 @@ bool IRoot::Init()
 		};
 	};
 	//尝试创建设备失败
-	HR_DEBUG(hr, "IRoot : D3D Device Creation failed /n DriverType"+std::to_string(g_Device_driverType));
+	HR_DEBUG(hr, "Root : D3D Device Creation failed /n DriverType"+std::to_string(g_Device_driverType));
 
 	
 	if(!mFunction_CreateEffectFromMemory())return false;
@@ -171,7 +171,7 @@ bool IRoot::Init()
 
 };
 
-void IRoot::ReleaseAll()
+void Root::ReleaseAll()
 {
 
 	IScene* pScene = GetScenePtr();
@@ -202,7 +202,7 @@ void IRoot::ReleaseAll()
 #endif
 }
 
-void IRoot::Mainloop()
+void Root::Mainloop()
 {
 	MSG msg;//消息体
 	ZeroMemory(&msg, sizeof(msg));
@@ -249,12 +249,12 @@ void IRoot::Mainloop()
 	UnregisterClass(mRenderWindowClassName, mRenderWindowHINSTANCE);
 }
 
-void IRoot::SetMainLoopFunction( void (*pFunction)(void) )
+void Root::SetMainLoopFunction( void (*pFunction)(void) )
 {
 	m_pMainLoopFunction =pFunction;
 }
 
-void IRoot::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)
+void Root::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)
 {
 	mMainLoopStatus = loopStatus;
 }
@@ -285,7 +285,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 
 }
 
-bool IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
+bool Root::mFunction_InitWindowClass(WNDCLASS* wc)
 {
 	wc->style = CS_HREDRAW | CS_VREDRAW; //样式
 	wc->cbClsExtra = 0;
@@ -300,7 +300,7 @@ bool IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 
 	if (!RegisterClass(wc))//注册窗体类
 	{
-		ERROR_MSG("IRoot: Create Window failed! Windows NT (or newer) required");
+		ERROR_MSG("Root: Create Window failed! Windows NT (or newer) required");
 		return false;
 	}
 	else
@@ -310,7 +310,7 @@ bool IRoot::mFunction_InitWindowClass(WNDCLASS* wc)
 
 };
 
-HWND IRoot::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
+HWND Root::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
 {
 	UINT scrWidth = GetSystemMetrics(SM_CXSCREEN);
 	UINT scrHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -345,7 +345,7 @@ HWND IRoot::mFunction_InitWindow(UINT windowWidth,UINT windowHeight)
 
 };
 
-bool	IRoot::mFunction_CreateEffectFromMemory()
+bool	Root::mFunction_CreateEffectFromMemory()
 {
 	std::vector<char> compiledShader;
 	HRESULT hr = S_OK;
@@ -376,7 +376,7 @@ bool	IRoot::mFunction_CreateEffectFromMemory()
 //#endif
 
 
-	HR_DEBUG(hr, "IRoot : load compiled shader failed");
+	HR_DEBUG(hr, "Root : load compiled shader failed");
 
 	return true;
 }

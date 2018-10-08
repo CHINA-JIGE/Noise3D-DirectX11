@@ -1,54 +1,54 @@
 
 /***********************************************************************
 
-										IRenderer
+										Renderer
 			Composition of infrastructure and render modules
 
 ************************************************************************/
 
 #include "Noise3D.h"
 
-Noise3D::IRenderer::IRenderer():
+Noise3D::Renderer::Renderer():
 	IFactory<IRenderInfrastructure>(1)
 {
 }
 
-Noise3D::IRenderer::~IRenderer()
+Noise3D::Renderer::~Renderer()
 {
 	IFactory<IRenderInfrastructure>::DestroyAllObject();
 };
 
-void Noise3D::IRenderer::AddToRenderQueue(IMesh * obj)
+void Noise3D::Renderer::AddToRenderQueue(Mesh * obj)
 {
 	IRenderModuleForMesh::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::AddToRenderQueue(IGraphicObject * obj)
+void Noise3D::Renderer::AddToRenderQueue(GraphicObject * obj)
 {
 	IRenderModuleForGraphicObject::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::AddToRenderQueue(IDynamicText * obj)
+void Noise3D::Renderer::AddToRenderQueue(DynamicText * obj)
 {
 	IRenderModuleForText::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::AddToRenderQueue(IStaticText * obj)
+void Noise3D::Renderer::AddToRenderQueue(StaticText * obj)
 {
 	IRenderModuleForText::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::AddToRenderQueue(ISweepingTrail * obj)
+void Noise3D::Renderer::AddToRenderQueue(SweepingTrail * obj)
 {
 	IRenderModuleForSweepingTrailFX::AddToRenderQueue(obj);
 }
 
-void Noise3D::IRenderer::SetActiveAtmosphere(Atmosphere * obj)
+void Noise3D::Renderer::SetActiveAtmosphere(Atmosphere * obj)
 {
 	IRenderModuleForAtmosphere::SetActiveAtmosphere(obj);
 }
 
-void Noise3D::IRenderer::Render()
+void Noise3D::Renderer::Render()
 {
 	//this affects the decision of Render Targets
 	m_pRenderInfrastructure->SetPostProcessRemainingPassCount(IRenderModuleForPostProcessing::GetPostProcessPassCount());
@@ -63,12 +63,12 @@ void Noise3D::IRenderer::Render()
 	
 }
 
-void	Noise3D::IRenderer::ClearBackground(const NVECTOR4& color)
+void	Noise3D::Renderer::ClearBackground(const NVECTOR4& color)
 {
 	m_pRenderInfrastructure->ClearRtvAndDsv(color);
 };
 
-void	Noise3D::IRenderer::PresentToScreen()
+void	Noise3D::Renderer::PresentToScreen()
 {
 	m_pRenderInfrastructure->SwapChainPresent();
 
@@ -82,37 +82,37 @@ void	Noise3D::IRenderer::PresentToScreen()
 };
 
 
-UINT Noise3D::IRenderer::GetBackBufferWidth()
+UINT Noise3D::Renderer::GetBackBufferWidth()
 {
 	return m_pRenderInfrastructure->GetBackBufferWidth();
 };
 
-UINT Noise3D::IRenderer::GetBackBufferHeight()
+UINT Noise3D::Renderer::GetBackBufferHeight()
 {
 	return m_pRenderInfrastructure->GetBackBufferHeight();
 }
 
-HWND Noise3D::IRenderer::GetRenderWindowHWND()
+HWND Noise3D::Renderer::GetRenderWindowHWND()
 {
 	return m_pRenderInfrastructure->GetRenderWindowHWND();
 }
 
-uint32_t Noise3D::IRenderer::GetRenderWindowWidth()
+uint32_t Noise3D::Renderer::GetRenderWindowWidth()
 {
 	return m_pRenderInfrastructure->GetRenderWindowWidth();
 }
 
-uint32_t Noise3D::IRenderer::GetRenderWindowHeight()
+uint32_t Noise3D::Renderer::GetRenderWindowHeight()
 {
 	return m_pRenderInfrastructure->GetRenderWindowHeight();
 }
 
-void Noise3D::IRenderer::SwitchToFullScreenMode()
+void Noise3D::Renderer::SwitchToFullScreenMode()
 {
 	m_pRenderInfrastructure->SwitchToFullScreenMode();
 }
 
-void Noise3D::IRenderer::SwitchToWindowedMode()
+void Noise3D::Renderer::SwitchToWindowedMode()
 {
 	m_pRenderInfrastructure->SwitchToWindowedMode();
 }
@@ -120,10 +120,10 @@ void Noise3D::IRenderer::SwitchToWindowedMode()
 /************************************************************************
                                             PRIVATE                        
 ************************************************************************/
-bool	Noise3D::IRenderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
+bool	Noise3D::Renderer::mFunction_Init(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHandle)
 {
 	//1. try to init a unique render infrastructure 
-	//(failure could affect the creation of IRenderer)
+	//(failure could affect the creation of Renderer)
 	static const N_UID uid = "RI";
 	if (IFactory<IRenderInfrastructure>::GetObjectCount() == 0)
 	{

@@ -13,18 +13,18 @@
 
 using namespace Noise3D;
 
-IMaterialManager::IMaterialManager()
+MaterialManager::MaterialManager()
 	:IFactory<Material>(100000)
 {
 	mFunction_CreateDefaultMaterial();
 }
 
-IMaterialManager::~IMaterialManager()
+MaterialManager::~MaterialManager()
 {
 	IFactory<Material>::DestroyAllObject();
 }
 
-Material* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
+Material* MaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
 {
 	if (IFactory<Material>::FindUid(matName))
 	{
@@ -38,23 +38,23 @@ Material* IMaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& m
 }
 
 
-UINT IMaterialManager::GetMaterialCount()
+UINT MaterialManager::GetMaterialCount()
 {
 	//minus 1 means ruling out default mat
 	return  IFactory<Material>::GetObjectCount() - 1;
 }
 
-Material*		IMaterialManager::GetDefaultMaterial()
+Material*		MaterialManager::GetDefaultMaterial()
 {
 	return IFactory<Material>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
 
-Material* IMaterialManager::GetMaterial(N_UID matName)
+Material* MaterialManager::GetMaterial(N_UID matName)
 {
 	return IFactory<Material>::GetObjectPtr(matName);
 };
 
-bool IMaterialManager::DeleteMaterial(N_UID matName)
+bool MaterialManager::DeleteMaterial(N_UID matName)
 {
 	if (matName == NOISE_MACRO_DEFAULT_MATERIAL_NAME)
 	{
@@ -64,14 +64,14 @@ bool IMaterialManager::DeleteMaterial(N_UID matName)
 	return IFactory<Material>::DestroyObject(matName);
 }
 
-void IMaterialManager::DeleteAllMaterial()
+void MaterialManager::DeleteAllMaterial()
 {
 	IFactory<Material>::DestroyAllObject();
 	//we delete user-created material, not the internal default one
 	mFunction_CreateDefaultMaterial();
 }
 
-bool IMaterialManager::ValidateUID(N_UID matName)
+bool MaterialManager::ValidateUID(N_UID matName)
 {
 	return IFactory<Material>::FindUid(matName);
 };
@@ -81,7 +81,7 @@ bool IMaterialManager::ValidateUID(N_UID matName)
 *************************************************************/
 
 
-void IMaterialManager::mFunction_CreateDefaultMaterial()
+void MaterialManager::mFunction_CreateDefaultMaterial()
 {
 	//only with a material can a object be rendered  (even without a texture)
 	//thus a default material is needed when an object was rendered with invalid material

@@ -19,19 +19,19 @@ using namespace Noise3D;
 
 
 IScene::IScene():
-	 IFactory<IRenderer>(1),
-	 IFactory<ICamera>(1),
-	IFactory<IMeshManager>(1),
-	 IFactory<ILightManager>(1),
+	 IFactory<Renderer>(1),
+	 IFactory<Camera>(1),
+	IFactory<MeshManager>(1),
+	 IFactory<LightManager>(1),
 	 IFactory<TextureManager>(2),//scene/font-internal
-	 IFactory<IMaterialManager>(1),
-	IFactory<ISweepingTrailManager>(1),
-	IFactory<IGraphicObjectManager>(2),//scene/font-internal
+	 IFactory<MaterialManager>(1),
+	IFactory<SweepingTrailManager>(1),
+	IFactory<GraphicObjectManager>(2),//scene/font-internal
 	 IFactory<Atmosphere>(1),
-	IFactory<IFontManager>(1),
-	IFactory<IModelLoader>(1),
-	IFactory<IModelProcessor>(1),
-	IFactory<ICollisionTestor>(1)
+	IFactory<TextManager>(1),
+	IFactory<ModelLoader>(1),
+	IFactory<ModelProcessor>(1),
+	IFactory<CollisionTestor>(1)
 {
 
 }
@@ -44,24 +44,24 @@ IScene::~IScene()
 
 void	IScene::ReleaseAllChildObject()
 {
-	IFactory<IMeshManager>::DestroyAllObject();
-	IFactory<IRenderer>::DestroyAllObject();
-	IFactory<ICamera>::DestroyAllObject();
-	IFactory<ILightManager>::DestroyAllObject();
+	IFactory<MeshManager>::DestroyAllObject();
+	IFactory<Renderer>::DestroyAllObject();
+	IFactory<Camera>::DestroyAllObject();
+	IFactory<LightManager>::DestroyAllObject();
 	IFactory<TextureManager>::DestroyAllObject();
-	IFactory<IMaterialManager>::DestroyAllObject();
+	IFactory<MaterialManager>::DestroyAllObject();
 	IFactory<Atmosphere>::DestroyAllObject();
-	IFactory<IGraphicObjectManager>::DestroyAllObject();
-	IFactory<ICollisionTestor>::DestroyAllObject();
+	IFactory<GraphicObjectManager>::DestroyAllObject();
+	IFactory<CollisionTestor>::DestroyAllObject();
 }
 
 //first time to init RENDERER
-IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
+Renderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
 {
 	static const N_UID uid = "sceneRenderer";
-	if (IFactory<IRenderer>::FindUid(uid) == false)
+	if (IFactory<Renderer>::FindUid(uid) == false)
 	{
-		IRenderer* pRd = IFactory<IRenderer>::CreateObject(uid);
+		Renderer* pRd = IFactory<Renderer>::CreateObject(uid);
 
 		//init of shaders/RV/states/....
 		bool isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight, renderWindowHWND);
@@ -71,18 +71,18 @@ IRenderer * IScene::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND rend
 		}
 		else
 		{
-			IFactory<IRenderer>::DestroyObject(uid);
+			IFactory<Renderer>::DestroyObject(uid);
 			ERROR_MSG("IScene: Renderer Initialization failed.");
 			return nullptr;
 		}
 	}
-	return IFactory<IRenderer>::GetObjectPtr(uid);
+	return IFactory<Renderer>::GetObjectPtr(uid);
 }
 
-IRenderer * IScene::GetRenderer()
+Renderer * IScene::GetRenderer()
 {
 	static const N_UID uid = "sceneRenderer";
-	if (IFactory<IRenderer>::FindUid(uid) == false)
+	if (IFactory<Renderer>::FindUid(uid) == false)
 	{
 		ERROR_MSG("IScene: GetRenderer() : Renderer must be initialized by CreateRenderer() method.");
 		return nullptr;
@@ -90,40 +90,40 @@ IRenderer * IScene::GetRenderer()
 	else
 	{
 		//return initialized renderer ptr
-		return IFactory<IRenderer>::GetObjectPtr(uid);
+		return IFactory<Renderer>::GetObjectPtr(uid);
 	}
 };
 
 
-IMeshManager * IScene::GetMeshMgr()
+MeshManager * IScene::GetMeshMgr()
 {
 	static const N_UID uid = "sceneMeshMgr";
-	if (IFactory<IMeshManager>::FindUid(uid) == false)
+	if (IFactory<MeshManager>::FindUid(uid) == false)
 	{
-		IFactory<IMeshManager>::CreateObject(uid);
+		IFactory<MeshManager>::CreateObject(uid);
 	}
-	return IFactory<IMeshManager>::GetObjectPtr(uid);
+	return IFactory<MeshManager>::GetObjectPtr(uid);
 };
 
 
-ICamera * IScene::GetCamera()
+Camera * IScene::GetCamera()
 {
 	const N_UID uid = "sceneCamera";
-	if (IFactory<ICamera>::FindUid(uid) == false)
+	if (IFactory<Camera>::FindUid(uid) == false)
 	{
-		IFactory<ICamera>::CreateObject(uid);
+		IFactory<Camera>::CreateObject(uid);
 	}
-	return IFactory<ICamera>::GetObjectPtr(uid);
+	return IFactory<Camera>::GetObjectPtr(uid);
 }
 
-ILightManager * IScene::GetLightMgr()
+LightManager * IScene::GetLightMgr()
 {
 	const N_UID uid = "sceneLightMgr";
-	if (IFactory<ILightManager>::FindUid(uid) == false)
+	if (IFactory<LightManager>::FindUid(uid) == false)
 	{
-		IFactory<ILightManager>::CreateObject(uid);
+		IFactory<LightManager>::CreateObject(uid);
 	}
-	return IFactory<ILightManager>::GetObjectPtr(uid);
+	return IFactory<LightManager>::GetObjectPtr(uid);
 }
 
 TextureManager * IScene::GetTextureMgr()
@@ -136,24 +136,24 @@ TextureManager * IScene::GetTextureMgr()
 	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
-IMaterialManager * IScene::GetMaterialMgr()
+MaterialManager * IScene::GetMaterialMgr()
 {
 	const N_UID uid = "sceneMatMgr";
-	if (IFactory<IMaterialManager>::FindUid(uid) == false)
+	if (IFactory<MaterialManager>::FindUid(uid) == false)
 	{
-		IFactory<IMaterialManager>::CreateObject(uid);
+		IFactory<MaterialManager>::CreateObject(uid);
 	}
-	return IFactory<IMaterialManager>::GetObjectPtr(uid);
+	return IFactory<MaterialManager>::GetObjectPtr(uid);
 }
 
-ISweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
+SweepingTrailManager * Noise3D::IScene::GetSweepingTraillMgr()
 {
 	const N_UID uid = "sceneSweepingTrailMgr";
-	if (IFactory<ISweepingTrailManager>::FindUid(uid) == false)
+	if (IFactory<SweepingTrailManager>::FindUid(uid) == false)
 	{
-		IFactory<ISweepingTrailManager>::CreateObject(uid);
+		IFactory<SweepingTrailManager>::CreateObject(uid);
 	}
-	return IFactory<ISweepingTrailManager>::GetObjectPtr(uid);
+	return IFactory<SweepingTrailManager>::GetObjectPtr(uid);
 }
 
 Atmosphere * IScene::GetAtmosphere()
@@ -166,22 +166,22 @@ Atmosphere * IScene::GetAtmosphere()
 	return IFactory<Atmosphere>::GetObjectPtr(uid);
 }
 
-IGraphicObjectManager * IScene::GetGraphicObjMgr()
+GraphicObjectManager * IScene::GetGraphicObjMgr()
 {
 	const N_UID uid = "sceneGObjMgr";
-	if (IFactory<IGraphicObjectManager>::FindUid(uid) == false)
+	if (IFactory<GraphicObjectManager>::FindUid(uid) == false)
 	{
-		IFactory<IGraphicObjectManager>::CreateObject(uid);
+		IFactory<GraphicObjectManager>::CreateObject(uid);
 	}
-	return IFactory<IGraphicObjectManager>::GetObjectPtr(uid);
+	return IFactory<GraphicObjectManager>::GetObjectPtr(uid);
 }
 
-IFontManager * IScene::GetFontMgr()
+TextManager * IScene::GetFontMgr()
 {
 	const N_UID uid = "sceneFontMgr";
-	if (IFactory<IFontManager>::FindUid(uid) == false)
+	if (IFactory<TextManager>::FindUid(uid) == false)
 	{
-		IFontManager* pFontMgr = IFactory<IFontManager>::CreateObject(uid);
+		TextManager* pFontMgr = IFactory<TextManager>::CreateObject(uid);
 
 		//init of FreeType, internal TexMgr,GraphicObjMgr
 		auto pTexMgr = mFunction_GetTexMgrInsideFontMgr();
@@ -194,40 +194,40 @@ IFontManager * IScene::GetFontMgr()
 		}
 		else
 		{
-			IFactory<IFontManager>::DestroyObject(uid);
+			IFactory<TextManager>::DestroyObject(uid);
 			ERROR_MSG("IScene: Font Manager Initialization failed.");
 			return nullptr;
 		}
 	}
-	return IFactory<IFontManager>::GetObjectPtr(uid);
+	return IFactory<TextManager>::GetObjectPtr(uid);
 }
 
-IModelLoader * IScene::GetModelLoader()
+ModelLoader * IScene::GetModelLoader()
 {
 	const N_UID uid = "sceneModelLoader";
-	if (IFactory<IModelLoader>::FindUid(uid) == false)
+	if (IFactory<ModelLoader>::FindUid(uid) == false)
 	{
-		IFactory<IModelLoader>::CreateObject(uid);
+		IFactory<ModelLoader>::CreateObject(uid);
 	}
-	return IFactory<IModelLoader>::GetObjectPtr(uid);
+	return IFactory<ModelLoader>::GetObjectPtr(uid);
 }
 
-IModelProcessor * Noise3D::IScene::GetModelProcessor()
+ModelProcessor * Noise3D::IScene::GetModelProcessor()
 {
 	const N_UID uid = "sceneModelProcessor";
-	if (IFactory<IModelProcessor>::FindUid(uid) == false)
+	if (IFactory<ModelProcessor>::FindUid(uid) == false)
 	{
-		IFactory<IModelProcessor>::CreateObject(uid);
+		IFactory<ModelProcessor>::CreateObject(uid);
 	}
-	return IFactory<IModelProcessor>::GetObjectPtr(uid);
+	return IFactory<ModelProcessor>::GetObjectPtr(uid);
 }
 
-ICollisionTestor * IScene::GetCollisionTestor()
+CollisionTestor * IScene::GetCollisionTestor()
 {
 	const N_UID uid = "sceneCollisionTestor";
-	if (IFactory<ICollisionTestor>::FindUid(uid) == false)
+	if (IFactory<CollisionTestor>::FindUid(uid) == false)
 	{
-		ICollisionTestor* pCT = IFactory<ICollisionTestor>::CreateObject(uid);
+		CollisionTestor* pCT = IFactory<CollisionTestor>::CreateObject(uid);
 
 		//init of FreeType, internal TexMgr,GraphicObjMgr
 
@@ -238,12 +238,12 @@ ICollisionTestor * IScene::GetCollisionTestor()
 		}
 		else
 		{
-			IFactory<ICollisionTestor>::DestroyObject(uid);
+			IFactory<CollisionTestor>::DestroyObject(uid);
 			ERROR_MSG("IScene: Collision Testor Initialization failed.");
 			return nullptr;
 		}
 	}
-	return IFactory<ICollisionTestor>::GetObjectPtr(uid);
+	return IFactory<CollisionTestor>::GetObjectPtr(uid);
 }
 
 
@@ -263,15 +263,15 @@ TextureManager * IScene::mFunction_GetTexMgrInsideFontMgr()
 	return IFactory<TextureManager>::GetObjectPtr(uid);
 }
 
-IGraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
+GraphicObjectManager * IScene::mFunction_GetGObjMgrInsideFontMgr()
 {
 	//get internal GObjMgr singleton instance
 	const N_UID uid = "GObjMgrOfFont";
-	if (IFactory<IGraphicObjectManager>::FindUid(uid) == false)
+	if (IFactory<GraphicObjectManager>::FindUid(uid) == false)
 	{
-		IFactory<IGraphicObjectManager>::CreateObject(uid);
+		IFactory<GraphicObjectManager>::CreateObject(uid);
 	}
-	return IFactory<IGraphicObjectManager>::GetObjectPtr(uid);
+	return IFactory<GraphicObjectManager>::GetObjectPtr(uid);
 }
 
  IScene * Noise3D::GetScene()

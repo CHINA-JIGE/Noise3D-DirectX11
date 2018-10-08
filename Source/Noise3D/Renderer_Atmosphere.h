@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class IRenderer;
+	class Renderer;
 
 	class /*_declspec(dllexport)*/ IRenderModuleForAtmosphere:
 		IBaseRenderModule
@@ -20,7 +20,7 @@ namespace Noise3D
 
 	protected:
 
-		//"protected" : allow IRenderer to construct each render module
+		//"protected" : allow Renderer to construct each render module
 		// but simultaneously, not allow direct class construction by other user
 		IRenderModuleForAtmosphere();
 
@@ -30,7 +30,7 @@ namespace Noise3D
 
 		virtual void	ClearRenderList() override;
 
-		//called by IRenderer
+		//called by Renderer
 		virtual bool	Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;
 
 	private:

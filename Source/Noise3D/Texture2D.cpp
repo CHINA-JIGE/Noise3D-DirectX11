@@ -10,10 +10,7 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-Texture2D::Texture2D():
-	m_pSRV(nullptr),
-	mWidth(0),
-	mHeight(0)
+Texture2D::Texture2D()
 {
 
 }
@@ -68,7 +65,7 @@ NColor4u Texture2D::GetPixel(UINT x, UINT y)
 //less redundant bound check to increase efficiency
 bool Texture2D::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
 {
-	if (mIsPixelBufferInMemValid)
+	if (ITexture::IsSysMemBufferValid())
 	{
 		//check if the array size matches
 		if (in_ColorArray.size() == mPixelBuffer.size())
@@ -86,7 +83,7 @@ bool Texture2D::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
 
 bool Texture2D::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
 {
-	if (mIsPixelBufferInMemValid)
+	if (ITexture::IsSysMemBufferValid())
 	{
 		//check if the array size matches
 		if (in_ColorArray.size() == mPixelBuffer.size())
@@ -104,7 +101,7 @@ bool Texture2D::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
 
 bool Texture2D::GetPixelArray(std::vector<NColor4u>& outColorArray)
 {
-	if (IsSysMemPixelBufferValid())
+	if (ITexture::IsSysMemBufferValid())
 	{
 		outColorArray = mPixelBuffer;
 		return true;
@@ -119,7 +116,7 @@ bool Texture2D::GetPixelArray(std::vector<NColor4u>& outColorArray)
 //then UpdateToVideoMem() should be called after modification.
 bool Texture2D::UpdateToVideoMemory()
 {
-	if (IsSysMemPixelBufferValid())
+	if (ITexture::IsSysMemBufferValid())
 	{
 		//after modifying buffer in memory, update to GPU
 		ID3D11Resource* pTmpRes;
@@ -157,7 +154,7 @@ bool Texture2D::ConvertTextureToGreyMap(float factorR, float factorG, float fact
 {
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the sysMem block will be modified)
-	if (!IsSysMemPixelBufferValid())
+	if (!ITexture::IsSysMemBufferValid())
 	{
 		ERROR_MSG("ConvertTextureToGreyMap:Only Textures that keep a copy in memory can be converted ! ");
 		return false;
@@ -207,7 +204,7 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 {
 	//only the texture created both in gpu & memory can be modified 
 	//( actually the copy in mem will be modified)
-	if (!IsSysMemPixelBufferValid())
+	if (!ITexture::IsSysMemBufferValid())
 	{
 		ERROR_MSG("ITexture::ConvertTextureToNormalMap:Only Textures that keep a copy in memory can be converted! ");
 		return false;

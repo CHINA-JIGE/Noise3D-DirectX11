@@ -31,7 +31,7 @@
 
 using namespace Noise3D;
 
-Noise3D::ISweepingTrail::ISweepingTrail() :
+Noise3D::SweepingTrail::SweepingTrail() :
 	mInterpolationStepCount(1),
 	mFreeHeaderInterpStepCount(1),
 	mGeneratedVerticesCount(0),
@@ -46,61 +46,61 @@ Noise3D::ISweepingTrail::ISweepingTrail() :
 {
 }
 
-Noise3D::ISweepingTrail::~ISweepingTrail()
+Noise3D::SweepingTrail::~SweepingTrail()
 {
 	ReleaseCOM(m_pVB_Gpu);
 }
 
-void Noise3D::ISweepingTrail::SetHeader(N_LineSegment lineSeg)
+void Noise3D::SweepingTrail::SetHeader(N_LineSegment lineSeg)
 {
 	//store prev state of Free header for tangent estimation
 	//mFreeHeader_PreviousState = mFreeHeader;
 	mFreeHeader = lineSeg;
 }
 
-N_LineSegment Noise3D::ISweepingTrail::GetHeader()
+N_LineSegment Noise3D::SweepingTrail::GetHeader()
 {
 	return mFreeHeader;
 }
 
-NVECTOR3 Noise3D::ISweepingTrail::GetHeaderCenterPos()
+NVECTOR3 Noise3D::SweepingTrail::GetHeaderCenterPos()
 {
 	return (mFreeHeader.vert1+mFreeHeader.vert2)/2.0f;
 }
 
-void Noise3D::ISweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)
+void Noise3D::SweepingTrail::SetHeaderCoolDownTimeThreshold(float duration)
 {
 	mHeaderCoolDownTimeThreshold = duration;
 }
 
-void Noise3D::ISweepingTrail::SetMaxLifeTimeOfLineSegment(float duration)
+void Noise3D::SweepingTrail::SetMaxLifeTimeOfLineSegment(float duration)
 {
 	mMaxLifeTimeOfLS = duration;
 }
 
-uint32_t Noise3D::ISweepingTrail::GetActiveVerticesCount()
+uint32_t Noise3D::SweepingTrail::GetActiveVerticesCount()
 {
 	//return Ut::Clamp( (mFixedLineSegments.size()+1) * mInterpolationStepCount * 6,0, mGpuPoolMaxVertexCount);
 	return mGeneratedVerticesCount;
 }
 
-void Noise3D::ISweepingTrail::SetInterpolationStepCount(uint32_t count)
+void Noise3D::SweepingTrail::SetInterpolationStepCount(uint32_t count)
 {
 	if (count == 0)count = 1;
 	mInterpolationStepCount = count;
 }
 
-void Noise3D::ISweepingTrail::SetFreeHeaderInterpolationStepCount(uint32_t count)
+void Noise3D::SweepingTrail::SetFreeHeaderInterpolationStepCount(uint32_t count)
 {
 	mFreeHeaderInterpStepCount = count;
 }
 
-void Noise3D::ISweepingTrail::SetCubicHermiteTangentScale(float length)
+void Noise3D::SweepingTrail::SetCubicHermiteTangentScale(float length)
 {
 	mCubicHermiteTangentScale = length;
 }
 
-void Noise3D::ISweepingTrail::Update(float deltaTime)
+void Noise3D::SweepingTrail::Update(float deltaTime)
 {
 	//timer add
 	mHeaderCoolDownTimer += deltaTime;
@@ -122,23 +122,23 @@ void Noise3D::ISweepingTrail::Update(float deltaTime)
 	mFunction_GenVerticesAndUpdateToGpuBuffer();
 }
 
-void Noise3D::ISweepingTrail::SetTextureName(N_UID texName)
+void Noise3D::SweepingTrail::SetTextureName(N_UID texName)
 {
 	mTextureUid = texName;
 }
 
-N_UID Noise3D::ISweepingTrail::GetTextureName()
+N_UID Noise3D::SweepingTrail::GetTextureName()
 {
 	return mTextureUid;
 }
 
-void Noise3D::ISweepingTrail::GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList)
+void Noise3D::SweepingTrail::GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList)
 {
 	//copy the tangent list outside for debug use
 	outList = mTangentList;
 }
 
-void Noise3D::ISweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList)
+void Noise3D::SweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList)
 {
 	outList = mFixedLineSegments;
 	outList.insert(outList.begin(), mFreeHeader);
@@ -148,7 +148,7 @@ void Noise3D::ISweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment
 /*****************************************************************
 											PRIVATE
 *****************************************************************/
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpuBuffer(UINT maxVertexCount)
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::SweepingTrail::mFunction_InitGpuBuffer(UINT maxVertexCount)
 {
 	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
 	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
@@ -174,7 +174,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::ISweepingTrail::mFunction_InitGpu
 	return true;
 }
 
-void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
+void Noise3D::SweepingTrail::mFunction_CoolDownHeader()
 {
 	//if fixed line segment exist
 	if (mFixedLineSegments.size() > 0)
@@ -190,7 +190,7 @@ void Noise3D::ISweepingTrail::mFunction_CoolDownHeader()
 	}
 }
 
-void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
+void Noise3D::SweepingTrail::mFunction_MoveAndCollapseTail()
 {
 	//if at least one fixed line segment exists
 	if (mFixedLineSegments.size() > 0)
@@ -221,7 +221,7 @@ void Noise3D::ISweepingTrail::mFunction_MoveAndCollapseTail()
 	}
 }
 
-void Noise3D::ISweepingTrail::mFunction_EstimateTangents()
+void Noise3D::SweepingTrail::mFunction_EstimateTangents()
 {
 	//angle bisector
 	mTangentList.resize(mFixedLineSegments.size() + 2);
@@ -249,7 +249,7 @@ void Noise3D::ISweepingTrail::mFunction_EstimateTangents()
 	mTangentList.at(mFixedLineSegments.size() + 1).second = mFreeTailTangent2;
 }
 
-void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
+void Noise3D::SweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 {
 
 	if (mFixedLineSegments.size() > 0)
@@ -313,7 +313,7 @@ void Noise3D::ISweepingTrail::mFunction_GenVerticesAndUpdateToGpuBuffer()
 }
 
 //compute current life time elapsed of line segment in given position
-float Noise3D::ISweepingTrail::mFunction_UtComputeLifeTimer(int index)
+float Noise3D::SweepingTrail::mFunction_UtComputeLifeTimer(int index)
 {
 	//index==0, free header						|
 	//index==1, free header+1 fixed LS   |--|
@@ -324,7 +324,7 @@ float Noise3D::ISweepingTrail::mFunction_UtComputeLifeTimer(int index)
 }
 
 //gen quad vertices to given memory position
-int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad)
+int Noise3D::SweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float frontLifeTimer, float backLifeTimer, N_SweepingTrailVertexType* quad)
 {
 	//skip de-generated quad(or Cubic Hermite interp will cause some weird triangles to intrude)
 	if (desc.frontPos1 == desc.backPos1 && desc.frontPos2 == desc.backPos2)
@@ -406,7 +406,7 @@ int Noise3D::ISweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, floa
 	return (desc.interpolation_steps) * c_quadVertexCount;
 }
 
-inline N_LineSegment Noise3D::ISweepingTrail::mFunction_UtGetLineSegment(int index)
+inline N_LineSegment Noise3D::SweepingTrail::mFunction_UtGetLineSegment(int index)
 {
 	//header
 	if (index == 0)return mFreeHeader;

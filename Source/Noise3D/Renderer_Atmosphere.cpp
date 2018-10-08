@@ -34,7 +34,7 @@ void IRenderModuleForAtmosphere::SetActiveAtmosphere(Atmosphere * pAtmo)
 void IRenderModuleForAtmosphere::RenderAtmosphere()
 {
 	//...................
-	ICamera* const tmp_pCamera = GetScene()->GetCamera();
+	Camera* const tmp_pCamera = GetScene()->GetCamera();
 
 	//update view/proj matrix
 	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);

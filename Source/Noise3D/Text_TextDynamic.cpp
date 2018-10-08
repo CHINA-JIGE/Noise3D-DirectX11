@@ -7,7 +7,7 @@
 
 using namespace Noise3D;
 
-IDynamicText::IDynamicText():
+DynamicText::DynamicText():
 	mWordSpacingOffset(0),
 	mLineSpacingOffset(0),
 	mIsTextContentChanged(true),
@@ -16,11 +16,11 @@ IDynamicText::IDynamicText():
 {
 }
 
-IDynamicText::~IDynamicText()
+DynamicText::~DynamicText()
 {
 }
 
-void IDynamicText::SetWidth(float w)
+void DynamicText::SetWidth(float w)
 {
 	if (w != GetWidth())
 	{
@@ -29,7 +29,7 @@ void IDynamicText::SetWidth(float w)
 	}
 }
 
-void IDynamicText::SetHeight(float h)
+void DynamicText::SetHeight(float h)
 {
 	if (h != GetHeight())
 	{
@@ -39,9 +39,9 @@ void IDynamicText::SetHeight(float h)
 };
 
 
-void IDynamicText::SetFont(N_UID fontName)
+void DynamicText::SetFont(N_UID fontName)
 {
-	IFontManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetFontMgr();
 
 	if (pFontMgr->IsFontExisted(fontName)==true)
 	{
@@ -58,19 +58,19 @@ void IDynamicText::SetFont(N_UID fontName)
 	}
 }
 
-N_UID IDynamicText::GetFontName()
+N_UID DynamicText::GetFontName()
 {
 	return mFontName;
 }
 
-NVECTOR2 IDynamicText::GetFontSize(UINT fontID)
+NVECTOR2 DynamicText::GetFontSize(UINT fontID)
 {
-	IFontManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetFontMgr();
 	return pFontMgr->GetFontSize(mFontName);
 };
 
 
-void IDynamicText::SetTextAscii(const std::string& newText)
+void DynamicText::SetTextAscii(const std::string& newText)
 {
 	//std::hash<std::string>() can hash a key
 	//if (std::hash<std::string>()(newText) != std::hash<std::string>()(*m_pTextContent))
@@ -81,39 +81,39 @@ void IDynamicText::SetTextAscii(const std::string& newText)
 	}
 }
 
-void IDynamicText::GetTextAscii(std::string & outString)
+void DynamicText::GetTextAscii(std::string & outString)
 {
 	outString = mTextContent;
 };
 
 
-void IDynamicText::SetLineSpacingOffset(int offset)
+void DynamicText::SetLineSpacingOffset(int offset)
 {
 	if (offset > -int(mCharBoundarySizeY))mLineSpacingOffset = offset;
 }
 
-int IDynamicText::GetLineSpacingOffset()
+int DynamicText::GetLineSpacingOffset()
 {
 	return mLineSpacingOffset;
 }
-void Noise3D::IDynamicText::SetSpacePixelWidth(int width)
+void Noise3D::DynamicText::SetSpacePixelWidth(int width)
 {
 	mSpacePixelWidth = width;
 };
 
 
-void IDynamicText::SetWordSpacingOffset(int offset)
+void DynamicText::SetWordSpacingOffset(int offset)
 {
 	if (offset > -int(mCharBoundarySizeX))mWordSpacingOffset = offset;
 }
 
-int IDynamicText::GetWordSpacingOffset()
+int DynamicText::GetWordSpacingOffset()
 {
 	return mWordSpacingOffset;
 }
 
 //pixel coordinate , position offset of specific word
-NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
+NVECTOR2 DynamicText::GetWordLocalPosOffset(UINT wordIndex)
 {
 
 	//There is some overlapped code in mFunc_UpdateGraphicObj()
@@ -146,9 +146,9 @@ NVECTOR2 IDynamicText::GetWordLocalPosOffset(UINT wordIndex)
 
 };
 
-inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
+inline NVECTOR2 DynamicText::GetWordRealSize(UINT wordIndex)
 {
-	IFontManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetFontMgr();
 	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(wordIndex);
 	return realCharBitmapPixelSize;
 };
@@ -157,7 +157,7 @@ inline NVECTOR2 IDynamicText::GetWordRealSize(UINT wordIndex)
 /************************************************************************
 										P R I V A T E
 ************************************************************************/
-void IDynamicText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName)
+void DynamicText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName)
 {
 	m_pGraphicObj = pCreatedObj;
 
@@ -175,9 +175,9 @@ void IDynamicText::mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT 
 	IBasicContainerInfo::SetHeight(float(pxHeight));
 };
 
-void  IDynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
+void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectToRenderList
 {
-	IFontManager* pFontMgr = GetScene()->GetFontMgr();
+	TextManager* pFontMgr = GetScene()->GetFontMgr();
 
 	//if font is invalid (deleted??), we must clear the graphic objects 
 	if (pFontMgr->IsFontExisted(mFontName)== false)

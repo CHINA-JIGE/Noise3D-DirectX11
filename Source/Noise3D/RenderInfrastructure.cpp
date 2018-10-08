@@ -3,7 +3,7 @@
 
 							IRenderInfracstructure
 		encapsulation of common D3D operation/states
-		init once by IRenderer, and provide service for other
+		init once by Renderer, and provide service for other
 		render modules
 
 ************************************************************************/
@@ -377,7 +377,7 @@ void IRenderInfrastructure::ClearRtvAndDsv(const NVECTOR4 & color)
 	}
 }
 
-void	IRenderInfrastructure::UpdateCameraMatrix(ICamera* const pCamera)
+void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 {
 	//update camera matrices
 	NMATRIX tmpMatrix;
@@ -752,7 +752,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateDepthStencilState()
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		ERROR_MSG("IRenderer : Shader/Effect Compilation Failed !!");
+		ERROR_MSG("Renderer : Shader/Effect Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 

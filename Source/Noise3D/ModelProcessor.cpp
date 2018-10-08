@@ -11,19 +11,19 @@
 
 using namespace Noise3D;
 
-float IModelProcessor::static_PositionEqualThreshold = 0.01f;
+float ModelProcessor::static_PositionEqualThreshold = 0.01f;
 
-IModelProcessor::IModelProcessor()
+ModelProcessor::ModelProcessor()
 {
 
 }
 
-IModelProcessor::~IModelProcessor()
+ModelProcessor::~ModelProcessor()
 {
 
 }
 
-void IModelProcessor::WeldVertices(IMesh * pTargetMesh)
+void ModelProcessor::WeldVertices(Mesh * pTargetMesh)
 {
 	//get ref to vertex buffer
 	const std::vector<N_DefaultVertex>&  vb = *(pTargetMesh->GetVertexBuffer());
@@ -112,7 +112,7 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh)
 
 }
 
-void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThreshold)
+void ModelProcessor::WeldVertices(Mesh * pTargetMesh, float PositionEqualThreshold)
 {
 	//get ref to vertex buffer
 	const std::vector<N_DefaultVertex>&  vb = *(pTargetMesh->GetVertexBuffer());
@@ -202,7 +202,7 @@ void IModelProcessor::WeldVertices(IMesh * pTargetMesh, float PositionEqualThres
 	pTargetMesh->mFunction_UpdateDataToVideoMem(uniqueVertexList, indicesList);
 }
 
-void IModelProcessor::MeshSimplify(IMesh * pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold)
+void ModelProcessor::MeshSimplify(Mesh * pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold)
 {
 	//In Mesh Simplification based on vertex clustering , feature preserving is important
 	//so some VISUALLY important vertices (maybe some vertex with large curvature)
@@ -293,7 +293,7 @@ void IModelProcessor::MeshSimplify(IMesh * pTargetMesh, float PositionEqualThres
 	pTargetMesh->mFunction_UpdateDataToVideoMem(uniqueVertexList, indicesList);
 }
 
-void IModelProcessor::Smooth_Laplacian(IMesh * pTargetMesh)
+void ModelProcessor::Smooth_Laplacian(Mesh * pTargetMesh)
 {
 	//First compute ADJACENT list (but whether to store adjacent need to be discussed)
 	N_AdjacentList adjList;

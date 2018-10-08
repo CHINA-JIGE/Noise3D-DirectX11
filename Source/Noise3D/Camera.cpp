@@ -10,20 +10,20 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-Noise3D::ICamera::ICamera()
+Noise3D::Camera::Camera()
 {
 }
 
-Noise3D::ICamera::~ICamera()
+Noise3D::Camera::~Camera()
 {
 };
 
-void Noise3D::ICamera::Destroy()
+void Noise3D::Camera::Destroy()
 {
 
 };
 
-void Noise3D::ICamera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
+void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
 {
 	//...Yaw Angle Starts at Z axis ( left-handed system) 
 	/*		Z
@@ -59,7 +59,7 @@ void Noise3D::ICamera::fps_MoveForward(float fSignedDistance, bool enableYAxisMo
 
 }
 
-void Noise3D::ICamera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
+void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
 {
 	//...Yaw Angle Starts at Z axis ( left-handed system) 
 	/*		
@@ -95,13 +95,13 @@ void Noise3D::ICamera::fps_MoveRight(float fSignedDistance, bool enableYAxisMove
 		Move(relativePos);
 }
 
-void Noise3D::ICamera::fps_MoveUp(float fSignedDistance)
+void Noise3D::Camera::fps_MoveUp(float fSignedDistance)
 {
 	CameraTransform::Move(NVECTOR3(0, fSignedDistance, 0));
 	CameraTransform::LookAt(CameraTransform::GetLookAtPos() + NVECTOR3(0, fSignedDistance, 0));
 }
 
-void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
+void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 {
 	//NOTE: the position of camera won't be changed.
 	//compute and adjust intrinsic parameter(fov, aspectRatio....) and posture(rotation/lookat)
@@ -124,10 +124,10 @@ void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
 		scrCenterPos += v.Pos;
 	}
 	scrCenterPos /= float(vb.size());
-	ICamera::LookAt(scrCenterPos);
-	NVECTOR3 euler = ICamera::CameraTransform::GetEulerAngle();
+	Camera::LookAt(scrCenterPos);
+	NVECTOR3 euler = Camera::CameraTransform::GetEulerAngle();
 	euler.z = 0;
-	ICamera::SetRotation(euler);
+	Camera::SetRotation(euler);
 
 	//2. Adjust projection matrix (fov & aspectRatio)
 	float halfBoundingRectWidth=0.0f;
@@ -137,7 +137,7 @@ void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
 	for (auto v : vb)
 	{
 		NMATRIX viewMat;
-		ICamera::GetViewMatrix(viewMat);
+		Camera::GetViewMatrix(viewMat);
 		NVECTOR3 posV = {
 			v.Pos.x *  viewMat.m[0][0] + v.Pos.y *  viewMat.m[1][0] + v.Pos.z *  viewMat.m[2][0] + 1.0f * viewMat.m[3][0],
 			v.Pos.x *  viewMat.m[0][1] + v.Pos.y *  viewMat.m[1][1] + v.Pos.z *  viewMat.m[2][1] + 1.0f * viewMat.m[3][1],
@@ -150,7 +150,7 @@ void Noise3D::ICamera::OptimizeForQwertyPass1(const IMesh * pScreenDescriptor)
 		if (halfBoundingRectHeight < abs(posH.y))halfBoundingRectHeight = abs(posH.y);
 
 		//fovY = arctan(y/z), aspectRatio=width/height
-		ICamera::SetViewAngle_Radian(2.0f * atan(halfBoundingRectHeight / 1.0f), halfBoundingRectWidth / halfBoundingRectHeight);
+		Camera::SetViewAngle_Radian(2.0f * atan(halfBoundingRectHeight / 1.0f), halfBoundingRectWidth / halfBoundingRectHeight);
 	}
 }
 

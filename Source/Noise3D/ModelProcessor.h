@@ -11,31 +11,31 @@
 
 namespace Noise3D
 {
-	class IMesh;
+	class Mesh;
 	typedef std::vector<std::vector<UINT>> N_AdjacentList;
 
 
-	class /*_declspec(dllexport)*/ IModelProcessor
+	class /*_declspec(dllexport)*/ ModelProcessor
 	{
 	public:
 
-		void WeldVertices(IMesh* pTargetMesh);//vertices will same position will be weld as one
+		void WeldVertices(Mesh* pTargetMesh);//vertices will same position will be weld as one
 
-		void WeldVertices(IMesh* pTargetMesh,float PositionEqualThreshold);//vertices will same position will be weld as one
+		void WeldVertices(Mesh* pTargetMesh,float PositionEqualThreshold);//vertices will same position will be weld as one
 
-		void MeshSimplify(IMesh* pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold);
+		void MeshSimplify(Mesh* pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold);
 
 		//vertices need to welded before smoothing.
 		//but this algorithm seems to be not robust enough...
-		void Smooth_Laplacian(IMesh* pTargetMesh);
+		void Smooth_Laplacian(Mesh* pTargetMesh);
 
 	private:
 
-		friend class IFactory<IModelProcessor>;
+		friend class IFactory<ModelProcessor>;
 
-		IModelProcessor();
+		ModelProcessor();
 
-		~IModelProcessor();
+		~ModelProcessor();
 
 		static float static_PositionEqualThreshold;
 
