@@ -66,7 +66,7 @@ void GUISHLightingApp::Slot_LoadSphericalTexture()
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
 		mUI.textBrowser_filePath->setText(fileNames.at(0));
-		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTexture(mFilePath);
+		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTexture2D(mFilePath);
 		if (!loadSucceeded)
 		{
 			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"ÎÆÀí¼ÓÔØÊ§°Ü£¡"));
@@ -103,10 +103,10 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
 		mUI.textBrowser_filePath->setText(fileNames.at(0));
-		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTexture(mFilePath);
+		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTextureCubeMap(mFilePath);
 		if (!loadSucceeded)
 		{
-			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"ÎÆÀí¼ÓÔØÊ§°Ü£¡"));
+			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"CubeMapÎÆÀí¼ÓÔØÊ§°Ü£¡"));
 		}
 	}
 }

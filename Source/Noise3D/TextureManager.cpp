@@ -190,7 +190,6 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	uint32_t resizedImageHeight = useDefaultSize ? srcMetaData.height : pixelHeight;
 
 	//re-sampling of original images
-
 	DirectX::ScratchImage resizedImage;
 	DirectX::ScratchImage convertedImage;
 
@@ -224,16 +223,16 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 
 #pragma endregion DirectXTex load Image
 
-#pragma region CreateTexture2D & SRV
+#pragma region CreateTexture2DArray & SRV
 
 	//texture2D desc (create a default usage texture)
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
 	texDesc.Width = resizedImageWidth;//determined by the loaded picture
 	texDesc.Height = resizedImageHeight;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 1;
-	texDesc.Format = c_DefaultPixelDxgiFormat;//DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.MipLevels = srcMetaData.mipLevels;// 1;
+	texDesc.ArraySize = srcMetaData.arraySize;//should be 6
+	texDesc.Format = c_DefaultPixelDxgiFormat;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;//allow update subresource
@@ -274,7 +273,7 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 		return nullptr;
 	}
 
-#pragma endregion CreateTexture2D & SRV
+#pragma endregion CreateTexture2DArray & SRV
 
 	//clear tmp interfaces
 	ReleaseCOM(pTmpTexture2D);
@@ -283,14 +282,14 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	Texture2D* pTexObj = IFactory<Texture2D>::CreateObject(texName);
 	if (keepCopyInMemory)
 	{
-		uint32_t pixelCount = resizedImageWidth*resizedImageHeight;
+		uint32_t pixelCount = resizedImageWidth * resizedImageHeight;
 		uint8_t* pData = convertedImage.GetPixels();
 		std::vector<NColor4u> pixelBuffer(pixelCount);
 
 		//copy data of converted image to ITexture's system memory
-		for (uint32_t pixelId = 0; pixelId<pixelCount; ++pixelId)
+		for (uint32_t pixelId = 0; pixelId < pixelCount; ++pixelId)
 		{
-			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId*NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
+			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
 		}
 
 		pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), true);
@@ -304,7 +303,7 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	return pTexObj;//invalid file or sth else
 }
 
-TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName)
+TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, bool keepCopyInMemory)
 {
 	//read file to memory
 	IFileIO fileIO;
@@ -340,6 +339,34 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 	DirectX::ScratchImage srcImage;
 	DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(), DirectX::DDS_FLAGS_NONE, &srcMetaData, srcImage);
 
+	//array size should be 6!!
+	if (!srcMetaData.IsCubemap())
+	{
+		ERROR_MSG("CreateCubeMapFromDDS: this is not an valid cube map! cube map should have 6 faces!!");
+		return nullptr;
+	}
+
+	//convert pixel format
+	DirectX::ScratchImage convertedImage;
+
+	//pixel format conversion (this format must match the format defined in ID3D11Texture2D desc)
+	if (srcImage.GetMetadata().format != c_DefaultPixelDxgiFormat)
+	{
+		DirectX::Convert(
+			srcImage.GetImages(),
+			srcImage.GetImageCount(),
+			srcImage.GetMetadata(),
+			c_DefaultPixelDxgiFormat,
+			DirectX::TEX_FILTER_DEFAULT,
+			DirectX::TEX_THRESHOLD_DEFAULT,
+			convertedImage);
+	}
+	else
+	{
+		//copy
+		convertedImage.InitializeFromImage(*srcImage.GetImages());
+	}
+
 #pragma endregion DirectXTex load Image
 
 #pragma region CreateSRV
@@ -364,8 +391,27 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 
 	//Create a new Texture object
 	TextureCubeMap* pTexObj = IFactory<TextureCubeMap>::CreateObject(cubeTextureName);
-	std::vector<NColor4u> emptyBuff;
-	pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false);
+	//std::vector<NColor4u> emptyBuff;
+	//pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false);
+	if (keepCopyInMemory)
+	{
+		uint32_t pixelCount = srcMetaData.width*srcMetaData.height * srcMetaData.arraySize;//arraysize should be 6
+		uint8_t* pData = convertedImage.GetPixels();
+		std::vector<NColor4u> pixelBuffer(pixelCount);
+
+		//copy data of converted image to ITexture's system memory
+		for (uint32_t pixelId = 0; pixelId<pixelCount; ++pixelId)
+		{
+			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
+		}
+
+		pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(pixelBuffer), true);
+	}
+	else
+	{
+		std::vector<NColor4u> emptyBuff;
+		pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false);
+	}
 
 	//return new texObj ptr
 	return pTexObj;

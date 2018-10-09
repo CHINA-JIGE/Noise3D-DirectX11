@@ -17,6 +17,12 @@ class Main3DApp
 {
 public:
 
+	enum SOURCE_TEXTURE_TYPE
+	{
+		TEXTURE2D,
+		CUBEMAP
+	};
+
 	Main3DApp();
 
 	~Main3DApp();
@@ -25,7 +31,9 @@ public:
 
 	void UpdateFrame();//invoked per frame
 
-	bool LoadOriginalTexture(std::string filePath);
+	bool LoadOriginalTexture2D(std::string filePath);
+
+	bool LoadOriginalTextureCubeMap(std::string filePath);
 
 	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 
@@ -47,6 +55,8 @@ private:
 
 	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 
+	SOURCE_TEXTURE_TYPE mSourceTextureType;
+
 	Noise3D::Root* m_pRoot;
 	Noise3D::Renderer* m_pRenderer;
 	Noise3D::SceneManager* m_pScene;
@@ -55,11 +65,13 @@ private:
 	Noise3D::DirLightD* m_pLight;
 	Noise3D::ModelLoader* m_pModelLoader;
 	Noise3D::MeshManager* m_pMeshMgr;
-	Noise3D::Mesh* m_pMeshOriginal;
-	Noise3D::Mesh* m_pMeshSh;
+	Noise3D::Mesh* m_pMeshSourceSphere;
+	Noise3D::Mesh* m_pMeshSourceCube;
+	Noise3D::Mesh* m_pMeshShSphere;
 	Noise3D::MaterialManager*	m_pMatMgr;
 	Noise3D::TextureManager*	m_pTexMgr;
 	Noise3D::Texture2D* m_pOriginTex;
+	Noise3D::TextureCubeMap* m_pOriginCubeMap;
 	Noise3D::Texture2D* m_pShTex;
 	Noise3D::GraphicObjectManager*	m_pGraphicObjMgr;
 	Noise3D::GraphicObject* m_pGO_GUI;

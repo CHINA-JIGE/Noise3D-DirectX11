@@ -42,7 +42,7 @@ void Texture2D::SetPixel(UINT x, UINT y, const NColor4u & color)
 
 NColor4u Texture2D::GetPixel(UINT x, UINT y)
 {
-	if (mIsPixelBufferInMemValid)
+	if (ITexture::IsSysMemBufferValid())
 	{
 		if (x >= 0 && x < mWidth && y >= 0 && y < mHeight)
 		{
@@ -53,7 +53,6 @@ NColor4u Texture2D::GetPixel(UINT x, UINT y)
 		{
 			ERROR_MSG("GetPixel : Point out of range!");
 		}
-
 	}
 	else
 	{
@@ -408,7 +407,6 @@ bool Texture2D::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT 
 
 	return saveSucceeded;
 }
-
 
 /********************************************************************
 

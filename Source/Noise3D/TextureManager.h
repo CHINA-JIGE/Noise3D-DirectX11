@@ -20,7 +20,7 @@ namespace Noise3D
 
 		Texture2D*	CreateTextureFromFile(NFilePath filePath, N_UID texName, bool useDefaultSize, UINT pixelWidth, UINT pixelHeight, bool keepCopyInMemory = false);
 
-		TextureCubeMap*	CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName);
+		TextureCubeMap*	CreateCubeMapFromDDS(NFilePath dds_FileName, N_UID cubeTextureName, bool keepCopyInMemory = false);
 
 		Texture2D*	GetTexture2D(N_UID texName);
 

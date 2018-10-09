@@ -5,7 +5,8 @@ using namespace Noise3D;
 Main3DApp::Main3DApp():
 	mTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND),
 	mOrbitPitch(0),
-	mOrbitYaw(0)
+	mOrbitYaw(0),
+	mSourceTextureType(Main3DApp::TEXTURE2D)
 {
 
 }
@@ -64,16 +65,21 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	Material* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
 
 
-	//2 Spheres for visualizing SH texture
-	m_pMeshOriginal = m_pMeshMgr->CreateMesh("sphereOriginal");
-	m_pModelLoader->LoadSphere(m_pMeshOriginal, 1.0f, 30, 30);
-	m_pMeshOriginal->SetPosition(c_ballPos1);
-	m_pMeshOriginal->SetMaterial("Mat1");
+	//2 Spheres and 1 cube for visualizing SH texture
+	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh("srcSphere");
+	m_pModelLoader->LoadSphere(m_pMeshSourceSphere, 1.0f, 30, 30);
+	m_pMeshSourceSphere->SetPosition(c_ballPos1);
+	m_pMeshSourceSphere->SetMaterial("Mat1");
 
-	m_pMeshSh = m_pMeshMgr->CreateMesh("sphereSh");
-	m_pModelLoader->LoadSphere(m_pMeshSh, 1.0f, 30, 30);
-	m_pMeshSh->SetPosition(c_ballPos2);
-	m_pMeshSh->SetMaterial("Mat2");
+	m_pMeshShSphere = m_pMeshMgr->CreateMesh("sphereSh");
+	m_pModelLoader->LoadSphere(m_pMeshShSphere, 1.0f, 30, 30);
+	m_pMeshShSphere->SetPosition(c_ballPos2);
+	m_pMeshShSphere->SetMaterial("Mat2");
+
+	m_pMeshSourceCube = m_pMeshMgr->CreateMesh("srcCube");
+	std::vector<N_DefaultVertex> vList;
+	vList.push_back();
+	m_pModelLoader->LoadCustomizedModel(, );
 
 	//create font texture and top-left fps label
 	m_pTextMgr = m_pScene->GetTextMgr();
@@ -129,8 +135,15 @@ void Main3DApp::UpdateFrame()
 
 
 	//add to render list
-	m_pRenderer->AddToRenderQueue(m_pMeshOriginal);
-	m_pRenderer->AddToRenderQueue(m_pMeshSh);
+	if (mSourceTextureType == Main3DApp::SOURCE_TEXTURE_TYPE::TEXTURE2D)
+	{
+		m_pRenderer->AddToRenderQueue(m_pMeshSourceSphere);
+	}
+	else if(mSourceTextureType== Main3DApp::SOURCE_TEXTURE_TYPE::CUBEMAP)
+	{
+		m_pRenderer->AddToRenderQueue(m_pMeshSourceCube);
+	}
+	m_pRenderer->AddToRenderQueue(m_pMeshShSphere);
 	m_pRenderer->AddToRenderQueue(m_pGO_GUI);
 	m_pRenderer->AddToRenderQueue(m_pGO_Axis);
 	m_pRenderer->AddToRenderQueue(m_pMyText_fps);
@@ -143,7 +156,7 @@ void Main3DApp::UpdateFrame()
 	m_pRenderer->PresentToScreen();
 }
 
-bool Main3DApp::LoadOriginalTexture(std::string filePath)
+bool Main3DApp::LoadOriginalTexture2D(std::string filePath)
 {
 	//reload texture
 	if (m_pOriginTex != nullptr)
@@ -157,7 +170,18 @@ bool Main3DApp::LoadOriginalTexture(std::string filePath)
 		return false;
 	}
 
+	mSourceTextureType = Main3DApp::TEXTURE2D;
 	return true;
+}
+
+bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
+{
+	//reload texture
+	if (m_pOriginTex != nullptr)
+	{
+		m_pTexMgr->DeleteTexture2D(c_originTexName);
+		m_pOriginTex = m_pTexMgr->CreateTextureFromFile(filePath, c_originTexName, true, c_defaultTexWidth, c_defaultTexWidth, true);
+	}
 }
 
 bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
@@ -177,6 +201,7 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 	}
 	}
 
+	mSourceTextureType = Main3DApp::CUBEMAP;
 	return true;
 }
 
