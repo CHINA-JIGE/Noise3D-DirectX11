@@ -64,8 +64,14 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	matDesc2.diffuseMapName = "ShTex";
 	Material* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
 
+	N_MaterialDesc matDesc3;
+	matDesc3.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	matDesc3.diffuseColor = NVECTOR3(1.0, 1.0, 1.0);
+	matDesc3.specularColor = NVECTOR3(0, 0, 0);
+	Material* pMat3 = m_pMatMgr->CreateMaterial("MatSolid", matDesc3);
 
-	//2 Spheres and 1 cube for visualizing SH texture
+
+	//2 Spheres and 1 cube(frame) for visualizing SH texture
 	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh("srcSphere");
 	m_pModelLoader->LoadSphere(m_pMeshSourceSphere, 1.0f, 30, 30);
 	m_pMeshSourceSphere->SetPosition(c_ballPos1);
@@ -76,10 +82,11 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pMeshShSphere->SetPosition(c_ballPos2);
 	m_pMeshShSphere->SetMaterial("Mat2");
 
-	m_pMeshSourceCube = m_pMeshMgr->CreateMesh("srcCube");
-	std::vector<N_DefaultVertex> vList;
-	vList.push_back();
-	m_pModelLoader->LoadCustomizedModel(, );
+	m_pMeshSourceCube = m_pMeshMgr->CreateMesh("cubeFrame");
+	m_pModelLoader->LoadBox(m_pMeshSourceCube, 2.1f, 2.1f, 2.1f);
+	m_pMeshSourceCube->SetPosition(c_ballPos1);
+	m_pMeshSourceCube->SetFillMode(NOISE_FILLMODE::NOISE_FILLMODE_WIREFRAME);
+	m_pMeshSourceCube->SetMaterial("MatSolid");
 
 	//create font texture and top-left fps label
 	m_pTextMgr = m_pScene->GetTextMgr();
@@ -141,6 +148,7 @@ void Main3DApp::UpdateFrame()
 	}
 	else if(mSourceTextureType== Main3DApp::SOURCE_TEXTURE_TYPE::CUBEMAP)
 	{
+		m_pRenderer->AddToRenderQueue(m_pMeshSourceSphere);
 		m_pRenderer->AddToRenderQueue(m_pMeshSourceCube);
 	}
 	m_pRenderer->AddToRenderQueue(m_pMeshShSphere);
@@ -179,9 +187,40 @@ bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
 	//reload texture
 	if (m_pOriginTex != nullptr)
 	{
+		//delete previous existed texture
 		m_pTexMgr->DeleteTexture2D(c_originTexName);
-		m_pOriginTex = m_pTexMgr->CreateTextureFromFile(filePath, c_originTexName, true, c_defaultTexWidth, c_defaultTexWidth, true);
+		m_pTexMgr->DeleteTextureCubeMap(c_originCubeMapTex);
+
+		//load cube map and manually map the cube map into a texture2d
+		m_pOriginCubeMap = m_pTexMgr->CreateCubeMapFromDDS(filePath, c_originCubeMapTex, true);//load cube map
+		m_pOriginTex = m_pTexMgr->CreatePureColorTexture(c_originTexName, c_defaultTexWidth, c_defaultTexWidth, NVECTOR4(1, 0, 0, 1.0f),true);//map the cube map to texture 2d
+
+		//map the cubemap into 2d 'longitude-altitude map'
+		uint32_t width = m_pOriginTex->GetWidth();
+		uint32_t height = m_pOriginTex->GetHeight();
+		std::vector<NColor4u> colorBuff(width*height);
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				//fill every pixel with a texel of cube map in certain direction
+				NVECTOR3 dir = Ut::GetDirFromPixelCoord(x, y, width, height);
+				NColor4u cubeMapColor = m_pOriginCubeMap->GetPixel(dir, TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::POINT);
+				colorBuff.at(y*width + x) = cubeMapColor;
+			}
+		}
+		m_pOriginTex->SetPixelArray(colorBuff);
+		m_pOriginTex->UpdateToVideoMemory();
+
 	}
+
+	if (m_pOriginCubeMap == nullptr)
+	{
+		return false;
+	}
+
+	mSourceTextureType = Main3DApp::CUBEMAP;
+	return true;
 }
 
 bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
@@ -201,7 +240,6 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 	}
 	}
 
-	mSourceTextureType = Main3DApp::CUBEMAP;
 	return true;
 }
 
@@ -233,11 +271,12 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 	t.InvertRotation();
 	if (index == 0)
 	{
-		m_pMeshOriginal->SetRotation(t.GetQuaternion());
+		m_pMeshSourceSphere->SetRotation(t.GetQuaternion());
+		m_pMeshSourceCube->SetRotation(t.GetQuaternion());
 	}
 	else if (index == 1)
 	{
-		m_pMeshSh->SetRotation(t.GetQuaternion());
+		m_pMeshShSphere->SetRotation(t.GetQuaternion());
 	}
 
 	return;
@@ -262,12 +301,28 @@ void Main3DApp::SetCamProjType(bool isPerspective)
 	}
 }
 
-
 /*************************************************
 
 								PRIVATE
 
 *************************************************/
+/*void Main3DApp::mFunction_GenSpecialCube(std::vector<Noise3D::N_DefaultVertex>& outVertexList, std::vector<UINT>& outIndexList)
+{
+	float r = 1.0f;
+	N_DefaultVertex v[24];
+	//+x
+	v[0].TexCoord = { 0,0 };
+	v[0].Pos = { 1,1,-1 };
+	v[1].TexCoord = { 0.333333f, 0 };
+	v[1].Pos = { 1, 1, 1 };
+	v[2].TexCoord = { 0, 0.333333f };
+	v[2].Pos = { 1, -1 ,1 };
+	v[3].TexCoord = { 0.333333f, 0.333333f };
+	v[3].Pos = { 1, -1 ,1 };
+
+
+}*/
+
 void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
 {
 	GI::SHVector shvec;
@@ -283,11 +338,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			float normalizedU = float(x) / float(width);//[0,1]
-			float normalizedV = float(y) / float(height);//[0,1]
-			float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
-			float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
-			NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
+			NVECTOR3 dir = Ut::GetDirFromPixelCoord(x, y, width, height);
 			NVECTOR3 reconstructedColor = shvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;

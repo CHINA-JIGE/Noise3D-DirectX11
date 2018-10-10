@@ -204,7 +204,18 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 		resizedImage);
 
 	//pixel format conversion (this format must match the format defined in ID3D11Texture2D desc)
-	if (resizedImage.GetMetadata().format != c_DefaultPixelDxgiFormat)
+	DXGI_FORMAT format = resizedImage.GetMetadata().format;
+	//special care for BlockCompression(BC) format, DirectX::Convert can't directly apply to BC images
+	if (mFunction_IsBlockCompressionFormat(format))
+	{
+		DirectX::Decompress(
+			resizedImage.GetImages(),
+			resizedImage.GetImageCount(),
+			resizedImage.GetMetadata(),
+			c_DefaultPixelDxgiFormat,
+			convertedImage);
+	}
+	else if (format != c_DefaultPixelDxgiFormat)
 	{
 		DirectX::Convert(
 			resizedImage.GetImages(),
@@ -348,9 +359,20 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 
 	//convert pixel format
 	DirectX::ScratchImage convertedImage;
-
+	
 	//pixel format conversion (this format must match the format defined in ID3D11Texture2D desc)
-	if (srcImage.GetMetadata().format != c_DefaultPixelDxgiFormat)
+	DXGI_FORMAT format = srcImage.GetMetadata().format;
+	//special care for BlockCompression(BC) format, DirectX::Convert can't directly apply to BC images
+	if (mFunction_IsBlockCompressionFormat(format))
+	{
+		DirectX::Decompress(
+			srcImage.GetImages(),
+			srcImage.GetImageCount(),
+			srcImage.GetMetadata(),
+			c_DefaultPixelDxgiFormat,
+			convertedImage);
+	}
+	else if (format != c_DefaultPixelDxgiFormat)
 	{
 		DirectX::Convert(
 			srcImage.GetImages(),
@@ -364,7 +386,7 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 	else
 	{
 		//copy
-		convertedImage.InitializeFromImage(*srcImage.GetImages());
+		convertedImage.InitializeArrayFromImages(srcImage.GetImages(), srcImage.GetImageCount());
 	}
 
 #pragma endregion DirectXTex load Image
@@ -504,4 +526,10 @@ NOISE_IMAGE_FILE_FORMAT Noise3D::TextureManager::mFunction_GetImageFileFormat(co
 	if (lowCaseSubfix == "hdr")return NOISE_IMAGE_FILE_FORMAT_HDR;
 	if (lowCaseSubfix == "dds")return NOISE_IMAGE_FILE_FORMAT_DDS;
 	return NOISE_IMAGE_FILE_FORMAT_NOT_SUPPORTED;
+}
+
+bool Noise3D::TextureManager::mFunction_IsBlockCompressionFormat(DXGI_FORMAT f)
+{
+	return ((f>=DXGI_FORMAT_BC1_TYPELESS) && (f<=DXGI_FORMAT_BC5_UNORM))|| 
+		((f>=DXGI_FORMAT_BC6H_TYPELESS) &&(f<=DXGI_FORMAT_BC7_UNORM_SRGB)) ;
 }

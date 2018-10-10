@@ -11,6 +11,7 @@ GUISHLightingApp::GUISHLightingApp(QWidget *parent)
 
 	//"register "signal&slot (must after setupUI)
 	connect(mUI.btn_SelectSphericalMap, &QPushButton::clicked, this, &GUISHLightingApp::Slot_LoadSphericalTexture);
+	connect(mUI.btn_SelectCubeMap, &QPushButton::clicked, this, &GUISHLightingApp::Slot_LoadCubeMap);
 	connect(mUI.actionExit, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_Exit);
 	connect(mUI.actionAbout, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_About);
 	connect(mUI.btn_ComputeSH, &QPushButton::clicked, this, &GUISHLightingApp::Slot_ComputeShCoefficient);
@@ -66,7 +67,15 @@ void GUISHLightingApp::Slot_LoadSphericalTexture()
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
 		mUI.textBrowser_filePath->setText(fileNames.at(0));
-		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTexture2D(mFilePath);
+		bool loadSucceeded = false;
+		try
+		{
+			loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTexture2D(mFilePath);
+		}
+		catch (std::exception e)
+		{
+			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"ÎÆÀí¼ÓÔØÊ§°Ü£¡"));
+		}
 		if (!loadSucceeded)
 		{
 			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"ÎÆÀí¼ÓÔØÊ§°Ü£¡"));
@@ -103,7 +112,15 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
 		mUI.textBrowser_filePath->setText(fileNames.at(0));
-		bool loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTextureCubeMap(mFilePath);
+		bool loadSucceeded = false;
+		try
+		{ 
+			loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTextureCubeMap(mFilePath); 
+		}
+		catch (std::exception e)
+		{
+			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"CubeMapÎÆÀí¼ÓÔØÊ§°Ü£¡"));
+		}
 		if (!loadSucceeded)
 		{
 			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"CubeMapÎÆÀí¼ÓÔØÊ§°Ü£¡"));

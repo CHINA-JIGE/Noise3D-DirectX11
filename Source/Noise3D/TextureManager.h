@@ -57,6 +57,8 @@ namespace Noise3D
 		const DXGI_FORMAT c_DefaultPixelDxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		NOISE_IMAGE_FILE_FORMAT mFunction_GetImageFileFormat(const std::string& fileSubfix);
+
+		bool mFunction_IsBlockCompressionFormat(DXGI_FORMAT f);
 	};
 
 }

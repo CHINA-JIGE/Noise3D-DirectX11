@@ -69,6 +69,8 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/  std::wstring ConvertAnsiStrToWStr(std::string srcStr);
 
+		extern /*_declspec(dllexport)*/ NVECTOR3 GetDirFromPixelCoord(int px, int py, int pixelWidth, int pixelHeight);//longitude-altitude/ spherical mapping
+
 		extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
 		extern /*_declspec(dllexport)*/ NVECTOR2 Lerp(NVECTOR2 v1, NVECTOR2 v2, float t);

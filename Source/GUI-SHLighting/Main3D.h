@@ -46,10 +46,13 @@ public:
 private:
 
 	const char* c_originTexName = "Tex";
+	const char* c_originCubeMapTex = "CubeTex";
 	const char* c_ShTexName = "ShTex";
-	const int c_defaultTexWidth = 512;
-	const Noise3D::NVECTOR3 c_ballPos1 = Noise3D::NVECTOR3(-1.5f, 0, 0);
-	const Noise3D::NVECTOR3 c_ballPos2 = Noise3D::NVECTOR3(1.5f, 0, 0);
+	const int c_defaultTexWidth = 256;
+	const Noise3D::NVECTOR3 c_ballPos1 = Noise3D::NVECTOR3(-1.3f, 0, 0);
+	const Noise3D::NVECTOR3 c_ballPos2 = Noise3D::NVECTOR3(1.3f, 0, 0);
+
+	//void	mFunction_GenSpecialCube(std::vector<Noise3D::N_DefaultVertex>& outVertexList, std::vector<UINT>& outIndexList);
 
 	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
 

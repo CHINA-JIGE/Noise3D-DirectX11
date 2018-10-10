@@ -47,7 +47,6 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 		return NColor4u(255, 0, 255, 255);//error
 	}
 
-
 	if (ITexture::IsSysMemBufferValid())
 	{
 		//normalize the direction to put its end on a width=2 cube 
@@ -65,14 +64,17 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 
 		uint32_t px = 0;
 		uint32_t py = 0;
+		float positiveX = abs(dir.x);
+		float postiveY = abs(dir.y);
+		float postiveZ = abs(dir.z);
 		switch (faceID)
 		{
-		case 0: px = dir.y * mWidth; py = dir.z * mHeight; break;//+x
-		case 1: px = dir.y * mWidth; py = dir.z * mHeight; break;//-x
-		case 2: px = dir.x * mWidth; py = dir.z * mHeight; break;//+y
-		case 3: px = dir.x * mWidth; py = dir.z * mHeight; break;//-y
-		case 4: px = dir.x * mWidth; py = dir.y * mHeight; break;//+z
-		case 5: px = dir.x * mWidth; py = dir.y * mHeight; break;//-z
+		case 0: px = postiveY * mWidth; py = postiveZ * mHeight; break;//+x
+		case 1: px = postiveY * mWidth; py = postiveZ * mHeight; break;//-x
+		case 2: px = positiveX * mWidth; py = postiveZ * mHeight; break;//+y
+		case 3: px = (1.0f - positiveX) * mWidth; py = (1.0f-postiveZ) * mHeight; break;//-y
+		case 4: px = positiveX * mWidth; py = postiveY * mHeight; break;//+z
+		case 5: px = (1.0f-positiveX) * mWidth; py = (1.0f-postiveY) * mHeight; break;//-z
 		default: break;
 		}
 		if (px == mWidth)px = mWidth - 1;

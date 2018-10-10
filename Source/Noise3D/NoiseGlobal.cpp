@@ -147,6 +147,15 @@ using namespace Noise3D;
 	std::wstring wstr(srcStr.size(),L'\0');
 	for (auto e : srcStr)wstr.push_back(e);
 	return wstr;
+}
+NVECTOR3 Noise3D::Ut::GetDirFromPixelCoord(int px, int py, int pixelWidth, int pixelHeight)
+{
+	float normalizedU = float(px) / float(pixelWidth);//[0,1]
+	float normalizedV = float(py) / float(pixelHeight);//[0,1]
+	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
+	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+	NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
+	return dir;
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Lerp(float a, float b, float t)
