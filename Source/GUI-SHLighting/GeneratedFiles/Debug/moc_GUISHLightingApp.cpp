@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_GUISHLightingApp_t {
-    QByteArrayData data[9];
-    char stringdata0[168];
+    QByteArrayData data[10];
+    char stringdata0[198];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,19 +30,21 @@ struct qt_meta_stringdata_GUISHLightingApp_t {
 static const qt_meta_stringdata_GUISHLightingApp_t qt_meta_stringdata_GUISHLightingApp = {
     {
 QT_MOC_LITERAL(0, 0, 16), // "GUISHLightingApp"
-QT_MOC_LITERAL(1, 17, 14), // "Slot_Menu_Exit"
-QT_MOC_LITERAL(2, 32, 0), // ""
-QT_MOC_LITERAL(3, 33, 15), // "Slot_Menu_About"
-QT_MOC_LITERAL(4, 49, 25), // "Slot_LoadSphericalTexture"
-QT_MOC_LITERAL(5, 75, 16), // "Slot_LoadCubeMap"
-QT_MOC_LITERAL(6, 92, 25), // "Slot_ComputeShCoefficient"
-QT_MOC_LITERAL(7, 118, 21), // "Slot_CameraProj_Ortho"
-QT_MOC_LITERAL(8, 140, 27) // "Slot_CameraProj_Perspective"
+QT_MOC_LITERAL(1, 17, 25), // "Slot_LoadSphericalTexture"
+QT_MOC_LITERAL(2, 43, 0), // ""
+QT_MOC_LITERAL(3, 44, 16), // "Slot_LoadCubeMap"
+QT_MOC_LITERAL(4, 61, 29), // "Slot_SaveSHCoefficientsToFile"
+QT_MOC_LITERAL(5, 91, 14), // "Slot_Menu_Exit"
+QT_MOC_LITERAL(6, 106, 15), // "Slot_Menu_About"
+QT_MOC_LITERAL(7, 122, 25), // "Slot_ComputeShCoefficient"
+QT_MOC_LITERAL(8, 148, 21), // "Slot_CameraProj_Ortho"
+QT_MOC_LITERAL(9, 170, 27) // "Slot_CameraProj_Perspective"
 
     },
-    "GUISHLightingApp\0Slot_Menu_Exit\0\0"
-    "Slot_Menu_About\0Slot_LoadSphericalTexture\0"
-    "Slot_LoadCubeMap\0Slot_ComputeShCoefficient\0"
+    "GUISHLightingApp\0Slot_LoadSphericalTexture\0"
+    "\0Slot_LoadCubeMap\0Slot_SaveSHCoefficientsToFile\0"
+    "Slot_Menu_Exit\0Slot_Menu_About\0"
+    "Slot_ComputeShCoefficient\0"
     "Slot_CameraProj_Ortho\0Slot_CameraProj_Perspective"
 };
 #undef QT_MOC_LITERAL
@@ -53,7 +55,7 @@ static const uint qt_meta_data_GUISHLightingApp[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -61,15 +63,17 @@ static const uint qt_meta_data_GUISHLightingApp[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   49,    2, 0x0a /* Public */,
-       3,    0,   50,    2, 0x0a /* Public */,
-       4,    0,   51,    2, 0x0a /* Public */,
-       5,    0,   52,    2, 0x0a /* Public */,
-       6,    0,   53,    2, 0x0a /* Public */,
-       7,    0,   54,    2, 0x0a /* Public */,
-       8,    0,   55,    2, 0x0a /* Public */,
+       1,    0,   54,    2, 0x0a /* Public */,
+       3,    0,   55,    2, 0x0a /* Public */,
+       4,    0,   56,    2, 0x0a /* Public */,
+       5,    0,   57,    2, 0x0a /* Public */,
+       6,    0,   58,    2, 0x0a /* Public */,
+       7,    0,   59,    2, 0x0a /* Public */,
+       8,    0,   60,    2, 0x0a /* Public */,
+       9,    0,   61,    2, 0x0a /* Public */,
 
  // slots: parameters
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -87,13 +91,14 @@ void GUISHLightingApp::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         GUISHLightingApp *_t = static_cast<GUISHLightingApp *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->Slot_Menu_Exit(); break;
-        case 1: _t->Slot_Menu_About(); break;
-        case 2: _t->Slot_LoadSphericalTexture(); break;
-        case 3: _t->Slot_LoadCubeMap(); break;
-        case 4: _t->Slot_ComputeShCoefficient(); break;
-        case 5: _t->Slot_CameraProj_Ortho(); break;
-        case 6: _t->Slot_CameraProj_Perspective(); break;
+        case 0: _t->Slot_LoadSphericalTexture(); break;
+        case 1: _t->Slot_LoadCubeMap(); break;
+        case 2: _t->Slot_SaveSHCoefficientsToFile(); break;
+        case 3: _t->Slot_Menu_Exit(); break;
+        case 4: _t->Slot_Menu_About(); break;
+        case 5: _t->Slot_ComputeShCoefficient(); break;
+        case 6: _t->Slot_CameraProj_Ortho(); break;
+        case 7: _t->Slot_CameraProj_Perspective(); break;
         default: ;
         }
     }
@@ -125,13 +130,13 @@ int GUISHLightingApp::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 7;
+        _id -= 8;
     }
     return _id;
 }

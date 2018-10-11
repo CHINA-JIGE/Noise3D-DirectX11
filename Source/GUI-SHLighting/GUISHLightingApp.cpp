@@ -10,14 +10,14 @@ GUISHLightingApp::GUISHLightingApp(QWidget *parent)
 	m_pRenderCanvas->Initialize(QRect(20, 20, 800, 600));
 
 	//"register "signal&slot (must after setupUI)
-	connect(mUI.btn_SelectSphericalMap, &QPushButton::clicked, this, &GUISHLightingApp::Slot_LoadSphericalTexture);
-	connect(mUI.btn_SelectCubeMap, &QPushButton::clicked, this, &GUISHLightingApp::Slot_LoadCubeMap);
+	connect(mUI.actionLoadCommonTexture, &QAction::triggered, this, &GUISHLightingApp::Slot_LoadSphericalTexture);
+	connect(mUI.actionLoadCubeMap, &QAction::triggered, this, &GUISHLightingApp::Slot_LoadCubeMap);
 	connect(mUI.actionExit, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_Exit);
 	connect(mUI.actionAbout, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_About);
 	connect(mUI.btn_ComputeSH, &QPushButton::clicked, this, &GUISHLightingApp::Slot_ComputeShCoefficient);
-	connect(mUI.actionCameraOrthographic, &QAction::triggered, this, &GUISHLightingApp::Slot_CameraProj_Ortho);
-	connect(mUI.actionCameraPerspective, &QAction::triggered, this, &GUISHLightingApp::Slot_CameraProj_Perspective);
-
+	connect(mUI.btn_CamOrtho, &QPushButton::clicked, this, &GUISHLightingApp::Slot_CameraProj_Ortho);
+	connect(mUI.btn_CamPerspective, &QPushButton::clicked, this, &GUISHLightingApp::Slot_CameraProj_Perspective);
+	connect(mUI.btn_SaveSHCoefficients, &QPushButton::clicked, this, &GUISHLightingApp::Slot_SaveSHCoefficientsToFile);
 	//init text codec(to support Chinese?)
 	QTextCodec::setCodecForLocale(QTextCodec::codecForLocale());
 }
@@ -66,7 +66,7 @@ void GUISHLightingApp::Slot_LoadSphericalTexture()
 	{
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
-		mUI.textBrowser_filePath->setText(fileNames.at(0));
+		//mUI.textBrowser_filePath->setText(fileNames.at(0));
 		bool loadSucceeded = false;
 		try
 		{
@@ -112,7 +112,7 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 	{
 		//store file path info
 		mFilePath = std::string(fileNames.at(0).toStdString());
-		mUI.textBrowser_filePath->setText(fileNames.at(0));
+		//mUI.textBrowser_filePath->setText(fileNames.at(0));
 		bool loadSucceeded = false;
 		try
 		{ 
@@ -128,6 +128,26 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 			QMessageBox::information(this, tr(u8"错误"), tr(u8"CubeMap纹理加载失败！"));
 		}
 	}
+}
+
+void GUISHLightingApp::Slot_SaveSHCoefficientsToFile()
+{
+	QString fileName = QFileDialog::getSaveFileName(this,
+		QString::fromLocal8Bit("保存文件"),
+		"./",
+		tr(u8"文本文件(*.txt)"));
+
+	std::ofstream f(fileName.toStdString(), std::ios::trunc);
+	if (!f.good())
+	{
+		QMessageBox::critical(this, tr(u8"错误"), tr(u8"错误：无法打开文件！"));
+		f.close();
+		return;
+	}
+	f << mUI.textEdit_ShCoefficient->toPlainText().toStdString() << std::endl;
+	f.close();
+
+	QMessageBox::information(this, tr(u8"保存文件"), tr(u8"文件保存完成"));
 }
 
 void GUISHLightingApp::Slot_ComputeShCoefficient()
@@ -152,6 +172,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 		}
 		output += QString("<br/>");
 	}
+	output += QString("<br/>");
 
 	output += "<font color=Green><b>Channel G:</b></font><font color=black><br/>";
 	for (int L = 0; L <= shOrder; ++L)
@@ -163,6 +184,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 		}
 		output += QString("<br/>");
 	}
+	output += QString("<br/>");
 
 	output += "<font color=Blue><b>Channel B:</b></font><font color=black><br/>";
 	for (int L = 0; L <= shOrder; ++L)
@@ -174,6 +196,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 		}
 		output += QString("<br/>");
 	}
+	output += QString("<br/>");
 
 	output += "<font color=Magenta><b>Channel A:</b></font><font color=black><br/>";
 	for (int L = 0; L <= shOrder; ++L)
@@ -185,6 +208,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 		}
 		output += QString("<br/>");
 	}
+	output += QString("<br/>");
 
 	mUI.textEdit_ShCoefficient->setText(output);
 }

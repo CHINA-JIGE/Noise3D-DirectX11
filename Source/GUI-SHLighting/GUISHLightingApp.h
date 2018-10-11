@@ -21,13 +21,15 @@ public:
 
 public slots:
 
-	void Slot_Menu_Exit();
-
-	void Slot_Menu_About();
-
 	void Slot_LoadSphericalTexture();
 
 	void Slot_LoadCubeMap();
+
+	void	Slot_SaveSHCoefficientsToFile();
+
+	void Slot_Menu_Exit();
+
+	void Slot_Menu_About();
 
 	void Slot_ComputeShCoefficient();
 
