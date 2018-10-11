@@ -51,14 +51,15 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 	{
 		//normalize the direction to put its end on a width=2 cube 
 		float normalizedFactor = max(max(abs(dir.x), abs(dir.y)), abs(dir.z));
-		dir /= normalizedFactor;
+		dir /= -normalizedFactor;
+		std::swap(dir.x, dir.z);//right-handed to left-handed
 
 		//cube maps faces: +x, -x, +y, -y, +z, -z
 		uint32_t faceID = -1;
 		if (Ut::TolerantEqual(dir.x , 1.0f))faceID = 0;
 		if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
 		if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
-		if (Ut::TolerantEqual(dir.y , -1.0f))faceID = 3;
+		if (Ut::TolerantEqual(dir.y , -1.0f))faceID =3;
 		if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
 		if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
 

@@ -18,7 +18,7 @@ void Noise3D::GI::ISphericalFunc_Texture2dSampler::SetTexturePtr(Texture2D * pTe
 NColor4f Noise3D::GI::ISphericalFunc_Texture2dSampler::Eval(const NVECTOR3 & dir)
 {
 	//pitch, left-handed [-pi/2,pi/2]
-	float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
+	/*float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
 
 	//yaw, start from z, left-handed
 	float yaw = atan2(dir.x, dir.z);
@@ -32,8 +32,9 @@ NColor4f Noise3D::GI::ISphericalFunc_Texture2dSampler::Eval(const NVECTOR3 & dir
 	uint32_t y = uint32_t(float(height) * normalizedV);
 	if (x == width) x = width - 1;
 	if (y == height) y = height - 1;
-
-	NColor4u c=  m_pTex->GetPixel(x, y);
+	*/
+	auto pixelCoord = Ut::GetPixelCoordFromDir(dir, m_pTex->GetWidth(), m_pTex->GetHeight());
+	NColor4u c=  m_pTex->GetPixel(pixelCoord.first, pixelCoord.second);
 	NColor4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
 	return result;
 };

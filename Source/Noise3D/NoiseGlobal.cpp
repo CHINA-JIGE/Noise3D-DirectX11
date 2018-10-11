@@ -152,14 +152,36 @@ NVECTOR3 Noise3D::Ut::GetDirFromPixelUVCoord(int px, int py, int pixelWidth, int
 {
 	float normalizedU = float(px) / float(pixelWidth);//[0,1]
 	float normalizedV = float(py) / float(pixelHeight);//[0,1]
-	//float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
-	//float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
-	
+
 	//cube map's sampling is considered
-	float yaw = -(normalizedU-0.5f) * 2.0f * Ut::PI - 0.5f*Ut::PI;//[-pi,pi]
-	float pitch = -(normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
+	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+	//float yaw = -(normalizedU-0.5f) * 2.0f * Ut::PI - 0.5f*Ut::PI;//[-pi,pi]
+	//float pitch = -(normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+
 	NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
 	return dir;
+}
+
+std::pair<uint32_t, uint32_t> Noise3D::Ut::GetPixelCoordFromDir(NVECTOR3 dir, int pixelWidth, int pixelHeight)
+{
+	//pitch, left-handed [-pi/2,pi/2]
+	float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
+
+	//yaw, start from z, left-handed
+	float yaw = atan2(dir.x, dir.z);
+
+	//mapped to [0,1]
+	float normalizedU = (yaw / (2.0f * Ut::PI)) + 0.5f;
+	float normalizedV = (pitch / Ut::PI) + 0.5f;
+	//float normalizedU = Ut::Clamp( -yaw / 2.0f*(Ut::PI) + 0.5f,0.0f,1.0f);
+	//float normalizedV = Ut::Clamp( (pitch / Ut::PI) + 0.5f, 0.0f, 1.0f);
+	uint32_t x = uint32_t(float(pixelWidth) * normalizedU);
+	uint32_t y = uint32_t(float(pixelHeight) * normalizedV);
+	if (x == pixelWidth) x = pixelWidth - 1;
+	if (y == pixelHeight) y = pixelHeight - 1;
+
+	return std::make_pair(x, y);
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Lerp(float a, float b, float t)
