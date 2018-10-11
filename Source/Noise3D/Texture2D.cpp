@@ -431,5 +431,6 @@ void NOISE_MACRO_FUNCTION_EXTERN_CALL Texture2D::mFunction_InitTexture(ID3D11Sha
 	ReleaseCOM(pTmpRes);
 	mWidth = texDesc.Width;
 	mHeight = texDesc.Height;
-
+	mMipMapLevels = texDesc.MipLevels;
+	mMipMapChainPixelCount = Ut::ComputeMipMapChainPixelCount(texDesc.MipLevels, mWidth, mHeight);
 }

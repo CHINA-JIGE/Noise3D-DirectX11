@@ -413,11 +413,10 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 
 	//Create a new Texture object
 	TextureCubeMap* pTexObj = IFactory<TextureCubeMap>::CreateObject(cubeTextureName);
-	//std::vector<NColor4u> emptyBuff;
-	//pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false);
 	if (keepCopyInMemory)
 	{
-		uint32_t pixelCount = srcMetaData.width*srcMetaData.height * srcMetaData.arraySize;//arraysize should be 6
+		uint32_t pixelCount = Ut::ComputeMipMapChainPixelCount(srcMetaData.mipLevels,srcMetaData.width,srcMetaData.height) * srcMetaData.arraySize;//arraysize should be 6
+		//uint32_t pixelCount = srcMetaData.width*srcMetaData.height * srcMetaData.arraySize;//arraysize should be 6
 		uint8_t* pData = convertedImage.GetPixels();
 		std::vector<NColor4u> pixelBuffer(pixelCount);
 

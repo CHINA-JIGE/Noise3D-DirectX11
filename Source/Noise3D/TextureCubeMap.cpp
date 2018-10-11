@@ -54,34 +54,47 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 		dir /= normalizedFactor;
 
 		//cube maps faces: +x, -x, +y, -y, +z, -z
-		uint32_t faceID = 0;
-		if (dir.x == 1.0f)faceID = 0;
-		if (dir.x == -1.0f)faceID =1;
-		if (dir.y == 1.0f)faceID = 2;
-		if (dir.y == -1.0f)faceID = 3;
-		if (dir.z == 1.0f)faceID = 4;
-		if (dir.z == -1.0f)faceID = 5;
+		uint32_t faceID = -1;
+		if (Ut::TolerantEqual(dir.x , 1.0f))faceID = 0;
+		if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
+		if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
+		if (Ut::TolerantEqual(dir.y , -1.0f))faceID = 3;
+		if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
+		if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
+
+		if (faceID >= 6)
+		{
+			ERROR_MSG("GetPixel : direction invalid.");
+			return NColor4u(0, 255, 255, 255);//error
+		}
 
 		uint32_t px = 0;
 		uint32_t py = 0;
-		float positiveX = abs(dir.x);
-		float postiveY = abs(dir.y);
-		float postiveZ = abs(dir.z);
+		float positiveX = (dir.x+ 1.0f)/2.0f;
+		float positiveY = (dir.y + 1.0f)/2.0f;
+		float positiveZ = (dir.z + 1.0f)/2.0f;
 		switch (faceID)
 		{
-		case 0: px = postiveY * mWidth; py = postiveZ * mHeight; break;//+x
-		case 1: px = postiveY * mWidth; py = postiveZ * mHeight; break;//-x
-		case 2: px = positiveX * mWidth; py = postiveZ * mHeight; break;//+y
-		case 3: px = (1.0f - positiveX) * mWidth; py = (1.0f-postiveZ) * mHeight; break;//-y
-		case 4: px = positiveX * mWidth; py = postiveY * mHeight; break;//+z
-		case 5: px = (1.0f-positiveX) * mWidth; py = (1.0f-postiveY) * mHeight; break;//-z
+		case 0: px = (1.0f-positiveZ) * mWidth; py = (1.0f- positiveY) * mHeight; break;//+x
+		case 1: px = (positiveZ) * mWidth; py = (1.0f - positiveY) * mHeight; break;//-x
+		case 2: px = positiveX * mWidth; py = (positiveZ) * mHeight; break;//+y
+		case 3: px = (positiveX) * mWidth; py = (1.0f - positiveZ) * mHeight; break;//-y
+		case 4: px = (positiveX) * mWidth; py = (1.0f - positiveY) * mHeight; break;//+z
+		case 5: px = (1.0f-positiveX) * mWidth; py = (1.0f-positiveY) * mHeight; break;//-z
 		default: break;
 		}
 		if (px == mWidth)px = mWidth - 1;
 		if (py == mHeight)py = mHeight - 1;
 
-		//pixel index with no mip map
-		UINT pixelIndex = faceID * mWidth * mHeight + py *mWidth + px;
+		//WARNING: mip maps will affect the index calculation because the memory layout is:
+		//+X (level0 1 2 3 .... n) 
+		//-X(Level0 1 2....n) 
+		//+Y(Level0 1 2....n) 
+		//-Y(Level0 1 2....n) 
+		//+Z(Level0 1 2....n) 
+		//-Z(Level0 1 2....n) 
+		//mip map chain pixel pitch is initialized when Texture is firstly loaded.
+		uint32_t pixelIndex = faceID * mMipMapChainPixelCount + py *mWidth + px;
 		return mPixelBuffer.at(pixelIndex);
 	}
 	else
@@ -115,4 +128,6 @@ void NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::TextureCubeMap::mFunction_InitTex
 	ReleaseCOM(pTmpRes);
 	mWidth = texDesc.Width;
 	mHeight = texDesc.Height;
+	mMipMapLevels = texDesc.MipLevels;
+	mMipMapChainPixelCount = Ut::ComputeMipMapChainPixelCount(texDesc.MipLevels, mWidth, mHeight);
 }

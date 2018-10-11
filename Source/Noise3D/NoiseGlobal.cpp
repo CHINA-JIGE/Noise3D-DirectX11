@@ -148,12 +148,16 @@ using namespace Noise3D;
 	for (auto e : srcStr)wstr.push_back(e);
 	return wstr;
 }
-NVECTOR3 Noise3D::Ut::GetDirFromPixelCoord(int px, int py, int pixelWidth, int pixelHeight)
+NVECTOR3 Noise3D::Ut::GetDirFromPixelUVCoord(int px, int py, int pixelWidth, int pixelHeight)
 {
 	float normalizedU = float(px) / float(pixelWidth);//[0,1]
 	float normalizedV = float(py) / float(pixelHeight);//[0,1]
-	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
-	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+	//float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
+	//float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+	
+	//cube map's sampling is considered
+	float yaw = -(normalizedU-0.5f) * 2.0f * Ut::PI - 0.5f*Ut::PI;//[-pi,pi]
+	float pitch = -(normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
 	NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
 	return dir;
 };
@@ -201,6 +205,21 @@ NVECTOR3 Noise3D::Ut::GetDirFromPixelCoord(int px, int py, int pixelWidth, int p
 bool Noise3D::Ut::TolerantEqual(float lhs, float rhs, float errorLimit)
 {
 	return (abs(lhs - rhs) < errorLimit);
+}
+uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height)
+{
+	//calculate the pitch of one mipmap chain
+	// sum(1,2,4,8....,2^n)=a_1(1-q^n)/(1-q) = 2^n-1
+	uint32_t sum = 0;
+	uint32_t tmpWidth = width;
+	uint32_t tmpHeight = height;
+	for (int i = 0; i < mipLevel; ++i)
+	{
+		sum += tmpWidth * tmpHeight;
+		tmpWidth /= 2;
+		tmpHeight /= 2;
+	}
+	return  sum;
 };
 
 

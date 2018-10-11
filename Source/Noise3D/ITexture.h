@@ -24,6 +24,8 @@ namespace Noise3D
 
 		bool	IsSysMemBufferValid() { return mIsPixelBufferInMemValid; }
 
+		uint32_t GetMipMapLevels() { return mMipMapLevels; }
+
 	protected:
 
 		friend class IRenderInfrastructure;
@@ -44,9 +46,11 @@ namespace Noise3D
 			std::vector<NColor4u>&& pixelBuff,
 			bool isSysMemBuffValid)=0;
 
-		UINT mArraySize;//common=1, cubeMap=6
-		UINT mWidth;//pixel width
-		UINT mHeight;//pixel height
+		uint32_t mArraySize;//common=1, cubeMap=6
+		uint32_t mMipMapLevels;
+		uint32_t mMipMapChainPixelCount;//if this is a cube map(texture array), then this pitch is essential
+		uint32_t mWidth;//pixel width
+		uint32_t mHeight;//pixel height
 		N_UID	mTextureUid;
 		std::vector<NColor4u> mPixelBuffer;//a copy of pixel data in system memory
 		bool	mIsPixelBufferInMemValid;
