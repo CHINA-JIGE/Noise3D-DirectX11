@@ -114,13 +114,13 @@ void GUISHLightingApp::Slot_LoadCubeMap()
 		mFilePath = std::string(fileNames.at(0).toStdString());
 		mUI.textBrowser_filePath->setText(fileNames.at(0));
 		bool loadSucceeded = false;
-		//try
+		try
 		{ 
 			loadSucceeded = m_pRenderCanvas->GetMain3dApp().LoadOriginalTextureCubeMap(mFilePath); 
 		}
-		//catch (std::exception e)
+		catch (std::exception e)
 		{
-			//QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"CubeMapÎÆÀí¼ÓÔØÊ§°Ü£¡Exception:")  +e.what());
+			QMessageBox::information(this, tr(u8"´íÎó"), tr(u8"CubeMapÎÆÀí¼ÓÔØÊ§°Ü£¡Exception:")  +e.what());
 			return;
 		}
 		if (!loadSucceeded)
@@ -137,7 +137,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 	int monteCarloSampleCount = mUI.textEdit_monteCarlo->toPlainText().toInt();
 
 	//compute SH texture
-	std::vector<NVECTOR3> shVector;
+	std::vector<NColor4f> shVector;
 	m_pRenderCanvas->GetMain3dApp().ComputeShTexture(mTextureType, shOrder, monteCarloSampleCount, shVector);
 
 	//output to text edit in given format
@@ -171,6 +171,17 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 		for (int M = -L; M <= L; ++M)
 		{
 			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).z) + QString(" ");
+		}
+		output += QString("<br/>");
+	}
+
+	output += "<font color=Magenta><b>Channel A:</b></font><font color=black><br/>";
+	for (int L = 0; L <= shOrder; ++L)
+	{
+		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+		for (int M = -L; M <= L; ++M)
+		{
+			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).w) + QString(" ");
 		}
 		output += QString("<br/>");
 	}

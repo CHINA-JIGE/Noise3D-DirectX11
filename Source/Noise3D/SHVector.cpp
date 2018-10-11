@@ -15,7 +15,7 @@ Noise3D::GI::SHVector::SHVector():
 
 }
 
-void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NVECTOR3>* pTargetFunc)
+void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NColor4f>* pTargetFunc)
 {
 	if (highestOrderIndex < 0)
 	{
@@ -49,7 +49,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 			{
 				//convolve target spherical function 'pTargetFunc f(x)' with convolution kernel pSHFunc
 				//now just sum them up on sphere surface, monte-carlo integration's division will be done later
-				NVECTOR3 color = pTargetFunc->Eval(dir);
+				NColor4f color = pTargetFunc->Eval(dir);
 				float sphFunc = GI::SH(L, M, dir);
 				mCoefficients.at(SH_FlattenIndex(L, M)) += color * sphFunc;
 			}
@@ -67,10 +67,10 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 	}
 }
 
-NVECTOR3 Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
+NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 {
 	//float result = 0.0f;
-	NVECTOR3 result = { 0,0,0 };
+	NVECTOR4 result = { 0,0,0,0};
 	for (int L = 0; L <= mOrder; ++L)
 	{
 		//M--coefficient index inside a SH band
@@ -79,12 +79,12 @@ NVECTOR3 Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 			result += mCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
 		}
 	}
-	result = Noise3D::Ut::Clamp(result, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	result = Noise3D::Ut::Clamp(result, NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 1.0f, 1.0f,1.0f));
 	return result;
 }
 
 
-NVECTOR3 Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
+NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 {
 	//(a1,a2,a3,a4,.....,0,0,0)
 	//dot
@@ -95,7 +95,7 @@ NVECTOR3 Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 	}
 
 	//float result = 0.0f;
-	NVECTOR3 result = { 0,0,0 };
+	NColor4f result = { 0,0,0,0 };
 	int minOrder = min(mOrder, rhs.GetOrder());
 	int coefficientCount = minOrder * minOrder;
 	for (int i = 0; i < coefficientCount; ++i)
@@ -106,7 +106,7 @@ NVECTOR3 Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 	return result;
 }
 
-void Noise3D::GI::SHVector::GetCoefficients(std::vector<NVECTOR3>& outList)
+void Noise3D::GI::SHVector::GetCoefficients(std::vector<NColor4f>& outList)
 {
 	outList = mCoefficients;
 }
@@ -116,7 +116,7 @@ int Noise3D::GI::SHVector::GetOrder()const
 	return mOrder;
 }
 
-void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::vector<NVECTOR3>& list)
+void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::vector<NColor4f>& list)
 {
 	//n order, n^2 coefficient
 	if (highestOrderIndex * highestOrderIndex != list.size())

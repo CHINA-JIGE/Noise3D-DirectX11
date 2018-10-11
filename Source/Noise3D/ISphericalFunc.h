@@ -21,18 +21,33 @@ namespace Noise3D
 		};
 
 		//concrete spherical func implementation based on texture sampling in spherical mapping way
-		class ISphericalMappingTextureSampler : public ISphericalFunc<NVECTOR3>
+		class ISphericalFunc_Texture2dSampler : public ISphericalFunc<NColor4f>
 		{
 		public:
 
 			void SetTexturePtr(Texture2D* pTex);
 
 			//evaluate a spherical function value by sampling a texture
-			virtual NVECTOR3 Eval(const NVECTOR3& dir) override;
+			virtual NColor4f Eval(const NVECTOR3& dir) override;
 
 		private:
 
 			Texture2D* m_pTex;
+		};
+
+		//concrete spherical func implementation based on cube map
+		class ISphericalFunc_CubeMapSampler : public ISphericalFunc<NColor4f>
+		{
+		public:
+
+			void SetTexturePtr(TextureCubeMap* pTex);
+
+			//evaluate a spherical function value by sampling a texture
+			virtual NColor4f Eval(const NVECTOR3& dir) override;
+
+		private:
+
+			TextureCubeMap* m_pTex;
 		};
 
 	}

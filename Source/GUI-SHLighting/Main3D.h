@@ -35,7 +35,7 @@ public:
 
 	bool LoadOriginalTextureCubeMap(std::string filePath);
 
-	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
+	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
 
 	void RotateBall(int index, float deltaYaw, float deltaPitch);
 
@@ -54,9 +54,9 @@ private:
 
 	//void	mFunction_GenSpecialCube(std::vector<Noise3D::N_DefaultVertex>& outVertexList, std::vector<UINT>& outIndexList);
 
-	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
+	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
 
-	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NVECTOR3>& outShVector);
+	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
 
 	SOURCE_TEXTURE_TYPE mSourceTextureType;
 

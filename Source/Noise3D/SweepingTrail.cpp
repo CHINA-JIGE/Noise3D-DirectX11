@@ -345,7 +345,7 @@ int Noise3D::SweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float
 
 	//Cubic Hermite interplation is used between each passed-in pair of line segments
 	float unitRatio = 1.0f / desc.interpolation_steps;
-	for (int i = 0; i < desc.interpolation_steps; ++i)
+	for (uint32_t i = 0; i < desc.interpolation_steps; ++i)
 	{
 		//tailCollapsingFactor is usually 0.0f (but the tail LS's factor will be larger than 0.0f because the tail keep approaching the second last LS)
 		float frontLerpRatio = (1.0f - desc.collapsingFactor) *  i * unitRatio;

@@ -41,7 +41,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	//2 textures
 	m_pOriginTex = m_pTexMgr->CreateTextureFromFile("../media/example.jpg", c_originTexName, true, 512, 512, true);
 	m_pShTex = m_pTexMgr->CreatePureColorTexture(c_ShTexName, c_defaultTexWidth, c_defaultTexWidth, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
-	std::vector<NVECTOR3> tmpShVector;
+	std::vector<NColor4f> tmpShVector;
 	mFunction_SHPreprocess_SphericalMap(3,10000, tmpShVector);
 
 	//light to exhibit base color
@@ -223,7 +223,7 @@ bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
 	return true;
 }
 
-bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
+bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
 {
 	switch (texType)
 	{
@@ -306,27 +306,11 @@ void Main3DApp::SetCamProjType(bool isPerspective)
 								PRIVATE
 
 *************************************************/
-/*void Main3DApp::mFunction_GenSpecialCube(std::vector<Noise3D::N_DefaultVertex>& outVertexList, std::vector<UINT>& outIndexList)
+void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
 {
-	float r = 1.0f;
-	N_DefaultVertex v[24];
-	//+x
-	v[0].TexCoord = { 0,0 };
-	v[0].Pos = { 1,1,-1 };
-	v[1].TexCoord = { 0.333333f, 0 };
-	v[1].Pos = { 1, 1, 1 };
-	v[2].TexCoord = { 0, 0.333333f };
-	v[2].Pos = { 1, -1 ,1 };
-	v[3].TexCoord = { 0.333333f, 0.333333f };
-	v[3].Pos = { 1, -1 ,1 };
-
-
-}*/
-
-void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
-{
+	//compute SH factors
 	GI::SHVector shvec;
-	GI::ISphericalMappingTextureSampler defaultSphFunc;
+	GI::ISphericalFunc_Texture2dSampler defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginTex);
 	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	shvec.GetCoefficients(outShVector);
@@ -348,6 +332,28 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 	m_pShTex->UpdateToVideoMemory();
 }
 
-void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<NVECTOR3>& outShVector)
+void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
 {
+	//compute SH factors
+	GI::SHVector shvec;
+	GI::ISphericalFunc_CubeMapSampler defaultSphFunc;
+	defaultSphFunc.SetTexturePtr(m_pOriginCubeMap);
+	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
+	shvec.GetCoefficients(outShVector);
+
+	uint32_t width = m_pShTex->GetWidth();
+	uint32_t height = m_pShTex->GetHeight();
+	std::vector<NColor4u> colorBuff(width*height);
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			NVECTOR3 dir = Ut::GetDirFromPixelUVCoord(x, y, width, height);
+			NColor4f reconstructedColor = shvec.Eval(dir);
+			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			colorBuff.at(y*width + x) = color;
+		}
+	}
+	m_pShTex->SetPixelArray(colorBuff);
+	m_pShTex->UpdateToVideoMemory();
 }

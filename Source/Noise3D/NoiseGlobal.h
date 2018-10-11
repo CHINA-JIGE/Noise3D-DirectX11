@@ -55,7 +55,7 @@ namespace Noise3D
 	//Global utility function
 	namespace Ut
 	{
-		const float PI = 3.141592653f;
+		constexpr float PI = 3.141592653f;
 
 		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
@@ -84,6 +84,10 @@ namespace Noise3D
 		extern /*declspec(dllexport)*/ double Clamp(double val, double min, double max);
 
 		extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
+
+		extern /*_declspec(dllexport)*/ NVECTOR4 Clamp(const NVECTOR4& target, const NVECTOR4& min, const NVECTOR4& max);
+
+		extern /*_declspec(dllexport)*/ NColor4f Clamp(const NColor4f& target, const NColor4f& min, const NColor4f& max);
 
 		extern /*_declspec(dllexport)*/ NVECTOR3 CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t);
 	

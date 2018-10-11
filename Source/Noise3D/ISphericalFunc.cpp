@@ -9,13 +9,13 @@
 
 using namespace Noise3D;
 
-void Noise3D::GI::ISphericalMappingTextureSampler::SetTexturePtr(Texture2D * pTex)
+void Noise3D::GI::ISphericalFunc_Texture2dSampler::SetTexturePtr(Texture2D * pTex)
 {
 	if (pTex == nullptr)ERROR_MSG("ISphericalFunc: Texture pointer invalid!");
 	m_pTex = pTex;
 }
 
-NVECTOR3 Noise3D::GI::ISphericalMappingTextureSampler::Eval(const NVECTOR3 & dir)
+NColor4f Noise3D::GI::ISphericalFunc_Texture2dSampler::Eval(const NVECTOR3 & dir)
 {
 	//pitch, left-handed [-pi/2,pi/2]
 	float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
@@ -34,6 +34,21 @@ NVECTOR3 Noise3D::GI::ISphericalMappingTextureSampler::Eval(const NVECTOR3 & dir
 	if (y == height) y = height - 1;
 
 	NColor4u c=  m_pTex->GetPixel(x, y);
-	NVECTOR3 result = { c.r / 256.0f, c.g / 256.0f, c.b / 256.0f };
+	NColor4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
 	return result;
 };
+
+
+//**************************Cube Map Sampler*************************
+void Noise3D::GI::ISphericalFunc_CubeMapSampler::SetTexturePtr(TextureCubeMap * pTex)
+{
+	if (pTex == nullptr)ERROR_MSG("ISphericalFunc: Texture pointer invalid!");
+	m_pTex = pTex;
+}
+
+NColor4f Noise3D::GI::ISphericalFunc_CubeMapSampler::Eval(const NVECTOR3 & dir)
+{
+	NColor4u c = m_pTex->GetPixel(dir,TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::BILINEAR);
+	NColor4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
+	return result;
+}

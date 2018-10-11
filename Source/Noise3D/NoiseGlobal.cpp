@@ -197,6 +197,16 @@ NVECTOR3 Noise3D::Ut::GetDirFromPixelUVCoord(int px, int py, int pixelWidth, int
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 }
 
+NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
+{
+	return NVECTOR4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
+}
+
+NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
+{
+	return NColor4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
+}
+
 /*_declspec(dllexport)*/  inline NVECTOR3 Noise3D::Ut::CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t)
 {
 	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
@@ -213,7 +223,7 @@ uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t w
 	uint32_t sum = 0;
 	uint32_t tmpWidth = width;
 	uint32_t tmpHeight = height;
-	for (int i = 0; i < mipLevel; ++i)
+	for (uint32_t i = 0; i < mipLevel; ++i)
 	{
 		sum += tmpWidth * tmpHeight;
 		tmpWidth /= 2;

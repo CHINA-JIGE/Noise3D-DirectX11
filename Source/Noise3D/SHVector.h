@@ -32,27 +32,27 @@ namespace Noise3D
 
 			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
 			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_n())
-			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NVECTOR3>* pTargetFunc);
+			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NColor4f>* pTargetFunc);
 
 			//reconstruct SH signal and evaluate spherical function value in given direction
-			NVECTOR3 Eval(NVECTOR3 dir);
+			NColor4f Eval(NVECTOR3 dir);
 
 			//perform SH-based integration (common usage is integration between spherical irradiance function
 			//& transfer function to get the final illuminated color) (Actually a dot product of 2 SH vectors)
 			//if the 2 operand's dimension are not equal, 0 will be used to pad to calculate dot product
-			NVECTOR3 Integrate(const SHVector& rhs);
+			NColor4f Integrate(const SHVector& rhs);
 
 			//
 			void Rotate(float theta, float phi);
 
 			//get SH coefficient
-			void GetCoefficients(std::vector<NVECTOR3>& outList);
+			void GetCoefficients(std::vector<NColor4f>& outList);
 
 			//get current SH order
 			int GetOrder() const;
 
-			//manually set coefficient (rgb, 3 channels, 1 NVECTOR3 stands for 1 coefficient in RGB channel seperately)
-			void SetCoefficients(int highestOrderIndex, const std::vector<NVECTOR3>& list);
+			//manually set coefficient (rgba, 4 channels, 1 NVECTOR4 stands for 1 coefficient in RGBA channel seperately)
+			void SetCoefficients(int highestOrderIndex, const std::vector<NColor4f>& list);
 
 		private:
 
@@ -64,7 +64,7 @@ namespace Noise3D
 
 			//SH coefficients
 			//std::vector<float> mCoefficients;
-			std::vector<NVECTOR3> mCoefficients;
+			std::vector<NColor4f> mCoefficients;
 
 		};
 
