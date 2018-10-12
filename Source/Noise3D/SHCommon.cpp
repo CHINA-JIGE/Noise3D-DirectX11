@@ -80,19 +80,68 @@ float Noise3D::GI::SH(int l, int m, float yaw, float pitch)
 	return SH(l, m, vec);
 }
 
-float Noise3D::GI::SH_n(int l, int m, NVECTOR3 dir)
+float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
 {
 	ERROR_MSG("NOT Implemented!");
 	return 0.0f;
 }
 
-float Noise3D::GI::SH_n(int l, int m, float theta, float phi)
+float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 {
-	ERROR_MSG("NOT Implemented!");
-	return 0.0f;
+	NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
+	return SH_Recursive(l, m, vec);
 }
 
 int Noise3D::GI::SH_FlattenIndex(int l, int m)
 {
 	return l*(l + 1) + m;
+}
+
+float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
+{
+	//there is 3 recurrence relation to calculate given ALP, (then ALP is used to compute SH function)
+	//***to calculate diagonal elements
+	//1. P_m_m = (-1)^m * (2m-1)!! * (sqrt(1-x^2)^m)  (WARNING, (2m-1)!! = 1 * 3 * 5 * .... (2m-1) , this is double factorial
+	//***to calculate second top diagonal elements
+	//2. P_m_(m+1) = x(2m+1)P_m_m
+	//***to calculate every column
+	//3.  (l-m)P_m_l = x(2l-1)P_m_(l-1)- (l+m-1)P_m_(l-2)
+
+	//***stage 1*** if(l==m), return in advance (use eq. 1)
+	float P_m_m = 1;//p_0_0=1
+	if (m > 0)
+	{
+		float sqrtTermBase = sqrt(1 - x*x);
+		float doubleFactorialTermBase = 1.0f;
+		for (int i = 1; i <= m; ++i)
+		{
+			P_m_m *= (-doubleFactorialTermBase * sqrtTermBase);
+			doubleFactorialTermBase += 2.0f;
+		}
+	}
+	else
+	{
+		ERROR_MSG("AssociatedLegendrePolynomial: m must be positive");
+		return 0.0f;
+	}
+	if (l == m)return P_m_m;
+
+	//***stage 2*** if(l==m+1), return in advance (use eq. 2)
+	float P_m_mp1 = x * (2 * m + 1) * P_m_m;
+	if (l == m + 1) return P_m_mp1;
+
+	//***stage 3***we now have the first and second term in this column (in which m are the same),
+	// iterate to get target band's element (use eq. 3)
+	float P_result = 0.0f;
+	float P_termBandMinu2 = P_m_m;
+	float P_termBandMinu1 = P_m_mp1;
+	for (int tmpL = m + 2; tmpL <= l; ++tmpL)
+	{
+		P_result = (2.0f * float(tmpL) - 1.0f) * x * P_termBandMinu1 - float(tmpL - m + 1) * P_termBandMinu2;
+		//prepare for next iteration
+		P_termBandMinu2 = P_termBandMinu1;
+		P_termBandMinu1 = P_result;
+	}
+
+	return P_result;
 }

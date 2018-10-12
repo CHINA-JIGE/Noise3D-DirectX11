@@ -18,12 +18,15 @@ namespace Noise3D
 		extern float SH(int l, int m, float yaw, float pitch);
 
 		//Real Spherical Harmonic function (infinite band, implemented with recursive formula)
-		extern float SH_n(int l, int m, NVECTOR3 dir);
+		extern float SH_Recursive(int l, int m, NVECTOR3 dir);
 
 		//Real Spherical Harmonic function (infinite band, implemented with recursive formula)(theta--pitch; phi--yaw, start from z axis)
-		extern float SH_n(int l, int m, float yaw, float pitch);
+		extern float SH_Recursive(int l, int m, float yaw, float pitch);
 
 		//given 2-dimension params and return flattened linear index
 		extern int SH_FlattenIndex(int l, int m);
+
+		//associated legendre polynomial will be used by SH function
+		extern float AssociatedLegendrePolynomial(int l, int m, float x);
 	}
 };

@@ -31,7 +31,7 @@ namespace Noise3D
 			SHVector();
 
 			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
-			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_n())
+			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_Recursive())
 			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NColor4f>* pTargetFunc);
 
 			//reconstruct SH signal and evaluate spherical function value in given direction
