@@ -204,7 +204,7 @@ bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
 			for (int x = 0; x < width; ++x)
 			{
 				//fill every pixel with a texel of cube map in certain direction
-				NVECTOR3 dir = Ut::GetDirFromPixelUVCoord(x, y, width, height);
+				NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
 				NColor4u cubeMapColor = m_pOriginCubeMap->GetPixel(dir, TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::POINT);
 				colorBuff.at(y*width + x) = cubeMapColor;
 			}
@@ -322,7 +322,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			NVECTOR3 dir = Ut::GetDirFromPixelUVCoord(x, y, width, height);
+			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
 			NVECTOR3 reconstructedColor = shvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
@@ -348,7 +348,7 @@ void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSample
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			NVECTOR3 dir = Ut::GetDirFromPixelUVCoord(x, y, width, height);
+			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
 			NColor4f reconstructedColor = shvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;

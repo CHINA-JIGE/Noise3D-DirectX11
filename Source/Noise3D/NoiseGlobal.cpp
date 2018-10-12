@@ -148,7 +148,7 @@ using namespace Noise3D;
 	for (auto e : srcStr)wstr.push_back(e);
 	return wstr;
 }
-NVECTOR3 Noise3D::Ut::GetDirFromPixelUVCoord(int px, int py, int pixelWidth, int pixelHeight)
+inline NVECTOR3 Noise3D::Ut::PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight)
 {
 	float normalizedU = float(px) / float(pixelWidth);//[0,1]
 	float normalizedV = float(py) / float(pixelHeight);//[0,1]
@@ -156,32 +156,51 @@ NVECTOR3 Noise3D::Ut::GetDirFromPixelUVCoord(int px, int py, int pixelWidth, int
 	//cube map's sampling is considered
 	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
 	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
-	//float yaw = -(normalizedU-0.5f) * 2.0f * Ut::PI - 0.5f*Ut::PI;//[-pi,pi]
-	//float pitch = -(normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
 
-	NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
+	NVECTOR3 dir = Ut::YawPitchToDirection(yaw, pitch);
+	//NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
 	return dir;
 }
 
-std::pair<uint32_t, uint32_t> Noise3D::Ut::GetPixelCoordFromDir(NVECTOR3 dir, int pixelWidth, int pixelHeight)
+inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, int pixelWidth, int pixelHeight, uint32_t& outPixelX, uint32_t& outPixelY)
 {
 	//pitch, left-handed [-pi/2,pi/2]
-	float pitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
-
-	//yaw, start from z, left-handed
-	float yaw = atan2(dir.x, dir.z);
+	float pitch = 0.0f, yaw = 0.0f;
+	Ut::DirectionToYawPitch(dir, yaw, pitch);
 
 	//mapped to [0,1]
 	float normalizedU = (yaw / (2.0f * Ut::PI)) + 0.5f;
 	float normalizedV = (pitch / Ut::PI) + 0.5f;
-	//float normalizedU = Ut::Clamp( -yaw / 2.0f*(Ut::PI) + 0.5f,0.0f,1.0f);
-	//float normalizedV = Ut::Clamp( (pitch / Ut::PI) + 0.5f, 0.0f, 1.0f);
 	uint32_t x = uint32_t(float(pixelWidth) * normalizedU);
 	uint32_t y = uint32_t(float(pixelHeight) * normalizedV);
 	if (x == pixelWidth) x = pixelWidth - 1;
 	if (y == pixelHeight) y = pixelHeight - 1;
+	outPixelX = x;
+	outPixelY = y;
+}
 
-	return std::make_pair(x, y);
+inline void Noise3D::Ut::DirectionToYawPitch(NVECTOR3 dir, float& outYaw, float& outPitch)
+{
+	//yaw, start from z, left-handed
+	outYaw = atan2(dir.x, dir.z);
+	//pitch, left-handed [-pi/2,pi/2]
+	outPitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
+}
+
+inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
+{
+	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
+}
+
+/*_declspec(dllexport)*/ inline int Noise3D::Ut::Factorial(int x)
+{
+	if (x == 0) return 1;
+	int sum = 1;
+	for (int i = 1; i <= x; ++i)
+	{
+		sum *= i;
+	}
+	return sum;
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Lerp(float a, float b, float t)

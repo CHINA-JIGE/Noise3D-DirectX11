@@ -8,13 +8,11 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+#define SH_ASSERT(expr, prompt) if((expr)==false){ERROR_MSG(prompt);return 0.0f;}
 
 float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 {
-#define SH_ASSERT(expr, prompt) if((expr)==false){ERROR_MSG(prompt);return 0.0f;}
-
 	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
-	SH_ASSERT(l <= 3, "SH function: not supported if band index is larger than 3");
 	SH_ASSERT(l >= 0, "SH function: band index l should be positive");
 	SH_ASSERT(abs(m) <= l, "SH function: coefficient index m is out of range");
 
@@ -68,7 +66,7 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	case 13: result = shTermFactor[13] * x * (4*z*z - x*x - y*y); break;
 	case 14: result = shTermFactor[14] * (x*x - y*y) *z; break;
 	case 15: result = shTermFactor[15] * (x*x - 3*y*y)*x; break;
-	default: result = 0.0f; ERROR_MSG("SH function: not supported if band index is larger than 3!"); break;
+	default: result = SH_Recursive(l,m,dir); break;
 	}
 
 	return result;
@@ -82,14 +80,32 @@ float Noise3D::GI::SH(int l, int m, float yaw, float pitch)
 
 float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
 {
-	ERROR_MSG("NOT Implemented!");
-	return 0.0f;
+	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
+	//normalize the dir (unit sphere assumption)
+	dir.Normalize();
+
+	float yaw = 0.0f, pitch = 0.0f;
+	Ut::DirectionToYawPitch(dir,yaw,pitch);
+	return SH_Recursive(l, m, yaw, pitch);
 }
 
 float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 {
-	NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
-	return SH_Recursive(l, m, vec);
+	//associate legendre polynomial is implemented in a recursive way. for more detail
+	//plz refer to <Spherical Harmonic Lighting: the Gritty Details>
+	auto K = [](int l, int m)->float
+	{
+		// renormalisation constant term(normalize Associated Legendre Polynomial) for SH function
+		float temp = ((2.0f*l + 1.0f)*Ut::Factorial(l - m)) / (4.0f*Ut::PI*Ut::Factorial(l + m));
+		return sqrtf(temp);
+	};
+
+	//theta--pitch, phi--yaw
+	const float sqrt2 = sqrtf(2.0f);
+	if (m == 0)return K(l, 0) * GI::AssociatedLegendrePolynomial(l, 0, cos(pitch-Ut::PI/2.0f));
+	else if (m > 0)return sqrt2 * K(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial(l, m, cos(pitch + Ut::PI / 2.0f));
+	else return sqrt2 * K(l, -m) * sinf(-m*yaw)* GI::AssociatedLegendrePolynomial(l, -m, cos(pitch + Ut::PI / 2.0f));
+	return 0.0f;
 }
 
 int Noise3D::GI::SH_FlattenIndex(int l, int m)
@@ -99,6 +115,11 @@ int Noise3D::GI::SH_FlattenIndex(int l, int m)
 
 float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
 {
+	if (m<0)
+	{
+		ERROR_MSG("AssociatedLegendrePolynomial: m must be non-negative");
+		return 0.0f;
+	}
 	//there is 3 recurrence relation to calculate given ALP, (then ALP is used to compute SH function)
 	//***to calculate diagonal elements
 	//1. P_m_m = (-1)^m * (2m-1)!! * (sqrt(1-x^2)^m)  (WARNING, (2m-1)!! = 1 * 3 * 5 * .... (2m-1) , this is double factorial
@@ -108,7 +129,7 @@ float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
 	//3.  (l-m)P_m_l = x(2l-1)P_m_(l-1)- (l+m-1)P_m_(l-2)
 
 	//***stage 1*** if(l==m), return in advance (use eq. 1)
-	float P_m_m = 1;//p_0_0=1
+	float P_m_m = 1.0f;//p_0_0=1
 	if (m > 0)
 	{
 		float sqrtTermBase = sqrt(1 - x*x);
@@ -118,11 +139,6 @@ float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
 			P_m_m *= (-doubleFactorialTermBase * sqrtTermBase);
 			doubleFactorialTermBase += 2.0f;
 		}
-	}
-	else
-	{
-		ERROR_MSG("AssociatedLegendrePolynomial: m must be positive");
-		return 0.0f;
 	}
 	if (l == m)return P_m_m;
 
