@@ -74,7 +74,8 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 
 float Noise3D::GI::SH(int l, int m, float yaw, float pitch)
 {
-	NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
+	//NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
+	NVECTOR3 vec=Ut::YawPitchToDirection(yaw, pitch);
 	return SH(l, m, vec);
 }
 
@@ -85,7 +86,17 @@ float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
 	dir.Normalize();
 
 	float yaw = 0.0f, pitch = 0.0f;
-	Ut::DirectionToYawPitch(dir,yaw,pitch);
+	// [can't use here] Ut::DirectionToYawPitch(dir,yaw,pitch);
+	//in wikipedia 	//https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics 
+	//and <gritty detail> paper, the SH function's spherical parameterization is
+	// (sin\theta cos\phi, sin\theta sin\phi, cos\theta) ---> (x,y,z)
+
+	//and we use a similar one
+	// (sin\theta cos\phi,  cos\theta, sin\theta sin\phi) ---> (x,y,z)
+	// NOTE: and Condon-Shortley phase (-1)^m in 
+	pitch = acosf(dir.y);//dir.z
+	yaw = atan2(dir.z, dir.x);//z x
+
 	return SH_Recursive(l, m, yaw, pitch);
 }
 
@@ -96,15 +107,15 @@ float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 	auto K = [](int l, int m)->float
 	{
 		// renormalisation constant term(normalize Associated Legendre Polynomial) for SH function
-		float temp = ((2.0f*l + 1.0f)*Ut::Factorial(l - m)) / (4.0f*Ut::PI*Ut::Factorial(l + m));
+		float temp = (float(2*l + 1)*Ut::Factorial64(l - m)) / (4.0f*Ut::PI* float(Ut::Factorial64(l + m)));
 		return sqrtf(temp);
 	};
 
 	//theta--pitch, phi--yaw
 	const float sqrt2 = sqrtf(2.0f);
-	if (m == 0)return K(l, 0) * GI::AssociatedLegendrePolynomial(l, 0, cos(pitch-Ut::PI/2.0f));
-	else if (m > 0)return sqrt2 * K(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial(l, m, cos(pitch + Ut::PI / 2.0f));
-	else return sqrt2 * K(l, -m) * sinf(-m*yaw)* GI::AssociatedLegendrePolynomial(l, -m, cos(pitch + Ut::PI / 2.0f));
+	if (m == 0)return K(l, 0) * GI::AssociatedLegendrePolynomial_Recursive(l, 0, cosf(pitch));
+	else if (m > 0)return sqrt2 * K(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial_Recursive(l, m, cosf(pitch));
+	else return sqrt2 * K(l, -m) * sinf(-m*yaw )* GI::AssociatedLegendrePolynomial_Recursive(l, -m, cosf(pitch));// + Ut::PI / 2.0f
 	return 0.0f;
 }
 
@@ -113,13 +124,12 @@ int Noise3D::GI::SH_FlattenIndex(int l, int m)
 	return l*(l + 1) + m;
 }
 
-float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
+float Noise3D::GI::AssociatedLegendrePolynomial_Recursive(int l, int m, float x)
 {
-	if (m<0)
-	{
-		ERROR_MSG("AssociatedLegendrePolynomial: m must be non-negative");
-		return 0.0f;
-	}
+	SH_ASSERT(l >= 0, "AssociatedLegendrePolynomial: l must be non-negative");
+	SH_ASSERT(m>=0,"AssociatedLegendrePolynomial: m must be non-negative");
+	SH_ASSERT(m <= l, "AssociatedLegendrePolynomial: coefficient index m is out of range");
+
 	//there is 3 recurrence relation to calculate given ALP, (then ALP is used to compute SH function)
 	//***to calculate diagonal elements
 	//1. P_m_m = (-1)^m * (2m-1)!! * (sqrt(1-x^2)^m)  (WARNING, (2m-1)!! = 1 * 3 * 5 * .... (2m-1) , this is double factorial
@@ -133,10 +143,11 @@ float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
 	if (m > 0)
 	{
 		float sqrtTermBase = sqrt(1 - x*x);
-		float doubleFactorialTermBase = 1.0f;
+		float doubleFactorialTermBase = 1.0f;// n!!
 		for (int i = 1; i <= m; ++i)
 		{
-			P_m_m *= (-doubleFactorialTermBase * sqrtTermBase);
+			//ignore Condon-Shortley phase (-1.0f)^m for unification with the hardcoded SH function (which ignores this (-1)^m term)
+			P_m_m *= 1.0f * (doubleFactorialTermBase * sqrtTermBase);
 			doubleFactorialTermBase += 2.0f;
 		}
 	}
@@ -153,11 +164,48 @@ float Noise3D::GI::AssociatedLegendrePolynomial(int l, int m, float x)
 	float P_termBandMinu1 = P_m_mp1;
 	for (int tmpL = m + 2; tmpL <= l; ++tmpL)
 	{
-		P_result = (2.0f * float(tmpL) - 1.0f) * x * P_termBandMinu1 - float(tmpL - m + 1) * P_termBandMinu2;
+		P_result = (float(2 * tmpL - 1) * x * P_termBandMinu1 - float(tmpL + m - 1) * P_termBandMinu2)/float(tmpL-m);
 		//prepare for next iteration
 		P_termBandMinu2 = P_termBandMinu1;
 		P_termBandMinu1 = P_result;
 	}
 
 	return P_result;
+}
+
+float Noise3D::GI::AssociatedLegendrePolynomial_LowOrder(int l, int m, float x)
+{
+	SH_ASSERT(l >= 0, "ALP: l must be non-negative");
+	SH_ASSERT(l <= 4, "ALP: this is low order version, maximum order 4 (0~4).");
+	SH_ASSERT(m >= 0, "ALP: m must be non-negative");
+	SH_ASSERT(m <= l, "ALP: coefficient index m is out of range");
+	
+	//P00 P10 P11 P20 P21 P22 ....
+	int flattenedIndex = l * (l + 1) / 2 + m;
+	float result = 0.0f;
+	switch (flattenedIndex)
+	{
+		case 0: result = 1.0f; break;
+
+		case 1: result = x; break;
+		case 2: result = -sqrtf(1.0f - x*x); break;
+
+		case 3: result = 0.5f * (3 * x * x - 1.0f); break;
+		case 4: result = -3.0f * x * sqrtf(1 - x*x); break;
+		case 5: result = 3.0f * (1 - x*x); break;
+
+		case 6: result = 0.5f * x * (5 * x * x - 3.0f); break;
+		case 7: result = 1.5f* (1 - 5.0f *x*x)*sqrtf(1 - x*x); break;
+		case 8: result = 15.0f * x * (1 - x*x); break;
+		case 9: result = -15.0f * pow(sqrtf(1 - x*x), 3); break;
+
+		case 10: result = 0.125f * (35.0f*x*x*x*x - 30.0f *x*x + 3.0f); break;
+		case 11: result = 2.5f * x * (3.0f - 7.0f*x*x)*sqrtf(1 - x*x); break;
+		case 12: result = 7.5f * (7.0f*x*x - 1.0f)*(1 - x*x); break;
+		case 13: result = -105.0f * x * pow(sqrtf(1 - x*x), 3); break;
+		case 14: result = 105.0f * (1 - x*x)* (1 - x*x); break;
+
+	}
+
+	return result;
 }

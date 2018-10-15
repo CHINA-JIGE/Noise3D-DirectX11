@@ -75,9 +75,11 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/void DirectionToYawPitch(NVECTOR3 dir,float& outYaw, float& outPitch);
 
-			extern /*_declspec(dllexport)*/ NVECTOR3 YawPitchToDirection(float yaw, float pitch);
+		extern /*_declspec(dllexport)*/ NVECTOR3 YawPitchToDirection(float yaw, float pitch);
 
-		extern /*_declspec(dllexport)*/ int Factorial(int x);
+		extern /*_declspec(dllexport)*/ uint32_t Factorial(uint32_t x);
+
+		extern /*_declspec(dllexport)*/ uint64_t Factorial64(uint64_t x);
 
 		extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 

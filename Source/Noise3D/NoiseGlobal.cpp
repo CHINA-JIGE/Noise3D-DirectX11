@@ -192,11 +192,21 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
 }
 
-/*_declspec(dllexport)*/ inline int Noise3D::Ut::Factorial(int x)
+/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial(uint32_t x)
 {
 	if (x == 0) return 1;
-	int sum = 1;
-	for (int i = 1; i <= x; ++i)
+	uint32_t sum = 1;
+	for (uint32_t i = 1; i <= x; ++i)
+	{
+		sum *= i;
+	}
+	return sum;
+}
+/*_declspec(dllexport)*/ inline uint64_t Noise3D::Ut::Factorial64(uint64_t x)
+{
+	if (x == 0) return 1;
+	uint64_t sum = 1;
+	for (uint64_t i = 1; i <= x; ++i)
 	{
 		sum *= i;
 	}

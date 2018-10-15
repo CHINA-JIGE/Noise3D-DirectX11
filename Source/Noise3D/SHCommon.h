@@ -27,6 +27,9 @@ namespace Noise3D
 		extern int SH_FlattenIndex(int l, int m);
 
 		//associated legendre polynomial will be used by SH function
-		extern float AssociatedLegendrePolynomial(int l, int m, float x);
+		extern float AssociatedLegendrePolynomial_Recursive(int l, int m, float x);
+
+		//associated legendre polynomial will be used by SH function
+		extern float AssociatedLegendrePolynomial_LowOrder(int l, int m, float x);
 	}
 };

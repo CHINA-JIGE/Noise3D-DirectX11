@@ -38,5 +38,8 @@
     <ClCompile Include="UnitTest_RigidTransform.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_SH_NOrder.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
