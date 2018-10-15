@@ -107,7 +107,7 @@ float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 	auto K = [](int l, int m)->float
 	{
 		// renormalisation constant term(normalize Associated Legendre Polynomial) for SH function
-		float temp = (float(2*l + 1)*Ut::Factorial64(l - m)) / (4.0f*Ut::PI* float(Ut::Factorial64(l + m)));
+		float temp = float(double(2*l + 1)*Ut::Factorial64(l - m)) / (4.0f*Ut::PI* double(Ut::Factorial64(l + m)));
 		return sqrtf(temp);
 	};
 
