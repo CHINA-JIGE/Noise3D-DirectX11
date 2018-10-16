@@ -192,7 +192,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
 }
 
-/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial(uint32_t x)
+/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
 {
 	if (x == 0) return 1;
 	uint32_t sum = 1;
@@ -202,7 +202,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	}
 	return sum;
 }
-/*_declspec(dllexport)*/ inline uint64_t Noise3D::Ut::Factorial64(uint64_t x)
+/*_declspec(dllexport)*/ uint64_t Noise3D::Ut::Factorial64(uint32_t x)
 {
 	if (x == 0) return 1;
 	uint64_t sum = 1;
@@ -211,6 +211,56 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 		sum *= i;
 	}
 	return sum;
+}
+float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
+{
+	const float table[] = {
+		1.0f, //0
+		1.0,// 1
+		0.5,// 2
+		0.16666666,// 3
+		0.04166666, // 4
+		0.008333333, //5
+		0.001388888, //6
+		0.00019841269,//7
+		0.00002480158,//8
+		0.00000275573, //9
+		2.75573192e-7,//10
+		2.50521084e-8,//11
+		2.0876757e-9,//12
+		1.6059044e-10, //13
+		1.1470746e-11, //14
+		7.6471637e-13,//15
+		4.7794773e-14,//16
+		2.8114573e-15,//17
+		1.5619207e-16,//18
+		8.2206352e-18,//19
+		4.1103176e-19,//20
+		1.9572941e-20,//21
+		8.8967914e-22,//22
+		3.8681702e-23,//23
+		1.6117376e-24,//24
+		6.4469503e-26,//25
+		2.4795963e-27,//26
+		9.1836899e-29,//27
+		3.2798892e-30,//28
+		1.1309963e-31,//29
+		3.7699876e-33,//30
+		1.216125e-34,//31
+		3.8003908e-36,//32
+	};
+
+	if (x <= 32)return table[x];
+	else
+	{
+		//divide multiple times to prevent drastic floating-point error
+		float result = 1.0f;
+		for (int i = 1; i <= x; ++i)
+		{
+			result /= float(i);
+		}
+		return result;
+	}
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Lerp(float a, float b, float t)

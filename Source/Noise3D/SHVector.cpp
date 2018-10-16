@@ -76,6 +76,7 @@ NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 		//M--coefficient index inside a SH band
 		for (int M = -L; M <= L; ++M)
 		{
+			//result = sum(coefficient * SH_basis)
 			result += mCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
 		}
 	}

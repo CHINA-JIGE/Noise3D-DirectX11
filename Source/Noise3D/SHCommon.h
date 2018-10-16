@@ -26,10 +26,15 @@ namespace Noise3D
 		//given 2-dimension params and return flattened linear index
 		extern int SH_FlattenIndex(int l, int m);
 
+		//SH normalization term K
+		extern float SH_NormalizationTermK(int l, int m);
+
 		//associated legendre polynomial will be used by SH function
 		extern float AssociatedLegendrePolynomial_Recursive(int l, int m, float x);
 
 		//associated legendre polynomial will be used by SH function
 		extern float AssociatedLegendrePolynomial_LowOrder(int l, int m, float x);
+
+
 	}
 };

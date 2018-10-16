@@ -19,9 +19,9 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	//normalize the dir (unit sphere assumption)
 	dir.Normalize();
 
-	//scale factor of the first 4 bands' Real SH terms (0~3)
+	//scale factor of the first 5 bands' Real SH terms (0~4)
 	//https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics
-	static constexpr float shTermFactor[16] = 
+	static constexpr float shTermFactor[25] = 
 	{
 		//band 0
 		0.28209479177f,/*(1/2)*sqrt(1/pi)*/
@@ -34,6 +34,11 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 		0.59004358992f,/*(1/4)sqrt(35/2pi)*/		2.89061144264f,/*(1/2)sqrt(105/pi)*/		0.45704579946f,/*(1/4)sqrt(21/2pi)*/		
 		0.37317633259f,/*(1/4)sqrt(7/pi)*/			0.45704579946f,/*(1/4)sqrt(21/2pi)*/		1.44530572132f,/*(1/4)sqrt(105/pi)*/
 		0.59004358992f,/*(1/4)sqrt(35/2pi)*/
+		//band4
+		2.5033429418f,/*3/4 * sqrt(35/pi)*/		1.77013076978f,/*3/4 * sqrt(35/2pi)*/	0.94617469575f,/*3/4 * sqrt(5/pi)*/
+		0.66904654355f,/*3/4 * sqrt(5/2pi)*/		0.10578554691f,/*3/16 * sqrt(1/pi)*/	0.66904654355f,/*3/4 * sqrt(5/2pi)*/
+		0.47308734787f,/*3/8 * sqrt(5/pi)*/		1.77013076978f,/*3/4 * sqrt(35/2pi)*/	0.62583573544f,/*3/16 * sqrt(35/pi)*/
+
 	};
 
 	//map 2-dimension index to flattened array index(described in the <Gritty Detail> paper)
@@ -66,6 +71,16 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 	case 13: result = shTermFactor[13] * x * (4*z*z - x*x - y*y); break;
 	case 14: result = shTermFactor[14] * (x*x - y*y) *z; break;
 	case 15: result = shTermFactor[15] * (x*x - 3*y*y)*x; break;
+
+	case 16: result = shTermFactor[16] * x*y*(x*x - y*y); break;
+	case 17: result = shTermFactor[17] * (3 * x *x - y*y)*y*z; break;
+	case 18: result = shTermFactor[18] * x* y *(7 * z*z - 1); break;
+	case 19: result = shTermFactor[19] * y *z*(7 * z*z - 3); break;
+	case 20: result = shTermFactor[20] * (35 * z*z*z*z - 30 * z*z + 3); break;
+	case 21: result = shTermFactor[21] * x*z*(7 * z*z - 3); break;
+	case 22: result = shTermFactor[22] * (x*x - y*y)*(7 * z*z - 1); break;
+	case 23: result = shTermFactor[23] * (x*x - 3 * y*y)*x*z; break;
+	case 24: result = shTermFactor[24] * (x*x*(x*x - 3 * y*y) - y*y*(3 * x*x - y*y)); break;
 	default: result = SH_Recursive(l,m,dir); break;
 	}
 
@@ -95,33 +110,38 @@ float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
 	// (sin\theta cos\phi,  cos\theta, sin\theta sin\phi) ---> (x,y,z)
 	// NOTE: and Condon-Shortley phase (-1)^m in 
 	pitch = acosf(dir.y);//dir.z
-	yaw = atan2(dir.z, dir.x);//z x
+	yaw = atan2(dir.z, dir.x);
 
 	return SH_Recursive(l, m, yaw, pitch);
 }
 
 float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 {
-	//associate legendre polynomial is implemented in a recursive way. for more detail
-	//plz refer to <Spherical Harmonic Lighting: the Gritty Details>
-	auto K = [](int l, int m)->float
-	{
-		// renormalisation constant term(normalize Associated Legendre Polynomial) for SH function
-		float temp = float(double(2*l + 1)*Ut::Factorial64(l - m)) / (4.0f*Ut::PI* double(Ut::Factorial64(l + m)));
-		return sqrtf(temp);
-	};
 
 	//theta--pitch, phi--yaw
-	const float sqrt2 = sqrtf(2.0f);
-	if (m == 0)return K(l, 0) * GI::AssociatedLegendrePolynomial_Recursive(l, 0, cosf(pitch));
-	else if (m > 0)return sqrt2 * K(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial_Recursive(l, m, cosf(pitch));
-	else return sqrt2 * K(l, -m) * sinf(-m*yaw )* GI::AssociatedLegendrePolynomial_Recursive(l, -m, cosf(pitch));// + Ut::PI / 2.0f
+	const double sqrt2 = sqrtf(2.0f);
+	if (m == 0)return SH_NormalizationTermK(l, 0) * GI::AssociatedLegendrePolynomial_Recursive(l, 0, cos(pitch));
+	else if (m > 0)return sqrt2 * SH_NormalizationTermK(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial_Recursive(l, m, cos(pitch));
+	else return sqrt2 * SH_NormalizationTermK(l, m) * sinf(-m*yaw )* GI::AssociatedLegendrePolynomial_Recursive(l, -m, cos(pitch));
 	return 0.0f;
 }
 
 int Noise3D::GI::SH_FlattenIndex(int l, int m)
 {
 	return l*(l + 1) + m;
+}
+
+float Noise3D::GI::SH_NormalizationTermK(int l, int m)
+{	
+	//associate legendre polynomial is implemented in a recursive way. for more detail
+	//plz refer to <Spherical Harmonic Lighting: the Gritty Details>
+	
+	// renormalisation constant term(normalize Associated Legendre Polynomial) for SH function
+	//double temp = double(2 * l + 1)*double(Ut::Factorial64(l - abs(m))) / (4.0*3.141592653* double(Ut::Factorial64(l + abs(m))));
+	//float temp = (float(2 * l + 1) / (4.0f*Ut::PI)) * double(Ut::Factorial64(l - abs(m))) * double(Ut::ReciprocalOfFactorial(l+abs(m)));
+	float temp2 = float(2 * l + 1) *float(Ut::Factorial64(l - abs(m))) * float(Ut::ReciprocalOfFactorial(l + abs(m))) / (4.0f * Ut::PI);
+
+	return sqrt(temp2);
 }
 
 float Noise3D::GI::AssociatedLegendrePolynomial_Recursive(int l, int m, float x)
@@ -146,7 +166,7 @@ float Noise3D::GI::AssociatedLegendrePolynomial_Recursive(int l, int m, float x)
 		float doubleFactorialTermBase = 1.0f;// n!!
 		for (int i = 1; i <= m; ++i)
 		{
-			//ignore Condon-Shortley phase (-1.0f)^m for unification with the hardcoded SH function (which ignores this (-1)^m term)
+			//be careful of Condon-Shortley phase (-1.0f)^m for unification with the hardcoded SH function (which ignores this (-1)^m term)
 			P_m_m *= 1.0f * (doubleFactorialTermBase * sqrtTermBase);
 			doubleFactorialTermBase += 2.0f;
 		}

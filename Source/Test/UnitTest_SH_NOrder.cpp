@@ -20,7 +20,7 @@ void UnitTest_SH_Recursive()
 		{0.4f, 1.0f, -8.0f}
 	};
 
-	for (int l = 0; l < 4; ++l)
+	for (int l = 0; l <= 5; ++l)
 	{
 		for (int m = -l; m <= l; ++m)
 		{
@@ -31,7 +31,7 @@ void UnitTest_SH_Recursive()
 				std::cout << "Dir:" << v.x << " ," << v.y << " ," << v.z <<" :";
 				try
 				{
-					std::cout << "[SH]:" << GI::SH(l, m, dirArr[i]) << "   [SH_Recursive]:" << GI::SH_Recursive(l, m, dirArr[i]) << std::endl;
+					std::cout << "[SH]:" << GI::SH(l, m, dirArr[i]) <<"  [K]"<<GI::SH_NormalizationTermK(l,m)<< "   [SH_Recursive]:" << GI::SH_Recursive(l, m, dirArr[i]) << std::endl;
 				}
 				catch(std::exception e)
 				{
@@ -45,7 +45,7 @@ void UnitTest_SH_Recursive()
 
 void UnitTest_ALP()
 {
-	GI::RandomSampleGenerator g;
+	//GI::RandomSampleGenerator g;
 	for (int l = 0; l <= 4; ++l)
 	{
 		for (int m = 0; m <= l; ++m)
@@ -53,7 +53,7 @@ void UnitTest_ALP()
 			std::cout << "band " << l << ", index" << m << std::endl;
 			for (int i = 0; i < 10; ++i)
 			{
-				float value = g.CanonicalReal();
+				float value = (float(rand() % 10000) - 10000.0f / 2.0f) / 10000.0f;
 				std::cout << "variable:" << value;
 				try
 				{
@@ -74,7 +74,7 @@ void UnitTest_Factorial()
 {
 	for (int i = 0; i < 20; ++i)
 	{
-		std::cout << Ut::Factorial(i) << " ";
+		std::cout << Ut::Factorial64(i) << " [32]"<<float(Ut::Factorial32(i))<<"  [64]"<<float(Ut::Factorial64(i))<<std::endl;
 	}
 	std::cout << std::endl;
 }
@@ -82,5 +82,6 @@ void UnitTest_Factorial()
 int main()
 {
 	UnitTest_SH_Recursive();
+	system("pause");
 	return 0;
 }
