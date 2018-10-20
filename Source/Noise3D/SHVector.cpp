@@ -36,6 +36,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 
 	//compute SH coefficients by convolving
 	GI::RandomSampleGenerator randomGen;
+#pragma omp parallel for
 	for (int sampleIndex = 0; sampleIndex < monteCarloSampleCount; ++sampleIndex)
 	{
 		NVECTOR3 dir = randomGen.UniformSpherical_Vector();
@@ -84,7 +85,6 @@ NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 	return result;
 }
 
-
 NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 {
 	//(a1,a2,a3,a4,.....,0,0,0)
@@ -105,6 +105,11 @@ NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 	}
 
 	return result;
+}
+
+void Noise3D::GI::SHVector::Rotate(float theta, float phi)
+{
+	ERROR_MSG("not implemented!");
 }
 
 void Noise3D::GI::SHVector::GetCoefficients(std::vector<NColor4f>& outList)
