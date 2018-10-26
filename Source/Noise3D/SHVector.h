@@ -42,7 +42,7 @@ namespace Noise3D
 			//if the 2 operand's dimension are not equal, 0 will be used to pad to calculate dot product
 			NColor4f Integrate(const SHVector& rhs);
 
-			//
+			//make use of SHRotation class
 			void Rotate(float theta, float phi);
 
 			//get SH coefficient

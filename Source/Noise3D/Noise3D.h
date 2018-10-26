@@ -98,6 +98,7 @@
 #include "RandomSampleGenerator.h"
 #include "ISphericalFunc.h"
 #include "SHCommon.h"
+#include "SHRotation.h"
 #include "SHVector.h"
 
 //-----------Noise Ut -----------

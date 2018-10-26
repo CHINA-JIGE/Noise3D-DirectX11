@@ -334,6 +334,9 @@
     <ClInclude Include="HardwareIndexBuffer.h">
       <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="SHRotation.h">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -506,6 +509,9 @@
     </ClCompile>
     <ClCompile Include="HardwareIndexBuffer.cpp">
       <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="SHRotation.cpp">
+      <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

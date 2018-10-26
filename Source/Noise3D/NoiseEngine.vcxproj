@@ -136,6 +136,7 @@
     <ClInclude Include="HardwareIndexBuffer.h" />
     <ClInclude Include="HardwareVertexBuffer.h" />
     <ClInclude Include="ITexture.h" />
+    <ClInclude Include="SHRotation.h" />
     <ClInclude Include="TextureCubeMap.h" />
     <ClInclude Include="ISphericalFunc.h" />
     <ClInclude Include="RigidTransform.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="AffineTransform.cpp" />
     <ClCompile Include="HardwareIndexBuffer.cpp" />
     <ClCompile Include="HardwareVertexBuffer.cpp" />
+    <ClCompile Include="SHRotation.cpp" />
     <ClCompile Include="TextureCubeMap.cpp" />
     <ClCompile Include="ISphericalFunc.cpp" />
     <ClCompile Include="RigidTransform.cpp" />

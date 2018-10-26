@@ -11,16 +11,16 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		//Real Spherical Harmonic function. l:band index. m:coefficient index (band 0 ~3)
+		//Real Spherical Harmonic function evaluation. l:band index. m:coefficient index (band 0 ~3)
 		extern float SH(int l, int m, NVECTOR3 dir);
 
-		//Real Spherical Harmonic function (band 0~3)(theta--pitch; phi--yaw, start from z axis)
+		//Real Spherical Harmonic function evaluation(band 0~3)(theta--pitch; phi--yaw, start from z axis)
 		extern float SH(int l, int m, float yaw, float pitch);
 
-		//Real Spherical Harmonic function (infinite band, implemented with recursive formula)
+		//Real Spherical Harmonic function evaluation(infinite band, implemented with recursive formula)
 		extern float SH_Recursive(int l, int m, NVECTOR3 dir);
 
-		//Real Spherical Harmonic function (infinite band, implemented with recursive formula)(theta--pitch; phi--yaw, start from z axis)
+		//Real Spherical Harmonic function evaluation(infinite band, implemented with recursive formula)(theta--pitch; phi--yaw, start from z axis)
 		extern float SH_Recursive(int l, int m, float yaw, float pitch);
 
 		//given 2-dimension params and return flattened linear index
@@ -34,7 +34,6 @@ namespace Noise3D
 
 		//associated legendre polynomial will be used by SH function
 		extern float AssociatedLegendrePolynomial_LowOrder(int l, int m, float x);
-
 
 	}
 };
