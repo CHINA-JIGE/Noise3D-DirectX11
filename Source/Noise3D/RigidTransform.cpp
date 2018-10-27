@@ -483,27 +483,27 @@ N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZYZ(const 
 		(row major)
 				[c1c3-s1s3		c1s3+c3s1	0]
 		R=	[-c3s1-c1s3		c1c3-s1s3		0]
-				[0						0					-1]
+				[0						0					1]
 
 				[c3'c1'-s3's1'		c3s1'+c1's3'		0	]
 			=	[-c1's3'-c3's1'		c3'c1'-s3's1'		0	]
-				[0							0						-1	]
+				[0							0						1	]
 
 				[cos(z1+z3)			sin(z1+z3)	0	]
 			=	[-sin(z1+z3)			cos(z1+z3)	0	]
-				[0							0					-1	]
+				[0							0					1	]
 		*/
 		if (mat.m[2][2] == -1.0f)//y2=-pi, cos(y2)=-1.0f
 		{
 			outEuler.angleY2 = -Ut::PI;
 			outEuler.angleZ1= 0.0f;//arbitrarily set a value
-			outEuler.angleZ3 = outEuler.angleZ1 - atan2(mat.m[0][1], mat.m[1][1]);	// z1-z3=atan2
+			outEuler.angleZ3 = outEuler.angleZ1 - atan2(mat.m[0][1], mat.m[1][1]);//z1-z3=atan2
 		}
 		else//y2=pi, cos(y2)=1.0f
 		{
 			outEuler.angleY2 = Ut::PI;
-			outEuler.angleZ1 = 0.0f;
-			outEuler.angleZ3 = -outEuler.angleZ1 + atan2(-mat.m[0][1], mat.m[1][1]);//z1+z3=atan2
+			outEuler.angleZ1 = 0.0f;//arbitrarily set a value
+			outEuler.angleZ3 = -outEuler.angleZ1 + atan2(mat.m[0][1], mat.m[1][1]);//z1+z3=atan2
 		}
 	}
 	return outEuler;

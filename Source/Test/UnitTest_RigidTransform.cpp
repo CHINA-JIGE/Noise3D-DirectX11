@@ -34,7 +34,7 @@ int main()
 	t.SetPosition(NVECTOR3(1.0f, 2.0f, 3.0f));
 	t.Rotate(1.0f, 0, 0);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 
@@ -46,7 +46,7 @@ int main()
 	t.SetPosition(NVECTOR3(1.0f, 2.0f, 3.0f));
 	t.Rotate(0.5f,1.0f,0);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 
@@ -60,7 +60,7 @@ int main()
 	NMATRIX tmpDeltaRotMat = XMMatrixRotationAxis(NVECTOR3(1.0f, 1.0f, 1.0f), 2.0f);
 	bool b=t.Rotate(tmpDeltaRotMat);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 
@@ -73,7 +73,7 @@ int main()
 	NQUATERNION deltaRotQ = XMQuaternionRotationRollPitchYaw(1.5f, 2.0f, -1.0f);
 	t.Rotate(deltaRotQ);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 
@@ -81,19 +81,19 @@ int main()
 	tmpDeltaRotMat = XMMatrixRotationAxis(NVECTOR3(1.0f, 1.0f, 1.0f), 2.0f);
 	NMATRIX tmpDeltaRotMat2 = XMMatrixRotationRollPitchYaw(1.5f, 2.0f, -1.0f);
 	t.SetRotation(tmpDeltaRotMat2);
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(XMMatrixMultiply(tmpDeltaRotMat2, XMMatrixMultiply(tmpDeltaRotMat, matXM)));
 	OutputEuler(euler);
 	std::cout << "------------------------------" << std::endl;
 
 	//--------delta rotate with euler angle again-------------
-	NVECTOR3 oldEuler = t.GetEulerAngle();
+	NVECTOR3 oldEuler = t.GetEulerAngleZXY();
 	t.Move(NVECTOR3(1.0f, 1.0f, 1.0f));
 	t.Rotate(1.0f, 1.5f, -0.35f);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
-	OutputEuler(t.GetEulerAngle());
+	OutputEuler(t.GetEulerAngleZXY());
 
 	NMATRIX tmpMat3 =XMMatrixRotationRollPitchYaw(oldEuler.x+1.0f, oldEuler.y+1.5f, oldEuler.z-0.35f);
 	OutputMatrix(tmpMat3);
@@ -101,40 +101,40 @@ int main()
 
 
 	//--------delta rotate with AxisAngle-------------
-	oldEuler = t.GetEulerAngle();
+	oldEuler = t.GetEulerAngleZXY();
 	t.Move(NVECTOR3(-1.0f, -1.0f, -1.0f));
 	t.Rotate(NVECTOR3(0.5f,1.0f,1.5f),0.5f);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
-	OutputEuler(t.GetEulerAngle());
+	OutputEuler(t.GetEulerAngleZXY());
 
 	NMATRIX tmpMat4 = XMMatrixMultiply(XMMatrixRotationAxis(NVECTOR3(0.5f, 1.0f, 1.5f), 0.5f),tmpMat3);
 	OutputMatrix(tmpMat4);
 	std::cout << "------------------------------" << std::endl;
 
 	//----------absolute rotation : Quaternion---
-	oldEuler = t.GetEulerAngle();
+	oldEuler = t.GetEulerAngleZXY();
 	deltaRotQ = XMQuaternionRotationAxis(NVECTOR3(1.0f, 2.0f, 3.0f), 2.0f);
 	t.SetPosition(NVECTOR3(-1.0f, -1.0f, -1.0f));
 	t.SetRotation(deltaRotQ);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
-	OutputEuler(t.GetEulerAngle());
+	OutputEuler(t.GetEulerAngleZXY());
 
 	matXM = XMMatrixRotationAxis(NVECTOR3(1.0f, 2.0f, 3.0f), 2.0f);
 	OutputMatrix(matXM);
 	std::cout << "------------------------------" << std::endl;
 
 	//----------absolute rotation : Euler Angle---
-	oldEuler = t.GetEulerAngle();
+	oldEuler = t.GetEulerAngleZXY();
 	t.SetPosition(NVECTOR3(-1.0f, -1.0f, -1.0f));
 	t.SetRotation(0.123f,0.456f,0.789f);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
-	OutputEuler(t.GetEulerAngle());
+	OutputEuler(t.GetEulerAngleZXY());
 
 	matXM = XMMatrixRotationRollPitchYaw(0.123f, 0.456f, 0.789f);
 	OutputMatrix(matXM);
@@ -146,7 +146,7 @@ int main()
 	matXM = XMMatrixRotationRollPitchYaw(Ut::PI / 2.0f, 0.123f, 0.789f);
 	b = t.SetRotation(matXM);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 
@@ -161,7 +161,7 @@ int main()
 	deltaRotQ = XMQuaternionRotationRollPitchYaw(-Ut::PI / 2.0f, 0.123f, 0.789f);
 	t.SetRotation(deltaRotQ);
 	m = t.GetTransformMatrix();
-	euler = t.GetEulerAngle();
+	euler = t.GetEulerAngleZXY();
 	OutputMatrix(m);
 	OutputEuler(euler);
 

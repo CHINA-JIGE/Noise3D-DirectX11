@@ -33,13 +33,13 @@ namespace Noise3D
 			//band L Wigner sub-matrix has (2L+1)*(2L+1) elements (-L<=m<=L)
 			SHRotationWignerMatrix(uint32_t highestBandIndex);
 
-			float At(uint32_t l, uint32_t row, uint32_t col);
+			float GetByRowCol(uint32_t l, uint32_t row, uint32_t col);
 
-			float At(uint32_t l, int m, int n);
+			float GetByIndex(uint32_t l, int m, int n);
 
-			void	Set(uint32_t l, uint32_t row, uint32_t col,float val);
+			void	SetByRowCol(uint32_t l, uint32_t row, uint32_t col,float val);
 
-			void Set(uint32_t l, int m, int n,float val);
+			void SetByIndex(uint32_t l, int m, int n,float val);
 			
 			void	Rotate(RigidTransform t, std::vector <NColor4f>& in_out_SHVector);
 
