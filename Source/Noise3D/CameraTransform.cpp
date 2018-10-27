@@ -137,7 +137,7 @@ void Noise3D::CameraTransform::mFunc_UpdateViewDir()
 {
 	//update lookat according to new posture
 	NVECTOR3 pos = RigidTransform::GetPosition();
-	NVECTOR3 euler = RigidTransform::GetEulerAngle();
+	NVECTOR3 euler = RigidTransform::GetEulerAngleZXY();
 	float tmpDirectionLength = (mLookat - pos).Length();
 	//z+ axis is the original posture.
 	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
@@ -174,6 +174,6 @@ void Noise3D::CameraTransform::mFunc_UpdateRotation()
 	//roll angle z: direction update doesn't change ROLL angle
 
 	//apply to RigidTransform
-	NVECTOR3 euler = RigidTransform::GetEulerAngle();
+	NVECTOR3 euler = RigidTransform::GetEulerAngleZXY();
 	RigidTransform::SetRotation(pitch_x, yaw_y, euler.z);
 }

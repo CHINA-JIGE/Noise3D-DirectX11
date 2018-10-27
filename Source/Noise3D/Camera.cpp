@@ -36,7 +36,7 @@ void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMov
 	*/
 
 	NVECTOR3 relativePos;
-	NVECTOR3 euler = CameraTransform::GetEulerAngle();
+	NVECTOR3 euler = CameraTransform::GetEulerAngleZXY();
 	//generate a direction first (later multiply it with fDist)
 	if(enableYAxisMovement)
 	{ 
@@ -73,7 +73,7 @@ void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovem
 	*/
 
 		NVECTOR3 relativePos;
-		NVECTOR3 euler = CameraTransform::GetEulerAngle();
+		NVECTOR3 euler = CameraTransform::GetEulerAngleZXY();
 		//generate a direction first (later multiply it with fDist)
 		if (enableYAxisMovement)
 		{
@@ -125,7 +125,7 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	}
 	scrCenterPos /= float(vb.size());
 	Camera::LookAt(scrCenterPos);
-	NVECTOR3 euler = Camera::CameraTransform::GetEulerAngle();
+	NVECTOR3 euler = Camera::CameraTransform::GetEulerAngleZXY();
 	euler.z = 0;
 	Camera::SetRotation(euler);
 

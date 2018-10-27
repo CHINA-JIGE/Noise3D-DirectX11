@@ -47,6 +47,9 @@ namespace Noise3D
 			//perform SH z-rotation without explicitly constructing Wigner Matrix
 			void mFunction_RotateZ(float angle, std::vector<NColor4f>& in_out_SHVector);
 
+			//perform SH z-rotation BY explicitly constructing Wigner Matrix, be careful of the coefficients order
+			void mFunction_RotateY(float angle, std::vector<NColor4f>& in_out_SHVector);
+
 			uint32_t mHighestBandIndex;//inclusive SH band index
 			std::vector<std::vector<float>> mMat;//a series of wigner matrix (in different band)
 

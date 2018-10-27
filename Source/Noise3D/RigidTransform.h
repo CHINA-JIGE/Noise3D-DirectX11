@@ -20,6 +20,15 @@
 
 namespace Noise3D
 {
+	struct N_EULER_ANGLE_ZYZ
+	{
+		N_EULER_ANGLE_ZYZ():angleZ1(0.0f), angleY2(0.0f), angleZ3(0.0f){}
+		float angleZ1;
+		float angleY2;
+		float angleZ3;
+	};
+
+
 	//RigidTransform implements translation & rotation, and avaible rotation representations are:
 	//***Quaternion(Main representation in CPU, others
 	//***Rotation Matrix
@@ -48,7 +57,9 @@ namespace Noise3D
 		//get value
 		NVECTOR3	GetPosition() const;
 
-		NVECTOR3	GetEulerAngle() const;
+		NVECTOR3	GetEulerAngleZXY() const;
+
+		N_EULER_ANGLE_ZYZ GetEulerAngleZYZ() const;
 
 		NQUATERNION GetQuaternion() const;
 
@@ -59,7 +70,7 @@ namespace Noise3D
 
 		bool		Rotate(NQUATERNION q);
 
-		//use euler angle to construct one delta rotation(not simply adds euler angles)
+		//use ZXY euler angle to construct one delta rotation(not simply adds euler angles)
 		void		Rotate(float pitch_x, float yaw_y, float roll_z);
 
 		bool		Rotate(const NMATRIX& deltaRotMat);
@@ -88,7 +99,9 @@ namespace Noise3D
 
 		bool mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX& mat);
 
-		NVECTOR3 mFunc_RotationMatrixToEuler(const NMATRIX& mat) const;
+		NVECTOR3 mFunc_RotationMatrixToEulerZXY(const NMATRIX& mat) const;
+
+		N_EULER_ANGLE_ZYZ mFunc_RotationMatrixToEulerZYZ(const NMATRIX& mat) const;
 
 		//Rotation is stored as Quaternion (2018.9.14, like Unity, quaternion could be the main representation of rotation on CPU-end)
 		NQUATERNION mQuaternion;

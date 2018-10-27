@@ -51,6 +51,14 @@ void Noise3D::GI::SHRotationWignerMatrix::Set(uint32_t l, int m, int n, float va
 	mMat.at(l).at((2 * l + 1)*(int(l) - m) + (int(l) - n)) = val;
 }
 
+void Noise3D::GI::SHRotationWignerMatrix::Rotate(RigidTransform t, std::vector<NColor4f>& in_out_SHVector)
+{
+	//1. ZYZ euler angle decomposition
+	mFunction_RotateZ
+	//2. Rotate Z, construct Y and multiply
+
+}
+
 /**********************************************
 
 							PRIVATE

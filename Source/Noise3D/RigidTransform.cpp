@@ -48,13 +48,24 @@ NVECTOR3 Noise3D::RigidTransform::GetPosition() const
 	return mPosition;
 }
 
-NVECTOR3 Noise3D::RigidTransform::GetEulerAngle() const
+NVECTOR3 Noise3D::RigidTransform::GetEulerAngleZXY() const
 {
 	//Quaternion--->Matrix
 	NMATRIX rotMat=RigidTransform::GetRotationMatrix();
 
 	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
-	NVECTOR3 euler = mFunc_RotationMatrixToEuler(rotMat);
+	NVECTOR3 euler = mFunc_RotationMatrixToEulerZXY(rotMat);
+
+	return euler;
+}
+
+N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::GetEulerAngleZYZ() const
+{
+	//Quaternion--->Matrix
+	NMATRIX rotMat = RigidTransform::GetRotationMatrix();
+
+	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
+	N_EULER_ANGLE_ZYZ euler = mFunc_RotationMatrixToEulerZYZ(rotMat);
 
 	return euler;
 }
@@ -112,7 +123,7 @@ bool Noise3D::RigidTransform::Rotate(NQUATERNION q)
 
 void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
 {
-	NVECTOR3 euler = RigidTransform::GetEulerAngle();
+	NVECTOR3 euler = RigidTransform::GetEulerAngleZXY();
 
 	//rotate with delta euler angle
 	euler += NVECTOR3(pitch_x, yaw_y, roll_z);
@@ -329,7 +340,7 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	return isOrthonormal;
 }
 
-NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & mat) const
+NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZXY(const NMATRIX & mat) const
 {
 	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
 	COLUMN MAJOR
@@ -404,6 +415,95 @@ NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEuler(const NMATRIX & ma
 			outEuler.x = -Ut::PI / 2.0f;
 			outEuler.z = 0.0f;
 			outEuler.y = -outEuler.z + atan2f(-mat.m[1][0], mat.m[0][0]);//yaw_y + roll_z = atan2(-m10,m00), 2 DOF (row major)
+		}
+	}
+	return outEuler;
+}
+
+N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZYZ(const NMATRIX & mat) const
+{
+	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
+	COLUMN MAJOR
+	R = Rz1 * Ry2 * Rz3
+		[c1c2c3-s1s3		-c3s1-c1c2s3		c1s2	]
+	=	[c1s3+c2c3s1		c1c3-c2s1s3			s1s2	]
+		[-c3s2					s2s3						c2		]
+	
+	but the order the angle should be converted 
+	z3 is the first applied to vector, y2 the second, z1 the last, completely reverse of the order of matrix mul
+	z1' = z3 = atan2(s2s3, c3s2) = atan2(m21, -m20)
+	y2' = y2 = acos(m22)
+	z3' = z1 = atan2(s1s2, c1s2) = atan2(m12, m02)
+
+	WARNING : gimbal lock situation (s2==0) should be carefully dealt with
+	*/
+
+	/*
+	DirectXMath ROW Major :
+		R =
+		[c1c2c3-s1s3		c1s3+c2c3s1		-c3s2	]
+	=	[-c3s1-c1c2s3		c1c3-c2s1s3			s2s3		]
+		[c1s2					s1s2						c2			]
+
+		z1' = z3 = atan2(s2s3, c3s2) = atan2(m12, -m02)
+		y2' = y2 = acos(m22)
+		z3' = z1 = atan2(s1s2, c1s2) = atan2(m21, m20)
+	/*
+
+	*/
+	N_EULER_ANGLE_ZYZ outEuler;
+
+	//XM-generated row major matrix
+	if (mat.m[2][2] !=1.0f && mat.m[2][2]!=-1.0f)
+	{
+		outEuler.angleZ1 = atan2(mat.m[1][2], -mat.m[0][2]);
+		outEuler.angleY2 = acos(mat.m[2][2]);
+		outEuler.angleZ3 = atan2(mat.m[2][1], mat.m[2][0]);
+	}
+	else
+	{
+		//gimbal lock case, the matrix degenerate into:
+		/*
+		1. when y2==-pi, ==>s2=0, c2=-1
+		(row major)
+				[-c1c3-s1s3		c1s3-c3s1		0]
+		R=	[-c3s1+c1s3		c1c3+s1s3	0]
+				[0						0					-1]
+
+				[-c3'c1'-s3's1'		c3s1'-c1's3'		0	]
+			=	[-c1's3'+c3's1'		c3'c1'+s3's1'	0	]
+				[0							0						-1	]
+
+				[-cos(z1-z3)			sin(z1-z3)		0	]
+			=	[sin(z1-z3)			cos(z1-z3)	0	]
+				[0							0					-1	]
+
+
+		2. when y2==pi, ==>s2=0, c2=1
+		(row major)
+				[c1c3-s1s3		c1s3+c3s1	0]
+		R=	[-c3s1-c1s3		c1c3-s1s3		0]
+				[0						0					-1]
+
+				[c3'c1'-s3's1'		c3s1'+c1's3'		0	]
+			=	[-c1's3'-c3's1'		c3'c1'-s3's1'		0	]
+				[0							0						-1	]
+
+				[cos(z1+z3)			sin(z1+z3)	0	]
+			=	[-sin(z1+z3)			cos(z1+z3)	0	]
+				[0							0					-1	]
+		*/
+		if (mat.m[2][2] == -1.0f)//y2=-pi, cos(y2)=-1.0f
+		{
+			outEuler.angleY2 = -Ut::PI;
+			outEuler.angleZ1= 0.0f;//arbitrarily set a value
+			outEuler.angleZ3 = outEuler.angleZ1 - atan2(mat.m[0][1], mat.m[1][1]);	// z1-z3=atan2
+		}
+		else//y2=pi, cos(y2)=1.0f
+		{
+			outEuler.angleY2 = Ut::PI;
+			outEuler.angleZ1 = 0.0f;
+			outEuler.angleZ3 = -outEuler.angleZ1 + atan2(-mat.m[0][1], mat.m[1][1]);//z1+z3=atan2
 		}
 	}
 	return outEuler;
