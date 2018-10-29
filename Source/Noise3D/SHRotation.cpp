@@ -93,8 +93,11 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateZ(float angle, std::ve
 
 void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateY(float angle, std::vector<NColor4f>& in_out_SHVector)
 {
+	float cosBeta = cos(angle);
+	float sinBeta = sin(angle);
 
-	//1. constructing Wigner Matrix - Rotation Y
+	//constructing Wigner Matrix - Rotation Y
+	//1.harcode first 2 bands
 	if (mHighestBandIndex >= 0)
 	{
 		SHRotationWignerMatrix::SetByRowCol(0, 0, 0, 1.0f);
@@ -104,7 +107,8 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateY(float angle, std::ve
 	{
 		//(2018.10.27)band 1 wigner matrix of rotation Y remains un-determined. Can't find support literature.
 		//reference: Lisle's <Algorithms for Spherical Harmonic Lighting>£¬ but don't know the correspondence between RowCol & index
-		SHRotationWignerMatrix::SetByRowCol(1, 0, 0, 1.0f);
+
+		/*SHRotationWignerMatrix::SetByRowCol(1, 0, 0, 1.0f);
 		SHRotationWignerMatrix::SetByRowCol(1, 0, 1, 0.0f);
 		SHRotationWignerMatrix::SetByRowCol(1, 0, 2, 0.0f);
 
@@ -114,29 +118,71 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateY(float angle, std::ve
 
 		SHRotationWignerMatrix::SetByRowCol(1, 2, 0, 0.0f);
 		SHRotationWignerMatrix::SetByRowCol(1, 2, 1, -sin(angle));
-		SHRotationWignerMatrix::SetByRowCol(1, 2, 2, cos(angle));
+		SHRotationWignerMatrix::SetByRowCol(1, 2, 2, cos(angle));*/
 
-		/*
-		SHRotationWignerMatrix::SetByRowCol(1, 2, 2, 1.0f);
-		SHRotationWignerMatrix::SetByRowCol(1, 2, 1, 0.0f);
-		SHRotationWignerMatrix::SetByRowCol(1, 2, 0, 0.0f);
+		SHRotationWignerMatrix::SetByIndex(1, -1, -1, 1.0f);
+		SHRotationWignerMatrix::SetByRowCol(1, -1, 0, 0.0f);
+		SHRotationWignerMatrix::SetByRowCol(1, -1, 1, 0.0f);
 
-		SHRotationWignerMatrix::SetByRowCol(1, 1, 2, 0.0f);
-		SHRotationWignerMatrix::SetByRowCol(1, 1, 1, cos(angle));
-		SHRotationWignerMatrix::SetByRowCol(1, 1, 0, sin(angle));
+		SHRotationWignerMatrix::SetByRowCol(1, 0, -1, 0.0f);
+		SHRotationWignerMatrix::SetByRowCol(1, 0, 0, cosBeta);
+		SHRotationWignerMatrix::SetByRowCol(1, 0, 1, sinBeta);
 
-		SHRotationWignerMatrix::SetByRowCol(1, 0, 1, 0.0f);
-		SHRotationWignerMatrix::SetByRowCol(1, 0, 1, -sin(angle));
-		SHRotationWignerMatrix::SetByRowCol(1, 0, 0, cos(angle));
-		*/
+		SHRotationWignerMatrix::SetByRowCol(1, 1, -1, 0.0f);
+		SHRotationWignerMatrix::SetByRowCol(1, 1, 0, -sinBeta);
+		SHRotationWignerMatrix::SetByRowCol(1, 1, 1, cosBeta);
+		
 	}
 
 	if(mHighestBandIndex >= 2)
 	{
+		for (int L = 2; L <= int(mHighestBandIndex); ++L)
+		{
+			//**2.corners (L,L) (-L,-L)
+			float cornerVal1 = SHRotationWignerMatrix::GetByIndex(L - 1, L - 1, L - 1);
+			float cornerVal2 = SHRotationWignerMatrix::GetByIndex(L - 1, -L + 1, -L + 1);
+			float cosBeta = cos(angle);
+			SHRotationWignerMatrix::SetByIndex(L, L, L, 0.5f * cosBeta * cornerVal1 + 0.5f * cornerVal2);
+			SHRotationWignerMatrix::SetByIndex(L, L, L, 0.5f  * cornerVal1 + 0.5f * cosBeta * cornerVal2);
+
+			//**3. half column (M,L) (-M,-L), and symmetric half row (L,M) (-L,-M)
+			//two marginal (half) columns, and their symmetric (half) rows about diagonal
+			for (int M = 0; M <= L - 1; ++M)
+			{
+				float scaleFactor = sqrt((float(L) * (float(L) - 0.5f)) / float(L*L - M*M)) * sinBeta;
+
+				float prevTerm1 = SHRotationWignerMatrix::GetByIndex(L - 1, M, L - 1);
+				SHRotationWignerMatrix::SetByIndex(L, M, L, scaleFactor* prevTerm1);
+				float prevTerm2 = SHRotationWignerMatrix::GetByIndex(L - 1, -M, -L + 1);
+				SHRotationWignerMatrix::SetByIndex(L, -M, -L, scaleFactor * prevTerm2);
+
+				//symmetric/transpose position (additional variables for clarity)
+				int symmetricM = L;
+				int symmetricN = M;
+				SHRotationWignerMatrix::SetByIndex(L, symmetricM, symmetricN, pow(-1, symmetricM - symmetricN) * scaleFactor* prevTerm1);
+				SHRotationWignerMatrix::SetByIndex(L, -symmetricM, -symmetricN, pow(-1, symmetricN - symmetricM) * scaleFactor* prevTerm2);
+			}
+		
+			//**4. interior region #1, near diagonal
+			for (int M = 0; M <= L - 1; ++M)
+			{
+				for (int N = 0; N <= L - 1; ++N)
+				{
+					float factor1 = L * (2 * L - 1) / sqrt(float( L * L - M * M) / float(L*L - N * N));
+					float factor2 = M * N / float(L * (L - 1));
+					float factor3 = sqrt(   (  ((L - 1)*(L - 1) - M*M) * ((L - 1)*(L - 1) - N*N)  ) / float((L - 1)*(2 * L - 1)));
+					SHRotationWignerMatrix::SetByIndex(L, M, N, factor1 * ());
+				}
+			}
+
+
+		}
+
+
 
 	}
 
-	//2. Multiplication
+	//Multiplication of Wigner Matrix and SH vector
 	for (int l = 0; l <= mHighestBandIndex; ++l)
 	{
 		//for every SH vector band, assign the result of WignerMatrix * band (manipulate 4 channels simultaneously)
