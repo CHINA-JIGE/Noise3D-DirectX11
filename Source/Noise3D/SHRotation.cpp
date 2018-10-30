@@ -22,7 +22,7 @@ Noise3D::GI::SHRotationWignerMatrix::SHRotationWignerMatrix(uint32_t highestBand
 		mMat.resize(mHighestBandIndex+1);
 		for (uint32_t i = 0; i <= highestBandIndex; ++i)
 		{
-			mMat.at(i).resize((2 * i + 1)*(2 * i + 1), 0.0f);
+			mMat.at(i).resize((2 * i + 1)*(2 * i + 1), 1234567.0f);
 		}
 	}
 }
@@ -35,8 +35,17 @@ float Noise3D::GI::SHRotationWignerMatrix::GetByRowCol(uint32_t l, uint32_t row,
 
 float Noise3D::GI::SHRotationWignerMatrix::GetByIndex(uint32_t l, int m, int n)
 {
-	//in l-th band Wigner Matrix, -L<=m<=L 
-	return mMat.at(l).at((2 * l + 1)*(int(l) - m) + (int(l) - n)) ;
+	if (m >= -l && m <= l && n >= -l && n <= l)
+	{
+		//in l-th band Wigner Matrix, -L<=m<=L 
+		return mMat.at(l).at((2 * l + 1)*(int(l) - m) + (int(l) - n));
+	}
+	else
+	{
+		//reference of the special extension:<FFTs on the Rotation Group> Peter J Kostelec
+		//the recursive construction of Wigner Matrix Rotation Y might need this term.
+		return 0.0f;
+	}
 }
 
 void Noise3D::GI::SHRotationWignerMatrix::SetByRowCol(uint32_t l, uint32_t row, uint32_t col,float val)
@@ -106,7 +115,9 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateY(float angle, std::ve
 	if (mHighestBandIndex >= 1)
 	{
 		//(2018.10.27)band 1 wigner matrix of rotation Y remains un-determined. Can't find support literature.
-		//reference: Lisle's <Algorithms for Spherical Harmonic Lighting>£¬ but don't know the correspondence between RowCol & index
+		//reference: 
+		// ***Lisle's <Algorithms for Spherical Harmonic Lighting>£¬ but don't know the correspondence between RowCol & index
+		// ***Peter J Kostelec's<FFTs on the Rotation Group>
 
 		/*SHRotationWignerMatrix::SetByRowCol(1, 0, 0, 1.0f);
 		SHRotationWignerMatrix::SetByRowCol(1, 0, 1, 0.0f);
@@ -163,15 +174,21 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateY(float angle, std::ve
 				SHRotationWignerMatrix::SetByIndex(L, -symmetricM, -symmetricN, pow(-1, symmetricN - symmetricM) * scaleFactor* prevTerm2);
 			}
 		
-			//**4. interior region #1, near diagonal
+			//**4. interior region #1, block diagonal
 			for (int M = 0; M <= L - 1; ++M)
 			{
 				for (int N = 0; N <= L - 1; ++N)
 				{
-					float factor1 = L * (2 * L - 1) / sqrt(float( L * L - M * M) / float(L*L - N * N));
+					float factor1 = L * (2 * L - 1) / sqrt(float( L * L - M * M ) / float( L * L  - N * N ));
 					float factor2 = M * N / float(L * (L - 1));
-					float factor3 = sqrt(   (  ((L - 1)*(L - 1) - M*M) * ((L - 1)*(L - 1) - N*N)  ) / float((L - 1)*(2 * L - 1)));
-					SHRotationWignerMatrix::SetByIndex(L, M, N, factor1 * ());
+					float factor3 = sqrt(   (  ((L - 1)*(L - 1) - M*M) * ((L - 1)*(L - 1) - N*N)  ) / float((L - 1)*(2 * L - 1))  );
+
+					float d_Lminus1_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 1, M, N);
+					float d_Lminus2_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 2, M, N);//L's out-of-range situation has been considered (return 0)
+					float d_Lminus1_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 1, -M, -N);
+					float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
+					SHRotationWignerMatrix::SetByIndex(L,	  M,  N,		factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn));
+					SHRotationWignerMatrix::SetByIndex(L, -M, -N,	factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn));
 				}
 			}
 
