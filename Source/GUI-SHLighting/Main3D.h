@@ -37,6 +37,8 @@ public:
 
 	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
 
+	bool ComputeRotatedShTexture(Noise3D::RigidTransform t, std::vector<Noise3D::NColor4f>& outShVector);
+
 	void RotateBall(int index, float deltaYaw, float deltaPitch);
 
 	void Cleanup();
@@ -57,6 +59,11 @@ private:
 	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
 
 	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
+
+	void mFunction_SHPreprocess_Rotation(Noise3D::RigidTransform t);
+
+	//Sh coefficients vector
+	Noise3D::GI::SHVector mShvec;
 
 	SOURCE_TEXTURE_TYPE mSourceTextureType;
 

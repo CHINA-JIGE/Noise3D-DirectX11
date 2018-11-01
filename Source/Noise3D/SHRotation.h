@@ -41,16 +41,21 @@ namespace Noise3D
 
 			void SetByIndex(uint32_t l, int m, int n,float val);
 			
-			void	Rotate(RigidTransform t, std::vector <NColor4f>& in_out_SHVector);
+			//construct SH Rotation Matrix given a common rotation transform
+			void	Multiply(RigidTransform srcTransform, const std::vector<NColor4f>& in_SHVector, std::vector<NColor4f>& out_SHVector);
 
 		private:
 			//perform SH z-rotation without explicitly constructing Wigner Matrix
-			void mFunction_RotateZ(float angle, std::vector<NColor4f>& in_out_SHVector);
+			void mFunction_RotateZ(float angle, const std::vector<NColor4f>& inShVector, std::vector<NColor4f>& out_SHVector);
 
 			//perform SH z-rotation BY explicitly constructing Wigner Matrix, be careful of the coefficients order
-			void mFunction_RotateY(float angle, std::vector<NColor4f>& in_out_SHVector);
+			void mFunction_ConstructRotationY(float angle);
+
+			void mFunction_MultiplyRotationY(std::vector<NColor4f>& in_out_SHVector);
+
 
 			uint32_t mHighestBandIndex;//inclusive SH band index
+			float mPreviousEulerY;//to prevent construction of Y
 			std::vector<std::vector<float>> mMat;//a series of wigner matrix (in different band)
 
 		};

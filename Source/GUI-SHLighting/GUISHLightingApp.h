@@ -33,11 +33,15 @@ public slots:
 
 	void Slot_ComputeShCoefficient();
 
+	void Slot_RotateShCoefficients();
+
 	void	Slot_CameraProj_Ortho();
 
 	void	Slot_CameraProj_Perspective();
 
 private:
+
+	void mFunc_OutputShCoefficients(int shOrder, std::vector<Noise3D::NColor4f>& shVector);
 
 	Ui::SHLightingGuiApp mUI;
 	Widget_RenderCanvas* m_pRenderCanvas;//customized widget (manually created)

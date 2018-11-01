@@ -23,8 +23,8 @@
    <widget class="QLabel" name="label_MonteCarlo">
     <property name="geometry">
      <rect>
-      <x>850</x>
-      <y>180</y>
+      <x>1020</x>
+      <y>90</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -58,7 +58,7 @@
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>280</y>
+      <y>300</y>
       <width>161</width>
       <height>51</height>
      </rect>
@@ -70,16 +70,16 @@
      </font>
     </property>
     <property name="text">
-     <string>计算SH系数</string>
+     <string>投影&amp;计算SH系数</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="textEdit_ShCoefficient">
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>340</y>
+      <y>360</y>
       <width>331</width>
-      <height>291</height>
+      <height>201</height>
      </rect>
     </property>
     <property name="font">
@@ -109,8 +109,8 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>150</y>
-      <width>181</width>
+      <y>120</y>
+      <width>151</width>
       <height>21</height>
      </rect>
     </property>
@@ -140,9 +140,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEdit_monteCarlo">
     <property name="geometry">
      <rect>
-      <x>850</x>
-      <y>210</y>
-      <width>181</width>
+      <x>1020</x>
+      <y>120</y>
+      <width>151</width>
       <height>21</height>
      </rect>
     </property>
@@ -173,7 +173,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>120</y>
+      <y>90</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -190,12 +190,12 @@ p, li { white-space: pre-wrap; }
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;球谐最高阶数(0~n):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_CalSHCoeff">
+   <widget class="QLabel" name="label_RotateSHCoeff">
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>250</y>
-      <width>141</width>
+      <y>150</y>
+      <width>241</width>
       <height>31</height>
      </rect>
     </property>
@@ -208,15 +208,15 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输出球谐系数:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;球谐旋转(Wigner-d Matrix):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_CamOrtho">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>50</y>
-      <width>141</width>
+      <x>1020</x>
+      <y>40</y>
+      <width>151</width>
       <height>51</height>
      </rect>
     </property>
@@ -227,8 +227,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="btn_CamPerspective">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>50</y>
+      <x>850</x>
+      <y>40</y>
       <width>151</width>
       <height>51</height>
      </rect>
@@ -241,7 +241,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>20</y>
+      <y>10</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -261,9 +261,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="btn_SaveSHCoefficients">
     <property name="geometry">
      <rect>
-      <x>1020</x>
-      <y>280</y>
-      <width>161</width>
+      <x>850</x>
+      <y>570</y>
+      <width>331</width>
       <height>51</height>
      </rect>
     </property>
@@ -275,6 +275,151 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>保存SH系数到文件</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_isOutputCStyle">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>280</y>
+      <width>171</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>输出C风格数组定义</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="horizontalSlider_eulerY">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>180</y>
+      <width>251</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="horizontalSlider_eulerX">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>210</y>
+      <width>251</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="horizontalSlider_eulerZ">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>240</y>
+      <width>251</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>10000</number>
+    </property>
+    <property name="sliderPosition">
+     <number>0</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_eulerY">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>180</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>Yaw-Y</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_eulerX">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>210</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>Pitch-X</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_eulerZ">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>240</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>Roll-Z</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_RotateSH">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>300</y>
+      <width>161</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>旋转SH系数</string>
     </property>
    </widget>
   </widget>

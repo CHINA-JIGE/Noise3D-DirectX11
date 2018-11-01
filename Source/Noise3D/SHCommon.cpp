@@ -118,10 +118,10 @@ float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
 float Noise3D::GI::SH_Recursive(int l, int m, float yaw, float pitch)
 {
 	//theta--pitch, phi--yaw
-	const double sqrt2 = sqrtf(2.0f);
+	const float sqrt2 = sqrtf(2.0f);
 	if (m == 0)return SH_NormalizationTermK(l, 0) * GI::AssociatedLegendrePolynomial_Recursive(l, 0, cos(pitch));
-	else if (m > 0)return sqrt2 * SH_NormalizationTermK(l, m) * cosf(m*yaw) * GI::AssociatedLegendrePolynomial_Recursive(l, m, cos(pitch));
-	else return sqrt2 * SH_NormalizationTermK(l, m) * sinf(-m*yaw )* GI::AssociatedLegendrePolynomial_Recursive(l, -m, cos(pitch));
+	else if (m > 0)return sqrt2 * SH_NormalizationTermK(l, m) * cos(m*yaw) * GI::AssociatedLegendrePolynomial_Recursive(l, m, cos(pitch));
+	else return sqrt2 * SH_NormalizationTermK(l, m) * sin(-m*yaw )* GI::AssociatedLegendrePolynomial_Recursive(l, -m, cos(pitch));
 	return 0.0f;
 }
 

@@ -243,6 +243,14 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 	return true;
 }
 
+bool Main3DApp::ComputeRotatedShTexture(RigidTransform t, std::vector<Noise3D::NColor4f>& outShVector)
+{
+	if (!mShvec.IsInitialized())return false;
+	mFunction_SHPreprocess_Rotation(t);
+	mShvec.GetRotatedCoefficients(outShVector);
+	return true;
+}
+
 void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 {
 	//object fixed, camera's orbit rotation is easy; 
@@ -309,11 +317,11 @@ void Main3DApp::SetCamProjType(bool isPerspective)
 void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
 {
 	//compute SH factors
-	GI::SHVector shvec;
+
 	GI::ISphericalFunc_Texture2dSampler defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginTex);
-	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
-	shvec.GetCoefficients(outShVector);
+	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
+	mShvec.GetCoefficients(outShVector);
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
@@ -323,7 +331,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 		for (int x = 0; x < width; ++x)
 		{
 			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
-			NVECTOR3 reconstructedColor = shvec.Eval(dir);
+			NVECTOR3 reconstructedColor = mShvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}
@@ -335,11 +343,10 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
 {
 	//compute SH factors
-	GI::SHVector shvec;
 	GI::ISphericalFunc_CubeMapSampler defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginCubeMap);
-	shvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
-	shvec.GetCoefficients(outShVector);
+	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
+	mShvec.GetCoefficients(outShVector);
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
@@ -349,7 +356,29 @@ void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSample
 		for (int x = 0; x < width; ++x)
 		{
 			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
-			NColor4f reconstructedColor = shvec.Eval(dir);
+			NColor4f reconstructedColor = mShvec.Eval(dir);
+			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			colorBuff.at(y*width + x) = color;
+		}
+	}
+	m_pShTex->SetPixelArray(colorBuff);
+	m_pShTex->UpdateToVideoMemory();
+}
+
+void Main3DApp::mFunction_SHPreprocess_Rotation(RigidTransform t)
+{
+	mShvec.SetRotation(t);
+
+	uint32_t width = m_pShTex->GetWidth();
+	uint32_t height = m_pShTex->GetHeight();
+	std::vector<NColor4u> colorBuff(width*height);
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
+			//Use 'EvalRotated' instead of Eval()  (because these 2 use different SH vector)
+			NColor4f reconstructedColor = mShvec.EvalRotated(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}

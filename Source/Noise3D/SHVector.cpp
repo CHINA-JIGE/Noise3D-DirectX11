@@ -10,7 +10,8 @@
 using namespace Noise3D;
 
 Noise3D::GI::SHVector::SHVector():
-	mOrder(0)
+	mOrder(0),
+	mIsInitialized(false)
 {
 
 }
@@ -66,11 +67,17 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 	{
 		mCoefficients.at(i) *= mulFactor;
 	}
+
+	if (!mIsInitialized)
+	{
+		mRotatedCoefficients = mCoefficients;
+	}
+
+	mIsInitialized = true;
 }
 
 NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 {
-	//float result = 0.0f;
 	NVECTOR4 result = { 0,0,0,0};
 	for (int L = 0; L <= mOrder; ++L)
 	{
@@ -82,6 +89,22 @@ NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 		}
 	}
 	result = Noise3D::Ut::Clamp(result, NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 1.0f, 1.0f,1.0f));
+	return result;
+}
+
+NColor4f Noise3D::GI::SHVector::EvalRotated(NVECTOR3 dir)
+{
+	NVECTOR4 result = { 0,0,0,0 };
+	for (int L = 0; L <= mOrder; ++L)
+	{
+		//M--coefficient index inside a SH band
+		for (int M = -L; M <= L; ++M)
+		{
+			//result = sum(coefficient * SH_basis)
+			result += mRotatedCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
+		}
+	}
+	result = Noise3D::Ut::Clamp(result, NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 	return result;
 }
 
@@ -107,14 +130,20 @@ NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 	return result;
 }
 
-void Noise3D::GI::SHVector::Rotate(float theta, float phi)
+void Noise3D::GI::SHVector::SetRotation(RigidTransform t)
 {
-	ERROR_MSG("not implemented!");
+	GI::SHRotationWignerMatrix mat(mOrder);
+	mat.Multiply(t,mCoefficients, mRotatedCoefficients);
 }
 
 void Noise3D::GI::SHVector::GetCoefficients(std::vector<NColor4f>& outList)
 {
 	outList = mCoefficients;
+}
+
+void Noise3D::GI::SHVector::GetRotatedCoefficients(std::vector<NColor4f>& outList)
+{
+	outList = mRotatedCoefficients;
 }
 
 int Noise3D::GI::SHVector::GetOrder()const
@@ -133,6 +162,11 @@ void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::ve
 
 	mOrder = highestOrderIndex;
 	mCoefficients = list;
+}
+
+bool Noise3D::GI::SHVector::IsInitialized() const
+{
+	return mIsInitialized;
 }
 
 

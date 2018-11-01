@@ -15,6 +15,7 @@ GUISHLightingApp::GUISHLightingApp(QWidget *parent)
 	connect(mUI.actionExit, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_Exit);
 	connect(mUI.actionAbout, &QAction::triggered, this, &GUISHLightingApp::Slot_Menu_About);
 	connect(mUI.btn_ComputeSH, &QPushButton::clicked, this, &GUISHLightingApp::Slot_ComputeShCoefficient);
+	connect(mUI.btn_RotateSH, &QPushButton::clicked, this, &GUISHLightingApp::Slot_RotateShCoefficients);
 	connect(mUI.btn_CamOrtho, &QPushButton::clicked, this, &GUISHLightingApp::Slot_CameraProj_Ortho);
 	connect(mUI.btn_CamPerspective, &QPushButton::clicked, this, &GUISHLightingApp::Slot_CameraProj_Perspective);
 	connect(mUI.btn_SaveSHCoefficients, &QPushButton::clicked, this, &GUISHLightingApp::Slot_SaveSHCoefficientsToFile);
@@ -160,57 +161,31 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 	std::vector<NColor4f> shVector;
 	m_pRenderCanvas->GetMain3dApp().ComputeShTexture(mTextureType, shOrder, monteCarloSampleCount, shVector);
 
-	//output to text edit in given format
-	QString output;
-	output += "<font color=red><b>Channel R:</b></font><font color=black><br/>";
-	for (int L = 0; L <= shOrder; ++L)
-	{
-		output += QString("<b>Band ")+QString::number(L)+QString(": </b><br/>");
-		for (int M = -L; M <= L; ++M)
-		{
-			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).x) + QString(" ");
-		}
-		output += QString("<br/>");
-	}
-	output += QString("<br/>");
+	mFunc_OutputShCoefficients(shOrder, shVector);
+}
 
-	output += "<font color=Green><b>Channel G:</b></font><font color=black><br/>";
-	for (int L = 0; L <= shOrder; ++L)
-	{
-		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
-		for (int M = -L; M <= L; ++M)
-		{
-			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).y) + QString(" ");
-		}
-		output += QString("<br/>");
-	}
-	output += QString("<br/>");
+void GUISHLightingApp::Slot_RotateShCoefficients()
+{	
+	//get param from GUI text edit
+	int shOrder = mUI.textEdit_shOrder->toPlainText().toInt();
 
-	output += "<font color=Blue><b>Channel B:</b></font><font color=black><br/>";
-	for (int L = 0; L <= shOrder; ++L)
-	{
-		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
-		for (int M = -L; M <= L; ++M)
-		{
-			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).z) + QString(" ");
-		}
-		output += QString("<br/>");
-	}
-	output += QString("<br/>");
+	RigidTransform t;
+	float eulerX = Ut::PI * 2.0f * float(mUI.horizontalSlider_eulerX->value()) / mUI.horizontalSlider_eulerX->maximum();
+	float eulerY = Ut::PI * 2.0f * float(mUI.horizontalSlider_eulerY->value()) / mUI.horizontalSlider_eulerY->maximum();
+	float eulerZ = Ut::PI * 2.0f * float(mUI.horizontalSlider_eulerZ->value()) / mUI.horizontalSlider_eulerZ->maximum();
+	t.SetRotation(eulerX, eulerY, eulerZ);
 
-	output += "<font color=Magenta><b>Channel A:</b></font><font color=black><br/>";
-	for (int L = 0; L <= shOrder; ++L)
+	//compute SH texture
+	std::vector<NColor4f> shVector;
+	bool succeeded = m_pRenderCanvas->GetMain3dApp().ComputeRotatedShTexture(t, shVector);
+	if (succeeded)
 	{
-		output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
-		for (int M = -L; M <= L; ++M)
-		{
-			output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).w) + QString(" ");
-		}
-		output += QString("<br/>");
+		mFunc_OutputShCoefficients(shOrder, shVector);
 	}
-	output += QString("<br/>");
-
-	mUI.textEdit_ShCoefficient->setText(output);
+	else
+	{
+		QMessageBox::critical(this, "错误","请先投影并计算SH系数，然后才能进行旋转！",QMessageBox::StandardButton::Apply,0);
+	}
 }
 
 void GUISHLightingApp::Slot_CameraProj_Ortho()
@@ -221,6 +196,76 @@ void GUISHLightingApp::Slot_CameraProj_Ortho()
 void GUISHLightingApp::Slot_CameraProj_Perspective()
 {
 	m_pRenderCanvas->GetMain3dApp().SetCamProjType(true);
+}
+
+void GUISHLightingApp::mFunc_OutputShCoefficients(int shOrder, std::vector<NColor4f>& shVector)
+{
+	//should we out C-Style code of array definition?
+	bool isOutputCStyle = mUI.checkBox_isOutputCStyle->isChecked();
+
+	//output to text edit in given format
+	QString output;
+	if (isOutputCStyle)
+	{
+		//c-style array def
+		output += "<font color=blue>float </font><font color=black>R[" + QString::number(shVector.size()) + "] = {";
+		for (int i = 0; i < shVector.size() - 1; ++i)output += QString::number(shVector.at(i).x) + QString("f, ");
+		output += QString::number(shVector.back().x) + "};</font><br/>";
+
+		output += "<font color=blue>float </font><font color=black>G[" + QString::number(shVector.size()) + "] = {";
+		for (int i = 0; i < shVector.size() - 1; ++i)output += QString::number(shVector.at(i).y) + QString("f, ");
+		output += QString::number(shVector.back().y) + "};</font><br/>";
+
+		output += "<font color=blue>float </font><font color=black>B[" + QString::number(shVector.size()) + "] = {";
+		for (int i = 0; i < shVector.size() - 1; ++i)output += QString::number(shVector.at(i).z) + QString("f, ");
+		output += QString::number(shVector.back().z) + "};</font><br/>";
+
+		output += "<font color=blue>float </font><font color=black>A[" + QString::number(shVector.size()) + "] = {";
+		for (int i = 0; i < shVector.size() - 1; ++i)output += QString::number(shVector.at(i).w) + QString("f, ");
+		output += QString::number(shVector.back().w) + "};</font><br/>";
+
+	}
+	else
+	{
+		//original output
+		output += "<font color=red><b>Channel R:</b></font><font color=black><br/>";
+		for (int L = 0; L <= shOrder; ++L)
+		{
+			output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+			for (int M = -L; M <= L; ++M)output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).x) + QString(" ");
+			output += QString("<br/>");
+		}
+		output += QString("<br/>");
+
+		output += "<font color=Green><b>Channel G:</b></font><font color=black><br/>";
+		for (int L = 0; L <= shOrder; ++L)
+		{
+			output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+			for (int M = -L; M <= L; ++M)output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).y) + QString(" ");
+			output += QString("<br/>");
+		}
+		output += QString("<br/>");
+
+		output += "<font color=Blue><b>Channel B:</b></font><font color=black><br/>";
+		for (int L = 0; L <= shOrder; ++L)
+		{
+			output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+			for (int M = -L; M <= L; ++M)output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).z) + QString(" ");
+			output += QString("<br/>");
+		}
+		output += QString("<br/>");
+
+		output += "<font color=Magenta><b>Channel A:</b></font><font color=black><br/>";
+		for (int L = 0; L <= shOrder; ++L)
+		{
+			output += QString("<b>Band ") + QString::number(L) + QString(": </b><br/>");
+			for (int M = -L; M <= L; ++M)output += QString::number(shVector.at(GI::SH_FlattenIndex(L, M)).w) + QString(" ");
+			output += QString("<br/>");
+		}
+		output += QString("<br/>");
+	}
+
+	mUI.textEdit_ShCoefficient->setText(output);
 }
 
 
