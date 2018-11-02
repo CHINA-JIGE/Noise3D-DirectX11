@@ -207,18 +207,26 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 					float d_Lminus2_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 2, M, N);//L's out-of-range situation has been considered (return 0)
 					float d_Lminus1_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 1, -M, -N);
 					float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
-					SHRotationWignerMatrix::SetByIndex(L,	  M,  N,		factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn));
-					SHRotationWignerMatrix::SetByIndex(L, -M, -N,	factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn));
-				
-					/*if (M == N)
-					{
-						float a = 1;//debug
-					}*/
-				
+
+					float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn);
+					float result2 = factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
+					
+					//float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
+					//float result2 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
+
+					SHRotationWignerMatrix::SetByIndex(L, M, N, result1);
+					SHRotationWignerMatrix::SetByIndex(L, -M, -N, result2);
+	
 				}
 			}
 
-			//**5. interior region #2, the remaining elements are filled with 0 (which is done in class constructor)
+			//**5. interior region #2, the remaining elements are filled with 0
+			//(most of them are initialized to 0 and remained untouched,only the central 1 row and 1 column need to be cleared to 0)
+			for (int i = 1; i <= L; ++i)
+			{
+				SHRotationWignerMatrix::SetByIndex(L, 0, -i, 0.0f);
+				SHRotationWignerMatrix::SetByIndex(L, -i, 0, 0.0f);
+			}
 
 		}
 

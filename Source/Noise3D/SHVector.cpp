@@ -133,6 +133,7 @@ NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 void Noise3D::GI::SHVector::SetRotation(RigidTransform t)
 {
 	GI::SHRotationWignerMatrix mat(mOrder);
+	mRotatedCoefficients.resize(mCoefficients.size());
 	mat.Multiply(t,mCoefficients, mRotatedCoefficients);
 }
 

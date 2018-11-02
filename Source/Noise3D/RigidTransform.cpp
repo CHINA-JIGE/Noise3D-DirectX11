@@ -499,9 +499,9 @@ N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZYZ(const 
 			outEuler.angleZ1= 0.0f;//arbitrarily set a value
 			outEuler.angleZ3 = outEuler.angleZ1 - atan2(mat.m[0][1], mat.m[1][1]);//z1-z3=atan2
 		}
-		else//y2=pi, cos(y2)=1.0f
+		else//y2=0, cos(y2)=1.0f
 		{
-			outEuler.angleY2 = Ut::PI;
+			outEuler.angleY2 = 0.0f;
 			outEuler.angleZ1 = 0.0f;//arbitrarily set a value
 			outEuler.angleZ3 = -outEuler.angleZ1 + atan2(mat.m[0][1], mat.m[1][1]);//z1+z3=atan2
 		}
