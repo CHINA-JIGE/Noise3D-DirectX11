@@ -82,7 +82,9 @@
     </ClCompile>
     <CustomBuildStep>
       <Command>fxc.exe /Fc /Od /Zi /T fx_5_0 /Fo "Main_d.fxo" "Main.fx"
-copy /B "Main_d.fxo" /B "..//..//Exec//Debug//shader//Main_d.fxo"</Command>
+IF EXIST "..\..\Exec\Debug\shader\" (echo "target shader dir exist.") else (md "..\..\Exec\Debug\shader\")
+copy /B "Main_d.fxo" /B "..//..//Exec//Debug//shader//Main_d.fxo"
+</Command>
       <Outputs>$(SolutionDir)Main.fxo</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -107,7 +109,9 @@ copy /B "Main_d.fxo" /B "..//..//Exec//Debug//shader//Main_d.fxo"</Command>
     </Link>
     <CustomBuildStep>
       <Command>fxc.exe /Fc /T fx_5_0 /Fo "Main.fxo" "Main.fx"
-copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"</Command>
+IF NOT EXIST "..\..\Exec\Release\shader\" md "..\..\Exec\Release\shader\"
+copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"
+</Command>
       <Outputs>$(SolutionDir)Main.fxo</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
