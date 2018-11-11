@@ -207,18 +207,15 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 					float d_Lminus1_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 1, M, N);
 					float d_Lminus2_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 2, M, N);//L's out-of-range situation has been considered (return 0)
 					float d_Lminus1_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 1, -M, -N);
-					//float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
+					float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
 
+					//float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn);
+					//float result2 = factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
+
+					//WARNING: Lisle 2007 <Algorithm for Spherical Harmonic Lighting has a very KENG DIE error
+					//in the right side of the d^l_(m,n) recursive equation, d^(l-2)_(-m,-n) should be used instead of d^(l-2)_(m,n) 
 					float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn);
-					float result2 = factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
-
-					//float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
-					//float result2 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
-
-					if (L == 5 && M == 1 && N == 1)
-					{
-						float debug = 1;
-					}
+					float result2 = factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_neg_mn);
 
 					SHRotationWignerMatrix::SetByIndex(L, M, N, result1);
 					SHRotationWignerMatrix::SetByIndex(L, -M, -N, result2);
