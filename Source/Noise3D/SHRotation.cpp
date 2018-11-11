@@ -38,7 +38,9 @@ float Noise3D::GI::SHRotationWignerMatrix::GetByIndex(uint32_t l, int m, int n)
 {
 	if (m >= -int(l) && m <= int(l) && n >= -int(l) && n <= int(l))
 	{
-		//in l-th band Wigner Matrix, -L<=m<=L 
+		//in l-th band Wigner Matrix, -L<=m<=L ,
+		// row = l - m
+		// column = l - n
 		return mMat.at(l).at((2 * l + 1)*(int(l) - m) + (int(l) - n));
 	}
 	else
@@ -172,7 +174,6 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 			//**2.corners (L,L) (-L,-L)
 			float cornerVal1 = SHRotationWignerMatrix::GetByIndex(L - 1, L - 1, L - 1);
 			float cornerVal2 = SHRotationWignerMatrix::GetByIndex(L - 1, -L + 1, -L + 1);
-			float cosBeta = cos(angle);
 			SHRotationWignerMatrix::SetByIndex(L, L, L, 0.5f * cosBeta * cornerVal1 + 0.5f * cornerVal2);
 			SHRotationWignerMatrix::SetByIndex(L, -L, -L, 0.5f * cornerVal1 + 0.5f * cosBeta * cornerVal2);
 
@@ -206,13 +207,18 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 					float d_Lminus1_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 1, M, N);
 					float d_Lminus2_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 2, M, N);//L's out-of-range situation has been considered (return 0)
 					float d_Lminus1_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 1, -M, -N);
-					float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
+					//float d_Lminus2_neg_mn = SHRotationWignerMatrix::GetByIndex(L - 2, -M, -N);//L's out-of-range situation has been considered (return 0)
 
 					float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_neg_mn - factor3 * d_Lminus2_pos_mn);
 					float result2 = factor1 * (cosBeta * d_Lminus1_neg_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
-					
+
 					//float result1 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
 					//float result2 = factor1 * (cosBeta * d_Lminus1_pos_mn - factor2 * d_Lminus1_pos_mn - factor3 * d_Lminus2_pos_mn);
+
+					if (L == 5 && M == 1 && N == 1)
+					{
+						float debug = 1;
+					}
 
 					SHRotationWignerMatrix::SetByIndex(L, M, N, result1);
 					SHRotationWignerMatrix::SetByIndex(L, -M, -N, result2);
