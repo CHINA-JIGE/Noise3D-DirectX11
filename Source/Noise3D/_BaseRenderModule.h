@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h£ºIRenderer
+                           h£ºRenderer
 				desc: transfer data to Graphic memory
 				and use gpu to render
 

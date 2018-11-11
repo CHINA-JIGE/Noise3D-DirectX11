@@ -70,7 +70,7 @@ UINT Noise3D::Ut::MapDInputScanCodeToAscii(UINT scanCode, bool isCapital)
 	}
 };
 
-IInputEngine::IInputEngine()
+InputEngine::InputEngine()
 {
 	m_pDirectInput=nullptr;
 	m_pDeviceKeyboard = nullptr;
@@ -86,7 +86,7 @@ IInputEngine::IInputEngine()
 	mResponsiveHWND=(HWND)0;
 };
 
-void IInputEngine::Destroy()
+void InputEngine::Destroy()
 {
 	if (m_pDeviceKeyboard)m_pDeviceKeyboard->Unacquire();
 	if (m_pDeviceMouse)m_pDeviceMouse->Unacquire();
@@ -96,7 +96,7 @@ void IInputEngine::Destroy()
 	mHasBeenInitialized = false;
 };
 
-bool IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
+bool InputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 {
 	//input Engine has been initialized
 	if (mHasBeenInitialized)return true;
@@ -146,7 +146,7 @@ bool IInputEngine::Initialize(HINSTANCE hinstance, HWND hwnd)
 	return true;
 };
 
-bool IInputEngine::Update()
+bool InputEngine::Update()
 {
 	//input engine must be initialized
 	if (!mHasBeenInitialized)return false;
@@ -224,12 +224,12 @@ bool IInputEngine::Update()
 	return true;
 }
 
-bool IInputEngine::IsKeyPressed(NOISE_KEY keyVal)
+bool InputEngine::IsKeyPressed(NOISE_KEY keyVal)
 {
 	return IsKeyPressed(UINT(keyVal));
 }
 
-bool IInputEngine::IsKeyPressed(UINT keyVal)
+bool InputEngine::IsKeyPressed(UINT keyVal)
 {
 	// Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
 	//according to the doc , only low byte of the dwData  matters, so apply "and" with 0x80
@@ -242,7 +242,7 @@ bool IInputEngine::IsKeyPressed(UINT keyVal)
 	return false;
 }
 
-bool IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
+bool InputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 {
 	//according to Doc :
 	//The rgbButtons member is an array of bytes, one for each of four or eight buttons.
@@ -266,32 +266,32 @@ bool IInputEngine::IsMouseButtonPressed(NOISE_MOUSEBUTTON mouseBtn)
 	return false;
 }
 
-bool IInputEngine::IsInitialized()
+bool InputEngine::IsInitialized()
 {
 	return mHasBeenInitialized;
 }
 
-int IInputEngine::GetMouseDiffX()
+int InputEngine::GetMouseDiffX()
 {
 	return mMouseDiffX;
 };
 
-int IInputEngine::GetMouseDiffY()
+int InputEngine::GetMouseDiffY()
 {
 	return mMouseDiffY;
 };
 
-int IInputEngine::GetMouseScrollDiff()
+int InputEngine::GetMouseScrollDiff()
 {
 	return mMouseDiffScroll;
 };
 
-int IInputEngine::GetMouseScrPosX()
+int InputEngine::GetMouseScrPosX()
 {
 	return mMousePosX;
 }
 
-int IInputEngine::GetMouseScrPosY()
+int InputEngine::GetMouseScrPosY()
 {
 	return mMousePosY;
 }

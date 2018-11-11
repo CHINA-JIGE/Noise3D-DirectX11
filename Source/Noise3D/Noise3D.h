@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <random>
 
 //Third Party : Microsoft's Effects11/FX11
 #include <Effects11\d3dx11effect.h>
@@ -52,11 +53,14 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
-//#include "IResourceManager.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
+#include "RigidTransform.h"
+#include "AffineTransform.h"
+#include "HardwareVertexBuffer.h"
+#include "HardwareIndexBuffer.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"
@@ -65,7 +69,9 @@
 #include "MeshManager.h"
 #include "Lights.h"
 #include "LightManager.h"
-#include "Texture.h"
+#include "ITexture.h"
+#include "Texture2D.h"
+#include "TextureCubeMap.h"
 #include "TextureManager.h"
 #include "Material.h"
 #include "MaterialManager.h"
@@ -87,6 +93,13 @@
 #include "Renderer.h"
 #include "Root.h"
 #include "Scene.h"
+
+//--------GI: Spherical Harmonic----------
+#include "RandomSampleGenerator.h"
+#include "ISphericalFunc.h"
+#include "SHCommon.h"
+#include "SHRotation.h"
+#include "SHVector.h"
 
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"

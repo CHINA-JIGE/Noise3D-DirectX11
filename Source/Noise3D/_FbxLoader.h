@@ -3,7 +3,7 @@
 
 							   h£ºFBX loader
 		Desc: encapsulation of  FBXSDK, loading FBX model/scene
-		which will be integrated to IModelLoader
+		which will be integrated to ModelLoader
 
 ************************************************************************/
 

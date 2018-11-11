@@ -9,71 +9,71 @@
 
 namespace Noise3D
 {
-	class IModelLoader;
+	class ModelLoader;
 
-		class /*_declspec(dllexport)*/ IScene:
-		public IFactory<IRenderer>,
-		public IFactory<ICamera>,
-		public IFactory<IMeshManager>,
-		public IFactory<ILightManager>,
-		public IFactory<ITextureManager>,
-		public IFactory<IMaterialManager>,
-		public IFactory<IGraphicObjectManager>,
-		public IFactory<ISweepingTrailManager>,
-		public IFactory<IAtmosphere>,
-		public IFactory<IFontManager>,
-		public IFactory<IModelLoader>,
-		public IFactory<IModelProcessor>,
-		public IFactory<ICollisionTestor>
+		class /*_declspec(dllexport)*/ SceneManager:
+		public IFactory<Renderer>,
+		public IFactory<Camera>,
+		public IFactory<MeshManager>,
+		public IFactory<LightManager>,
+		public IFactory<TextureManager>,
+		public IFactory<MaterialManager>,
+		public IFactory<GraphicObjectManager>,
+		public IFactory<SweepingTrailManager>,
+		public IFactory<Atmosphere>,
+		public IFactory<TextManager>,
+		public IFactory<ModelLoader>,
+		public IFactory<ModelProcessor>,
+		public IFactory<CollisionTestor>
 	{
 	public:
 
 		void								ReleaseAllChildObject();
 
-		IRenderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHWND);
+		Renderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHWND);
 
-		IRenderer*					GetRenderer();
+		Renderer*					GetRenderer();
 
-		ICamera*						GetCamera();
+		Camera*						GetCamera();
 
-		IMeshManager*			GetMeshMgr();
+		MeshManager*			GetMeshMgr();
 
-		ILightManager*			GetLightMgr();
+		LightManager*			GetLightMgr();
 
-		ITextureManager*		GetTextureMgr();
+		TextureManager*		GetTextureMgr();
 
-		IMaterialManager*		GetMaterialMgr();
+		MaterialManager*		GetMaterialMgr();
 
-		ISweepingTrailManager*		GetSweepingTraillMgr();
+		SweepingTrailManager*		GetSweepingTraillMgr();
 
-		IGraphicObjectManager*	GetGraphicObjMgr();
+		GraphicObjectManager*	GetGraphicObjMgr();
 
-		IAtmosphere*					GetAtmosphere();
+		Atmosphere*					GetAtmosphere();
 
-		IFontManager*				GetFontMgr();
+		TextManager*				GetTextMgr();
 
-		IModelLoader*				GetModelLoader();
+		ModelLoader*				GetModelLoader();
 
-		IModelProcessor*			GetModelProcessor();
+		ModelProcessor*			GetModelProcessor();
 
-		ICollisionTestor*				GetCollisionTestor();
+		CollisionTestor*				GetCollisionTestor();
 
 	private:
 
-		friend class IFactory<IScene>;
+		friend class IFactory<SceneManager>;
 
-		IScene();
+		SceneManager();
 
-		~IScene();
+		~SceneManager();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
-		ITextureManager*				mFunction_GetTexMgrInsideFontMgr();
+		TextureManager*				mFunction_GetTexMgrInsideFontMgr();
 
-		IGraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
+		GraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
 
 	};
 
 
-		extern IScene* GetScene();
+		extern SceneManager* GetScene();
 
 }

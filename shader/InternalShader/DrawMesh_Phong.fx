@@ -9,6 +9,7 @@
 
 ************************************************/
 
+//WARNING: ROW MAJOR vector
 VS_OUTPUT_DRAW_MESH_PHONG VS_DrawMeshWithPixelLighting(VS_INPUT_DRAW_MESH input)
 {
 	//initialize

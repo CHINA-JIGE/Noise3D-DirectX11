@@ -29,12 +29,12 @@ namespace Noise3D
 		};
 
 		//IFileIO is used to load .stl model
-		class /*_declspec(dllexport)*/ IMeshSlicer : private IFileIO
+		class /*_declspec(dllexport)*/ MeshSlicer : private IFileIO
 		{
 
 		public:
 
-			IMeshSlicer();
+			MeshSlicer();
 
 			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vertexBuffer,const std::vector<UINT>& indexBuffer);
 

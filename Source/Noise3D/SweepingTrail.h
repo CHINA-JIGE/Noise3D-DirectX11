@@ -21,7 +21,7 @@
 namespace Noise3D
 {
 
-	class ISweepingTrail:
+	class SweepingTrail:
 		public CRenderSettingBlendMode,
 		public CRenderSettingFillMode
 	{
@@ -92,14 +92,14 @@ namespace Noise3D
 			NVECTOR3 backTangent2;//estimated tangent (for Cubic Hermite Spline)
 		};
 
-		friend class ISweepingTrailManager;
-		friend IFactory<ISweepingTrail>;
+		friend class SweepingTrailManager;
+		friend IFactory<SweepingTrail>;
 		friend class IRenderModuleForSweepingTrailFX;
 		typedef N_SimpleVertex N_SweepingTrailVertexType;
 
-		ISweepingTrail();
+		SweepingTrail();
 
-		~ISweepingTrail();
+		~SweepingTrail();
 
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGpuBuffer(UINT vertexPoolSize);
 

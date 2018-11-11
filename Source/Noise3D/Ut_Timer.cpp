@@ -11,7 +11,7 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-ITimer::ITimer()
+Timer::Timer()
 	:mTimeUnit(NOISE_TIMER_TIMEUNIT_MILLISECOND),
 	mMilliSecondsPerCount(0.0),
 	mDeltaTime(0.0),
@@ -30,7 +30,7 @@ ITimer::ITimer()
 	NOISE_MACRO_FUNCTION_WINAPI QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 }
 
-ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
+Timer::Timer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	:mTimeUnit(timeUnit),
 	mMilliSecondsPerCount(0.0),
 	mDeltaTime(0.0),
@@ -50,7 +50,7 @@ ITimer::ITimer(NOISE_TIMER_TIMEUNIT timeUnit = NOISE_TIMER_TIMEUNIT_MILLISECOND)
 }
 
 //elapse time . and time interval will be scaled
-void ITimer::NextTick()
+void Timer::NextTick()
 {
 	//used to indicate that it's time to update FPS
 	static double normalTotalTime = 0.0;
@@ -98,13 +98,13 @@ void ITimer::NextTick()
 	};
 }
 
-UINT ITimer::GetFPS() const
+UINT Timer::GetFPS() const
 {
 	return mFPS;
 };
 
 //scaled elapsed time is counted in
-double ITimer::GetTotalTimeElapsed()const
+double Timer::GetTotalTimeElapsed()const
 {
 	switch(mTimeUnit)
 	{
@@ -119,7 +119,7 @@ double ITimer::GetTotalTimeElapsed()const
 };
 
 //return time is scaled
-double ITimer::GetInterval()const
+double Timer::GetInterval()const
 {
 	switch(mTimeUnit)
 	{
@@ -134,23 +134,23 @@ double ITimer::GetInterval()const
 };
 
 //select milli-sec or second
-void ITimer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
+void Timer::SetTimeUnit(NOISE_TIMER_TIMEUNIT timeUnit)
 {
 	if (timeUnit ==NOISE_TIMER_TIMEUNIT_SECOND||timeUnit==NOISE_TIMER_TIMEUNIT_MILLISECOND)
 	{mTimeUnit = timeUnit;};
 };
 
-void ITimer::Pause()
+void Timer::Pause()
 {
 	mIsPaused = true;
 };
 
-void ITimer::Continue()
+void Timer::Continue()
 {
 	mIsPaused = false;
 };
 
-void ITimer::ResetAll()
+void Timer::ResetAll()
 {
 	mDeltaTime = 0.0;
 	mTotalTime = 0.0;
@@ -162,12 +162,12 @@ void ITimer::ResetAll()
 	QueryPerformanceCounter((LARGE_INTEGER*)&mCurrentCount);
 };
 
-void ITimer::ResetTotalTime()
+void Timer::ResetTotalTime()
 {
 	mTotalTime = 0;
 }
 
-void ITimer::SetTimeIntervalClamp(double maxInterval)
+void Timer::SetTimeIntervalClamp(double maxInterval)
 {
 	if (maxInterval > 0.0f)
 	{
@@ -175,12 +175,12 @@ void ITimer::SetTimeIntervalClamp(double maxInterval)
 	}
 }
 
-void ITimer::SetTimeScale(double scaleFactor)
+void Timer::SetTimeScale(double scaleFactor)
 {
 	mTimeScaleFactor = scaleFactor;//could be neg/0/pos
 }
 
-double ITimer::GetTimeScale() const
+double Timer::GetTimeScale() const
 {
 	return mTimeScaleFactor;
 }

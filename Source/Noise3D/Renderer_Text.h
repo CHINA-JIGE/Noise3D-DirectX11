@@ -14,13 +14,13 @@ namespace Noise3D
 	{
 	public:
 
-		void	AddToRenderQueue(IDynamicText* obj);
+		void	AddToRenderQueue(DynamicText* obj);
 
-		void	AddToRenderQueue(IStaticText* obj);
+		void	AddToRenderQueue(StaticText* obj);
 
 	protected:
 
-		//"protected" : allow IRenderer to construct each render module
+		//"protected" : allow Renderer to construct each render module
 		// but simultaneously, not allow direct class construction by other user
 		IRenderModuleForText();
 
@@ -36,7 +36,7 @@ namespace Noise3D
 
 		void		mFunction_AddToRenderList_Text(IBasicTextInfo* pText, std::vector<IBasicTextInfo*>* pList);
 
-		void		mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, ITextureManager* pTexMgr, IBasicTextInfo* pText);
+		void		mFunction_TextGraphicObj_Update_TextInfo(N_UID uid, TextureManager* pTexMgr, IBasicTextInfo* pText);
 
 		void		mFunction_TextGraphicObj_Render(std::vector<IBasicTextInfo*>* pList);
 
@@ -52,6 +52,6 @@ namespace Noise3D
 
 		IShaderVariableManager*	m_pRefShaderVarMgr;
 
-		IRenderer*		m_pFatherRenderer;//re-use graphic object render
+		Renderer*		m_pFatherRenderer;//re-use graphic object render
 	};
 }

@@ -10,12 +10,13 @@
 4. (2018.7.19)现在正在把旧的D3DX deprecate掉。逐渐用上Win8.1 SDK的东西<br/>
 
 ----------------------
-##  依赖库(Dependencies)
+##  Noise3D的外部依赖库(External Dependencies)
 * <b>FreeType</b>(字体库)</b>：https://www.freetype.org/
 * <b>FBXSDK</b>(autodesk的FBX模型导入\导出\处理SDK)，自己去autodesk网站下载
 * <b>DirectXTex</b>(图片/纹理加载)：https://github.com/Microsoft/DirectXTex
 * <b>Effects11</b>(shader组织框架)：https://github.com/Microsoft/FX11
 * <b>SimpleMath</b>(DirectXMath wrapper，在DirectXTK下有SimpleMath的封装实现)(2018.7.19)：https://github.com/Microsoft/DirectXTK
+* <b>Qt 5.7.0 msvc2015-32bit</b>(基于Noise3D应用的GUI框架)(2018.9)：https://download.qt.io/archive/
 
 ### 注意：
 * 这些文件得自己去build，然后把相应的include和lib文件copy到\ExternalInclude和\ExternalLib里面。
@@ -23,10 +24,12 @@
 * \ExternalLib里面是装第三方库的.lib静态库文件的，自己build好32-bit的debug/release放到对应的路径
 * 可能需要修改一下Noise3D VS项目里面的链接选项。
 * DirectXMath是一个用SSE指令实现了SIMD优化的数学库，在Win8.1 SDK开始提供，当然也可以在github上找到这个开源库 https://github.com/Microsoft/DirectXMath 。SimpleMath是DirectXMath的一个轻度封装的头文件，在DirectXTK项目下，不需要编译lib。DirectXMath大部分都是内联实现，即使不内联的好像也是开源的，include header就好了)
+* Qt只是一个库，虽然它自带QtCreator这个IDE，但一般我是用visual studio来工作的，所以安装好Qt之后还是有装多个Qt-vsaddin比较方便操作。第一个使用Qt的项目是GUI-SHLighting，基于Noise3D做的一个球谐光照相关的可视化。
 
 ----------------------
 
-## Features
+## Features<br/>
+(TODO: PBR material/shader、阴影贴图(SM,CSM,VSM), Terrain System, Particle System, Billboard, Scene Graph/Node System, Visibility Culling, RayTracer, LightMapBaker, UV Unwrapper， Post-Processing Effect(xx-Ambient Occlusion, HDR, Bloom, tone mapping, depth-of-field, non-photorealistic render))
 * 材质Material：Diffuse Map, Normal Map, Specular Map, Cube Map(reflection)
 
 * 在内存端的纹理的逐像素修改，也有高度图-->灰度图-->法线图的接口（转法线图的卷积核大小为2x2）
@@ -52,6 +55,8 @@
     * Qwerty Distortion (之前用来做另一个项目Qwerty 3D时候做的，应该是没什么卵用了)
 
 * 拖尾特效(Sweeping Trail)
+
+* Spherical Harmonics Lighting's Utility
 --------------------------------------------------
 
 ## 一些小工具类

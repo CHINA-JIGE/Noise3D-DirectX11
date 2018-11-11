@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           h£ºIRenderer
+                           h£ºRenderer
 				desc: transfer data to Graphic memory
 				and use gpu to render
 
@@ -10,9 +10,9 @@
 		//2. implement some of the interfaces(Initialize, ClearRenderList, RenderXXXX, AddToRenderQueue...)
 				note that a ref-RI and ShaderVarMgr should be passed in. Technique should be initialized here too.)
 		//3. write specific render setting and draw call in the render module ( make full use of RI and ShaderVarMgr)
-		//3. IRenderer inherit from IRenderModuleXXX
-		//4. invoke "IRenderModuleXXX::initialize" in IRenderer's initalizer
-		//5. invoke "IRenderModuleXXX::ClearRenderList" in IRenderer's "PresentToScreen"
+		//3. Renderer inherit from IRenderModuleXXX
+		//4. invoke "IRenderModuleXXX::initialize" in Renderer's initalizer
+		//5. invoke "IRenderModuleXXX::ClearRenderList" in Renderer's "PresentToScreen"
 
 ************************************************************************/
 
@@ -29,7 +29,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IRenderer :
+	class /*_declspec(dllexport)*/ Renderer :
 		private IFactory<IRenderInfrastructure>,
 		public IRenderModuleForAtmosphere,
 		public IRenderModuleForGraphicObject,
@@ -42,17 +42,17 @@ namespace Noise3D
 
 		//explicitly overload 'AddToRenderQueue' 
 		//prevent functions with same names are HIDDEN
-		void		AddToRenderQueue(IMesh* obj);
+		void		AddToRenderQueue(Mesh* obj);
 
-		void		AddToRenderQueue(IGraphicObject* obj);
+		void		AddToRenderQueue(GraphicObject* obj);
 
-		void		AddToRenderQueue(IDynamicText* obj);
+		void		AddToRenderQueue(DynamicText* obj);
 
-		void		AddToRenderQueue(IStaticText* obj);
+		void		AddToRenderQueue(StaticText* obj);
 
-		void		AddToRenderQueue(ISweepingTrail* obj);
+		void		AddToRenderQueue(SweepingTrail* obj);
 
-		void		SetActiveAtmosphere(IAtmosphere* obj);
+		void		SetActiveAtmosphere(Atmosphere* obj);
 
 		void		Render();//render object in a fixed order
 
@@ -76,18 +76,18 @@ namespace Noise3D
 
 	private:
 
-		//extern init by IScene
+		//extern init by SceneManager
 		bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(UINT bufferWidth, UINT bufferHeight, HWND renderWindowHandle);
 
 	private:
 
-		friend IScene;//for external init
+		friend SceneManager;//for external init
 
-		friend IFactory<IRenderer>;
+		friend IFactory<Renderer>;
 
-		IRenderer();
+		Renderer();
 
-		~IRenderer();
+		~Renderer();
 
 		IRenderInfrastructure* m_pRenderInfrastructure;
 

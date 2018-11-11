@@ -86,10 +86,6 @@
     <None Include="DrawSweepingTrail.hlsli">
       <Filter>DrawSweepingTrail</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="DrawSweepingTrail.fx">
-      <Filter>DrawSweepingTrail</Filter>
-    </FxCompile>
+    <None Include="DrawSweepingTrail.fx" />
   </ItemGroup>
 </Project>

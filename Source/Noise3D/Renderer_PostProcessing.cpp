@@ -407,10 +407,10 @@ void IRenderModuleForPostProcessing::mFunction_GreyScale(const N_PostProcessGrey
 
 void IRenderModuleForPostProcessing::mFunction_QwertyDistortion(const N_PostProcesQwertyDistortionDesc& param)
 {
-	IMesh* pMesh = param.pScreenDescriptor;
-	ICamera* pCam = param.pCamera;
+	Mesh* pMesh = param.pScreenDescriptor;
+	Camera* pCam = param.pCamera;
 
-	//though SIMPLE is enough, but i want to make full use of the model loading function of IMesh
+	//though SIMPLE is enough, but i want to make full use of the model loading function of Mesh
 	m_pRefRI->SetInputAssembler(
 		IRenderInfrastructure::NOISE_VERTEX_TYPE::DEFAULT, 
 		pMesh->m_pVB_Gpu, pMesh->m_pIB_Gpu, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

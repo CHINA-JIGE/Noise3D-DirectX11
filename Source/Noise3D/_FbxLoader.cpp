@@ -222,9 +222,9 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	//initial extraction(right-handed)
 	//XYZ(yaw pitch roll) --> YXZ(yaw pitch roll)
 	FbxVector4 rotate4 = pNode->EvaluateLocalRotation();
-	float rx = float(rotate4.mData[0]) / 180.0f *MATH_PI;
-	float ry = float(rotate4.mData[1]) / 180.0f *MATH_PI;
-	float rz = float(rotate4.mData[2]) / 180.0f *MATH_PI;
+	float rx = float(rotate4.mData[0]) / 180.0f *Ut::PI;
+	float ry = float(rotate4.mData[1]) / 180.0f *Ut::PI;
+	float rz = float(rotate4.mData[2]) / 180.0f *Ut::PI;
 	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
 	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
 	NMATRIX mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
@@ -232,7 +232,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	float s2 = mat.m[1][2];
 	float noiseEulerY = atan2(mat.m[0][2], mat.m[2][2]);
 	float noiseEulerX = asin(-mat.m[1][2]);
-	float noiseEulerZ = (s2 == 1.0f ? MATH_PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
+	float noiseEulerZ = (s2 == 1.0f ? Ut::PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
 
 	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);
 

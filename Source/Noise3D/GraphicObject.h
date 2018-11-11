@@ -28,7 +28,7 @@ namespace Noise3D
 		UINT vertexCount;
 	};
 
-	class /*_declspec(dllexport)*/ IGraphicObject
+	class /*_declspec(dllexport)*/ GraphicObject
 		: public CRenderSettingBlendMode
 	{
 
@@ -114,11 +114,11 @@ namespace Noise3D
 
 		friend class IRenderModuleForText;//it's a little bit ugly...but GraphicObject serves as a container for text graphics
 
-		friend IFactory<IGraphicObject>;
+		friend IFactory<GraphicObject>;
 
-		IGraphicObject();
+		GraphicObject();
 
-		~IGraphicObject();
+		~GraphicObject();
 
 		bool			mFunction_CreateVB(UINT objType_ID);
 

@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IDynamicText :
+	class /*_declspec(dllexport)*/ DynamicText :
 			public  IBasicContainerInfo,
 			public	IBasicTextInfo
 		{
@@ -31,6 +31,8 @@ namespace Noise3D
 
 			int		GetLineSpacingOffset();
 
+			void		SetSpacePixelWidth(int width);
+
 			void		SetWordSpacingOffset(int offset);
 
 			int		GetWordSpacingOffset();
@@ -44,14 +46,14 @@ namespace Noise3D
 		private:
 
 			friend class IRenderModuleForText;
-			friend class IFontManager;
-			friend IFactory<IDynamicText>;
+			friend class TextManager;
+			friend IFactory<DynamicText>;
 
-			IDynamicText();
+			DynamicText();
 
-			~IDynamicText();
+			~DynamicText();
 
-			void	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(IGraphicObject* pCreatedObj, UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
+			void	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj, UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
 
 			void  NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//by renderer
 
@@ -62,6 +64,7 @@ namespace Noise3D
 			UINT			mCharBoundarySizeY;
 			int				mWordSpacingOffset;
 			int				mLineSpacingOffset;
+			int				mSpacePixelWidth;//pixel width of char space ' '
 			N_UID			mTextureName;//which bitmap texture to refer to
 			std::string		mTextContent;//the target "string"
 			bool				mIsTextContentChanged;

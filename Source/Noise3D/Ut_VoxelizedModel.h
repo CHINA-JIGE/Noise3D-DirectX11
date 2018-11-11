@@ -13,13 +13,13 @@ namespace Noise3D
 	namespace Ut
 	{
 
-		class IVoxelizedModel : private IFileIO
+		class VoxelizedModel : private IFileIO
 		{
 		public:
 
-			IVoxelizedModel();
+			VoxelizedModel();
 
-			IVoxelizedModel(const IVoxelizedModel& model);//deep copy is required
+			VoxelizedModel(const VoxelizedModel& model);//deep copy is required
 
 			bool	Resize(uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ,float cubeWidth,float cubeHeight,float cubeDepth);
 

@@ -29,8 +29,8 @@ namespace Noise3D
 
 	struct N_PostProcesQwertyDistortionDesc
 	{
-		ICamera* pCamera;
-		IMesh* pScreenDescriptor;
+		Camera* pCamera;
+		Mesh* pScreenDescriptor;
 	};
 
 
@@ -47,7 +47,7 @@ namespace Noise3D
 
 	protected:
 
-		//"protected" : allow IRenderer to construct each render module
+		//"protected" : allow Renderer to construct each render module
 		// but simultaneously, not allow direct class construction by other user
 		IRenderModuleForPostProcessing();
 

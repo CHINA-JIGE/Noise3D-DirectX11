@@ -9,9 +9,9 @@
 using namespace Noise3D;
 using namespace Noise3D::Ut;
 
-const float  IMarchingCubeMeshReconstructor::c_SampleBinarizationThreshold = 0.1f;//wtf???
+const float  MarchingCubeMeshReconstructor::c_SampleBinarizationThreshold = 0.1f;//wtf???
 
-IMarchingCubeMeshReconstructor::IMarchingCubeMeshReconstructor():
+MarchingCubeMeshReconstructor::MarchingCubeMeshReconstructor():
 	mResampledCubeWidth(0.0f),
 	mResampledCubeHeight(0.0f),
 	mResampledCubeDepth(0.0f),
@@ -22,7 +22,7 @@ IMarchingCubeMeshReconstructor::IMarchingCubeMeshReconstructor():
 {
 }
 
-bool IMarchingCubeMeshReconstructor::Compute(const IVoxelizedModel & model, uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ)
+bool MarchingCubeMeshReconstructor::Compute(const VoxelizedModel & model, uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ)
 {
 	mVertexList.clear();
 	m_pVoxelizedModel = &model;
@@ -31,7 +31,7 @@ bool IMarchingCubeMeshReconstructor::Compute(const IVoxelizedModel & model, uint
 	return true;
 }
 
-void IMarchingCubeMeshReconstructor::GetResult(std::vector<NVECTOR3>& outVertexList)
+void MarchingCubeMeshReconstructor::GetResult(std::vector<NVECTOR3>& outVertexList)
 {
 	outVertexList = mVertexList;
 }
@@ -43,7 +43,7 @@ void IMarchingCubeMeshReconstructor::GetResult(std::vector<NVECTOR3>& outVertexL
 ****************************************************/
 
 
-float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float k)
+float MarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float k)
 {
 	//desc: tri-linear sample, which takes 8 3d-vertices as source input
 	//i,j,k are SCALED  index coordinate
@@ -137,7 +137,7 @@ float IMarchingCubeMeshReconstructor::mFunction_Sample(float  i ,float j, float 
 	//return val[0];
 }
 
-void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ)
+void MarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ)
 {
 	//compute voxel size after resampled (re-scale)
 	mResampleScaleX = float(m_pVoxelizedModel->GetVoxelCountX()) / float(resolutionX);
@@ -153,7 +153,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 	//Re-sample and generate Non-trivial cubes
 	//note £º in order to preserve memory coherence during access,
-	//nested loop will be {y{z{x}}}. for details plz refer to "IVoxelizedModel"
+	//nested loop will be {y{z{x}}}. for details plz refer to "VoxelizedModel"
 	for (int j = -1; j < resolutionY; ++j)
 	{
 		for (int k = -1; k < resolutionZ; ++k)
@@ -245,7 +245,7 @@ void IMarchingCubeMeshReconstructor::mFunction_ComputeNonTrivialCase(uint16_t re
 
 //intersecting iso-surface and cube edge.
 //find the point where sample value suddenly changes(from 0 to 1, or 1 to 0)
-inline float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID, float start_i, float start_j, float start_k, float stepX, float stepY, float stepZ)
+inline float MarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int edgeID, float start_i, float start_j, float start_k, float stepX, float stepY, float stepZ)
 {
 		/*
 		the cube define in Marching Cube[Lorensen 1987]
@@ -296,7 +296,7 @@ inline float IMarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int 
 	return 1.0f;
 }
 
-void IMarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_NonTrivialCube& cube)
+void MarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_NonTrivialCube& cube)
 {
 	//get triangle case (edge list)
 	const N_MCTriangleCase& triCase = c_MarchingCubeTriangleCase[cube.triangleCaseIndex];
@@ -358,7 +358,7 @@ void IMarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_
 }
 
 //new point will be on cube edges in the following array
-const int IMarchingCubeMeshReconstructor::c_edgeList[12][2] = 
+const int MarchingCubeMeshReconstructor::c_edgeList[12][2] = 
 { 
 	{ 0,1 }, { 1,2 }, { 3,2 }, { 0,3 },
 	{ 4,5 }, { 5,6 }, { 7,6 }, { 4,7 },
@@ -367,7 +367,7 @@ const int IMarchingCubeMeshReconstructor::c_edgeList[12][2] =
 
 //plz refer to [Lorensen 1987] for more detail. in the paper, edges are indexed from 1 to 12
 //but in actual implementation, it should be 0 - 11.
-const IMarchingCubeMeshReconstructor::N_MCTriangleCase IMarchingCubeMeshReconstructor::c_MarchingCubeTriangleCase[256] =
+const MarchingCubeMeshReconstructor::N_MCTriangleCase MarchingCubeMeshReconstructor::c_MarchingCubeTriangleCase[256] =
 {
 	{ { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, /* 0 0 */
 	{ { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, /* 1 1 */

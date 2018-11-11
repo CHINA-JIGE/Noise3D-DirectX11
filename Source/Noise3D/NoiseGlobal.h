@@ -55,6 +55,8 @@ namespace Noise3D
 	//Global utility function
 	namespace Ut
 	{
+		constexpr float PI = 3.141592653f;
+
 		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
 
 		extern /*_declspec(dllexport)*/ int	GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
@@ -66,6 +68,20 @@ namespace Noise3D
 		extern	/*_declspec(dllexport)*/  std::string GetFileSubFixFromPath(std::string path);
 
 		extern /*_declspec(dllexport)*/  std::wstring ConvertAnsiStrToWStr(std::string srcStr);
+
+		extern /*_declspec(dllexport)*/ NVECTOR3 PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight);//spherical mapping
+
+		extern /*_declspec(dllexport)*/ void DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, int pixelWidth, int pixelHeight,uint32_t& outPixelX, uint32_t& outPixelY);//spherical mapping
+
+		extern /*_declspec(dllexport)*/void DirectionToYawPitch(NVECTOR3 dir,float& outYaw, float& outPitch);
+
+		extern /*_declspec(dllexport)*/ NVECTOR3 YawPitchToDirection(float yaw, float pitch);
+
+		extern /*_declspec(dllexport)*/ uint32_t Factorial32(uint32_t x);
+
+		extern /*_declspec(dllexport)*/ uint64_t Factorial64(uint32_t x);
+
+		extern /*_declspec(dllexport)*/ float ReciprocalOfFactorial(uint32_t x);//1/(x!)
 
 		extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
@@ -81,7 +97,15 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
 
+		extern /*_declspec(dllexport)*/ NVECTOR4 Clamp(const NVECTOR4& target, const NVECTOR4& min, const NVECTOR4& max);
+
+		extern /*_declspec(dllexport)*/ NColor4f Clamp(const NColor4f& target, const NColor4f& min, const NColor4f& max);
+
 		extern /*_declspec(dllexport)*/ NVECTOR3 CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t);
+	
+		extern /*_declspec(dllexport)*/ bool TolerantEqual(float lhs, float rhs, float errorLimit = 0.001f);
+
+		extern /*_declspec(dllexport)*/uint32_t ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height);
 	}
 
 

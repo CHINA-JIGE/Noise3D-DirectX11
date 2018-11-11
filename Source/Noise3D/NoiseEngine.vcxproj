@@ -130,7 +130,17 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CameraTransform.h" />
     <ClInclude Include="CollisionTestor.h" />
+    <ClInclude Include="AffineTransform.h" />
+    <ClInclude Include="HardwareIndexBuffer.h" />
+    <ClInclude Include="HardwareVertexBuffer.h" />
+    <ClInclude Include="ITexture.h" />
+    <ClInclude Include="SHRotation.h" />
+    <ClInclude Include="TextureCubeMap.h" />
+    <ClInclude Include="ISphericalFunc.h" />
+    <ClInclude Include="RigidTransform.h" />
+    <ClInclude Include="RandomSampleGenerator.h" />
     <ClInclude Include="Renderer_Atmosphere.h" />
     <ClInclude Include="Renderer_GraphicObj.h" />
     <ClInclude Include="Renderer_Mesh.h" />
@@ -138,6 +148,8 @@
     <ClInclude Include="RenderInfrastructure.h" />
     <ClInclude Include="Renderer_PostProcessing.h" />
     <ClInclude Include="Renderer_SweepingTrail.h" />
+    <ClInclude Include="SHCommon.h" />
+    <ClInclude Include="SHVector.h" />
     <ClInclude Include="SweepingTrail.h" />
     <ClInclude Include="SweepingTrailManager.h" />
     <ClInclude Include="_BaseRenderModule.h" />
@@ -148,7 +160,7 @@
     <ClInclude Include="ShaderVarManager.h" />
     <ClInclude Include="Ut_MCMeshReconstructor.h" />
     <ClInclude Include="ModelProcessor.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
@@ -194,10 +206,21 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraTransform.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
+    <ClCompile Include="AffineTransform.cpp" />
+    <ClCompile Include="HardwareIndexBuffer.cpp" />
+    <ClCompile Include="HardwareVertexBuffer.cpp" />
+    <ClCompile Include="SHRotation.cpp" />
+    <ClCompile Include="TextureCubeMap.cpp" />
+    <ClCompile Include="ISphericalFunc.cpp" />
+    <ClCompile Include="RigidTransform.cpp" />
+    <ClCompile Include="RandomSampleGenerator.cpp" />
     <ClCompile Include="Renderer_PostProcessing.cpp" />
     <ClCompile Include="RenderInfrastructure.cpp" />
     <ClCompile Include="Renderer_SweepingTrail.cpp" />
+    <ClCompile Include="SHCommon.cpp" />
+    <ClCompile Include="SHVector.cpp" />
     <ClCompile Include="SweepingTrail.cpp" />
     <ClCompile Include="SweepingTrailManager.cpp" />
     <ClCompile Include="_FbxLoader.cpp" />
@@ -212,7 +235,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="GraphicObjManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />

@@ -35,7 +35,7 @@ namespace Noise3D
 
 			virtual	void	mFunction_UpdateGraphicObject() = 0;//require implementation
 
-			IGraphicObject* m_pGraphicObj;//to store char rectangles
+			GraphicObject* m_pGraphicObj;//to store char rectangles
 
 			NVECTOR4*		m_pTextColor;
 

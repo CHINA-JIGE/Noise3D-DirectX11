@@ -22,7 +22,7 @@ IRenderModuleForMesh::~IRenderModuleForMesh()
 }
 
 
-void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
+void IRenderModuleForMesh::AddToRenderQueue(Mesh* obj)
 {
 	mRenderList_Mesh.push_back(obj);
 }
@@ -35,7 +35,7 @@ void IRenderModuleForMesh::AddToRenderQueue(IMesh* obj)
 ************************************************************/
 void	IRenderModuleForMesh::RenderMeshes()
 {
-	ICamera* const tmp_pCamera = GetScene()->GetCamera();
+	Camera* const tmp_pCamera = GetScene()->GetCamera();
 	m_pRefRI->UpdateCameraMatrix(tmp_pCamera);
 
 	mFunction_RenderMeshInList_UpdateRarely();
@@ -45,7 +45,7 @@ void	IRenderModuleForMesh::RenderMeshes()
 	//for every mesh
 	for (UINT i = 0; i<mRenderList_Mesh.size(); i++)
 	{
-		IMesh* const pMesh = mRenderList_Mesh.at(i);
+		Mesh* const pMesh = mRenderList_Mesh.at(i);
 
 		mFunction_RenderMeshInList_UpdatePerObject(pMesh);
 
@@ -107,7 +107,7 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdateRarely()
 void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 {
 	//-------Update Dynamic Light-------
-	ILightManager* tmpLightMgr = GetScene()->GetLightMgr();
+	LightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
 	UINT dirLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
 	UINT pointLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
@@ -134,13 +134,13 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 	}
 };
 
-ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(IMesh* const pMesh,UINT subsetID)
+ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSubset(Mesh* const pMesh,UINT subsetID)
 {
 	//we dont accept invalid material ,but accept invalid texture
-	IScene* pScene = GetScene();
-	ITextureManager*		pTexMgr = pScene->GetTextureMgr();
-	IMaterialManager*		pMatMgr = pScene->GetMaterialMgr();
-	IMeshManager*			pMeshMgr = pScene->GetMeshMgr();
+	SceneManager* pScene = GetScene();
+	TextureManager*		pTexMgr = pScene->GetTextureMgr();
+	MaterialManager*		pMatMgr = pScene->GetMaterialMgr();
+	MeshManager*			pMeshMgr = pScene->GetMeshMgr();
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
@@ -165,27 +165,14 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 	//Validate textures
 	ID3D11ShaderResourceView* tmp_pSRV = nullptr;
 
-	ITexture* pDiffMap = pTexMgr->GetTexture(tmpMat.diffuseMapName);
-	ITexture* pNormalMap = pTexMgr->GetTexture(tmpMat.normalMapName);
-	ITexture* pSpecMap = pTexMgr->GetTexture(tmpMat.specularMapName);
-	ITexture* pEnvMap = pTexMgr->GetTexture(tmpMat.environmentMapName);
-	bool isDiffuseMapValid = false;
-	bool	isNormalMapValid = false;
-	bool isSpecularMapValid = false;
-	bool isEnvMapValid = false;
-
-	//first validate if ID is valid (within range / valid ID) valid== return original texID
-	if(pDiffMap)			isDiffuseMapValid = pDiffMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isDiffuseMapValid = false;
-
-	if (pNormalMap)	isNormalMapValid = pNormalMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isNormalMapValid = false;
-
-	if (pSpecMap)		isSpecularMapValid = pSpecMap->IsTextureType(NOISE_TEXTURE_TYPE_COMMON);
-						else	isSpecularMapValid = false;
-
-	if (pEnvMap)		isEnvMapValid = pEnvMap->IsTextureType(NOISE_TEXTURE_TYPE_CUBEMAP);
-						else	isEnvMapValid = false;
+	ITexture* pDiffMap = pTexMgr->GetTexture2D(tmpMat.diffuseMapName);
+	ITexture* pNormalMap = pTexMgr->GetTexture2D(tmpMat.normalMapName);
+	ITexture* pSpecMap = pTexMgr->GetTexture2D(tmpMat.specularMapName);
+	TextureCubeMap* pEnvMap = pTexMgr->GetTextureCubeMap(tmpMat.environmentMapName);
+	bool isDiffuseMapValid = (pDiffMap!=nullptr);
+	bool	isNormalMapValid = (pNormalMap!=nullptr);
+	bool isSpecularMapValid = (pSpecMap!=nullptr);
+	bool isEnvMapValid = (pEnvMap!=nullptr);
 
 	//update textures, bound corresponding ShaderResourceView to the pipeline
 	//if tetxure is  valid ,then set diffuse map
@@ -256,7 +243,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 	return pPass;
 };
 
-void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(IMesh* const pMesh)
+void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* const pMesh)
 {
 	//update world/worldInv matrix
 	NMATRIX worldMat,worldInvTransposeMat;

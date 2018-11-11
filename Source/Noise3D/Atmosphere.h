@@ -15,7 +15,7 @@ namespace Noise3D
 		NOISE_ATMOSPHERE_SKYTYPE_INVALID = UINT_MAX,
 	};
 
-	class  /*_declspec(dllexport)*/ IAtmosphere
+	class  /*_declspec(dllexport)*/ Atmosphere
 	{
 	public:
 
@@ -34,7 +34,7 @@ namespace Noise3D
 		NOISE_ATMOSPHERE_SKYTYPE GetSkyType();
 
 		//SET xxx is not available here because the size of sky box is fixed
-		//when IModelLoader load the real model of sky
+		//when ModelLoader load the real model of sky
 		float	GetSkyboxWidth();
 
 		float	GetSkyboxHeight();
@@ -45,13 +45,13 @@ namespace Noise3D
 	private:
 
 		friend  class IRenderModuleForAtmosphere;
-		friend  class IModelLoader;
-		friend	IFactory<IAtmosphere>;
+		friend  class ModelLoader;
+		friend	IFactory<Atmosphere>;
 
 		//¹¹Ôìº¯Êý
-		IAtmosphere();
+		Atmosphere();
 
-		~IAtmosphere();
+		~Atmosphere();
 
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const  std::vector<UINT>& targetIB);
 
@@ -64,17 +64,17 @@ namespace Noise3D
 
 		//sky
 		NOISE_ATMOSPHERE_SKYTYPE	mSkyType;
-		float												mSkyDomeRadiusXZ;
-		float												mSkyDomeHeight;
-		N_UID											mSkyDomeTexName;
-		float												mSkyBoxWidth;
-		float												mSkyBoxHeight;
-		float												mSkyBoxDepth;
-		N_UID											mSkyBoxCubeTexName;
-		std::vector<UINT>						mIB_Mem;
-		std::vector<N_SimpleVertex>		mVB_Mem;
-		ID3D11Buffer*								m_pIB_Gpu;
-		ID3D11Buffer*								m_pVB_Gpu;
+		float		mSkyDomeRadiusXZ;
+		float		mSkyDomeHeight;
+		N_UID	mSkyDomeTexName;
+		float		mSkyBoxWidth;
+		float		mSkyBoxHeight;
+		float		mSkyBoxDepth;
+		N_UID	mSkyBoxCubeTexName;
+		std::vector<UINT>	mIB_Mem;
+		std::vector<N_SimpleVertex>	mVB_Mem;
+		ID3D11Buffer*	 m_pIB_Gpu;
+		ID3D11Buffer*	 m_pVB_Gpu;
 
 	};
 }

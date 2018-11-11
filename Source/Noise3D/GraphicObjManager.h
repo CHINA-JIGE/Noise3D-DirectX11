@@ -9,20 +9,20 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IGraphicObjectManager :
-		public IFactory<IGraphicObject>
+	class /*_declspec(dllexport)*/ GraphicObjectManager :
+		public IFactory<GraphicObject>
 	{
 	public:
 
-		IGraphicObject*		CreateGraphicObj(N_UID objName);
+		GraphicObject*		CreateGraphicObj(N_UID objName);
 
-		IGraphicObject*		GetGraphicObj(N_UID objName);
+		GraphicObject*		GetGraphicObj(N_UID objName);
 
-		IGraphicObject*		GetGraphicObj(UINT index);
+		GraphicObject*		GetGraphicObj(UINT index);
 
 		bool			DestroyGraphicObj(N_UID objName);
 
-		bool			DestroyGraphicObj(IGraphicObject* pObj);
+		bool			DestroyGraphicObj(GraphicObject* pObj);
 
 		void			DestroyAllGraphicObj();
 
@@ -30,11 +30,11 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<IGraphicObjectManager>;
+		friend IFactory<GraphicObjectManager>;
 
-		IGraphicObjectManager();
+		GraphicObjectManager();
 
-		~IGraphicObjectManager();
+		~GraphicObjectManager();
 
 	};
 };

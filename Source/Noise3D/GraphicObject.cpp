@@ -16,7 +16,7 @@ using namespace Noise3D::D3D;
 //#define ASSIGN_VERTEX_VALUE(a,b) if(a!=b){a=b;canUpdate=true;}
 #define ASSIGN_VERTEX_VALUE(a,b) {a=b;canUpdate=true;}
 
-IGraphicObject::IGraphicObject()
+GraphicObject::GraphicObject()
 {
 	//there are several variables needed for one graphic object type
 	//and for the time being ,there are NOISE_GRAPHIC_OBJECT_BUFFER_COUNT graphic object types
@@ -37,7 +37,7 @@ IGraphicObject::IGraphicObject()
 	m_pRectSubsetInfoList= new std::vector<N_GraphicObject_SubsetInfo>;
 }
 
-IGraphicObject::~IGraphicObject()
+GraphicObject::~GraphicObject()
 {
 	for (UINT i = 0;i < NOISE_GRAPHIC_OBJECT_BUFFER_COUNT;i++)
 	{
@@ -48,7 +48,7 @@ IGraphicObject::~IGraphicObject()
 	delete m_pRectSubsetInfoList;
 }
 
-void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
+void GraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 {
 	// --------->
 	// |		
@@ -61,7 +61,7 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	//				   |		SCR SPACE
 	//				   |
 	
-	IRenderer* pRenderer = GetScene()->GetRenderer();
+	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
@@ -90,9 +90,9 @@ void IGraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	}
 }
 
-NVECTOR2 IGraphicObject::GetBasePosOffset()
+NVECTOR2 GraphicObject::GetBasePosOffset()
 {
-	IRenderer* pRenderer = GetScene()->GetRenderer();
+	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
@@ -104,7 +104,7 @@ NVECTOR2 IGraphicObject::GetBasePosOffset()
 	return outBaseTopLeftPixel;
 }
 
-UINT IGraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+UINT GraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, 
@@ -115,7 +115,7 @@ UINT IGraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTO
 	return GetLine3DCount() - 1;
 }
 
-UINT IGraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+UINT GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -131,7 +131,7 @@ UINT IGraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTO
 	return GetLine2DCount()-1;
 }
 
-UINT IGraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
+UINT GraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D,
@@ -142,7 +142,7 @@ UINT IGraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 	return GetPoint3DCount() - 1;
 }
 
-UINT IGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
+UINT GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v);
@@ -157,7 +157,7 @@ UINT IGraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 	return GetPoint2DCount() - 1;
 }
 
-UINT IGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+UINT GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -174,7 +174,7 @@ UINT IGraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTO
 	return GetTriangle2DCount() - 1;
 }
 
-UINT IGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
+UINT GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
@@ -199,7 +199,7 @@ UINT IGraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTO
 	return GetRectCount()-1;
 }
 
-UINT IGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
+UINT GraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	UINT newRectID = NOISE_MACRO_INVALID_ID;
@@ -207,7 +207,7 @@ UINT IGraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight,
 	return newRectID;
 }
 
-void IGraphicObject::AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount)
+void GraphicObject::AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount)
 {
 	switch (objType)
 	{
@@ -240,7 +240,7 @@ void IGraphicObject::AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT 
 	}
 }
 
-void	IGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	GraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	if (index > GetLine3DCount())
 	{
@@ -258,7 +258,7 @@ void	IGraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 co
 
 }
 
-void	IGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	GraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	if (index >=GetLine2DCount())
 	{
@@ -279,7 +279,7 @@ void	IGraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 co
 	);
 }
 
-void	IGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
+void	GraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 {
 	if (index > GetPoint3DCount())
 	{
@@ -297,7 +297,7 @@ void	IGraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 
 }
 
-void	IGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
+void	GraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 {
 	if (index > GetPoint2DCount())
 	{
@@ -316,7 +316,7 @@ void	IGraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 	);
 }
 
-void	IGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+void	GraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
 	if (index >= GetTriangle2DCount())
 	{
@@ -338,7 +338,7 @@ void	IGraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR
 	);
 }
 
-void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName)
+void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName)
 {
 	//index mean the 'index'th rectangle
 
@@ -383,13 +383,13 @@ void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBotto
 
 }
 
-void	IGraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
+void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texName);
 }
 
-void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
+void	GraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
 {
 
 
@@ -425,7 +425,7 @@ void	IGraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,N
 
 }
 
-void	IGraphicObject::SetRectangleDepth(UINT index, float posZ)
+void	GraphicObject::SetRectangleDepth(UINT index, float posZ)
 {
 	//index mean the 'index'th rectangle
 
@@ -444,7 +444,7 @@ void	IGraphicObject::SetRectangleDepth(UINT index, float posZ)
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;
 }
 
-void	IGraphicObject::DeleteLine3D(UINT index)
+void	GraphicObject::DeleteLine3D(UINT index)
 {
 	UINT vertexStartIndex = index * 2;
 	UINT vertexCount = 2;	//1 line consist of 2 vertices
@@ -452,7 +452,7 @@ void	IGraphicObject::DeleteLine3D(UINT index)
 
 }
 
-void IGraphicObject::DeleteLine3D(UINT startID, UINT endID)
+void GraphicObject::DeleteLine3D(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	UINT vertexStartIndex = startID * 2;
@@ -460,14 +460,14 @@ void IGraphicObject::DeleteLine3D(UINT startID, UINT endID)
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, vertexStartIndex, vertexCount);
 }
 
-void	IGraphicObject::DeleteLine2D(UINT index)
+void	GraphicObject::DeleteLine2D(UINT index)
 {
 	UINT vertexStartIndex = index * 2;
 	UINT vertexCount = 2;	//1 line consist of 2 vertices
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D, vertexStartIndex, vertexCount);
 }
 
-void IGraphicObject::DeleteLine2D(UINT startID, UINT endID)
+void GraphicObject::DeleteLine2D(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	UINT vertexStartIndex = startID * 2;
@@ -475,14 +475,14 @@ void IGraphicObject::DeleteLine2D(UINT startID, UINT endID)
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D, vertexStartIndex, vertexCount);
 }
 
-void	IGraphicObject::DeletePoint3D(UINT index)
+void	GraphicObject::DeletePoint3D(UINT index)
 {
 	UINT vertexStartIndex = index;
 	UINT vertexCount = 1;
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D, vertexStartIndex, vertexCount);
 }
 
-void IGraphicObject::DeletePoint3D(UINT startID, UINT endID)
+void GraphicObject::DeletePoint3D(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	UINT vertexStartIndex = startID;
@@ -490,14 +490,14 @@ void IGraphicObject::DeletePoint3D(UINT startID, UINT endID)
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D, vertexStartIndex, vertexCount);
 }
 
-void	IGraphicObject::DeletePoint2D(UINT index)
+void	GraphicObject::DeletePoint2D(UINT index)
 {
 	UINT vertexStartIndex = index;
 	UINT vertexCount = 1;	
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D, vertexStartIndex, vertexCount);
 }
 
-void IGraphicObject::DeletePoint2D(UINT startID, UINT endID)
+void GraphicObject::DeletePoint2D(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	UINT vertexStartIndex = startID;
@@ -505,14 +505,14 @@ void IGraphicObject::DeletePoint2D(UINT startID, UINT endID)
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D, vertexStartIndex, vertexCount);
 }
 
-void	IGraphicObject::DeleteTriangle2D(UINT index)
+void	GraphicObject::DeleteTriangle2D(UINT index)
 {
 	UINT vertexStartIndex = index* 3;
 	UINT vertexCount = 3;
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D, vertexStartIndex, vertexCount);
 }
 
-void IGraphicObject::DeleteTriangle2D(UINT startID, UINT endID)
+void GraphicObject::DeleteTriangle2D(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	UINT vertexStartIndex = startID * 3;
@@ -520,7 +520,7 @@ void IGraphicObject::DeleteTriangle2D(UINT startID, UINT endID)
 	mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D, vertexStartIndex, vertexCount);
 }
 
-void	IGraphicObject::DeleteRectangle(UINT index)
+void	GraphicObject::DeleteRectangle(UINT index)
 {
 	//delete the index_th Rectangle
 
@@ -546,7 +546,7 @@ void	IGraphicObject::DeleteRectangle(UINT index)
 
 }
 
-void IGraphicObject::DeleteRectangle(UINT startID, UINT endID)
+void GraphicObject::DeleteRectangle(UINT startID, UINT endID)
 {
 	if (startID > endID)std::swap(startID, endID);
 	//delete the index_th Rectangle
@@ -573,32 +573,32 @@ void IGraphicObject::DeleteRectangle(UINT startID, UINT endID)
 	}
 }
 
-UINT IGraphicObject::GetLine3DCount()
+UINT GraphicObject::GetLine3DCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D]->size()/2;
 };
 
-UINT IGraphicObject::GetLine2DCount()
+UINT GraphicObject::GetLine2DCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D]->size() / 2;
 };
 
-UINT IGraphicObject::GetPoint3DCount()
+UINT GraphicObject::GetPoint3DCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D]->size();
 };
 
-UINT IGraphicObject::GetPoint2DCount()
+UINT GraphicObject::GetPoint2DCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D]->size();
 };
 
-UINT IGraphicObject::GetTriangle2DCount()
+UINT GraphicObject::GetTriangle2DCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D]->size()/3;
 }
 
-UINT IGraphicObject::GetRectCount()
+UINT GraphicObject::GetRectCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->size()/6;
 }
@@ -611,7 +611,7 @@ UINT IGraphicObject::GetRectCount()
 //When needed (like when updating data to gpu), this CreateVB function will be 
 //invoked to dynamically resize (re-create) ID3DVB to fit the data
 
-bool	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
+bool	GraphicObject::mFunction_CreateVB(UINT objType_ID)
 {
 	//get VB (in memory) byte size of corresponding graphic object type
 	UINT vertexCount = m_pVB_Mem[objType_ID]->size();
@@ -643,7 +643,7 @@ bool	IGraphicObject::mFunction_CreateVB(UINT objType_ID)
 	return true;
 }
 
-void		IGraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
+void		GraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
 {
 	//nothing to update ,so exit (in InitVB() , create a  
 	if (m_pVB_Mem[objType_ID]->size() == 0)return;
@@ -683,7 +683,7 @@ void		IGraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
 
 }
 
-void		IGraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
 {
 
 	N_SimpleVertex tmpVertex;
@@ -710,7 +710,7 @@ void		IGraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		IGraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
 {
 
 	N_SimpleVertex tmpVertex;
@@ -734,7 +734,7 @@ void		IGraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
 {
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
@@ -778,7 +778,7 @@ void		IGraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 
 }
 
-void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
 {
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
@@ -814,7 +814,7 @@ void		IGraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType
 
 }
 
-void		IGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, UINT iVertexCount)
+void		GraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, UINT iVertexCount)
 {
 	auto pList			= m_pVB_Mem[buffType];
 	auto iter_Start	= pList->begin();
@@ -840,7 +840,7 @@ void		IGraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
+void		GraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 {
 	// --------->
 	// |		
@@ -852,7 +852,7 @@ void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 	//		--------|--------->
 	//				   |		SCR SPACE
 	//				   |
-	IRenderer* pRenderer = GetScene()->GetRenderer();
+	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
@@ -860,7 +860,7 @@ void		IGraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 	in_out_vec.y = float(mainHeight)*((1.0f - in_out_vec.y) / 2.0f);
 };
 
-inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
+inline void  GraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 {
 	// --------->
 	// |		
@@ -872,7 +872,7 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 	//		--------|--------->
 	//				   |		SCR SPACE
 	//				   |
-	IRenderer* pRenderer = GetScene()->GetRenderer();
+	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
@@ -884,9 +884,9 @@ inline void  IGraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
 	//vec -= *m_pBaseScreenSpacePosOffset;
 }
 
-inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth)
+inline float GraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth)
 {
-	IRenderer* pRenderer = GetScene()->GetRenderer();
+	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
@@ -903,7 +903,7 @@ inline float IGraphicObject::mFunction_ConvertPixelLength2FloatLength(float pxLe
 	return outLength;
 }
 
-void	IGraphicObject::mFunction_AdjustElementCount(UINT newCount, UINT currentObjCount, NOISE_GRAPHIC_OBJECT_TYPE objType)
+void	GraphicObject::mFunction_AdjustElementCount(UINT newCount, UINT currentObjCount, NOISE_GRAPHIC_OBJECT_TYPE objType)
 {
 
 	if (newCount<0 || currentObjCount == newCount)
@@ -979,7 +979,7 @@ void	IGraphicObject::mFunction_AdjustElementCount(UINT newCount, UINT currentObj
 	return;
 }
 
-void		IGraphicObject::mFunction_GenerateRectSubsetInfo()
+void		GraphicObject::mFunction_GenerateRectSubsetInfo()
 {
 	//clear old record
 	m_pRectSubsetInfoList->clear();

@@ -28,9 +28,6 @@
 
 #define NOISE_MACRO_DLL_EXPORT _declspec(dllexport)
 
-
-#define MATH_PI 3.1415926f
-
 //Release an COM object
 #define ReleaseCOM(ComPointer)\
 				if(ComPointer!=nullptr)\

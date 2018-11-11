@@ -19,7 +19,7 @@ Noise3D::IRenderModuleForSweepingTrailFX::~IRenderModuleForSweepingTrailFX()
 	ReleaseCOM(m_pFX_DrawSweepingTrail);
 }
 
-void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(ISweepingTrail * pTrail)
+void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(SweepingTrail * pTrail)
 {
 	mRenderList_SweepingTrails.push_back(pTrail);
 }
@@ -30,8 +30,8 @@ void Noise3D::IRenderModuleForSweepingTrailFX::AddToRenderQueue(ISweepingTrail *
 
 void Noise3D::IRenderModuleForSweepingTrailFX::RenderSweepingTrails()
 {
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	ICamera* const pCamera = GetScene()->GetCamera();
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	Camera* const pCamera = GetScene()->GetCamera();
 	//update view/proj matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
 
@@ -71,12 +71,12 @@ bool Noise3D::IRenderModuleForSweepingTrailFX::Initialize(IRenderInfrastructure 
 										PRIVATE
 ***********************************************************/
 
-void Noise3D::IRenderModuleForSweepingTrailFX::mFunction_SweepingTrail_Update(ISweepingTrail * const pTrail)
+void Noise3D::IRenderModuleForSweepingTrailFX::mFunction_SweepingTrail_Update(SweepingTrail * const pTrail)
 {
 	//update texture
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	ITexture* pTex = pTexMgr->GetTexture(pTrail->GetTextureName());
-	if (pTex && pTex->IsTextureType(NOISE_TEXTURE_TYPE_COMMON))
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	Texture2D* pTex = pTexMgr->GetTexture2D(pTrail->GetTextureName());
+	if (pTex !=nullptr)
 	{
 		auto pSRV = m_pRefRI->GetTextureSRV(pTex);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, pSRV);

@@ -14,14 +14,14 @@ namespace Noise3D
 {
 	namespace Ut
 	{
-		class /*_declspec(dllexport)*/ IMarchingCubeMeshReconstructor
+		class /*_declspec(dllexport)*/ MarchingCubeMeshReconstructor
 		{
 		public:
 		
-			IMarchingCubeMeshReconstructor();
+			MarchingCubeMeshReconstructor();
 
 			//voxel model will be RE-SAMPLED !!! that's why resolution x,y,z are needed.
-			bool Compute(const IVoxelizedModel& model, uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ);
+			bool Compute(const VoxelizedModel& model, uint16_t resolutionX, uint16_t resolutionY, uint16_t resolutionZ);
 
 			//result are composed of triangles indicated by every 3 vertices 
 			//(which means vertex-welding is necessary to generate a visually-smooth model)
@@ -52,7 +52,7 @@ namespace Noise3D
 
 			void mFunction_MarchingCubeGenTriangles(const N_NonTrivialCube& cube);
 
-			const IVoxelizedModel*				m_pVoxelizedModel;
+			const VoxelizedModel*				m_pVoxelizedModel;
 
 			std::vector<NVECTOR3>				mVertexList;
 

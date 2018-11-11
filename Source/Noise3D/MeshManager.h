@@ -9,20 +9,20 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IMeshManager:
-		public IFactory<IMesh>
+	class /*_declspec(dllexport)*/ MeshManager:
+		public IFactory<Mesh>
 	{
 	public:
 
-		IMesh*				CreateMesh(N_UID meshName);
+		Mesh*				CreateMesh(N_UID meshName);
 
-		IMesh*				GetMesh(N_UID meshName);
+		Mesh*				GetMesh(N_UID meshName);
 
-		IMesh*				GetMesh(UINT index);
+		Mesh*				GetMesh(UINT index);
 
 		bool					DestroyMesh(N_UID meshName);
 
-		bool					DestroyMesh(IMesh* pMesh);
+		bool					DestroyMesh(Mesh* pMesh);
 
 		void					DestroyAllMesh();
 
@@ -32,11 +32,11 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<IMeshManager>;
+		friend IFactory<MeshManager>;
 
-		IMeshManager();
+		MeshManager();
 
-		~IMeshManager();
+		~MeshManager();
 
 	};
 };

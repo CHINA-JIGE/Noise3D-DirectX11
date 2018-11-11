@@ -13,25 +13,25 @@ namespace Noise3D
 {
 	class IShaderVariableManager;
 
-	class /*_declspec(dllexport)*/ ICollisionTestor
+	class /*_declspec(dllexport)*/ CollisionTestor
 	{
 	public:
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		void Picking_GpuBased(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord,std::vector<NVECTOR3>& outCollidedPointList);
+		void Picking_GpuBased(Mesh* pMesh, const NVECTOR2& mouseNormalizedCoord,std::vector<NVECTOR3>& outCollidedPointList);
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		UINT Picking_GpuBased(IMesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
+		UINT Picking_GpuBased(Mesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
 
 	private:
 		
-		ICollisionTestor();
+		CollisionTestor();
 
-		~ICollisionTestor();
+		~CollisionTestor();
 
-		friend IFactory<ICollisionTestor>;
+		friend IFactory<CollisionTestor>;
 
-		friend IScene;
+		friend SceneManager;
 
 		bool mFunction_Init();
 

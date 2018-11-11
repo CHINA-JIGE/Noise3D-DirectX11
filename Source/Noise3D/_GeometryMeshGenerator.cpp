@@ -144,8 +144,8 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 	float	tmpX,tmpY,tmpZ,tmpRingRadius;
 
 	//Calculate the Step length (步长)
-	float	StepLength_AngleY =		MATH_PI / (iRingCount +1); // distances between each level (ring)
-	float StepLength_AngleXZ =		2*MATH_PI / iColumnCount;
+	float	StepLength_AngleY =		Ut::PI / (iRingCount +1); // distances between each level (ring)
+	float StepLength_AngleXZ =		2*Ut::PI / iColumnCount;
 
 	UINT k = 0;//for iteration
 	//start to iterate
@@ -155,25 +155,6 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 		//the first column will be duplicated to achieve adequate texture mapping
 		for(int j = 0; j <int(iColumnCount)+1 ; j++)
 		{
-			/*//the Y coord of  current ring 
-			tmpY = fRadius *sin( MATH_PI/2 - (i+1) *StepLength_AngleY);
-
-			////Pythagoras theorem(勾股定理)
-			tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY); 
-
-			////trigonometric function(三角函数)
-			tmpX = tmpRingRadius * cos( j*StepLength_AngleXZ);
-
-			//...
-			tmpZ = tmpRingRadius * sin( j*StepLength_AngleXZ);
-
-			//...
-			tmpV[k] = NVECTOR3(tmpX,tmpY,tmpZ);
-
-			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2( (float)j/(iColumnCount),(float)i /(iRingCount-1));
-
-			k++;*/
 			//TOP || BOTTOM
 			if (i == -1)
 			{
@@ -190,7 +171,7 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 			else
 			{
 				//the Y coord of  current ring 
-				tmpY = fRadius *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
+				tmpY = fRadius *sin(Ut::PI / 2 - (i + 1) *StepLength_AngleY);
 				// radius of current horizontal ring 
 				tmpRingRadius = sqrtf(fRadius*fRadius - tmpY * tmpY);
 				//compute x,z
@@ -285,7 +266,7 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 	//Calculate the Step length (步长)
 	//the RINGS include "the top ring" and "the bottom ring"
 	float	StepLength_Y = fHeight / (iRingCount - 1); // distances between each level (ring)
-	float StepLength_Angle = 2 * MATH_PI / iColumnCount;
+	float StepLength_Angle = 2 * Ut::PI / iColumnCount;
 
 
 #pragma region GenerateVertex
@@ -453,8 +434,8 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 	NVECTOR2* tmpTexCoord = new NVECTOR2[tmpVertexCount];
 
 	//Calculate the Step length (步长)
-	float	StepLength_AngleY = MATH_PI / (iRingCount + 1); // distances between each level (ring)
-	float StepLength_AngleXZ = 2 * MATH_PI / iColumnCount;
+	float	StepLength_AngleY = Ut::PI / (iRingCount + 1); // distances between each level (ring)
+	float StepLength_AngleXZ = 2 * Ut::PI / iColumnCount;
 
 #pragma region GenerateVertex
 
@@ -484,7 +465,7 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 			else
 			{			
 				//the Y coord of  current ring 
-				tmpY = fHeight *sin(MATH_PI / 2 - (i + 1) *StepLength_AngleY);
+				tmpY = fHeight *sin(Ut::PI / 2 - (i + 1) *StepLength_AngleY);
 				// radius of current horizontal ring 
 				tmpRingRadius = fRadiusXZ* sqrtf(1 - (tmpY * tmpY) / (fHeight*fHeight));
 				//compute x,z

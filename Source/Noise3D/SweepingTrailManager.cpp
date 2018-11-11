@@ -8,30 +8,30 @@
 
 using namespace Noise3D;
 
-Noise3D::ISweepingTrailManager::ISweepingTrailManager():
-	IFactory<ISweepingTrail>(10000)
+Noise3D::SweepingTrailManager::SweepingTrailManager():
+	IFactory<SweepingTrail>(10000)
 {
 
 }
 
-Noise3D::ISweepingTrailManager::~ISweepingTrailManager()
+Noise3D::SweepingTrailManager::~SweepingTrailManager()
 {
-	IFactory<ISweepingTrail>::DestroyAllObject();
+	IFactory<SweepingTrail>::DestroyAllObject();
 }
 
-ISweepingTrail * Noise3D::ISweepingTrailManager::CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount)
+SweepingTrail * Noise3D::SweepingTrailManager::CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount)
 {
-	if (IFactory<ISweepingTrail>::FindUid(objName))
+	if (IFactory<SweepingTrail>::FindUid(objName))
 	{
 		ERROR_MSG("CreateSweepingTrail: UID existed!");
 		return nullptr;
 	}
 
-	auto pTrail = IFactory<ISweepingTrail>::CreateObject(objName);
+	auto pTrail = IFactory<SweepingTrail>::CreateObject(objName);
 	if (!pTrail->mFunction_InitGpuBuffer(maxVertexCount))
 	{
 		ERROR_MSG("CreateSweepingTrail: Failed to init Gpu buffer!");
-		IFactory<ISweepingTrail>::DestroyObject(objName);
+		IFactory<SweepingTrail>::DestroyObject(objName);
 		return nullptr;
 	}
 
@@ -39,32 +39,32 @@ ISweepingTrail * Noise3D::ISweepingTrailManager::CreateSweepingTrail(N_UID objNa
 	return pTrail;
 }
 
-ISweepingTrail * Noise3D::ISweepingTrailManager::GetSweepingTrail(N_UID objName)
+SweepingTrail * Noise3D::SweepingTrailManager::GetSweepingTrail(N_UID objName)
 {
-	return IFactory<ISweepingTrail>::GetObjectPtr(objName);
+	return IFactory<SweepingTrail>::GetObjectPtr(objName);
 }
 
-ISweepingTrail * Noise3D::ISweepingTrailManager::GetSweepingTrail(UINT index)
+SweepingTrail * Noise3D::SweepingTrailManager::GetSweepingTrail(UINT index)
 {
-	return IFactory<ISweepingTrail>::GetObjectPtr(index);
+	return IFactory<SweepingTrail>::GetObjectPtr(index);
 }
 
-bool Noise3D::ISweepingTrailManager::DestroySweepingTrail(N_UID objName)
+bool Noise3D::SweepingTrailManager::DestroySweepingTrail(N_UID objName)
 {
-	return IFactory<ISweepingTrail>::DestroyObject(objName);
+	return IFactory<SweepingTrail>::DestroyObject(objName);
 }
 
-bool Noise3D::ISweepingTrailManager::DestroySweepingTrail(ISweepingTrail * pST)
+bool Noise3D::SweepingTrailManager::DestroySweepingTrail(SweepingTrail * pST)
 {
-	return IFactory<ISweepingTrail>::DestroyObject(pST);
+	return IFactory<SweepingTrail>::DestroyObject(pST);
 }
 
-void Noise3D::ISweepingTrailManager::DestroyAllSweepingTrail()
+void Noise3D::SweepingTrailManager::DestroyAllSweepingTrail()
 {
-	IFactory<ISweepingTrail>::DestroyAllObject();
+	IFactory<SweepingTrail>::DestroyAllObject();
 }
 
-UINT Noise3D::ISweepingTrailManager::GetSweepingTrailCount()
+UINT Noise3D::SweepingTrailManager::GetSweepingTrailCount()
 {
-	return IFactory<ISweepingTrail>::GetObjectCount();
+	return IFactory<SweepingTrail>::GetObjectCount();
 }

@@ -15,20 +15,20 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ ISweepingTrailManager :
-		public IFactory<ISweepingTrail>
+	class /*_declspec(dllexport)*/ SweepingTrailManager :
+		public IFactory<SweepingTrail>
 	{
 	public:
 
-		ISweepingTrail*			CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount);
+		SweepingTrail*			CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount);
 
-		ISweepingTrail*			GetSweepingTrail(N_UID objName);
+		SweepingTrail*			GetSweepingTrail(N_UID objName);
 
-		ISweepingTrail*			GetSweepingTrail(UINT index);
+		SweepingTrail*			GetSweepingTrail(UINT index);
 
 		bool				DestroySweepingTrail(N_UID objName);
 
-		bool				DestroySweepingTrail(ISweepingTrail* pST);
+		bool				DestroySweepingTrail(SweepingTrail* pST);
 
 		void				DestroyAllSweepingTrail();
 
@@ -36,12 +36,12 @@ namespace Noise3D
 
 	private:
 
-		friend  class IScene;
+		friend  class SceneManager;
 
-		friend IFactory<ISweepingTrailManager>;
+		friend IFactory<SweepingTrailManager>;
 
-		ISweepingTrailManager();
+		SweepingTrailManager();
 
-		~ISweepingTrailManager();
+		~SweepingTrailManager();
 	};
 }

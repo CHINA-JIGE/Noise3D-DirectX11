@@ -1,0 +1,5 @@
+гиб╠)1.file loading GUI widget
+2.orthographic projection
+3.n order SH function
+4.(.dds) format cube map loading
+*.pitch rotation(intrinsic or extrinsic??)

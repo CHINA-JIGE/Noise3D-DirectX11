@@ -12,14 +12,14 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-ICollisionTestor::ICollisionTestor():
+CollisionTestor::CollisionTestor():
 	m_pRefShaderVarMgr(nullptr)
 {
 
 }
 
 
-ICollisionTestor::~ICollisionTestor()
+CollisionTestor::~CollisionTestor()
 {
 	ReleaseCOM(m_pSOCpuReadableBuffer);
 	ReleaseCOM(m_pSOGpuWriteableBuffer);
@@ -27,7 +27,7 @@ ICollisionTestor::~ICollisionTestor()
 	ReleaseCOM(m_pDSS_DisableDepthTest);
 }
 
-void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
+void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
 {
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
@@ -40,7 +40,7 @@ void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
 
 	//update camera Info
-	ICamera* pCamera = GetScene()->GetCamera();
+	Camera* pCamera = GetScene()->GetCamera();
 	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
@@ -116,7 +116,7 @@ void ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 
 }
 
-UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNormalizedCoord)
+UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord)
 {
 	//preparation is similar to another PICKING
 
@@ -131,7 +131,7 @@ UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
 
 	//update camera Info
-	ICamera* pCamera = GetScene()->GetCamera();
+	Camera* pCamera = GetScene()->GetCamera();
 	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
@@ -188,7 +188,7 @@ UINT ICollisionTestor::Picking_GpuBased(IMesh * pMesh, const NVECTOR2 & mouseNor
 ************************************************/
 
 
-bool ICollisionTestor::mFunction_Init()
+bool CollisionTestor::mFunction_Init()
 {
 	m_pRefShaderVarMgr = IShaderVariableManager::GetSingleton();
 	if (m_pRefShaderVarMgr == nullptr)
@@ -247,7 +247,7 @@ bool ICollisionTestor::mFunction_Init()
 	return true;
 }
 
-inline bool ICollisionTestor::mFunction_InitDSS()
+inline bool CollisionTestor::mFunction_InitDSS()
 {
 	HRESULT hr = S_OK;
 	//depth stencil state

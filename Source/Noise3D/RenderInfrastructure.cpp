@@ -3,7 +3,7 @@
 
 							IRenderInfracstructure
 		encapsulation of common D3D operation/states
-		init once by IRenderer, and provide service for other
+		init once by Renderer, and provide service for other
 		render modules
 
 ************************************************************************/
@@ -377,7 +377,7 @@ void IRenderInfrastructure::ClearRtvAndDsv(const NVECTOR4 & color)
 	}
 }
 
-void	IRenderInfrastructure::UpdateCameraMatrix(ICamera* const pCamera)
+void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 {
 	//update camera matrices
 	NMATRIX tmpMatrix;
@@ -387,8 +387,9 @@ void	IRenderInfrastructure::UpdateCameraMatrix(ICamera* const pCamera)
 	pCamera->GetViewMatrix(tmpMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
-	pCamera->GetInvViewMatrix(tmpMatrix);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
+	//but only 'mouse picking' in CollisionTestor needs it.... and it is updated inside CollisionTestor
+	//pCamera->GetInvViewMatrix(tmpMatrix);
+	//m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
 	NVECTOR3 camPos = pCamera->GetPosition();
 	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
@@ -404,9 +405,27 @@ IShaderVariableManager * IRenderInfrastructure::GetRefToShaderVarMgr()
 	return m_pRefShaderVarMgr;
 }
 
-ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(ITextureManager* pMgr,N_UID uid)
+ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(TextureManager* pMgr,N_UID uid, NOISE_TEXTURE_TYPE type)
 {
-	return pMgr->GetObjectPtr(uid)->m_pSRV;
+	ITexture* pTex = nullptr; 
+	switch (type)
+	{
+		case NOISE_TEXTURE_TYPE::COMMON2D:
+		{
+			pTex = pMgr->IFactory<Texture2D>::GetObjectPtr(uid);
+			break;
+		}
+		case NOISE_TEXTURE_TYPE::CUBEMAP:
+		{
+			pTex = pMgr->IFactory<TextureCubeMap>::GetObjectPtr(uid);
+			break;
+		}
+		default:
+			ERROR_MSG("RenderInfrastructure: Critical Error! Plz fix the bug...");
+			break;
+	}
+
+	return pTex->m_pSRV;
 }
 
 ID3D11ShaderResourceView * IRenderInfrastructure::GetTextureSRV(ITexture * pTex)
@@ -733,7 +752,7 @@ bool	IRenderInfrastructure::mFunction_Init_CreateDepthStencilState()
 	//To see if there is compiling error
 	if (compilationMsg != 0)
 	{
-		ERROR_MSG("IRenderer : Shader/Effect Compilation Failed !!");
+		ERROR_MSG("Renderer : Shader/Effect Compilation Failed !!");
 		ReleaseCOM(compilationMsg);
 	}
 

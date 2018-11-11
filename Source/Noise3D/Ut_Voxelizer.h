@@ -7,7 +7,7 @@
 				of given closing shape 
 				(represented as array of line segment)
 
-				Note: IMeshSlicer is a dependency
+				Note: MeshSlicer is a dependency
 
 ************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "Ut_VoxelizedModel.h"
 
 //2017.8.10 to do: 把体素化的过程集成到voxelize函数里面
-//删去binarizedPixelMap，然后体素模型用IVoxelizedModel来表示(一个体素用一个1bit）
+//删去binarizedPixelMap，然后体素模型用VoxelizedModel来表示(一个体素用一个1bit）
 //然后voxelizer的体素表示也换成voxelizedModel用来优化空间效率吧
 
 namespace Noise3D
@@ -23,12 +23,12 @@ namespace Noise3D
 	namespace Ut
 	{
 
-		class /*_declspec(dllexport)*/ IVoxelizer
+		class /*_declspec(dllexport)*/ Voxelizer
 		{
 
 		public:
 
-			IVoxelizer();
+			Voxelizer();
 
 			bool Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ);
 
@@ -36,7 +36,7 @@ namespace Noise3D
 
 			void Voxelize();
 
-			void GetVoxelizedModel(IVoxelizedModel& outModel);
+			void GetVoxelizedModel(VoxelizedModel& outModel);
 
 		private:
 
@@ -70,9 +70,9 @@ namespace Noise3D
 			//ambiguous scanline intersection result (line segment vertex on the scanline)
 			std::vector<N_AmbiguousScanlineCircumstance> mAmbiguousIntersection;
 
-			IMeshSlicer		mSlicer;
+			MeshSlicer		mSlicer;
 
-			IVoxelizedModel mVoxelizedModel;
+			VoxelizedModel mVoxelizedModel;
 
 			NVECTOR2 mLayerPosMin;
 

@@ -16,12 +16,12 @@ namespace Noise3D
 	};
 
 
-	class /*_declspec(dllexport)*/ IRoot 
-	: private IFileIO, public IFactory<IScene>
+	class /*_declspec(dllexport)*/ Root 
+	: private IFileIO, public IFactory<SceneManager>
 	{
 	public:
 
-		IScene*	GetScenePtr();
+		SceneManager*	GetScenePtr();
 
 		HWND		CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 
@@ -37,13 +37,13 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<IRoot>;
+		friend IFactory<Root>;
 
 		//constructor
-		IRoot();
+		Root();
 
 		//destructor
-		~IRoot();
+		~Root();
 
 		UINT mMainBackBufferWidth;
 		UINT mMainBackBufferHeight;
@@ -71,7 +71,7 @@ namespace Noise3D
 	};
 
 
-	extern /*_declspec(dllexport)*/ IRoot* GetRoot();
+	extern /*_declspec(dllexport)*/ Root* GetRoot();
 
 
 }

@@ -14,6 +14,7 @@ namespace Noise3D
 	typedef		SimpleMath::Vector3 	NVECTOR3;
 	typedef		SimpleMath::Vector4 	NVECTOR4;
 	typedef		SimpleMath::Matrix		NMATRIX;
+	typedef		SimpleMath::Quaternion NQUATERNION;
 	typedef		std::string		NFilePath;
 	typedef		std::string		NString;
 	typedef		std::string		N_UID;

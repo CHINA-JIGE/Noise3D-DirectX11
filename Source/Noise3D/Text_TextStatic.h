@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IStaticText :
+	class /*_declspec(dllexport)*/ StaticText :
 			public IBasicContainerInfo,
 			public IBasicTextInfo
 		{
@@ -19,14 +19,14 @@ namespace Noise3D
 		private:
 
 			friend class IRenderModuleForText;
-			friend class IFontManager;
-			friend IFactory<IStaticText>;
+			friend class TextManager;
+			friend IFactory<StaticText>;
 
-			IStaticText();
+			StaticText();
 
-			~IStaticText();
+			~StaticText();
 
-			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(IGraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
+			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
 
 			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();//extern call by renderer
 

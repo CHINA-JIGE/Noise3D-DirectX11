@@ -22,7 +22,7 @@ IRenderModuleForGraphicObject::~IRenderModuleForGraphicObject()
 	ReleaseCOM(m_pFX_Tech_Textured2D);
 }
 
-void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
+void IRenderModuleForGraphicObject::AddToRenderQueue(GraphicObject * pObj)
 {
 	if (pObj != nullptr)mFunction_AddToRenderList_GraphicObj(pObj,&mRenderList_GO);
 }
@@ -32,9 +32,9 @@ void IRenderModuleForGraphicObject::AddToRenderQueue(IGraphicObject * pObj)
 ************************************************************************/
 void IRenderModuleForGraphicObject::RenderGraphicObjects()
 {
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
-	ICamera* const pCamera = GetScene()->GetCamera();
+	Camera* const pCamera = GetScene()->GetCamera();
 
 	//set samplerState
 	m_pRefRI->SetSampler(IShaderVariableManager::NOISE_SHADER_VAR_SAMPLER::DEFAULT_SAMPLER, NOISE_SAMPLERMODE::LINEAR_WRAP);
@@ -73,7 +73,7 @@ bool IRenderModuleForGraphicObject::Initialize(IRenderInfrastructure * pRI, ISha
 									P R I V A T E
 ************************************************************/
 
-void	IRenderModuleForGraphicObject::mFunction_AddToRenderList_GraphicObj(IGraphicObject* pGraphicObj, std::vector<IGraphicObject*>* pList)
+void	IRenderModuleForGraphicObject::mFunction_AddToRenderList_GraphicObj(GraphicObject* pGraphicObj, std::vector<GraphicObject*>* pList)
 {
 	pList->push_back(pGraphicObj);
 
@@ -90,7 +90,7 @@ void	IRenderModuleForGraphicObject::mFunction_AddToRenderList_GraphicObj(IGraphi
 	}
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine3DInList(ICamera*const pCamera, IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine3DInList(Camera*const pCamera, GraphicObject* pGObj)
 {
 	//update camera related matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
@@ -109,7 +109,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine3DInList(ICam
 	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint3DInList(ICamera*const pCamera, IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint3DInList(Camera*const pCamera, GraphicObject* pGObj)
 {
 	//update camera related matrix
 	m_pRefRI->UpdateCameraMatrix(pCamera);
@@ -130,7 +130,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint3DInList(ICa
 
 }
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2D(IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2D(GraphicObject* pGObj)
 {
 	UINT vCount = pGObj->GetLine2DCount() * 2;
 	if (vCount == 0)return;
@@ -146,7 +146,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderLine2D(IGraphicOb
 	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2D(IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2D(GraphicObject* pGObj)
 {
 	UINT vCount = pGObj->GetPoint2DCount() * 2;
 	if (vCount == 0)return;
@@ -162,9 +162,9 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderPoint2D(IGraphicO
 	if (vCount>0)g_pImmediateContext->Draw(vCount, 0);
 };
 
-void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraphicObject* pGObj)
+void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(GraphicObject* pGObj)
 {
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
 
 	m_pRefRI->SetBlendState(pGObj->GetBlendMode());
 	m_pRefRI->SetRasterState(NOISE_FILLMODE_SOLID, NOISE_CULLMODE_NONE);
@@ -187,7 +187,7 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraph
 	{
 		//if current Rectangle disable Texture ,then draw in a solid way
 		//thus validate the UID first
-		if (pTexMgr->ValidateUID(tmpRegion.texName) == false)
+		if (pTexMgr->ValidateTex2D(tmpRegion.texName) == false)
 		{
 			//draw with solid texture
 			m_pFX_Tech_Solid2D->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
@@ -210,12 +210,12 @@ void	IRenderModuleForGraphicObject::mFunction_GraphicObj_RenderTriangle2D(IGraph
 void	IRenderModuleForGraphicObject::mFunction_GraphicObj_Update_RenderTextured2D(N_UID texName)
 {
 	//validate texture type
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();
-	bool IsUidValid = pTexMgr->ValidateUID(texName, NOISE_TEXTURE_TYPE_COMMON);
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();
+	bool IsUidValid = pTexMgr->ValidateTex2D(texName);
 
 	if (IsUidValid)
 	{
-		auto*  tmp_pSRV=m_pRefRI->GetTextureSRV(pTexMgr,texName);
+		ID3D11ShaderResourceView*  tmp_pSRV=m_pRefRI->GetTextureSRV(pTexMgr,texName,IRenderInfrastructure::NOISE_TEXTURE_TYPE::COMMON2D);
 		m_pRefShaderVarMgr->SetTexture(IShaderVariableManager::NOISE_SHADER_VAR_TEXTURE::COLOR_MAP_2D, tmp_pSRV);
 	}
 }

@@ -10,17 +10,17 @@
 
 using namespace Noise3D;
 
-IModelLoader::IModelLoader()
+ModelLoader::ModelLoader()
 {
 
 };
 
-IModelLoader::~IModelLoader()
+ModelLoader::~ModelLoader()
 {
 
 };
 
-bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
+bool ModelLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
 	if (pTargetMesh == nullptr)return false;
 
@@ -40,7 +40,7 @@ bool IModelLoader::LoadPlane(IMesh * pTargetMesh, float fWidth, float fDepth, UI
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
+bool ModelLoader::LoadBox(Mesh * const pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
 {
 	if (iDepthStep <= 2) { iDepthStep = 2; }
 	if (iWidthStep <= 2) { iWidthStep = 2; }
@@ -60,7 +60,7 @@ bool IModelLoader::LoadBox(IMesh * pTargetMesh, float fWidth, float fHeight, flo
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
+bool ModelLoader::LoadSphere(Mesh * const pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -78,7 +78,7 @@ bool IModelLoader::LoadSphere(IMesh * pTargetMesh, float fRadius, UINT iColumnCo
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
+bool ModelLoader::LoadCylinder(Mesh * const pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -96,7 +96,7 @@ bool IModelLoader::LoadCylinder(IMesh * pTargetMesh, float fRadius, float fHeigh
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
+bool ModelLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
 {
 	//"Out of Boundary" check for indices
 	for (auto& index : indicesList)
@@ -115,7 +115,7 @@ bool IModelLoader::LoadCustomizedModel(IMesh * pTargetMesh, const std::vector<N_
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
+bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 {
 	std::vector<UINT>			tmpIndexList;
 	std::vector<NVECTOR3> tmpVertexList;
@@ -162,8 +162,8 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 		angleYaw = atan2(tmpP.z, tmpP.x);
 
 		//map to [0,1]
-		outTexCoord.x = (angleYaw + MATH_PI) / (2.0f * MATH_PI);
-		outTexCoord.y = (anglePitch + (MATH_PI / 2.0f)) / MATH_PI;
+		outTexCoord.x = (angleYaw + Ut::PI) / (2.0f * Ut::PI);
+		outTexCoord.y = (anglePitch + (Ut::PI / 2.0f)) / Ut::PI;
 
 		return outTexCoord;
 	};
@@ -204,7 +204,7 @@ bool IModelLoader::LoadFile_STL(IMesh * pTargetMesh, NFilePath pFilePath)
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath filePath)
+bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 {
 	std::vector<N_DefaultVertex> tmpCompleteVertexList;
 	std::vector<UINT>	tmpIndexList;
@@ -225,7 +225,7 @@ bool IModelLoader::LoadFile_OBJ(IMesh * pTargetMesh, NFilePath filePath)
 	return isUpdateOk;
 }
 
-void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
 {
 	//if fbx loader has already been initialized,
 	//then actual init procedure will be skipped
@@ -236,15 +236,15 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	mFbxLoader.LoadSceneFromFbx(filePath, fbxResult, true, false);
 
 	//create mesh object in Noise3D with the data loaded from fbx
-	IScene* pScene = Noise3D::GetScene();
-	IMeshManager*		pMeshMgr	= pScene->GetMeshMgr();
-	IMaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
-	ITextureManager*	pTexMgr		= pScene->GetTextureMgr();
+	SceneManager* pScene = Noise3D::GetScene();
+	MeshManager*		pMeshMgr	= pScene->GetMeshMgr();
+	MaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
+	TextureManager*	pTexMgr		= pScene->GetTextureMgr();
 
 	for (auto& m : fbxResult.meshDataList)
 	{
 		//***1.Create Mesh
-		IMesh* pMesh = pMeshMgr->CreateMesh(m.name);
+		Mesh* pMesh = pMeshMgr->CreateMesh(m.name);
 		if (pMesh == nullptr)
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"
@@ -297,7 +297,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!diffMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(diffMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(diffMapName) == true)continue;
 
 				pTexDiff = pTexMgr->CreateTextureFromFile(diffMapPath, diffMapName, true, 0, 0, false);
 
@@ -312,7 +312,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!normalMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(normalMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(normalMapName) == true)continue;
 
 				pTexNormal = pTexMgr->CreateTextureFromFile(normalMapPath, normalMapName, true, 0, 0, false);
 
@@ -327,7 +327,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!emissiveMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(emissiveMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(emissiveMapName) == true)continue;
 
 				pTexEmissive = pTexMgr->CreateTextureFromFile(emissiveMapPath, emissiveMapName, true, 0, 0, false);
 
@@ -342,7 +342,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!specMapName.empty())
 			{
 				//skip repeated map
-				if (pTexMgr->ValidateUID(specMapName) == true)continue;
+				if (pTexMgr->ValidateTex2D(specMapName) == true)continue;
 
 				pTexSpec = pTexMgr->CreateTextureFromFile(specMapPath, specMapName, true, 0, 0, false);
 
@@ -365,7 +365,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 			if (!matName.empty())
 			{
 				if (pMatMgr->ValidateUID(matName) == true)continue;//material that is already created
-				IMaterial* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
+				Material* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{
 					WARNING_MSG("Model Loader: Load FBX scene: Material failed to load: material name:"
@@ -389,7 +389,7 @@ void IModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLo
 	}
 }
 
-bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
+bool ModelLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -415,7 +415,7 @@ bool IModelLoader::LoadSkyDome(IAtmosphere * pAtmo,N_UID textureName, float fRad
 	return isUpdateOk;
 }
 
-bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
+bool ModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -446,7 +446,7 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, 
 
 
 
-/*bool IModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<IMesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
+/*bool ModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
 {
 	std::vector<N_Load3ds_MeshObject>	meshList;
 	std::vector<N_MaterialDesc>					materialList;
@@ -470,7 +470,7 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, 
 
 #pragma region MeshCreation
 
-	IMeshManager* pMeshMgr = GetScene()->GetMeshMgr();
+	MeshManager* pMeshMgr = GetScene()->GetMeshMgr();
 
 	for (auto currentMesh:meshList)
 	{
@@ -486,8 +486,8 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, 
 		}
 		suffixIndex = 0;
 
-		//then use unique name to create IMesh Object
-		IMesh* pCreatedMesh = pMeshMgr->CreateMesh(currentMeshFinalName);
+		//then use unique name to create Mesh Object
+		Mesh* pCreatedMesh = pMeshMgr->CreateMesh(currentMeshFinalName);
 
 		//to compute vertex normal ,we should generate adjacent information of vertices first.
 		//thus "vertexNormalList" holds the sum of face normal (the triangle is adjacent to corresponding vertex)
@@ -570,7 +570,7 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, 
 		//copy SUBSET lists
 		pCreatedMesh->mSubsetInfoList = std::move(currentMesh.subsetList);
 
-		//push_back IMesh ptr info for user
+		//push_back Mesh ptr info for user
 		if (pCreatedMesh != nullptr)
 		{
 			outMeshPtrList.push_back(pCreatedMesh);
@@ -589,8 +589,8 @@ bool IModelLoader::LoadSkyBox(IAtmosphere * pAtmo, N_UID texture, float fWidth, 
 
 	//!!!!!materials have not been created. The Creation of materials will be done
 	//by current Scene Tex&Mat Manager	
-	IMaterialManager* pMatMgr = GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
-	ITextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
+	MaterialManager* pMatMgr = GetScene()->GetMaterialMgr(); //m_pChildMaterialMgr;
+	TextureManager* pTexMgr = GetScene()->GetTextureMgr();//m_pFatherScene->m_pChildTextureMgr;
 
 														   //Get the directory where the file locates
 	std::string modelFileDirectory = GetFileDirectory(pFilePath);

@@ -8,19 +8,19 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ IMaterialManager
-		:public IFactory<IMaterial>
+	class /*_declspec(dllexport)*/ MaterialManager
+		:public IFactory<Material>
 	{
 	public:
 
 
-		IMaterial*		CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc);
+		Material*		CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc);
 
 		UINT			GetMaterialCount();
 
-		IMaterial*		GetDefaultMaterial();
+		Material*		GetDefaultMaterial();
 
-		IMaterial*		GetMaterial(N_UID matName);
+		Material*		GetMaterial(N_UID matName);
 
 		bool		DeleteMaterial(N_UID matName);
 
@@ -30,13 +30,13 @@ namespace Noise3D
 
 	private:
 
-		friend  class IScene;
+		friend  class SceneManager;
 
-		friend IFactory<IMaterialManager>;
+		friend IFactory<MaterialManager>;
 
-		IMaterialManager();
+		MaterialManager();
 
-		~IMaterialManager();
+		~MaterialManager();
 
 		void		mFunction_CreateDefaultMaterial();
 

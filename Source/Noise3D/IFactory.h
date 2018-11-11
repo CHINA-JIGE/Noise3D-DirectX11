@@ -39,7 +39,7 @@ namespace Noise3D
 	create certain kinds of products,
 
 	for example:
-	ITextureManager should be inherited from IFactory<ITexture>
+	TextureManager should be inherited from IFactory<ITexture>
 
 	the reason why I don't use cohesion to integrate a factory (but inheritance), 
 	is that cohesion requires CreateObject method to be Public, which

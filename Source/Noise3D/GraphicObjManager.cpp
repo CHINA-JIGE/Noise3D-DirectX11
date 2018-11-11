@@ -3,7 +3,7 @@
 
 							class£ºMeshManager
 
-				description: manager class to manage IMesh
+				description: manager class to manage Mesh
 
 ***********************************************************************/
 
@@ -11,50 +11,50 @@
 
 using namespace Noise3D;
 
-IGraphicObjectManager::IGraphicObjectManager()
-	:IFactory<IGraphicObject>(50000)
+GraphicObjectManager::GraphicObjectManager()
+	:IFactory<GraphicObject>(50000)
 {
 
 }
 
-IGraphicObjectManager::~IGraphicObjectManager()
+GraphicObjectManager::~GraphicObjectManager()
 {
-	IFactory<IGraphicObject>::DestroyAllObject();
+	IFactory<GraphicObject>::DestroyAllObject();
 }
 
 
-IGraphicObject * IGraphicObjectManager::CreateGraphicObj(N_UID objName)
+GraphicObject * GraphicObjectManager::CreateGraphicObj(N_UID objName)
 {
-	return  IFactory<IGraphicObject>::CreateObject(objName);
+	return  IFactory<GraphicObject>::CreateObject(objName);
 }
 
-IGraphicObject * IGraphicObjectManager::GetGraphicObj(N_UID objName)
+GraphicObject * GraphicObjectManager::GetGraphicObj(N_UID objName)
 {
-	return  IFactory<IGraphicObject>::GetObjectPtr(objName);
+	return  IFactory<GraphicObject>::GetObjectPtr(objName);
 }
 
-IGraphicObject * IGraphicObjectManager::GetGraphicObj(UINT index)
+GraphicObject * GraphicObjectManager::GetGraphicObj(UINT index)
 {
-	return  IFactory<IGraphicObject>::GetObjectPtr(index);
+	return  IFactory<GraphicObject>::GetObjectPtr(index);
 }
 
-bool IGraphicObjectManager::DestroyGraphicObj(N_UID objName)
+bool GraphicObjectManager::DestroyGraphicObj(N_UID objName)
 {
-	return IFactory<IGraphicObject>::DestroyObject(objName);
+	return IFactory<GraphicObject>::DestroyObject(objName);
 }
 
-bool IGraphicObjectManager::DestroyGraphicObj(IGraphicObject * pObj)
+bool GraphicObjectManager::DestroyGraphicObj(GraphicObject * pObj)
 {
-	return IFactory<IGraphicObject>::DestroyObject(pObj);
+	return IFactory<GraphicObject>::DestroyObject(pObj);
 }
 
-void IGraphicObjectManager::DestroyAllGraphicObj()
+void GraphicObjectManager::DestroyAllGraphicObj()
 {
-	IFactory<IGraphicObject>::DestroyAllObject();
+	IFactory<GraphicObject>::DestroyAllObject();
 }
 
-UINT IGraphicObjectManager::GetGraphicObjCount()
+UINT GraphicObjectManager::GetGraphicObjCount()
 {
-	return IFactory<IGraphicObject>::GetObjectCount();
+	return IFactory<GraphicObject>::GetObjectCount();
 }
 

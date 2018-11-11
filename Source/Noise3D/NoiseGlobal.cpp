@@ -147,6 +147,120 @@ using namespace Noise3D;
 	std::wstring wstr(srcStr.size(),L'\0');
 	for (auto e : srcStr)wstr.push_back(e);
 	return wstr;
+}
+inline NVECTOR3 Noise3D::Ut::PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight)
+{
+	float normalizedU = float(px) / float(pixelWidth);//[0,1]
+	float normalizedV = float(py) / float(pixelHeight);//[0,1]
+
+	//cube map's sampling is considered
+	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
+	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
+
+	NVECTOR3 dir = Ut::YawPitchToDirection(yaw, pitch);
+	//NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
+	return dir;
+}
+
+inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, int pixelWidth, int pixelHeight, uint32_t& outPixelX, uint32_t& outPixelY)
+{
+	//pitch, left-handed [-pi/2,pi/2]
+	float pitch = 0.0f, yaw = 0.0f;
+	Ut::DirectionToYawPitch(dir, yaw, pitch);
+
+	//mapped to [0,1]
+	float normalizedU = (yaw / (2.0f * Ut::PI)) + 0.5f;
+	float normalizedV = (pitch / Ut::PI) + 0.5f;
+	uint32_t x = uint32_t(float(pixelWidth) * normalizedU);
+	uint32_t y = uint32_t(float(pixelHeight) * normalizedV);
+	if (x == pixelWidth) x = pixelWidth - 1;
+	if (y == pixelHeight) y = pixelHeight - 1;
+	outPixelX = x;
+	outPixelY = y;
+}
+
+inline void Noise3D::Ut::DirectionToYawPitch(NVECTOR3 dir, float& outYaw, float& outPitch)
+{
+	//yaw, start from z, left-handed
+	outYaw = atan2(dir.x, dir.z);
+	//pitch, left-handed [-pi/2,pi/2]
+	outPitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
+}
+
+inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
+{
+	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
+}
+
+/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
+{
+	if (x == 0) return 1;
+	uint32_t sum = 1;
+	for (uint32_t i = 1; i <= x; ++i)
+	{
+		sum *= i;
+	}
+	return sum;
+}
+/*_declspec(dllexport)*/ uint64_t Noise3D::Ut::Factorial64(uint32_t x)
+{
+	if (x == 0) return 1;
+	uint64_t sum = 1;
+	for (uint64_t i = 1; i <= x; ++i)
+	{
+		sum *= i;
+	}
+	return sum;
+}
+float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
+{
+	const float table[] = {
+		1.0f, //0
+		1.0f,// 1
+		0.5f,// 2
+		0.16666666f,// 3
+		0.04166666f, // 4
+		0.008333333f, //5
+		0.001388888f, //6
+		0.00019841269f,//7
+		0.00002480158f,//8
+		0.00000275573f, //9
+		2.75573192e-7f,//10
+		2.50521084e-8f,//11
+		2.0876757e-9f,//12
+		1.6059044e-10f, //13
+		1.1470746e-11f, //14
+		7.6471637e-13f,//15
+		4.7794773e-14f,//16
+		2.8114573e-15f,//17
+		1.5619207e-16f,//18
+		8.2206352e-18f,//19
+		4.1103176e-19f,//20
+		1.9572941e-20f,//21
+		8.8967914e-22f,//22
+		3.8681702e-23f,//23
+		1.6117376e-24f,//24
+		6.4469503e-26f,//25
+		2.4795963e-27f,//26
+		9.1836899e-29f,//27
+		3.2798892e-30f,//28
+		1.1309963e-31f,//29
+		3.7699876e-33f,//30
+		1.216125e-34f,//31
+		3.8003908e-36f,//32
+	};
+
+	if (x <= 32)return table[x];
+	else
+	{
+		//divide multiple times to prevent drastic floating-point error
+		float result = 1.0f;
+		for (uint32_t i = 1; i <= x; ++i)
+		{
+			result /= float(i);
+		}
+		return result;
+	}
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Lerp(float a, float b, float t)
@@ -184,10 +298,39 @@ using namespace Noise3D;
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 }
 
+NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
+{
+	return NVECTOR4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
+}
+
+NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
+{
+	return NColor4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
+}
+
 /*_declspec(dllexport)*/  inline NVECTOR3 Noise3D::Ut::CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t)
 {
 	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
 	return (2.0f * t * t * t - 3.0f * t * t + 1.0f) * v1 + (t * t * t - 2.0f * t * t + t) * t1 + (-2.0f * t * t * t + 3.0f * t * t) * v2 + (t * t * t - t * t) * t2;
+}
+bool Noise3D::Ut::TolerantEqual(float lhs, float rhs, float errorLimit)
+{
+	return (abs(lhs - rhs) < errorLimit);
+}
+uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height)
+{
+	//calculate the pitch of one mipmap chain
+	// sum(1,2,4,8....,2^n)=a_1(1-q^n)/(1-q) = 2^n-1
+	uint32_t sum = 0;
+	uint32_t tmpWidth = width;
+	uint32_t tmpHeight = height;
+	for (uint32_t i = 0; i < mipLevel; ++i)
+	{
+		sum += tmpWidth * tmpHeight;
+		tmpWidth /= 2;
+		tmpHeight /= 2;
+	}
+	return  sum;
 };
 
 
