@@ -192,7 +192,7 @@ public:
         SHLightingGuiApp->setCentralWidget(centralwidget);
         menubar = new QMenuBar(SHLightingGuiApp);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1200, 23));
+        menubar->setGeometry(QRect(0, 0, 1200, 26));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuHelp = new QMenu(menubar);
@@ -216,7 +216,7 @@ public:
 
     void retranslateUi(QMainWindow *SHLightingGuiApp)
     {
-        SHLightingGuiApp->setWindowTitle(QApplication::translate("SHLightingGuiApp", "Spherical Harmonic Lighting Utility - sunhonglian", 0));
+        SHLightingGuiApp->setWindowTitle(QApplication::translate("SHLightingGuiApp", "Spherical Harmonic Lighting Utility ", 0));
         actionAbout->setText(QApplication::translate("SHLightingGuiApp", "About", 0));
         actionExit->setText(QApplication::translate("SHLightingGuiApp", "Exit", 0));
         actionCameraOrthographic->setText(QApplication::translate("SHLightingGuiApp", "Orthographic", 0));
