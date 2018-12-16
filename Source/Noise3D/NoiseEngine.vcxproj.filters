@@ -37,9 +37,6 @@
     <Filter Include="NoiseGraphic\Scene\Material">
       <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\Lights">
-      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\GraphicObject">
       <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
     </Filter>
@@ -142,6 +139,9 @@
     <Filter Include="GeneralBasicClass\_HardwareBuffer">
       <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\Lights%28Dynamic%29">
+      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -175,7 +175,7 @@
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -220,7 +220,7 @@
       <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -337,6 +337,9 @@
     <ClInclude Include="SHRotation.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowCommonInterface.h">
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -361,7 +364,7 @@
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="LightManager.cpp">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -400,7 +403,7 @@
       <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClCompile>
     <ClCompile Include="Lights.cpp">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -512,6 +515,9 @@
     </ClCompile>
     <ClCompile Include="SHRotation.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowCommonInterface.cpp">
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

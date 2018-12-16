@@ -66,6 +66,8 @@ namespace Noise3D
 	{
 	public:
 
+		IBaseLight();
+
 		void SetAmbientColor(const NVECTOR3& color);
 
 		void SetDiffuseColor(const NVECTOR3& color);
@@ -75,6 +77,7 @@ namespace Noise3D
 		void SetSpecularIntensity(float specInt);
 
 		void SetDiffuseIntensity(float diffInt);
+
 
 	protected:
 
@@ -86,11 +89,12 @@ namespace Noise3D
 
 	private:
 		N_CommonLightDesc mBaseLightDesc;
+
 	};
 
 
 	//---------------------Dynamic Directional Light------------------
-	class DirLightD : public IBaseLight
+	class DirLight : public IBaseLight
 	{
 	public:
 
@@ -102,19 +106,20 @@ namespace Noise3D
 
 
 	private:
-		friend IFactory<DirLightD>;
+		friend IFactory<DirLight>;
 
-		DirLightD();
+		DirLight();
 
-		~DirLightD();
+		~DirLight();
 
 		N_DirLightDesc mLightDesc;
+
 
 	};
 
 
 	//-----------------------Dynamic Point Light--------------------
-	class PointLightD : public IBaseLight
+	class PointLight : public IBaseLight
 	{
 	public:
 
@@ -130,18 +135,18 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<PointLightD>;
+		friend IFactory<PointLight>;
 
-		PointLightD();
+		PointLight();
 
-		~PointLightD();
+		~PointLight();
 
 		N_PointLightDesc mLightDesc;
 	};
 
 
 	//-----------------------Dynamic Spot Light------------------
-	class SpotLightD:public IBaseLight
+	class SpotLight:public IBaseLight
 	{
 	public:
 
@@ -161,95 +166,15 @@ namespace Noise3D
 
 	private:
 
-		friend IFactory<SpotLightD>;
+		friend IFactory<SpotLight>;
 
-		SpotLightD();
+		SpotLight();
 
-		~SpotLightD();
-
-		N_SpotLightDesc mLightDesc;
-
-	};
-
-
-
-
-	//------------------Static Directional Light------------------
-	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
-	//2.immutable after initialization
-	class DirLightS
-	{
-	public:
-
-		N_DirLightDesc GetDesc();
-
-	private:
-
-		friend class LightManager;
-
-		friend IFactory<DirLightS>;
-
-		DirLightS();
-
-		~DirLightS();
-
-		//the IFactory<> didn't accept constructor with parameters... 
-		//thus an additional Init() func should be implemented and invoked by lightMgr
-		bool	mFunction_Init(const N_DirLightDesc& desc);
-
-		N_DirLightDesc mLightDesc;
-	};
-
-
-	//----------------------Static Point Light------------------
-	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
-	//2.immutable after initialization
-	class PointLightS
-	{
-	public:
-
-		N_PointLightDesc GetDesc();
-
-	private:
-
-		friend class LightManager;
-
-		friend IFactory<PointLightS>;
-
-		PointLightS();
-
-		~PointLightS();
-
-		bool	mFunction_Init(const N_PointLightDesc& desc);
-
-		N_PointLightDesc mLightDesc;
-	};
-
-
-	//------------------Static Spot Light--------------------
-	//1.static lights are for LIGHT MAPS baking (not sending to GPU)
-	//2.immutable after initialization
-	class SpotLightS
-	{
-	public:
-
-		N_SpotLightDesc GetDesc();
-
-	private:
-
-		friend class LightManager;
-
-		friend IFactory<SpotLightS>;
-
-		SpotLightS();
-
-		~SpotLightS();
-
-		bool	mFunction_Init(const N_SpotLightDesc& desc);
+		~SpotLight();
 
 		N_SpotLightDesc mLightDesc;
-	};
 
+	};
 
 
 };

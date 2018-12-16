@@ -53,6 +53,10 @@ void Noise3D::Renderer::Render()
 	//this affects the decision of Render Targets
 	m_pRenderInfrastructure->SetPostProcessRemainingPassCount(IRenderModuleForPostProcessing::GetPostProcessPassCount());
 
+	//render shadow maps for solid objects
+	//(the Shadow map RT belongs to each light, so lights should be the dominant factor of SM rendering
+	ILightManager::RenderShadowMap();
+
 	IRenderModuleForMesh::RenderMeshes();
 	IRenderModuleForAtmosphere::RenderAtmosphere();
 	IRenderModuleForSweepingTrailFX::RenderSweepingTrails();

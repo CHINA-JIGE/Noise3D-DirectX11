@@ -69,6 +69,7 @@
 #include "MeshManager.h"
 #include "Lights.h"
 #include "LightManager.h"
+#include "ShadowCommonInterface.h"
 #include "ITexture.h"
 #include "Texture2D.h"
 #include "TextureCubeMap.h"
