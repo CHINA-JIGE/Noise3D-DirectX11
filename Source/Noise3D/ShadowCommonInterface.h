@@ -7,6 +7,33 @@
 
 namespace Noise3D
 {
+	enum SHADOW_MAP_PROJECTION_TYPE
+	{
+		ORTHOGRAPHIC,
+		PERSPECTIVE
+	};
+
+	struct N_SHADOW_MAPPING_PARAM
+	{
+		N_SHADOW_MAPPING_PARAM() :
+			enableShadowMapping(false),
+			orthoProjRectWidth(10.0f),
+			orthoProjRectHeight(10.0f),
+			pixelWidth(256),
+			pixelHeight(256) {}
+
+		bool enableShadowMapping;
+
+		float orthoProjRectWidth;//the real width of orthographic projection's shadow map
+
+		float orthoProjRectHeight;//the real height of orthographic projection's shadow map
+
+		uint32_t pixelWidth;//shadow map resolution x
+
+		uint32_t pixelHeight;//shadow map resolution y
+
+	};
+
 	//usually some certain solid objects like mesh
 	class IShadowCaster
 	{
@@ -20,19 +47,10 @@ namespace Noise3D
 
 	protected:
 
-		enum SHADOW_MAP_PROJECTION_TYPE
-		{
-			ORTHOGRAPHIC,
-			PERSPECTIVE
-		};
-
-		//these 2 init functions are invoked by other class (like lightmanager)
-		//dirlight arrSize=1, pointLight arrSize=6(cubemap), spotlight arrSize=1
-		bool InitShadowMapPerspective(uint32_t arraySize, uint32_t pixelWidth, uint32_t pixelHeight);
-
-		bool InitShadowMapOrthographic(uint32_t arraySize,float rectRealWidth, float rectRealHeight, uint32_t pixelWidth, uint32_t pixelHeight);
-
-		ID3D11DepthStencilView* GetShadowMapDsv;
+		//Init function should be impl by specific shadow caster like "Dynamic Lights"
+		virtual bool mFunction_InitShadowMap(SHADOW_MAP_PROJECTION_TYPE type, N_SHADOW_MAPPING_PARAM smParam)=0;
+		
+		ID3D11DepthStencilView* GetShadowMapDsv();
 
 	private:
 
@@ -48,7 +66,7 @@ namespace Noise3D
 		uint32_t mPixelHeight;
 	};
 
-	//should this object received shadow (via shadow mapping, done in object's pixel shader)
+	//should this object receive shadow (via shadow mapping, shaded in object's pixel shader)
 	class IShadowReceiver
 	{
 	public:

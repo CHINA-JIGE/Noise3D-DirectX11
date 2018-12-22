@@ -23,7 +23,7 @@ namespace Noise3D
 	{
 	public:
 
-		DirLight*			CreateDynamicDirLight(N_UID lightName);
+		DirLight*			CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING_PARAM smParam = N_SHADOW_MAPPING_PARAM());
 
 		PointLight*		CreateDynamicPointLight(N_UID lightName);
 

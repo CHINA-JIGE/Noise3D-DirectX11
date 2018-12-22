@@ -106,8 +106,14 @@ namespace Noise3D
 
 		N_DirLightDesc GetDesc();
 
+	protected:
+
+		//override SM init function. invoked by LightManager
+		virtual bool mFunction_InitShadowMap(SHADOW_MAP_PROJECTION_TYPE type, N_SHADOW_MAPPING_PARAM smParam) override;
 
 	private:
+
+		friend class LightManager;//to init
 		friend IFactory<DirLight>;
 
 		DirLight();
@@ -123,7 +129,7 @@ namespace Noise3D
 	//-----------------------Dynamic Point Light--------------------
 	class PointLight : 
 		public IBaseLight
-		//shadow map not implemented
+		//shadow map init not implemented
 	{
 	public:
 

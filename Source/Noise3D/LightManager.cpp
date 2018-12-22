@@ -24,10 +24,26 @@ LightManager::~LightManager()
 {
 }
 
-//-----------CREATION
-DirLight * LightManager::CreateDynamicDirLight(N_UID lightName)
+//-----------CREATION-----------
+DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING_PARAM smParam)
 {
-	return IFactory<DirLight>::CreateObject(lightName);
+	DirLight* pLight = IFactory<DirLight>::CreateObject(lightName);
+
+	//init of shaders/RV/states/....
+	bool isSucceeded = pLight->mFunction_InitShadowMap(
+		Noise3D::SHADOW_MAP_PROJECTION_TYPE::ORTHOGRAPHIC,
+		smParam);
+	if (isSucceeded)
+	{
+		return pLight;
+	}
+	else
+	{
+		IFactory<DirLight>::DestroyObject(lightName);
+		ERROR_MSG("LightManager: Dir light's shadow map init failed. uid: " + lightName);
+		return nullptr;
+	}
+
 }
 
 PointLight* LightManager::CreateDynamicPointLight(N_UID lightName)

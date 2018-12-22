@@ -40,6 +40,11 @@ bool Noise3D::IShadowCaster::IsCastingShadowEnabled()
 	return mIsCastingShadowEnabled;
 }
 
+ID3D11DepthStencilView * Noise3D::IShadowCaster::GetShadowMapDsv()
+{
+	return m_pShadowMapDSV;
+}
+
 
 /***********************************************************************
 
