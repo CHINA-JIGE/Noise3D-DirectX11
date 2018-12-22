@@ -30,6 +30,16 @@ Noise3D::IShadowCaster::IShadowCaster():
 {
 }
 
+void Noise3D::IShadowCaster::EnableCastingShadow(bool enabledSC)
+{
+	mIsCastingShadowEnabled = enabledSC;
+}
+
+bool Noise3D::IShadowCaster::IsCastingShadowEnabled()
+{
+	return mIsCastingShadowEnabled;
+}
+
 
 /***********************************************************************
 
@@ -40,3 +50,24 @@ Noise3D::IShadowCaster::IShadowCaster():
 			will be inherited by classes like 'lights'
 
 ************************************************************************/
+
+Noise3D::IShadowReceiver::IShadowReceiver() :
+	mIsReceivingShadowEnabled(false),
+	mShadowColor(NColor4f(0, 0, 0, 0.5f))
+{
+}
+
+void Noise3D::IShadowReceiver::EnableReceivingShadow(bool enabledRC)
+{
+	mIsReceivingShadowEnabled = enabledRC;
+}
+
+bool Noise3D::IShadowReceiver::IsReceivingShadowEnabled()
+{
+	return mIsReceivingShadowEnabled;
+}
+
+void Noise3D::IShadowReceiver::SetShadowColor(NColor4f c)
+{
+	mShadowColor = c;
+}

@@ -27,7 +27,7 @@ namespace Noise3D
 
 		PointLight*		CreateDynamicPointLight(N_UID lightName);
 
-		SpotLight*			CreateDynamicSpotLight(N_UID lightName);
+		SpotLight*		CreateDynamicSpotLight(N_UID lightName);
 
 		DirLight*			GetDirLight(N_UID lightName);
 
@@ -72,6 +72,10 @@ namespace Noise3D
 		LightManager();
 
 		~LightManager();
+
+		//iterate all ShadowCaster base classes of Lights
+		//and pass/delegate them to the Renderer (?) to do d3d related things?
+		void mFunction_RenderShadowMaps();
 
 		bool		mIsDynamicLightingEnabled;
 		bool		mCanUpdateStaticLights;

@@ -94,7 +94,9 @@ namespace Noise3D
 
 
 	//---------------------Dynamic Directional Light------------------
-	class DirLight : public IBaseLight
+	class DirLight : 
+		public IBaseLight,
+		public IShadowCaster//container of DSV of shadow map
 	{
 	public:
 
@@ -119,7 +121,9 @@ namespace Noise3D
 
 
 	//-----------------------Dynamic Point Light--------------------
-	class PointLight : public IBaseLight
+	class PointLight : 
+		public IBaseLight
+		//shadow map not implemented
 	{
 	public:
 
@@ -146,7 +150,8 @@ namespace Noise3D
 
 
 	//-----------------------Dynamic Spot Light------------------
-	class SpotLight:public IBaseLight
+	class SpotLight:
+		public IBaseLight
 	{
 	public:
 
