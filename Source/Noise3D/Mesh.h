@@ -1,9 +1,9 @@
 
-/***********************************************************************
+/******************************************************
 
-                           h£ºNoiseMesh
+								  h£ºMesh
 
-************************************************************************/
+******************************************************/
 
 #pragma once
 
@@ -45,7 +45,7 @@ namespace Noise3D
 
 		const	std::vector<N_DefaultVertex>*	GetVertexBuffer() const;
 
-		const	std::vector<UINT>*	GetIndexBuffer() const;
+		const	std::vector<UINT>*		GetIndexBuffer() const;
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
 		N_Box	ComputeBoundingBox();

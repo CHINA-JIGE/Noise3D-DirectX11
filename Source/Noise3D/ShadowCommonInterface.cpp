@@ -20,13 +20,9 @@ using namespace Noise3D;
 
 ************************************************************************/
 Noise3D::IShadowCaster::IShadowCaster():
-	m_pShadowMapDSV(nullptr),
+	m_pShadowMapPass1_DSV(nullptr),
 	mIsCastingShadowEnabled(true),
-	mShadowMapProjectionType(SHADOW_MAP_PROJECTION_TYPE::PERSPECTIVE),
-	mRectRealWidth(0),
-	mRectRealHeight(0),
-	mPixelWidth(0),
-	mPixelHeight(0)
+	mShadowMapParam(N_SHADOW_MAPPING_PARAM())
 {
 }
 
@@ -39,12 +35,6 @@ bool Noise3D::IShadowCaster::IsCastingShadowEnabled()
 {
 	return mIsCastingShadowEnabled;
 }
-
-ID3D11DepthStencilView * Noise3D::IShadowCaster::GetShadowMapDsv()
-{
-	return m_pShadowMapDSV;
-}
-
 
 /***********************************************************************
 

@@ -37,6 +37,9 @@ namespace Noise3D
 		{
 		public:
 
+			static const int c_FontAsciiBitmapTableRowCount;
+
+			static const int c_FontAsciiBitmapTableColumnCount ;
 
 			bool		CreateFontFromFile(NFilePath filePath,N_UID fontName, UINT fontSize, float fontAspectRatio = 0.707f);
 

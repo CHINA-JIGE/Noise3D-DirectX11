@@ -74,8 +74,8 @@ namespace Noise3D
 		~LightManager();
 
 		//iterate all ShadowCaster base classes of Lights
-		//and pass/delegate them to the Renderer (?) to do d3d related things?
-		void mFunction_RenderShadowMaps();
+		//and pass/delegate them to the Renderer (?) to do d3d-based render stuffs?
+		void	mFunction_GetShadowMapRenderTaskList();
 
 		bool		mIsDynamicLightingEnabled;
 		bool		mCanUpdateStaticLights;

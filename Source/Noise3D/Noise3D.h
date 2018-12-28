@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <map>
 #include <random>
+#include <memory>
 
 //Third Party : Microsoft's Effects11/FX11
 #include <Effects11\d3dx11effect.h>
@@ -59,7 +60,7 @@
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "HardwareVertexBuffer.h"
+#include "HardwareBuffer.h"
 #include "HardwareIndexBuffer.h"
 
 #include "ModelProcessor.h"
@@ -88,7 +89,7 @@
 #include "Text_2DBasicTextInfo.h"
 #include "Text_TextDynamic.h"
 #include "Text_TextStatic.h"
-#include "Text_FontManager.h"
+#include "Text_TextManager.h"
 
 //-------------Core Class-------------
 #include "Renderer.h"

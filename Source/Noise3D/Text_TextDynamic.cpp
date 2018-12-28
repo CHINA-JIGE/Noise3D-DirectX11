@@ -7,6 +7,10 @@
 
 using namespace Noise3D;
 
+const int TextManager::c_FontAsciiBitmapTableRowCount = 8;
+
+const int TextManager::c_FontAsciiBitmapTableColumnCount = 16;
+
 DynamicText::DynamicText():
 	mWordSpacingOffset(0),
 	mLineSpacingOffset(0),
@@ -198,8 +202,8 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 
 	UINT stringBoundaryWidth = UINT(IBasicContainerInfo::GetWidth());
 	UINT stringBoundaryHeight = UINT(IBasicContainerInfo::GetHeight());
-	const UINT tableRowCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
-	const UINT tableColumnCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
+	const UINT tableRowCount = TextManager::c_FontAsciiBitmapTableRowCount;
+	const UINT tableColumnCount = TextManager::c_FontAsciiBitmapTableColumnCount;
 	//texcoord offset for 1 char bitmap ( char bitmap might be much smaller than the boundary)
 	float charBoundaryTexcoordOffsetX = 1 / float(tableColumnCount);
 	float charBoundaryTexcoordOffsetY = 1 / float(tableRowCount);

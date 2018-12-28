@@ -21,6 +21,15 @@ namespace Noise3D
 			orthoProjRectHeight(10.0f),
 			pixelWidth(256),
 			pixelHeight(256) {}
+		
+		void operator=(const N_SHADOW_MAPPING_PARAM& rhs)
+		{
+			this->enableShadowMapping = rhs.enableShadowMapping;
+			this->orthoProjRectWidth = rhs.orthoProjRectWidth;
+			this->orthoProjRectHeight = rhs.orthoProjRectHeight;
+			this->pixelWidth = rhs.pixelWidth;
+			this->pixelHeight = rhs.pixelHeight;
+		}
 
 		bool enableShadowMapping;
 
@@ -48,22 +57,18 @@ namespace Noise3D
 	protected:
 
 		//Init function should be impl by specific shadow caster like "Dynamic Lights"
-		virtual bool mFunction_InitShadowMap(SHADOW_MAP_PROJECTION_TYPE type, N_SHADOW_MAPPING_PARAM smParam)=0;
+		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)=0;
 		
-		ID3D11DepthStencilView* GetShadowMapDsv();
+		//just like Render-to-Texture, different types of VIEWs is needed
+		ID3D11DepthStencilView* m_pShadowMapPass1_DSV;//DSV for SM generation pass
 
-	private:
-
-		ID3D11DepthStencilView* m_pShadowMapDSV;
+		ID3D11ShaderResourceView* m_pShadowMapPass2_SRV;//SRV for shadowing pass
 
 		bool mIsCastingShadowEnabled;
 
-		SHADOW_MAP_PROJECTION_TYPE mShadowMapProjectionType;
+		//SHADOW_MAP_PROJECTION_TYPE mShadowMapProjectionType;
 
-		float mRectRealWidth;
-		float mRectRealHeight;
-		uint32_t mPixelWidth;
-		uint32_t mPixelHeight;
+		N_SHADOW_MAPPING_PARAM mShadowMapParam;
 	};
 
 	//should this object receive shadow (via shadow mapping, shaded in object's pixel shader)

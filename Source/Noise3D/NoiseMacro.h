@@ -22,10 +22,6 @@
 
 #define NOISE_MACRO_FUNCTION_WINAPI //A mark that indicates this function is windows api,might help when migrate to other platform 
 
-#define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT 8U	//used in font mgr
-
-#define NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT 16U
-
 #define NOISE_MACRO_DLL_EXPORT _declspec(dllexport)
 
 //Release an COM object
@@ -45,15 +41,12 @@
 				return false;\
 				};\
 
-
 #define HR_DEBUG_CREATETEX(hr,MsgText)\
 				if(FAILED(hr)) \
 				{\
 				ERROR_MSG(MsgText);\
 				return nullptr;\
 				};\
-
-
 
 //implementing these 2 op with functions is not acceptable because pre-processed
 //data will be wiped out.

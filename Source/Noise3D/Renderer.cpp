@@ -55,7 +55,8 @@ void Noise3D::Renderer::Render()
 
 	//render shadow maps for solid objects
 	//(the Shadow map RT belongs to each light, so lights should be the dominant factor of SM rendering
-	ILightManager::RenderShadowMap();
+	LightManager* pLM = GetScene()->GetLightMgr();
+	pLM->mFunction_GetShadowMapRenderTaskList();
 
 	IRenderModuleForMesh::RenderMeshes();
 	IRenderModuleForAtmosphere::RenderAtmosphere();

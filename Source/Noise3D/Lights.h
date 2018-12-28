@@ -109,7 +109,7 @@ namespace Noise3D
 	protected:
 
 		//override SM init function. invoked by LightManager
-		virtual bool mFunction_InitShadowMap(SHADOW_MAP_PROJECTION_TYPE type, N_SHADOW_MAPPING_PARAM smParam) override;
+		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam) override;
 
 	private:
 

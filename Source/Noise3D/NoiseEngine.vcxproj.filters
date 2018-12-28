@@ -142,6 +142,9 @@
     <Filter Include="NoiseGraphic\Scene\Lights%28Dynamic%29">
       <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap">
+      <UniqueIdentifier>{e84588f9-62ec-43b1-aee0-9a12e2ef24ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -215,9 +218,6 @@
     </ClInclude>
     <ClInclude Include="Text_TextStatic.h">
       <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
-    </ClInclude>
-    <ClInclude Include="Text_FontManager.h">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
@@ -340,6 +340,15 @@
     <ClInclude Include="ShadowCommonInterface.h">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
+    <ClInclude Include="Text_TextManager.h">
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_ShadowMap.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
+    </ClInclude>
+    <ClInclude Include="_RenderPassInfo.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -398,9 +407,6 @@
     </ClCompile>
     <ClCompile Include="Text_TextStatic.cpp">
       <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
-    </ClCompile>
-    <ClCompile Include="Text_FontManager.cpp">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
     </ClCompile>
     <ClCompile Include="Lights.cpp">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
@@ -518,6 +524,12 @@
     </ClCompile>
     <ClCompile Include="ShadowCommonInterface.cpp">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_TextManager.cpp">
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_ShadowMap.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

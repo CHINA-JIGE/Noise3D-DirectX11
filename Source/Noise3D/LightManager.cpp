@@ -30,9 +30,7 @@ DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING
 	DirLight* pLight = IFactory<DirLight>::CreateObject(lightName);
 
 	//init of shaders/RV/states/....
-	bool isSucceeded = pLight->mFunction_InitShadowMap(
-		Noise3D::SHADOW_MAP_PROJECTION_TYPE::ORTHOGRAPHIC,
-		smParam);
+	bool isSucceeded = pLight->mFunction_InitShadowMap(smParam);
 	if (isSucceeded)
 	{
 		return pLight;

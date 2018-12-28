@@ -12,7 +12,7 @@ namespace Noise3D
 	class Renderer;
 
 	class /*_declspec(dllexport)*/ IRenderModuleForAtmosphere:
-		IBaseRenderModule
+		public IBaseRenderModule
 	{
 	public:
 
