@@ -481,9 +481,9 @@ void MeshSlicer::GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index
 	}
 }
 
-N_Box MeshSlicer::GetBoundingBox()
+N_AABB MeshSlicer::GetBoundingBox()
 {
-	return N_Box(mBoundingBox_Min,mBoundingBox_Max);
+	return N_AABB(mBoundingBox_Min,mBoundingBox_Max);
 }
 
 

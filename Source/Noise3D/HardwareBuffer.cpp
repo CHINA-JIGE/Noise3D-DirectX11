@@ -14,7 +14,3 @@ using namespace Noise3D::D3D;
 
 **********************************************/
 
-void Noise3D::HardwareBuffer::mFunction_ComputeBoundingBox()
-{
-	
-}

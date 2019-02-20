@@ -132,7 +132,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	}
 
 	//compute the center pos of bounding box
-	N_Box bbox= pTargetMesh->ComputeBoundingBox();
+	N_AABB bbox= pTargetMesh->ComputeBoundingBox();
 	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
 	tmpBoundingBoxCenter = NVECTOR3(
 		(bbox.max.x + bbox.min.x) / 2.0f,

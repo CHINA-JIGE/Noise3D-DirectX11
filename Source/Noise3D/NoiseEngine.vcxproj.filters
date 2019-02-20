@@ -328,9 +328,6 @@
     <ClInclude Include="ITexture.h">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="HardwareVertexBuffer.h">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClInclude>
     <ClInclude Include="HardwareIndexBuffer.h">
       <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
     </ClInclude>
@@ -348,6 +345,9 @@
     </ClInclude>
     <ClInclude Include="_RenderPassInfo.h">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="HardwareBuffer.h">
+      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -513,9 +513,6 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="HardwareVertexBuffer.cpp">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClCompile>
     <ClCompile Include="HardwareIndexBuffer.cpp">
       <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
     </ClCompile>
@@ -530,6 +527,9 @@
     </ClCompile>
     <ClCompile Include="Renderer_ShadowMap.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
+    </ClCompile>
+    <ClCompile Include="HardwareBuffer.cpp">
+      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

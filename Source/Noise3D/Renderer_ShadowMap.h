@@ -18,6 +18,7 @@ namespace Noise3D
 
 	protected:
 
+		//design not finished(?) refer to doc for more info
 		virtual void	ClearRenderList() override;
 
 		virtual bool	Initialize(IRenderInfrastructure* pRI, IShaderVariableManager* pShaderVarMgr) override;

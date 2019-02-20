@@ -80,7 +80,7 @@ const std::vector<UINT>* Mesh::GetIndexBuffer() const
 	return &mIB_Mem;
 }
 
-N_Box Mesh::ComputeBoundingBox()
+N_AABB Mesh::ComputeBoundingBox()
 {
 	mFunction_ComputeBoundingBox();
 

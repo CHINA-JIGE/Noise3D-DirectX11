@@ -25,7 +25,9 @@ namespace Noise3D
 		const	std::vector<UINT>*		GetIndexBuffer() const;
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_Box	ComputeBoundingBox();
+		N_AABB	ComputeLocalAABB();
+
+		N_AABB	ComputeWorldAABB();//vertices are transformed before computing AABB 
 
 	private:
 
@@ -38,6 +40,6 @@ namespace Noise3D
 		ID3D11Buffer*		m_pIB_Gpu;
 		std::vector<N_DefaultVertex> mVB_Mem;//vertex in CPU memory
 		std::vector<UINT>	mIB_Mem;//index in CPU memory
-		N_Box					mBoundingBox;
+		N_AABB					mBoundingBox;
 	};
 }

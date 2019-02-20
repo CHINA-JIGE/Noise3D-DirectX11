@@ -98,10 +98,10 @@ namespace Noise3D
 		NVECTOR3 pos;
 	};
 
-	struct N_Box
+	struct N_AABB
 	{
-		N_Box() { max = min = { 0,0,0 }; };
-		N_Box(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
+		N_AABB() { max = min = { 0,0,0 }; };
+		N_AABB(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};

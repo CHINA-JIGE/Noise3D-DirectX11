@@ -58,7 +58,7 @@ namespace Noise3D
 
 			void		GetLineStrip(std::vector<N_LineStrip>& outPointList, UINT index);
 
-			N_Box	GetBoundingBox();
+			N_AABB	GetBoundingBox();
 
 		private:
 

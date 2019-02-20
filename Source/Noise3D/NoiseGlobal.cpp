@@ -192,7 +192,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
 }
 
-/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
+/*_declspec(dllexport)*/inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
 {
 	if (x == 0) return 1;
 	uint32_t sum = 1;
@@ -202,6 +202,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	}
 	return sum;
 }
+
 /*_declspec(dllexport)*/ uint64_t Noise3D::Ut::Factorial64(uint32_t x)
 {
 	if (x == 0) return 1;
@@ -212,7 +213,8 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	}
 	return sum;
 }
-float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
+
+/*_declspec(dllexport)*/ float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
 {
 	const float table[] = {
 		1.0f, //0
@@ -298,12 +300,12 @@ float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 }
 
-NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
+/*_declspec(dllexport)*/ NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
 {
 	return NVECTOR4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
 }
 
-NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
+/*_declspec(dllexport)*/ NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
 {
 	return NColor4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
 }
