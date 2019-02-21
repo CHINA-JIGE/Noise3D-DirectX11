@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <map>
 #include <random>
+#include <memory>
 
 //Third Party : Microsoft's Effects11/FX11
 #include <Effects11\d3dx11effect.h>
@@ -59,14 +60,14 @@
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "HardwareVertexBuffer.h"
-#include "HardwareIndexBuffer.h"
+#include "GeometryData.h"//geometry data container(RAM & VRAM)
 
 #include "ModelProcessor.h"
 #include "Camera.h"
 #include "Atmosphere.h"
 #include "Mesh.h"
 #include "MeshManager.h"
+#include "ShadowCommonInterface.h"
 #include "Lights.h"
 #include "LightManager.h"
 #include "ITexture.h"
@@ -87,12 +88,13 @@
 #include "Text_2DBasicTextInfo.h"
 #include "Text_TextDynamic.h"
 #include "Text_TextStatic.h"
-#include "Text_FontManager.h"
+#include "Text_TextManager.h"
 
 //-------------Core Class-------------
 #include "Renderer.h"
 #include "Root.h"
-#include "Scene.h"
+#include "SceneManager.h"
+#include "SceneNode.h"
 
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"

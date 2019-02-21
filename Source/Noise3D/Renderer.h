@@ -19,7 +19,9 @@
 #pragma once
 
 #include "_BaseRenderModule.h"
+#include "_RenderPassInfo.h"
 #include "RenderInfrastructure.h"
+#include "Renderer_ShadowMap.h"
 #include "Renderer_Atmosphere.h"
 #include "Renderer_GraphicObj.h"
 #include "Renderer_Mesh.h"

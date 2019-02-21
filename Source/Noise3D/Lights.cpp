@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           cpp£º Lights
+											  cpp£º Lights
 
 			Desc£ºdef of light interfaces and light description structure
 
@@ -12,6 +12,10 @@ using namespace Noise3D;
 using namespace Noise3D::Ut;
 
 //-------------------Base Light--------------------------
+IBaseLight::IBaseLight()
+{
+
+}
 
 void IBaseLight::SetAmbientColor(const NVECTOR3 & color)
 {
@@ -59,7 +63,7 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 
 
 //--------------------DYNAMIC DIR LIGHT------------------
-DirLightD::DirLightD()
+DirLight::DirLight()
 {
 	ZeroMemory(this, sizeof(*this));
 	mLightDesc.specularIntensity = 1.0f;
@@ -67,11 +71,11 @@ DirLightD::DirLightD()
 	mLightDesc.diffuseIntensity = 0.5;
 }
 
-DirLightD::~DirLightD()
+DirLight::~DirLight()
 {
 }
 
-void DirLightD::SetDirection(const NVECTOR3& dir)
+void DirLight::SetDirection(const NVECTOR3& dir)
 {
 	//the length of directional vector must be greater than 0
 	if (!(dir.x == 0 && dir.y == 0 && dir.z == 0))
@@ -80,24 +84,74 @@ void DirLightD::SetDirection(const NVECTOR3& dir)
 	}
 }
 
-void DirLightD::SetDesc(const N_DirLightDesc & desc)
+void DirLight::SetDesc(const N_DirLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);//only modify the common part
 	SetDirection(desc.direction);//modify extra part
 }
 
-N_DirLightDesc DirLightD::GetDesc()
+N_DirLightDesc DirLight::GetDesc()
 {
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
 	return mLightDesc;
 }
 
+//overriden virtual function
+bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
+{
+	IShadowCaster::mShadowMapParam = smParam;
+
+	//-----------DSV of shadow map-------------
+	D3D11_TEXTURE2D_DESC DSBufferDesc;
+	DSBufferDesc.Width = smParam.pixelWidth;
+	DSBufferDesc.Height = smParam.pixelHeight;
+	DSBufferDesc.MipLevels = 1;
+	DSBufferDesc.ArraySize = 1;
+	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DSBufferDesc.SampleDesc.Count = 1;//if MSAA enabled, RT/DS buffer must have same quality
+	DSBufferDesc.SampleDesc.Quality =0;
+	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	DSBufferDesc.CPUAccessFlags = 0;
+	DSBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;//it's also used as shader resource
+	DSBufferDesc.MiscFlags = 0;
+
+	ID3D11Texture2D* pDepthStencilTexture;
+	HRESULT hr = Noise3D::D3D::g_pd3dDevice11->CreateTexture2D(&DSBufferDesc, 0, &pDepthStencilTexture);
+	HR_DEBUG(hr, "Light: failed to create shadow map texture 2d.");
+
+	//create DSV (for pass 1: shadow map generation)
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateDepthStencilView(pDepthStencilTexture, &dsvDesc, &m_pShadowMapPass1_DSV);
+	//remember to delete other resources if init failed in the middle
+	Ut::Debug_ComPtrBatchDestructionWithHResultDebug(hr, "Light: failed to create shadow map DSV.", 
+		1, pDepthStencilTexture);
+
+	//create SRV (for pass 2: shadowing & sampling shadow map)
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//same pixel format as DSV in pass 1
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = DSBufferDesc.MipLevels;
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateShaderResourceView(pDepthStencilTexture, &srvDesc, &m_pShadowMapPass2_SRV);
+	//remember to delete other resources if init failed in the middle
+	Ut::Debug_ComPtrBatchDestructionWithHResultDebug(hr, "Light: failed to create shadow map DSV.", 
+		2, pDepthStencilTexture, m_pShadowMapPass1_DSV);
+
+	pDepthStencilTexture->Release();
+	return true;
+}
+
 
 
 
 //--------------------DYNAMIC POINT LIGHT------------------
-PointLightD::PointLightD()
+PointLight::PointLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 0.05f;
@@ -105,26 +159,26 @@ PointLightD::PointLightD()
 	mLightDesc.diffuseIntensity = 0.5;
 }
 
-PointLightD::~PointLightD()
+PointLight::~PointLight()
 {
 }
 
-void PointLightD::SetPosition(const NVECTOR3 & pos)
+void PointLight::SetPosition(const NVECTOR3 & pos)
 {
 	mLightDesc.mPosition = pos;
 }
 
-void PointLightD::SetAttenuationFactor(float attFactor)
+void PointLight::SetAttenuationFactor(float attFactor)
 {
 	mLightDesc.mAttenuationFactor = Clamp(attFactor,0.0f,1.0f);
 }
 
-void PointLightD::SetLightingRange(float range)
+void PointLight::SetLightingRange(float range)
 {
 	mLightDesc.mLightingRange = Clamp(range, 0.0f, 10000000.0f);
 }
 
-void PointLightD::SetDesc(const N_PointLightDesc & desc)
+void PointLight::SetDesc(const N_PointLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);
 	SetPosition(desc.mPosition);
@@ -132,7 +186,7 @@ void PointLightD::SetDesc(const N_PointLightDesc & desc)
 	SetLightingRange(desc.mLightingRange);
 }
 
-N_PointLightDesc PointLightD::GetDesc()
+N_PointLightDesc PointLight::GetDesc()
 {
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
@@ -143,7 +197,7 @@ N_PointLightDesc PointLightD::GetDesc()
 
 //--------------------DYNAMIC SPOT LIGHT------------------
 
-SpotLightD::SpotLightD()
+SpotLight::SpotLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 1.0f;
@@ -154,11 +208,11 @@ SpotLightD::SpotLightD()
 	mLightDesc.mPosition = NVECTOR3(0, 0, 0);
 }
 
-SpotLightD::~SpotLightD()
+SpotLight::~SpotLight()
 {
 }
 
-void SpotLightD::SetPosition(const NVECTOR3 & pos)
+void SpotLight::SetPosition(const NVECTOR3 & pos)
 {
 	NVECTOR3 deltaVec = pos - mLightDesc.mLitAt;
 
@@ -169,12 +223,12 @@ void SpotLightD::SetPosition(const NVECTOR3 & pos)
 	}
 }
 
-void SpotLightD::SetAttenuationFactor(float attFactor)
+void SpotLight::SetAttenuationFactor(float attFactor)
 {
 	mLightDesc.mAttenuationFactor = Clamp(attFactor,0.0f,1.0f);
 }
 
-void SpotLightD::SetLitAt(const NVECTOR3 & vLitAt)
+void SpotLight::SetLitAt(const NVECTOR3 & vLitAt)
 {
 	NVECTOR3 deltaVec = vLitAt - mLightDesc.mPosition;
 
@@ -185,18 +239,18 @@ void SpotLightD::SetLitAt(const NVECTOR3 & vLitAt)
 	}
 }
 
-void SpotLightD::SetLightingAngle(float coneAngle_Rad)
+void SpotLight::SetLightingAngle(float coneAngle_Rad)
 {
 	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
 	mLightDesc.mLightingAngle = Clamp(coneAngle_Rad, 0.0f, Ut::PI-0.001f);
 }
 
-void SpotLightD::SetLightingRange(float range)
+void SpotLight::SetLightingRange(float range)
 {
 	mLightDesc.mLightingRange = Clamp(range, 0.0f, 10000000.0f);
 }
 
-void SpotLightD::SetDesc(const N_SpotLightDesc & desc)
+void SpotLight::SetDesc(const N_SpotLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);
 	SetPosition(desc.mPosition);
@@ -206,123 +260,10 @@ void SpotLightD::SetDesc(const N_SpotLightDesc & desc)
 	SetLightingAngle(desc.mLightingAngle);
 }
 
-N_SpotLightDesc SpotLightD::GetDesc()
+N_SpotLightDesc SpotLight::GetDesc()
 {
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
 	return mLightDesc;
 }
 
-
-
-//--------------------STATIC DIR LIGHT------------------
-
-N_DirLightDesc DirLightS::GetDesc()
-{
-	return mLightDesc;
-}
-
-DirLightS::DirLightS()
-{
-
-};
-
-DirLightS::~DirLightS()
-{
-}
-
-bool DirLightS::mFunction_Init(const N_DirLightDesc & desc)
-{
-	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
-	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
-
-	//the length of directional vector must be greater than 0
-	const NVECTOR3& dir = desc.direction;
-	if ((dir.x == 0 && dir.y == 0 && dir.z == 0))
-	{
-		ERROR_MSG("Dir Light Init: direction can't be (0,0,0)");
-		return false;
-	}
-	else
-	{
-		mLightDesc.direction = dir;
-		return true;
-	}
-}
-
-
-
-//--------------------STATIC POINT LIGHT------------------
-
-N_PointLightDesc PointLightS::GetDesc()
-{
-	return mLightDesc;
-};
-
-PointLightS::PointLightS()
-{
-}
-
-PointLightS::~PointLightS()
-{
-}
-
-bool PointLightS::mFunction_Init(const N_PointLightDesc & desc)
-{
-	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
-	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
-	mLightDesc.mPosition = desc.mPosition;
-	mLightDesc.mAttenuationFactor = Clamp(desc.mAttenuationFactor, 0.0f, 1.0f);
-	mLightDesc.mLightingRange = Clamp(desc.mAttenuationFactor, 0.0f, 10000000.0f);
-	return true;
-}
-
-
-//--------------------STATIC SPOT LIGHT------------------
-
-N_SpotLightDesc SpotLightS::GetDesc()
-{
-	return mLightDesc;
-}
-
-SpotLightS::SpotLightS()
-{
-}
-
-SpotLightS::~SpotLightS()
-{
-}
-
-bool SpotLightS::mFunction_Init(const N_SpotLightDesc & desc)
-{
-	mLightDesc.ambientColor = Clamp(desc.ambientColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.diffuseColor = Clamp(desc.diffuseColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularColor = Clamp(desc.specularColor, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
-	mLightDesc.specularIntensity = Clamp(desc.specularIntensity, 0.0f, 100.0f);
-	mLightDesc.diffuseIntensity = Clamp(desc.diffuseIntensity, 0.0f, 100.0f);
-	mLightDesc.mPosition = desc.mPosition;
-	mLightDesc.mAttenuationFactor = Clamp(desc.mAttenuationFactor, 0.0f, 1.0f);
-	mLightDesc.mLightingRange = Clamp(desc.mAttenuationFactor, 0.0f, 10000000.0f);
-
-	//pos and litAt can't superpose
-	NVECTOR3 deltaVec = desc.mLitAt - desc.mPosition;
-	if (!(deltaVec.x == 0 && deltaVec.y == 0 && deltaVec.z == 0))
-	{
-		mLightDesc.mLitAt = desc.mLitAt;
-	}
-	else
-	{
-		ERROR_MSG("Spot Light Init: pos and LitAt can't be the same.");
-		return false;
-	}
-
-	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
-	mLightDesc.mLightingAngle = Clamp(desc.mLightingAngle, 0.0f, Ut::PI - 0.001f);
-	return true;
-}

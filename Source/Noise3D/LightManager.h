@@ -8,101 +8,59 @@
 
 namespace Noise3D
 {
-	//灯光类型
+	//(dynamic) light type (static lights are managed by GI system (which is not implemented yet 2018.12.16))
 	enum NOISE_LIGHT_TYPE
 	{
 		NOISE_LIGHT_TYPE_DYNAMIC_DIR = 0,
 		NOISE_LIGHT_TYPE_DYNAMIC_POINT = 1,
-		NOISE_LIGHT_TYPE_DYNAMIC_SPOT = 2,
-		NOISE_LIGHT_TYPE_STATIC_DIR = 3,
-		NOISE_LIGHT_TYPE_STATIC_POINT = 4,
-		NOISE_LIGHT_TYPE_STATIC_SPOT = 5
+		NOISE_LIGHT_TYPE_DYNAMIC_SPOT = 2
 	};
 
 	class /*_declspec(dllexport)*/ LightManager:
-		IFactory<DirLightD>,
-		IFactory<PointLightD>,
-		IFactory<SpotLightD>,
-		IFactory<DirLightS>,
-		IFactory<PointLightS>,
-		IFactory<SpotLightS>
+		IFactory<DirLight>,
+		IFactory<PointLight>,
+		IFactory<SpotLight>
 	{
 	public:
 
-		DirLightD*			CreateDynamicDirLight(N_UID lightName);
+		DirLight*			CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING_PARAM smParam = N_SHADOW_MAPPING_PARAM());
 
-		PointLightD*		CreateDynamicPointLight(N_UID lightName);
+		PointLight*		CreateDynamicPointLight(N_UID lightName);
 
-		SpotLightD*		CreateDynamicSpotLight(N_UID lightName);
+		SpotLight*		CreateDynamicSpotLight(N_UID lightName);
 
-		DirLightS*			CreateStaticDirLight(N_UID lightName,const N_DirLightDesc& desc);
+		DirLight*			GetDirLight(N_UID lightName);
 
-		PointLightS*		CreateStaticPointLight(N_UID lightName, const N_PointLightDesc& desc);
+		DirLight*			GetDirLight(UINT index);
 
-		SpotLightS*		CreateStaticSpotLight(N_UID lightName, const N_SpotLightDesc& desc);
-
-		DirLightD*			GetDirLightD(N_UID lightName);
-
-		DirLightD*			GetDirLightD(UINT index);
-
-		PointLightD*		GetPointLightD(N_UID lightName);
+		PointLight*		GetPointLight(N_UID lightName);
 		
-		PointLightD*		GetPointLightD(UINT index);
+		PointLight*		GetPointLight(UINT index);
 
-		SpotLightD*		GetSpotLightD(N_UID lightName);
+		SpotLight*		GetSpotLight(N_UID lightName);
 		
-		SpotLightD*		GetSpotLightD(UINT index);
-
-		DirLightS*			GetDirLightS(N_UID lightName);
-		
-		DirLightS*			GetDirLightS(UINT index);
-
-		PointLightS*		GetPointLightS(N_UID lightName);
-		
-		PointLightS*		GetPointLightS(UINT index);
-
-		SpotLightS*		GetSpotLightS(N_UID lightName);
-		
-		SpotLightS*		GetSpotLightS(UINT index);
+		SpotLight*		GetSpotLight(UINT index);
 
 
+		bool		DeleteDirLight(N_UID lightName);
 
-		bool		DeleteDirLightD(N_UID lightName);
+		bool		DeleteDirLight(DirLight* pLight);
 
-		bool		DeleteDirLightD(DirLightD* pLight);
+		bool		DeletePointLight(N_UID lightName);
 
-		bool		DeletePointLightD(N_UID lightName);
+		bool		DeletePointLight(PointLight* pLight);
 
-		bool		DeletePointLightD(PointLightD* pLight);
+		bool		DeleteSpotLight(N_UID lightName);
 
-		bool		DeleteSpotLightD(N_UID lightName);
+		bool		DeleteSpotLight(SpotLight* pLight);
 
-		bool		DeleteSpotLightD(SpotLightD* pLight);
+		void		SetDynamicLightingEnabled(bool isEnabled);
 
-		bool		DeleteDirLightS(N_UID lightName);
+		bool		IsDynamicLightingEnabled();
 
-		bool		DeleteDirLightS(DirLightS* pLight);
+		UINT	GetLightCount(NOISE_LIGHT_TYPE lightType);
 
-		bool		DeletePointLightS(N_UID lightName);
-
-		bool		DeletePointLightS(PointLightS* pLight);
-
-		bool		DeleteSpotLightS(N_UID lightName);
-
-		bool		DeleteSpotLightS(SpotLightS* pLight);
-
-
-		void			SetDynamicLightingEnabled(bool isEnabled);
-
-		bool			IsDynamicLightingEnabled();
-
-		UINT		GetLightCount(NOISE_LIGHT_TYPE lightType);
-
-		UINT		GetDynamicLightCount();
-
-		UINT		GetStaticLightCount();
-
-		UINT		GetTotalLightCount();
+		UINT	GetTotalLightCount();
 
 
 	private:
@@ -111,13 +69,15 @@ namespace Noise3D
 
 		friend IFactory<LightManager>;
 
-		//构造函数
 		LightManager();
 
 		~LightManager();
 
+		//iterate all ShadowCaster base classes of Lights
+		//and pass/delegate them to the Renderer (?) to do d3d-based render stuffs?
+		void	mFunction_GetShadowMapRenderTaskList();
+
 		bool		mIsDynamicLightingEnabled;
-		bool		mIsStaticLightingEnabled;
 		bool		mCanUpdateStaticLights;
 
 	};

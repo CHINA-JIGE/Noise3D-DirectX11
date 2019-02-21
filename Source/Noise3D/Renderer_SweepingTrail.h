@@ -12,7 +12,7 @@ namespace Noise3D
 	class Renderer;
 
 	class /*_declspec(dllexport)*/ IRenderModuleForSweepingTrailFX:
-		IBaseRenderModule
+		public IBaseRenderModule
 	{
 	public:
 

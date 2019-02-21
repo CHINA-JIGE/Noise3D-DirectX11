@@ -1,9 +1,9 @@
 
-/***********************************************************************
+/******************************************************
 
-                           h£ºNoiseMesh
+								  h£ºMesh
 
-************************************************************************/
+******************************************************/
 
 #pragma once
 
@@ -45,10 +45,10 @@ namespace Noise3D
 
 		const	std::vector<N_DefaultVertex>*	GetVertexBuffer() const;
 
-		const	std::vector<UINT>*	GetIndexBuffer() const;
+		const	std::vector<UINT>*		GetIndexBuffer() const;
 
 		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_Box	ComputeBoundingBox();
+		N_AABB	ComputeBoundingBox();
 
 	private:
 
@@ -64,20 +64,18 @@ namespace Noise3D
 		~Mesh();
 
 		//this function could be externally invoked by ModelLoader..etc
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
 		
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData();
 
 		//this function use the vertex list of vector<N_DefaultVertex>
 		void		mFunction_ComputeBoundingBox();
-
-		void		mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer);
 
 	private:
 
 		ID3D11Buffer*						m_pVB_Gpu;
 		ID3D11Buffer*						m_pIB_Gpu;
-		N_Box									mBoundingBox;
+		N_AABB									mBoundingBox;
 		std::vector<N_DefaultVertex>	mVB_Mem;//vertex in CPU memory
 		std::vector<UINT>						mIB_Mem;//index in CPU memory
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset

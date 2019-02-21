@@ -351,7 +351,7 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 	DirectX::LoadFromDDSMemory(&fileBuff.at(0), fileBuff.size(), DirectX::DDS_FLAGS_NONE, &srcMetaData, srcImage);
 
 	//array size should be 6!!
-	if (!srcMetaData.IsCubemap())
+	if (!srcMetaData.IsCubemap() || fileBuff.empty())
 	{
 		ERROR_MSG("CreateCubeMapFromDDS: this is not an valid cube map! cube map should have 6 faces!!");
 		return nullptr;

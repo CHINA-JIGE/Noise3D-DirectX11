@@ -192,7 +192,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
 }
 
-/*_declspec(dllexport)*/ inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
+/*_declspec(dllexport)*/inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
 {
 	if (x == 0) return 1;
 	uint32_t sum = 1;
@@ -202,6 +202,7 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	}
 	return sum;
 }
+
 /*_declspec(dllexport)*/ uint64_t Noise3D::Ut::Factorial64(uint32_t x)
 {
 	if (x == 0) return 1;
@@ -212,7 +213,8 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	}
 	return sum;
 }
-float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
+
+/*_declspec(dllexport)*/ float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
 {
 	const float table[] = {
 		1.0f, //0
@@ -298,12 +300,12 @@ float Noise3D::Ut::ReciprocalOfFactorial(uint32_t x)
 	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 }
 
-NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
+/*_declspec(dllexport)*/ NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
 {
 	return NVECTOR4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
 }
 
-NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
+/*_declspec(dllexport)*/ NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
 {
 	return NColor4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
 }
@@ -313,11 +315,13 @@ NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const
 	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
 	return (2.0f * t * t * t - 3.0f * t * t + 1.0f) * v1 + (t * t * t - 2.0f * t * t + t) * t1 + (-2.0f * t * t * t + 3.0f * t * t) * v2 + (t * t * t - t * t) * t2;
 }
-bool Noise3D::Ut::TolerantEqual(float lhs, float rhs, float errorLimit)
+
+/*_declspec(dllexport)*/ bool Noise3D::Ut::TolerantEqual(float lhs, float rhs, float errorLimit)
 {
 	return (abs(lhs - rhs) < errorLimit);
 }
-uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height)
+
+/*_declspec(dllexport)*/uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height)
 {
 	//calculate the pitch of one mipmap chain
 	// sum(1,2,4,8....,2^n)=a_1(1-q^n)/(1-q) = 2^n-1
@@ -331,6 +335,43 @@ uint32_t Noise3D::Ut::ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t w
 		tmpHeight /= 2;
 	}
 	return  sum;
+}
+
+bool Noise3D::Ut::Debug_ComPtrBatchDestructionWithHResultDebug(HRESULT hr, const std::string& MsgText,int ptrCount, IUnknown* ptrArr...)
+{
+	//similar function to MACRO HR_DEBUG, but this function support destruction of other pointers
+	//(when init failed, previously created pointer should be deleted)
+	//use variable templates to support multiple parameters...(with standard c++)
+
+	va_list   arg_ptr;
+	va_start(arg_ptr, ptrCount);   //init with (va_list, last fixed parameter)
+
+	if (FAILED(hr)) 
+	{
+		ERROR_MSG("d3d returned error code : " + std::to_string(hr) + "\n" + MsgText); 
+		for (int i = 0; i < ptrCount; ++i)
+		{
+			IUnknown* pComPtr = va_arg(arg_ptr, IUnknown*);
+			ReleaseCOM(pComPtr);
+		}
+		return false; 
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void Noise3D::Ut::Debug_ComPtrBatchDestruction(int ptrCount, IUnknown *ptrArr ...)
+{
+	va_list   arg_ptr;
+	va_start(arg_ptr, ptrCount);   //init with (va_list, last fixed parameter)
+
+	for (int i = 0; i < ptrCount; ++i)
+	{
+		IUnknown* pComPtr = va_arg(arg_ptr, IUnknown*);
+		ReleaseCOM(pComPtr);
+	}
 };
 
 

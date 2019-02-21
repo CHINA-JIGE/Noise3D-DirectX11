@@ -67,7 +67,7 @@ namespace Noise3D
 		~SceneManager();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
-		TextureManager*				mFunction_GetTexMgrInsideFontMgr();
+		TextureManager*			mFunction_GetTexMgrInsideFontMgr();
 
 		GraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
 

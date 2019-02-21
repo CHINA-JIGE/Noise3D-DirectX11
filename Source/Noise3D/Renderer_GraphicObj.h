@@ -10,7 +10,7 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ IRenderModuleForGraphicObject:
-		IBaseRenderModule
+		public IBaseRenderModule
 	{
 	public:
 	

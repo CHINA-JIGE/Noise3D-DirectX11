@@ -1,0 +1,6 @@
+实现shadowMap有一个很蛋疼的地方，现在我是有多动态光源，这样子的话：
+1.要给每个灯光都配备shadow map吗？很浪费显存的噢
+2.如果多光源同时开shadow map咋整，几张shadow map一起传进shader吗？因为现在是一个pass把灯光的贡献算完了。（但同时多shadow map这也是显存很浪费啊
+3.不然就要改成multi-pass lighting，这样子显存占用就可以接受了，但是得大改shader额.........
+
+（2019.2.20)暂时考虑大改，不让多光源了，或者所有动态光源总共只能有一张shadow map（？）

@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-                           h£ºRenderer
-				desc: transfer data to Graphic memory
-				and use gpu to render
+                           h£ºBaseRenderModule
+				desc: some common interface that must be 
+				implemented by each render module
 
 ************************************************************************/
 #pragma once

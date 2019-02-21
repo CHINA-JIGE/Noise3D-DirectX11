@@ -25,7 +25,7 @@ bool Voxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeC
 
 	//step1 - load model
 	bool fileLoadSucceeded = mSlicer.Step1_LoadPrimitiveMeshFromSTLFile(STLModelFile);
-	N_Box bbox = mSlicer.GetBoundingBox();
+	N_AABB bbox = mSlicer.GetBoundingBox();
 	float width = bbox.max.x - bbox.min.x;
 	float height = bbox.max.y - bbox.min.y;
 	float depth = bbox.max.z - bbox.min.z;
@@ -76,7 +76,7 @@ void Voxelizer::Voxelize()
 
 	//----------step3 - layer rasterization-------------
 	//get bounding box to determine target voxelizing spatial area
-	N_Box bbox = mSlicer.GetBoundingBox();
+	N_AABB bbox = mSlicer.GetBoundingBox();
 	mLayerPosMin = { bbox.min.x,bbox.min.z };
 	mLayerPosMax = { bbox.max.x,bbox.max.z };
 	mLayerRealWidth = mLayerPosMax.x - mLayerPosMin.x;

@@ -36,7 +36,7 @@ namespace Noise3D
 
 	//************************************************************************
 	class /*_declspec(dllexport)*/ IRenderModuleForPostProcessing :
-		IBaseRenderModule
+		public IBaseRenderModule
 	{
 	public:
 

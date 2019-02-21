@@ -37,9 +37,6 @@
     <Filter Include="NoiseGraphic\Scene\Material">
       <UniqueIdentifier>{03412733-c8d9-487b-9107-6466bd27b95a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\Lights">
-      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\GraphicObject">
       <UniqueIdentifier>{a627035a-9e9d-404b-a4a2-89c95bdc3f93}</UniqueIdentifier>
     </Filter>
@@ -136,11 +133,20 @@
     <Filter Include="NoiseGraphic\GI\Common">
       <UniqueIdentifier>{c3fca04f-cbb8-4d60-9566-df5081aa6b0f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeneralBasicClass\_Transform">
+    <Filter Include="NoiseGraphic\Scene\Lights%28Dynamic%29">
+      <UniqueIdentifier>{12b06630-814c-4cee-86dc-dbd3ddf40b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap">
+      <UniqueIdentifier>{e84588f9-62ec-43b1-aee0-9a12e2ef24ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\_GeometryData">
+      <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\_Transform">
       <UniqueIdentifier>{b7bc9a6a-883c-43a7-8817-1a524f61ffe9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeneralBasicClass\_HardwareBuffer">
-      <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
+    <Filter Include="NoiseGraphic\Scene\SceneManagement">
+      <UniqueIdentifier>{02b770b9-15bc-4a03-9d82-4a51fad03088}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -175,16 +181,13 @@
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
     <ClInclude Include="Root.h">
       <Filter>NoiseGraphic\Scene\Root</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>NoiseGraphic\Scene</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
@@ -216,11 +219,8 @@
     <ClInclude Include="Text_TextStatic.h">
       <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
     </ClInclude>
-    <ClInclude Include="Text_FontManager.h">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
-    </ClInclude>
     <ClInclude Include="Lights.h">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -311,10 +311,10 @@
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClInclude>
     <ClInclude Include="AffineTransform.h">
-      <Filter>GeneralBasicClass\_Transform</Filter>
+      <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClInclude>
     <ClInclude Include="RigidTransform.h">
-      <Filter>GeneralBasicClass\_Transform</Filter>
+      <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClInclude>
     <ClInclude Include="CameraTransform.h">
       <Filter>NoiseGraphic\Scene\Camera</Filter>
@@ -328,14 +328,29 @@
     <ClInclude Include="ITexture.h">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="HardwareVertexBuffer.h">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="HardwareIndexBuffer.h">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClInclude>
     <ClInclude Include="SHRotation.h">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowCommonInterface.h">
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Text_TextManager.h">
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer_ShadowMap.h">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
+    </ClInclude>
+    <ClInclude Include="_RenderPassInfo.h">
+      <Filter>NoiseGraphic\Scene\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryData.h">
+      <Filter>NoiseGraphic\Scene\_GeometryData</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -361,16 +376,13 @@
       <Filter>NoiseGraphic\Scene\GraphicObject</Filter>
     </ClCompile>
     <ClCompile Include="LightManager.cpp">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
     <ClCompile Include="MaterialManager.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
     <ClCompile Include="Root.cpp">
       <Filter>NoiseGraphic\Scene\Root</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>NoiseGraphic\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Text_2DBasicTextInfo.cpp">
       <Filter>NoiseGraphic\Scene\Text\_BasicTextInfo</Filter>
@@ -396,11 +408,8 @@
     <ClCompile Include="Text_TextStatic.cpp">
       <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
     </ClCompile>
-    <ClCompile Include="Text_FontManager.cpp">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
-    </ClCompile>
     <ClCompile Include="Lights.cpp">
-      <Filter>NoiseGraphic\Scene\Lights</Filter>
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
@@ -490,10 +499,10 @@
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
     </ClCompile>
     <ClCompile Include="AffineTransform.cpp">
-      <Filter>GeneralBasicClass\_Transform</Filter>
+      <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClCompile>
     <ClCompile Include="RigidTransform.cpp">
-      <Filter>GeneralBasicClass\_Transform</Filter>
+      <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClCompile>
     <ClCompile Include="CameraTransform.cpp">
       <Filter>NoiseGraphic\Scene\Camera</Filter>
@@ -504,14 +513,23 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="HardwareVertexBuffer.cpp">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="HardwareIndexBuffer.cpp">
-      <Filter>GeneralBasicClass\_HardwareBuffer</Filter>
-    </ClCompile>
     <ClCompile Include="SHRotation.cpp">
       <Filter>NoiseGraphic\GI\SHLighting</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowCommonInterface.cpp">
+      <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Text_TextManager.cpp">
+      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer_ShadowMap.cpp">
+      <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryData.cpp">
+      <Filter>NoiseGraphic\Scene\_GeometryData</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

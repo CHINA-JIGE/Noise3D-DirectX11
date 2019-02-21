@@ -34,7 +34,7 @@ bool ModelLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth
 	mMeshGenerator.CreatePlane(fWidth, fDepth, iRowCount, iColumnCount, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -54,7 +54,7 @@ bool ModelLoader::LoadBox(Mesh * const pTargetMesh, float fWidth, float fHeight,
 	mMeshGenerator.CreateBox(fWidth, fHeight, fDepth, iDepthStep, iWidthStep, iHeightStep, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -72,7 +72,7 @@ bool ModelLoader::LoadSphere(Mesh * const pTargetMesh, float fRadius, UINT iColu
 	mMeshGenerator.CreateSphere(fRadius, iColumnCount, iRingCount, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -90,7 +90,7 @@ bool ModelLoader::LoadCylinder(Mesh * const pTargetMesh, float fRadius, float fH
 	mMeshGenerator.CreateCylinder(fRadius, fHeight, iColumnCount, iRingCount, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -109,7 +109,7 @@ bool ModelLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vecto
 	}
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem( vertexList, indicesList);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData( vertexList, indicesList);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -132,7 +132,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	}
 
 	//compute the center pos of bounding box
-	N_Box bbox= pTargetMesh->ComputeBoundingBox();
+	N_AABB bbox= pTargetMesh->ComputeBoundingBox();
 	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
 	tmpBoundingBoxCenter = NVECTOR3(
 		(bbox.max.x + bbox.min.x) / 2.0f,
@@ -198,7 +198,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	}
 
 
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(completeVertexList, tmpIndexList);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(completeVertexList, tmpIndexList);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -219,7 +219,7 @@ bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 	}
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pTargetMesh->mFunction_UpdateDataToVideoMem(tmpCompleteVertexList, tmpIndexList);
+	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpCompleteVertexList, tmpIndexList);
 	pTargetMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 
 	return isUpdateOk;
@@ -253,7 +253,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 		}
 
 		//update data to graphic memory
-		bool isUpdateSuccessful = pMesh->mFunction_UpdateDataToVideoMem(m.vertexBuffer, m.indexBuffer);
+		bool isUpdateSuccessful = pMesh->mFunction_CreateGpuBufferAndUpdateData(m.vertexBuffer, m.indexBuffer);
 		if (!isUpdateSuccessful) 
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: Mesh failed to load: mesh name:" 
@@ -404,7 +404,7 @@ bool ModelLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float 
 	mMeshGenerator.CreateSkyDome(fRadiusXZ, fHeight, iColumnCount, iRingCount, tmpVB, tmpIB);
 	
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pAtmo->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pAtmo->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 
 	//set current sky type
 	pAtmo->mSkyDomeRadiusXZ = fRadiusXZ;
@@ -430,7 +430,7 @@ bool ModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWid
 	mMeshGenerator.CreateSkyBox(fWidth, fHeight, fDepth, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
-	bool isUpdateOk = pAtmo->mFunction_UpdateDataToVideoMem(tmpVB, tmpIB);
+	bool isUpdateOk = pAtmo->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);
 
 	//set current sky type
 	pAtmo->mSkyBoxWidth = fWidth;
@@ -565,7 +565,7 @@ bool ModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWid
 
 		//.....................
 		//copy won't be overhead because std::move is used inside the function
-		pCreatedMesh->mFunction_UpdateDataToVideoMem(completeVertexList, currentMesh.indicesList);
+		pCreatedMesh->mFunction_CreateGpuBufferAndUpdateData(completeVertexList, currentMesh.indicesList);
 
 		//copy SUBSET lists
 		pCreatedMesh->mSubsetInfoList = std::move(currentMesh.subsetList);

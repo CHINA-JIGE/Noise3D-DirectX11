@@ -38,10 +38,6 @@ TextManager::~TextManager()
 	IFactory<N_FontObject>::DestroyAllObject();
 	FT_Done_FreeType(m_FTLibrary);
 
-	//don't need these 2 GC statement, Scene garbage collection will do that
-	//m_pTexMgr->DeleteAllTexture();//font texture
-	//m_pGraphicObjMgr->DestroyAllGraphicObj();//text containers
-
 	IFactory<StaticText>::DestroyAllObject();
 	IFactory<DynamicText>::DestroyAllObject();
 }
@@ -596,10 +592,10 @@ void	TextManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstri
 bool TextManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight)
 {
 	//define the width /height of bitmap Table , Ascii code 0~127
-	UINT tablePxWidth = charWidth*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
-	UINT tablePxHeight = charHeight*NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
-	UINT tableRowCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_ROW_COUNT;
-	UINT tableColumnCount = NOISE_MACRO_FONT_ASCII_BITMAP_TABLE_COLUMN_COUNT;
+	UINT tablePxWidth = charWidth * TextManager::c_FontAsciiBitmapTableColumnCount;
+	UINT tablePxHeight = charHeight * TextManager::c_FontAsciiBitmapTableRowCount;
+	UINT tableRowCount = TextManager::c_FontAsciiBitmapTableRowCount;
+	UINT tableColumnCount = TextManager::c_FontAsciiBitmapTableColumnCount;
 
 	//try to create a new pure color texture to be modified
 	fontObj.mInternalTextureName = "AsciiBitmapTable" + fontName;//not same with the public FONT NAME

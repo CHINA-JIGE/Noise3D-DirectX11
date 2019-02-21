@@ -108,7 +108,7 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh)
 	}
 
 	//remember!!! update to GPU
-	pTargetMesh->mFunction_UpdateDataToVideoMem(uniqueVertexList, indicesList);
+	pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(uniqueVertexList, indicesList);
 
 }
 
@@ -199,7 +199,7 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh, float PositionEqualThresho
 	}
 
 	//remember!!! update to GPU
-	pTargetMesh->mFunction_UpdateDataToVideoMem(uniqueVertexList, indicesList);
+	pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(uniqueVertexList, indicesList);
 }
 
 void ModelProcessor::MeshSimplify(Mesh * pTargetMesh, float PositionEqualThreshold, float visualImportanceWeightThreshold)
@@ -290,7 +290,7 @@ void ModelProcessor::MeshSimplify(Mesh * pTargetMesh, float PositionEqualThresho
 	}
 
 	//remember!!! update to GPU
-	pTargetMesh->mFunction_UpdateDataToVideoMem(uniqueVertexList, indicesList);
+	pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(uniqueVertexList, indicesList);
 }
 
 void ModelProcessor::Smooth_Laplacian(Mesh * pTargetMesh)
@@ -376,6 +376,6 @@ void ModelProcessor::Smooth_Laplacian(Mesh * pTargetMesh)
 	for (UINT i = 0; i < tmpPosList.size(); ++i)vb.at(i).Pos = tmpPosList.at(i);
 
 	//update to gpu
-	pTargetMesh->mFunction_UpdateDataToVideoMem();
+	pTargetMesh->mFunction_CreateGpuBufferAndUpdateData();
 
 }
