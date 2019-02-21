@@ -60,8 +60,7 @@
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "HardwareBuffer.h"
-#include "HardwareIndexBuffer.h"
+#include "GeometryData.h"//geometry data container(RAM & VRAM)
 
 #include "ModelProcessor.h"
 #include "Camera.h"
@@ -94,7 +93,8 @@
 //-------------Core Class-------------
 #include "Renderer.h"
 #include "Root.h"
-#include "Scene.h"
+#include "SceneManager.h"
+#include "SceneNode.h"
 
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"

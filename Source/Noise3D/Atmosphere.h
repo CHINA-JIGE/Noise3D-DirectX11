@@ -53,7 +53,7 @@ namespace Noise3D
 
 		~Atmosphere();
 
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const  std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_SimpleVertex>& targetVB,const  std::vector<UINT>& targetIB);
 
 		//only after atmosphere was added to render list can we  apply fog effect
 		bool					mFogCanUpdateToGpu;//we dont need update fog param frequently

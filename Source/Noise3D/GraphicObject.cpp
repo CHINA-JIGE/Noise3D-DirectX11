@@ -605,7 +605,7 @@ UINT GraphicObject::GetRectCount()
 
 
 /***********************************************************************
-						P R I V A T E
+										P R I V A T E
 ***********************************************************************/
 
 //When needed (like when updating data to gpu), this CreateVB function will be 
@@ -638,7 +638,7 @@ bool	GraphicObject::mFunction_CreateVB(UINT objType_ID)
 	HRESULT hr = 0;
 	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData, &m_pVB_GPU[objType_ID]);
 
-	HR_DEBUG(hr, "VERTEX BUFFER´´½¨Ê§°Ü");
+	HR_DEBUG(hr, "Fail to create vertex buffer.");
 
 	return true;
 }

@@ -133,10 +133,10 @@
     <ClInclude Include="CameraTransform.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
-    <ClInclude Include="HardwareIndexBuffer.h" />
-    <ClInclude Include="HardwareBuffer.h" />
+    <ClInclude Include="GeometryData.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="Renderer_ShadowMap.h" />
+    <ClInclude Include="SceneNode.h" />
     <ClInclude Include="_RenderPassInfo.h" />
     <ClInclude Include="ShadowCommonInterface.h" />
     <ClInclude Include="SHRotation.h" />
@@ -189,7 +189,7 @@
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="Noise3D.h" />
     <ClInclude Include="Atmosphere.h" />
@@ -212,8 +212,7 @@
     <ClCompile Include="CameraTransform.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
-    <ClCompile Include="HardwareIndexBuffer.cpp" />
-    <ClCompile Include="HardwareBuffer.cpp" />
+    <ClCompile Include="GeometryData.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
     <ClCompile Include="SHRotation.cpp" />
@@ -271,7 +270,7 @@
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Atmosphere.cpp" />
     <ClCompile Include="NoiseGlobal.cpp">

@@ -119,7 +119,7 @@ float Atmosphere::GetSkyboxDepth()
 									PRIVATE
 *****************************************************************/
 
-bool  Atmosphere::mFunction_UpdateDataToVideoMem(const std::vector<N_SimpleVertex>& targetVB,const std::vector<UINT>& targetIB)
+bool  Atmosphere::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_SimpleVertex>& targetVB,const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);

@@ -64,14 +64,12 @@ namespace Noise3D
 		~Mesh();
 
 		//this function could be externally invoked by ModelLoader..etc
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
 		
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateDataToVideoMem();
+		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData();
 
 		//this function use the vertex list of vector<N_DefaultVertex>
 		void		mFunction_ComputeBoundingBox();
-
-		void		mFunction_ComputeBoundingBox(std::vector<NVECTOR3>* pVertexBuffer);
 
 	private:
 
