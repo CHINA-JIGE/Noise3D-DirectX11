@@ -9,11 +9,23 @@
 
 namespace Noise3D
 {
-	//manage vertex buffer and (possibly) index buffer as the same time
-	template <typename vertex_t, typename index_t>
-	class GeometryData
+	//class inherited from this base interface can be attach to scene node.
+	class ISceneObject
 	{
 	public:
+		virtual N_AABB ComputeWorldAABB() = 0;
+	};
+
+
+	//base class/interface of a geometry entity (with actual vertex/index data)
+	//manage vertex buffer and (possibly) index buffer as the same time
+	template <typename vertex_t, typename index_t>
+	class GeometryEntity:
+		public ISceneObject
+	{
+	public:
+
+		GeometryEntity();
 
 		uint32_t	GetIndexCount();
 
@@ -25,11 +37,12 @@ namespace Noise3D
 
 		const	std::vector<index_t>*		GetIndexBuffer() const;
 
-		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_AABB	ComputeLocalAABB();
+		//compute bounding box without applying a world transformation to vertices(local space)
+		N_AABB	GetLocalAABB();
 
-		// vertices are transformed before computing AABB, AffineTransform class is needed.
-		//N_AABB	ComputeWorldAABB();
+		// interface. AffineTransform class is needed. might be implemented in inherited class like 'SceneNode'
+		//(SceneNode would have information's about AffineTransformation)
+		virtual N_AABB ComputeWorldAABB() override = 0;
 
 	private:
 
@@ -41,6 +54,8 @@ namespace Noise3D
 		ID3D11Buffer*		m_pIB_Gpu;
 		std::vector<vertex_t> mVB_Mem;//vertex in CPU memory
 		std::vector<index_t>	mIB_Mem;//index in CPU memory
+		bool						mIsLocalAabbInitialized;
+		N_AABB				mBoundingBox;//local AABB is calculated only once(and is the minimum AABB)
 	};
 
 };

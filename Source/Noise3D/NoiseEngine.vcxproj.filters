@@ -139,14 +139,14 @@
     <Filter Include="NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap">
       <UniqueIdentifier>{e84588f9-62ec-43b1-aee0-9a12e2ef24ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\_GeometryData">
-      <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\_Transform">
       <UniqueIdentifier>{b7bc9a6a-883c-43a7-8817-1a524f61ffe9}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseGraphic\Scene\SceneManagement">
       <UniqueIdentifier>{02b770b9-15bc-4a03-9d82-4a51fad03088}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\_GeometryEntity">
+      <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -343,14 +343,14 @@
     <ClInclude Include="_RenderPassInfo.h">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryData.h">
-      <Filter>NoiseGraphic\Scene\_GeometryData</Filter>
-    </ClInclude>
     <ClInclude Include="SceneNode.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryEntity.h">
+      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -525,11 +525,11 @@
     <ClCompile Include="Renderer_ShadowMap.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryData.cpp">
-      <Filter>NoiseGraphic\Scene\_GeometryData</Filter>
-    </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryEntity.cpp">
+      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

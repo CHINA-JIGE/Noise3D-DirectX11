@@ -133,7 +133,7 @@
     <ClInclude Include="CameraTransform.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
-    <ClInclude Include="GeometryData.h" />
+    <ClInclude Include="GeometryEntity.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="Renderer_ShadowMap.h" />
     <ClInclude Include="SceneNode.h" />
@@ -212,7 +212,7 @@
     <ClCompile Include="CameraTransform.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
-    <ClCompile Include="GeometryData.cpp" />
+    <ClCompile Include="GeometryEntity.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
     <ClCompile Include="SHRotation.cpp" />

@@ -60,7 +60,7 @@
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "GeometryData.h"//geometry data container(RAM & VRAM)
+#include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 
 #include "ModelProcessor.h"
 #include "Camera.h"

@@ -13,7 +13,7 @@
 // 3. Corresponding Creation method
 
 #include "Noise3D.h"
-#include "Scene.h"
+//#include "SceneManager.h"
 
 using namespace Noise3D;
 
