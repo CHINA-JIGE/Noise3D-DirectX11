@@ -19,5 +19,6 @@ namespace Noise3D
 
 	private:
 	
+		std::vector<ISceneObject*> mSceneObjectList;
 	};
 }

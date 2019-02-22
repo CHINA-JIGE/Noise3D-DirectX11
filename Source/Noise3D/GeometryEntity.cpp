@@ -26,10 +26,7 @@ Noise3D::GeometryEntity<vertex_t, index_t>::GeometryEntity():
 		m_pVB_Gpu(nullptr),
 		m_pIB_Gpu(nullptr)
 {
-	float posInf = std::numeric_limits<float>::infinity;
-	float negInf = -posInf;
-	mBoundingBox.min = NVECTOR3(posInf, posInf, posInf);
-	mBoundingBox.max = NVECTOR3(negInf, negInf, negInf);
+
 }
 
 template<typename vertex_t, typename index_t>

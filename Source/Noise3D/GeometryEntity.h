@@ -13,7 +13,23 @@ namespace Noise3D
 	class ISceneObject
 	{
 	public:
-		virtual N_AABB ComputeWorldAABB() = 0;
+
+		ISceneObject():m_pParentSceneNode(nullptr){}
+
+		SceneNode* GetParentSceneNode();
+
+		void	AttachToSceneNode(SceneNode* pNode);
+
+		virtual N_AABB GetLocalAABB() = 0;//require concrete geometry data, won't impl here
+
+		virtual N_AABB ComputeWorldAABB_Fast();
+
+		virtual N_AABB ComputeWorldAABB_Accurate() = 0;//require concrete geometry data, won't impl here
+
+	private:
+
+		SceneNode* m_pParentSceneNode;
+
 	};
 
 
