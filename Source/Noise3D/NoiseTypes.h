@@ -98,7 +98,7 @@ namespace Noise3D
 		NVECTOR3 pos;
 	};
 
-	struct N_AABB
+	struct N_AABB//Axis-Aligned Bounding Box
 	{
 		N_AABB(){Reset();};
 		N_AABB(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };

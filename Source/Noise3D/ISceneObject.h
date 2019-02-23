@@ -27,7 +27,7 @@ namespace Noise3D
 		virtual N_AABB GetLocalAABB() = 0;//require concrete geometry data, won't impl here
 
 		//bounding box of transformed bounding box
-		virtual N_AABB ComputeWorldAABB_Fast();
+		N_AABB ComputeWorldAABB_Fast();
 
 		virtual N_AABB ComputeWorldAABB_Accurate() = 0;//require concrete geometry data, won't impl here
 

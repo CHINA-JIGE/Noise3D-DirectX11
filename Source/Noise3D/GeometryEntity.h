@@ -32,8 +32,8 @@ namespace Noise3D
 		//compute bounding box without applying a world transformation to vertices(local space)
 		virtual N_AABB GetLocalAABB() override;
 
-		// interface. AffineTransform class is needed. might be implemented in inherited class like 'SceneNode'
-		//(SceneNode would have information's about AffineTransformation)
+		// AffineTransform is needed. 
+		//need to retrieve transform infos from its ISceneObject's parent SceneNode
 		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
 	private:
@@ -47,7 +47,7 @@ namespace Noise3D
 		std::vector<vertex_t> mVB_Mem;//vertex in CPU memory
 		std::vector<index_t>	mIB_Mem;//index in CPU memory
 		bool						mIsLocalAabbInitialized;
-		N_AABB				mBoundingBox;//local AABB is calculated only once(and is the minimum AABB)
+		N_AABB				mLocalBoundingBox;//local AABB is calculated only once(and is the minimum AABB)
 	};
 
 };

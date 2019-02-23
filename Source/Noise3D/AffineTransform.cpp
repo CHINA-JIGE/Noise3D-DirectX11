@@ -80,7 +80,7 @@ void Noise3D::AffineTransform::SetRigidTransform(const RigidTransform & t)
 	RigidTransform::SetTransform(t);
 }
 
-NVECTOR3 Noise3D::AffineTransform::TransformVector_Affine(NVECTOR3 vec)
+NVECTOR3 Noise3D::AffineTransform::TransformVector_Affine(NVECTOR3 vec) const
 {
 	NVECTOR3 outVec = RigidTransform::TransformVector_Rigid(NVECTOR3(vec.x * mScale.x, vec.y * mScale.y, vec.z * mScale.z));
 

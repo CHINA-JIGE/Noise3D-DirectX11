@@ -45,7 +45,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	const NVECTOR3& b = localAabb.max;
 
 	//world transform info
-	AffineTransform trans = m_pParentSceneNode->GetTransform();
+	const AffineTransform& trans = m_pParentSceneNode->GetTransform();
 
 	//get 8 vertices coord of local AABB
 	NVECTOR3 vertices[8] = 
