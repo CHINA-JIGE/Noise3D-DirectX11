@@ -36,6 +36,9 @@ namespace Noise3D
 
 		void		SetRigidTransform(const RigidTransform& t);
 
+		//scale, rotation, translation (based on RigidTransform::TransformVector_Rigid())
+		NVECTOR3 TransformVector_Affine(NVECTOR3 vec);
+
 	private:
 
 		NVECTOR3 mScale;

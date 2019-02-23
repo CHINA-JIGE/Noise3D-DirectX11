@@ -93,8 +93,10 @@
 //-------------Core Class-------------
 #include "Renderer.h"
 #include "Root.h"
-#include "SceneManager.h"
+#include "ISceneObject.h"
 #include "SceneNode.h"
+#include "SceneManager.h"
+
 
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"

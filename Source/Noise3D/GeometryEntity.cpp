@@ -1,6 +1,6 @@
 /**************************************************************
 
-				Geometry Data (vertex& (perhaps)index)
+				Geometry Entity (vertex& (perhaps)index)
 
 				
 	If i didn't enable VS's PCH, i shall add one more cpp file 
@@ -71,22 +71,16 @@ N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
 		return mBoundingBox;
 	}
 
+	//reset to infinite far
+	mBoundingBox.Reset();
 	if (mVB_Mem.size() == 0)
 	{
 		return mBoundingBox;
 	}
 
-	//re-initialize with the first vertex element
-	NVECTOR3 tmpV = mVB_Mem.at(0).Pos;
-	mBoundingBox.min = mVB_Mem.at(0).Pos;
-	mBoundingBox.max = mVB_Mem.at(0).Pos;
-
-	if (mVB_Mem.size() == 1)
-	{
-		return aabb;
-	}
-
-	for (uint32_t i = 1; i < mVB_Mem.size(); i++)
+	NVECTOR3 tmpV;
+	//Aabb's min & max had been set to infinite far
+	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
 	{
 		tmpV = mVB_Mem.at(i).Pos;
 		if (tmpV.x < (mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
@@ -100,6 +94,13 @@ N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
 
 	mIsLocalAabbInitialized = true;
 	return mBoundingBox;
+}
+
+template<typename vertex_t, typename index_t>
+N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::ComputeWorldAABB_Accurate()
+{
+	ERROR_MSG("Not implemented!");
+	return N_AABB();
 }
 
 

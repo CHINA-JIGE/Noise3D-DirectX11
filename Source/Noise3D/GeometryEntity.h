@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-								 h£ºGeometry Data 
+								 h£ºGeometry Entity 
 				desc: manage geometry data in sys mem & video mem
 
 ************************************************************************/
@@ -9,30 +9,6 @@
 
 namespace Noise3D
 {
-	//class inherited from this base interface can be attach to scene node.
-	class ISceneObject
-	{
-	public:
-
-		ISceneObject():m_pParentSceneNode(nullptr){}
-
-		SceneNode* GetParentSceneNode();
-
-		void	AttachToSceneNode(SceneNode* pNode);
-
-		virtual N_AABB GetLocalAABB() = 0;//require concrete geometry data, won't impl here
-
-		virtual N_AABB ComputeWorldAABB_Fast();
-
-		virtual N_AABB ComputeWorldAABB_Accurate() = 0;//require concrete geometry data, won't impl here
-
-	private:
-
-		SceneNode* m_pParentSceneNode;
-
-	};
-
-
 	//base class/interface of a geometry entity (with actual vertex/index data)
 	//manage vertex buffer and (possibly) index buffer as the same time
 	template <typename vertex_t, typename index_t>
@@ -54,11 +30,11 @@ namespace Noise3D
 		const	std::vector<index_t>*		GetIndexBuffer() const;
 
 		//compute bounding box without applying a world transformation to vertices(local space)
-		N_AABB	GetLocalAABB();
+		virtual N_AABB GetLocalAABB() override;
 
 		// interface. AffineTransform class is needed. might be implemented in inherited class like 'SceneNode'
 		//(SceneNode would have information's about AffineTransformation)
-		virtual N_AABB ComputeWorldAABB() override = 0;
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
 	private:
 

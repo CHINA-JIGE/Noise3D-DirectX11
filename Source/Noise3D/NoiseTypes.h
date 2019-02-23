@@ -100,14 +100,18 @@ namespace Noise3D
 
 	struct N_AABB
 	{
-		N_AABB() 
+		N_AABB(){Reset();};
+		N_AABB(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
+
+		//reset to infinite far min & max
+		void Reset()
 		{
 			constexpr float posInf = std::numeric_limits<float>::infinity();
 			constexpr float negInf = -posInf;
 			min = NVECTOR3(posInf, posInf, posInf);
 			max = NVECTOR3(negInf, negInf, negInf);
-		};
-		N_AABB(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
+		}
+
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};

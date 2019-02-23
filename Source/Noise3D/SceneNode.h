@@ -12,13 +12,19 @@
 
 namespace Noise3D
 {
-	class SceneNode:
-		public AffineTransform
+	class SceneNode
 	{
 	public:
+
+		void AttachSceneObject(ISceneObject* pObj);
+
+		AffineTransform& GetTransform();
 
 	private:
 	
 		std::vector<ISceneObject*> mSceneObjectList;
+
+		AffineTransform mTransform;
+
 	};
-}
+};

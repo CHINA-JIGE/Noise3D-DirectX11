@@ -352,6 +352,9 @@
     <ClInclude Include="GeometryEntity.h">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClInclude>
+    <ClInclude Include="ISceneObject.h">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -530,6 +533,9 @@
     </ClCompile>
     <ClCompile Include="GeometryEntity.cpp">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="ISceneObject.cpp">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -253,7 +253,7 @@ NMATRIX Noise3D::RigidTransform::GetTransformMatrix() const
 	return out;
 }
 
-NVECTOR3 Noise3D::RigidTransform::TransformVector(NVECTOR3 vec)
+NVECTOR3 Noise3D::RigidTransform::TransformVector_Rigid(NVECTOR3 vec)
 {
 	NVECTOR3 outVec = NVECTOR3(0, 0, 0);
 	if (vec != NVECTOR3(0, 0, 0))

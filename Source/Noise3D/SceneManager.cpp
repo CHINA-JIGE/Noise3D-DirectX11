@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-                           ¿‡£∫NOISE SceneManger
+                           class£∫SceneManger
 
-			ºÚ ˆ£∫Center of many manager object£®MESH,LIGHT,MATERIAL,TEXTURE...£©
+			desc£∫factory of many manager object£®MESH,LIGHT,MATERIAL,TEXTURE...£©
 					
 ************************************************************************/
 
@@ -13,10 +13,8 @@
 // 3. Corresponding Creation method
 
 #include "Noise3D.h"
-//#include "SceneManager.h"
 
 using namespace Noise3D;
-
 
 SceneManager::SceneManager():
 	 IFactory<Renderer>(1),

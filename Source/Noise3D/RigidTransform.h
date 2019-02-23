@@ -91,7 +91,7 @@ namespace Noise3D
 		NMATRIX	 GetTransformMatrix() const;
 
 		//apply rigid transformation to vector/point and output
-		NVECTOR3 TransformVector(NVECTOR3 vec);
+		NVECTOR3 TransformVector_Rigid(NVECTOR3 vec);
 
 		void		SetTransform(const RigidTransform& t);
 
