@@ -10,18 +10,18 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-Mesh::Mesh():
-	mBoundingBox({0,0,0},{0,0,0}),
-	m_pVB_Gpu(nullptr),
-	m_pIB_Gpu(nullptr)
+Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::MESH;
+}
+
+Mesh::Mesh()
 {
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
 Mesh::~Mesh()
 {
-	ReleaseCOM(m_pVB_Gpu);
-	ReleaseCOM(m_pIB_Gpu);
 }
 
 void Mesh::ResetMaterialToDefault()
@@ -33,7 +33,7 @@ void Mesh::SetMaterial(N_UID matName)
 {
 	N_MeshSubsetInfo tmpSubset;
 	tmpSubset.startPrimitiveID = 0;
-	tmpSubset.primitiveCount = mIB_Mem.size()/3;//count of triangles
+	tmpSubset.primitiveCount = GeometryData::GetTriangleCount() ;//count of triangles
 	tmpSubset.matName = matName;
 	
 	//because this SetMaterial aim to the entire mesh (all primitives) ,so
@@ -52,7 +52,7 @@ void Mesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
 	outRefSubsetList = mSubsetInfoList;
 }
 
-UINT Mesh::GetIndexCount()
+/*UINT Mesh::GetIndexCount()
 {
 	return mIB_Mem.size();
 }
@@ -85,13 +85,13 @@ N_AABB Mesh::ComputeBoundingBox()
 	mFunction_ComputeBoundingBox();
 
 	return mBoundingBox;
-};
+};*/
 
 /***********************************************************************
 								PRIVATE					                    
 ***********************************************************************/
 //this function could be externally invoked by ModelLoader..etc
-bool Mesh::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB)
+/*bool Mesh::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -219,4 +219,4 @@ void Mesh::mFunction_ComputeBoundingBox()
 	}
 	mBoundingBox.max += AffineTransform::GetPosition();
 	mBoundingBox.min += AffineTransform::GetPosition();
-}
+}*/

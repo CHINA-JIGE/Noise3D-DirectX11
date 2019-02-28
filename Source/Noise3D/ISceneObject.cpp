@@ -6,6 +6,7 @@
 			like mesh/actor/particles/light blahblahblah.
 			ISceneObject can be bound to SceneNode to enable
 			hierarchical transformation (and add to scene graph)
+
 ***********************************************************/
 #include "Noise3D.h"
 
@@ -83,4 +84,9 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	}
 
 	return outAabb;
+}
+
+std::string Noise3D::ISceneObject::GetName()
+{
+	return mUid;
 }

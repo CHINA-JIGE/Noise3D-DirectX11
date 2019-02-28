@@ -11,6 +11,15 @@ namespace Noise3D
 {
 	class ModelLoader;
 
+	enum NOISE_SCENE_OBJECT_TYPE
+	{
+		MESH,
+		GRAPHIC_OBJECT,
+		CAMERA,
+		LIGHT,
+		SWEEPING_TRAIL
+	};
+
 		class /*_declspec(dllexport)*/ SceneManager:
 		public IFactory<Renderer>,
 		public IFactory<Camera>,

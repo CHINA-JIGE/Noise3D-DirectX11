@@ -11,17 +11,30 @@
 
 	//explicit template instantiation
 	//#include "GeometryEntity.cpp"
-	//template Noise3D::GeometryEntity<N_DefaultVertex, uint32_t>;
-	//template Noise3D::GeometryEntity<N_SimpleVertex, uint32_t>;
+	//template Noise3D::GeometryData<N_DefaultVertex, uint32_t>;
+	//template Noise3D::GeometryData<N_SimpleVertex, uint32_t>;
 
+	And there is a big problem, that is template class can't directly
+	OVERRIDE base class's pure virtual function. (template are 
+	instantiated at compile phase while pure virtual function are
+	'instantiated' at runtime. This is the reason why i seperate
+	'GeometryData' template class from several concrete/detailed
+	'GeometryEntity_XXX' class. 
 
 ***********************************************************/
 #include "Noise3D.h"
+
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
+/**************************************************************
+
+					Geometry Data(template class)
+
+**************************************************************/
+
 template<typename vertex_t, typename index_t>
-Noise3D::GeometryEntity<vertex_t, index_t>::GeometryEntity():
+Noise3D::GeometryData<vertex_t, index_t>::GeometryData():
 	mIsLocalAabbInitialized(false),
 		m_pVB_Gpu(nullptr),
 		m_pIB_Gpu(nullptr)
@@ -30,19 +43,26 @@ Noise3D::GeometryEntity<vertex_t, index_t>::GeometryEntity():
 }
 
 template<typename vertex_t, typename index_t>
-inline uint32_t GeometryEntity<vertex_t, index_t>::GetIndexCount()
+Noise3D::GeometryData<vertex_t, index_t>::~GeometryData()
+{
+	ReleaseCOM(m_pVB_Gpu);
+	ReleaseCOM(m_pIB_Gpu);
+}
+
+template<typename vertex_t, typename index_t>
+inline uint32_t GeometryData<vertex_t, index_t>::GetIndexCount()
 {
 	return mIB_Mem.size();
 }
 
 template<typename vertex_t, typename index_t>
-uint32_t Noise3D::GeometryEntity<vertex_t, index_t>::GetTriangleCount()
+uint32_t Noise3D::GeometryData<vertex_t, index_t>::GetTriangleCount()
 {
 	return mIB_Mem.size() / 3;
 }
 
 template<typename vertex_t, typename index_t>
-void Noise3D::GeometryEntity<vertex_t, index_t>::GetVertex(index_t idx, vertex_t& outVertex)
+void Noise3D::GeometryData<vertex_t, index_t>::GetVertex(index_t idx, vertex_t& outVertex)
 {
 	if (idx < mVB_Mem.size())
 	{
@@ -51,97 +71,19 @@ void Noise3D::GeometryEntity<vertex_t, index_t>::GetVertex(index_t idx, vertex_t
 }
 
 template<typename vertex_t, typename index_t>
-const std::vector<vertex_t>* Noise3D::GeometryEntity<vertex_t, index_t>::GetVertexBuffer() const
+const std::vector<vertex_t>* Noise3D::GeometryData<vertex_t, index_t>::GetVertexBuffer() const
 {
 	return &mVB_Mem;
 }
 
 template<typename vertex_t, typename index_t>
-const std::vector<index_t>* Noise3D::GeometryEntity<vertex_t, index_t>::GetIndexBuffer() const
+const std::vector<index_t>* Noise3D::GeometryData<vertex_t, index_t>::GetIndexBuffer() const
 {
 	return &mIB_Mem;
 }
 
-template<typename vertex_t, typename index_t>
-N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
-{
-	//if local aabb has been computed, then directly return;
-	//local aabb is computed only at the object's initialization phase
-	if (mIsLocalAabbInitialized)
-	{
-		return mLocalBoundingBox;
-	}
-
-	//reset to infinite far
-	mLocalBoundingBox.Reset();
-	if (mVB_Mem.size() == 0)
-	{
-		return mLocalBoundingBox;
-	}
-
-	NVECTOR3 tmpV;
-	//Aabb's min & max had been set to infinite far
-	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
-	{
-		tmpV = mVB_Mem.at(i).Pos;
-		if (tmpV.x < (mLocalBoundingBox.min.x)) { mLocalBoundingBox.min.x = tmpV.x; }
-		if (tmpV.y < (mLocalBoundingBox.min.y)) { mLocalBoundingBox.min.y = tmpV.y; }
-		if (tmpV.z < (mLocalBoundingBox.min.z)) { mLocalBoundingBox.min.z = tmpV.z; }
-
-		if (tmpV.x > (mLocalBoundingBox.max.x)) { mLocalBoundingBox.max.x = tmpV.x; }
-		if (tmpV.y > (mLocalBoundingBox.max.y)) { mLocalBoundingBox.max.y = tmpV.y; }
-		if (tmpV.z > (mLocalBoundingBox.max.z)) { mLocalBoundingBox.max.z = tmpV.z; }
-	}
-
-	mIsLocalAabbInitialized = true;
-	return mLocalBoundingBox;
-}
-
-template<typename vertex_t, typename index_t>
-N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::ComputeWorldAABB_Accurate()
-{
-	//implementation is very similar to ISceneObject::GetLocalAABB()
-
-	SceneNode* pNode = ISceneObject::GetParentSceneNode();
-	if (pNode == nullptr)
-	{
-		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
-		return N_AABB();
-	}
-
-	//reset to infinite far
-	if (mVB_Mem.size() == 0)
-	{
-		return  N_AABB();//min/max are initialized infinite far
-	}
-
-	//min / max are initialized infinite far
-	N_AABB outAabb; 
-	NVECTOR3 tmpV;
-	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
-	{
-		const AffineTransform& trans = pNode->GetTransform();
-		tmpV = trans.TransformVector_Affine(mVB_Mem.at(i).Pos);
-
-		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
-		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }
-		if (tmpV.z < (outAabb.min.z)) { outAabb.min.z = tmpV.z; }
-
-		if (tmpV.x >(outAabb.max.x)) { outAabb.max.x = tmpV.x; }
-		if (tmpV.y >(outAabb.max.y)) { outAabb.max.y = tmpV.y; }
-		if (tmpV.z >(outAabb.max.z)) { outAabb.max.z = tmpV.z; }
-	}
-
-	return outAabb;
-}
-
-/*********************************************
-
-							PRIVATE
-
-**********************************************/
 template <typename vertex_t ,typename index_t>
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<typename vertex_t, typename index_t>::mFunction_CreateGpuBufferAndUpdateData(const std::vector<vertex_t>& targetVB, const std::vector<index_t>& targetIB)
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<typename vertex_t, typename index_t>::mFunction_CreateGpuBufferAndUpdateData(const std::vector<vertex_t>& targetVB, const std::vector<index_t>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -193,7 +135,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<typename vertex_t,
 }
 
 template<typename vertex_t, typename index_t>
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<vertex_t, index_t>::mFunction_CreateGpuBufferAndUpdateData()
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<vertex_t, index_t>::mFunction_CreateGpuBufferAndUpdateData()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
@@ -233,4 +175,82 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<vertex_t, index_t>
 	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
 
 	return true;
+}
+
+
+/**************************************************************
+
+					Geometry Entity's (ISceneObject overriden)
+
+**************************************************************/
+N_AABB Noise3D::GeometryEntity_Default::GetLocalAABB()
+{
+	//if local aabb has been computed, then directly return;
+	//local aabb is computed only at the object's initialization phase
+	if (mIsLocalAabbInitialized)
+	{
+		return mLocalBoundingBox;
+	}
+
+	//reset to infinite far
+	mLocalBoundingBox.Reset();
+	if (mVB_Mem.size() == 0)
+	{
+		return mLocalBoundingBox;
+	}
+
+	NVECTOR3 tmpV;
+	//Aabb's min & max had been set to infinite far
+	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
+	{
+		tmpV = mVB_Mem.at(i).Pos;
+		if (tmpV.x < (mLocalBoundingBox.min.x)) { mLocalBoundingBox.min.x = tmpV.x; }
+		if (tmpV.y < (mLocalBoundingBox.min.y)) { mLocalBoundingBox.min.y = tmpV.y; }
+		if (tmpV.z < (mLocalBoundingBox.min.z)) { mLocalBoundingBox.min.z = tmpV.z; }
+
+		if (tmpV.x >(mLocalBoundingBox.max.x)) { mLocalBoundingBox.max.x = tmpV.x; }
+		if (tmpV.y >(mLocalBoundingBox.max.y)) { mLocalBoundingBox.max.y = tmpV.y; }
+		if (tmpV.z >(mLocalBoundingBox.max.z)) { mLocalBoundingBox.max.z = tmpV.z; }
+	}
+
+	mIsLocalAabbInitialized = true;
+
+	return mLocalBoundingBox;
+}
+
+N_AABB Noise3D::GeometryEntity_Default::ComputeWorldAABB_Accurate()
+{
+	//implementation is very similar to ISceneObject::GetLocalAABB()
+
+	SceneNode* pNode =this->ISceneObject::GetParentSceneNode();
+	if (pNode == nullptr)
+	{
+		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
+		return N_AABB();
+	}
+
+	//reset to infinite far
+	if (mVB_Mem.size() == 0)
+	{
+		return  N_AABB();//min/max are initialized infinite far
+	}
+
+	//min / max are initialized infinite far
+	N_AABB outAabb;
+	NVECTOR3 tmpV;
+	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
+	{
+		const AffineTransform& trans = pNode->GetTransform();
+		tmpV = trans.TransformVector_Affine(mVB_Mem.at(i).Pos);
+
+		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
+		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }
+		if (tmpV.z < (outAabb.min.z)) { outAabb.min.z = tmpV.z; }
+
+		if (tmpV.x >(outAabb.max.x)) { outAabb.max.x = tmpV.x; }
+		if (tmpV.y >(outAabb.max.y)) { outAabb.max.y = tmpV.y; }
+		if (tmpV.z >(outAabb.max.z)) { outAabb.max.z = tmpV.z; }
+	}
+
+	return outAabb;
 }

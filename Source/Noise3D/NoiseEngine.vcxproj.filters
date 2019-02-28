@@ -349,11 +349,11 @@
     <ClInclude Include="SceneManager.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryEntity.h">
-      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
-    </ClInclude>
     <ClInclude Include="ISceneObject.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryEntity.h">
+      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -531,11 +531,12 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryEntity.cpp">
-      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
-    </ClCompile>
     <ClCompile Include="ISceneObject.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="GeometryEntity.cpp">
+      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

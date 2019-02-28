@@ -19,7 +19,10 @@ namespace Noise3D
 		void AttachSceneObject(ISceneObject* pObj);
 
 		AffineTransform& GetTransform();
-
+		
+		
+		//CreateChildSceneNode()
+	
 	private:
 	
 		std::vector<ISceneObject*> mSceneObjectList;
