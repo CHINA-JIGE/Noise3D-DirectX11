@@ -108,7 +108,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	DSBufferDesc.Height = smParam.pixelHeight;
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
-	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DSBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;//DXGI_FORMAT_D24_UNORM_S8_UINT;//it will be then cast to 2 format later
 	DSBufferDesc.SampleDesc.Count = 1;//if MSAA enabled, RT/DS buffer must have same quality
 	DSBufferDesc.SampleDesc.Quality =0;
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -123,7 +123,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	//create DSV (for pass 1: shadow map generation)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
-	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;// DXGI_FORMAT_R32_TYPELESS;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Texture2D.MipSlice = 0;
 	hr = Noise3D::D3D::g_pd3dDevice11->CreateDepthStencilView(pDepthStencilTexture, &dsvDesc, &m_pShadowMapPass1_DSV);
@@ -134,7 +134,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	//create SRV (for pass 2: shadowing & sampling shadow map)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//same pixel format as DSV in pass 1
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;// DXGI_FORMAT_R32_TYPELESS;// DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//same pixel format as DSV in pass 1
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = DSBufferDesc.MipLevels;
