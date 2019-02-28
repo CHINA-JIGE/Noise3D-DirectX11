@@ -159,7 +159,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 	//.....
 	N_LayeredLineSegment tmpLineSegment;
 
-	//...tmp var  : used in  "switch (tmpResult.mVertexCount)"
+	//...tmp var  : used in  "switch (tmpResult.vertexCount)"
 	std::vector<NVECTOR3> tmpIntersectPointList;
 	bool canIntersect = false;
 	NVECTOR3 tmpPoint(0, 0, 0);
@@ -190,7 +190,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 			tmpResult = mFunction_HowManyVertexOnThisLayer(currentLayerY,v1,v2,v3);
 
 			//Category Discussion	(?∑÷¿‡Ã÷¬€?)
-			switch (tmpResult.mVertexCount)
+			switch (tmpResult.vertexCount)
 			{
 			//-------------------------------
 			case 0:
@@ -219,7 +219,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 						N_LayeredLineSegment tmpLineSegment;
 						tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 						tmpLineSegment.v2 = tmpIntersectPointList.at(1);
-						tmpLineSegment.LayerID = currentLayerID;
+						tmpLineSegment.layerID = currentLayerID;
 						tmpLineSegment.Dirty = false;
 						//triangle normal projection , look for tech doc for more detail
 						tmpLineSegment.normal = mFunction_Compute_Normal2D(mTriangleNormalBuffer.at(currentTriangleID));
@@ -270,7 +270,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 					N_LayeredLineSegment tmpLineSegment;
 					tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
-					tmpLineSegment.LayerID = currentLayerID;
+					tmpLineSegment.layerID = currentLayerID;
 					tmpLineSegment.Dirty = false;
 					//triangle normal projection , look for tech doc for more detail
 					tmpLineSegment.normal = mFunction_Compute_Normal2D(mTriangleNormalBuffer.at(currentTriangleID));
@@ -323,7 +323,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 					N_LayeredLineSegment tmpLineSegment;
 					tmpLineSegment.v1 = tmpIntersectPointList.at(0);
 					tmpLineSegment.v2 = tmpIntersectPointList.at(1);
-					tmpLineSegment.LayerID = currentLayerID;
+					tmpLineSegment.layerID = currentLayerID;
 					tmpLineSegment.Dirty = false;
 					//triangle normal projection , look for tech doc for more detail
 					tmpLineSegment.normal = mFunction_Compute_Normal2D(mTriangleNormalBuffer.at(currentTriangleID));
@@ -384,7 +384,7 @@ void	MeshSlicer::Step3_GenerateLineStrip()
 				//we have found a "clean" line segment , then add 2 vertices to the current line strip
 				//this is a new line strip spawned
 				//v2 is the tail of the strip
-				tmpLineStrip.LayerID = tmpLineSegment.LayerID;
+				tmpLineStrip.layerID = tmpLineSegment.layerID;
 				tmpLineStrip.pointList.push_back(tmpLineSegment.v1);
 				tmpLineStrip.pointList.push_back(tmpLineSegment.v2);
 				tmpLineStrip.normalList.push_back(tmpLineSegment.normal);
@@ -396,10 +396,10 @@ void	MeshSlicer::Step3_GenerateLineStrip()
 		}
 
 		//make the new  line strip grow longer until no more line segment can be added to the tail
-		canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
+		canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.layerID, &tmpLineStrip);
 		while (canFindNextPoint)
 		{
-			canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.LayerID, &tmpLineStrip);
+			canFindNextPoint = mFunction_LineStrip_FindNextPoint(&tmpLineStripTailPoint, tmpLineStrip.layerID, &tmpLineStrip);
 		}
 
 		//we have finished growing a line strip, so add it to line Strip Buffer;
@@ -452,7 +452,7 @@ void MeshSlicer::GetLineSegmentBuffer(std::vector<N_LayeredLineSegment2D>& outBu
 		auto& line = mLineSegmentBuffer.at(i);
 		outLineSeg.v1 = { line.v1.x,line.v1.z };
 		outLineSeg.v2 = { line.v2.x,line.v2.z };
-		outLineSeg.layerID = line.LayerID;
+		outLineSeg.layerID = line.layerID;
 		outBuffer.push_back(outLineSeg);
 	}
 
@@ -558,7 +558,7 @@ void		MeshSlicer::mFunction_GenerateLayerTileInformation()
 
 	for (UINT i = 0;i < mLineSegmentBuffer.size();i++)
 	{
-		UINT currentLayerID = mLineSegmentBuffer.at(i).LayerID;
+		UINT currentLayerID = mLineSegmentBuffer.at(i).layerID;
 		N_LayeredLineSegment currentLineSeg = mLineSegmentBuffer.at(i);
 		N_LineSegmentVertex tmpLineSegmentVertex;
 		UINT tileID_X = 0, tileID_Z = 0;
@@ -625,7 +625,7 @@ MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer(
 	bool b2 = (v1.y < currentlayerY) && (v2.y < currentlayerY) && (v3.y < currentlayerY);
 	if (b1 || b2 )
 	{
-		outResult.mVertexCount = 0;
+		outResult.vertexCount = 0;
 		outResult.isPossibleToIntersectEdges = false;
 		return outResult;
 	}
@@ -633,7 +633,7 @@ MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer(
 	//if none of the vertex is on this layer
 	if ((v1.y != currentlayerY) && (v2.y != currentlayerY) && (v3.y != currentlayerY) )
 	{
-		outResult.mVertexCount = 0;
+		outResult.vertexCount = 0;
 		outResult.isPossibleToIntersectEdges = true;
 		return outResult;
 	}
@@ -645,19 +645,19 @@ MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer(
 	//count how many Vertices are on this layer
 	if(abs(v1.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
-		outResult.mVertexCount += 1;
+		outResult.vertexCount += 1;
 		outResult.mIndexList.push_back(0);
 	}
 
 	if (abs(v2.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
-		outResult.mVertexCount += 1;
+		outResult.vertexCount += 1;
 		outResult.mIndexList.push_back(1);
 	}
 
 	if (abs(v3.y - currentlayerY) < FLOAT_EQUAL_THRESHOLD)
 	{
-		outResult.mVertexCount += 1;
+		outResult.vertexCount += 1;
 		outResult.mIndexList.push_back(2);
 	}
 
@@ -798,7 +798,7 @@ bool MeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vecto
 		pLineStripBuffer->push_back(emptyLineStrip);
 
 		STREAM_READ(fileIn, layerID);
-		pLineStripBuffer->at(i).LayerID = layerID;
+		pLineStripBuffer->at(i).layerID = layerID;
 
 		STREAM_READ(fileIn, currLineStripPointCount);
 
@@ -885,7 +885,7 @@ bool MeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vecto
 	//for every line strip
 	for (i = 0;i < pLineStripBuffer->size();i++)
 	{
-		UINT layerID = pLineStripBuffer->at(i).LayerID;
+		UINT layerID = pLineStripBuffer->at(i).layerID;
 		STREAM_WRITE(fileOut, layerID);
 
 		//first output points count of current line strip 

@@ -538,5 +538,8 @@
     <ClCompile Include="GeometryEntity.cpp">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClCompile>
+    <ClCompile Include="GeometryEntityTemplateInstantiation.cpp">
+      <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

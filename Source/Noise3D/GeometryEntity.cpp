@@ -1,25 +1,19 @@
 /**************************************************************
 
 				Geometry Entity (vertex& (perhaps)index)
-
-				
-	If i didn't enable VS's PCH, i shall add one more cpp file 
-	for the seperation of c++ template's declaration and definition
+	
+	i added one more cpp file for the seperation of c++ 
+	template's declaration and definition. 
+	(also instantiate necessary template for external project to link
+	Noise3D lib, refer to 'GeometryEntityTemplateInstantiation.cpp')
 	functions in a template class is just a template awaiting for instantiation/expansion
 	instantiation need to be done explicitly
 	https://blog.csdn.net/u012814856/article/details/84645963
 
 	//explicit template instantiation
 	//#include "GeometryEntity.cpp"
-	//template Noise3D::GeometryData<N_DefaultVertex, uint32_t>;
-	//template Noise3D::GeometryData<N_SimpleVertex, uint32_t>;
-
-	And there is a big problem, that is template class can't directly
-	OVERRIDE base class's pure virtual function. (template are 
-	instantiated at compile phase while pure virtual function are
-	'instantiated' at runtime. This is the reason why i seperate
-	'GeometryData' template class from several concrete/detailed
-	'GeometryEntity_XXX' class. 
+	//template Noise3D::GeometryEntity<N_DefaultVertex, uint32_t>;
+	//template Noise3D::GeometryEntity<N_SimpleVertex, uint32_t>;
 
 ***********************************************************/
 #include "Noise3D.h"
@@ -27,63 +21,57 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-/**************************************************************
-
-					Geometry Data(template class)
-
-**************************************************************/
-
 template<typename vertex_t, typename index_t>
-Noise3D::GeometryData<vertex_t, index_t>::GeometryData():
+Noise3D::GeometryEntity<vertex_t, index_t>::GeometryEntity() :
 	mIsLocalAabbInitialized(false),
-		m_pVB_Gpu(nullptr),
-		m_pIB_Gpu(nullptr)
+	m_pVB_Gpu(nullptr),
+	m_pIB_Gpu(nullptr)
 {
 
 }
 
 template<typename vertex_t, typename index_t>
-Noise3D::GeometryData<vertex_t, index_t>::~GeometryData()
+Noise3D::GeometryEntity<vertex_t, index_t>::~GeometryEntity()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
 }
 
 template<typename vertex_t, typename index_t>
-inline uint32_t GeometryData<vertex_t, index_t>::GetIndexCount()
+inline uint32_t GeometryEntity<vertex_t, index_t>::GetIndexCount()
 {
 	return mIB_Mem.size();
 }
 
 template<typename vertex_t, typename index_t>
-uint32_t Noise3D::GeometryData<vertex_t, index_t>::GetTriangleCount()
+uint32_t Noise3D::GeometryEntity<vertex_t, index_t>::GetTriangleCount()
 {
 	return mIB_Mem.size() / 3;
 }
 
 template<typename vertex_t, typename index_t>
-void Noise3D::GeometryData<vertex_t, index_t>::GetVertex(index_t idx, vertex_t& outVertex)
+void Noise3D::GeometryEntity<vertex_t, index_t>::GetVertex(index_t idx, vertex_t& outVertex)
 {
 	if (idx < mVB_Mem.size())
 	{
-		outVertex = mVB_Mem.at(iIndex);
+		outVertex = mVB_Mem.at(idx);
 	}
 }
 
 template<typename vertex_t, typename index_t>
-const std::vector<vertex_t>* Noise3D::GeometryData<vertex_t, index_t>::GetVertexBuffer() const
+const std::vector<vertex_t>* Noise3D::GeometryEntity<vertex_t, index_t>::GetVertexBuffer() const
 {
 	return &mVB_Mem;
 }
 
 template<typename vertex_t, typename index_t>
-const std::vector<index_t>* Noise3D::GeometryData<vertex_t, index_t>::GetIndexBuffer() const
+const std::vector<index_t>* Noise3D::GeometryEntity<vertex_t, index_t>::GetIndexBuffer() const
 {
 	return &mIB_Mem;
 }
 
-template <typename vertex_t ,typename index_t>
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<typename vertex_t, typename index_t>::mFunction_CreateGpuBufferAndUpdateData(const std::vector<vertex_t>& targetVB, const std::vector<index_t>& targetIB)
+template <typename vertex_t, typename index_t>
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<typename vertex_t, typename index_t>::mFunction_CreateGpuBufferAndUpdateData(const std::vector<vertex_t>& targetVB, const std::vector<index_t>& targetIB)
 {
 	//check if buffers have been created
 	ReleaseCOM(m_pVB_Gpu);
@@ -115,7 +103,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<typename vertex_t, t
 
 	//Create Buffers
 	HRESULT hr = 0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
 	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
 
 
@@ -128,14 +116,14 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<typename vertex_t, t
 	ibd.StructureByteStride = 0;
 
 	//Create Buffers
-	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
 	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
 
 	return true;
 }
 
 template<typename vertex_t, typename index_t>
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<vertex_t, index_t>::mFunction_CreateGpuBufferAndUpdateData()
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<vertex_t, index_t>::mFunction_CreateGpuBufferAndUpdateData()
 {
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
@@ -160,7 +148,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<vertex_t, index_t>::
 	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE. refer to MSDN for more info
 	vbd.StructureByteStride = 0;
 	HRESULT hr = 0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
 	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
 
 	//------create index buffer------
@@ -171,19 +159,15 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryData<vertex_t, index_t>::
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
 	ibd.StructureByteStride = 0;
-	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
+	hr = Noise3D::D3D::g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
 	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
 
 	return true;
 }
 
-
-/**************************************************************
-
-					Geometry Entity's (ISceneObject overriden)
-
-**************************************************************/
-N_AABB Noise3D::GeometryEntity_Default::GetLocalAABB()
+template <typename vertex_t, typename index_t>
+N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
+//N_AABB Noise3D::GeometryEntity_Default::GetLocalAABB()
 {
 	//if local aabb has been computed, then directly return;
 	//local aabb is computed only at the object's initialization phase
@@ -218,7 +202,9 @@ N_AABB Noise3D::GeometryEntity_Default::GetLocalAABB()
 	return mLocalBoundingBox;
 }
 
-N_AABB Noise3D::GeometryEntity_Default::ComputeWorldAABB_Accurate()
+template <typename vertex_t, typename index_t>
+N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::ComputeWorldAABB_Accurate()
+//N_AABB Noise3D::GeometryEntity_Default::ComputeWorldAABB_Accurate()
 {
 	//implementation is very similar to ISceneObject::GetLocalAABB()
 
@@ -254,3 +240,10 @@ N_AABB Noise3D::GeometryEntity_Default::ComputeWorldAABB_Accurate()
 
 	return outAabb;
 }
+
+
+/**************************************************************
+
+			Geometry Entity's (ISceneObject overriden)
+
+**************************************************************/

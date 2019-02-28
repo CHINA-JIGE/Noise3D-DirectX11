@@ -12,7 +12,7 @@ namespace Noise3D
 	{
 		struct N_LayeredLineSegment2D
 		{
-			N_LayeredLineSegment2D() { ZeroMemory(this, sizeof(*this)); }
+			N_LayeredLineSegment2D():layerID(0){ }
 
 			NVECTOR2 v1;
 			NVECTOR2 v2;
@@ -21,11 +21,11 @@ namespace Noise3D
 
 		struct N_LineStrip
 		{
-			N_LineStrip() { ZeroMemory(this, sizeof(*this)); }//pointList = new std::vector<NVECTOR3>; }
+			N_LineStrip():layerID(0) {}//pointList = new std::vector<NVECTOR3>; }
 
 			std::vector<NVECTOR3>	pointList;
 			std::vector<NVECTOR3>	normalList;
-			UINT		LayerID;
+			UINT		layerID;
 		};
 
 		//IFileIO is used to load .stl model
@@ -66,20 +66,23 @@ namespace Noise3D
 
 			struct N_LayeredLineSegment
 			{
-				N_LayeredLineSegment() { ZeroMemory(this, sizeof(*this)); }
+				N_LayeredLineSegment():layerID(0),Dirty(false) {}
 				NVECTOR3 v1;
 				NVECTOR3 v2;
-				UINT		LayerID;
+				UINT		layerID;
 				NVECTOR3 normal;
 				bool	Dirty;//check if this line segment has been reviewed,this flag can be reused
 			};
 
 			struct N_IntersectionResult
 			{
-				N_IntersectionResult() { ZeroMemory(this, sizeof(*this));}
+				N_IntersectionResult():
+					vertexCount(0),
+					isPossibleToIntersectEdges(false)
+				{ }
 
-				UINT mVertexCount;
-				bool isPossibleToIntersectEdges;//this bool will be used when (mVertexCount ==0)
+				UINT vertexCount;
+				bool isPossibleToIntersectEdges;//this bool will be used when (vertexCount ==0)
 				std::vector<UINT> mIndexList;//which vertex (of a triangle) is on the layer
 			};
 

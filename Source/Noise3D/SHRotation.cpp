@@ -202,7 +202,7 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 				{
 					float factor1 = L * (2 * L - 1) / sqrt(float( L * L - M * M ) * float( L * L  - N * N ));
 					float factor2 = M * N / float(L * (L - 1));
-					float factor3 = sqrtf(   (((L - 1)*(L - 1) - M*M) * ((L - 1)*(L - 1) - N*N))  ) / float((L - 1)*(2 * L - 1));
+					float factor3 = sqrtf(   float(((L - 1)*(L - 1) - M*M) * ((L - 1)*(L - 1) - N*N))  ) / float((L - 1)*(2 * L - 1));
 
 					float d_Lminus1_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 1, M, N);
 					float d_Lminus2_pos_mn = SHRotationWignerMatrix::GetByIndex(L - 2, M, N);//L's out-of-range situation has been considered (return 0)

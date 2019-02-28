@@ -34,7 +34,7 @@ namespace Noise3D
 
 	struct N_DefaultVertex
 	{
-		N_DefaultVertex() { ZeroMemory(this, sizeof(*this)); };
+		N_DefaultVertex(){ };
 
 		N_DefaultVertex& operator+=(const N_DefaultVertex& rhs)
 		{
@@ -75,7 +75,7 @@ namespace Noise3D
 
 	struct N_SimpleVertex
 	{
-		N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
+		N_SimpleVertex() { };
 		N_SimpleVertex(NVECTOR3 inPos, NVECTOR4 inColor, NVECTOR2 inTexCoord) { Pos = inPos;Color = inColor;TexCoord = inTexCoord; };
 		
 		bool operator!=(N_SimpleVertex& v) {

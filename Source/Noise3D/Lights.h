@@ -13,7 +13,13 @@ namespace Noise3D
 
 	struct N_CommonLightDesc
 	{
-		N_CommonLightDesc() { ZeroMemory(this, sizeof(*this)); }
+		N_CommonLightDesc():
+			ambientColor(NVECTOR3( 0, 0, 0 )),
+			specularIntensity(0.0f),
+			diffuseColor(NVECTOR3(0, 0, 0)),
+			diffuseIntensity( 0.0f),
+			specularColor(NVECTOR3(0, 0, 0))
+			{}
 		NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;		float				diffuseIntensity;
 		NVECTOR3	specularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
@@ -24,7 +30,7 @@ namespace Noise3D
 	struct N_DirLightDesc
 		:public N_CommonLightDesc
 	{
-		N_DirLightDesc() { ZeroMemory(this, sizeof(*this)); };
+		N_DirLightDesc() {  };
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
@@ -37,7 +43,7 @@ namespace Noise3D
 	struct N_PointLightDesc 
 		:public N_CommonLightDesc
 	{
-		N_PointLightDesc() {ZeroMemory(this, sizeof(*this));}
+		N_PointLightDesc() { }
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
@@ -51,7 +57,7 @@ namespace Noise3D
 	struct N_SpotLightDesc
 		:public N_CommonLightDesc
 	{
-		N_SpotLightDesc(){ZeroMemory(this, sizeof(*this));}
+		N_SpotLightDesc(){}
 
 		/*NVECTOR3 ambientColor;		float specularIntensity;
 		NVECTOR3 diffuseColor;			float diffuseIntensity;
@@ -109,7 +115,7 @@ namespace Noise3D
 	protected:
 
 		//override SM init function. invoked by LightManager
-		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam) override;
+		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam) override final;
 
 	private:
 

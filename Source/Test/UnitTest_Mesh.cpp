@@ -8,28 +8,28 @@ void	InputProcess();
 
 using namespace Noise3D;
 
-IRoot* pRoot;
-IRenderer* pRenderer;
-IScene* pScene;
-ICamera* pCamera;
-IAtmosphere* pAtmos;
-IModelLoader* pModelLoader;
-IMeshManager* pMeshMgr;
-std::vector<IMesh*> meshList;
-IMaterialManager*	pMatMgr;
-ITextureManager*	pTexMgr;
-IGraphicObjectManager*	pGraphicObjMgr;
-IGraphicObject*	pGraphicObjBuffer;
-ILightManager* pLightMgr;
-IDirLightD*		pDirLight1;
-IPointLightD*	pPointLight1;
-ISpotLightD*	pSpotLight1;
-IFontManager* pFontMgr;
-IDynamicText* pMyText_fps;
+Root* pRoot;
+Renderer* pRenderer;
+SceneManager* pScene;
+Camera* pCamera;
+Atmosphere* pAtmos;
+ModelLoader* pModelLoader;
+MeshManager* pMeshMgr;
+std::vector<Mesh*> meshList;
+MaterialManager*	pMatMgr;
+TextureManager*	pTexMgr;
+GraphicObjectManager*	pGraphicObjMgr;
+GraphicObject*	pGraphicObjBuffer;
+LightManager* pLightMgr;
+DirLight*		pDirLight1;
+PointLight*	pPointLight1;
+SpotLight*	pSpotLight1;
+TextManager* pTextMgr;
+DynamicText* pMyText_fps;
 
 
-Ut::ITimer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
-Ut::IInputEngine inputE;
+Ut::Timer NTimer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
+Ut::InputEngine inputE;
 
 //Main Entry
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
@@ -101,9 +101,9 @@ BOOL Init3D(HWND hwnd)
 
 
 	//create font texture
-	pFontMgr = pScene->GetFontMgr();
-	pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	pMyText_fps= pFontMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
+	pTextMgr = pScene->GetTextMgr();
+	pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
+	pMyText_fps= pTextMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
 	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
 	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
 	pMyText_fps->SetFont("myFont");
@@ -117,7 +117,7 @@ BOOL Init3D(HWND hwnd)
 	N_SceneLoadingResult res;
 	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
-	IMesh* pMesh = pMeshMgr->CreateMesh("testModel");
+	Mesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
 	pMesh->SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
@@ -148,15 +148,15 @@ BOOL Init3D(HWND hwnd)
 	//----------------------------------------------------------
 
 	pCamera->SetPosition(2.0f, 0, 0);
-	pCamera->SetLookAt(0, 0, 0);
-	pCamera->SetViewAngle_Radian(MATH_PI / 2.5f, 1.333333333f);
+	pCamera->LookAt(0, 0, 0);
+	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
-	N_Box meshAABB = meshList.at(0)->ComputeBoundingBox();
+	N_AABB meshAABB = meshList.at(0)->GetLocalAABB();
 	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
 	float rotateY = meshAABB.max.y*1.3f;
 	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
-	pCamera->SetLookAt(0, 0, 0);
+	pCamera->LookAt(0, 0, 0);
 
 
 	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
@@ -196,7 +196,7 @@ BOOL Init3D(HWND hwnd)
 	Mat1.diffuseMapName = "Earth";//"Earth");
 	Mat1.normalMapName = "EarthNormalMap";
 	//Mat1.environmentMapName = "AtmoTexture";
-	IMaterial* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
+	Material* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
 	pMesh->SetMaterial("meshMat1");
@@ -278,8 +278,8 @@ void InputProcess()
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
-		pCamera->RotateY_Yaw((float)inputE.GetMouseDiffX() / 200.0f);
-		pCamera->RotateX_Pitch((float)inputE.GetMouseDiffY() / 200.0f);
+		NVECTOR3 euler = pCamera->GetEulerAngleZXY();
+		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f, 0);
 	}
 
 	//quit main loop and terminate program

@@ -214,6 +214,7 @@
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
     <ClCompile Include="GeometryEntity.cpp" />
+    <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneNode.cpp" />

@@ -57,8 +57,10 @@ namespace Noise3D
 		//get value
 		NVECTOR3	GetPosition() const;
 
+		//get euler angle (decomposed by ZXY convention, but the vec3 x/y/z corresponds to their own axis's rotation.
 		NVECTOR3	GetEulerAngleZXY() const;
 
+		//get euler angle (decomposed by ZYZ convention, but the vec3 x/y/z corresponds to their own axis's rotation.
 		N_EULER_ANGLE_ZYZ GetEulerAngleZYZ() const;
 
 		NQUATERNION GetQuaternion() const;

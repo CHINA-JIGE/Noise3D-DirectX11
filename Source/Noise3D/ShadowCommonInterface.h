@@ -66,8 +66,6 @@ namespace Noise3D
 
 		bool mIsCastingShadowEnabled;
 
-		//SHADOW_MAP_PROJECTION_TYPE mShadowMapProjectionType;
-
 		N_SHADOW_MAPPING_PARAM mShadowMapParam;
 	};
 

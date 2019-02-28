@@ -12,6 +12,17 @@
 
 using namespace Noise3D;
 
+
+
+Noise3D::ISceneObject::ISceneObject()
+	:m_pParentSceneNode(nullptr)
+{
+}
+
+Noise3D::ISceneObject::~ISceneObject()
+{
+}
+
 Noise3D::SceneNode*  Noise3D::ISceneObject::GetParentSceneNode()
 {
 	return m_pParentSceneNode;
@@ -41,7 +52,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	}
 
 	//local aabb
-	N_AABB localAabb = ISceneObject::GetLocalAABB();
+	N_AABB localAabb =this->GetLocalAABB();
 	const NVECTOR3& a = localAabb.min;
 	const NVECTOR3& b = localAabb.max;
 

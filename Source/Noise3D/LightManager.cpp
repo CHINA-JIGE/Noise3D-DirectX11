@@ -160,3 +160,8 @@ UINT	LightManager::GetTotalLightCount()
 /***********************************************************************
 								PRIVATE					                    
 ***********************************************************************/
+
+void Noise3D::LightManager::mFunction_GetShadowMapRenderTaskList()
+{
+	ERROR_MSG("Not Implemented!");
+}

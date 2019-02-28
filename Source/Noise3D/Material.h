@@ -19,7 +19,6 @@ namespace Noise3D
 	{
 		N_BasicMaterialDesc()
 		{
-			ZeroMemory(this, sizeof(*this));
 			ambientColor = NVECTOR3(0, 0, 0);
 			diffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 			specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);

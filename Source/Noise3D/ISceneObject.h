@@ -17,9 +17,9 @@ namespace Noise3D
 	{
 	public:
 
-		ISceneObject():m_pParentSceneNode(nullptr){}
+		ISceneObject();
 
-		virtual ~ISceneObject() {};
+		virtual ~ISceneObject();
 
 		SceneNode* GetParentSceneNode();
 
