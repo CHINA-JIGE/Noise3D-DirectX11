@@ -22,6 +22,7 @@ namespace Noise3D
 {
 
 	class SweepingTrail:
+		public ISceneObject,
 		public CRenderSettingBlendMode,
 		public CRenderSettingFillMode
 	{

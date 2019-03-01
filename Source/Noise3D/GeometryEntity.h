@@ -39,8 +39,8 @@ namespace Noise3D
 		virtual N_AABB GetLocalAABB() override;
 
 		// AffineTransform is needed. 
-		//need to retrieve transform infos from its ISceneObject's parent SceneNode
-		virtual N_AABB ComputeWorldAABB_Accurate() override;
+		//need to retrieve transform infos from actual scene object. not implementing here
+		virtual N_AABB ComputeWorldAABB_Accurate() override=0;
 
 		//will be implemented in actual/concrete scene object class
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override = 0;
@@ -58,24 +58,5 @@ namespace Noise3D
 		bool						mIsLocalAabbInitialized;
 		N_AABB				mLocalBoundingBox;//local AABB is calculated only once(and is the minimum AABB)
 	};
-
-
-	/*class GeometryEntity_Default :
-		public GeometryEntity<N_DefaultVertex,uint32_t>,
-		public Noise3D::ISceneObject
-	{
-	public:
-
-		//compute bounding box without applying a world transformation to vertices(local space)
-		virtual N_AABB GetLocalAABB() override;
-
-		// AffineTransform is needed. 
-		//need to retrieve transform infos from its ISceneObject's parent SceneNode
-		virtual N_AABB ComputeWorldAABB_Accurate() override;
-
-		//will be implemented in actual/concrete scene object class
-		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override =0;
-	};*/
-
 
 };

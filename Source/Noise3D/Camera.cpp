@@ -154,6 +154,11 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	}
 }
 
+NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::CAMERA;
+}
+
 /************************************************************************
 											PRIVATE	
 ************************************************************************/

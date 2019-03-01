@@ -202,45 +202,6 @@ N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
 	return mLocalBoundingBox;
 }
 
-template <typename vertex_t, typename index_t>
-N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::ComputeWorldAABB_Accurate()
-//N_AABB Noise3D::GeometryEntity_Default::ComputeWorldAABB_Accurate()
-{
-	//implementation is very similar to ISceneObject::GetLocalAABB()
-
-	SceneNode* pNode =this->ISceneObject::GetParentSceneNode();
-	if (pNode == nullptr)
-	{
-		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
-		return N_AABB();
-	}
-
-	//reset to infinite far
-	if (mVB_Mem.size() == 0)
-	{
-		return  N_AABB();//min/max are initialized infinite far
-	}
-
-	//min / max are initialized infinite far
-	N_AABB outAabb;
-	NVECTOR3 tmpV;
-	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
-	{
-		const AffineTransform& trans = pNode->GetTransform();
-		tmpV = trans.TransformVector_Affine(mVB_Mem.at(i).Pos);
-
-		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
-		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }
-		if (tmpV.z < (outAabb.min.z)) { outAabb.min.z = tmpV.z; }
-
-		if (tmpV.x >(outAabb.max.x)) { outAabb.max.x = tmpV.x; }
-		if (tmpV.y >(outAabb.max.y)) { outAabb.max.y = tmpV.y; }
-		if (tmpV.z >(outAabb.max.z)) { outAabb.max.z = tmpV.z; }
-	}
-
-	return outAabb;
-}
-
 
 /**************************************************************
 

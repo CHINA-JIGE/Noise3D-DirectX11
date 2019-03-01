@@ -28,12 +28,12 @@ Noise3D::SceneNode*  Noise3D::ISceneObject::GetParentSceneNode()
 	return m_pParentSceneNode;
 }
 
-void Noise3D::ISceneObject::AttachToSceneNode(Noise3D::SceneNode * pNode)
+void Noise3D::ISceneObject::AttachToParentSceneNode(Noise3D::SceneNode * pNode)
 {
 	if (pNode != nullptr)
 	{
 		m_pParentSceneNode = pNode;
-		pNode->AttachSceneObject(this);
+		pNode->AttachChildSceneObject(this);
 	}
 }
 
@@ -57,7 +57,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	const NVECTOR3& b = localAabb.max;
 
 	//world transform info
-	const AffineTransform& trans = m_pParentSceneNode->GetTransform();
+	const AffineTransform& trans = m_pParentSceneNode->GetLocalTransform();
 
 	//get 8 vertices coord of local AABB
 	NVECTOR3 vertices[8] = 

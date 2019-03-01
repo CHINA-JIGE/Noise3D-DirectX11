@@ -26,12 +26,11 @@ namespace Noise3D
 
 	class /*_declspec(dllexport)*/ Mesh
 		: public GeometryEntity<N_DefaultVertex, uint32_t>,//derived from ISceneObject
-		//public GeometryEntity_Default,//derived from ISceneObject
 		public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
-		public CRenderSettingShadeMode,
-		public AffineTransform
+		public CRenderSettingShadeMode
+		//public AffineTransform
 	{
 	public:
 
@@ -44,6 +43,8 @@ namespace Noise3D
 
 		void		GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList);
 
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
@@ -53,6 +54,7 @@ namespace Noise3D
 		friend class ModelLoader;
 		friend class ModelProcessor;
 		friend class CollisionTestor;
+		friend class MeshManager;
 		friend IFactory<Mesh>;
 
 		Mesh();

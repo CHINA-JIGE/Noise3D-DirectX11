@@ -12,16 +12,17 @@
 
 using namespace Noise3D;
 
-void Noise3D::SceneNode::AttachSceneObject(ISceneObject * pObj)
+Noise3D::SceneNode::SceneNode(bool isRoot):
+	mIsRoot(isRoot)
 {
-	if (pObj != nullptr)
-	{
-		//don't invoke ISceneObject->AttachXXX, it'll cause circular call
-		mSceneObjectList.push_back(pObj);
-	}
 }
 
-AffineTransform& Noise3D::SceneNode::GetTransform()
+AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 {
 	return mTransform;
+}
+
+bool Noise3D::SceneNode::IsRoot()
+{
+	return mIsRoot;
 }

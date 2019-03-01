@@ -279,7 +279,9 @@ void InputProcess()
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
 		NVECTOR3 euler = pCamera->GetEulerAngleZXY();
-		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f, 0);
+		euler += NVECTOR3((float)inputE.GetMouseDiffX() / 200.0f, (float)inputE.GetMouseDiffY() / 200.0f, 0);
+		AffineTransform t;
+		pCamera->;
 	}
 
 	//quit main loop and terminate program

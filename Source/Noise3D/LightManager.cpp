@@ -33,6 +33,8 @@ DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING
 	bool isSucceeded = pLight->mFunction_InitShadowMap(smParam);
 	if (isSucceeded)
 	{
+		//init name of SceneObject
+		pLight->ISceneObject::mUid = lightName;
 		return pLight;
 	}
 	else

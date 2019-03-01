@@ -105,6 +105,7 @@ namespace Noise3D
 					objType* pNewObject = new objType;
 					m_pChildObjectList->push_back(N_ChildObjectInfo<objType>(pNewObject, objUID));
 					m_pUidToIndexHashTable->insert(std::make_pair(objUID, m_pChildObjectList->size() - 1));
+
 					return pNewObject;
 				}
 				else

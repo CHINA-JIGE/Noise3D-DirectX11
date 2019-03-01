@@ -102,7 +102,8 @@ namespace Noise3D
 	//---------------------Dynamic Directional Light------------------
 	class DirLight : 
 		public IBaseLight,
-		public IShadowCaster//container of DSV of shadow map
+		public IShadowCaster,//container of DSV of shadow map
+		public ISceneObject
 	{
 	public:
 
@@ -111,6 +112,12 @@ namespace Noise3D
 		void SetDesc(const N_DirLightDesc& desc);//many CLAMP op happens in this
 
 		N_DirLightDesc GetDesc();
+
+		virtual	N_AABB GetLocalAABB() override;
+
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	protected:
 
@@ -134,7 +141,8 @@ namespace Noise3D
 
 	//-----------------------Dynamic Point Light--------------------
 	class PointLight : 
-		public IBaseLight
+		public IBaseLight,
+		public  ISceneObject
 		//shadow map init not implemented
 	{
 	public:
@@ -148,6 +156,12 @@ namespace Noise3D
 		void SetDesc(const N_PointLightDesc& desc);//many CLAMP op happens in this
 
 		N_PointLightDesc GetDesc();
+
+		virtual	N_AABB GetLocalAABB() override;
+
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
 
@@ -163,7 +177,8 @@ namespace Noise3D
 
 	//-----------------------Dynamic Spot Light------------------
 	class SpotLight:
-		public IBaseLight
+		public IBaseLight,
+		public ISceneObject
 	{
 	public:
 
@@ -180,6 +195,12 @@ namespace Noise3D
 		void SetDesc(const N_SpotLightDesc& desc);//many CLAMP op happens in this
 
 		N_SpotLightDesc GetDesc();
+
+		virtual	N_AABB GetLocalAABB() override;
+
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
 

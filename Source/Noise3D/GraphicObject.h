@@ -29,7 +29,8 @@ namespace Noise3D
 	};
 
 	class /*_declspec(dllexport)*/ GraphicObject
-		: public CRenderSettingBlendMode
+		: public ISceneObject,
+		public CRenderSettingBlendMode
 	{
 
 	public:
