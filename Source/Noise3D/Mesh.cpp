@@ -60,12 +60,11 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 
 	//get accumulated transform from scene graph (relative to root node)
 	SceneNode* pNode = this->ISceneObject::GetParentSceneNode();
-	if (pNode == nullptr)
+	if (! pNode->IsAttachedToSceneNode())
 	{
 		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
 		return N_AABB();
 	}
-	AffineTransform transformWorld = pNode->EvalWorldTransform();
 
 	//reset to infinite far
 	if (mVB_Mem.size() == 0)
@@ -78,8 +77,8 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 	NVECTOR3 tmpV;
 	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
 	{
-		const AffineTransform& localTrans = pNode->GetLocalTransform();
-		tmpV = trans.TransformVector_Affine(mVB_Mem.at(i).Pos);
+		const AffineTransform& worldTrans = pNode->EvalWorldTransform();
+		tmpV = worldTrans.TransformVector_Affine(mVB_Mem.at(i).Pos);
 
 		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
 		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }

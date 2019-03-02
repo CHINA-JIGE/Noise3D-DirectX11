@@ -45,7 +45,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
 	pCamera->GetInvViewMatrix(invViewMatrix);
-	NVECTOR3 camPos = pCamera->GetPosition();
+	NVECTOR3 camPos = pCamera->EvalWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
@@ -54,7 +54,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->GetWorldMatrix(worldMat, worldInvTransMat);
+	pMesh->EvalWorldTransform().GetWorldMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
@@ -136,7 +136,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
 	pCamera->GetInvViewMatrix(invViewMatrix);
-	NVECTOR3 camPos = pCamera->GetPosition();
+	NVECTOR3 camPos = pCamera->EvalWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
@@ -144,7 +144,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->GetWorldMatrix(worldMat, worldInvTransMat);
+	pMesh->EvalWorldTransform().GetWorldMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 

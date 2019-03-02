@@ -21,11 +21,13 @@ namespace Noise3D
 
 		SceneNode* GetParentSceneNode();
 
-		void	AttachToParentSceneNode(SceneNode* pNode);
+		void	AttachToParentSceneNode(SceneNode* pNode);//attach current node to parent
+
+		void	AttachChildSceneNode(SceneNode* pNode);//attach to child node
 
 		bool IsAttachedToSceneNode();
 
-		AffineTransform& GetLocalTransform();//relative to its father node
+		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
 		AffineTransform EvalWorldTransform();//relative to its scene graph root node
 
@@ -35,9 +37,11 @@ namespace Noise3D
 
 	protected:
 
+		SceneNode() = delete;
+
 		SceneNode(bool isRoot);
 
-		//std::vector<ISceneObject*> mSceneObjectList;
+		std::vector<ISceneObject*> mSceneObjectList;
 
 		std::vector<SceneNode*> mChildNodeList;
 

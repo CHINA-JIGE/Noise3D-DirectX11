@@ -13,8 +13,19 @@
 using namespace Noise3D;
 
 Noise3D::SceneNode::SceneNode(bool isRoot):
-	mIsRoot(isRoot)
+	mIsRoot(isRoot),
+	m_pParentSceneNode(nullptr)
 {
+}
+
+SceneNode * Noise3D::SceneNode::GetParentSceneNode()
+{
+	return m_pParentSceneNode;
+}
+
+void Noise3D::SceneNode::AttachToParentSceneNode(SceneNode * pNode)
+{
+	if(pNode!=nullptr)pNode->at
 }
 
 AffineTransform& Noise3D::SceneNode::GetLocalTransform()

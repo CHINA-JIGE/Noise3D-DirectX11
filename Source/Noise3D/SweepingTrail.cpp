@@ -32,6 +32,7 @@
 using namespace Noise3D;
 
 Noise3D::SweepingTrail::SweepingTrail() :
+	ISceneObject(false),
 	mInterpolationStepCount(1),
 	mFreeHeaderInterpStepCount(1),
 	mGeneratedVerticesCount(0),
@@ -143,6 +144,11 @@ void Noise3D::SweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>
 	outList = mFixedLineSegments;
 	outList.insert(outList.begin(), mFreeHeader);
 	outList.push_back(mFreeTail_Start);
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;
 }
 
 /*****************************************************************

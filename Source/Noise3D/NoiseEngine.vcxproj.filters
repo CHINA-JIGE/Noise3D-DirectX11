@@ -316,9 +316,6 @@
     <ClInclude Include="RigidTransform.h">
       <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClInclude>
-    <ClInclude Include="CameraTransform.h">
-      <Filter>NoiseGraphic\Scene\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="TextureCubeMap.h">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
@@ -507,9 +504,6 @@
     <ClCompile Include="RigidTransform.cpp">
       <Filter>NoiseGraphic\Scene\_Transform</Filter>
     </ClCompile>
-    <ClCompile Include="CameraTransform.cpp">
-      <Filter>NoiseGraphic\Scene\Camera</Filter>
-    </ClCompile>
     <ClCompile Include="TextureCubeMap.cpp">
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
@@ -534,12 +528,14 @@
     <ClCompile Include="ISceneObject.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
-    <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="GeometryEntity.cpp">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClCompile>
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

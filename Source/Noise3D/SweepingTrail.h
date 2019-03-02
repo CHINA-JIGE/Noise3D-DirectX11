@@ -74,6 +74,15 @@ namespace Noise3D
 
 		void GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList);
 
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
 	private:
 
 		//curved interpolation is needed, use tangent for Cubic Hermite

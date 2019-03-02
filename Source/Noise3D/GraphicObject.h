@@ -109,6 +109,15 @@ namespace Noise3D
 
 		UINT		GetRectCount();
 
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
 	private:
 
 		friend  class IRenderModuleForGraphicObject;

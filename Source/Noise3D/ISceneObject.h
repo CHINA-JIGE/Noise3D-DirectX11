@@ -9,6 +9,8 @@
 
 namespace Noise3D
 {
+	class SceneNode;
+
 	enum NOISE_SCENE_OBJECT_TYPE
 	{
 		_INVALID,//not implemented(?) if some scene object is tagged 'INVALID', then there might be a bug
@@ -26,7 +28,7 @@ namespace Noise3D
 	{
 	public:
 
-		ISceneObject();
+		ISceneObject(bool isRoot);
 
 		virtual ~ISceneObject();
 

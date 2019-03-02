@@ -263,9 +263,9 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 		}
 	
 		//set coordinate transformation
-		pMesh->SetScale(m.scale.x, m.scale.y, m.scale.z);
-		pMesh->SetPosition(m.pos.x, m.pos.y, m.pos.z);
-		pMesh->SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
+		pMesh->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
+		pMesh->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
+		pMesh->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
 
 		//output new mesh name
 		outLoadingResult.meshNameList.push_back(m.name);

@@ -25,7 +25,8 @@ template<typename vertex_t, typename index_t>
 Noise3D::GeometryEntity<vertex_t, index_t>::GeometryEntity() :
 	mIsLocalAabbInitialized(false),
 	m_pVB_Gpu(nullptr),
-	m_pIB_Gpu(nullptr)
+	m_pIB_Gpu(nullptr),
+	ISceneObject(false)//scene graph's root node don't have geometry data
 {
 
 }

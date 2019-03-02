@@ -14,32 +14,13 @@ using namespace Noise3D;
 
 
 
-Noise3D::ISceneObject::ISceneObject()
-	:m_pParentSceneNode(nullptr)
+Noise3D::ISceneObject::ISceneObject(bool isRoot):
+	SceneNode(isRoot)
 {
 }
 
 Noise3D::ISceneObject::~ISceneObject()
 {
-}
-
-Noise3D::SceneNode*  Noise3D::ISceneObject::GetParentSceneNode()
-{
-	return m_pParentSceneNode;
-}
-
-void Noise3D::ISceneObject::AttachToParentSceneNode(Noise3D::SceneNode * pNode)
-{
-	if (pNode != nullptr)
-	{
-		m_pParentSceneNode = pNode;
-		pNode->AttachChildSceneObject(this);
-	}
-}
-
-bool Noise3D::ISceneObject::IsAttachedToSceneNode()
-{
-	return (m_pParentSceneNode!=nullptr);
 }
 
 //bounding box of transformed bounding box

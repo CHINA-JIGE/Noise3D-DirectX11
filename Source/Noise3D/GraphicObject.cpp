@@ -16,7 +16,8 @@ using namespace Noise3D::D3D;
 //#define ASSIGN_VERTEX_VALUE(a,b) if(a!=b){a=b;canUpdate=true;}
 #define ASSIGN_VERTEX_VALUE(a,b) {a=b;canUpdate=true;}
 
-GraphicObject::GraphicObject()
+GraphicObject::GraphicObject():
+	ISceneObject(false)
 {
 	//there are several variables needed for one graphic object type
 	//and for the time being ,there are NOISE_GRAPHIC_OBJECT_BUFFER_COUNT graphic object types
@@ -601,6 +602,11 @@ UINT GraphicObject::GetTriangle2DCount()
 UINT GraphicObject::GetRectCount()
 {
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->size()/6;
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::GRAPHIC_OBJECT;
 }
 
 

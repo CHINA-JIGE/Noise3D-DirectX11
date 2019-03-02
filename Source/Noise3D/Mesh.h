@@ -30,7 +30,6 @@ namespace Noise3D
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
 		public CRenderSettingShadeMode
-		//public AffineTransform
 	{
 	public:
 

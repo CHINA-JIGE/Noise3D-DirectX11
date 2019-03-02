@@ -60,8 +60,8 @@
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "ISceneObject.h"
 #include "SceneNode.h"
+#include "ISceneObject.h"
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 
 
