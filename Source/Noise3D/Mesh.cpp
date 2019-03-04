@@ -59,7 +59,7 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 	//implementation is very similar to ISceneObject::GetLocalAABB()
 
 	//get accumulated transform from scene graph (relative to root node)
-	SceneNode* pNode = this->ISceneObject::GetParentSceneNode();
+	SceneNode* pNode = this->ISceneObject::GetParentNode();
 	if (! pNode->IsAttachedToSceneNode())
 	{
 		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");

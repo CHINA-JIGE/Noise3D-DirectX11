@@ -17,6 +17,7 @@
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
 #include <vector>
+#include <queue>
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
@@ -54,6 +55,7 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
+#include "GeneralTreeDataStructure.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"

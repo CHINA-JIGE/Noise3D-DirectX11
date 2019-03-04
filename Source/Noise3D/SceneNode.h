@@ -13,33 +13,37 @@
 namespace Noise3D
 {
 	//Scene Node is a base class that contains Tree operation and transformation info
-	class SceneNode
+	class SceneNode :
+		protected GeneralTreeNode<>
 	{
 	public:
 
-		//void AttachChildSceneObject(ISceneObject* pObj);
+		SceneNode* GetParentNode();
 
-		SceneNode* GetParentSceneNode();
+		void	AttachToParentNode(SceneNode* pNode);//attach current node to parent
 
-		void	AttachToParentSceneNode(SceneNode* pNode);//attach current node to parent
+		void	AttachChildNode(SceneNode* pNode);//attach to child node
 
-		void	AttachChildSceneNode(SceneNode* pNode);//attach to child node
+		bool IsAttachedToParentNode();
 
-		bool IsAttachedToSceneNode();
+		SceneNode* CreateChildNode();//directly create a new scene node and attach to current node
+
+		SceneNode* GetChildNode(int index);
+
+		uint32_t GetChildNodeCount();
 
 		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
 		AffineTransform EvalWorldTransform();//relative to its scene graph root node
 
-		SceneNode* CreateChildSceneNode();
 
-		bool IsRoot();
+		//bool IsRoot();
 
 	protected:
 
-		SceneNode() = delete;
+		SceneNode();
 
-		SceneNode(bool isRoot);
+		//SceneNode(bool isRoot);
 
 		std::vector<ISceneObject*> mSceneObjectList;
 
@@ -49,7 +53,7 @@ namespace Noise3D
 
 		AffineTransform mTransform;
 
-		bool mIsRoot;//scene graph's root
+		//bool mIsRoot;//scene graph's root
 
 	};
 

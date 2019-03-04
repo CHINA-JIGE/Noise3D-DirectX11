@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
+    <ClInclude Include="GeneralTreeDataStructure.h" />
     <ClInclude Include="GeometryEntity.h" />
     <ClInclude Include="ISceneObject.h" />
     <ClInclude Include="ITexture.h" />
@@ -211,6 +212,7 @@
   <ItemGroup>
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
+    <ClCompile Include="GeneralTreeDataStructure.cpp" />
     <ClCompile Include="GeometryEntity.cpp" />
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
