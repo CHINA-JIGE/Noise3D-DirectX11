@@ -90,7 +90,7 @@ namespace Noise3D
 
 		void		InvertRotation();
 
-		NMATRIX	 GetTransformMatrix() const;
+		NMATRIX	 GetRigidTransformMatrix() const;
 
 		//apply rigid transformation to vector/point and output
 		NVECTOR3 TransformVector_Rigid(NVECTOR3 vec) const;

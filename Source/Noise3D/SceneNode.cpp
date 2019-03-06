@@ -16,3 +16,13 @@ AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 {
 	return mTransform;
 }
+
+/*************************************
+
+
+*************************************/
+Noise3D::SceneNode::SceneNode(bool isBoundWidthObject) :
+	mIsBoundWithSceneObject(isBoundWidthObject),
+	mIsWorldTransformNeedToUpdate(true)
+{
+}

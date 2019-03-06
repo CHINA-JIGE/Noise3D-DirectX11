@@ -15,7 +15,7 @@ namespace Noise3D
 
 	//general n-ary tree node's implementation. but 'value' field is not contained in this base class
 	//can be derived and let the derived node type have those common operation of tree.
-	template <typename derivedNode_t>
+	template <typename derivedNode_t, typename derivedTree_t>
 	class TreeNodeTemplate
 	{
 	public:
@@ -25,7 +25,17 @@ namespace Noise3D
 			//a more detailed node like SceneNode or BvhNode should be derived from TreeNodeTemplate<derivedNode_t>
 			//try to instantiate a template. if is_base_of return false, then instantiation failed, compile error
 			//(more specifically, a LINK error)
-			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeNodeTemplate<derivedNode_t>,derivedNode_t>::value>();
+			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeNodeTemplate<derivedNode_t,derivedTree_t>,derivedNode_t>::value>();
+			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeTemplate<derivedNode_t>, derivedTree_t>::value>();
+
+			/*								   management
+				derivedNode_t		-------------------  derivedTree_t
+						|														|
+						| inherit											|
+			TreeNodeTemplate<>						TreeTemplate<>
+			
+			*/
+
 		}
 
 		TreeNodeTemplate(const TreeNodeTemplate& rhs)
@@ -123,6 +133,9 @@ namespace Noise3D
 
 		derivedNode_t* m_pFatherNode;
 
+		//the tree it belongs to
+		derivedTree_t* m_pHostTree;
+
 	};
 
 	//general n-ary tree's implementation. based on TreeNodeTemplate class
@@ -207,6 +220,25 @@ namespace Noise3D
 		void Traverse_LayerOrder(std::vector<derivedNode_t*>& outResult)
 		{
 			TreeTemplate::Traverse_LayerOrder(m_pRoot, outResult);
+		}
+
+		//traverse the path from current node to root (inclusive)(can be used in scenario like scene graph world transform eval)
+		void TraversePathToRoot(derivedNode_t* pStartNode, std::vector<derivedNode_t*>& outResult)
+		{
+			if (pStartNode == nullptr)return;
+			derivedNode_t* pTmpNode = pStartNode;
+			try
+			{
+				while (pTmpNode->GetFatherNode() != nullptr)
+				{
+					outResult.push_back(pTmpNode);
+					pTmpNode = pTmpNode->GetFatherNode();
+				}
+			}
+			catch (std::exception e)
+			{
+				ERROR_MSG("TreeTemplate: father node access violation. current node" + std::to_string( pTmpNode));
+			}
 		}
 
 		//recursively delete nodes(current and its childrens). root can't be removed

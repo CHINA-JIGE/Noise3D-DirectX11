@@ -16,30 +16,41 @@ namespace Noise3D
 
 	//Scene Node is a base class that contains Tree operation and transformation info
 	class SceneNode :
-		public TreeNodeTemplate<SceneNode>
+		public TreeNodeTemplate<SceneNode, SceneGraph>
 	{
 	public:
 
 		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
-		AffineTransform EvalWorldTransform();//relative to its scene graph root node
+		//traverse through scene graph(from given node to root) and concatenate local transforms.
+		//any computed accumulated world matrix will be CACHED in ScenNode;
+		NMATRIX EvalWorldTransformMatrix();
 
-
-		//bool IsRoot();
+		bool IsBoundWithSceneObject();
 
 	protected:
 
-		SceneNode();
+		SceneNode(bool isBoundWidthObject);
 
 		~SceneNode();
 
-		std::vector<ISceneObject*> mSceneObjectList;
-
-		std::vector<SceneNode*> mChildNodeList;
-
-		SceneNode* m_pParentSceneNode;
+		bool mIsBoundWithSceneObject;
 
 		AffineTransform mTransform;
+
+		//accumulated world transform matrix CACHE(from current to path)
+		//(2019.3.6) i decide not to do this optimization
+		//NMATRIX mEvaluatedWorldTransform;
+
+	};
+
+	class SceneGraph :
+		public TreeTemplate<SceneNode>
+	{
+	public:
+
+
+	private:
 
 	};
 

@@ -14,7 +14,8 @@ using namespace Noise3D;
 
 
 
-Noise3D::ISceneObject::ISceneObject()
+Noise3D::ISceneObject::ISceneObject():
+	SceneNode(true)
 {
 }
 
@@ -25,19 +26,15 @@ Noise3D::ISceneObject::~ISceneObject()
 //bounding box of transformed bounding box
 N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 {
-	if (m_pParentSceneNode == nullptr)
-	{
-		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
-		return N_AABB();
-	}
+	//Scene Object is bound with an
 
 	//local aabb
 	N_AABB localAabb =this->GetLocalAABB();
 	const NVECTOR3& a = localAabb.min;
 	const NVECTOR3& b = localAabb.max;
 
-	//world transform info
-	const AffineTransform& trans = m_pParentSceneNode->GetLocalTransform();
+	//world transform matrix (under scene graph's root's coordinate system)
+	NMATRIX worldMat = SceneNode::EvalWorldTransformMatrix();
 
 	//get 8 vertices coord of local AABB
 	NVECTOR3 vertices[8] = 
@@ -54,8 +51,10 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 
 	for (uint32_t i = 0; i < 8; ++i)
 	{
-		//apply affine transform of scene node to 8 vertices of local AABB
-		vertices[i] = trans.TransformVector_Affine(vertices[i]);
+		//apply world transform of scene node to 8 vertices of local AABB
+		NVECTOR4 tmpVertex = { vertices[i].x,vertices[i].y ,vertices[i].y ,1.0f };
+		NVECTOR4 transformedVertex = AffineTransform::TransformVector_MatrixMul(worldMat, tmpVertex); //trans.TransformVector_Affine(vertices[i]);
+		vertices[i] = NVECTOR3(transformedVertex.x, transformedVertex.y, transformedVertex.z);
 	}
 
 	//find the AABB of these 8 transformed vertices

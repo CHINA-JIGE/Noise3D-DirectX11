@@ -54,7 +54,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->EvalWorldTransform().GetWorldMatrix(worldMat, worldInvTransMat);
+	pMesh->EvalWorldTransform().GetTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
@@ -144,7 +144,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->EvalWorldTransform().GetWorldMatrix(worldMat, worldInvTransMat);
+	pMesh->EvalWorldTransform().GetTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
