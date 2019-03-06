@@ -148,7 +148,7 @@
     <Filter Include="NoiseGraphic\Scene\_GeometryEntity">
       <UniqueIdentifier>{fb73006c-3398-4e37-95ee-e7ae15c6ae98}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeneralBasicClass\_GeneralTreeDataStructure">
+    <Filter Include="GeneralBasicClass\_TreeDataStructureTemplate">
       <UniqueIdentifier>{7ba2f2df-371b-4c78-a07a-8fd6c01f3159}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -355,8 +355,8 @@
     <ClInclude Include="GeometryEntity.h">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClInclude>
-    <ClInclude Include="GeneralTreeDataStructure.h">
-      <Filter>GeneralBasicClass\_GeneralTreeDataStructure</Filter>
+    <ClInclude Include="TreeDataStructureTemplate.h">
+      <Filter>GeneralBasicClass\_TreeDataStructureTemplate</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -542,9 +542,6 @@
     </ClCompile>
     <ClCompile Include="SceneNode.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneralTreeDataStructure.cpp">
-      <Filter>GeneralBasicClass\_GeneralTreeDataStructure</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -14,8 +14,7 @@ using namespace Noise3D;
 
 
 
-Noise3D::ISceneObject::ISceneObject(bool isRoot):
-	SceneNode(isRoot)
+Noise3D::ISceneObject::ISceneObject()
 {
 }
 

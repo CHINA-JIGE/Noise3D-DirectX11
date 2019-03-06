@@ -32,7 +32,6 @@
 using namespace Noise3D;
 
 Noise3D::SweepingTrail::SweepingTrail() :
-	ISceneObject(false),
 	mInterpolationStepCount(1),
 	mFreeHeaderInterpStepCount(1),
 	mGeneratedVerticesCount(0),

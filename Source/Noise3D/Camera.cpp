@@ -11,7 +11,6 @@ using namespace Noise3D;
 using namespace Noise3D::Ut;
 
 Noise3D::Camera::Camera():
-	ISceneObject(false),
 	mIsPerspective(true),
 	mViewAngleY_Radian((float)60 / 180 * Ut::PI),
 	mAspectRatio(1.5f),

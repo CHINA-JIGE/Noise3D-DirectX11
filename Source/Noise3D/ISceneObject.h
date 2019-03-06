@@ -28,7 +28,7 @@ namespace Noise3D
 	{
 	public:
 
-		ISceneObject(bool isRoot);
+		ISceneObject();
 
 		virtual ~ISceneObject();
 

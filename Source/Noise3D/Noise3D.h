@@ -26,6 +26,7 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <type_traits>
 #include <random>
 #include <memory>
 
@@ -55,7 +56,7 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
-#include "GeneralTreeDataStructure.h"
+#include "TreeDataStructureTemplate.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"

@@ -16,8 +16,7 @@ using namespace Noise3D::D3D;
 //#define ASSIGN_VERTEX_VALUE(a,b) if(a!=b){a=b;canUpdate=true;}
 #define ASSIGN_VERTEX_VALUE(a,b) {a=b;canUpdate=true;}
 
-GraphicObject::GraphicObject():
-	ISceneObject(false)
+GraphicObject::GraphicObject()
 {
 	//there are several variables needed for one graphic object type
 	//and for the time being ,there are NOISE_GRAPHIC_OBJECT_BUFFER_COUNT graphic object types

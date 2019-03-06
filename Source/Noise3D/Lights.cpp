@@ -63,8 +63,7 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 
 
 //--------------------DYNAMIC DIR LIGHT------------------
-DirLight::DirLight():
-	ISceneObject(false)
+DirLight::DirLight()
 {
 	ZeroMemory(this, sizeof(*this));
 	mLightDesc.specularIntensity = 1.0f;
@@ -152,8 +151,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 
 
 //--------------------DYNAMIC POINT LIGHT------------------
-PointLight::PointLight():
-	ISceneObject(false)
+PointLight::PointLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 0.05f;
@@ -199,8 +197,7 @@ N_PointLightDesc PointLight::GetDesc()
 
 //--------------------DYNAMIC SPOT LIGHT------------------
 
-SpotLight::SpotLight():
-	ISceneObject(false)
+SpotLight::SpotLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.mAttenuationFactor = 1.0f;
