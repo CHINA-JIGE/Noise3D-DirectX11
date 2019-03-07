@@ -53,7 +53,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	{
 		//apply world transform of scene node to 8 vertices of local AABB
 		NVECTOR4 tmpVertex = { vertices[i].x,vertices[i].y ,vertices[i].y ,1.0f };
-		NVECTOR4 transformedVertex = AffineTransform::TransformVector_MatrixMul(worldMat, tmpVertex); //trans.TransformVector_Affine(vertices[i]);
+		NVECTOR4 transformedVertex = AffineTransform::TransformVector_MatrixMul(tmpVertex, worldMat); //trans.TransformVector_Affine(vertices[i]);
 		vertices[i] = NVECTOR3(transformedVertex.x, transformedVertex.y, transformedVertex.z);
 	}
 

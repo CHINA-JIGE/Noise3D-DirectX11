@@ -274,5 +274,5 @@ GraphicObjectManager * SceneManager::mFunction_GetGObjMgrInsideFontMgr()
 
  SceneManager * Noise3D::GetScene()
 {
-	return GetRoot()->GetScenePtr();
+	return GetRoot()->GetSceneMgrPtr();
 }

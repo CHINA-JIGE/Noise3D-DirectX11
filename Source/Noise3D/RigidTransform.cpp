@@ -239,20 +239,6 @@ void Noise3D::RigidTransform::InvertRotation()
 	mQuaternion = XMQuaternionInverse(mQuaternion);
 }
 
-NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
-{
-	NMATRIX out=RigidTransform::GetRotationMatrix();
-	out.m[3][0] = 0.0f;
-	out.m[3][1] = 0.0f;
-	out.m[3][2] = 0.0f;
-	out.m[3][3] = 1.0f;
-	out.m[0][3] = mPosition.x;
-	out.m[1][3] = mPosition.y;
-	out.m[2][3] = mPosition.z;
-
-	return out;
-}
-
 NVECTOR3 Noise3D::RigidTransform::TransformVector_Rigid(NVECTOR3 vec)const 
 {
 	NVECTOR3 outVec = NVECTOR3(0, 0, 0);
@@ -273,11 +259,43 @@ NVECTOR3 Noise3D::RigidTransform::TransformVector_Rigid(NVECTOR3 vec)const
 	return outVec;
 }
 
-void Noise3D::RigidTransform::SetTransform(const RigidTransform & t)
+void Noise3D::RigidTransform::SetRigidTransform(const RigidTransform & t)
 {
 	SetRotation(t.GetQuaternion());
 	SetPosition(t.GetPosition());
 }
+
+void Noise3D::RigidTransform::SetRigidTransformMatrix(const NMATRIX & mat)
+{
+	mPosition = NVECTOR3(mat.m[3][0], mat.m[3][1], mat.m[3][2]);
+	RigidTransform::SetRotation(mat);
+}
+
+NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
+{
+	NMATRIX out = RigidTransform::GetRotationMatrix();
+
+	//this generate an COLUMN matrix
+	/*out.m[3][0] = 0.0f;
+	out.m[3][1] = 0.0f;
+	out.m[3][2] = 0.0f;
+	out.m[3][3] = 1.0f;
+	out.m[0][3] = mPosition.x;
+	out.m[1][3] = mPosition.y;
+	out.m[2][3] = mPosition.z;*/
+
+	//this generate an ROW matrix
+	out.m[0][3] = 0.0f;
+	out.m[1][3] = 0.0f;
+	out.m[2][3] = 0.0f;
+	out.m[3][3] = 1.0f;
+	out.m[3][0] = mPosition.x;
+	out.m[3][1] = mPosition.y;
+	out.m[3][2] = mPosition.z;
+
+	return out;
+}
+
 
 /****************************************************
 

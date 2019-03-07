@@ -21,7 +21,7 @@ namespace Noise3D
 	{
 	public:
 
-		SceneManager*	GetScenePtr();
+		SceneManager*	GetSceneMgrPtr();
 
 		HWND		CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowTitle, HINSTANCE hInstance);
 

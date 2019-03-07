@@ -20,7 +20,9 @@ namespace Noise3D
 	{
 	public:
 
-		TreeNodeTemplate() :m_pFatherNode(nullptr) 
+		TreeNodeTemplate() :
+			m_pFatherNode(nullptr),
+			m_pHostTree(nullptr)
 		{
 			//a more detailed node like SceneNode or BvhNode should be derived from TreeNodeTemplate<derivedNode_t>
 			//try to instantiate a template. if is_base_of return false, then instantiation failed, compile error
@@ -90,6 +92,7 @@ namespace Noise3D
 		{
 			//if it's not polymorphic, then this expansion will fail
 			derivedNode_t* pNewChild = new derivedNode_t;
+			pNewChild->m_pHostTree = this->m_pHostTree;
 			TreeNodeTemplate::AttachChildNode(pNewChild);
 			return pNewChild;
 		}
@@ -108,6 +111,12 @@ namespace Noise3D
 		uint32_t GetChildNodeCount()
 		{
 			return mChildNodeList.size();
+		}
+
+		//get the tree it belongs to
+		derivedTree_t* GetHostTree()
+		{
+			return m_pHostTree;
 		}
 
 	protected:
@@ -133,7 +142,7 @@ namespace Noise3D
 
 		derivedNode_t* m_pFatherNode;
 
-		//the tree it belongs to
+		//the tree it belongs to (initialized at creation (but not at constructor))
 		derivedTree_t* m_pHostTree;
 
 	};
@@ -144,7 +153,10 @@ namespace Noise3D
 	{
 	public:
 
-		TreeTemplate() :m_pRoot(new derivedNode_t){}
+		TreeTemplate() :m_pRoot(new derivedNode_t)
+		{
+			m_pRoot->m_pHostTree =this;
+		}
 
 		//destructor, delete all nodes
 		~TreeTemplate()
@@ -226,18 +238,25 @@ namespace Noise3D
 		void TraversePathToRoot(derivedNode_t* pStartNode, std::vector<derivedNode_t*>& outResult)
 		{
 			if (pStartNode == nullptr)return;
+			if (pStartNode->GetHostTree() != this)
+			{
+				ERROR_MSG("TreeTemplate : given node doesn't belong to current tree.");
+				return;
+			}
+
 			derivedNode_t* pTmpNode = pStartNode;
 			try
 			{
-				while (pTmpNode->GetFatherNode() != nullptr)
+				//when pTmpNode==root, continue. then ptr will become nullptr, exit.
+				do
 				{
 					outResult.push_back(pTmpNode);
 					pTmpNode = pTmpNode->GetFatherNode();
-				}
+				} while (pTmpNode != nullptr);
 			}
 			catch (std::exception e)
 			{
-				ERROR_MSG("TreeTemplate: father node access violation. current node" + std::to_string( pTmpNode));
+				ERROR_MSG(std::string("TreeTemplate: father node access violation. current node") + std::to_string((uint32_t)pTmpNode));
 			}
 		}
 

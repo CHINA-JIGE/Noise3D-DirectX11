@@ -12,7 +12,6 @@ namespace Noise3D
 	class ModelLoader;
 
 
-
 	class /*_declspec(dllexport)*/ SceneManager:
 		public IFactory<Renderer>,
 		public IFactory<Camera>,

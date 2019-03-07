@@ -12,7 +12,8 @@
 
 namespace Noise3D
 {
-	class ISceneObject;
+
+	class SceneGraph;
 
 	//Scene Node is a base class that contains Tree operation and transformation info
 	class SceneNode :
@@ -23,8 +24,17 @@ namespace Noise3D
 		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
-		//any computed accumulated world matrix will be CACHED in ScenNode;
+		//(2019.3.7)currently computed accumulated world matrix won't cache in ScenNode;
+
+		//void ComputeWorldTransform();
+
+		//AffineTransform& GetWorldTransform();
+
 		NMATRIX EvalWorldTransformMatrix();
+
+		void EvalWorldTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
+
+		NMATRIX EvalViewMatrix();//for camera, only rigid transform part is considered
 
 		bool IsBoundWithSceneObject();
 
@@ -36,7 +46,10 @@ namespace Noise3D
 
 		bool mIsBoundWithSceneObject;
 
-		AffineTransform mTransform;
+		AffineTransform mLocalTransform;
+
+		//(2019.3.7)manually update?
+		//AffineTransform mWorldTransform;
 
 		//accumulated world transform matrix CACHE(from current to path)
 		//(2019.3.6) i decide not to do this optimization
