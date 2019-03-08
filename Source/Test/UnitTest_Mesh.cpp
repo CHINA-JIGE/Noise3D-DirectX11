@@ -70,7 +70,7 @@ BOOL Init3D(HWND hwnd)
 	if (!pRoot->Init())return FALSE;
 	
 	//query pointer to IScene
-	pScene = pRoot->GetScenePtr();
+	pScene = pRoot->GetSceneMgrPtr();
 
 	//retrieve meshMgr and Create new mesh
 	pMeshMgr = pScene->GetMeshMgr();
@@ -119,7 +119,7 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
 	Mesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
-	pMesh->SetPosition(0, 0, 0);
+	pMesh->GetLocalTransform().SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
@@ -135,7 +135,7 @@ BOOL Init3D(HWND hwnd)
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	NVECTOR3 modelPos = meshList.at(0)->GetPosition();
+	NVECTOR3 modelPos = meshList.at(0)->GetLocalTransform().GetPosition();
 	for (auto v : *pTmpVB)
 	{
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
@@ -147,7 +147,6 @@ BOOL Init3D(HWND hwnd)
 	
 	//----------------------------------------------------------
 
-	pCamera->SetPosition(2.0f, 0, 0);
 	pCamera->LookAt(0, 0, 0);
 	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
@@ -155,7 +154,7 @@ BOOL Init3D(HWND hwnd)
 	N_AABB meshAABB = meshList.at(0)->GetLocalAABB();
 	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
 	float rotateY = meshAABB.max.y*1.3f;
-	pCamera->SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
+	pCamera->GetWorldTransform().SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
 	pCamera->LookAt(0, 0, 0);
 
 
@@ -278,10 +277,9 @@ void InputProcess()
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
-		NVECTOR3 euler = pCamera->GetEulerAngleZXY();
-		euler += NVECTOR3((float)inputE.GetMouseDiffX() / 200.0f, (float)inputE.GetMouseDiffY() / 200.0f, 0);
-		AffineTransform t;
-		pCamera->;
+		NVECTOR3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
+		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f , 0);
+		pCamera->GetWorldTransform().SetRotation(euler.x,euler.y,euler.z);
 	}
 
 	//quit main loop and terminate program

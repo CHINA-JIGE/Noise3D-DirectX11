@@ -145,6 +145,22 @@ void Noise3D::SweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>
 	outList.push_back(mFreeTail_Start);
 }
 
+N_AABB Noise3D::SweepingTrail::GetLocalAABB()
+{
+	//sweeping trail's vertices are dynamically generated, not easy to compute AABB
+	return N_AABB();
+}
+
+N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()
 {
 	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;

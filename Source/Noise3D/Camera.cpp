@@ -42,7 +42,7 @@ void Noise3D::Camera::SetDirection(NVECTOR3 viewDir)
 {
 	if (viewDir != NVECTOR3(0, 0, 0))
 	{
-		mLookat = ISceneObject::GetLocalTransform().GetPosition() + viewDir;
+		mLookat =Camera::GetWorldTransform().GetPosition() + viewDir;
 		mFunc_UpdateRotation();
 	}
 }
@@ -51,7 +51,7 @@ void Noise3D::Camera::SetDirection(float x, float y, float z)
 {
 	if (x != 0 && y != 0 && z != 0)
 	{
-		mLookat = ISceneObject::GetLocalTransform().GetPosition() + NVECTOR3(x, y, z);
+		mLookat = Camera::GetWorldTransform().GetPosition() + NVECTOR3(x, y, z);
 		mFunc_UpdateRotation();
 	}
 }
@@ -65,7 +65,7 @@ NVECTOR3 Noise3D::Camera::GetLookAtPos()
 NVECTOR3 Noise3D::Camera::GetDirection()
 {
 	mFunc_UpdateViewDir();
-	return mLookat - ISceneObject::GetLocalTransform().GetPosition();
+	return mLookat - Camera::GetWorldTransform().GetPosition();
 }
 
 void Noise3D::Camera::SetProjectionType(bool isPerspective)
@@ -76,13 +76,13 @@ void Noise3D::Camera::SetProjectionType(bool isPerspective)
 void Noise3D::Camera::GetViewMatrix(NMATRIX & outMat)
 {
 	//WARNING: Row-Major matrix
-	NVECTOR3 pos = ISceneObject::GetLocalTransform().GetPosition();
+	NVECTOR3 pos = Camera::GetWorldTransform().GetPosition();
 
 	//translation to align the camera pos to origin
 	NMATRIX tmpTranslationMat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z);
 
 	//rotate the align the camera view dir to +z/-z axis
-	NMATRIX tmpRotationMat = ISceneObject::GetLocalTransform().GetRotationMatrix();
+	NMATRIX tmpRotationMat = Camera::GetWorldTransform().GetRotationMatrix();
 
 	////inverse
 	tmpRotationMat = tmpRotationMat.Transpose();
@@ -151,7 +151,7 @@ void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMov
 	*/
 
 	NVECTOR3 relativePos;
-	NVECTOR3 euler = ISceneObject::GetLocalTransform().GetEulerAngleZXY();
+	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	//generate a direction first (later multiply it with fDist)
 	if(enableYAxisMovement)
 	{ 
@@ -170,8 +170,8 @@ void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMov
 	relativePos *= fSignedDistance;
 
 	//relative movement
-	ISceneObject::GetLocalTransform().Move(relativePos);
-
+	Camera::GetWorldTransform().Move(relativePos);
+	mLookat += relativePos;
 }
 
 void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovement)
@@ -188,7 +188,7 @@ void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovem
 	*/
 
 		NVECTOR3 relativePos;
-		NVECTOR3 euler = ISceneObject::GetLocalTransform().GetEulerAngleZXY();
+		NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 		//generate a direction first (later multiply it with fDist)
 		if (enableYAxisMovement)
 		{
@@ -207,13 +207,15 @@ void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovem
 		relativePos *= fSignedDistance;
 
 		//relative movement
-		ISceneObject::GetLocalTransform().Move(relativePos);
+		Camera::GetWorldTransform().Move(relativePos);
+		mLookat += relativePos;
 }
 
 void Noise3D::Camera::fps_MoveUp(float fSignedDistance)
 {
-	ISceneObject::GetLocalTransform().Move(NVECTOR3(0, fSignedDistance, 0));
-	Camera::LookAt(Camera::GetLookAtPos() + NVECTOR3(0, fSignedDistance, 0));
+	NVECTOR3 relativePos = NVECTOR3(0, fSignedDistance, 0);
+	Camera::GetWorldTransform().Move(relativePos);
+	mLookat += relativePos;
 }
 
 void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
@@ -240,9 +242,9 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	}
 	scrCenterPos /= float(vb.size());
 	Camera::LookAt(scrCenterPos);
-	NVECTOR3 euler = ISceneObject::GetLocalTransform().GetEulerAngleZXY();
+	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	euler.z = 0;
-	ISceneObject::GetLocalTransform().SetRotation(euler);
+	Camera::GetWorldTransform().SetRotation(euler);
 
 	//2. Adjust projection matrix (fov & aspectRatio)
 	float halfBoundingRectWidth=0.0f;
@@ -269,9 +271,24 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	}
 }
 
+N_AABB Noise3D::Camera::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::Camera::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
 {
 	return NOISE_SCENE_OBJECT_TYPE::CAMERA;
+}
+
+AffineTransform & Noise3D::Camera::GetWorldTransform()
+{
+	return mLocalTransform;
 }
 
 /************************************************************************
@@ -281,8 +298,8 @@ NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
 void Noise3D::Camera::mFunc_UpdateViewDir()
 {
 	//update lookat according to new posture
-	NVECTOR3 pos = ISceneObject::GetLocalTransform().GetPosition();
-	NVECTOR3 euler = ISceneObject::GetLocalTransform().GetEulerAngleZXY();
+	NVECTOR3 pos = Camera::GetWorldTransform().GetPosition();
+	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	float tmpDirectionLength = (mLookat - pos).Length();
 	//z+ axis is the original posture.
 	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
@@ -298,7 +315,7 @@ void Noise3D::Camera::mFunc_UpdateRotation()
 	//main function: change Euler Angle after the direction changes
 
 	//update Direction
-	NVECTOR3 dir = mLookat - ISceneObject::GetLocalTransform().GetPosition();
+	NVECTOR3 dir = mLookat - Camera::GetWorldTransform().GetPosition();
 
 	/*	NOTE£º
 	atan ranged [-pi/2,pi/2]
@@ -319,6 +336,6 @@ void Noise3D::Camera::mFunc_UpdateRotation()
 	//roll angle z: direction update doesn't change ROLL angle
 
 	//apply to RigidTransform
-	NVECTOR3 euler = ISceneObject::GetLocalTransform().GetEulerAngleZXY();
-	ISceneObject::GetLocalTransform().SetRotation(pitch_x, yaw_y, euler.z);
+	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+	Camera::GetWorldTransform().SetRotation(pitch_x, yaw_y, euler.z);
 }

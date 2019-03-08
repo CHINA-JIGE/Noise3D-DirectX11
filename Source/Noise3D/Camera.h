@@ -10,6 +10,9 @@
 
 namespace Noise3D
 {
+	//(2019.3.8) WARNING: currently Camera doesn't support hierarchical transform.
+	//its transform is directly the World transform
+
 	class /*_declspec(dllexport)*/ Camera:
 		public ISceneObject
 	{
@@ -53,11 +56,28 @@ namespace Noise3D
 
 		void		OptimizeForQwertyPass1(const Mesh* pScreenDescriptor);
 
+		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
 
+		//ISceneObject::
 		virtual	N_AABB ComputeWorldAABB_Accurate() override;
 
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
+		//(2019.3.8) sorry, currently Camera doesn't support hierarchical transform.
+		//its transform is directly the World transform. because lookat
+		AffineTransform& GetWorldTransform();
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+		
+		//SceneNode::
+		AffineTransform& GetLocalTransform() =delete;
+
 
 	private:
 

@@ -99,7 +99,7 @@ void Noise3D::AffineTransform::GetTransformMatrix(NMATRIX& outWorldMat, NMATRIX&
 
 void Noise3D::AffineTransform::SetTransform(const AffineTransform & t)
 {
-	RigidTransform::SetTransform(t);//rotation, translation
+	RigidTransform::SetRigidTransform(t);//rotation, translation
 	AffineTransform::SetScale(t.GetScale());//scale
 }
 

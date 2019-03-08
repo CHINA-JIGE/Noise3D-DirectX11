@@ -65,7 +65,6 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 //--------------------DYNAMIC DIR LIGHT------------------
 DirLight::DirLight()
 {
-	ZeroMemory(this, sizeof(*this));
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.direction = NVECTOR3(1.0f, 0, 0);
 	mLightDesc.diffuseIntensity = 0.5;
@@ -73,6 +72,7 @@ DirLight::DirLight()
 
 DirLight::~DirLight()
 {
+
 }
 
 void DirLight::SetDirection(const NVECTOR3& dir)
@@ -95,6 +95,26 @@ N_DirLightDesc DirLight::GetDesc()
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
 	return mLightDesc;
+}
+
+N_AABB Noise3D::DirLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::DirLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::DirLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::DirLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
 }
 
 //overriden virtual function
@@ -193,6 +213,26 @@ N_PointLightDesc PointLight::GetDesc()
 	return mLightDesc;
 }
 
+N_AABB Noise3D::PointLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::PointLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::PointLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::PointLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
+}
+
 
 
 //--------------------DYNAMIC SPOT LIGHT------------------
@@ -265,5 +305,25 @@ N_SpotLightDesc SpotLight::GetDesc()
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
 	return mLightDesc;
+}
+
+N_AABB Noise3D::SpotLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SpotLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SpotLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::SpotLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
 }
 

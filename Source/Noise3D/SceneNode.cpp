@@ -17,7 +17,7 @@ AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 	return mLocalTransform;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldTransformMatrix()
+NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix()
 {
 	SceneGraph* pSG = this->GetHostTree();
 	std::vector<SceneNode*> path;//path to root
@@ -41,9 +41,9 @@ NMATRIX Noise3D::SceneNode::EvalWorldTransformMatrix()
 	return result;
 }
 
-void Noise3D::SceneNode::EvalWorldTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInvTranspose)
+void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInvTranspose)
 {
-	outWorldMat = SceneNode::EvalWorldTransformMatrix();
+	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix();
 
 	//world inv transpose for normal's transformation
 	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
@@ -59,7 +59,7 @@ void Noise3D::SceneNode::EvalWorldTransformMatrix(NMATRIX & outWorldMat, NMATRIX
 	}
 }
 
-bool Noise3D::SceneNode::IsBoundWithSceneObject()
+bool Noise3D::SceneNode::ConvertableToSceneObject()
 {
 	return mIsBoundWithSceneObject;
 }

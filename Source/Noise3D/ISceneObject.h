@@ -42,7 +42,7 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Accurate() = 0;
 
 		//bounding box of transformed bounding box
-		N_AABB ComputeWorldAABB_Fast();
+		virtual N_AABB ComputeWorldAABB_Fast();
 
 		//object name/uid (initialized in IFactory<> creation)
 		std::string GetName();

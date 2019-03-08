@@ -113,11 +113,27 @@ namespace Noise3D
 
 		N_DirLightDesc GetDesc();
 
+		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
 
+		//ISceneObject::
 		virtual	N_AABB ComputeWorldAABB_Accurate() override;
 
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
+		//SceneNode::
+		AffineTransform& GetLocalTransform()=delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
 
 	protected:
 
@@ -134,7 +150,6 @@ namespace Noise3D
 		~DirLight();
 
 		N_DirLightDesc mLightDesc;
-
 
 	};
 
@@ -157,10 +172,16 @@ namespace Noise3D
 
 		N_PointLightDesc GetDesc();
 
+		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
 
+		//ISceneObject::
 		virtual	N_AABB ComputeWorldAABB_Accurate() override;
 
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
@@ -196,10 +217,16 @@ namespace Noise3D
 
 		N_SpotLightDesc GetDesc();
 
+		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
 
+		//ISceneObject::
 		virtual	N_AABB ComputeWorldAABB_Accurate() override;
 
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
