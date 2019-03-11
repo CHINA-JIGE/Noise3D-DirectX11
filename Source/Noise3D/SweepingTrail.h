@@ -28,11 +28,9 @@ namespace Noise3D
 	{
 	public:
 
-		//set current header line segments (in world space)
-		void SetHeader_WorldSpace(N_LineSegment lineSeg);
-
-		//(2019.3.11)apply rigid transform first then set header
-		void SetHeader_LocalSpace(N_LineSegment lineSeg);
+		//set current header line segments (in local space)
+		//(2019.3.11)Noise3D will automatically apply rigid transform to the header before updating/rendering
+		void SetHeader(N_LineSegment lineSeg);
 
 		//header segment(world space)
 		N_LineSegment GetHeader();

@@ -34,7 +34,7 @@ namespace Noise3D
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/		float		mPad2;
+		NVECTOR3	specularColor;*/	float		mPad2;
 		NVECTOR3 direction;				float		mPad3;
 	};
 
@@ -47,8 +47,8 @@ namespace Noise3D
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/		float		mAttenuationFactor;
-		NVECTOR3 mPosition;						float		mLightingRange;
+		NVECTOR3	specularColor;*/		float		attenuationFactor;
+		NVECTOR3 position;					float		lightingRange;
 
 	};
 
@@ -61,9 +61,9 @@ namespace Noise3D
 
 		/*NVECTOR3 ambientColor;		float specularIntensity;
 		NVECTOR3 diffuseColor;			float diffuseIntensity;
-		NVECTOR3 specularColor;*/	float mAttenuationFactor;
-		NVECTOR3 mLitAt;					float mLightingAngle;
-		NVECTOR3 mPosition;			float mLightingRange;
+		NVECTOR3 specularColor;*/	float attenuationFactor;
+		NVECTOR3 lookAt;					float lightingAngle;
+		NVECTOR3 position;			float lightingRange;
 	};
 
 
@@ -107,11 +107,22 @@ namespace Noise3D
 	{
 	public:
 
+		//set local direction (which can be rotated and transform to world space)
 		void	SetDirection(const NVECTOR3& dir);
 
-		void SetDesc(const N_DirLightDesc& desc);//many CLAMP op happens in this
+		//get local direction
+		NVECTOR3 GetDirection();
+
+		//get world space direction (which can be rotated to transform to world space)
+		NVECTOR3 GetDirection_WorldSpace();
+
+		//many CLAMP op happens in this
+		void SetDesc(const N_DirLightDesc& desc);
 
 		N_DirLightDesc GetDesc();
+
+		//get desc with geometric info transformed to world space
+		N_DirLightDesc GetDesc_TransformedToWorld();
 
 		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
@@ -162,7 +173,14 @@ namespace Noise3D
 	{
 	public:
 
+		//local space
 		void SetPosition(const NVECTOR3& pos);
+
+		//local space
+		NVECTOR3 GetPostion();
+
+		//world space
+		NVECTOR3 GetPosition_WorldSpace();
 
 		void SetAttenuationFactor(float attFactor);
 
@@ -171,6 +189,10 @@ namespace Noise3D
 		void SetDesc(const N_PointLightDesc& desc);//many CLAMP op happens in this
 
 		N_PointLightDesc GetDesc();
+
+		//get desc with geometric info transformed to world space
+		N_PointLightDesc GetDesc_TransformedToWorld();
+
 
 		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;
@@ -206,9 +228,17 @@ namespace Noise3D
 
 		void SetPosition(const NVECTOR3& pos);
 
+		NVECTOR3 GetPosition();
+
+		NVECTOR3 GetPosition_WorldSpace();
+
 		void SetAttenuationFactor(float attFactor);
 
-		void	SetLitAt(const NVECTOR3& vLitAt);
+		void	SetLookAt(const NVECTOR3& vLitAt);
+
+		NVECTOR3 GetLookAt();
+
+		NVECTOR3 GetLookAt_WorldSpace();
 
 		void	SetLightingAngle(float coneAngle_Rad);
 
@@ -217,6 +247,9 @@ namespace Noise3D
 		void SetDesc(const N_SpotLightDesc& desc);//many CLAMP op happens in this
 
 		N_SpotLightDesc GetDesc();
+
+		//get desc with geometric info transformed to world space
+		N_SpotLightDesc GetDesc_TransformedToWorld();
 
 		//ISceneObject::
 		virtual	N_AABB GetLocalAABB() override;

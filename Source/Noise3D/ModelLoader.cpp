@@ -225,7 +225,7 @@ bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 	return isUpdateOk;
 }
 
-void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+void ModelLoader::LoadFile_FBX(SceneNode* pFbxSceneRootNode, NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
 {
 	//if fbx loader has already been initialized,
 	//then actual init procedure will be skipped
@@ -244,7 +244,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 	for (auto& m : fbxResult.meshDataList)
 	{
 		//***1.Create Mesh
-		Mesh* pMesh = pMeshMgr->CreateMesh(m.name);
+		Mesh* pMesh = pMeshMgr->CreateMesh(pFbxSceneRootNode, m.name);
 		if (pMesh == nullptr)
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"

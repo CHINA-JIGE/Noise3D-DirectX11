@@ -21,6 +21,10 @@ namespace Noise3D
 	{
 	public:
 
+		SceneNode();
+
+		~SceneNode();
+
 		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
@@ -39,11 +43,8 @@ namespace Noise3D
 
 	protected:
 
-		SceneNode();
-
 		SceneNode(bool isBoundWidthObject);
 
-		~SceneNode();
 
 		bool mIsBoundWithSceneObject;
 
@@ -59,7 +60,7 @@ namespace Noise3D
 	};
 
 	class SceneGraph :
-		public TreeTemplate<SceneNode>
+		public TreeTemplate<SceneNode,SceneGraph>
 	{
 	public:
 

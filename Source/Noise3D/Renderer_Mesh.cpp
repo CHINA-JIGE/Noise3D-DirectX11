@@ -120,17 +120,17 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 
 	for (UINT i = 0; i<(dirLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLight(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(pointLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLight(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(spotLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLight(i)->GetDesc_TransformedToWorld());
 	}
 };
 

@@ -15,7 +15,7 @@ namespace Noise3D
 
 	//general n-ary tree node's implementation. but 'value' field is not contained in this base class
 	//can be derived and let the derived node type have those common operation of tree.
-	template <typename derivedNode_t, typename derivedTree_t>
+	template <class derivedNode_t, class derivedTree_t>
 	class TreeNodeTemplate
 	{
 	public:
@@ -28,7 +28,7 @@ namespace Noise3D
 			//try to instantiate a template. if is_base_of return false, then instantiation failed, compile error
 			//(more specifically, a LINK error)
 			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeNodeTemplate<derivedNode_t,derivedTree_t>,derivedNode_t>::value>();
-			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeTemplate<derivedNode_t>, derivedTree_t>::value>();
+			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeTemplate<derivedNode_t, derivedTree_t>, derivedTree_t>::value>();
 
 			/*								   management
 				derivedNode_t		-------------------  derivedTree_t
@@ -124,7 +124,9 @@ namespace Noise3D
 		//only general tree has the permission to delete node(like scene graph's root can't be deleted directly)
 		~TreeNodeTemplate() {};
 
-		template<typename T> friend class TreeTemplate;//friend all template instance
+		//friend all template instance and friend derived type
+		template<typename node_t, typename tree_t> friend class TreeTemplate;
+		friend derivedTree_t;
 
 		 //a more detailed node like SceneNode or BvhNode should be derived from TreeNodeTemplate<derivedNode_t>
 		//mFunc_CompileTime_NodeTypeInheritanceCheck<false> shall NOT be implemented to
@@ -148,14 +150,14 @@ namespace Noise3D
 	};
 
 	//general n-ary tree's implementation. based on TreeNodeTemplate class
-	template <typename derivedNode_t>
+	template <class derivedNode_t, class derivedTree_t>
 	class TreeTemplate
 	{
 	public:
 
 		TreeTemplate() :m_pRoot(new derivedNode_t)
 		{
-			m_pRoot->m_pHostTree =this;
+			m_pRoot->m_pHostTree = static_cast<derivedTree_t*>(this);
 		}
 
 		//destructor, delete all nodes
@@ -273,7 +275,10 @@ namespace Noise3D
 			return m_pRoot;
 		}
 
-	private:
+	protected:
+		//friend all template instance and friend derived type
+		template<typename node_t, typename tree_t> friend class TreeTemplate;
+		friend derivedTree_t;
 
 		//recursively delete nodes(current and its childrens). root can't be removed
 		template<bool permittedToRemoveRoot>

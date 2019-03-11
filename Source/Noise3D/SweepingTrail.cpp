@@ -51,19 +51,10 @@ Noise3D::SweepingTrail::~SweepingTrail()
 	ReleaseCOM(m_pVB_Gpu);
 }
 
-void Noise3D::SweepingTrail::SetHeader_WorldSpace(N_LineSegment lineSeg)
+void Noise3D::SweepingTrail::SetHeader(N_LineSegment lineSeg)
 {
+	//set header in local space. transformation will be applied in 'mFunc_CoolDownFreeHeader'
 	mFreeHeader = lineSeg;
-}
-
-void Noise3D::SweepingTrail::SetHeader_LocalSpace(N_LineSegment lineSeg)
-{
-	N_LineSegment lineSegW;
-	//transform to world space first (doesn't consider scale)
-	NMATRIX mat =  SceneNode::EvalWorldRigidTransformMatrix();
-	lineSegW.vert1=AffineTransform::TransformVector_MatrixMul(lineSeg.vert1, mat);
-	lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(lineSeg.vert2, mat);
-	mFreeHeader = lineSegW;
 }
 
 N_LineSegment Noise3D::SweepingTrail::GetHeader()
@@ -213,7 +204,13 @@ void Noise3D::SweepingTrail::mFunction_CoolDownHeader()
 		//thus vector.front() is right after the header of the line sequence
 		if (mHeaderCoolDownTimer >= mHeaderCoolDownTimeThreshold)
 		{
-			mFixedLineSegments.insert(mFixedLineSegments.begin(), mFreeHeader);
+			//transform to world space first (doesn't consider scale)
+			N_LineSegment lineSegW;
+			NMATRIX mat = SceneNode::EvalWorldRigidTransformMatrix();
+			lineSegW.vert1 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert1, mat);
+			lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert2, mat);
+
+			mFixedLineSegments.insert(mFixedLineSegments.begin(), lineSegW);
 			mHeaderCoolDownTimer = 0.0f;
 		}
 	}
