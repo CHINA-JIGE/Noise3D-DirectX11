@@ -1,6 +1,6 @@
 /***********************************************************
 
-								SceneNode
+					SceneNode & SceneGraph
 
 			A Single Node of Scene Graph/Tree.
 		Each Node's transform are based on its parent node,
@@ -41,6 +41,48 @@ NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix()
 	return result;
 }
 
+NMATRIX Noise3D::SceneNode::EvalWorldRigidTransformMatrix()
+{
+	//similar to SceneNode::EvalWorldAffineTransformMatrix()
+	SceneGraph* pSG = this->GetHostTree();
+	std::vector<SceneNode*> path;//path to root
+	pSG->TraversePathToRoot(this, path);
+
+	NMATRIX result = XMMatrixIdentity();
+	for (auto pNode : path)
+	{
+		NMATRIX tmpMat = XMMatrixIdentity();
+		AffineTransform& localTrans = pNode->GetLocalTransform();
+		localTrans.GetRigidTransformMatrix(tmpMat);
+
+		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
+		result = result * tmpMat;
+	}
+
+	return result;
+}
+
+NMATRIX Noise3D::SceneNode::EvalWorldRotationMatrix()
+{
+	//similar to SceneNode::EvalWorldAffineTransformMatrix()
+	SceneGraph* pSG = this->GetHostTree();
+	std::vector<SceneNode*> path;//path to root
+	pSG->TraversePathToRoot(this, path);
+
+	NMATRIX result = XMMatrixIdentity();
+	for (auto pNode : path)
+	{
+		NMATRIX tmpMat = XMMatrixIdentity();
+		AffineTransform& localTrans = pNode->GetLocalTransform();
+		tmpMat = localTrans.GetRotationMatrix();
+
+		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
+		result = result * tmpMat;
+	}
+
+	return result;
+}
+
 void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInvTranspose)
 {
 	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix();
@@ -64,15 +106,31 @@ bool Noise3D::SceneNode::ConvertableToSceneObject()
 	return mIsBoundWithSceneObject;
 }
 
-/*************************************
+Noise3D::SceneNode::SceneNode():
+	mIsBoundWithSceneObject(false)
+{
+}
 
-
-*************************************/
 Noise3D::SceneNode::SceneNode(bool isBoundWidthObject) :
 	mIsBoundWithSceneObject(isBoundWidthObject)
 {
 }
 
 Noise3D::SceneNode::~SceneNode()
+{
+}
+
+
+/******************************************
+					
+						Scene Graph
+
+*******************************************/
+
+Noise3D::SceneGraph::SceneGraph()
+{
+}
+
+Noise3D::SceneGraph::~SceneGraph()
 {
 }

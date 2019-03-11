@@ -97,7 +97,7 @@ namespace Noise3D
 
 		void		SetRigidTransformMatrix(const NMATRIX& mat);
 
-		NMATRIX	 GetRigidTransformMatrix() const;
+		void		GetRigidTransformMatrix(NMATRIX outMat) const;
 
 	private:
 

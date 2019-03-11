@@ -109,6 +109,21 @@ namespace Noise3D
 
 		UINT		GetRectCount();
 
+		//SceneNode::
+		AffineTransform& GetLocalTransform() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldRigidTransformMatrix() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldRotationMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
 		//ISceneObject::
 		virtual N_AABB GetLocalAABB() override;
 

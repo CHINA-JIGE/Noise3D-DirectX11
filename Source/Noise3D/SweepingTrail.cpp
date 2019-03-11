@@ -51,11 +51,19 @@ Noise3D::SweepingTrail::~SweepingTrail()
 	ReleaseCOM(m_pVB_Gpu);
 }
 
-void Noise3D::SweepingTrail::SetHeader(N_LineSegment lineSeg)
+void Noise3D::SweepingTrail::SetHeader_WorldSpace(N_LineSegment lineSeg)
 {
-	//store prev state of Free header for tangent estimation
-	//mFreeHeader_PreviousState = mFreeHeader;
 	mFreeHeader = lineSeg;
+}
+
+void Noise3D::SweepingTrail::SetHeader_LocalSpace(N_LineSegment lineSeg)
+{
+	N_LineSegment lineSegW;
+	//transform to world space first (doesn't consider scale)
+	NMATRIX mat =  SceneNode::EvalWorldRigidTransformMatrix();
+	lineSegW.vert1=AffineTransform::TransformVector_MatrixMul(lineSeg.vert1, mat);
+	lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(lineSeg.vert2, mat);
+	mFreeHeader = lineSegW;
 }
 
 N_LineSegment Noise3D::SweepingTrail::GetHeader()

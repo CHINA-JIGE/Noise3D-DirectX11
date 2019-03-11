@@ -31,6 +31,9 @@ namespace Noise3D
 
 		void								ReleaseAllChildObject();
 
+		//get ref to scene graph
+		SceneGraph&				GetSceneGraph();
+
 		Renderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHWND);
 
 		Renderer*					GetRenderer();
@@ -68,9 +71,11 @@ namespace Noise3D
 		~SceneManager();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
-		TextureManager*			mFunction_GetTexMgrInsideFontMgr();
+		TextureManager*	mFunction_GetTexMgrInsideFontMgr();
 
 		GraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
+
+		SceneGraph		mSceneGraph;
 
 	};
 

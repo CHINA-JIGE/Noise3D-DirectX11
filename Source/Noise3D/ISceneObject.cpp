@@ -80,3 +80,10 @@ std::string Noise3D::ISceneObject::GetName()
 {
 	return mUid;
 }
+
+void Noise3D::ISceneObject::mFunc_InitSceneObject(const std::string & name, SceneNode * pFatherNode)
+{
+	mUid = name;
+	//(2019.3.9) in ISceneObject's constructor, SceneNode's 'IsBoundToObject' is initialized to true
+	SceneNode::AttachToFatherNode(pFatherNode);
+}

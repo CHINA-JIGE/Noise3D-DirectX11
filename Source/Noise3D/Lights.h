@@ -186,6 +186,7 @@ namespace Noise3D
 
 	private:
 
+		friend LightManager;
 		friend IFactory<PointLight>;
 
 		PointLight();
@@ -229,8 +230,18 @@ namespace Noise3D
 		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
+		//SceneNode::
+		AffineTransform& GetLocalTransform() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
 	private:
 
+		friend LightManager;
 		friend IFactory<SpotLight>;
 
 		SpotLight();

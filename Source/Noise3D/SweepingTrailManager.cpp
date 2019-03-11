@@ -19,24 +19,28 @@ Noise3D::SweepingTrailManager::~SweepingTrailManager()
 	IFactory<SweepingTrail>::DestroyAllObject();
 }
 
-SweepingTrail * Noise3D::SweepingTrailManager::CreateSweepingTrail(N_UID objName, uint32_t maxVertexCount)
+SweepingTrail * Noise3D::SweepingTrailManager::CreateSweepingTrail(SceneNode* pFatherNode, N_UID objName, uint32_t maxVertexCount)
 {
-	if (IFactory<SweepingTrail>::FindUid(objName))
+	if (pFatherNode == nullptr)
 	{
-		ERROR_MSG("CreateSweepingTrail: UID existed!");
+		ERROR_MSG("SweepingTrailMgr: Failed to create mesh. Father scene node is invalid.");
 		return nullptr;
 	}
 
 	auto pTrail = IFactory<SweepingTrail>::CreateObject(objName);
-	if (!pTrail->mFunction_InitGpuBuffer(maxVertexCount))
+	if (pTrail->mFunction_InitGpuBuffer(maxVertexCount))
 	{
-		ERROR_MSG("CreateSweepingTrail: Failed to init Gpu buffer!");
+		//init scene object info(necessary for class derived from ISceneObject)
+		pTrail->ISceneObject::mFunc_InitSceneObject(objName, pFatherNode);
+		return pTrail;
+	}
+	else
+	{
+		ERROR_MSG("SweepingTrailMgr: failed to init Gpu buffer!");
 		IFactory<SweepingTrail>::DestroyObject(objName);
 		return nullptr;
 	}
 
-	//init succeed
-	return pTrail;
 }
 
 SweepingTrail * Noise3D::SweepingTrailManager::GetSweepingTrail(N_UID objName)

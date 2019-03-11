@@ -10,10 +10,18 @@
 
 using namespace Noise3D;
 
-Mesh * MeshManager::CreateMesh(N_UID meshName)
+Mesh * MeshManager::CreateMesh(SceneNode* pFatherNode, N_UID meshName)
 {
+	if (pFatherNode == nullptr)
+	{
+		ERROR_MSG("MeshMgr: Failed to create mesh. Father scene node is invalid.");
+		return nullptr;
+	}
 	Mesh* pMesh = IFactory<Mesh>::CreateObject(meshName);
-	pMesh->ISceneObject::mUid = meshName;
+
+	//init scene object info(necessary for class derived from ISceneObject)
+	pMesh->ISceneObject::mFunc_InitSceneObject(meshName, pFatherNode);
+
 	return pMesh;
 }
 

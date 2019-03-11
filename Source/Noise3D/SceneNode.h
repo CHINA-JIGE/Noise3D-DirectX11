@@ -25,14 +25,21 @@ namespace Noise3D
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
 		//(2019.3.7)currently computed accumulated world matrix won't cache in ScenNode;
-
 		NMATRIX EvalWorldAffineTransformMatrix();
+
+		//only consider Rotation and Translation
+		NMATRIX EvalWorldRigidTransformMatrix();
+
+		//only consider Rotation
+		NMATRIX EvalWorldRotationMatrix();
 
 		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
 
 		bool ConvertableToSceneObject();
 
 	protected:
+
+		SceneNode();
 
 		SceneNode(bool isBoundWidthObject);
 
@@ -58,6 +65,12 @@ namespace Noise3D
 
 
 	private:
+
+		friend class SceneManager;
+
+		SceneGraph();
+
+		~SceneGraph();
 
 	};
 

@@ -49,6 +49,8 @@ namespace Noise3D
 
 	protected:
 
+		void mFunc_InitSceneObject(const std::string& name, SceneNode* pFatherNode);
+
 		std::string mUid;//object name, initialized once in IFactory<> using dynamic_cast
 
 	};

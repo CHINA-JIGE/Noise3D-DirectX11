@@ -271,9 +271,9 @@ void Noise3D::RigidTransform::SetRigidTransformMatrix(const NMATRIX & mat)
 	RigidTransform::SetRotation(mat);
 }
 
-NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
+void Noise3D::RigidTransform::GetRigidTransformMatrix(NMATRIX outMat) const
 {
-	NMATRIX out = RigidTransform::GetRotationMatrix();
+	outMat = RigidTransform::GetRotationMatrix();
 
 	//this generate an COLUMN matrix
 	/*out.m[3][0] = 0.0f;
@@ -285,15 +285,13 @@ NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
 	out.m[2][3] = mPosition.z;*/
 
 	//this generate an ROW matrix
-	out.m[0][3] = 0.0f;
-	out.m[1][3] = 0.0f;
-	out.m[2][3] = 0.0f;
-	out.m[3][3] = 1.0f;
-	out.m[3][0] = mPosition.x;
-	out.m[3][1] = mPosition.y;
-	out.m[3][2] = mPosition.z;
-
-	return out;
+	outMat.m[0][3] = 0.0f;
+	outMat.m[1][3] = 0.0f;
+	outMat.m[2][3] = 0.0f;
+	outMat.m[3][3] = 1.0f;
+	outMat.m[3][0] = mPosition.x;
+	outMat.m[3][1] = mPosition.y;
+	outMat.m[3][2] = mPosition.z;
 }
 
 

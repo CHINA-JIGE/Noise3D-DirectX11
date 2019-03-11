@@ -284,6 +284,7 @@ namespace Noise3D
 			{
 				if (pNode == m_pRoot)
 				{
+					ERROR_MSG("Not allowed to manually delete Tree's root.");
 					return;
 				}
 			}

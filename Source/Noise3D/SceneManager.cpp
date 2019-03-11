@@ -53,6 +53,11 @@ void	SceneManager::ReleaseAllChildObject()
 	IFactory<CollisionTestor>::DestroyAllObject();
 }
 
+SceneGraph & Noise3D::SceneManager::GetSceneGraph()
+{
+	return mSceneGraph;
+}
+
 //first time to init RENDERER
 Renderer * SceneManager::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND renderWindowHWND)
 {
@@ -109,7 +114,10 @@ Camera * SceneManager::GetCamera()
 	const N_UID uid = "sceneCamera";
 	if (IFactory<Camera>::FindUid(uid) == false)
 	{
-		IFactory<Camera>::CreateObject(uid);
+		Camera* pCam = IFactory<Camera>::CreateObject(uid);
+
+		//init scene object info(necessary for class derived from ISceneObject)
+		pCam->ISceneObject::mFunc_InitSceneObject(uid, mSceneGraph.GetRoot());
 	}
 	return IFactory<Camera>::GetObjectPtr(uid);
 }

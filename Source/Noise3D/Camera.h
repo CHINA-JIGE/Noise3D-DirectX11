@@ -85,6 +85,8 @@ namespace Noise3D
 
 		friend IFactory<Camera>;
 
+		friend SceneManager;//for ISceneObject init
+
 		Camera();
 
 		~Camera();
