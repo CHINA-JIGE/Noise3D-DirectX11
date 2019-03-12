@@ -288,7 +288,7 @@ NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
 
 AffineTransform & Noise3D::Camera::GetWorldTransform()
 {
-	return mLocalTransform;
+	return ISceneObject::GetAttachedSceneNode()->GetLocalTransform();
 }
 
 /************************************************************************

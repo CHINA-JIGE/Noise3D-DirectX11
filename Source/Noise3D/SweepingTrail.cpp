@@ -206,7 +206,7 @@ void Noise3D::SweepingTrail::mFunction_CoolDownHeader()
 		{
 			//transform to world space first (doesn't consider scale)
 			N_LineSegment lineSegW;
-			NMATRIX mat = SceneNode::EvalWorldRigidTransformMatrix();
+			NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRigidTransformMatrix();
 			lineSegW.vert1 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert1, mat);
 			lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert2, mat);
 

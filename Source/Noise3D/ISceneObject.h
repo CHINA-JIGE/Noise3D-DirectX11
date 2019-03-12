@@ -23,8 +23,7 @@ namespace Noise3D
 
 
 	//class inherited from this base interface can be attach to scene node.
-	class ISceneObject :
-		public SceneNode
+	class ISceneObject
 	{
 	public:
 
@@ -47,11 +46,19 @@ namespace Noise3D
 		//object name/uid (initialized in IFactory<> creation)
 		std::string GetName();
 
+		//attach to scene node
+		void AttachToSceneNode(SceneNode* pNode);
+
+		//..
+		SceneNode* GetAttachedSceneNode();
+
 	protected:
 
-		void mFunc_InitSceneObject(const std::string& name, SceneNode* pFatherNode);
+		void mFunc_InitSceneObject(const std::string& name, SceneNode* pAttachedNode);
 
 		std::string mUid;//object name, initialized once in IFactory<> using dynamic_cast
+
+		SceneNode* m_pAttachedSceneNode;
 
 	};
 

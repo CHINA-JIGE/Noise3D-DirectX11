@@ -91,7 +91,8 @@ BOOL Init3D(HWND hwnd)
 	//Âþ·´ÉäÌùÍ¼
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
-	pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
+	//pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture");
@@ -115,15 +116,18 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
-	pModelLoader->LoadFile_FBX(pScene->GetSceneGraph().GetRoot(),"../media/model/geoScene-fbx/geometries2.FBX", res);
-	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
-	/*Mesh* pMesh = pMeshMgr->CreateMesh("testModel");
+
+	/*SceneNode* pMesh1Node = pScene->GetSceneGraph().GetRoot()->CreateChildNode();
+	Mesh* pMesh = pMeshMgr->CreateMesh(pMesh1Node, "testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
-	pMesh->GetLocalTransform().SetPosition(0, 0, 0);
+	pMesh1Node->GetLocalTransform().SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh);*/
+
+	pModelLoader->LoadFile_FBX("../media/model/geoScene-fbx/geometries2.FBX", res);
+	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
 	for (auto & name : res.meshNameList)
 	{
 		Mesh* pMesh = pMeshMgr->GetMesh(name);
@@ -131,11 +135,11 @@ BOOL Init3D(HWND hwnd)
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
 		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	}
-
+	*/
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	NVECTOR3 modelPos = meshList.at(0)->GetLocalTransform().GetPosition();
+	NVECTOR3 modelPos = meshList.at(0)->GetAttachedSceneNode()->GetLocalTransform().GetPosition();
 	for (auto v : *pTmpVB)
 	{
 		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
@@ -158,7 +162,8 @@ BOOL Init3D(HWND hwnd)
 	pCamera->LookAt(0, 0, 0);
 
 
-	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
+	//pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
+	pModelLoader->LoadSkyBox(pAtmos, "Universe", 1000.0f, 1000.0f, 1000.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
@@ -203,8 +208,6 @@ BOOL Init3D(HWND hwnd)
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pGraphicObjBuffer->AddLine2D({ 0,500 }, { 500,500 }, { 0.9f,0,0,1.0f }, { 0,0.9f,0,1.0f });
-	pGraphicObjBuffer->AddTriangle2D({ 0,30 }, { 300,400 }, { 123,523 }, { 1,0,0,1 }, { 0,1,0,1 }, { 0,0,1,1 });
 
 	return TRUE;
 };

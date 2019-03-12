@@ -225,7 +225,7 @@ bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 	return isUpdateOk;
 }
 
-void ModelLoader::LoadFile_FBX(SceneNode* pFbxSceneRootNode, NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
 {
 	//if fbx loader has already been initialized,
 	//then actual init procedure will be skipped
@@ -241,10 +241,15 @@ void ModelLoader::LoadFile_FBX(SceneNode* pFbxSceneRootNode, NFilePath filePath,
 	MaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
 	TextureManager*	pTexMgr		= pScene->GetTextureMgr();
 
+	//root node to fbx scene
+	SceneNode* pFbxRootNode = pScene->GetSceneGraph().GetRoot()->CreateChildNode();
+	outLoadingResult.pFbxSceneRootNode = pFbxRootNode;
+
 	for (auto& m : fbxResult.meshDataList)
 	{
-		//***1.Create Mesh
-		Mesh* pMesh = pMeshMgr->CreateMesh(pFbxSceneRootNode, m.name);
+		//***1.Create Mesh and its scene node 
+		SceneNode* pNode = pFbxRootNode->CreateChildNode();
+		Mesh* pMesh = pMeshMgr->CreateMesh(pNode, m.name);
 		if (pMesh == nullptr)
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"
@@ -263,9 +268,10 @@ void ModelLoader::LoadFile_FBX(SceneNode* pFbxSceneRootNode, NFilePath filePath,
 		}
 	
 		//set coordinate transformation
-		pMesh->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
-		pMesh->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
-		pMesh->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
+		SceneNode* pNode = pMesh->ISceneObject::GetAttachedSceneNode();
+		pNode->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
+		pNode->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
+		pNode->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
 
 		//output new mesh name
 		outLoadingResult.meshNameList.push_back(m.name);

@@ -121,7 +121,8 @@ Camera * SceneManager::GetCamera()
 		Camera* pCam = IFactory<Camera>::CreateObject(uid);
 
 		//init scene object info(necessary for class derived from ISceneObject)
-		pCam->ISceneObject::mFunc_InitSceneObject(uid, mSceneGraph.GetRoot());
+		SceneNode* pNode =  mSceneGraph.GetRoot()->CreateChildNode();
+		pCam->ISceneObject::mFunc_InitSceneObject(uid, pNode);
 	}
 	return IFactory<Camera>::GetObjectPtr(uid);
 }

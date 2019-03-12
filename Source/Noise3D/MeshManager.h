@@ -14,7 +14,7 @@ namespace Noise3D
 	{
 	public:
 
-		Mesh*				CreateMesh(SceneNode* pFatherNode, N_UID meshName);
+		Mesh*				CreateMesh(SceneNode* pAttachedNode, N_UID meshName);
 
 		Mesh*				GetMesh(N_UID meshName);
 

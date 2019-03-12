@@ -20,7 +20,7 @@ namespace Noise3D
 	{
 	public:
 
-		SweepingTrail*			CreateSweepingTrail(SceneNode* pFatherNode, N_UID objName, uint32_t maxVertexCount);
+		SweepingTrail*			CreateSweepingTrail(SceneNode* pAttachedNode, N_UID objName, uint32_t maxVertexCount);
 
 		SweepingTrail*			GetSweepingTrail(N_UID objName);
 
