@@ -188,7 +188,7 @@ namespace Noise3D
 			for (auto pn : pNode->mChildNodeList)
 			{
 				// nullptr's check will be done within the recursive call
-				TreeTemplate::Traverse_PreOrder(pn, outResult);
+				TreeTemplate::Traverse_PostOrder(pn, outResult);
 			}
 			outResult.push_back(pNode);
 		}
@@ -280,7 +280,7 @@ namespace Noise3D
 		template<typename node_t, typename tree_t> friend class TreeTemplate;
 		friend derivedTree_t;
 
-		//recursively delete nodes(current and its childrens). root can't be removed
+		//recursively delete nodes(current and its childrens). root can't be removed in run-time
 		template<bool permittedToRemoveRoot>
 		void mFunc_Remove(derivedNode_t* pNode)
 		{

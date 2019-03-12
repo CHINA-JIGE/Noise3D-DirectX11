@@ -177,7 +177,7 @@ void Root::ReleaseAll()
 
 	SceneManager* pScene = GetSceneMgrPtr();
 	pScene->ReleaseAllChildObject();
-	IFactory<SceneManager>::DestroyAllObject();//delete the only scene
+	//IFactory<SceneManager>::DestroyAllObject();
 
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);

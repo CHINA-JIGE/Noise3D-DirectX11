@@ -115,22 +115,22 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
-	//pModelLoader->LoadFile_FBX("../model/geoScene-fbx/geometries2.FBX", res);
+	pModelLoader->LoadFile_FBX(pScene->GetSceneGraph().GetRoot(),"../media/model/geoScene-fbx/geometries2.FBX", res);
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
-	Mesh* pMesh = pMeshMgr->CreateMesh("testModel");
+	/*Mesh* pMesh = pMeshMgr->CreateMesh("testModel");
 	pModelLoader->LoadSphere(pMesh, 20.0f, 20, 20);
 	pMesh->GetLocalTransform().SetPosition(0, 0, 0);
 	pMesh->SetCullMode(NOISE_CULLMODE_NONE);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 	pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
-	meshList.push_back(pMesh);
-	/*for (auto & name : res.meshNameList)
+	meshList.push_back(pMesh);*/
+	for (auto & name : res.meshNameList)
 	{
-		IMesh* pMesh = pMeshMgr->GetMesh(name);
+		Mesh* pMesh = pMeshMgr->GetMesh(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
 		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-	}*/
+	}
 
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
@@ -163,7 +163,7 @@ BOOL Init3D(HWND hwnd)
 	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
-	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
+	pDirLight1 = pLightMgr->CreateDynamicDirLight(pScene->GetSceneGraph().GetRoot(),"myDirLight1");
 	N_DirLightDesc dirLightDesc;
 	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
@@ -198,7 +198,7 @@ BOOL Init3D(HWND hwnd)
 	Material* pMat= pMatMgr->CreateMaterial("meshMat1",Mat1);
 
 	//set material
-	pMesh->SetMaterial("meshMat1");
+	//pMesh->SetMaterial("meshMat1");
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");

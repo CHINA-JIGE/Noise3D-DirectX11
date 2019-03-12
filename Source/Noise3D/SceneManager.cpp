@@ -42,6 +42,10 @@ SceneManager::~SceneManager()
 
 void	SceneManager::ReleaseAllChildObject()
 {
+	//(2019.3.12)but there is a problem, that ISceneObject is derived from SceneNode
+	//and when SceneGraph call its destructor, all the scene Node/Objects 's base ptr will be deleted
+	//
+
 	IFactory<MeshManager>::DestroyAllObject();
 	IFactory<Renderer>::DestroyAllObject();
 	IFactory<Camera>::DestroyAllObject();

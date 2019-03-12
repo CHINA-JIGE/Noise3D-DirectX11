@@ -343,9 +343,6 @@
     <ClInclude Include="_RenderPassInfo.h">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="SceneNode.h">
-      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
-    </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
@@ -357,6 +354,9 @@
     </ClInclude>
     <ClInclude Include="TreeDataStructureTemplate.h">
       <Filter>GeneralBasicClass\_TreeDataStructureTemplate</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGraph.h">
+      <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -540,7 +540,7 @@
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClCompile>
-    <ClCompile Include="SceneNode.cpp">
+    <ClCompile Include="SceneGraph.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
   </ItemGroup>

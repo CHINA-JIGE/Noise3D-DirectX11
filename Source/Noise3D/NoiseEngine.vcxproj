@@ -137,7 +137,7 @@
     <ClInclude Include="ISceneObject.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="Renderer_ShadowMap.h" />
-    <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="_RenderPassInfo.h" />
     <ClInclude Include="ShadowCommonInterface.h" />
     <ClInclude Include="SHRotation.h" />
@@ -216,7 +216,7 @@
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
-    <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
     <ClCompile Include="SHRotation.cpp" />
     <ClCompile Include="TextureCubeMap.cpp" />
