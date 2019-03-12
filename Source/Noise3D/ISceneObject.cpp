@@ -82,7 +82,19 @@ std::string Noise3D::ISceneObject::GetName()
 
 void Noise3D::ISceneObject::AttachToSceneNode(SceneNode * pNode)
 {
-	m_pAttachedSceneNode = pNode;
+	if (pNode != nullptr)
+	{
+		//m_pAttachedSceneNode will be set by friend function of SceneNode
+		pNode->AttachSceneObject(this);
+	}
+}
+
+void Noise3D::ISceneObject::DetachFromSceneNode()
+{
+	if (m_pAttachedSceneNode != nullptr)
+	{
+		m_pAttachedSceneNode->DetachSceneObject(this);
+	}
 }
 
 SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode()

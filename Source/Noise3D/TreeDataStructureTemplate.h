@@ -73,7 +73,10 @@ namespace Noise3D
 				if (pOriginalParent != nullptr)
 				{
 					auto iter_ChildNodeRef = std::find(pOriginalParent->mChildNodeList.begin(), pOriginalParent->mChildNodeList.end(), pNode);
-					pOriginalParent->mChildNodeList.erase(iter_ChildNodeRef);
+					if (iter_ChildNodeRef != pOriginalParent->mChildNodeList.end())
+					{
+						pOriginalParent->mChildNodeList.erase(iter_ChildNodeRef);
+					}
 				}
 
 				pNode->m_pFatherNode = (derivedNode_t* )this;
@@ -117,6 +120,12 @@ namespace Noise3D
 		derivedTree_t* GetHostTree()
 		{
 			return m_pHostTree;
+		}
+
+		//determine if it's leaf node
+		bool IsLeafNode()
+		{
+			return mChildNodeList.empty();
 		}
 
 	protected:

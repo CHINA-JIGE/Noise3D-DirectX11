@@ -14,6 +14,7 @@ namespace Noise3D
 {
 
 	class SceneGraph;
+	class ISceneObject;
 
 	//Scene Node is a base class that contains Tree operation and transformation info
 	class SceneNode :
@@ -39,16 +40,17 @@ namespace Noise3D
 
 		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
 
-		bool ConvertableToSceneObject();
+		void AttachSceneObject(ISceneObject* pObj);
+
+		void DetachSceneObject(ISceneObject* pObj);
+
+		bool IsAttachedSceneObject();
 
 	protected:
 
-		SceneNode(bool isBoundWidthObject);
-
-
-		bool mIsBoundWithSceneObject;
-
 		AffineTransform mLocalTransform;
+
+		std::vector<ISceneObject*> mAttachedSceneObjectList;
 
 		//(2019.3.7)manually update?
 		//AffineTransform mWorldTransform;
