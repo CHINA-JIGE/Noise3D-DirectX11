@@ -91,7 +91,7 @@ NVECTOR3 Noise3D::DirLight::GetDirection()
 
 NVECTOR3 Noise3D::DirLight::GetDirection_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::EvalWorldRotationMatrix();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRotationMatrix();
 	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.direction, mat);
 	return vec;
 }
@@ -215,7 +215,7 @@ NVECTOR3 Noise3D::PointLight::GetPostion()
 
 NVECTOR3 Noise3D::PointLight::GetPosition_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::EvalWorldAffineTransformMatrix();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
 	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	return vec;
 }
@@ -309,7 +309,7 @@ NVECTOR3 Noise3D::SpotLight::GetPosition()
 
 NVECTOR3 Noise3D::SpotLight::GetPosition_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::EvalWorldAffineTransformMatrix();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
 	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	return vec;
 }
@@ -337,7 +337,7 @@ NVECTOR3 Noise3D::SpotLight::GetLookAt()
 
 NVECTOR3 Noise3D::SpotLight::GetLookAt_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::EvalWorldAffineTransformMatrix();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
 	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
 	return vec;
 }
@@ -373,7 +373,7 @@ N_SpotLightDesc SpotLight::GetDesc()
 N_SpotLightDesc Noise3D::SpotLight::GetDesc_TransformedToWorld()
 {
 	N_SpotLightDesc desc = SpotLight::GetDesc();
-	NMATRIX mat = ISceneObject::EvalWorldAffineTransformMatrix();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
 	desc.position = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	desc.lookAt = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
 	return desc;

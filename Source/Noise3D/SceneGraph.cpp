@@ -2,15 +2,25 @@
 
 					SceneNode & SceneGraph
 
-			A Single Node of Scene Graph/Tree.
 		Each Node's transform are based on its parent node,
 		so hierarchical transformation is available.
+		World transform evaluation might need to traverse a
+		path in scene graph from leaf to root, and concatenate
+		the local transforms into one.
 
 ***********************************************************/
 
 #include "Noise3D.h"
 
 using namespace Noise3D;
+
+Noise3D::SceneNode::SceneNode()
+{
+}
+
+Noise3D::SceneNode::~SceneNode()
+{
+}
 
 AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 {
@@ -91,8 +101,8 @@ void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, N
 	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
 	if (XMMatrixIsInfinite(worldInvMat))
 	{
-		ERROR_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInvTranspose= XMMatrixIdentity();
+		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
+		outWorldInvTranspose = XMMatrixIdentity();
 		return;
 	}
 	else
@@ -101,23 +111,51 @@ void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, N
 	}
 }
 
-bool Noise3D::SceneNode::ConvertableToSceneObject()
+void Noise3D::SceneNode::AttachSceneObject(ISceneObject * pObj)
 {
-	return mIsBoundWithSceneObject;
+	//should be compatible with ISceneObject::AttachToSceneNode(SceneNode * pNode)
+
+	//similar to the impl of TreeNodeTemplate's AttachChildNode()
+	if (pObj != nullptr)
+	{
+		SceneNode* pOriginalNode = pObj->GetAttachedSceneNode();
+		//if attach to different node, we must detach its original connection first
+		if (pOriginalNode != nullptr && pOriginalNode != this)
+		{
+			//delete pObj's original father's ref to this scene object
+			std::vector<ISceneObject*>& originalNodeSOList = pOriginalNode->SceneNode::mAttachedSceneObjectList;
+			auto iter_ChildObjRef = std::find(originalNodeSOList.begin(),	originalNodeSOList.end(),pObj);
+
+			if (iter_ChildObjRef != originalNodeSOList.end())
+			{
+				originalNodeSOList.erase(iter_ChildObjRef);
+			}
+		}
+		pObj->m_pAttachedSceneNode = this;
+		mAttachedSceneObjectList.push_back(pObj);
+	}
 }
 
-Noise3D::SceneNode::SceneNode():
-	mIsBoundWithSceneObject(false)
+void Noise3D::SceneNode::DetachSceneObject(ISceneObject * pObj)
 {
+	if (pObj != nullptr)
+	{
+		//delete pObj's original father's ref to current node
+		auto iter_ChildObjRef = std::find(
+				mAttachedSceneObjectList.begin(),
+				mAttachedSceneObjectList.end(),pObj);
+
+		if (iter_ChildObjRef != mAttachedSceneObjectList.end())
+		{
+			mAttachedSceneObjectList.erase(iter_ChildObjRef);
+		}
+	}
+	pObj->m_pAttachedSceneNode = nullptr;
 }
 
-Noise3D::SceneNode::SceneNode(bool isBoundWidthObject) :
-	mIsBoundWithSceneObject(isBoundWidthObject)
+bool Noise3D::SceneNode::IsAttachedSceneObject()
 {
-}
-
-Noise3D::SceneNode::~SceneNode()
-{
+	return (mAttachedSceneObjectList.size()!=0);
 }
 
 

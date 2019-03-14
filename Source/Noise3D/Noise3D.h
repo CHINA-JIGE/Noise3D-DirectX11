@@ -66,6 +66,7 @@
 #include "SceneGraph.h"
 #include "ISceneObject.h"
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
+#include "BvhTree.h"
 
 
 #include "ModelProcessor.h"

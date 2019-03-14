@@ -151,6 +151,9 @@
     <Filter Include="GeneralBasicClass\_TreeDataStructureTemplate">
       <UniqueIdentifier>{7ba2f2df-371b-4c78-a07a-8fd6c01f3159}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\CollisionTestor\BvhTree">
+      <UniqueIdentifier>{a863a99d-c5c8-431a-9916-6a0eb056b80f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -358,6 +361,9 @@
     <ClInclude Include="SceneGraph.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
+    <ClInclude Include="BvhTree.h">
+      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -542,6 +548,9 @@
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="BvhTree.cpp">
+      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

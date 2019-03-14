@@ -17,8 +17,9 @@ namespace Noise3D
 	//name lists of loaded objects (e.g. from .fbx)
 	struct N_SceneLoadingResult
 	{
-		N_SceneLoadingResult(){}
+		N_SceneLoadingResult():pFbxSceneRootNode(nullptr){}
 
+		SceneNode* pFbxSceneRootNode;
 		std::vector<N_UID> meshNameList;
 		std::vector<N_UID> materialNameList;
 	};
@@ -45,8 +46,9 @@ namespace Noise3D
 		//bool	LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList, std::vector<N_UID>& outMeshNameList);
 
 		//meshes are created automatically. call MeshManager.GetMesh() to retrieve pointers to mesh objects
-		//all loaded meshes are attached to pFbxSceneRootNode scene node
-		void		LoadFile_FBX(SceneNode* pFbxSceneRootNode, NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
+		//all loaded meshes are attached to pFbxSceneRootNode scene node in loading result.
+		//and the root node is attached to scene graph's root node
+		void		LoadFile_FBX(NFilePath pFilePath, N_SceneLoadingResult& outLoadingResult);
 
 		bool		LoadSkyDome(Atmosphere* const pAtmo,N_UID texture, float fRadiusXZ, float fHeight);
 

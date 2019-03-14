@@ -47,5 +47,8 @@
     <ClCompile Include="UnitTest_GeneralTreeDataStructure.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_SceneGraph.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@ using namespace Noise3D;
 
 
 Noise3D::ISceneObject::ISceneObject():
-	SceneNode(true)
+	m_pAttachedSceneNode(nullptr)
 {
 }
 
@@ -34,7 +34,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	const NVECTOR3& b = localAabb.max;
 
 	//world transform matrix (under scene graph's root's coordinate system)
-	NMATRIX worldMat = SceneNode::EvalWorldAffineTransformMatrix();
+	NMATRIX worldMat = m_pAttachedSceneNode->EvalWorldAffineTransformMatrix();
 
 	//get 8 vertices coord of local AABB
 	NVECTOR3 vertices[8] = 
@@ -81,9 +81,31 @@ std::string Noise3D::ISceneObject::GetName()
 	return mUid;
 }
 
-void Noise3D::ISceneObject::mFunc_InitSceneObject(const std::string & name, SceneNode * pFatherNode)
+void Noise3D::ISceneObject::AttachToSceneNode(SceneNode * pNode)
+{
+	if (pNode != nullptr)
+	{
+		//m_pAttachedSceneNode will be set by friend function of SceneNode
+		pNode->AttachSceneObject(this);
+	}
+}
+
+void Noise3D::ISceneObject::DetachFromSceneNode()
+{
+	if (m_pAttachedSceneNode != nullptr)
+	{
+		m_pAttachedSceneNode->DetachSceneObject(this);
+	}
+}
+
+SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode()
+{
+	return m_pAttachedSceneNode;
+}
+
+void Noise3D::ISceneObject::mFunc_InitSceneObject(const std::string & name, SceneNode* pNode)
 {
 	mUid = name;
 	//(2019.3.9) in ISceneObject's constructor, SceneNode's 'IsBoundToObject' is initialized to true
-	SceneNode::AttachToFatherNode(pFatherNode);
+	ISceneObject::AttachToSceneNode(pNode);
 }

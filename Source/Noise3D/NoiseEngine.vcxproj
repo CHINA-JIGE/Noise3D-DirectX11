@@ -130,6 +130,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BvhTree.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
     <ClInclude Include="TreeDataStructureTemplate.h" />
@@ -210,6 +211,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BvhTree.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
     <ClCompile Include="GeometryEntity.cpp" />
