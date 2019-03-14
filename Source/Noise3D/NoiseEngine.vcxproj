@@ -133,6 +133,8 @@
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
+    <ClInclude Include="LogicalGeometry.h" />
+    <ClInclude Include="LogicalSphere.h" />
     <ClInclude Include="TreeDataStructureTemplate.h" />
     <ClInclude Include="GeometryEntity.h" />
     <ClInclude Include="ISceneObject.h" />

@@ -19,6 +19,10 @@ namespace Noise3D
 	{
 	public:
 
+		BvhNode();
+
+		~BvhNode();
+
 		void SetSceneObject(ISceneObject* pObj);
 		
 		ISceneObject* GetSceneObject();

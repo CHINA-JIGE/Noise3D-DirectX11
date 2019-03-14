@@ -14,3 +14,32 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
+
+Noise3D::BvhNode::BvhNode():
+	m_pSceneObject(nullptr)
+{
+}
+
+Noise3D::BvhNode::~BvhNode()
+{
+}
+
+void Noise3D::BvhNode::SetSceneObject(ISceneObject * pObj)
+{
+	 if(pObj!=nullptr) m_pSceneObject = pObj;
+}
+
+ISceneObject * Noise3D::BvhNode::GetSceneObject()
+{
+	return m_pSceneObject;
+}
+
+void Noise3D::BvhNode::SetAABB(const N_AABB & aabb)
+{
+	mAabb = aabb;
+}
+
+N_AABB Noise3D::BvhNode::GetAABB()
+{
+	return mAabb;
+}

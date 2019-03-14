@@ -139,12 +139,13 @@ BOOL Init3D(HWND hwnd)
 	pMesh0->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh0);
 
-	Mesh* pMesh1 = pMeshMgr->CreateMesh(ac, "testModel1");
+	Mesh* pMesh1 = pMeshMgr->CreateMesh(ab, "testModel1");
 	pModelLoader->LoadSphere(pMesh1, 10.0f, 20, 20);
 	ac->GetLocalTransform().SetPosition(30.0f, 0, 0);
 	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
 	pMesh1->SetShadeMode(NOISE_SHADEMODE_PHONG);
 	meshList.push_back(pMesh1);
+	pMesh1->AttachToSceneNode(ac);//test re-attachment
 
 	Mesh* pMesh2 = pMeshMgr->CreateMesh(aca, "testModel2");
 	pModelLoader->LoadSphere(pMesh2, 10.0f, 20, 20);

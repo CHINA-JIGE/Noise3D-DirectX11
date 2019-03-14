@@ -127,9 +127,6 @@
     <Filter Include="NoiseGraphic\GI">
       <UniqueIdentifier>{52a8c0e3-b373-4673-b074-60180c4f1a4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\GI\SHLighting">
-      <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\GI\Common">
       <UniqueIdentifier>{c3fca04f-cbb8-4d60-9566-df5081aa6b0f}</UniqueIdentifier>
     </Filter>
@@ -153,6 +150,12 @@
     </Filter>
     <Filter Include="NoiseGraphic\Scene\CollisionTestor\BvhTree">
       <UniqueIdentifier>{a863a99d-c5c8-431a-9916-6a0eb056b80f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\SH">
+      <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\LogicalGeometry">
+      <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -305,16 +308,16 @@
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClInclude>
     <ClInclude Include="SHCommon.h">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClInclude>
     <ClInclude Include="RandomSampleGenerator.h">
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClInclude>
     <ClInclude Include="SHVector.h">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClInclude>
     <ClInclude Include="ISphericalFunc.h">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClInclude>
     <ClInclude Include="AffineTransform.h">
       <Filter>NoiseGraphic\Scene\_Transform</Filter>
@@ -332,7 +335,7 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClInclude>
     <ClInclude Include="SHRotation.h">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClInclude>
     <ClInclude Include="ShadowCommonInterface.h">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
@@ -363,6 +366,12 @@
     </ClInclude>
     <ClInclude Include="BvhTree.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicalGeometry.h">
+      <Filter>NoiseGraphic\Scene\LogicalGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicalSphere.h">
+      <Filter>NoiseGraphic\Scene\LogicalGeometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -499,16 +508,16 @@
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_SweepingTrail</Filter>
     </ClCompile>
     <ClCompile Include="SHCommon.cpp">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClCompile>
     <ClCompile Include="RandomSampleGenerator.cpp">
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClCompile>
     <ClCompile Include="SHVector.cpp">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClCompile>
     <ClCompile Include="ISphericalFunc.cpp">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClCompile>
     <ClCompile Include="AffineTransform.cpp">
       <Filter>NoiseGraphic\Scene\_Transform</Filter>
@@ -523,7 +532,7 @@
       <Filter>NoiseGraphic\Scene\Texture</Filter>
     </ClCompile>
     <ClCompile Include="SHRotation.cpp">
-      <Filter>NoiseGraphic\GI\SHLighting</Filter>
+      <Filter>NoiseGraphic\GI\SH</Filter>
     </ClCompile>
     <ClCompile Include="ShadowCommonInterface.cpp">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
