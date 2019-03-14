@@ -101,8 +101,8 @@ void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, N
 	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
 	if (XMMatrixIsInfinite(worldInvMat))
 	{
-		ERROR_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInvTranspose= XMMatrixIdentity();
+		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
+		outWorldInvTranspose = XMMatrixIdentity();
 		return;
 	}
 	else
@@ -120,7 +120,7 @@ void Noise3D::SceneNode::AttachSceneObject(ISceneObject * pObj)
 	{
 		SceneNode* pOriginalNode = pObj->GetAttachedSceneNode();
 		//if attach to different node, we must detach its original connection first
-		if (pOriginalNode != this)
+		if (pOriginalNode != nullptr && pOriginalNode != this)
 		{
 			//delete pObj's original father's ref to this scene object
 			std::vector<ISceneObject*>& originalNodeSOList = pOriginalNode->SceneNode::mAttachedSceneObjectList;

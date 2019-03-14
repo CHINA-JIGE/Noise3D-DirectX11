@@ -268,7 +268,6 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 		}
 	
 		//set coordinate transformation
-		SceneNode* pNode = pMesh->ISceneObject::GetAttachedSceneNode();
 		pNode->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
 		pNode->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
 		pNode->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);

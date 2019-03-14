@@ -14,7 +14,8 @@ using namespace Noise3D;
 
 
 
-Noise3D::ISceneObject::ISceneObject()
+Noise3D::ISceneObject::ISceneObject():
+	m_pAttachedSceneNode(nullptr)
 {
 }
 
