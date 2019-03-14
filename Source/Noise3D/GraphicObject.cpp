@@ -603,6 +603,26 @@ UINT GraphicObject::GetRectCount()
 	return m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->size()/6;
 }
 
+N_AABB Noise3D::GraphicObject::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::GraphicObject::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::GraphicObject::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::GRAPHIC_OBJECT;
+}
+
 
 /***********************************************************************
 										P R I V A T E

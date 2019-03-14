@@ -132,7 +132,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	}
 
 	//compute the center pos of bounding box
-	N_AABB bbox= pTargetMesh->ComputeBoundingBox();
+	N_AABB bbox= pTargetMesh->GetLocalAABB();
 	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
 	tmpBoundingBoxCenter = NVECTOR3(
 		(bbox.max.x + bbox.min.x) / 2.0f,
@@ -142,7 +142,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	//lambda function : compute texcoord for spherical mapping
 	auto ComputeTexCoord_SphericalWrap= [](NVECTOR3 vBoxCenter, NVECTOR3 vPoint)->NVECTOR2
 	{
-		//额...这个函数做简单的纹理球形包裹
+		//a simple texture coord wrapping (spherical)
 
 		NVECTOR2 outTexCoord(0, 0);
 		NVECTOR3 tmpP = vPoint - vBoxCenter;
@@ -150,7 +150,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 		//project to unit sphere
 		tmpP.Normalize();
 
-		//反三角函数算球坐标系坐标，然后角度值映射到[0,1]
+		//inverse trigonometric function
 		float angleYaw = 0.0f;
 		float anglePitch = 0.0f;
 		float tmpLength = sqrtf(tmpP.x*tmpP.x + tmpP.z*tmpP.z);
@@ -168,7 +168,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 		return outTexCoord;
 	};
 
-	UINT k = 0;
+	UINT normal_index = 0;
 	std::vector<N_DefaultVertex>  completeVertexList;
 	//fill vertex attribute
 	for (UINT i = 0;i < tmpVertexList.size();i++)
@@ -176,7 +176,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 		N_DefaultVertex	tmpCompleteV;
 		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
 		tmpCompleteV.Pos = tmpVertexList.at(i);
-		tmpCompleteV.Normal = tmpNormalList.at(k);
+		tmpCompleteV.Normal = tmpNormalList.at(normal_index);
 		//tangent
 		if (tmpCompleteV.Normal.x==0.0f && tmpCompleteV.Normal.z==0.0f)
 		{
@@ -193,8 +193,8 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 		tmpCompleteV.TexCoord = ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
 		completeVertexList.push_back(tmpCompleteV);
 
-		//每新增了一个三角形3个顶点 就要轮到下个三角形的法线了
-		if (i % 3 == 2) { k++; }
+		//one normal vector for 3 vertices (1 triangle)
+		if (i % 3 == 2) { normal_index++; }
 	}
 
 
@@ -241,10 +241,15 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 	MaterialManager*	pMatMgr		= pScene->GetMaterialMgr();
 	TextureManager*	pTexMgr		= pScene->GetTextureMgr();
 
+	//root node to fbx scene
+	SceneNode* pFbxRootNode = pScene->GetSceneGraph().GetRoot()->CreateChildNode();
+	outLoadingResult.pFbxSceneRootNode = pFbxRootNode;
+
 	for (auto& m : fbxResult.meshDataList)
 	{
-		//***1.Create Mesh
-		Mesh* pMesh = pMeshMgr->CreateMesh(m.name);
+		//***1.Create Mesh and its scene node 
+		SceneNode* pNode = pFbxRootNode->CreateChildNode();
+		Mesh* pMesh = pMeshMgr->CreateMesh(pNode, m.name);
 		if (pMesh == nullptr)
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"
@@ -263,9 +268,9 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 		}
 	
 		//set coordinate transformation
-		pMesh->SetScale(m.scale.x, m.scale.y, m.scale.z);
-		pMesh->SetPosition(m.pos.x, m.pos.y, m.pos.z);
-		pMesh->SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
+		pNode->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
+		pNode->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
+		pNode->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
 
 		//output new mesh name
 		outLoadingResult.meshNameList.push_back(m.name);

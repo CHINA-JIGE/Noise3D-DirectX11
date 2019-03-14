@@ -65,7 +65,6 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 //--------------------DYNAMIC DIR LIGHT------------------
 DirLight::DirLight()
 {
-	ZeroMemory(this, sizeof(*this));
 	mLightDesc.specularIntensity = 1.0f;
 	mLightDesc.direction = NVECTOR3(1.0f, 0, 0);
 	mLightDesc.diffuseIntensity = 0.5;
@@ -73,6 +72,7 @@ DirLight::DirLight()
 
 DirLight::~DirLight()
 {
+
 }
 
 void DirLight::SetDirection(const NVECTOR3& dir)
@@ -82,6 +82,18 @@ void DirLight::SetDirection(const NVECTOR3& dir)
 	{
 		mLightDesc.direction = dir;
 	}
+}
+
+NVECTOR3 Noise3D::DirLight::GetDirection()
+{
+	return mLightDesc.direction;
+}
+
+NVECTOR3 Noise3D::DirLight::GetDirection_WorldSpace()
+{
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRotationMatrix();
+	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.direction, mat);
+	return vec;
 }
 
 void DirLight::SetDesc(const N_DirLightDesc & desc)
@@ -97,6 +109,34 @@ N_DirLightDesc DirLight::GetDesc()
 	return mLightDesc;
 }
 
+N_DirLightDesc Noise3D::DirLight::GetDesc_TransformedToWorld()
+{
+	//transform dir light's direction before update info
+	N_DirLightDesc desc = DirLight::GetDesc();
+	desc.direction = DirLight::GetDirection_WorldSpace();
+	return desc;
+}
+
+N_AABB Noise3D::DirLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::DirLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::DirLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::DirLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
+}
+
 //overriden virtual function
 bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 {
@@ -108,7 +148,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	DSBufferDesc.Height = smParam.pixelHeight;
 	DSBufferDesc.MipLevels = 1;
 	DSBufferDesc.ArraySize = 1;
-	DSBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DSBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;//DXGI_FORMAT_D24_UNORM_S8_UINT;//it will be then cast to 2 format later
 	DSBufferDesc.SampleDesc.Count = 1;//if MSAA enabled, RT/DS buffer must have same quality
 	DSBufferDesc.SampleDesc.Quality =0;
 	DSBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -123,7 +163,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	//create DSV (for pass 1: shadow map generation)
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
-	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;// DXGI_FORMAT_R32_TYPELESS;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Texture2D.MipSlice = 0;
 	hr = Noise3D::D3D::g_pd3dDevice11->CreateDepthStencilView(pDepthStencilTexture, &dsvDesc, &m_pShadowMapPass1_DSV);
@@ -134,7 +174,7 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 	//create SRV (for pass 2: shadowing & sampling shadow map)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//same pixel format as DSV in pass 1
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;// DXGI_FORMAT_R32_TYPELESS;// DXGI_FORMAT_R24_UNORM_X8_TYPELESS;//same pixel format as DSV in pass 1
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = DSBufferDesc.MipLevels;
@@ -154,8 +194,8 @@ bool Noise3D::DirLight::mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam)
 PointLight::PointLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
-	mLightDesc.mAttenuationFactor = 0.05f;
-	mLightDesc.mLightingRange = 100.0f;
+	mLightDesc.attenuationFactor = 0.05f;
+	mLightDesc.lightingRange = 100.0f;
 	mLightDesc.diffuseIntensity = 0.5;
 }
 
@@ -165,25 +205,37 @@ PointLight::~PointLight()
 
 void PointLight::SetPosition(const NVECTOR3 & pos)
 {
-	mLightDesc.mPosition = pos;
+	mLightDesc.position = pos;
+}
+
+NVECTOR3 Noise3D::PointLight::GetPostion()
+{
+	return mLightDesc.position;
+}
+
+NVECTOR3 Noise3D::PointLight::GetPosition_WorldSpace()
+{
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
+	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
+	return vec;
 }
 
 void PointLight::SetAttenuationFactor(float attFactor)
 {
-	mLightDesc.mAttenuationFactor = Clamp(attFactor,0.0f,1.0f);
+	mLightDesc.attenuationFactor = Clamp(attFactor,0.0f,1.0f);
 }
 
 void PointLight::SetLightingRange(float range)
 {
-	mLightDesc.mLightingRange = Clamp(range, 0.0f, 10000000.0f);
+	mLightDesc.lightingRange = Clamp(range, 0.0f, 10000000.0f);
 }
 
 void PointLight::SetDesc(const N_PointLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);
-	SetPosition(desc.mPosition);
-	SetAttenuationFactor(desc.mAttenuationFactor);
-	SetLightingRange(desc.mLightingRange);
+	SetPosition(desc.position);
+	SetAttenuationFactor(desc.attenuationFactor);
+	SetLightingRange(desc.lightingRange);
 }
 
 N_PointLightDesc PointLight::GetDesc()
@@ -193,6 +245,33 @@ N_PointLightDesc PointLight::GetDesc()
 	return mLightDesc;
 }
 
+N_PointLightDesc Noise3D::PointLight::GetDesc_TransformedToWorld()
+{
+	N_PointLightDesc desc = PointLight::GetDesc();
+	desc.position = PointLight::GetPosition_WorldSpace();
+	return desc;
+}
+
+N_AABB Noise3D::PointLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::PointLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::PointLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::PointLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
+}
+
 
 
 //--------------------DYNAMIC SPOT LIGHT------------------
@@ -200,12 +279,12 @@ N_PointLightDesc PointLight::GetDesc()
 SpotLight::SpotLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
-	mLightDesc.mAttenuationFactor = 1.0f;
-	mLightDesc.mLightingRange = 100.0f;
-	mLightDesc.mLightingAngle = Ut::PI / 4.0f;
+	mLightDesc.attenuationFactor = 1.0f;
+	mLightDesc.lightingRange = 100.0f;
+	mLightDesc.lightingAngle = Ut::PI / 4.0f;
 	mLightDesc.diffuseIntensity = 0.5;
-	mLightDesc.mLitAt = NVECTOR3(1.0f, 0, 0);
-	mLightDesc.mPosition = NVECTOR3(0, 0, 0);
+	mLightDesc.lookAt = NVECTOR3(1.0f, 0, 0);
+	mLightDesc.position = NVECTOR3(0, 0, 0);
 }
 
 SpotLight::~SpotLight()
@@ -214,50 +293,74 @@ SpotLight::~SpotLight()
 
 void SpotLight::SetPosition(const NVECTOR3 & pos)
 {
-	NVECTOR3 deltaVec = pos - mLightDesc.mLitAt;
+	NVECTOR3 deltaVec = pos - mLightDesc.lookAt;
 
-	//pos and litAt can't superpose
+	//pos and lookAt can't superpose
 	if (!(deltaVec.x == 0 && deltaVec.y == 0 && deltaVec.z == 0))
 	{
-		mLightDesc.mPosition = pos;
+		mLightDesc.position = pos;
 	}
+}
+
+NVECTOR3 Noise3D::SpotLight::GetPosition()
+{
+	return mLightDesc.position;
+}
+
+NVECTOR3 Noise3D::SpotLight::GetPosition_WorldSpace()
+{
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
+	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
+	return vec;
 }
 
 void SpotLight::SetAttenuationFactor(float attFactor)
 {
-	mLightDesc.mAttenuationFactor = Clamp(attFactor,0.0f,1.0f);
+	mLightDesc.attenuationFactor = Clamp(attFactor,0.0f,1.0f);
 }
 
-void SpotLight::SetLitAt(const NVECTOR3 & vLitAt)
+void SpotLight::SetLookAt(const NVECTOR3 & vLitAt)
 {
-	NVECTOR3 deltaVec = vLitAt - mLightDesc.mPosition;
+	NVECTOR3 deltaVec = vLitAt - mLightDesc.position;
 
-	//pos and litAt can't superpose
+	//pos and lookAt can't superpose
 	if (!(deltaVec.x == 0 && deltaVec.y == 0 && deltaVec.z == 0))
 	{
-		mLightDesc.mLitAt = vLitAt;
+		mLightDesc.lookAt = vLitAt;
 	}
+}
+
+NVECTOR3 Noise3D::SpotLight::GetLookAt()
+{
+	return mLightDesc.lookAt;
+}
+
+NVECTOR3 Noise3D::SpotLight::GetLookAt_WorldSpace()
+{
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
+	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
+	return vec;
 }
 
 void SpotLight::SetLightingAngle(float coneAngle_Rad)
 {
 	// i'm not sure...but spot light should have a cone angle smaller than ¦Ð...??
-	mLightDesc.mLightingAngle = Clamp(coneAngle_Rad, 0.0f, Ut::PI-0.001f);
+	mLightDesc.lightingAngle = Clamp(coneAngle_Rad, 0.0f, Ut::PI-0.001f);
 }
 
 void SpotLight::SetLightingRange(float range)
 {
-	mLightDesc.mLightingRange = Clamp(range, 0.0f, 10000000.0f);
+	mLightDesc.lightingRange = Clamp(range, 0.0f, 10000000.0f);
 }
 
 void SpotLight::SetDesc(const N_SpotLightDesc & desc)
 {
 	IBaseLight::SetDesc(desc);
-	SetPosition(desc.mPosition);
-	SetLitAt(desc.mLitAt);
-	SetAttenuationFactor(desc.mAttenuationFactor);
-	SetLightingRange(desc.mLightingRange);
-	SetLightingAngle(desc.mLightingAngle);
+	SetPosition(desc.position);
+	SetLookAt(desc.lookAt);
+	SetAttenuationFactor(desc.attenuationFactor);
+	SetLightingRange(desc.lightingRange);
+	SetLightingAngle(desc.lightingAngle);
 }
 
 N_SpotLightDesc SpotLight::GetDesc()
@@ -265,5 +368,34 @@ N_SpotLightDesc SpotLight::GetDesc()
 	//fill in the common attribute part
 	IBaseLight::GetDesc(mLightDesc);
 	return mLightDesc;
+}
+
+N_SpotLightDesc Noise3D::SpotLight::GetDesc_TransformedToWorld()
+{
+	N_SpotLightDesc desc = SpotLight::GetDesc();
+	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
+	desc.position = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
+	desc.lookAt = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
+	return desc;
+}
+
+N_AABB Noise3D::SpotLight::GetLocalAABB()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SpotLight::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SpotLight::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::SpotLight::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
 }
 

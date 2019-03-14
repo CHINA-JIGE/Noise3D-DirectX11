@@ -107,7 +107,10 @@ void IShaderVariableManager::SetVar(const char * var, void * pVal, int size)
 
 void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX & data)
 {
-	//Effect::SetMatrix will automatically transpose the data
+	//Effect::SetMatrix will automatically re-arrange  the data
+	//(i used to manually transpose the matrix to make it right in shader)
+	//(2019.3.7)DirectXMath generate ROW matrix
+	//and SetMatrix re-arrange the memory layout to fit the shader. and currently my shader is using ROW major
 	 m_pFxMatrix[var]->SetMatrix((float*)&data);
 }
 

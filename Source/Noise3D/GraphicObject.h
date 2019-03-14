@@ -29,7 +29,8 @@ namespace Noise3D
 	};
 
 	class /*_declspec(dllexport)*/ GraphicObject
-		: public CRenderSettingBlendMode
+		: public ISceneObject,
+		public CRenderSettingBlendMode
 	{
 
 	public:
@@ -107,6 +108,33 @@ namespace Noise3D
 		UINT		GetTriangle2DCount();
 
 		UINT		GetRectCount();
+
+		//SceneNode::
+		AffineTransform& GetLocalTransform() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldRigidTransformMatrix() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldRotationMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
 

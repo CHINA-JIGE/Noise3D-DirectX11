@@ -30,11 +30,24 @@ namespace Noise3D
 
 		NMATRIX	 GetTransformMatrix() =delete;//rigid transform
 
-		void		GetWorldMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTransposeMat) const;
+		//DirectXMath use row matrix
+		void		GetTransformMatrix(NMATRIX& outTransformMat) const;
+
+		void		GetTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvTransposeMat) const;
 
 		void		SetTransform(const AffineTransform& t);
 
-		void		SetRigidTransform(const RigidTransform& t);
+		//could fail to decompose
+		bool		SetAffineMatrix(NMATRIX mat);
+
+		//scale, rotation, translation (based on RigidTransform::TransformVector_Rigid())
+		NVECTOR3 TransformVector_Affine(NVECTOR3 vec) const;
+
+		//matrix left-mul(row major, 1x4 * 4x4) 
+		static NVECTOR4 TransformVector_MatrixMul(NVECTOR4 lhs, const NMATRIX& rhs);
+
+		//	matrix left-mul(row major, 1x3 * 3x4)
+		static NVECTOR3 TransformVector_MatrixMul(NVECTOR3 lhs, const NMATRIX& rhs);
 
 	private:
 

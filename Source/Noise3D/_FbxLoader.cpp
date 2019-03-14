@@ -228,13 +228,19 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
 	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
 	NMATRIX mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
-	//D3DXMatrixRotationYawPitchRoll(&mat, rz, ry, rx);//yaw, pitch, roll
-	float s2 = mat.m[1][2];
+	
+	//(2019.3.11)use AffineTransform to help decompose euler angle in ZXY
+	AffineTransform t;
+	t.SetRigidTransformMatrix(mat);
+	NVECTOR3 euler = t.GetEulerAngleZXY();
+	refCurrentMesh.rotation = euler;
+	//(deprecated code)
+	/*float s2 = mat.m[1][2];
 	float noiseEulerY = atan2(mat.m[0][2], mat.m[2][2]);
 	float noiseEulerX = asin(-mat.m[1][2]);
 	float noiseEulerZ = (s2 == 1.0f ? Ut::PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
+	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);*/
 
-	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);
 
 	//--------------------------------MESH GEOMETRY--------------------------
 	//1, Vertices -------- copy control points (vertices with unique position) to temp vertex buffer

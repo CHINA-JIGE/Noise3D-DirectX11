@@ -4,14 +4,15 @@
                            h£ºNoiseScene
 
 ************************************************************************/
-
 #pragma once
+
 
 namespace Noise3D
 {
 	class ModelLoader;
 
-		class /*_declspec(dllexport)*/ SceneManager:
+
+	class /*_declspec(dllexport)*/ SceneManager:
 		public IFactory<Renderer>,
 		public IFactory<Camera>,
 		public IFactory<MeshManager>,
@@ -29,6 +30,9 @@ namespace Noise3D
 	public:
 
 		void								ReleaseAllChildObject();
+
+		//get ref to scene graph
+		SceneGraph&				GetSceneGraph();
 
 		Renderer*					CreateRenderer(UINT BufferWidth, UINT BufferHeight, HWND renderWindowHWND);
 
@@ -67,9 +71,11 @@ namespace Noise3D
 		~SceneManager();
 
 		//a font manager has a texMgr/GObjMgr as internal objects
-		TextureManager*			mFunction_GetTexMgrInsideFontMgr();
+		TextureManager*	mFunction_GetTexMgrInsideFontMgr();
 
 		GraphicObjectManager*	mFunction_GetGObjMgrInsideFontMgr();
+
+		SceneGraph		mSceneGraph;
 
 	};
 

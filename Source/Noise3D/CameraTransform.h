@@ -9,8 +9,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ CameraTransform: 
-		public RigidTransform
+	class /*_declspec(dllexport)*/ CameraTransform
 	{
 	public:
 

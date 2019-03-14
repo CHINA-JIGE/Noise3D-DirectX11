@@ -120,17 +120,17 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 
 	for (UINT i = 0; i<(dirLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLight(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(pointLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLight(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(spotLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLight(i)->GetDesc());
+		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLight(i)->GetDesc_TransformedToWorld());
 	}
 };
 
@@ -247,7 +247,7 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* con
 {
 	//update world/worldInv matrix
 	NMATRIX worldMat,worldInvTransposeMat;
-	pMesh->GetWorldMatrix(worldMat, worldInvTransposeMat);
+	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix(worldMat, worldInvTransposeMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransposeMat);
 };

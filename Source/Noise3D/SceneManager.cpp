@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-                           ¿‡£∫NOISE SceneManger
+                           class£∫SceneManger
 
-			ºÚ ˆ£∫Center of many manager object£®MESH,LIGHT,MATERIAL,TEXTURE...£©
+			desc£∫factory of many manager object£®MESH,LIGHT,MATERIAL,TEXTURE...£©
 					
 ************************************************************************/
 
@@ -13,10 +13,8 @@
 // 3. Corresponding Creation method
 
 #include "Noise3D.h"
-#include "Scene.h"
 
 using namespace Noise3D;
-
 
 SceneManager::SceneManager():
 	 IFactory<Renderer>(1),
@@ -44,6 +42,10 @@ SceneManager::~SceneManager()
 
 void	SceneManager::ReleaseAllChildObject()
 {
+	//(2019.3.12)but there is a problem, that ISceneObject is derived from SceneNode
+	//and when SceneGraph call its destructor, all the scene Node/Objects 's base ptr will be deleted
+	//
+
 	IFactory<MeshManager>::DestroyAllObject();
 	IFactory<Renderer>::DestroyAllObject();
 	IFactory<Camera>::DestroyAllObject();
@@ -53,6 +55,11 @@ void	SceneManager::ReleaseAllChildObject()
 	IFactory<Atmosphere>::DestroyAllObject();
 	IFactory<GraphicObjectManager>::DestroyAllObject();
 	IFactory<CollisionTestor>::DestroyAllObject();
+}
+
+SceneGraph & Noise3D::SceneManager::GetSceneGraph()
+{
+	return mSceneGraph;
 }
 
 //first time to init RENDERER
@@ -111,7 +118,11 @@ Camera * SceneManager::GetCamera()
 	const N_UID uid = "sceneCamera";
 	if (IFactory<Camera>::FindUid(uid) == false)
 	{
-		IFactory<Camera>::CreateObject(uid);
+		Camera* pCam = IFactory<Camera>::CreateObject(uid);
+
+		//init scene object info(necessary for class derived from ISceneObject)
+		SceneNode* pNode =  mSceneGraph.GetRoot()->CreateChildNode();
+		pCam->ISceneObject::mFunc_InitSceneObject(uid, pNode);
 	}
 	return IFactory<Camera>::GetObjectPtr(uid);
 }
@@ -276,5 +287,5 @@ GraphicObjectManager * SceneManager::mFunction_GetGObjMgrInsideFontMgr()
 
  SceneManager * Noise3D::GetScene()
 {
-	return GetRoot()->GetScenePtr();
+	return GetRoot()->GetSceneMgrPtr();
 }

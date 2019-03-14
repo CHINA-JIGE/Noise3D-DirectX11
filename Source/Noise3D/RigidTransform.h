@@ -57,8 +57,10 @@ namespace Noise3D
 		//get value
 		NVECTOR3	GetPosition() const;
 
+		//get euler angle (decomposed by ZXY convention, but the vec3 x/y/z corresponds to their own axis's rotation.
 		NVECTOR3	GetEulerAngleZXY() const;
 
+		//get euler angle (decomposed by ZYZ convention, but the vec3 x/y/z corresponds to their own axis's rotation.
 		N_EULER_ANGLE_ZYZ GetEulerAngleZYZ() const;
 
 		NQUATERNION GetQuaternion() const;
@@ -88,12 +90,14 @@ namespace Noise3D
 
 		void		InvertRotation();
 
-		NMATRIX	 GetTransformMatrix() const;
-
 		//apply rigid transformation to vector/point and output
-		NVECTOR3 TransformVector(NVECTOR3 vec);
+		NVECTOR3 TransformVector_Rigid(NVECTOR3 vec) const;
 
-		void		SetTransform(const RigidTransform& t);
+		void		SetRigidTransform(const RigidTransform& t);
+
+		void		SetRigidTransformMatrix(const NMATRIX& mat);
+
+		void		GetRigidTransformMatrix(NMATRIX outMat) const;
 
 	private:
 

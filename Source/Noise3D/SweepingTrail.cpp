@@ -53,8 +53,7 @@ Noise3D::SweepingTrail::~SweepingTrail()
 
 void Noise3D::SweepingTrail::SetHeader(N_LineSegment lineSeg)
 {
-	//store prev state of Free header for tangent estimation
-	//mFreeHeader_PreviousState = mFreeHeader;
+	//set header in local space. transformation will be applied in 'mFunc_CoolDownFreeHeader'
 	mFreeHeader = lineSeg;
 }
 
@@ -145,6 +144,27 @@ void Noise3D::SweepingTrail::GetVerticesList(std::vector<Noise3D::N_LineSegment>
 	outList.push_back(mFreeTail_Start);
 }
 
+N_AABB Noise3D::SweepingTrail::GetLocalAABB()
+{
+	//sweeping trail's vertices are dynamically generated, not easy to compute AABB
+	return N_AABB();
+}
+
+N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Accurate()
+{
+	return N_AABB();
+}
+
+N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Fast()
+{
+	return N_AABB();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;
+}
+
 /*****************************************************************
 											PRIVATE
 *****************************************************************/
@@ -184,7 +204,13 @@ void Noise3D::SweepingTrail::mFunction_CoolDownHeader()
 		//thus vector.front() is right after the header of the line sequence
 		if (mHeaderCoolDownTimer >= mHeaderCoolDownTimeThreshold)
 		{
-			mFixedLineSegments.insert(mFixedLineSegments.begin(), mFreeHeader);
+			//transform to world space first (doesn't consider scale)
+			N_LineSegment lineSegW;
+			NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRigidTransformMatrix();
+			lineSegW.vert1 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert1, mat);
+			lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert2, mat);
+
+			mFixedLineSegments.insert(mFixedLineSegments.begin(), lineSegW);
 			mHeaderCoolDownTimer = 0.0f;
 		}
 	}

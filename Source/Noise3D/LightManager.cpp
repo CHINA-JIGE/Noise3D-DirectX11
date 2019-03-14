@@ -25,7 +25,7 @@ LightManager::~LightManager()
 }
 
 //-----------CREATION-----------
-DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING_PARAM smParam)
+DirLight * LightManager::CreateDynamicDirLight(SceneNode* pFatherNode, N_UID lightName, N_SHADOW_MAPPING_PARAM smParam)
 {
 	DirLight* pLight = IFactory<DirLight>::CreateObject(lightName);
 
@@ -33,6 +33,8 @@ DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING
 	bool isSucceeded = pLight->mFunction_InitShadowMap(smParam);
 	if (isSucceeded)
 	{
+		//init scene object info(necessary for class derived from ISceneObject)
+		pLight->ISceneObject::mFunc_InitSceneObject(lightName, pFatherNode);
 		return pLight;
 	}
 	else
@@ -44,14 +46,20 @@ DirLight * LightManager::CreateDynamicDirLight(N_UID lightName, N_SHADOW_MAPPING
 
 }
 
-PointLight* LightManager::CreateDynamicPointLight(N_UID lightName)
+PointLight* LightManager::CreateDynamicPointLight(SceneNode* pFatherNode, N_UID lightName)
 {
-	return IFactory<PointLight>::CreateObject(lightName);
+	PointLight* pLight =  IFactory<PointLight>::CreateObject(lightName);
+	//init scene object info(necessary for class derived from ISceneObject)
+	pLight->ISceneObject::mFunc_InitSceneObject(lightName, pFatherNode);
+	return pLight;
 }
 
-SpotLight* LightManager::CreateDynamicSpotLight(N_UID lightName)
+SpotLight* LightManager::CreateDynamicSpotLight(SceneNode* pFatherNode, N_UID lightName)
 {
-	return IFactory<SpotLight>::CreateObject(lightName);
+	SpotLight* pLight =  IFactory<SpotLight>::CreateObject(lightName);
+	//init scene object info(necessary for class derived from ISceneObject)
+	pLight->ISceneObject::mFunc_InitSceneObject(lightName, pFatherNode);
+	return pLight;
 }
 
 
@@ -160,3 +168,8 @@ UINT	LightManager::GetTotalLightCount()
 /***********************************************************************
 								PRIVATE					                    
 ***********************************************************************/
+
+void Noise3D::LightManager::mFunction_GetShadowMapRenderTaskList()
+{
+	ERROR_MSG("Not Implemented!");
+}

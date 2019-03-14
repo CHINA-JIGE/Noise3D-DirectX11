@@ -9,10 +9,15 @@
 
 namespace Noise3D
 {
+
 	//correspond to one draw call of MESH
 	struct N_MeshSubsetInfo
 	{
-		N_MeshSubsetInfo() { ZeroMemory(this, sizeof(*this)); }
+		N_MeshSubsetInfo():
+			startPrimitiveID(0),
+			primitiveCount(0),
+			matName("")
+		{ }
 		UINT		startPrimitiveID;
 		UINT		primitiveCount;
 		std::string		matName;
@@ -20,11 +25,11 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ Mesh
-		: public CRenderSettingBlendMode,
+		: public GeometryEntity<N_DefaultVertex, uint32_t>,//derived from ISceneObject
+		public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
-		public CRenderSettingShadeMode,
-		public AffineTransform
+		public CRenderSettingShadeMode
 	{
 	public:
 
@@ -37,18 +42,9 @@ namespace Noise3D
 
 		void		GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList);
 
-		UINT	GetIndexCount();
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
-		UINT	GetTriangleCount();
-
-		void		GetVertex(UINT iIndex, N_DefaultVertex& outVertex);
-
-		const	std::vector<N_DefaultVertex>*	GetVertexBuffer() const;
-
-		const	std::vector<UINT>*		GetIndexBuffer() const;
-
-		//WARNING!!!! bounding box is computed without applying a world transformation to vertices
-		N_AABB	ComputeBoundingBox();
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
 
@@ -57,27 +53,15 @@ namespace Noise3D
 		friend class ModelLoader;
 		friend class ModelProcessor;
 		friend class CollisionTestor;
+		friend class MeshManager;
 		friend IFactory<Mesh>;
 
 		Mesh();
 
 		~Mesh();
 
-		//this function could be externally invoked by ModelLoader..etc
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB);
-		
-		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_CreateGpuBufferAndUpdateData();
-
-		//this function use the vertex list of vector<N_DefaultVertex>
-		void		mFunction_ComputeBoundingBox();
-
 	private:
 
-		ID3D11Buffer*						m_pVB_Gpu;
-		ID3D11Buffer*						m_pIB_Gpu;
-		N_AABB									mBoundingBox;
-		std::vector<N_DefaultVertex>	mVB_Mem;//vertex in CPU memory
-		std::vector<UINT>						mIB_Mem;//index in CPU memory
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset
 
 	};

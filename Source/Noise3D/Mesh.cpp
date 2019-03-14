@@ -1,27 +1,29 @@
 
 /***********************************************************************
 
-										Mesh
+									Mesh 
+		An important scene object class. Derived from ISceneObject
+		and its geometry data class 'GeometryEntity<>'
 
-***********************************************************************/
+************************************************************************/
 
 #include "Noise3D.h"
 
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-Mesh::Mesh():
-	mBoundingBox({0,0,0},{0,0,0}),
-	m_pVB_Gpu(nullptr),
-	m_pIB_Gpu(nullptr)
+Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()
+{
+	return NOISE_SCENE_OBJECT_TYPE::MESH;
+}
+
+Mesh::Mesh()
 {
 	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
 Mesh::~Mesh()
 {
-	ReleaseCOM(m_pVB_Gpu);
-	ReleaseCOM(m_pIB_Gpu);
 }
 
 void Mesh::ResetMaterialToDefault()
@@ -33,7 +35,7 @@ void Mesh::SetMaterial(N_UID matName)
 {
 	N_MeshSubsetInfo tmpSubset;
 	tmpSubset.startPrimitiveID = 0;
-	tmpSubset.primitiveCount = mIB_Mem.size()/3;//count of triangles
+	tmpSubset.primitiveCount = GeometryEntity::GetTriangleCount() ;//count of triangles
 	tmpSubset.matName = matName;
 	
 	//because this SetMaterial aim to the entire mesh (all primitives) ,so
@@ -52,171 +54,45 @@ void Mesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
 	outRefSubsetList = mSubsetInfoList;
 }
 
-UINT Mesh::GetIndexCount()
+N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 {
-	return mIB_Mem.size();
-}
+	//implementation is very similar to ISceneObject::GetLocalAABB()
 
-UINT Mesh::GetTriangleCount()
-{
-	return mIB_Mem.size()/3;
-}
-
-void Mesh::GetVertex(UINT iIndex, N_DefaultVertex& outVertex)
-{
-	if (iIndex < mVB_Mem.size())
+	//get accumulated transform from scene graph (relative to root node)
+	SceneNode* pNode = ISceneObject::GetAttachedSceneNode();
+	if (pNode==nullptr)
 	{
-		outVertex = mVB_Mem.at(iIndex);
+		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space AABB.");
+		return N_AABB();
 	}
+
+	//reset to infinite far
+	if (mVB_Mem.size() == 0)
+	{
+		return  N_AABB();//min/max are initialized infinite far
+	}
+
+	//min / max are initialized infinite far
+	N_AABB outAabb;
+	NVECTOR3 tmpV;
+	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
+	{
+		const NMATRIX& worldMat = pNode->EvalWorldAffineTransformMatrix();
+		tmpV = AffineTransform::TransformVector_MatrixMul(mVB_Mem.at(i).Pos, worldMat);
+
+		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
+		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }
+		if (tmpV.z < (outAabb.min.z)) { outAabb.min.z = tmpV.z; }
+
+		if (tmpV.x >(outAabb.max.x)) { outAabb.max.x = tmpV.x; }
+		if (tmpV.y >(outAabb.max.y)) { outAabb.max.y = tmpV.y; }
+		if (tmpV.z >(outAabb.max.z)) { outAabb.max.z = tmpV.z; }
+	}
+
+	return outAabb;
 }
-
-const std::vector<N_DefaultVertex>*	 Mesh::GetVertexBuffer()const 
-{
-	return &mVB_Mem;
-}
-
-const std::vector<UINT>* Mesh::GetIndexBuffer() const
-{
-	return &mIB_Mem;
-}
-
-N_AABB Mesh::ComputeBoundingBox()
-{
-	mFunction_ComputeBoundingBox();
-
-	return mBoundingBox;
-};
 
 /***********************************************************************
-								PRIVATE					                    
+											PRIVATE					                    
 ***********************************************************************/
 //this function could be externally invoked by ModelLoader..etc
-bool Mesh::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_DefaultVertex>& targetVB,const std::vector<UINT>& targetIB)
-{
-	//check if buffers have been created
-	ReleaseCOM(m_pVB_Gpu);
-	ReleaseCOM(m_pIB_Gpu);
-
-	//this function could be externally invoked by ModelLoader..etc
-	mVB_Mem =targetVB;
-	mIB_Mem = targetIB;
-
-	//Prepare to update to video memory, fill in SUBRESOURCE description structure
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
-	UINT vertexCount = mVB_Mem.size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &mIB_Mem.at(0);
-	UINT indexCount = mIB_Mem.size();
-
-	//------Create VERTEX BUFFER
-	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-
-	//Create Buffers
-	int hr = 0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
-	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * indexCount;
-	ibd.Usage = D3D11_USAGE_DEFAULT;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-
-	//Create Buffers
-	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
-	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
-
-	return true;
-}
-
-bool Mesh::mFunction_CreateGpuBufferAndUpdateData()
-{
-	ReleaseCOM(m_pVB_Gpu);
-	ReleaseCOM(m_pIB_Gpu);
-
-#pragma region CreateGpuBuffers
-	//Prepare to update to video memory, fill in SUBRESOURCE description structure
-	D3D11_SUBRESOURCE_DATA tmpInitData_Vertex;
-	ZeroMemory(&tmpInitData_Vertex, sizeof(tmpInitData_Vertex));
-	tmpInitData_Vertex.pSysMem = &mVB_Mem.at(0);
-	UINT vertexCount = mVB_Mem.size();
-
-	D3D11_SUBRESOURCE_DATA tmpInitData_Index;
-	ZeroMemory(&tmpInitData_Index, sizeof(tmpInitData_Index));
-	tmpInitData_Index.pSysMem = &mIB_Mem.at(0);
-	UINT indexCount = mIB_Mem.size();
-
-	//------Create VERTEX BUFFER
-	D3D11_BUFFER_DESC vbd;
-	vbd.ByteWidth = sizeof(N_DefaultVertex)* vertexCount;
-	vbd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0; //CPU do nothing  D3D_USAGE
-	vbd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
-	vbd.StructureByteStride = 0;
-
-	//Create Buffers
-	int hr = 0;
-	hr = g_pd3dDevice11->CreateBuffer(&vbd, &tmpInitData_Vertex, &m_pVB_Gpu);
-	HR_DEBUG(hr, "Mesh : Failed to create vertex buffer ! ");
-
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.ByteWidth = sizeof(int) * indexCount;
-	ibd.Usage = D3D11_USAGE_DEFAULT;//这个是GPU能对其读写,IMMUTABLE是GPU只读
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0; //CPU啥都干不了  D3D_USAGE
-	ibd.MiscFlags = 0;//D3D11_RESOURCE_MISC_RESOURCE 具体查MSDN
-	ibd.StructureByteStride = 0;
-
-	//Create Buffers
-	hr = g_pd3dDevice11->CreateBuffer(&ibd, &tmpInitData_Index, &m_pIB_Gpu);
-	HR_DEBUG(hr, "Mesh : Failed to create index buffer ! ");
-
-#pragma endregion CreateGpuBuffers
-
-	return true;
-};
-
-void Mesh::mFunction_ComputeBoundingBox()
-{
-	//计算包围盒.......重载1
-
-	UINT i = 0;
-	NVECTOR3 tmpV;
-
-	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
-	for (i = 0;i < mVB_Mem.size();i++)
-	{
-		if (i == 0)
-		{
-			//initialization
-			tmpV = mVB_Mem.at(i).Pos;
-			mBoundingBox.min = mVB_Mem.at(0).Pos;
-			mBoundingBox.max = mVB_Mem.at(0).Pos;
-		}
-		//N_DEFAULT_VERTEX
-		tmpV = mVB_Mem.at(i).Pos;
-		if (tmpV.x <( mBoundingBox.min.x)) { mBoundingBox.min.x = tmpV.x; }
-		if (tmpV.y <(mBoundingBox.min.y)) { mBoundingBox.min.y = tmpV.y; }
-		if (tmpV.z <(mBoundingBox.min.z)) { mBoundingBox.min.z = tmpV.z; }
-
-		if (tmpV.x >(mBoundingBox.max.x)) { mBoundingBox.max.x = tmpV.x; }
-		if (tmpV.y >(mBoundingBox.max.y)) { mBoundingBox.max.y = tmpV.y; }
-		if (tmpV.z >(mBoundingBox.max.z)) { mBoundingBox.max.z = tmpV.z; }
-	}
-	mBoundingBox.max += AffineTransform::GetPosition();
-	mBoundingBox.min += AffineTransform::GetPosition();
-}

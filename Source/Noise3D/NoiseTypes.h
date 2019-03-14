@@ -34,7 +34,7 @@ namespace Noise3D
 
 	struct N_DefaultVertex
 	{
-		N_DefaultVertex() { ZeroMemory(this, sizeof(*this)); };
+		N_DefaultVertex(){ };
 
 		N_DefaultVertex& operator+=(const N_DefaultVertex& rhs)
 		{
@@ -75,7 +75,7 @@ namespace Noise3D
 
 	struct N_SimpleVertex
 	{
-		N_SimpleVertex() { ZeroMemory(this, sizeof(*this)); };
+		N_SimpleVertex() { };
 		N_SimpleVertex(NVECTOR3 inPos, NVECTOR4 inColor, NVECTOR2 inTexCoord) { Pos = inPos;Color = inColor;TexCoord = inTexCoord; };
 		
 		bool operator!=(N_SimpleVertex& v) {
@@ -98,10 +98,20 @@ namespace Noise3D
 		NVECTOR3 pos;
 	};
 
-	struct N_AABB
+	struct N_AABB//Axis-Aligned Bounding Box
 	{
-		N_AABB() { max = min = { 0,0,0 }; };
+		N_AABB(){Reset();};
 		N_AABB(NVECTOR3 Min, NVECTOR3 Max) { min = Min;max = Max; };
+
+		//reset to infinite far min & max
+		void Reset()
+		{
+			constexpr float posInf = std::numeric_limits<float>::infinity();
+			constexpr float negInf = -posInf;
+			min = NVECTOR3(posInf, posInf, posInf);
+			max = NVECTOR3(negInf, negInf, negInf);
+		}
+
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};

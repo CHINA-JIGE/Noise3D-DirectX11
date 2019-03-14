@@ -132,7 +132,32 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
 
-	pModelLoader->LoadFile_FBX("../media/model/geoScene-fbx/geometries2.FBX", res);
+	Mesh* pMesh0 = pMeshMgr->CreateMesh(a, "testModel");
+	pModelLoader->LoadSphere(pMesh0, 10.0f, 20, 20);
+	a->GetLocalTransform().SetPosition(0, 0, 0);
+	pMesh0->SetCullMode(NOISE_CULLMODE_NONE);
+	pMesh0->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	meshList.push_back(pMesh0);
+
+	Mesh* pMesh1 = pMeshMgr->CreateMesh(ab, "testModel1");
+	pModelLoader->LoadSphere(pMesh1, 10.0f, 20, 20);
+	ac->GetLocalTransform().SetPosition(30.0f, 0, 0);
+	pMesh1->SetCullMode(NOISE_CULLMODE_NONE);
+	pMesh1->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	meshList.push_back(pMesh1);
+	pMesh1->AttachToSceneNode(ac);//test re-attachment
+
+	Mesh* pMesh2 = pMeshMgr->CreateMesh(aca, "testModel2");
+	pModelLoader->LoadSphere(pMesh2, 10.0f, 20, 20);
+	aca->GetLocalTransform().SetPosition(0, 10.0f, 10.0f);
+	pMesh2->SetCullMode(NOISE_CULLMODE_NONE);
+	pMesh2->SetShadeMode(NOISE_SHADEMODE_PHONG);
+	meshList.push_back(pMesh2);
+
+	a->GetLocalTransform().SetPosition(NVECTOR3(0, 10.0f, 0));
+	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.77f);
+
+	//pModelLoader->LoadFile_FBX("../media/model/geoScene-fbx/geometries2.FBX", res);
 	//fbxNode = res.pFbxSceneRootNode;
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
 	for (auto & name : res.meshNameList)
@@ -237,6 +262,9 @@ void MainLoop()
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
+	ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.003f * timer.GetInterval());
+	aca->GetLocalTransform().SetScale(NVECTOR3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
+	aca->GetLocalTransform().SetPosition(NVECTOR3(0, 0, 30.0f));
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);

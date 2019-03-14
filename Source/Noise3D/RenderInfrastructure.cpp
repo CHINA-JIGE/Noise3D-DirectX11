@@ -391,7 +391,7 @@ void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 	//pCamera->GetInvViewMatrix(tmpMatrix);
 	//m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
-	NVECTOR3 camPos = pCamera->GetPosition();
+	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 }
 

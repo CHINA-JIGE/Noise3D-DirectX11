@@ -13,7 +13,13 @@ namespace Noise3D
 
 	struct N_CommonLightDesc
 	{
-		N_CommonLightDesc() { ZeroMemory(this, sizeof(*this)); }
+		N_CommonLightDesc():
+			ambientColor(NVECTOR3( 0, 0, 0 )),
+			specularIntensity(0.0f),
+			diffuseColor(NVECTOR3(0, 0, 0)),
+			diffuseIntensity( 0.0f),
+			specularColor(NVECTOR3(0, 0, 0))
+			{}
 		NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;		float				diffuseIntensity;
 		NVECTOR3	specularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
@@ -24,11 +30,11 @@ namespace Noise3D
 	struct N_DirLightDesc
 		:public N_CommonLightDesc
 	{
-		N_DirLightDesc() { ZeroMemory(this, sizeof(*this)); };
+		N_DirLightDesc() {  };
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/		float		mPad2;
+		NVECTOR3	specularColor;*/	float		mPad2;
 		NVECTOR3 direction;				float		mPad3;
 	};
 
@@ -37,12 +43,12 @@ namespace Noise3D
 	struct N_PointLightDesc 
 		:public N_CommonLightDesc
 	{
-		N_PointLightDesc() {ZeroMemory(this, sizeof(*this));}
+		N_PointLightDesc() { }
 
 		/*NVECTOR3	ambientColor;		float				specularIntensity;
 		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/		float		mAttenuationFactor;
-		NVECTOR3 mPosition;						float		mLightingRange;
+		NVECTOR3	specularColor;*/		float		attenuationFactor;
+		NVECTOR3 position;					float		lightingRange;
 
 	};
 
@@ -51,13 +57,13 @@ namespace Noise3D
 	struct N_SpotLightDesc
 		:public N_CommonLightDesc
 	{
-		N_SpotLightDesc(){ZeroMemory(this, sizeof(*this));}
+		N_SpotLightDesc(){}
 
 		/*NVECTOR3 ambientColor;		float specularIntensity;
 		NVECTOR3 diffuseColor;			float diffuseIntensity;
-		NVECTOR3 specularColor;*/	float mAttenuationFactor;
-		NVECTOR3 mLitAt;					float mLightingAngle;
-		NVECTOR3 mPosition;			float mLightingRange;
+		NVECTOR3 specularColor;*/	float attenuationFactor;
+		NVECTOR3 lookAt;					float lightingAngle;
+		NVECTOR3 position;			float lightingRange;
 	};
 
 
@@ -96,20 +102,54 @@ namespace Noise3D
 	//---------------------Dynamic Directional Light------------------
 	class DirLight : 
 		public IBaseLight,
-		public IShadowCaster//container of DSV of shadow map
+		public IShadowCaster,//container of DSV of shadow map
+		public ISceneObject
 	{
 	public:
 
+		//set local direction (which can be rotated and transform to world space)
 		void	SetDirection(const NVECTOR3& dir);
 
-		void SetDesc(const N_DirLightDesc& desc);//many CLAMP op happens in this
+		//get local direction
+		NVECTOR3 GetDirection();
+
+		//get world space direction (which can be rotated to transform to world space)
+		NVECTOR3 GetDirection_WorldSpace();
+
+		//many CLAMP op happens in this
+		void SetDesc(const N_DirLightDesc& desc);
 
 		N_DirLightDesc GetDesc();
+
+		//get desc with geometric info transformed to world space
+		N_DirLightDesc GetDesc_TransformedToWorld();
+
+		//ISceneObject::
+		virtual	N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
+		//SceneNode::
+		AffineTransform& GetLocalTransform()=delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
 
 	protected:
 
 		//override SM init function. invoked by LightManager
-		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam) override;
+		virtual bool mFunction_InitShadowMap(N_SHADOW_MAPPING_PARAM smParam) override final;
 
 	private:
 
@@ -122,18 +162,25 @@ namespace Noise3D
 
 		N_DirLightDesc mLightDesc;
 
-
 	};
 
 
 	//-----------------------Dynamic Point Light--------------------
 	class PointLight : 
-		public IBaseLight
+		public IBaseLight,
+		public  ISceneObject
 		//shadow map init not implemented
 	{
 	public:
 
+		//local space
 		void SetPosition(const NVECTOR3& pos);
+
+		//local space
+		NVECTOR3 GetPostion();
+
+		//world space
+		NVECTOR3 GetPosition_WorldSpace();
 
 		void SetAttenuationFactor(float attFactor);
 
@@ -143,8 +190,25 @@ namespace Noise3D
 
 		N_PointLightDesc GetDesc();
 
+		//get desc with geometric info transformed to world space
+		N_PointLightDesc GetDesc_TransformedToWorld();
+
+
+		//ISceneObject::
+		virtual	N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
 	private:
 
+		friend LightManager;
 		friend IFactory<PointLight>;
 
 		PointLight();
@@ -157,15 +221,24 @@ namespace Noise3D
 
 	//-----------------------Dynamic Spot Light------------------
 	class SpotLight:
-		public IBaseLight
+		public IBaseLight,
+		public ISceneObject
 	{
 	public:
 
 		void SetPosition(const NVECTOR3& pos);
 
+		NVECTOR3 GetPosition();
+
+		NVECTOR3 GetPosition_WorldSpace();
+
 		void SetAttenuationFactor(float attFactor);
 
-		void	SetLitAt(const NVECTOR3& vLitAt);
+		void	SetLookAt(const NVECTOR3& vLitAt);
+
+		NVECTOR3 GetLookAt();
+
+		NVECTOR3 GetLookAt_WorldSpace();
 
 		void	SetLightingAngle(float coneAngle_Rad);
 
@@ -175,8 +248,33 @@ namespace Noise3D
 
 		N_SpotLightDesc GetDesc();
 
+		//get desc with geometric info transformed to world space
+		N_SpotLightDesc GetDesc_TransformedToWorld();
+
+		//ISceneObject::
+		virtual	N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual	N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
+		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+
+		//SceneNode::
+		AffineTransform& GetLocalTransform() = delete;
+
+		//SceneNode::
+		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+
+		//SceneNode::
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+
 	private:
 
+		friend LightManager;
 		friend IFactory<SpotLight>;
 
 		SpotLight();

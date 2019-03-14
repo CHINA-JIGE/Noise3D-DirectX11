@@ -1,9 +1,10 @@
 
 /***********************************************************************
 
-                           类：NOISE Engine
+                           class：Root
 
-			简述：主要负责管理全局接口和变量，初始化等
+			desc: the first class that should be created when 
+			using Noise3D. handle some basic global var.
 
 ************************************************************************/
 
@@ -70,7 +71,7 @@ Root::~Root()
 	ReleaseAll();
 }
 
-SceneManager* Root::GetScenePtr()
+SceneManager* Root::GetSceneMgrPtr()
 {
 	const N_UID sceneUID = "myScene";
 	//first time to get a ScenePtr,Create one
@@ -174,9 +175,9 @@ bool Root::Init()
 void Root::ReleaseAll()
 {
 
-	SceneManager* pScene = GetScenePtr();
+	SceneManager* pScene = GetSceneMgrPtr();
 	pScene->ReleaseAllChildObject();
-	IFactory<SceneManager>::DestroyAllObject();//delete the only scene
+	//IFactory<SceneManager>::DestroyAllObject();
 
 	ReleaseCOM(g_pVertexLayout_Default);
 	ReleaseCOM(g_pVertexLayout_Simple);

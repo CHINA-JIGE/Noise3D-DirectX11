@@ -130,13 +130,17 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CameraTransform.h" />
+    <ClInclude Include="BvhTree.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
-    <ClInclude Include="GeometryData.h" />
+    <ClInclude Include="LogicalGeometry.h" />
+    <ClInclude Include="LogicalSphere.h" />
+    <ClInclude Include="TreeDataStructureTemplate.h" />
+    <ClInclude Include="GeometryEntity.h" />
+    <ClInclude Include="ISceneObject.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="Renderer_ShadowMap.h" />
-    <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="_RenderPassInfo.h" />
     <ClInclude Include="ShadowCommonInterface.h" />
     <ClInclude Include="SHRotation.h" />
@@ -209,11 +213,14 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CameraTransform.cpp" />
+    <ClCompile Include="BvhTree.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
-    <ClCompile Include="GeometryData.cpp" />
+    <ClCompile Include="GeometryEntity.cpp" />
+    <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
+    <ClCompile Include="ISceneObject.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
+    <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
     <ClCompile Include="SHRotation.cpp" />
     <ClCompile Include="TextureCubeMap.cpp" />

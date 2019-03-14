@@ -22,18 +22,20 @@ namespace Noise3D
 {
 
 	class SweepingTrail:
+		public ISceneObject,
 		public CRenderSettingBlendMode,
 		public CRenderSettingFillMode
 	{
 	public:
 
-		//set current header line segments (in World space coordinate)
+		//set current header line segments (in local space)
+		//(2019.3.11)Noise3D will automatically apply rigid transform to the header before updating/rendering
 		void SetHeader(N_LineSegment lineSeg);
 
-		//header segment
+		//header segment(world space)
 		N_LineSegment GetHeader();
 
-		//the center of the header segment
+		//the center of the header segment(world space)
 		NVECTOR3 GetHeaderCenterPos();
 
 		//time limit of cooling down the header line segment and GENERATE a new "free" header
@@ -72,6 +74,18 @@ namespace Noise3D
 		void GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList);
 
 		void GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList);
+
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Fast();
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
 
 	private:
 

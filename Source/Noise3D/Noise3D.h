@@ -17,6 +17,7 @@
 #include <D3Dcompiler.h>
 #include <D3D11SDKLayers.h>
 #include <vector>
+#include <queue>
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
@@ -25,6 +26,7 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <type_traits>
 #include <random>
 #include <memory>
 
@@ -54,13 +56,20 @@
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
 #include "IFactory.h"
+#include "TreeDataStructureTemplate.h"
 #include "_2DBasicContainerInfo.h"
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
-#include "GeometryData.h"//geometry data container(RAM & VRAM)
+#include "SceneGraph.h"
+#include "ISceneObject.h"
+#include "GeometryEntity.h"//geometry data container(RAM & VRAM)
+#include "BvhTree.h"
+
+#include "LogicalGeometry.h"
+#include "LogicalSphere.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"
@@ -94,7 +103,6 @@
 #include "Renderer.h"
 #include "Root.h"
 #include "SceneManager.h"
-#include "SceneNode.h"
 
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"

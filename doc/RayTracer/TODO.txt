@@ -9,8 +9,3 @@ Geometry/ModelLoader:
 --- 空间矩形的逻辑形式
 
 （灯光要不要都统一成材质自发光啊？好像这样子能做复杂一点的灯光？会不会有性能问题）
-
-场景图：
-BvhNode
-SceneNode:public BvhNode
-BvhTreeSceneGraph(存着场景场景Bvh树的根节点SceneNode*，可以修改场景图（增删改SceneNode)，并且可以发起如对BvhTree进行Ray-Object求交、视锥剔除、变换、输出X序遍历等的整体操作。)
