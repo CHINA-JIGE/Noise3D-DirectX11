@@ -22,7 +22,7 @@ namespace Noise3D
 	};
 
 
-	//class inherited from this base interface can be attach to scene node.
+	//class that inherits from this base interface can be attach to scene node.
 	class ISceneObject
 	{
 	public:

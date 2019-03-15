@@ -8,18 +8,11 @@
 
 namespace Noise3D
 {
-	//(dynamic) light type (static lights are managed by GI system (which is not implemented yet 2018.12.16))
-	enum NOISE_LIGHT_TYPE
-	{
-		NOISE_LIGHT_TYPE_DYNAMIC_DIR = 0,
-		NOISE_LIGHT_TYPE_DYNAMIC_POINT = 1,
-		NOISE_LIGHT_TYPE_DYNAMIC_SPOT = 2
-	};
 
 	class /*_declspec(dllexport)*/ LightManager:
-		IFactory<DirLight>,
-		IFactory<PointLight>,
-		IFactory<SpotLight>
+		protected IFactory<DirLight>,
+		protected IFactory<PointLight>,
+		protected IFactory<SpotLight>
 	{
 	public:
 
@@ -29,36 +22,24 @@ namespace Noise3D
 
 		SpotLight*		CreateDynamicSpotLight(SceneNode* pAttachedNode, N_UID lightName);
 
-		DirLight*			GetDirLight(N_UID lightName);
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> T* GetLight(N_UID lightName);
 
-		DirLight*			GetDirLight(UINT index);
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> T* GetLight(uint32_t index);
 
-		PointLight*		GetPointLight(N_UID lightName);
-		
-		PointLight*		GetPointLight(UINT index);
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> bool DeleteLight(N_UID lightName);
 
-		SpotLight*		GetSpotLight(N_UID lightName);
-		
-		SpotLight*		GetSpotLight(UINT index);
-
-
-		bool		DeleteDirLight(N_UID lightName);
-
-		bool		DeleteDirLight(DirLight* pLight);
-
-		bool		DeletePointLight(N_UID lightName);
-
-		bool		DeletePointLight(PointLight* pLight);
-
-		bool		DeleteSpotLight(N_UID lightName);
-
-		bool		DeleteSpotLight(SpotLight* pLight);
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> bool DeleteLight(T* pLight);
 
 		void		SetDynamicLightingEnabled(bool isEnabled);
 
 		bool		IsDynamicLightingEnabled();
 
-		UINT	GetLightCount(NOISE_LIGHT_TYPE lightType);
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> uint32_t GetLightCount();
 
 		UINT	GetTotalLightCount();
 

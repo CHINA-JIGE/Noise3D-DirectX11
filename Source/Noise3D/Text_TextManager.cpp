@@ -225,7 +225,7 @@ StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName
 
 	//create internal GraphicObj for static Text
 	N_UID tmpGraphicObjectName = "Internal_Static_GObj" + textObjectName;
-	GraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	GraphicObject* pObj=m_pGraphicObjMgr->CreateGraphicObject(tmpGraphicObjectName);
 	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
@@ -282,7 +282,7 @@ DynamicText*	 TextManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectNa
 
 	//------------initialize the graphic object of the TEXT------------
 	N_UID tmpGraphicObjectName = "Internal_Dyn_GObj" + textObjectName;
-	GraphicObject* pObj = m_pGraphicObjMgr->CreateGraphicObj(tmpGraphicObjectName);
+	GraphicObject* pObj = m_pGraphicObjMgr->CreateGraphicObject(tmpGraphicObjectName);
 	pText->mFunction_InitGraphicObject(pObj,boundaryWidth, boundaryHeight, textColor, tmpTextureName);
 
 
@@ -317,7 +317,7 @@ bool TextManager::DeleteStaticText(N_UID textName)
 	StaticText* pText=  IFactory<StaticText>::GetObjectPtr(textName);
 	if (pText != nullptr)
 	{
-		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pGraphicObjMgr->DestroyObject(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<StaticText>::DestroyObject(textName);
 		return true;
@@ -333,7 +333,7 @@ bool TextManager::DeleteStaticText(StaticText * pText)
 	// delete internal graphicObj
 	if (pText != nullptr)
 	{
-		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pGraphicObjMgr->DestroyObject(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<StaticText>::DestroyObject(pText);
 		return true;
@@ -350,7 +350,7 @@ bool TextManager::DeleteDynamicText(N_UID textName)
 	DynamicText* pText = IFactory<DynamicText>::GetObjectPtr(textName);
 	if (pText != nullptr)
 	{
-		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pGraphicObjMgr->DestroyObject(pText->m_pGraphicObj);
 		IFactory<DynamicText>::DestroyObject(textName);
 		return true;
 	}
@@ -365,7 +365,7 @@ bool TextManager::DeleteDynamicText(DynamicText * pText)
 	// delete internal graphicObj and corresponding texture
 	if (pText != nullptr)
 	{
-		m_pGraphicObjMgr->DestroyGraphicObj(pText->m_pGraphicObj);
+		m_pGraphicObjMgr->DestroyObject(pText->m_pGraphicObj);
 		m_pTexMgr->DeleteTexture2D(pText->mTextureName);//the appearance of text is expressed as a texture
 		IFactory<DynamicText>::DestroyObject(pText);
 		return true;
@@ -379,7 +379,7 @@ bool TextManager::DeleteDynamicText(DynamicText * pText)
 void TextManager::DeleteAllTexts()
 {
 	//all texts own a private GObject
-	m_pGraphicObjMgr->DestroyAllGraphicObj();
+	m_pGraphicObjMgr->DestroyAllObject();
 
 	for (UINT i = 0;i < IFactory<StaticText>::GetObjectCount();++i)
 	{

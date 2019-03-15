@@ -64,69 +64,132 @@ SpotLight* LightManager::CreateDynamicSpotLight(SceneNode* pFatherNode, N_UID li
 
 
 //-----------Interface GETTER----------------------------
-DirLight * LightManager::GetDirLight(N_UID lightName)
+template<typename T>
+T * Noise3D::LightManager::GetLight(N_UID lightName)
+{
+	static_assert(false, "LightMananger: GetLight() are only supported for DirLight/PointLight/SpotLight");
+}
+
+
+template<>
+DirLight * Noise3D::LightManager::GetLight(N_UID lightName)
 {
 	return IFactory<DirLight>::GetObjectPtr(lightName);
 }
 
-DirLight * Noise3D::LightManager::GetDirLight(UINT index)
+template<>
+PointLight * Noise3D::LightManager::GetLight(N_UID lightName)
 {
-	return IFactory<DirLight>::GetObjectPtr(index);
+	return IFactory<PointLight>::GetObjectPtr(lightName);
 }
 
-PointLight * LightManager::GetPointLight(N_UID lightName)
-{
-	return  IFactory<PointLight>::GetObjectPtr(lightName);
-}
-
-PointLight * LightManager::GetPointLight(UINT index)
-{
-	return IFactory<PointLight>::GetObjectPtr(index);
-}
-
-SpotLight * Noise3D::LightManager::GetSpotLight(N_UID lightName)
+template<>
+SpotLight * Noise3D::LightManager::GetLight(N_UID lightName)
 {
 	return IFactory<SpotLight>::GetObjectPtr(lightName);
 }
 
-SpotLight * LightManager::GetSpotLight(UINT index)
+
+template<typename T>
+T * Noise3D::LightManager::GetLight(uint32_t index)
+{
+	static_assert(false, "LightMananger: GetLight() are only supported for DirLight/PointLight/SpotLight");
+}
+
+template<>
+DirLight * Noise3D::LightManager::GetLight(uint32_t index)
+{
+	return IFactory<DirLight>::GetObjectPtr(index);
+}
+
+template<>
+PointLight * Noise3D::LightManager::GetLight(uint32_t index)
+{
+	return IFactory<PointLight>::GetObjectPtr(index);
+}
+
+template<>
+SpotLight * Noise3D::LightManager::GetLight(uint32_t index)
 {
 	return IFactory<SpotLight>::GetObjectPtr(index);
 }
 
 //-----------Dynamic Light Deletion-------------
-bool LightManager::DeleteDirLight(N_UID lightName)
+template<typename T>
+bool LightManager::DeleteLight(N_UID lightName)
+{
+	static_assert(false, "LightMananger: DeleteLight() are only supported for DirLight/PointLight/SpotLight");
+}
+
+template <>
+bool LightManager::DeleteLight<DirLight>(N_UID lightName)
 {
 	return IFactory<DirLight>::DestroyObject(lightName);
 }
 
-bool LightManager::DeleteDirLight(DirLight * pLight)
-{
-	return IFactory<DirLight>::DestroyObject(pLight);
-}
-
-bool LightManager::DeletePointLight(N_UID lightName)
+template <>
+bool LightManager::DeleteLight<PointLight>(N_UID lightName)
 {
 	return IFactory<PointLight>::DestroyObject(lightName);
 }
 
-bool LightManager::DeletePointLight(PointLight * pLight)
-{
-	return IFactory<PointLight>::DestroyObject(pLight);
-}
-
-bool LightManager::DeleteSpotLight(N_UID lightName)
+template <>
+bool LightManager::DeleteLight<SpotLight>(N_UID lightName)
 {
 	return IFactory<SpotLight>::DestroyObject(lightName);
 }
 
-bool LightManager::DeleteSpotLight(SpotLight * pLight)
+//IFactory operation only support DirLight/PointLight/SpotLight
+template <typename T>
+bool LightManager::DeleteLight(T* pLight)
+{
+	static_assert(false, "LightMananger: DeleteLight() are only supported for DirLight/PointLight/SpotLight");
+}
+
+template <>
+bool LightManager::DeleteLight<DirLight>(DirLight * pLight)
+{
+	return IFactory<DirLight>::DestroyObject(pLight);
+}
+
+template <>
+bool LightManager::DeleteLight<PointLight>(PointLight * pLight)
+{
+	return IFactory<PointLight>::DestroyObject(pLight);
+}
+
+template <>
+bool LightManager::DeleteLight<SpotLight>(SpotLight * pLight)
 {
 	return IFactory<SpotLight>::DestroyObject(pLight);
 }
 
+//---------------Light Count-----------
+template <typename T> 
+uint32_t GetLightCount()
+{
+	static_assert(false, "LightMananger: GetLightCount() are only supported for DirLight/PointLight/SpotLight");
+}
 
-//---------Static Light Deletion---------------
+template <>
+uint32_t LightManager::GetLightCount<DirLight>()
+{
+	  return IFactory<DirLight>::GetObjectCount();
+}
+
+template <>
+uint32_t LightManager::GetLightCount<PointLight>()
+{
+	return IFactory<PointLight>::GetObjectCount();
+}
+
+template <>
+uint32_t LightManager::GetLightCount<SpotLight>()
+{
+	return IFactory<SpotLight>::GetObjectCount();
+}
+
+//--------------
 void	LightManager::SetDynamicLightingEnabled(bool isEnabled)
 {
 	mIsDynamicLightingEnabled = isEnabled;
@@ -135,28 +198,6 @@ void	LightManager::SetDynamicLightingEnabled(bool isEnabled)
 bool LightManager::IsDynamicLightingEnabled()
 {
 	return mIsDynamicLightingEnabled;
-}
-
-UINT	LightManager::GetLightCount(NOISE_LIGHT_TYPE lightType)
-{
-	switch(lightType)
-	{
-	case NOISE_LIGHT_TYPE_DYNAMIC_DIR :
-		return IFactory<DirLight>::GetObjectCount();
-		break;
-	
-	case NOISE_LIGHT_TYPE_DYNAMIC_POINT :
-		return IFactory<PointLight>::GetObjectCount();
-		break;
-
-	case NOISE_LIGHT_TYPE_DYNAMIC_SPOT :
-		return IFactory<SpotLight>::GetObjectCount();
-		break;
-
-	default:
-		return 0;
-	}
-	return 0;
 }
 
 UINT	LightManager::GetTotalLightCount()

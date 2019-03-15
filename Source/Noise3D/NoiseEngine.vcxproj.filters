@@ -49,15 +49,6 @@
     <Filter Include="NoiseGraphic\Scene\Text">
       <UniqueIdentifier>{ebd85bdd-2495-430a-b695-d2366c4e956d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\Text\N2D_NoiseFontManager">
-      <UniqueIdentifier>{3787f85f-89b3-4d08-bebe-0ec9b031684c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic">
-      <UniqueIdentifier>{abc9eaee-b441-43bd-8dca-0bffd27091f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic">
-      <UniqueIdentifier>{558f2fbd-3c86-415d-9dc4-bc344f646c54}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\Text\_BasicTextInfo">
       <UniqueIdentifier>{de740894-6a5f-409c-9c04-bdf91a8eaa88}</UniqueIdentifier>
     </Filter>
@@ -157,6 +148,15 @@
     <Filter Include="NoiseGraphic\Scene\LogicalGeometry">
       <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\TextManager">
+      <UniqueIdentifier>{3787f85f-89b3-4d08-bebe-0ec9b031684c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\TextStatic">
+      <UniqueIdentifier>{abc9eaee-b441-43bd-8dca-0bffd27091f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Text\TextDynamic">
+      <UniqueIdentifier>{558f2fbd-3c86-415d-9dc4-bc344f646c54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -223,10 +223,10 @@
       <Filter>NoiseGraphic\Scene\Text\_BasicTextInfo</Filter>
     </ClInclude>
     <ClInclude Include="Text_TextDynamic.h">
-      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextDynamic</Filter>
     </ClInclude>
     <ClInclude Include="Text_TextStatic.h">
-      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextStatic</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
@@ -341,7 +341,7 @@
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
     <ClInclude Include="Text_TextManager.h">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextManager</Filter>
     </ClInclude>
     <ClInclude Include="Renderer_ShadowMap.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>
@@ -424,10 +424,10 @@
       <Filter>NoiseGraphic\_2DBasicContainerInfo</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextDynamic.cpp">
-      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextDynamic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextDynamic</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextStatic.cpp">
-      <Filter>NoiseGraphic\Scene\Text\N2D_Noise2DTextStatic</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextStatic</Filter>
     </ClCompile>
     <ClCompile Include="Lights.cpp">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
@@ -538,7 +538,7 @@
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClCompile>
     <ClCompile Include="Text_TextManager.cpp">
-      <Filter>NoiseGraphic\Scene\Text\N2D_NoiseFontManager</Filter>
+      <Filter>NoiseGraphic\Scene\Text\TextManager</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_ShadowMap.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_ShadowMap</Filter>

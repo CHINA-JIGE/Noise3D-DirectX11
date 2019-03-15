@@ -27,6 +27,7 @@ namespace Noise3D
 			//a more detailed node like SceneNode or BvhNode should be derived from TreeNodeTemplate<derivedNode_t>
 			//try to instantiate a template. if is_base_of return false, then instantiation failed, compile error
 			//(more specifically, a LINK error)
+
 			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeNodeTemplate<derivedNode_t,derivedTree_t>,derivedNode_t>::value>();
 			mFunc_CompileTime_NodeTypeInheritanceCheck<std::is_base_of<TreeTemplate<derivedNode_t, derivedTree_t>, derivedTree_t>::value>();
 
@@ -37,6 +38,14 @@ namespace Noise3D
 			TreeNodeTemplate<>						TreeTemplate<>
 			
 			*/
+
+
+			//(2019.3.15)perhaps using static_assert() is also a good choice.
+			/*static_assert(std::is_base_of<TreeNodeTemplate<derivedNode_t, derivedTree_t>, derivedNode_t>::value,
+			"TreeNodeTemplate : derivedNode_t should inherit from TreeNodeTemplate.");
+
+			static_assert(std::is_base_of<TreeTemplate<derivedNode_t, derivedTree_t>, derivedTree_t>::value,
+			"TreeNodeTemplate : derivedTree_t should inherit from TreeTemplate.");*/
 
 		}
 

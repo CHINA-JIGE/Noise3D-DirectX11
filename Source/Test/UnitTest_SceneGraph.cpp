@@ -170,7 +170,7 @@ BOOL Init3D(HWND hwnd)
 	
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
-	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
+	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("normalANDTangent");
 	NVECTOR3 modelPos = meshList.at(0)->GetAttachedSceneNode()->GetLocalTransform().GetPosition();
 	for (auto v : *pTmpVB)
 	{

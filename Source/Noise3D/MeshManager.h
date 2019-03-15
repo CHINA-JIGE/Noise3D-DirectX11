@@ -16,7 +16,7 @@ namespace Noise3D
 
 		Mesh*				CreateMesh(SceneNode* pAttachedNode, N_UID meshName);
 
-		Mesh*				GetMesh(N_UID meshName);
+		/*Mesh*				GetMesh(N_UID meshName);
 
 		Mesh*				GetMesh(UINT index);
 
@@ -28,7 +28,8 @@ namespace Noise3D
 
 		UINT				GetMeshCount();
 
-		bool					IsMeshExisted(N_UID meshName);
+		bool					IsMeshExisted(N_UID meshName);*/
+
 
 	private:
 

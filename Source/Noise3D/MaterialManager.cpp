@@ -37,44 +37,10 @@ Material* MaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& ma
 	return pMat;
 }
 
-
-UINT MaterialManager::GetMaterialCount()
-{
-	//minus 1 means ruling out default mat
-	return  IFactory<Material>::GetObjectCount() - 1;
-}
-
 Material*		MaterialManager::GetDefaultMaterial()
 {
 	return IFactory<Material>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
-
-Material* MaterialManager::GetMaterial(N_UID matName)
-{
-	return IFactory<Material>::GetObjectPtr(matName);
-};
-
-bool MaterialManager::DeleteMaterial(N_UID matName)
-{
-	if (matName == NOISE_MACRO_DEFAULT_MATERIAL_NAME)
-	{
-		ERROR_MSG("DeleteMaterial: default material can't be deleted...(how lucky you are- -.)");
-		return false;
-	}
-	return IFactory<Material>::DestroyObject(matName);
-}
-
-void MaterialManager::DeleteAllMaterial()
-{
-	IFactory<Material>::DestroyAllObject();
-	//we delete user-created material, not the internal default one
-	mFunction_CreateDefaultMaterial();
-}
-
-bool MaterialManager::ValidateUID(N_UID matName)
-{
-	return IFactory<Material>::FindUid(matName);
-};
 
 /**********************************************************
 							P R I V A T E

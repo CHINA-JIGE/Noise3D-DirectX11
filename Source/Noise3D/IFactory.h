@@ -39,10 +39,10 @@ namespace Noise3D
 	create certain kinds of products,
 
 	for example:
-	TextureManager should be inherited from IFactory<ITexture>
+	TextureManager should inherit from IFactory<ITexture>
 
 	the reason why I don't use cohesion to integrate a factory (but inheritance), 
-	is that cohesion requires CreateObject method to be Public, which
+	is that cohesion requires CreateGraphicObject method to be Public, which
 	sabotage encapsulation and authorized user to create product by their own.
 
 	the reason I use such "Factory Mode" is that controlling the life cycle (produce and
@@ -57,6 +57,11 @@ namespace Noise3D
 		2,T should friend IFactory<T> (IFactory should have access to its constructor)
 	*/
 
+	//(2019.3.15)for manager that only handles simple logic, 
+	//concrete manager class just need to directly inherit from IFactory<> to get its common interfaces
+	//some manager like TextManager inherit from more than 1 IFactory<XX>, i think it should use 'protected' inherit
+	//because it's not so convenient for the user to explicitly use IFactory<> and template param.
+
 	//maxCount is the max count of child that can be created.
 	template<typename objType>
 	class /*_declspec(dllexport)*/ IFactory
@@ -65,7 +70,7 @@ namespace Noise3D
 		IFactory() = delete;
 
 		//constructor
-		IFactory(const UINT maxCount):
+		IFactory(uint32_t maxCount):
 			mMaxObjectCount(maxCount),
 		m_pChildObjectList ( new std::vector<N_ChildObjectInfo<objType>>),
 		m_pUidToIndexHashTable (new std::unordered_map<N_UID, UINT>)
@@ -83,44 +88,7 @@ namespace Noise3D
 			delete m_pChildObjectList;
 			delete m_pUidToIndexHashTable;
 		};
-
-	protected:
-		//runtime creation of objects, of which the max count is limited
-		objType*	CreateObject(N_UID objUID)
-		{
-			/*if (objUID == N_UID(""))
-			{
-			ERROR_MSG("IFactory: UID invalid, can't be empty.");
-			return nullptr;
-			}*/
-
-			//the count of child object is  limited
-			if (m_pChildObjectList->size() < mMaxObjectCount)
-			{
-				auto iter = m_pUidToIndexHashTable->find(objUID);
-
-				//need to assure that UID don't conflict
-				if (iter == m_pUidToIndexHashTable->cend())
-				{
-					objType* pNewObject = new objType;
-					m_pChildObjectList->push_back(N_ChildObjectInfo<objType>(pNewObject, objUID));
-					m_pUidToIndexHashTable->insert(std::make_pair(objUID, m_pChildObjectList->size() - 1));
-
-					return pNewObject;
-				}
-				else
-				{
-					ERROR_MSG("IFactory:Object UID existed");
-					return nullptr;
-				}
-			}
-			else
-			{
-				ERROR_MSG("IFactory:Object Count Exceeded Limit");
-				return nullptr;
-			}
-		};
-
+		
 		objType*	GetObjectPtr(UINT objIndex) const
 		{
 			if (objIndex < m_pChildObjectList->size())
@@ -187,6 +155,7 @@ namespace Noise3D
 			return m_pChildObjectList->size();
 		}
 
+		//can be used to validate uid's existence
 		bool		FindUid(N_UID uid) const
 		{
 			if (m_pUidToIndexHashTable->find(uid) != m_pUidToIndexHashTable->end())
@@ -298,6 +267,43 @@ namespace Noise3D
 			//then clear the list
 			m_pChildObjectList->clear();
 			m_pUidToIndexHashTable->clear();
+		};
+
+	protected:
+		//runtime creation of objects, of which the max count is limited
+		objType*	CreateObject(N_UID objUID)
+		{
+			/*if (objUID == N_UID(""))
+			{
+			ERROR_MSG("IFactory: UID invalid, can't be empty.");
+			return nullptr;
+			}*/
+
+			//the count of child object is  limited
+			if (m_pChildObjectList->size() < mMaxObjectCount)
+			{
+				auto iter = m_pUidToIndexHashTable->find(objUID);
+
+				//need to assure that UID don't conflict
+				if (iter == m_pUidToIndexHashTable->cend())
+				{
+					objType* pNewObject = new objType;
+					m_pChildObjectList->push_back(N_ChildObjectInfo<objType>(pNewObject, objUID));
+					m_pUidToIndexHashTable->insert(std::make_pair(objUID, m_pChildObjectList->size() - 1));
+
+					return pNewObject;
+				}
+				else
+				{
+					ERROR_MSG("IFactory:Object UID existed");
+					return nullptr;
+				}
+			}
+			else
+			{
+				ERROR_MSG("IFactory:Object Count Exceeded Limit");
+				return nullptr;
+			}
 		};
 
 	private:

@@ -263,7 +263,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 		{
 			WARNING_MSG("Model Loader: Load FBX scene: Mesh failed to load: mesh name:" 
 				+ m.name);
-			pMeshMgr->DestroyMesh(m.name); 
+			pMeshMgr->DestroyObject(m.name); 
 			continue;
 		}
 	
@@ -369,7 +369,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 			const std::string& matName = fbxMat.matName;
 			if (!matName.empty())
 			{
-				if (pMatMgr->ValidateUID(matName) == true)continue;//material that is already created
+				if (pMatMgr->FindUid(matName) == true)continue;//material that is already created
 				Material* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{

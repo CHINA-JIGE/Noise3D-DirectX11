@@ -48,11 +48,11 @@ namespace Noise3D
 
 		MaterialManager*		GetMaterialMgr();
 
-		SweepingTrailManager*		GetSweepingTraillMgr();
+		SweepingTrailManager*	GetSweepingTraillMgr();
 
 		GraphicObjectManager*	GetGraphicObjMgr();
 
-		Atmosphere*					GetAtmosphere();
+		Atmosphere*				GetAtmosphere();
 
 		TextManager*				GetTextMgr();
 
@@ -60,7 +60,7 @@ namespace Noise3D
 
 		ModelProcessor*			GetModelProcessor();
 
-		CollisionTestor*				GetCollisionTestor();
+		CollisionTestor*			GetCollisionTestor();
 
 	private:
 

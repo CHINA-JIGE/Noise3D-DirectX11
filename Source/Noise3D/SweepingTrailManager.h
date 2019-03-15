@@ -22,7 +22,7 @@ namespace Noise3D
 
 		SweepingTrail*			CreateSweepingTrail(SceneNode* pAttachedNode, N_UID objName, uint32_t maxVertexCount);
 
-		SweepingTrail*			GetSweepingTrail(N_UID objName);
+		/*SweepingTrail*			GetSweepingTrail(N_UID objName);
 
 		SweepingTrail*			GetSweepingTrail(UINT index);
 
@@ -32,7 +32,7 @@ namespace Noise3D
 
 		void				DestroyAllSweepingTrail();
 
-		UINT			GetSweepingTrailCount();
+		UINT			GetSweepingTrailCount();*/
 
 	private:
 

@@ -31,9 +31,9 @@ namespace Noise3D
 
 
 		class /*_declspec(dllexport)*/ TextManager
-			:public IFactory<N_FontObject>,
-			public IFactory<DynamicText>,
-			public IFactory<StaticText>
+			:protected IFactory<N_FontObject>,
+			protected IFactory<DynamicText>,
+			protected IFactory<StaticText>
 		{
 		public:
 
@@ -57,7 +57,7 @@ namespace Noise3D
 
 			bool		DeleteFont(N_UID fontName);
 
-			void			DeleteAllFont();
+			void		DeleteAllFont();
 
 			bool		DeleteStaticText(N_UID textName);
 
@@ -67,9 +67,9 @@ namespace Noise3D
 
 			bool		DeleteDynamicText(DynamicText* pText);
 
-			void			DeleteAllTexts();
+			void		DeleteAllTexts();
 
-			void			DeleteAllFonts();
+			void		DeleteAllFonts();
 
 		private:
 			//init freetype library and internal objects , invoked by SceneManager
