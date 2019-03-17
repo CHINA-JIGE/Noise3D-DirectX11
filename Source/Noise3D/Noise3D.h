@@ -68,7 +68,7 @@
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "BvhTree.h"
 
-#include "LogicalGeometry.h"
+#include "LogicalShape.h"
 #include "LogicalSphere.h"
 
 #include "ModelProcessor.h"
@@ -90,7 +90,7 @@
 #include "SweepingTrail.h"
 #include "SweepingTrailManager.h"
 #include "CollisionTestor.h"
-#include "ModelLoader.h"
+#include "MeshLoader.h"
 #include "ShaderVarManager.h"
 
 //---------Font & Text-----------

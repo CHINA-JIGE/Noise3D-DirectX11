@@ -11,7 +11,7 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ ILogicalGeometry
+	class /*_declspec(dllexport)*/ ILogicalShape
 	{
 	public:
 

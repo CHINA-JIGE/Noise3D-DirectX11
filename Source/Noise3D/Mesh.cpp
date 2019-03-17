@@ -95,4 +95,4 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 /***********************************************************************
 											PRIVATE					                    
 ***********************************************************************/
-//this function could be externally invoked by ModelLoader..etc
+//this function could be externally invoked by MeshLoader..etc

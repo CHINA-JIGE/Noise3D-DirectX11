@@ -50,7 +50,7 @@ namespace Noise3D
 
 		friend class IRenderModuleForMesh;
 		friend class IRenderModuleForPostProcessing;//ref by qwerty3d
-		friend class ModelLoader;
+		friend class MeshLoader;
 		friend class ModelProcessor;
 		friend class CollisionTestor;
 		friend class MeshManager;

@@ -24,6 +24,10 @@ $RECYCLE.BIN/
 #temp dir
 /temp/
 
+#some document & open src project
+/doc/RayTracer/Smallpaint/
+/doc/RayTracer/smallpaint-GI Renderer in 250 lines.zip
+
 #pre-compiled header
 /pch/
 /ipch/

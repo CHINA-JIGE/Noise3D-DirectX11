@@ -24,7 +24,7 @@ namespace Noise3D
 		std::vector<N_UID> materialNameList;
 	};
 
-	class /*_declspec(dllexport)*/ ModelLoader
+	class /*_declspec(dllexport)*/ MeshLoader
 	{
 	public:
 
@@ -56,11 +56,11 @@ namespace Noise3D
 
 	private:
 
-		friend class IFactory<ModelLoader>;
+		friend class IFactory<MeshLoader>;
 
-		ModelLoader();
+		MeshLoader();
 
-		~ModelLoader();
+		~MeshLoader();
 
 		//internal mesh loading helper
 		IFileIO mFileIO;

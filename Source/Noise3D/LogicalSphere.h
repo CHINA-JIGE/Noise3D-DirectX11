@@ -12,7 +12,7 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ LogicalSphere :
-		public ILogicalGeometry
+		public ILogicalShape
 	{
 	public:
 

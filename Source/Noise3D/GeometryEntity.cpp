@@ -77,7 +77,7 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GeometryEntity<typename vertex_t,
 	ReleaseCOM(m_pVB_Gpu);
 	ReleaseCOM(m_pIB_Gpu);
 
-	//this function could be externally invoked by ModelLoader..etc
+	//this function could be externally invoked by MeshLoader..etc
 	mVB_Mem = targetVB;
 	mIB_Mem = targetIB;
 

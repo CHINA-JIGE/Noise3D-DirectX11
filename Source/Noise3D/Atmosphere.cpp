@@ -127,7 +127,7 @@ bool  Atmosphere::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_Sim
 	ReleaseCOM(m_pIB_Gpu);
 	mIB_Mem.clear();
 
-	//this function could be externally invoked by ModelLoader..etc
+	//this function could be externally invoked by MeshLoader..etc
 	mVB_Mem =targetVB;
 	mIB_Mem = targetIB;
 

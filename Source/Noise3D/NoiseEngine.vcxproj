@@ -133,7 +133,8 @@
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
-    <ClInclude Include="LogicalGeometry.h" />
+    <ClInclude Include="GI_Light.h" />
+    <ClInclude Include="LogicalShape.h" />
     <ClInclude Include="LogicalSphere.h" />
     <ClInclude Include="TreeDataStructureTemplate.h" />
     <ClInclude Include="GeometryEntity.h" />
@@ -172,7 +173,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
-    <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_TextManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
@@ -250,7 +251,7 @@
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Text_TextManager.cpp" />
     <ClCompile Include="Text_TextDynamic.cpp" />
     <ClCompile Include="Text_TextStatic.cpp" />

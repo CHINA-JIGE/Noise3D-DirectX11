@@ -28,9 +28,6 @@
     <Filter Include="NoiseGraphic\Scene\Renderer">
       <UniqueIdentifier>{fbf6d5d9-6af7-481c-b514-5904de7d44b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\ModelLoader">
-      <UniqueIdentifier>{85c6daf5-2ac5-4e89-8558-9d052cf46d9a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\Mesh">
       <UniqueIdentifier>{66319d1c-340d-4bf9-887d-e02737f05f6a}</UniqueIdentifier>
     </Filter>
@@ -75,12 +72,6 @@
     </Filter>
     <Filter Include="NoiseUtility\Voxelizer">
       <UniqueIdentifier>{fcc730e9-856a-477d-863b-be202984143d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator">
-      <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="NoiseGraphic\Scene\ModelLoader\_FBXSDK">
-      <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoiseUtility\MarchingCubes">
       <UniqueIdentifier>{610f3443-d93b-4454-83fb-88d90933c7d8}</UniqueIdentifier>
@@ -145,9 +136,6 @@
     <Filter Include="NoiseGraphic\GI\SH">
       <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\LogicalGeometry">
-      <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\Text\TextManager">
       <UniqueIdentifier>{3787f85f-89b3-4d08-bebe-0ec9b031684c}</UniqueIdentifier>
     </Filter>
@@ -156,6 +144,21 @@
     </Filter>
     <Filter Include="NoiseGraphic\Scene\Text\TextDynamic">
       <UniqueIdentifier>{558f2fbd-3c86-415d-9dc4-bc344f646c54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\MeshLoader">
+      <UniqueIdentifier>{85c6daf5-2ac5-4e89-8558-9d052cf46d9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\MeshLoader\_GeometryMeshGenerator">
+      <UniqueIdentifier>{2618b49f-b2db-49fa-9a28-7cc3ec35209f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\MeshLoader\_FBXSDK">
+      <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\LogicalShape">
+      <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\AreaLight">
+      <UniqueIdentifier>{48087c73-fecd-4068-a6f6-d4617ce8fde7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -234,9 +237,6 @@
     <ClInclude Include="Material.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
-    <ClInclude Include="ModelLoader.h">
-      <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionTestor.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
@@ -254,7 +254,7 @@
     </ClInclude>
     <ClInclude Include="Noise3D.h" />
     <ClInclude Include="_GeometryMeshGenerator.h">
-      <Filter>NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator</Filter>
+      <Filter>NoiseGraphic\Scene\MeshLoader\_GeometryMeshGenerator</Filter>
     </ClInclude>
     <ClInclude Include="_BasicRenderSettings.h">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
@@ -272,7 +272,7 @@
       <Filter>NoiseGraphic\Scene\_ShaderVarManager</Filter>
     </ClInclude>
     <ClInclude Include="_FbxLoader.h">
-      <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
+      <Filter>NoiseGraphic\Scene\MeshLoader\_FBXSDK</Filter>
     </ClInclude>
     <ClInclude Include="Renderer_Atmosphere.h">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
@@ -367,11 +367,17 @@
     <ClInclude Include="BvhTree.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
     </ClInclude>
-    <ClInclude Include="LogicalGeometry.h">
-      <Filter>NoiseGraphic\Scene\LogicalGeometry</Filter>
-    </ClInclude>
     <ClInclude Include="LogicalSphere.h">
-      <Filter>NoiseGraphic\Scene\LogicalGeometry</Filter>
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicalShape.h">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClInclude>
+    <ClInclude Include="GI_Light.h">
+      <Filter>NoiseGraphic\GI\AreaLight</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -435,9 +441,6 @@
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="ModelLoader.cpp">
-      <Filter>NoiseGraphic\Scene\ModelLoader</Filter>
-    </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>GeneralBasicClass\_FileManager</Filter>
     </ClCompile>
@@ -460,7 +463,7 @@
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
     </ClCompile>
     <ClCompile Include="_GeometryMeshGenerator.cpp">
-      <Filter>NoiseGraphic\Scene\ModelLoader\_GeometryMeshGenerator</Filter>
+      <Filter>NoiseGraphic\Scene\MeshLoader\_GeometryMeshGenerator</Filter>
     </ClCompile>
     <ClCompile Include="Ut_Voxelizer.cpp">
       <Filter>NoiseUtility\Voxelizer</Filter>
@@ -475,7 +478,7 @@
       <Filter>NoiseGraphic\Scene\_ShaderVarManager</Filter>
     </ClCompile>
     <ClCompile Include="_FbxLoader.cpp">
-      <Filter>NoiseGraphic\Scene\ModelLoader\_FBXSDK</Filter>
+      <Filter>NoiseGraphic\Scene\MeshLoader\_FBXSDK</Filter>
     </ClCompile>
     <ClCompile Include="Renderer_Atmosphere.cpp">
       <Filter>NoiseGraphic\Scene\Renderer\RenderModule_Atmosphere</Filter>
@@ -560,6 +563,9 @@
     </ClCompile>
     <ClCompile Include="BvhTree.cpp">
       <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

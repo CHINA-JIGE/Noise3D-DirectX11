@@ -27,7 +27,7 @@ SceneManager::SceneManager():
 	IFactory<GraphicObjectManager>(2),//scene/font-internal
 	 IFactory<Atmosphere>(1),
 	IFactory<TextManager>(1),
-	IFactory<ModelLoader>(1),
+	IFactory<MeshLoader>(1),
 	IFactory<ModelProcessor>(1),
 	IFactory<CollisionTestor>(1)
 {
@@ -213,14 +213,14 @@ TextManager * SceneManager::GetTextMgr()
 	return IFactory<TextManager>::GetObjectPtr(uid);
 }
 
-ModelLoader * SceneManager::GetModelLoader()
+MeshLoader * SceneManager::GetModelLoader()
 {
 	const N_UID uid = "sceneModelLoader";
-	if (IFactory<ModelLoader>::FindUid(uid) == false)
+	if (IFactory<MeshLoader>::FindUid(uid) == false)
 	{
-		IFactory<ModelLoader>::CreateObject(uid);
+		IFactory<MeshLoader>::CreateObject(uid);
 	}
-	return IFactory<ModelLoader>::GetObjectPtr(uid);
+	return IFactory<MeshLoader>::GetObjectPtr(uid);
 }
 
 ModelProcessor * Noise3D::SceneManager::GetModelProcessor()

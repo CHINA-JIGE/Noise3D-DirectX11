@@ -10,17 +10,17 @@
 
 using namespace Noise3D;
 
-ModelLoader::ModelLoader()
+MeshLoader::MeshLoader()
 {
 
 };
 
-ModelLoader::~ModelLoader()
+MeshLoader::~MeshLoader()
 {
 
 };
 
-bool ModelLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
+bool MeshLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
 	if (pTargetMesh == nullptr)return false;
 
@@ -40,7 +40,7 @@ bool ModelLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadBox(Mesh * const pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
+bool MeshLoader::LoadBox(Mesh * const pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep)
 {
 	if (iDepthStep <= 2) { iDepthStep = 2; }
 	if (iWidthStep <= 2) { iWidthStep = 2; }
@@ -60,7 +60,7 @@ bool ModelLoader::LoadBox(Mesh * const pTargetMesh, float fWidth, float fHeight,
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadSphere(Mesh * const pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
+bool MeshLoader::LoadSphere(Mesh * const pTargetMesh, float fRadius, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -78,7 +78,7 @@ bool ModelLoader::LoadSphere(Mesh * const pTargetMesh, float fRadius, UINT iColu
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadCylinder(Mesh * const pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
+bool MeshLoader::LoadCylinder(Mesh * const pTargetMesh, float fRadius, float fHeight, UINT iColumnCount, UINT iRingCount)
 {
 	//check if the input "Step Count" is illegal
 	if (iColumnCount <= 3) { iColumnCount = 3; }
@@ -96,7 +96,7 @@ bool ModelLoader::LoadCylinder(Mesh * const pTargetMesh, float fRadius, float fH
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
+bool MeshLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vector<N_DefaultVertex>& vertexList, const std::vector<UINT>& indicesList)
 {
 	//"Out of Boundary" check for indices
 	for (auto& index : indicesList)
@@ -115,7 +115,7 @@ bool ModelLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vecto
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
+bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 {
 	std::vector<UINT>			tmpIndexList;
 	std::vector<NVECTOR3> tmpVertexList;
@@ -204,7 +204,7 @@ bool ModelLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
+bool MeshLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 {
 	std::vector<N_DefaultVertex> tmpCompleteVertexList;
 	std::vector<UINT>	tmpIndexList;
@@ -225,7 +225,7 @@ bool ModelLoader::LoadFile_OBJ(Mesh * const pTargetMesh, NFilePath filePath)
 	return isUpdateOk;
 }
 
-void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
 {
 	//if fbx loader has already been initialized,
 	//then actual init procedure will be skipped
@@ -394,7 +394,7 @@ void ModelLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoa
 	}
 }
 
-bool ModelLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
+bool MeshLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float fRadiusXZ, float fHeight)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -420,7 +420,7 @@ bool ModelLoader::LoadSkyDome(Atmosphere * const pAtmo,N_UID textureName, float 
 	return isUpdateOk;
 }
 
-bool ModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
+bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidth, float fHeight, float fDepth)
 {
 	//check if the input "Step Count" is illegal
 	UINT iColumnCount = 30;
@@ -451,7 +451,7 @@ bool ModelLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWid
 
 
 
-/*bool ModelLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
+/*bool MeshLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
 {
 	std::vector<N_Load3ds_MeshObject>	meshList;
 	std::vector<N_MaterialDesc>					materialList;

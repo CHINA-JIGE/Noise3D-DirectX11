@@ -9,7 +9,7 @@
 
 namespace Noise3D
 {
-	class ModelLoader;
+	class MeshLoader;
 
 
 	class /*_declspec(dllexport)*/ SceneManager:
@@ -23,7 +23,7 @@ namespace Noise3D
 		public IFactory<SweepingTrailManager>,
 		public IFactory<Atmosphere>,
 		public IFactory<TextManager>,
-		public IFactory<ModelLoader>,
+		public IFactory<MeshLoader>,
 		public IFactory<ModelProcessor>,
 		public IFactory<CollisionTestor>
 	{
@@ -56,7 +56,7 @@ namespace Noise3D
 
 		TextManager*				GetTextMgr();
 
-		ModelLoader*				GetModelLoader();
+		MeshLoader*				GetModelLoader();
 
 		ModelProcessor*			GetModelProcessor();
 
