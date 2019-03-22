@@ -32,7 +32,19 @@ namespace Noise3D
 		//('facet' is used to explicit decide  face, avoid the rounding error on box's corner, might round to adjacent facet)
 		static NVECTOR3 ComputeNormal(NOISE_BOX_FACET facet);
 
+		//box is AABB in local space
+		void SetLocalBox(N_AABB aabb);
+
+		//box is AABB in local space
+		N_AABB GetLocalBox();
+
 	private:
+
+		LogicalBox();
+
+		~LogicalBox();
+
+		N_AABB mLocalBox;
 
 	};
 

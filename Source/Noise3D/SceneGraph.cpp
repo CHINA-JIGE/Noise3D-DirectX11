@@ -36,10 +36,13 @@ NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix()
 	//concatenate leaf node's transform first, then level-by-level to root
 	//traversePathToRoot's result have the leaf node at the beginning, and root at the end
 	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode: path)
+	
+	//(2019.3.22)ignore root node's transform
+	for (uint32_t i =0; i<path.size()-1;++i)
 	{
 		//WARNING: plz be careful about ROW/COLUMN major 
 		//(2019.3.7)Noise3D uses ROW major like DXMath do. refer to AffineTransform for related info
+		SceneNode* pNode = path.at(i);
 		NMATRIX tmpMat = XMMatrixIdentity();
 		AffineTransform& localTrans = pNode->GetLocalTransform();
 		localTrans.GetTransformMatrix(tmpMat);
@@ -108,6 +111,25 @@ void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, N
 	else
 	{
 		outWorldInvTranspose = worldInvMat.Transpose();
+	}
+}
+
+void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInv, NMATRIX & outWorldInvTranspose)
+{
+	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix();
+
+	//world inv transpose for normal's transformation
+	outWorldInv = XMMatrixInverse(nullptr, outWorldMat);
+	if (XMMatrixIsInfinite(outWorldInv))
+	{
+		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
+		outWorldInv = XMMatrixIdentity();
+		outWorldInvTranspose = XMMatrixIdentity();
+		return;
+	}
+	else
+	{
+		outWorldInvTranspose = outWorldInv.Transpose();
 	}
 }
 

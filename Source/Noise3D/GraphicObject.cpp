@@ -618,7 +618,7 @@ N_AABB Noise3D::GraphicObject::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()
+NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::GRAPHIC_OBJECT;
 }

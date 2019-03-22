@@ -30,6 +30,7 @@ namespace Noise3D
 	struct N_RayHitResult
 	{
 		N_RayHitResult() {};
+		N_RayHitResult(const N_RayHitResult& rhs) { hitList = rhs.hitList; }
 
 		//sort by depth (in ascending order)(or ray's parameter t)
 		void SortByDepth()
@@ -58,22 +59,22 @@ namespace Noise3D
 		UINT Picking_GpuBased(Mesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
 
 		//ray-Aabb intersection. 'slabs' method, can refer to pbrt-v3 or peter-shirley's <Ray Tracing:The Next Week>
-		bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb);
+		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb);
 
 		//ray-Aabb intersection(detailed hit info). 'slabs' method, can refer to pbrt-v3 or peter-shirley's <Ray Tracing:The Next Week>
-		bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb, N_RayHitResult& outHitRes);
+		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb, N_RayHitResult& outHitRes);
 
 		//ray-Boxntersection. box can be transformed in world space.
-		bool IntersectRayBox(const N_Ray& ray, const LogicalBox& aabb, N_RayHitResult& outHitRes);
+		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox, N_RayHitResult& outHitRes);
 
 		//ray-sphere intersecton. simply solve an quadratic equation
-		bool IntersectRaySphere(const N_Ray& ray, const LogicalSphere& s, N_RayHitResult& outHitRes);
+		static bool IntersectRaySphere(const N_Ray& ray, const LogicalSphere& s, N_RayHitResult& outHitRes);
 
 		//ray-triangle intersection
-		bool IntersectRayTriangle(const N_Ray& ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo& outHitInfo);
+		static bool IntersectRayTriangle(const N_Ray& ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo& outHitInfo);
 
 		//ray-triangle intersection with normal interpolation
-		bool IntersectRayTriangle(const N_Ray& ray, const N_DefaultVertex& v0, const N_DefaultVertex& v1, const N_DefaultVertex& v2, N_RayHitInfo& outHitInfo);
+		static bool IntersectRayTriangle(const N_Ray& ray, const N_DefaultVertex& v0, const N_DefaultVertex& v1, const N_DefaultVertex& v2, N_RayHitInfo& outHitInfo);
 
 		//ray-Mesh intersection. cpu impl.
 		bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
@@ -97,10 +98,10 @@ namespace Noise3D
 		bool mFunction_InitDSS();
 
 		//'gamma' for floating error in pbrt-v3 /scr/core/pbrt.h
-		float mFunc_Gamma(int n);
+		static float mFunc_Gamma(int n);
 
 		//get facet id for Ray-AABB intersection
-		void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
+		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
 		static const UINT c_maxSOVertexCount = 200;//-------Var for Gpu Picking-----------
 

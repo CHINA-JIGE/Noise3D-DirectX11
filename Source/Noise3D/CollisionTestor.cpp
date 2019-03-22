@@ -327,6 +327,40 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 
 }
 
+bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pBox, N_RayHitResult & outHitRes)
+{
+	//convert the box to local space to use Ray-AABB intersection
+	SceneNode* pNode = pBox->GetAttachedSceneNode();
+	if (pNode == nullptr)
+	{
+		WARNING_MSG("CollisionTestor: Box is not bound to a scene node.");
+		return false;
+	}
+
+	//get 'World' related transform matrix (all are useful)
+	NMATRIX worldMat, worldInvMat, worldInvTransposeMat;
+	pNode->EvalWorldAffineTransformMatrix(worldMat,worldInvMat, worldInvTransposeMat);
+
+	//transform the ray into local space
+	N_Ray localRay;
+	localRay.origin = AffineTransform::TransformVector_MatrixMul(ray.origin, worldInvMat);
+	localRay.dir = AffineTransform::TransformVector_MatrixMul(ray.dir, worldInvMat);
+
+	//***********perform Ray-AABB intersection***********
+	N_AABB localBox = pBox->GetLocalBox();
+	bool anyHit = CollisionTestor::IntersectRayAabb(localRay, localBox, outHitRes);
+
+	//transform only the hit results back to world space(minimize the count of inv transform)
+	for (auto hitInfo : outHitRes.hitList)
+	{
+		//hitInfo.t = hitInfo.t
+		hitInfo.normal = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldInvTransposeMat);
+		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldMat);
+	}
+
+	return anyHit;
+}
+
 bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
 {
 	//[Reference for the implementation]
@@ -410,6 +444,8 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 		const N_DefaultVertex& v0 = pVB->at(3 * i + 0);
 		const N_DefaultVertex& v1 = pVB->at(3 * i + 1);
 		const N_DefaultVertex& v2 = pVB->at(3 * i + 2);
+
+		ERROR_MSG("it's in local space. transform not applied!");
 
 		//delegate each ray-tri intersection task to another function
 		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))

@@ -32,7 +32,7 @@ namespace Noise3D
 		virtual ~ISceneObject();
 
 		//customized RTTI info to avoid dynamic_cast's overhead?
-		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() = 0;
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() const = 0;
 
 		//require concrete geometry data.
 		virtual N_AABB GetLocalAABB() = 0;
@@ -53,7 +53,7 @@ namespace Noise3D
 		void DetachFromSceneNode();
 
 		//..
-		SceneNode* GetAttachedSceneNode();
+		SceneNode* GetAttachedSceneNode() const;
 
 	protected:
 

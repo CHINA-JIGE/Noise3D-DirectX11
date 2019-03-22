@@ -160,7 +160,7 @@ N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()
+NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;
 }

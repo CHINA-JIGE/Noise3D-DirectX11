@@ -134,6 +134,7 @@
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
     <ClInclude Include="GI_Light.h" />
+    <ClInclude Include="LogicalBox.h" />
     <ClInclude Include="LogicalShape.h" />
     <ClInclude Include="LogicalSphere.h" />
     <ClInclude Include="TreeDataStructureTemplate.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="GeometryEntity.cpp" />
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
+    <ClCompile Include="LogicalBox.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />

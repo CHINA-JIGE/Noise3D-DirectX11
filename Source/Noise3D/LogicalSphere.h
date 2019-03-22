@@ -16,9 +16,19 @@ namespace Noise3D
 	{
 	public:
 
-		bool ComputeNormal(NVECTOR3 pos);
+		//NVECTOR3 ComputeVec(float theta_pitch, float phi_yaw);
+
+		void SetRadius(float r);
+
+		float GetRadius();
 
 	private:
+
+		LogicalSphere();
+
+		~LogicalSphere();
+
+		float mRadius;
 
 	};
 

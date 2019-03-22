@@ -379,6 +379,9 @@
     <ClInclude Include="GI_Light.h">
       <Filter>NoiseGraphic\GI\AreaLight</Filter>
     </ClInclude>
+    <ClInclude Include="LogicalBox.h">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -566,6 +569,9 @@
     </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalBox.cpp">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

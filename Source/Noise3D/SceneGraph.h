@@ -32,13 +32,15 @@ namespace Noise3D
 		//(2019.3.7)currently computed accumulated world matrix won't cache in ScenNode;
 		NMATRIX EvalWorldAffineTransformMatrix();
 
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
+
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInv, NMATRIX& outWorldInvTranspose);
+
 		//only consider Rotation and Translation
 		NMATRIX EvalWorldRigidTransformMatrix();
 
 		//only consider Rotation
 		NMATRIX EvalWorldRotationMatrix();
-
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
 
 		void AttachSceneObject(ISceneObject* pObj);
 

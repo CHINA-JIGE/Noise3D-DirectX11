@@ -12,7 +12,7 @@
 using namespace Noise3D;
 using namespace Noise3D::D3D;
 
-Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()
+Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::MESH;
 }

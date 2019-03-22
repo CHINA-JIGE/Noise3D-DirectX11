@@ -98,7 +98,7 @@ void Noise3D::ISceneObject::DetachFromSceneNode()
 	}
 }
 
-SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode()
+SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode() const
 {
 	return m_pAttachedSceneNode;
 }

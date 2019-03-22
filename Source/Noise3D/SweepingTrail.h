@@ -85,7 +85,7 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Fast();
 
 		//ISceneObject::
-		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override;
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() const override;
 
 	private:
 

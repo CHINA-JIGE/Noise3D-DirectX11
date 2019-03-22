@@ -18,7 +18,7 @@ namespace Noise3D
 	public:
 
 		//ISceneObject::
-		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override = 0 ;
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override = 0 ;
 
 		//ISceneObject::
 		virtual N_AABB GetLocalAABB() override= 0;

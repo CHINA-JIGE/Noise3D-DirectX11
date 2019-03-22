@@ -281,7 +281,7 @@ N_AABB Noise3D::Camera::ComputeWorldAABB_Accurate()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
+NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::CAMERA;
 }
