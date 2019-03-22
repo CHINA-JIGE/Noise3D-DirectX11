@@ -14,22 +14,7 @@ namespace Noise3D
 	{
 	public:
 
-		Mesh*				CreateMesh(SceneNode* pAttachedNode, N_UID meshName);
-
-		/*Mesh*				GetMesh(N_UID meshName);
-
-		Mesh*				GetMesh(UINT index);
-
-		bool					DestroyMesh(N_UID meshName);
-
-		bool					DestroyMesh(Mesh* pMesh);
-
-		void					DestroyAllMesh();
-
-		UINT				GetMeshCount();
-
-		bool					IsMeshExisted(N_UID meshName);*/
-
+		Mesh*		CreateMesh(SceneNode* pAttachedNode, N_UID meshName);
 
 	private:
 

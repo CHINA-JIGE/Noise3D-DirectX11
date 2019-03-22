@@ -1,6 +1,7 @@
 /***********************************************************************
 
-                           h£ºNoiseType
+				NoiseTypes: some commonly used simple types
+				(usually just simple container)
 
 ************************************************************************/
 
@@ -10,15 +11,15 @@ using namespace DirectX;
 namespace Noise3D
 {
 
-	typedef		SimpleMath::Vector2 	NVECTOR2;
-	typedef		SimpleMath::Vector3 	NVECTOR3;
-	typedef		SimpleMath::Vector4 	NVECTOR4;
-	typedef		SimpleMath::Matrix		NMATRIX;
-	typedef		SimpleMath::Quaternion NQUATERNION;
-	typedef		std::string		NFilePath;
-	typedef		std::string		NString;
-	typedef		std::string		N_UID;
-	typedef		SimpleMath::Color 	NColor4f;
+	typedef	SimpleMath::Vector2 	NVECTOR2;
+	typedef	SimpleMath::Vector3 	NVECTOR3;
+	typedef	SimpleMath::Vector4 	NVECTOR4;
+	typedef	SimpleMath::Matrix		NMATRIX;
+	typedef	SimpleMath::Quaternion NQUATERNION;
+	typedef	std::string		NFilePath;
+	typedef	std::string		NString;
+	typedef	std::string		N_UID;
+	typedef	SimpleMath::Color 	NColor4f;
 
 	struct NColor4u
 	{
@@ -126,5 +127,16 @@ namespace Noise3D
 		NVECTOR3 vert2;
 	};
 
+	struct N_Ray
+	{
+		N_Ray():t_max(std::numeric_limits<float>::infinity()){}
+		N_Ray(NVECTOR3 _origin,NVECTOR3 _dir, float _t_max) :origin(_origin),dir(_dir),t_max(_t_max) {}
 
+		//evaluate position given ray's parameter t
+		NVECTOR3 Eval(float t) { return origin + t * dir; }
+
+		NVECTOR3 origin;
+		NVECTOR3 dir;
+		float t_max;//the maximum acceptable parameter t (e.g. used in ray tracing for maximum distance)
+	};
 };

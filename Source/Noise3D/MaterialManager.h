@@ -13,7 +13,6 @@ namespace Noise3D
 	{
 	public:
 
-
 		Material*		CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc);
 
 		Material*		GetDefaultMaterial();

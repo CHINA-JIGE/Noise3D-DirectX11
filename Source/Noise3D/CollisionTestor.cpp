@@ -1,7 +1,7 @@
-
+ï»¿
 /***********************************************************************
 
-								cpp £ºCollision Testor
+								cpp ï¼šCollision Testor
 				provide all kinds of collision detection
 				to all kinds of objects
 
@@ -13,11 +13,15 @@ using namespace Noise3D;
 using namespace Noise3D::D3D;
 
 CollisionTestor::CollisionTestor():
-	m_pRefShaderVarMgr(nullptr)
+	m_pRefShaderVarMgr(nullptr),
+	m_pSOGpuWriteableBuffer(nullptr),
+	m_pSOCpuReadableBuffer(nullptr),
+	m_pSOQuery(nullptr),
+	m_pFX_Tech_Picking(nullptr),
+	m_pDSS_DisableDepthTest(nullptr)
 {
 
 }
-
 
 CollisionTestor::~CollisionTestor()
 {
@@ -26,6 +30,62 @@ CollisionTestor::~CollisionTestor()
 	ReleaseCOM(m_pSOQuery);
 	ReleaseCOM(m_pDSS_DisableDepthTest);
 }
+
+bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
+{
+	//[Reference for the implementation]
+	//Tomas MÃ¶ller, Trumbore B . Fast, Minimum Storage Ray-Triangle Intersection[J]. 2005.
+	//the method can be describe as follow:
+	//**Triangle(V0, V1, V2)
+	//**Ray p=O+tD (O for origin, D for direction)
+	//**Point in Triangle R(u,v) = (1-u-v)V0 + uV1 + vV2
+	//then use CRAMER's RULE to solve the linear equation system for the unknown (t,u,v):
+	//		O+tD = (1-u-v)V0 + uV1 + vV2		******(u >0, v>0, u+v<=1)
+	// for more info, plz refer to document [Notes]Intersection between Ray and Shapes.docx
+	//the code here won't be intuitive, because it's mainly algebraic inductions.
+	NVECTOR3 E1 = v1 - v0;
+	NVECTOR3 E2 = v2 - v0;
+
+	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
+	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
+	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;
+
+	float invDet = 1.0f / det;//calculate once
+	NVECTOR3 M = ray.origin - v0;// M = O - V0
+	float u = invDet * M.Dot(P);// invDet * (M dot P)
+	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
+
+	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
+	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
+	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
+
+	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
+	outHitInfo.t = result_t;
+	return true;
+}
+
+bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
+{
+	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
+
+	//apply ray-triangle intersection for each triangle
+	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
+	{
+		N_RayHitInfo hitInfo;
+		const NVECTOR3& v0 = pVB->at(3 * i + 0).Pos;
+		const NVECTOR3& v1 = pVB->at(3 * i + 1).Pos;
+		const NVECTOR3& v2 = pVB->at(3 * i + 2).Pos;
+
+		//delegate the task to cpu-based ray-triangle intersection
+		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))
+		{
+			outHitRes.hitList.push_back(hitInfo);
+		}
+	}
+
+	return outHitRes.HasAnyHit();
+}
+
 
 void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
 {

@@ -32,15 +32,19 @@ namespace Noise3D
 		//determine if point is inside this shape
 		virtual bool IsPointInside(NVECTOR3 p) = 0;
 
+		//..
+		void SetMaterial(Material* pMat) 
+		{
+			m_pMaterial = pMat;
+		};
+
 	protected:
 
-		ILogicalShape(const std::string& name, SceneNode* pAttachedNode)
-			: ISceneObject(name,pAttachedNode) {};
+		ILogicalShape() {};
 
 		~ILogicalShape() {};
 
-
-	private:
+		Material* m_pMaterial;
 
 	};
 
