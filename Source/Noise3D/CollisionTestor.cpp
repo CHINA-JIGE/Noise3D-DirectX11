@@ -202,6 +202,10 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	float slab_min[3] = { aabb.min.x, aabb.min.y, aabb.min.z };
 	float slab_max[3] = { aabb.max.x, aabb.max.y, aabb.max.z };
 
+	//mark to test near and far's hit state
+	bool isNearHit = false;
+	bool isFarHit = false;
+
 	//calculate a pair of slabs for an interval in each loop
 	for (int i = 0; i < 3; ++i)
 	{
@@ -218,8 +222,8 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 		t_far *= (1 + 2 * mFunc_Gamma(3));
 
 		//try to narrow the t value interval
-		if (t_near > t_resultMin){t_resultMin = t_near;}
-		if (t_far < t_resultMax)	{t_resultMax = t_far;}
+		if (t_near > t_resultMin) { t_resultMin = t_near; isNearHit = true; }
+		if (t_far < t_resultMax) { t_resultMax = t_far; isFarHit = true; }
 
 		//validate t interval. 
 		if (t_resultMin > t_resultMax)
@@ -230,7 +234,10 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	}
 
 	//t_max rejection
-	if (t_resultMax > ray.t_max)return false;
+	if (t_resultMax > ray.t_max)isFarHit = false;
+
+	//2 intersection points at most, but if there is none:
+	if (!isNearHit && !isFarHit)return false;
 
 	return true;
 }
@@ -245,13 +252,17 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	//or pbrt-v3: https://github.com/mmp/pbrt-v3 /src/core/geometry.h Bounds3<T>::IntersectP
 	float t_resultMin = 0;
 	float t_resultMax = ray.t_max;
-	uint32_t facetId_minHit = 0, facetId_maxHit = 0;//convert to NOISE_BOX_FACET later
+	NOISE_BOX_FACET result_minHitFacetId, result_maxHitFacetId;//convert to NOISE_BOX_FACET later
 
-													//put aabb's component into an array to use a 'for'
+	//put aabb's component into an array to use a 'for'
 	float rayOrigin[3] = { ray.origin.x, ray.origin.y, ray.origin.z };
 	float rayDir[3] = { ray.dir.x, ray.dir.y, ray.dir.z };
 	float slab_min[3] = { aabb.min.x, aabb.min.y, aabb.min.z };
 	float slab_max[3] = { aabb.max.x, aabb.max.y, aabb.max.z };
+
+	//mark to test near and far's hit state
+	bool isNearHit = false;
+	bool isFarHit = false;
 
 	//calculate a pair of slabs for an interval in each loop
 	for (int i = 0; i < 3; ++i)
@@ -268,20 +279,15 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 		// Update _tFar_ to ensure robust ray--bounds intersection(pbrt-v3, 'rounding errors')
 		t_far *= (1 + 2 * mFunc_Gamma(3));
 
+		//get two possible hits' facet id
+		NOISE_BOX_FACET nearFacetId, farFacetId;
+		mFunction_AabbFacet(i, rayDir[i], nearFacetId, farFacetId);//+x:0, -x:1, +y:2, -y:3, +z:4, -z:5, 
+
 		//try to narrow the t value interval(and update hit facet accordingly)
 		if (t_near > t_resultMin)
-		{
-			t_resultMin = t_near;
-			ERROR_MSG("not impl facet determination");
-			//facetId_minHit = 2 * i + 0;//+x:0, -x:1, +y:2, -y:3, +z:4, -z:5, 
-		}
-
+			{t_resultMin = t_near;	isNearHit = true;	result_minHitFacetId = nearFacetId;}
 		if (t_far < t_resultMax)
-		{
-			t_resultMax = t_far;
-			ERROR_MSG("not impl facet determination");
-			//facetId_maxHit = 2 * i + 1;//+x:0, -x:1, +y:2, -y:3, +z:4, -z:5, 
-		}
+			{t_resultMax = t_far;	isFarHit = true;	result_maxHitFacetId = farFacetId;}
 
 		//validate t interval. 
 		if (t_resultMin > t_resultMax)
@@ -292,12 +298,31 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	}
 
 	//t_max rejection
-	if (t_resultMax > ray.t_max)return false;
+	if (t_resultMax > ray.t_max)isFarHit = false;
+
+	//2 intersection points at most, but if there is none:
+	if (!isNearHit && !isFarHit)return false;
 
 	//after evaluating the intersection of 3 t-value intervals
 	//[t_resultMin, t_resultMax] is still valid, then output the result
-	outHitRes.t_min = t_resultMin;//>=0
-	outHitRes.t_max = t_resultMax;//<=tMax
+	if (isNearHit)
+	{
+		N_RayHitInfo hitInfo;
+		hitInfo.t = t_resultMin;
+		hitInfo.pos = ray.Eval(t_resultMin);
+		hitInfo.normal = LogicalBox::ComputeNormal(result_minHitFacetId);//static function to compute normal of an AABB
+		outHitRes.hitList.push_back(hitInfo);
+	}
+
+	if (isFarHit)
+	{
+		N_RayHitInfo hitInfo;
+		hitInfo.t = t_resultMax;
+		hitInfo.pos = ray.Eval(t_resultMax);
+		hitInfo.normal = LogicalBox::ComputeNormal(result_maxHitFacetId);//static function to compute normal of an AABB
+		outHitRes.hitList.push_back(hitInfo);
+	}
+
 	return true;
 
 }
@@ -481,4 +506,23 @@ float Noise3D::CollisionTestor::mFunc_Gamma(int n)
 {
 	//'gamma' for floating error in pbrt-v3 /scr/core/pbrt.h
 	return (n * std::numeric_limits<float>::epsilon()) / (1 - n * std::numeric_limits<float>::epsilon());
+}
+
+inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit)
+{
+	if(slabsPairId>2)
+	{
+		WARNING_MSG("Collision Testor: slabs id invalid.");
+		nearHit = NOISE_BOX_FACET::_INVALID;
+		farHit = NOISE_BOX_FACET::_INVALID;
+		return;
+	}
+
+	//get facet ID in Ray-Slabs intersection(assume current dir component is positive)
+	nearHit = static_cast<NOISE_BOX_FACET>(2 * slabsPairId + 1);//NOISE_BOX_FACET::NEG_???
+	farHit = static_cast<NOISE_BOX_FACET>(2 * slabsPairId + 0);//NOISE_BOX_FACET::POS_???
+
+	//if dir component is negative, reverse the result
+	bool isDirNeg = dirComponent<0.0f;
+	if (isDirNeg)std::swap(nearHit, farHit);
 }

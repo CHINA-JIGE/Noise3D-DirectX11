@@ -26,7 +26,7 @@ namespace Noise3D
 		NVECTOR3 normal;//hit point's normal vector
 	};
 
-	//...
+	//collection of RayHitInfo
 	struct N_RayHitResult
 	{
 		N_RayHitResult() {};
@@ -98,6 +98,9 @@ namespace Noise3D
 
 		//'gamma' for floating error in pbrt-v3 /scr/core/pbrt.h
 		float mFunc_Gamma(int n);
+
+		//get facet id for Ray-AABB intersection
+		void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
 		static const UINT c_maxSOVertexCount = 200;//-------Var for Gpu Picking-----------
 
