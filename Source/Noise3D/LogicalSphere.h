@@ -3,7 +3,7 @@
 
 								Logical Sphere
 		geometry representation that is not based on polygon.
-		instead, it's based on 
+		instead, it's based on analytic description
 
 ************************************************************/
 
@@ -15,6 +15,8 @@ namespace Noise3D
 		public ILogicalShape
 	{
 	public:
+
+		bool ComputeNormal(NVECTOR3 pos);
 
 	private:
 

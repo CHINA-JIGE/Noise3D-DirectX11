@@ -70,6 +70,7 @@
 
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
+#include "LogicalBox.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"

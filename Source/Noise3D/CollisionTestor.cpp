@@ -31,62 +31,6 @@ CollisionTestor::~CollisionTestor()
 	ReleaseCOM(m_pDSS_DisableDepthTest);
 }
 
-bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
-{
-	//[Reference for the implementation]
-	//Tomas Möller, Trumbore B . Fast, Minimum Storage Ray-Triangle Intersection[J]. 2005.
-	//the method can be describe as follow:
-	//**Triangle(V0, V1, V2)
-	//**Ray p=O+tD (O for origin, D for direction)
-	//**Point in Triangle R(u,v) = (1-u-v)V0 + uV1 + vV2
-	//then use CRAMER's RULE to solve the linear equation system for the unknown (t,u,v):
-	//		O+tD = (1-u-v)V0 + uV1 + vV2		******(u >0, v>0, u+v<=1)
-	// for more info, plz refer to document [Notes]Intersection between Ray and Shapes.docx
-	//the code here won't be intuitive, because it's mainly algebraic inductions.
-	NVECTOR3 E1 = v1 - v0;
-	NVECTOR3 E2 = v2 - v0;
-
-	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
-	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
-	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;
-
-	float invDet = 1.0f / det;//calculate once
-	NVECTOR3 M = ray.origin - v0;// M = O - V0
-	float u = invDet * M.Dot(P);// invDet * (M dot P)
-	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
-
-	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
-	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
-	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
-
-	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
-	outHitInfo.t = result_t;
-	return true;
-}
-
-bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
-{
-	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
-
-	//apply ray-triangle intersection for each triangle
-	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
-	{
-		N_RayHitInfo hitInfo;
-		const NVECTOR3& v0 = pVB->at(3 * i + 0).Pos;
-		const NVECTOR3& v1 = pVB->at(3 * i + 1).Pos;
-		const NVECTOR3& v2 = pVB->at(3 * i + 2).Pos;
-
-		//delegate the task to cpu-based ray-triangle intersection
-		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))
-		{
-			outHitRes.hitList.push_back(hitInfo);
-		}
-	}
-
-	return outHitRes.HasAnyHit();
-}
-
-
 void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
 {
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
@@ -172,7 +116,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 		outCollidedPointList.push_back(*(pVecList + i));
 	}
 
-	g_pImmediateContext->Unmap(m_pSOCpuReadableBuffer,0);
+	g_pImmediateContext->Unmap(m_pSOCpuReadableBuffer, 0);
 
 }
 
@@ -185,7 +129,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
-	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest,0x00000000) ;
+	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
 
 	//picking info
 	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
@@ -210,8 +154,8 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 
 
-	UINT offset =0;
-	ID3D11Buffer* pNullBuff= nullptr;
+	UINT offset = 0;
+	ID3D11Buffer* pNullBuff = nullptr;
 	//apply technique first !!!!!!!!!!!!!!!!!!!!!!!!then set SO Buffer
 	m_pFX_Tech_Picking->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 	g_pImmediateContext->SOSetTargets(1, &m_pSOGpuWriteableBuffer, &offset);
@@ -241,12 +185,222 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 }
 
+bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB & aabb)
+{
+	//if a ray hit AABB, then the ray param t of x/y/z will overlap
+	//the intersection of those 3 t-value interval is the final intersection ray interval.
+	//if the final interval is invalid (say left is greater than right),
+	//then ray-AABB intersection failed/missed.
+	//for more info, refer to Peter Shirley's 《Ray Tracing : The Next Week》
+	//or pbrt-v3: https://github.com/mmp/pbrt-v3 /src/core/geometry.h Bounds3<T>::IntersectP
+	float t_resultMin = 0;
+	float t_resultMax = ray.t_max;
+
+	//put aabb's component into an array to use a 'for'
+	float rayOrigin[3] = { ray.origin.x, ray.origin.y, ray.origin.z };
+	float rayDir[3] = { ray.dir.x, ray.dir.y, ray.dir.z };
+	float slab_min[3] = { aabb.min.x, aabb.min.y, aabb.min.z };
+	float slab_max[3] = { aabb.max.x, aabb.max.y, aabb.max.z };
+
+	//calculate a pair of slabs for an interval in each loop
+	for (int i = 0; i < 3; ++i)
+	{
+		//note the corner case ray[i]==0, division result will be infinity, which is still well-defined by IEEE
+		//and fortunately, the [t_near, t_far] result is still correct
+		float rayDirReciprocal = 1.0f / rayDir[i];
+		float t_near = (slab_min[i] - rayOrigin[i]) * rayDirReciprocal;
+		float t_far = (slab_max[i] - rayOrigin[i]) * rayDirReciprocal;
+
+		// Update ray's parameter t's interval from slab intersection
+		if (t_near > t_far) std::swap(t_near, t_far);
+
+		// Update _tFar_ to ensure robust ray--bounds intersection(pbrt-v3, 'rounding errors')
+		t_far *= (1 + 2 * mFunc_Gamma(3));
+
+		//try to narrow the t value interval
+		if (t_near > t_resultMin){t_resultMin = t_near;}
+		if (t_far < t_resultMax)	{t_resultMax = t_far;}
+
+		//validate t interval. 
+		if (t_resultMin > t_resultMax)
+		{
+			//if not valid, then the ray miss the AABB
+			return false;
+		}
+	}
+
+	//t_max rejection
+	if (t_resultMax > ray.t_max)return false;
+
+	return true;
+}
+
+bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB & aabb, N_RayHitResult & outHitRes)
+{
+	//if a ray hit AABB, then the ray param t of x/y/z will overlap
+	//the intersection of those 3 t-value interval is the final intersection ray interval.
+	//if the final interval is invalid (say left is greater than right),
+	//then ray-AABB intersection failed/missed.
+	//for more info, refer to Peter Shirley's 《Ray Tracing : The Next Week》
+	//or pbrt-v3: https://github.com/mmp/pbrt-v3 /src/core/geometry.h Bounds3<T>::IntersectP
+	float t_resultMin = 0;
+	float t_resultMax = ray.t_max;
+	uint32_t facetId_minHit = 0, facetId_maxHit = 0;//convert to NOISE_BOX_FACET later
+
+													//put aabb's component into an array to use a 'for'
+	float rayOrigin[3] = { ray.origin.x, ray.origin.y, ray.origin.z };
+	float rayDir[3] = { ray.dir.x, ray.dir.y, ray.dir.z };
+	float slab_min[3] = { aabb.min.x, aabb.min.y, aabb.min.z };
+	float slab_max[3] = { aabb.max.x, aabb.max.y, aabb.max.z };
+
+	//calculate a pair of slabs for an interval in each loop
+	for (int i = 0; i < 3; ++i)
+	{
+		//note the corner case ray[i]==0, division result will be infinity, which is still well-defined by IEEE
+		//and fortunately, the [t_near, t_far] result is still correct
+		float rayDirReciprocal = 1.0f / rayDir[i];
+		float t_near = (slab_min[i] - rayOrigin[i]) * rayDirReciprocal;
+		float t_far = (slab_max[i] - rayOrigin[i]) * rayDirReciprocal;
+
+		// Update ray's parameter t's interval from slab intersection
+		if (t_near > t_far) std::swap(t_near, t_far);
+
+		// Update _tFar_ to ensure robust ray--bounds intersection(pbrt-v3, 'rounding errors')
+		t_far *= (1 + 2 * mFunc_Gamma(3));
+
+		//try to narrow the t value interval(and update hit facet accordingly)
+		if (t_near > t_resultMin)
+		{
+			t_resultMin = t_near;
+			ERROR_MSG("not impl facet determination");
+			//facetId_minHit = 2 * i + 0;//+x:0, -x:1, +y:2, -y:3, +z:4, -z:5, 
+		}
+
+		if (t_far < t_resultMax)
+		{
+			t_resultMax = t_far;
+			ERROR_MSG("not impl facet determination");
+			//facetId_maxHit = 2 * i + 1;//+x:0, -x:1, +y:2, -y:3, +z:4, -z:5, 
+		}
+
+		//validate t interval. 
+		if (t_resultMin > t_resultMax)
+		{
+			//if not valid, then the ray miss the AABB
+			return false;
+		}
+	}
+
+	//t_max rejection
+	if (t_resultMax > ray.t_max)return false;
+
+	//after evaluating the intersection of 3 t-value intervals
+	//[t_resultMin, t_resultMax] is still valid, then output the result
+	outHitRes.t_min = t_resultMin;//>=0
+	outHitRes.t_max = t_resultMax;//<=tMax
+	return true;
+
+}
+
+bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
+{
+	//[Reference for the implementation]
+	//Tomas Möller, Trumbore B . Fast, Minimum Storage Ray-Triangle Intersection[J]. 2005.
+	//the method can be describe as follow:
+	//**Triangle(V0, V1, V2)
+	//**Ray p=O+tD (O for origin, D for direction)
+	//**Point in Triangle R(u,v) = (1-u-v)V0 + uV1 + vV2
+	//then use CRAMER's RULE to solve the linear equation system for the unknown (t,u,v):
+	//		O+tD = (1-u-v)V0 + uV1 + vV2		******(u >0, v>0, u+v<=1)
+	// for more info, plz refer to document [Notes]Intersection between Ray and Shapes.docx
+	//the code here won't be intuitive, because it's mainly algebraic inductions.
+	NVECTOR3 E1 = v1 - v0;
+	NVECTOR3 E2 = v2 - v0;
+
+	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
+	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
+	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;
+
+	float invDet = 1.0f / det;//calculate once
+	NVECTOR3 M = ray.origin - v0;// M = O - V0
+	float u = invDet * M.Dot(P);// invDet * (M dot P)
+	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
+
+	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
+	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
+	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
+
+	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
+
+	//t_max rejection
+	if (result_t > ray.t_max)return false;
+
+	outHitInfo.t = result_t;
+	outHitInfo.pos = ray.Eval(result_t);
+	outHitInfo.normal = E1.Cross(E2);
+	return true;
+}
+
+bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_DefaultVertex & v0, const N_DefaultVertex & v1, const N_DefaultVertex & v2, N_RayHitInfo & outHitInfo)
+{
+	//same as IntersectTriangle(), with with Mesh's vertex format as input
+	//(to make full use of the normal/Tangent vector of Mesh*)
+	//Normal interpolation of hit point is implemented.
+	NVECTOR3 E1 = v1.Pos - v0.Pos;
+	NVECTOR3 E2 = v2.Pos - v0.Pos;
+
+	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
+	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
+	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;//early return to avoid further computation
+
+	float invDet = 1.0f / det;//calculate once
+	NVECTOR3 M = ray.origin - v0.Pos;// M = O - V0
+	float u = invDet * M.Dot(P);// invDet * (M dot P)
+	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
+
+	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
+	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
+	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
+
+	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
+
+	//t_max rejection
+	if (result_t > ray.t_max)return false;
+
+	outHitInfo.t = result_t;
+	outHitInfo.pos = ray.Eval(result_t);
+	outHitInfo.normal = ((1.0f - u - v)*v0.Normal + u*v1.Normal + v*v2.Normal);//normal's interpolation
+	outHitInfo.normal.Normalize();
+	return true;
+}
+
+bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
+{
+	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
+
+	//apply ray-triangle intersection for each triangle
+	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
+	{
+		N_RayHitInfo hitInfo;
+		const N_DefaultVertex& v0 = pVB->at(3 * i + 0);
+		const N_DefaultVertex& v1 = pVB->at(3 * i + 1);
+		const N_DefaultVertex& v2 = pVB->at(3 * i + 2);
+
+		//delegate each ray-tri intersection task to another function
+		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))
+		{
+			outHitRes.hitList.push_back(hitInfo);
+		}
+	}
+	return outHitRes.HasAnyHit();
+}
+
+
 /*************************************************
 
 							P R I V A T E
 
 ************************************************/
-
 
 bool CollisionTestor::mFunction_Init()
 {
@@ -321,4 +475,10 @@ inline bool CollisionTestor::mFunction_InitDSS()
 	hr = g_pd3dDevice11->CreateDepthStencilState(&dssDesc, &m_pDSS_DisableDepthTest);
 	HR_DEBUG(hr, "Collision Testor : Create Depth Stencil State Failed!!!");
 	return true;
+}
+
+float Noise3D::CollisionTestor::mFunc_Gamma(int n)
+{
+	//'gamma' for floating error in pbrt-v3 /scr/core/pbrt.h
+	return (n * std::numeric_limits<float>::epsilon()) / (1 - n * std::numeric_limits<float>::epsilon());
 }

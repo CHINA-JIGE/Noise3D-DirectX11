@@ -133,7 +133,7 @@ namespace Noise3D
 		N_Ray(NVECTOR3 _origin,NVECTOR3 _dir, float _t_max) :origin(_origin),dir(_dir),t_max(_t_max) {}
 
 		//evaluate position given ray's parameter t
-		NVECTOR3 Eval(float t) { return origin + t * dir; }
+		NVECTOR3 Eval(float t) const { return origin + t * dir; }
 
 		NVECTOR3 origin;
 		NVECTOR3 dir;
