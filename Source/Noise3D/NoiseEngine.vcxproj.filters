@@ -154,11 +154,11 @@
     <Filter Include="NoiseGraphic\Scene\MeshLoader\_FBXSDK">
       <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\LogicalShape">
-      <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\GI\AreaLight">
       <UniqueIdentifier>{48087c73-fecd-4068-a6f6-d4617ce8fde7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\LogicalShape">
+      <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -368,19 +368,19 @@
       <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
     </ClInclude>
     <ClInclude Include="LogicalSphere.h">
-      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+      <Filter>NoiseGraphic\GI\LogicalShape</Filter>
     </ClInclude>
     <ClInclude Include="MeshLoader.h">
       <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
     </ClInclude>
     <ClInclude Include="LogicalShape.h">
-      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+      <Filter>NoiseGraphic\GI\LogicalShape</Filter>
     </ClInclude>
     <ClInclude Include="GI_Light.h">
       <Filter>NoiseGraphic\GI\AreaLight</Filter>
     </ClInclude>
     <ClInclude Include="LogicalBox.h">
-      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+      <Filter>NoiseGraphic\GI\LogicalShape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -571,7 +571,10 @@
       <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
     </ClCompile>
     <ClCompile Include="LogicalBox.cpp">
-      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+      <Filter>NoiseGraphic\GI\LogicalShape</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalSphere.cpp">
+      <Filter>NoiseGraphic\GI\LogicalShape</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

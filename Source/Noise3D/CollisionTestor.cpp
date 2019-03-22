@@ -361,6 +361,14 @@ bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pB
 	return anyHit;
 }
 
+bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, const LogicalSphere & s, N_RayHitResult & outHitRes)
+{
+
+	ERROR_MSG("BUG: plz apply transform ray into local and transform hitInfo back to world");
+
+	return true;
+}
+
 bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
 {
 	//[Reference for the implementation]
@@ -445,7 +453,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 		const N_DefaultVertex& v1 = pVB->at(3 * i + 1);
 		const N_DefaultVertex& v2 = pVB->at(3 * i + 2);
 
-		ERROR_MSG("it's in local space. transform not applied!");
+		ERROR_MSG("BUG: plz apply transform ray into local and transform hitInfo back to world");
 
 		//delegate each ray-tri intersection task to another function
 		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))

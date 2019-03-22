@@ -222,6 +222,7 @@
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
     <ClCompile Include="LogicalBox.cpp" />
+    <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />

@@ -29,23 +29,36 @@ namespace Noise3D
 		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
-		//(2019.3.7)currently computed accumulated world matrix won't cache in ScenNode;
-		NMATRIX EvalWorldAffineTransformMatrix();
+		//evaluated world matrix(relative to root) won't cache in ScenNode by default
+		//set 'cacheResult' to true in order to cache the evaluated world matrix 
+		//(which can be directly retrived until the cache is cleared)
+		NMATRIX EvalWorldAffineTransformMatrix(bool cacheResult = false);
 
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
+		//eval world matrix, and its inverse-transpose
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose, bool cacheResult = false);
 
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInv, NMATRIX& outWorldInvTranspose);
+		//eval world matrix, and its inverse, and its inverse-transpose
+		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInv, NMATRIX& outWorldInvTranspose, bool cacheResult = false);
 
 		//only consider Rotation and Translation
-		NMATRIX EvalWorldRigidTransformMatrix();
+		NMATRIX EvalWorldRigidTransformMatrix(bool cacheResult = false);
 
 		//only consider Rotation
-		NMATRIX EvalWorldRotationMatrix();
+		NMATRIX EvalWorldRotationMatrix(bool cacheResult = false);
 
+		//clear world matrix cache, disable retrival
+		void ClearWorldMatrixCache();
+
+		//determine if world matrix has been stored.
+		bool IsWorldMatrixCached();
+
+		//attach scene object to this node
 		void AttachSceneObject(ISceneObject* pObj);
 
+		//detach scene object from this node, clear reference to pObj
 		void DetachSceneObject(ISceneObject* pObj);
 
+		//,
 		bool IsAttachedSceneObject();
 
 	protected:
@@ -54,12 +67,10 @@ namespace Noise3D
 
 		std::vector<ISceneObject*> mAttachedSceneObjectList;
 
-		//(2019.3.7)manually update?
-		//AffineTransform mWorldTransform;
-
-		//accumulated world transform matrix CACHE(from current to path)
-		//(2019.3.6) i decide not to do this optimization
-		//NMATRIX mEvaluatedWorldTransform;
+		//(2019.3.23)to avoid tremendous re-calculation by setting 'cacheResult'
+		//when eval world transform matrix
+		bool mIsWorldMatrixCached;
+		NMATRIX mWorldMatrixCache;
 
 	};
 
