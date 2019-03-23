@@ -103,7 +103,7 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/ NVECTOR3 CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t);
 	
-		extern /*_declspec(dllexport)*/ bool TolerantEqual(float lhs, float rhs, float errorLimit = 0.001f);
+		extern /*_declspec(dllexport)*/ bool TolerantEqual(float lhs, float rhs, float errorLimit = std::numeric_limits<float>::epsilon());
 
 		extern /*_declspec(dllexport)*/uint32_t ComputeMipMapChainPixelCount(uint32_t mipLevel, uint32_t width, uint32_t height);
 	

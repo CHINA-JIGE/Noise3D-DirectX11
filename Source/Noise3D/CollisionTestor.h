@@ -68,7 +68,7 @@ namespace Noise3D
 		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox, N_RayHitResult& outHitRes);
 
 		//ray-sphere intersecton. simply solve an quadratic equation
-		static bool IntersectRaySphere(const N_Ray& ray, const LogicalSphere& s, N_RayHitResult& outHitRes);
+		static bool IntersectRaySphere(const N_Ray& ray, LogicalSphere* pSphere, N_RayHitResult& outHitRes);
 
 		//ray-triangle intersection
 		static bool IntersectRayTriangle(const N_Ray& ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo& outHitInfo);
@@ -92,6 +92,20 @@ namespace Noise3D
 
 		friend SceneManager;
 
+		//helper of transforming ray or result hit point
+		//scene object that is attached to scene node can make use of this
+		struct RayIntersectionTransformHelper
+		{
+			bool Ray_WorldToModel(const N_Ray& in_ray_world, ISceneObject * pObj, N_Ray& out_ray_local);
+
+			void HitResult_ModelToWorld(N_RayHitResult& hitResult);
+
+			NMATRIX worldMat; 
+			NMATRIX worldInvMat; 
+			NMATRIX worldInvTransposeMat;
+		};
+
+		//init d3d-related interface
 		bool NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init();
 
 		//depth stencil state
@@ -103,10 +117,9 @@ namespace Noise3D
 		//get facet id for Ray-AABB intersection
 		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
-		static const UINT c_maxSOVertexCount = 200;//-------Var for Gpu Picking-----------
-
 		IShaderVariableManager* m_pRefShaderVarMgr;
 
+		static const uint32_t c_maxSOVertexCount = 200;//-------Var for Gpu Picking-----------
 		ID3D11Buffer*			m_pSOGpuWriteableBuffer;
 		ID3D11Buffer*			m_pSOCpuReadableBuffer;//this buffer will be used only when concrete collision point pos is needed
 		ID3D11Query*			m_pSOQuery;//Inherited from ID3D11Async which is used to query SO information

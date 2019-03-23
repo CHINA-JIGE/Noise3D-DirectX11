@@ -226,7 +226,7 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 		if (t_far < t_resultMax) { t_resultMax = t_far; isFarHit = true; }
 
 		//validate t interval. 
-		if (t_resultMin > t_resultMax)
+		if (t_resultMin >= t_resultMax)
 		{
 			//if not valid, then the ray miss the AABB
 			return false;
@@ -244,12 +244,8 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 
 bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB & aabb, N_RayHitResult & outHitRes)
 {
-	//if a ray hit AABB, then the ray param t of x/y/z will overlap
-	//the intersection of those 3 t-value interval is the final intersection ray interval.
-	//if the final interval is invalid (say left is greater than right),
-	//then ray-AABB intersection failed/missed.
-	//for more info, refer to Peter Shirley's 《Ray Tracing : The Next Week》
-	//or pbrt-v3: https://github.com/mmp/pbrt-v3 /src/core/geometry.h Bounds3<T>::IntersectP
+	//similar to another overloaded version of IntersectRayAABB
+	//except that this version keep track of possible hit's corresponding facet.
 	float t_resultMin = 0;
 	float t_resultMax = ray.t_max;
 	NOISE_BOX_FACET result_minHitFacetId, result_maxHitFacetId;//convert to NOISE_BOX_FACET later
@@ -290,7 +286,7 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 			{t_resultMax = t_far;	isFarHit = true;	result_maxHitFacetId = farFacetId;}
 
 		//validate t interval. 
-		if (t_resultMin > t_resultMax)
+		if (t_resultMin >= t_resultMax)
 		{
 			//if not valid, then the ray miss the AABB
 			return false;
@@ -300,7 +296,7 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	//t_max rejection
 	if (t_resultMax > ray.t_max)isFarHit = false;
 
-	//2 intersection points at most, but if there is none:
+	//2 intersection points at most, but if there is none then quit
 	if (!isNearHit && !isFarHit)return false;
 
 	//after evaluating the intersection of 3 t-value intervals
@@ -329,42 +325,87 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 
 bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pBox, N_RayHitResult & outHitRes)
 {
-	//convert the box to local space to use Ray-AABB intersection
-	SceneNode* pNode = pBox->GetAttachedSceneNode();
-	if (pNode == nullptr)
+	if (pBox == nullptr)
 	{
-		WARNING_MSG("CollisionTestor: Box is not bound to a scene node.");
+		ERROR_MSG("CollisionTestor: object is nullptr.");
 		return false;
 	}
 
-	//get 'World' related transform matrix (all are useful)
-	NMATRIX worldMat, worldInvMat, worldInvTransposeMat;
-	pNode->EvalWorldAffineTransformMatrix(worldMat,worldInvMat, worldInvTransposeMat);
-
-	//transform the ray into local space
+	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
-	localRay.origin = AffineTransform::TransformVector_MatrixMul(ray.origin, worldInvMat);
-	localRay.dir = AffineTransform::TransformVector_MatrixMul(ray.dir, worldInvMat);
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, pBox, localRay))return false;
 
-	//***********perform Ray-AABB intersection***********
+	//perform Ray-AABB intersection in local space
 	N_AABB localBox = pBox->GetLocalBox();
 	bool anyHit = CollisionTestor::IntersectRayAabb(localRay, localBox, outHitRes);
 
-	//transform only the hit results back to world space(minimize the count of inv transform)
-	for (auto hitInfo : outHitRes.hitList)
-	{
-		//hitInfo.t = hitInfo.t
-		hitInfo.normal = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldInvTransposeMat);
-		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldMat);
-	}
+	//convert result point back to world space
+	helper.HitResult_ModelToWorld(outHitRes);
 
 	return anyHit;
 }
 
-bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, const LogicalSphere & s, N_RayHitResult & outHitRes)
+bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphere* pSphere, N_RayHitResult & outHitRes)
 {
+	if (pSphere == nullptr)
+	{
+		ERROR_MSG("CollisionTestor: object is nullptr.");
+		return false;
+	}
 
-	ERROR_MSG("BUG: plz apply transform ray into local and transform hitInfo back to world");
+	//convert ray to model space (but first scene object must attach to scene node)
+	N_Ray localRay;
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, pSphere, localRay))return false;
+
+	//Ray-Sphere intersection can be easily evaluated by solving a quadratic equation
+	//*** Ray P=O+tD
+	//*** sphere:  x^2+y^2+z^2=r^2
+	//combine this two and re-write the equation into quadratic equation At^2+Bt+C=0
+	// this gives us the coefficients of the equation:
+	// A = D.x^2 + D.y^2 +  D.z^2  = D dot D
+	// B = 2(D.x*O.x + D.y*O.y + D.z*O.z）= 2(D dot O)
+	// C = O.x^2 + O.y^2 + O.z^2 - r^2 = O dot O -r^2
+	float r = pSphere->GetRadius();
+	NVECTOR3& D = localRay.dir;
+	NVECTOR3& O = localRay.origin;
+	float A = D.Dot(D);
+	float B = 2.0f * D.Dot(O);
+	float C = O.Dot(O) - r*r;
+
+	//determinant of quadratic equation
+	float det = B * B - 4.0f * A*C;
+	if (det < 0.0001f || D == NVECTOR3::Zero)
+	{
+		//0(miss) or 1(tangent) solution, or A==0(then the equation even not exist)
+		return false;
+	}
+	else
+	{
+		float sqrtDet = std::sqrtf(det);
+
+		//local space hit info 1
+		N_RayHitInfo hitInfo1;
+		float t1 = (-B + sqrtDet)/ (2.0f * A);
+		hitInfo1.t = t1;
+		hitInfo1.pos = ray.Eval(t1);
+		hitInfo1.normal = hitInfo1.pos;
+		hitInfo1.normal.Normalize();
+		outHitRes.hitList.push_back(hitInfo1);
+
+		//local space hit info 2
+		N_RayHitInfo hitInfo2;
+		float t2 = (-B - sqrtDet) / (2.0f * A);
+		hitInfo2.t = t2;
+		hitInfo2.pos = ray.Eval(t2);
+		hitInfo2.normal = hitInfo2.pos;
+		hitInfo2.normal.Normalize();
+		outHitRes.hitList.push_back(hitInfo2);
+	}
+
+	//transform the result hit back to world space
+	helper.HitResult_ModelToWorld(outHitRes);
 
 	return true;
 }
@@ -410,7 +451,7 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 
 
 bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_DefaultVertex & v0, const N_DefaultVertex & v1, const N_DefaultVertex & v2, N_RayHitInfo & outHitInfo)
 {
-	//same as IntersectTriangle(), with with Mesh's vertex format as input
+	//same as another overload of IntersectTriangle(), with with Mesh's vertex format as input
 	//(to make full use of the normal/Tangent vector of Mesh*)
 	//Normal interpolation of hit point is implemented.
 	NVECTOR3 E1 = v1.Pos - v0.Pos;
@@ -443,9 +484,21 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_D
 
 bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
 {
+	if (pMesh == nullptr)
+	{
+		ERROR_MSG("CollisionTestor: object is nullptr.");
+		return false;
+	}
+
+	//convert ray to model space (but first scene object must attach to scene node)
+	N_Ray localRay;
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, pMesh, localRay))return false;
+
+	//get vertex data (be noted that the vertex is in MODEL SPACE
 	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
 
-	//apply ray-triangle intersection for each triangle
+	//apply ray-triangle intersection for each triangle in model space
 	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
 	{
 		N_RayHitInfo hitInfo;
@@ -453,14 +506,20 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 		const N_DefaultVertex& v1 = pVB->at(3 * i + 1);
 		const N_DefaultVertex& v2 = pVB->at(3 * i + 2);
 
-		ERROR_MSG("BUG: plz apply transform ray into local and transform hitInfo back to world");
+		//!!!!!!!!!!!!!!!
+		//(2019.3.23)there might be a problem, if ray hit the triangle edge, 
+		//then it might generate 2 hit points from 2 ray-triangle tests.
 
 		//delegate each ray-tri intersection task to another function
-		if (CollisionTestor::IntersectRayTriangle(ray, v0, v1, v2, hitInfo))
+		if (CollisionTestor::IntersectRayTriangle(localRay, v0, v1, v2, hitInfo))
 		{
 			outHitRes.hitList.push_back(hitInfo);
 		}
 	}
+
+	//convert result point back to world space
+	helper.HitResult_ModelToWorld(outHitRes);
+
 	return outHitRes.HasAnyHit();
 }
 
@@ -569,4 +628,38 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	//if dir component is negative, reverse the result
 	bool isDirNeg = dirComponent<0.0f;
 	if (isDirNeg)std::swap(nearHit, farHit);
+}
+
+bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(const N_Ray& in_ray_world, ISceneObject * pObj, N_Ray& out_ray_local)
+{
+	//convert the box to local space to use Ray-AABB intersection
+	SceneNode* pNode = pObj->GetAttachedSceneNode();
+	if (pNode == nullptr)
+	{
+		WARNING_MSG("CollisionTestor: Box is not bound to a scene node.");
+		return false;
+	}
+
+	//get 'World' related transform matrix (all are useful)
+	pNode->EvalWorldAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
+
+	//transform the ray into local space
+	N_Ray localRay;
+	localRay.origin = AffineTransform::TransformVector_MatrixMul(in_ray_world.origin, worldInvMat);
+	localRay.dir = AffineTransform::TransformVector_MatrixMul(in_ray_world.dir, worldInvMat);
+
+	out_ray_local = localRay;
+	return true;
+}
+
+void Noise3D::CollisionTestor::RayIntersectionTransformHelper::HitResult_ModelToWorld(N_RayHitResult & hitResult)
+{
+	//transform only the hit results back to world space(minimize the count of inv transform)
+	for (auto hitInfo : hitResult.hitList)
+	{
+		//hitInfo.t = hitInfo.t
+		hitInfo.normal = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldInvTransposeMat);
+		hitInfo.normal.Normalize();
+		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldMat);
+	}
 }
