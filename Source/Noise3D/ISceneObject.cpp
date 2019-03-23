@@ -34,7 +34,7 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	const NVECTOR3& b = localAabb.max;
 
 	//world transform matrix (under scene graph's root's coordinate system)
-	NMATRIX worldMat = m_pAttachedSceneNode->EvalWorldAffineTransformMatrix();
+	NMATRIX worldMat = m_pAttachedSceneNode->EvalWorldTransform().GetAffineTransformMatrix();
 
 	//get 8 vertices coord of local AABB
 	NVECTOR3 vertices[8] = 

@@ -14,6 +14,12 @@ Noise3D::AffineTransform::AffineTransform():
 {
 }
 
+Noise3D::AffineTransform::AffineTransform(const AffineTransform & t):
+	RigidTransform(t),
+	mScale(t.mScale)
+{
+}
+
 void Noise3D::AffineTransform::SetScale(float scaleX, float scaleY, float scaleZ)
 {
 	mScale = NVECTOR3(scaleX, scaleY, scaleZ);
@@ -44,7 +50,7 @@ NVECTOR3 Noise3D::AffineTransform::GetScale() const
 	return mScale;
 }
 
-void Noise3D::AffineTransform::GetTransformMatrix(NMATRIX & outTransformMat) const
+NMATRIX Noise3D::AffineTransform::GetAffineTransformMatrix() const
 {
 	NMATRIX	tmpMatrixScaling;
 	NMATRIX	tmpMatrixTranslation;
@@ -61,39 +67,43 @@ void Noise3D::AffineTransform::GetTransformMatrix(NMATRIX & outTransformMat) con
 
 	//4.concatenate scaling/rotation/translation
 	NMATRIX tmpMatrix = XMMatrixMultiply(tmpMatrixScaling, tmpMatrixRotation);
-	outTransformMat = XMMatrixMultiply(tmpMatrix, tmpMatrixTranslation);
+	NMATRIX outTransformMat = XMMatrixMultiply(tmpMatrix, tmpMatrixTranslation);
+	return outTransformMat;
 }
 
-void Noise3D::AffineTransform::GetTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTransposeMat) const
+void Noise3D::AffineTransform::GetAffineTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvTransposeMat) const
 {
-	NMATRIX	tmpMatrixScaling;
-	NMATRIX	tmpMatrixTranslation;
-	NMATRIX	tmpMatrixRotation;
-
-	//1.scale
-	tmpMatrixScaling = XMMatrixScaling(mScale.x, mScale.y, mScale.z);
-
-	//2.rotate
-	tmpMatrixRotation = RigidTransform::GetRotationMatrix();
-
-	//3.translate
-	tmpMatrixTranslation = XMMatrixTranslationFromVector(RigidTransform::GetPosition());
-
-	//4.concatenate scaling/rotation/translation
-	NMATRIX tmpMatrix = XMMatrixMultiply(tmpMatrixScaling, tmpMatrixRotation);
-	outWorldMat = XMMatrixMultiply(tmpMatrix, tmpMatrixTranslation);
+	outTransformMat = AffineTransform::GetAffineTransformMatrix();
 
 	//world inv transpose for normal's transformation
-	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
+	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outTransformMat);
 	if (XMMatrixIsInfinite(worldInvMat))
 	{
 		ERROR_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInvTransposeMat = XMMatrixIdentity();
+		outTransformInvTransposeMat = XMMatrixIdentity();
 		return;
 	}
 	else
 	{
-		outWorldInvTransposeMat = worldInvMat.Transpose();
+		outTransformInvTransposeMat = worldInvMat.Transpose();
+	}
+}
+
+void Noise3D::AffineTransform::GetAffineTransformMatrix(NMATRIX & outTransformMat, NMATRIX & outTransformInvMat, NMATRIX & outTransformInvTransposeMat) const
+{
+	outTransformMat = AffineTransform::GetAffineTransformMatrix();
+
+	//world inv transpose for normal's transformation
+	outTransformInvMat = XMMatrixInverse(nullptr, outTransformMat);
+	if (XMMatrixIsInfinite(outTransformInvMat))
+	{
+		ERROR_MSG("world matrix Inv not exist! determinant == 0 ! ");
+		outTransformInvTransposeMat = XMMatrixIdentity();
+		return;
+	}
+	else
+	{
+		outTransformInvTransposeMat = outTransformInvMat.Transpose();
 	}
 }
 
@@ -122,6 +132,7 @@ bool Noise3D::AffineTransform::SetAffineMatrix(NMATRIX mat)
 	}
 	else
 	{
+		mat = XMMatrixIdentity();
 		return false;
 	}
 }

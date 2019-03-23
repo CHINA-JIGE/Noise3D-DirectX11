@@ -46,6 +46,8 @@ namespace Noise3D
 
 		RigidTransform();
 
+		RigidTransform(const RigidTransform& t);
+
 		void		SetPosition(NVECTOR3 vPos);
 
 		void		SetPosition(float x, float y, float z);
@@ -97,7 +99,7 @@ namespace Noise3D
 
 		void		SetRigidTransformMatrix(const NMATRIX& mat);
 
-		void		GetRigidTransformMatrix(NMATRIX outMat) const;
+		NMATRIX		GetRigidTransformMatrix() const;
 
 	private:
 

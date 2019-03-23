@@ -247,7 +247,7 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* con
 {
 	//update world/worldInv matrix
 	NMATRIX worldMat,worldInvTransposeMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix(worldMat, worldInvTransposeMat);
+	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransposeMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransposeMat);
 };

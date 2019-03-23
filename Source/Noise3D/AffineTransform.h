@@ -16,6 +16,8 @@ namespace Noise3D
 
 		AffineTransform();
 
+		AffineTransform(const AffineTransform& t);
+
 		void		SetScale(float scaleX, float scaleY, float scaleZ);
 
 		void		SetScale(NVECTOR3 s);
@@ -28,12 +30,12 @@ namespace Noise3D
 
 		NVECTOR3 GetScale() const;
 
-		NMATRIX	 GetTransformMatrix() =delete;//rigid transform
-
 		//DirectXMath use row matrix
-		void		GetTransformMatrix(NMATRIX& outTransformMat) const;
+		NMATRIX	 GetAffineTransformMatrix() const;//rigid transform
 
-		void		GetTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvTransposeMat) const;
+		void		GetAffineTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvTransposeMat) const;
+
+		void		GetAffineTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvMat, NMATRIX& outTransformInvTransposeMat) const;
 
 		void		SetTransform(const AffineTransform& t);
 

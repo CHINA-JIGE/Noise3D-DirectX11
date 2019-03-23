@@ -20,7 +20,7 @@ namespace Noise3D
 		NEG_Y=3, 
 		POS_Z=4, 
 		NEG_Z=5,
-		_INVALID=0xffffffff
+		_INVALID_FACET=0xffffffff
 	};
 
 	class /*_declspec(dllexport)*/ LogicalBox :

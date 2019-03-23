@@ -15,8 +15,7 @@
 using namespace Noise3D;
 
 Noise3D::SceneNode::SceneNode():
-	mIsWorldMatrixCached(false),
-	mWorldMatrixCache(XMMatrixIdentity())
+	mIsWorldMatrixCached(false)
 {
 }
 
@@ -29,10 +28,10 @@ AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 	return mLocalTransform;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix(bool cacheResult)
+AffineTransform Noise3D::SceneNode::EvalWorldTransform(bool cacheResult)
 {
 	//previous evaluated result's fast retrival
-	if (mIsWorldMatrixCached)return mWorldMatrixCache;
+	if (mIsWorldMatrixCached)return mWorldTransformCache;
 
 	SceneGraph* pSG = this->GetHostTree();
 	std::vector<SceneNode*> path;//path to root
@@ -40,140 +39,43 @@ NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix(bool cacheResult)
 
 	//concatenate leaf node's transform first, then level-by-level to root
 	//traversePathToRoot's result have the leaf node at the beginning, and root at the end
-	NMATRIX result = XMMatrixIdentity();
-	
+	NMATRIX world_mat = XMMatrixIdentity();
+
 	//(2019.3.22)ignore root node's transform
-	for (uint32_t i =0; i<path.size()-1;++i)
+	for (uint32_t i = 0; i<path.size() - 1; ++i)
 	{
 		//WARNING: plz be careful about ROW/COLUMN major 
 		//(2019.3.7)Noise3D uses ROW major like DXMath do. refer to AffineTransform for related info
 		SceneNode* pNode = path.at(i);
 		NMATRIX tmpMat = XMMatrixIdentity();
 		AffineTransform& localTrans = pNode->GetLocalTransform();
-		localTrans.GetTransformMatrix(tmpMat);
+		tmpMat = localTrans.GetAffineTransformMatrix();
 
 		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
+		world_mat = world_mat * tmpMat;
 	}
 
+	//
+	AffineTransform t;
+	t.SetAffineMatrix(world_mat);
 	if (cacheResult)
 	{
 		mIsWorldMatrixCached = true;
-		mWorldMatrixCache = result;
+		mWorldTransformCache = t;
 	}
 
-	return result;
+	return t;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldRigidTransformMatrix(bool cacheResult)
+void Noise3D::SceneNode::ClearWorldTransformCache()
 {
-	//previous evaluated result's fast retrival
-	if (mIsWorldMatrixCached)return mWorldMatrixCache;
-
-	//similar to SceneNode::EvalWorldAffineTransformMatrix()
-	SceneGraph* pSG = this->GetHostTree();
-	std::vector<SceneNode*> path;//path to root
-	pSG->TraversePathToRoot(this, path);
-
-	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode : path)
-	{
-		NMATRIX tmpMat = XMMatrixIdentity();
-		AffineTransform& localTrans = pNode->GetLocalTransform();
-		localTrans.GetRigidTransformMatrix(tmpMat);
-
-		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
-	}
-
-	//store evaluated matrix to cache matrix for fast retrival
-	if (cacheResult)
-	{
-		mIsWorldMatrixCached = true;
-		mWorldMatrixCache = result;
-	}
-
-	return result;
-}
-
-NMATRIX Noise3D::SceneNode::EvalWorldRotationMatrix(bool cacheResult)
-{
-	//previous evaluated result's fast retrival
-	if (mIsWorldMatrixCached)return mWorldMatrixCache;
-
-	//similar to SceneNode::EvalWorldAffineTransformMatrix()
-	SceneGraph* pSG = this->GetHostTree();
-	std::vector<SceneNode*> path;//path to root
-	pSG->TraversePathToRoot(this, path);
-
-	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode : path)
-	{
-		NMATRIX tmpMat = XMMatrixIdentity();
-		AffineTransform& localTrans = pNode->GetLocalTransform();
-		tmpMat = localTrans.GetRotationMatrix();
-
-		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
-	}
-
-	//store evaluated matrix to cache matrix for fast retrival
-	if (cacheResult)
-	{
-		mIsWorldMatrixCached = true;
-		mWorldMatrixCache = result;
-	}
-
-	return result;
-}
-
-void Noise3D::SceneNode::ClearWorldMatrixCache()
-{
-	//clear world matrix cache stored by those 'EvalXXMatrix' function (with parameter 'cacheResult'==true)
-	mWorldMatrixCache = XMMatrixIdentity();
+	//clear world matrix cache mark set by 'EvalWorldTransform' function (with parameter 'cacheResult'==true)
 	mIsWorldMatrixCached = false;
 }
 
-bool Noise3D::SceneNode::IsWorldMatrixCached()
+bool Noise3D::SceneNode::IsWorldTransformCached()
 {
 	return mIsWorldMatrixCached;
-}
-
-void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInvTranspose, bool cacheResult)
-{
-	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix(cacheResult);
-
-	//world inv transpose for normal's transformation
-	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
-	if (XMMatrixIsInfinite(worldInvMat))
-	{
-		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInvTranspose = XMMatrixIdentity();
-		return;
-	}
-	else
-	{
-		outWorldInvTranspose = worldInvMat.Transpose();
-	}
-}
-
-void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInv, NMATRIX & outWorldInvTranspose,bool cacheResult)
-{
-	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix(cacheResult);
-
-	//world inv transpose for normal's transformation
-	outWorldInv = XMMatrixInverse(nullptr, outWorldMat);
-	if (XMMatrixIsInfinite(outWorldInv))
-	{
-		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInv = XMMatrixIdentity();
-		outWorldInvTranspose = XMMatrixIdentity();
-		return;
-	}
-	else
-	{
-		outWorldInvTranspose = outWorldInv.Transpose();
-	}
 }
 
 void Noise3D::SceneNode::AttachSceneObject(ISceneObject * pObj)

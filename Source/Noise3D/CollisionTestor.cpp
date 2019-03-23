@@ -58,7 +58,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix(worldMat, worldInvTransMat);
+	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
@@ -148,7 +148,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update target tested mesh world Matrix
 	NMATRIX worldMat, worldInvTransMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix(worldMat, worldInvTransMat);
+	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
 
@@ -616,8 +616,8 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	if(slabsPairId>2)
 	{
 		WARNING_MSG("Collision Testor: slabs id invalid.");
-		nearHit = NOISE_BOX_FACET::_INVALID;
-		farHit = NOISE_BOX_FACET::_INVALID;
+		nearHit = NOISE_BOX_FACET::_INVALID_FACET;
+		farHit = NOISE_BOX_FACET::_INVALID_FACET;
 		return;
 	}
 
@@ -641,7 +641,7 @@ bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
 	}
 
 	//get 'World' related transform matrix (all are useful)
-	pNode->EvalWorldAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
+	pNode->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
 
 	//transform the ray into local space
 	N_Ray localRay;
