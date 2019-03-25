@@ -64,7 +64,7 @@ namespace Noise3D
 		//ray-Aabb intersection(detailed hit info). 'slabs' method, can refer to pbrt-v3 or peter-shirley's <Ray Tracing:The Next Week>
 		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb, N_RayHitResult& outHitRes);
 
-		//ray-Boxntersection. box can be transformed in world space.
+		//ray-Box intersection. box can be transformed in world space.
 		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox, N_RayHitResult& outHitRes);
 
 		//ray-sphere intersecton. simply solve an quadratic equation
@@ -77,7 +77,10 @@ namespace Noise3D
 		static bool IntersectRayTriangle(const N_Ray& ray, const N_DefaultVertex& v0, const N_DefaultVertex& v1, const N_DefaultVertex& v2, N_RayHitInfo& outHitInfo);
 
 		//ray-Mesh intersection. cpu impl.
-		bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
+		static bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
+
+		//ray-scene(all objects bound to scene graph) intersection with BVH acceleration, O(logN) in average 
+		static void IntersectRayScene(const N_Ray& ray,SceneGraph* pSceneGraph ,N_RayHitResult& outHitRes);
 
 		//TODO: ray-Mesh intersection. gpu impl. simply modify a little bit to Picking_GpuBased
 		//bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_HitResult& outHitRes);

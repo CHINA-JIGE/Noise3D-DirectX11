@@ -88,7 +88,11 @@ bool Noise3D::BvhTree::Construct(SceneGraph * pTree)
 
 	//start to recursive splitting(info list might be splitted and copied many times)
 	//(2019.3.25)could be optimized with std::partition
-	mFunction_Split_MidPoint(pRootNode, infoList);
+	if (!mFunction_Split_MidPoint(pRootNode, infoList))
+	{
+		ERROR_MSG("BvhTree: failed to split the root BVH node.");
+		return false;
+	}
 
 	return true;
 }
@@ -104,15 +108,10 @@ bool Noise3D::BvhTree::mFunction_Split_MidPoint(BvhNode* pNode,const std::vector
 	//in some cases of splitting, some node 
 	if (infoList.empty())return false;
 
-	//1.calculate and set big AABB of CURRENT node
-	/*N_AABB bigAabb;
-	for (auto& info : infoList) bigAabb.Union(info.aabb);
-	if (!bigAabb.IsValid())return false;
-	pNode->SetAABB(bigAabb);*/
 	N_AABB bigAabb = pNode->GetAABB();
 	if (!bigAabb.IsValid())return false;
 
-	//only 1 object in current cluster, leaf node, bound SCENE OBJECT and return
+	//1. if only 1 object is in current cluster, leaf node, bound SCENE OBJECT and return
 	if (infoList.size() == 1)
 	{
 		const ObjectAabbPair& info = infoList.front();
@@ -173,14 +172,6 @@ bool Noise3D::BvhTree::mFunction_Split_MidPoint(BvhNode* pNode,const std::vector
 		pRightChild->SetAABB(rightAabb);
 		mFunction_Split_MidPoint(pRightChild, infoList);
 	}
-	/*
-	BvhNode* pLeftChild = pNode->CreateChildNode();
-	bool succeeded1 = mFunction_Split_MidPoint(pLeftChild, leftInfoList);
-	if (!succeeded1)BvhTree::Remove(pLeftChild);
-
-	BvhNode* pRightChild = pNode->CreateChildNode();
-	mFunction_Split_MidPoint(pRightChild, rightInfoList);
-	if (!succeeded1)BvhTree::Remove(pRightChild);*/
 	
 	return true;
 }

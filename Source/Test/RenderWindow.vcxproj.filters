@@ -50,5 +50,11 @@
     <ClCompile Include="UnitTest_SceneGraph.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_BVH.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTest_CollisionTest_Ray.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

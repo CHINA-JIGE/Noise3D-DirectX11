@@ -41,7 +41,6 @@ namespace Noise3D
 		//determine if world transform has been stored.
 		bool IsWorldTransformCached();
 
-
 		//attach scene object to this node
 		void AttachSceneObject(ISceneObject* pObj);
 
