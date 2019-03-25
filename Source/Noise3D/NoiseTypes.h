@@ -113,6 +113,29 @@ namespace Noise3D
 			max = NVECTOR3(negInf, negInf, negInf);
 		}
 
+		bool IsValid()
+		{
+			return (max.x > min.x) && (max.y > min.y) && (max.z > min.z);
+		}
+
+		//compute the AABB of current AABB and rhs
+		void Union(const N_AABB& rhs)
+		{
+			if (max.x < rhs.max.x)max.x = rhs.max.x;
+			if (max.y < rhs.max.y)max.y = rhs.max.y;
+			if (max.z < rhs.max.z)max.z = rhs.max.z;
+
+			if (min.x > rhs.min.x)min.x = rhs.min.x;
+			if (min.y > rhs.min.y)min.y = rhs.min.y;
+			if (min.z > rhs.min.z)min.z = rhs.min.z;
+		}
+
+		//the center/centroid of AABB
+		NVECTOR3 Centroid()
+		{
+			return (max + min) / 2.0f;
+		}
+
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};

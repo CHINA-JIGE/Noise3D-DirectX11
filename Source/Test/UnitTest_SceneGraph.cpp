@@ -13,7 +13,7 @@ Renderer* pRenderer;
 SceneManager* pScene;
 Camera* pCamera;
 Atmosphere* pAtmos;
-ModelLoader* pModelLoader;
+MeshLoader* pModelLoader;
 MeshManager* pMeshMgr;
 std::vector<Mesh*> meshList;
 MaterialManager*	pMatMgr;
@@ -148,7 +148,7 @@ BOOL Init3D(HWND hwnd)
 	pMesh1->AttachToSceneNode(ac);//test re-attachment
 
 	Mesh* pMesh2 = pMeshMgr->CreateMesh(aca, "testModel2");
-	pModelLoader->LoadSphere(pMesh2, 10.0f, 20, 20);
+	pModelLoader->LoadSphere(pMesh2, 5.0f, 20, 20);
 	aca->GetLocalTransform().SetPosition(0, 10.0f, 10.0f);
 	pMesh2->SetCullMode(NOISE_CULLMODE_NONE);
 	pMesh2->SetShadeMode(NOISE_SHADEMODE_PHONG);
@@ -162,7 +162,7 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadFile_FBX("../media/model/teapot.fbx", res);
 	for (auto & name : res.meshNameList)
 	{
-		Mesh* pMesh = pMeshMgr->GetMesh(name);
+		Mesh* pMesh = pMeshMgr->GetObjectPtr(name);
 		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_BACK);
 		pMesh->SetShadeMode(NOISE_SHADEMODE_PHONG);
@@ -262,7 +262,7 @@ void MainLoop()
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
 	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
-	ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.003f * timer.GetInterval());
+	ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
 	aca->GetLocalTransform().SetScale(NVECTOR3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
 	aca->GetLocalTransform().SetPosition(NVECTOR3(0, 0, 30.0f));
 

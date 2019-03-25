@@ -376,7 +376,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 
 	//determinant of quadratic equation
 	float det = B * B - 4.0f * A*C;
-	if (det < 0.0001f || D == NVECTOR3::Zero)
+	if (det < 0.0001f || D == NVECTOR3(0.0f,0.0f,0.0f))
 	{
 		//0(miss) or 1(tangent) solution, or A==0(then the equation even not exist)
 		return false;

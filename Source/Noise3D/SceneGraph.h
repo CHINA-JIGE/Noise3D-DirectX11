@@ -26,19 +26,21 @@ namespace Noise3D
 
 		~SceneNode();
 
-		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
+		//relative to its father node (if current node is attached to root node, then local=world)
+		AffineTransform& GetLocalTransform();
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
 		//evaluated world transform (relative to root) won't cache in ScenNode by default
 		//set 'cacheResult' to true in order to cache the evaluated world transform 
 		//(which can be directly retrived until the cache is cleared)
-		AffineTransform EvalWorldTransform(bool cacheResult = false);
+		AffineTransform EvalWorldTransform(bool cacheResult = false);//normally the cacheResult should be set true by Noise3D(?)
 
-		//clear world matrix cache, disable retrival
+		//clear world transform cache, disable direct retrival of cache in 'EvalWorldTransform'
 		void ClearWorldTransformCache();
 
-		//determine if world matrix has been stored.
+		//determine if world transform has been stored.
 		bool IsWorldTransformCached();
+
 
 		//attach scene object to this node
 		void AttachSceneObject(ISceneObject* pObj);
@@ -46,8 +48,11 @@ namespace Noise3D
 		//detach scene object from this node, clear reference to pObj
 		void DetachSceneObject(ISceneObject* pObj);
 
-		//,
 		bool IsAttachedSceneObject();
+
+		uint32_t GetSceneObjectCount();
+
+		ISceneObject* GetSceneObject(uint32_t index);
 
 	protected:
 
@@ -68,6 +73,14 @@ namespace Noise3D
 	{
 	public:
 
+		enum NOISE_TREE_TRAVERSE_ORDER
+		{
+			PRE_ORDER,
+			POST_ORDER,
+			LAYER_ORDER
+		};
+
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult);
 
 	private:
 

@@ -125,12 +125,57 @@ bool Noise3D::SceneNode::IsAttachedSceneObject()
 	return (mAttachedSceneObjectList.size()!=0);
 }
 
+uint32_t Noise3D::SceneNode::GetSceneObjectCount()
+{
+	return mAttachedSceneObjectList.size() ;
+}
+
+ISceneObject * Noise3D::SceneNode::GetSceneObject(uint32_t index)
+{
+	if (index < mAttachedSceneObjectList.size())
+	{
+		return mAttachedSceneObjectList[index];
+	}
+	return nullptr;
+}
+
 
 /******************************************
 					
 						Scene Graph
 
 *******************************************/
+
+void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult)
+{
+	std::vector<SceneNode*> nodeList;
+
+	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
+	//are copied, but nodes with no scene object bound to it are useless here.
+	switch (order)
+	{
+	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
+		SceneGraph::Traverse_PreOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
+		SceneGraph::Traverse_PreOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
+		SceneGraph::Traverse_PreOrder(nodeList); break;
+
+	default:
+		break;
+	}
+
+	//output scene objects bound to nodes
+	for (auto pn:nodeList)
+	{
+		for (uint32_t i = 0; i < pn->GetSceneObjectCount();++i)
+		{
+			outResult.push_back(pn->GetSceneObject(i));
+		}
+	}
+}
 
 Noise3D::SceneGraph::SceneGraph()
 {

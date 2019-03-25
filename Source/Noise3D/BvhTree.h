@@ -45,9 +45,22 @@ namespace Noise3D
 	{
 	public:
 
-		void Construct(SceneGraph* pSG);
+		bool Construct(SceneGraph* pSG);
 
 	private:
+
+		//SceneObject ptr and its aabb cache
+		struct ObjectAabbPair
+		{
+			ObjectAabbPair() : pObj(nullptr) {}
+			ObjectAabbPair(const ObjectAabbPair& rhs):pObj(rhs.pObj ), aabb(rhs.aabb){}
+
+			ISceneObject* pObj;
+			N_AABB aabb;//cached result
+		};
+
+		bool mFunction_Split_MidPoint(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList);
+
 	};
 
 }
