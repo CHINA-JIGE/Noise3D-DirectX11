@@ -131,6 +131,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BvhTree.h" />
+    <ClInclude Include="LogicalShapeManager.h" />
+    <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
     <ClInclude Include="GI_Light.h" />

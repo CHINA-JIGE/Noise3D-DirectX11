@@ -10,9 +10,7 @@ namespace Noise3D
 {
 
 	class /*_declspec(dllexport)*/ LightManager:
-		protected IFactory<DirLight>,
-		protected IFactory<PointLight>,
-		protected IFactory<SpotLight>
+		public IFactoryEx<DirLight, PointLight, SpotLight>
 	{
 	public:
 
@@ -23,7 +21,7 @@ namespace Noise3D
 		SpotLight*		CreateDynamicSpotLight(SceneNode* pAttachedNode, N_UID lightName);
 
 		//supported template param: DirLight, PointLight, SpotLight
-		template <typename T> T* GetLight(N_UID lightName);
+		/*template <typename T> T* GetLight(N_UID lightName);
 
 		//supported template param: DirLight, PointLight, SpotLight
 		template <typename T> T* GetLight(uint32_t index);
@@ -34,12 +32,12 @@ namespace Noise3D
 		//supported template param: DirLight, PointLight, SpotLight
 		template <typename T> bool DeleteLight(T* pLight);
 
+		//supported template param: DirLight, PointLight, SpotLight
+		template <typename T> uint32_t GetLightCount();*/
+
 		void		SetDynamicLightingEnabled(bool isEnabled);
 
 		bool		IsDynamicLightingEnabled();
-
-		//supported template param: DirLight, PointLight, SpotLight
-		template <typename T> uint32_t GetLightCount();
 
 		UINT	GetTotalLightCount();
 

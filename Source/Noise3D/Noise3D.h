@@ -61,6 +61,7 @@
 #include "FileManager.h"
 #include "_GeometryMeshGenerator.h"
 #include "_BasicRenderSettings.h"
+#include "_Collidable.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
 #include "SceneGraph.h"
@@ -71,6 +72,7 @@
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
 #include "LogicalBox.h"
+#include "LogicalShapeManager.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"

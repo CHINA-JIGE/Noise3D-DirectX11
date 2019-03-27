@@ -331,6 +331,8 @@ bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pB
 		return false;
 	}
 
+	if (!pBox->Collidable::IsCollidable())return false;
+
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
 	RayIntersectionTransformHelper helper;
@@ -353,6 +355,8 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 		ERROR_MSG("CollisionTestor: object is nullptr.");
 		return false;
 	}
+
+	if (!pSphere->Collidable::IsCollidable())return false;
 
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
@@ -489,6 +493,8 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 		ERROR_MSG("CollisionTestor: object is nullptr.");
 		return false;
 	}
+
+	if (!pMesh->Collidable::IsCollidable())return false;
 
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;

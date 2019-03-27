@@ -12,7 +12,8 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ LogicalSphere :
-		public ILogicalShape
+		public ILogicalShape,
+		public Collidable
 	{
 	public:
 
@@ -21,6 +22,21 @@ namespace Noise3D
 		void SetRadius(float r);
 
 		float GetRadius();
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
+
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ILogicalShape::
+		virtual float ComputeArea() override;
+
+		//ILogicalShape::
+		virtual bool IsPointInside(NVECTOR3 p) override;
 
 	private:
 

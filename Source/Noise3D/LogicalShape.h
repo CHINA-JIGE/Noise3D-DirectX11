@@ -19,6 +19,10 @@ namespace Noise3D
 	{
 	public:
 
+		ILogicalShape(): m_pMaterial(nullptr) {};
+
+		virtual ~ILogicalShape() { m_pMaterial = nullptr; };
+
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override = 0 ;
 
@@ -42,9 +46,7 @@ namespace Noise3D
 
 	protected:
 
-		ILogicalShape() {};
-
-		~ILogicalShape() {};
+		friend IFactory<ILogicalShape>;
 
 		Material* m_pMaterial;
 

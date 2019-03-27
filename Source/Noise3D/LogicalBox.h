@@ -24,7 +24,8 @@ namespace Noise3D
 	};
 
 	class /*_declspec(dllexport)*/ LogicalBox :
-		public ILogicalShape
+		public ILogicalShape,
+		public Collidable
 	{
 	public:
 
@@ -37,6 +38,21 @@ namespace Noise3D
 
 		//box is AABB in local space
 		N_AABB GetLocalBox();
+
+		//ISceneObject::
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
+
+		//ISceneObject::
+		virtual N_AABB GetLocalAABB() override;
+
+		//ISceneObject::
+		virtual N_AABB ComputeWorldAABB_Accurate() override;
+
+		//ILogicalShape::
+		virtual float ComputeArea() override;
+
+		//ILogicalShape::
+		virtual bool IsPointInside(NVECTOR3 p) override;
 
 	private:
 

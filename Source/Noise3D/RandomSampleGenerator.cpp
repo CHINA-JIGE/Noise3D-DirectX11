@@ -12,6 +12,8 @@ std::default_random_engine Noise3D::GI::RandomSampleGenerator::mRandomEngine = s
 
 std::uniform_real_distribution<float> Noise3D::GI::RandomSampleGenerator::mCanonicalDist = std::uniform_real_distribution<float>(0.0, 1.0f);
 
+std::uniform_real_distribution<float> Noise3D::GI::RandomSampleGenerator::mNormalizedDist = std::uniform_real_distribution<float>(-1.0f, 1.0f);
+
 Noise3D::GI::RandomSampleGenerator::RandomSampleGenerator()
 {
 }
@@ -19,6 +21,11 @@ Noise3D::GI::RandomSampleGenerator::RandomSampleGenerator()
 float Noise3D::GI::RandomSampleGenerator::CanonicalReal()
 {
 	return mCanonicalDist(mRandomEngine);
+}
+
+float Noise3D::GI::RandomSampleGenerator::NormalizedReal()
+{
+	return mNormalizedDist(mRandomEngine);
 }
 
 NVECTOR3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()

@@ -109,9 +109,9 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 	//-------Update Dynamic Light-------
 	LightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
-	UINT dirLightCount = tmpLightMgr->GetLightCount<DirLight>();
-	UINT pointLightCount = tmpLightMgr->GetLightCount<PointLight>();
-	UINT spotLightCount = tmpLightMgr->GetLightCount<SpotLight>();
+	UINT dirLightCount = tmpLightMgr->GetObjectCount<DirLight>();
+	UINT pointLightCount = tmpLightMgr->GetObjectCount<PointLight>();
+	UINT spotLightCount = tmpLightMgr->GetObjectCount<SpotLight>();
 
 	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_LIGHT_ENABLED, tmpLightMgr->IsDynamicLightingEnabled());
 	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_DIRLIGHT_COUNT, dirLightCount);
@@ -120,17 +120,17 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 
 	for (UINT i = 0; i<(dirLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetLight<DirLight>(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetObjectPtr<DirLight>(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(pointLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetLight<PointLight>(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetObjectPtr<PointLight>(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(spotLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetLight<SpotLight>(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetObjectPtr<SpotLight>(i)->GetDesc_TransformedToWorld());
 	}
 };
 

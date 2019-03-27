@@ -20,6 +20,9 @@ namespace Noise3D
 			//generate canonical real number(uniformly distribute in [0,1])
 			float CanonicalReal();
 
+			//generate canonical real number(uniformly distribute in [-1,1])
+			float NormalizedReal();
+
 			//generate uniform random unit vector which distributes on unit sphere
 			NVECTOR3 UniformSpherical_Vector();
 
@@ -31,6 +34,8 @@ namespace Noise3D
 			static std::default_random_engine mRandomEngine;
 
 			static std::uniform_real_distribution<float> mCanonicalDist;
+
+			static std::uniform_real_distribution<float> mNormalizedDist;
 		};
 	}
 };

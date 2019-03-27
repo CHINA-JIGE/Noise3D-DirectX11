@@ -75,9 +75,6 @@ namespace Noise3D
 		m_pChildObjectList ( new std::vector<N_ChildObjectInfo<objType>>),
 		m_pUidToIndexHashTable (new std::unordered_map<N_UID, UINT>)
 		{
-			/*mMaxObjectCount = maxCount;
-			m_pChildObjectList = new std::vector<N_ChildObjectInfo<objType>>;
-			m_pUidToIndexHashTable = new std::unordered_map<N_UID, UINT>;*/
 		};
 
 		//destructor
@@ -123,7 +120,7 @@ namespace Noise3D
 			}
 		}
 
-		UINT	GetObjectID(N_UID uid) const
+		uint32_t	GetObjectID(N_UID uid) const
 		{
 			auto iter = m_pUidToIndexHashTable->find(uid);
 			//need to assure that UID don't conflict
@@ -137,7 +134,7 @@ namespace Noise3D
 			}
 		}
 
-		N_UID	GetUID(UINT index) const
+		uint32_t	GetUID(uint32_t index) const
 		{
 			if (index < m_pChildObjectList->size())
 			{
@@ -150,7 +147,7 @@ namespace Noise3D
 			}
 		}
 
-		UINT	GetObjectCount()  const
+		uint32_t	GetObjectCount()  const
 		{
 			return m_pChildObjectList->size();
 		}
@@ -307,13 +304,106 @@ namespace Noise3D
 		};
 
 	private:
-		UINT mMaxObjectCount;
+		uint32_t mMaxObjectCount;
 
 		//uid-ptr pair(not mapping)
 		std::vector<N_ChildObjectInfo<objType>>*			m_pChildObjectList;
 
 		//UID - index mapping, the UINT is index for vector
-		std::unordered_map<N_UID, UINT>*					m_pUidToIndexHashTable;
+		std::unordered_map<N_UID, uint32_t>*					m_pUidToIndexHashTable;
 	};
 
+	//(2019.3.26)some mananger classes inherit from several IFactory, then the method will
+	//be ambiguous. So i use template tricks(?) to resolve this.
+	//explicit template function will be defined at the top level of template param expansion
+	//, which will hide all the functions with the same name in later's recursion.
+	//(2019.3.27)constructor list are expanded using std::initializer list and recursion, and const function(c++14)
+
+	template<typename ...args> class IFactoryEx {};//declaration
+
+	template<typename T, typename ...Rest>//recursive declaration
+	class IFactoryEx<T, Rest...> :
+		protected IFactory<T>,
+		public IFactoryEx<Rest...>
+	{
+
+	public:
+		IFactoryEx() = delete;
+
+		//constructor(start recursion)
+		IFactoryEx(const std::initializer_list<uint32_t>& list) :
+			IFactoryEx(list, 0){}
+
+		//constructor(recursion, recursively get i-th param and init IFactory<T_i>, 
+		//and pass the N-i-1 param to the next recursive level)
+		IFactoryEx(const std::initializer_list<uint32_t>& maxCountList, int param_id) :
+			IFactory<T>(mFunc_CompileTile_GetInitListParam(maxCountList, param_id)),
+			IFactoryEx<Rest...>(maxCountList, param_id + 1)
+		{}
+
+		//destructor
+		~IFactoryEx() {};
+
+		template <typename obj_t>
+		obj_t* GetObjectPtr(uint32_t objIndex) const
+		{ return IFactory<obj_t>::GetObjectPtr(objIndex); }
+
+		template <typename obj_t>
+		uint32_t	GetObjectID(N_UID uid) const
+		{ return IFactory<obj_t>::GetObjectPtr(uid); }
+
+		template <typename obj_t>
+		N_UID	GetUID(uint32_t index) const
+		{ return  IFactory<obj_t>::GetUID(index);}
+
+		template <typename obj_t>
+		uint32_t	GetObjectCount()  const
+		{ return  IFactory<obj_t>::GetObjectCount(); }
+
+		template <typename obj_t>
+		bool		FindUid(N_UID uid) const
+		{ return IFactory<obj_t>::FindUid(uid);}
+
+		template <typename obj_t>
+		bool		DestroyObject(uint32_t objIndex)
+		{ return IFactory<obj_t>::DestroyObject(objIndex);}
+
+		template <typename obj_t>
+		bool		DestroyObject(N_UID objUID)
+		{ return IFactory<obj_t>::DestroyObject(objUID);}
+
+		template <typename obj_t>
+		bool	DestroyObject(obj_t* pObject)
+		{ return IFactory<obj_t>::DestroyObject(pObject);}
+
+		template <typename obj_t>
+		void	DestroyAllObject()
+		{IFactory<obj_t>::DestroyAllObject();}
+
+	protected:
+
+		template <typename obj_t>
+		obj_t*	CreateObject(N_UID uid){
+			return IFactory<obj_t>::CreateObject(uid);
+		}
+
+		//[Compile Time const expr] Get given param at given param_id of initializer_list
+		const uint32_t mFunc_CompileTile_GetInitListParam(const std::initializer_list<uint32_t>& _list, int _param_id)
+		{
+			auto iter = _list.begin();
+			for (int i = 0; i < _param_id; ++i, iter++) {}
+			return *iter;
+		};
+	};
+
+	//recursion's terminate declaration
+	template<>
+	class IFactoryEx<> 
+	{
+	public:
+		IFactoryEx() = delete;
+
+		//ctor's terminate
+		IFactoryEx(std::initializer_list<uint32_t> list, uint32_t param_id) {};
+	};
 }

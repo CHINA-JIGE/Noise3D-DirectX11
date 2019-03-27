@@ -12,9 +12,7 @@
 using namespace Noise3D;
 
 LightManager::LightManager():
-	IFactory<DirLight>(10),
-	IFactory<PointLight>(10),
-	IFactory<SpotLight>(10),
+	IFactoryEx<DirLight, PointLight, SpotLight>({ 5, 5, 5 }),
 	mIsDynamicLightingEnabled(true),
 	mCanUpdateStaticLights(false)
 {
@@ -64,6 +62,7 @@ SpotLight* LightManager::CreateDynamicSpotLight(SceneNode* pFatherNode, N_UID li
 
 
 //-----------Interface GETTER----------------------------
+/*
 template<typename T>
 T * Noise3D::LightManager::GetLight(N_UID lightName)
 {
@@ -187,7 +186,7 @@ template <>
 uint32_t LightManager::GetLightCount<SpotLight>()
 {
 	return IFactory<SpotLight>::GetObjectCount();
-}
+}*/
 
 //--------------
 void	LightManager::SetDynamicLightingEnabled(bool isEnabled)
