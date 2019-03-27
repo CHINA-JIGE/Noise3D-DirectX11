@@ -11,6 +11,7 @@
 
 namespace Noise3D
 {
+
 	//side's of AABB (or box in local space)
 	enum NOISE_BOX_FACET
 	{
@@ -52,9 +53,13 @@ namespace Noise3D
 		virtual float ComputeArea() override;
 
 		//ILogicalShape::
-		virtual bool IsPointInside(NVECTOR3 p) override;
+		//virtual bool IsPointInside(NVECTOR3 p) override;
 
 	private:
+
+		friend LogicalBox* LogicalShapeManager::CreateBox(SceneNode*, N_UID);
+		
+		friend class IFactory<LogicalBox>;
 
 		LogicalBox();
 

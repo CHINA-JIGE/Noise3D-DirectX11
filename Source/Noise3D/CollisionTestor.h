@@ -99,7 +99,7 @@ namespace Noise3D
 		//scene object that is attached to scene node can make use of this
 		struct RayIntersectionTransformHelper
 		{
-			bool Ray_WorldToModel(const N_Ray& in_ray_world, ISceneObject * pObj, N_Ray& out_ray_local);
+			bool Ray_WorldToModel(const N_Ray& in_ray_world, bool isRigidTransform, ISceneObject * pObj, N_Ray& out_ray_local);
 
 			void HitResult_ModelToWorld(N_RayHitResult& hitResult);
 

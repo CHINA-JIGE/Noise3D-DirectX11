@@ -67,6 +67,40 @@ AffineTransform Noise3D::SceneNode::EvalWorldTransform(bool cacheResult)
 	return t;
 }
 
+AffineTransform Noise3D::SceneNode::EvalWorldTransform_Rigid(bool cacheResult)
+{
+	//similar to evalWorldTransform, except that it only count T & R, ignore S
+	//previous evaluated result's fast retrival
+	if (mIsWorldMatrixCached)return mWorldTransformCache;
+
+	SceneGraph* pSG = this->GetHostTree();
+	std::vector<SceneNode*> path;//path to root
+	pSG->TraversePathToRoot(this, path);
+
+	NMATRIX world_mat = XMMatrixIdentity();
+	//(2019.3.22)ignore root node's transform
+	for (uint32_t i = 0; i<path.size() - 1; ++i)
+	{
+		SceneNode* pNode = path.at(i);
+		NMATRIX tmpMat = XMMatrixIdentity();
+		AffineTransform& localTrans = pNode->GetLocalTransform();
+		tmpMat = localTrans.GetRigidTransformMatrix();
+
+		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
+		world_mat = world_mat * tmpMat;
+	}
+
+	AffineTransform t;
+	t.SetAffineMatrix(world_mat);
+	if (cacheResult)
+	{
+		mIsWorldMatrixCached = true;
+		mWorldTransformCache = t;
+	}
+
+	return t;
+}
+
 void Noise3D::SceneNode::ClearWorldTransformCache()
 {
 	//clear world matrix cache mark set by 'EvalWorldTransform' function (with parameter 'cacheResult'==true)

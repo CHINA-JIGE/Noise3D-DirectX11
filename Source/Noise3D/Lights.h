@@ -9,8 +9,6 @@ namespace Noise3D
 {
 	//LIGHT description : just combination of data
 	//LIGHT interfaces : provide interfaces for the user to interact
-
-
 	struct N_CommonLightDesc
 	{
 		N_CommonLightDesc():
@@ -153,7 +151,9 @@ namespace Noise3D
 
 	private:
 
-		friend class LightManager;//to init
+		//to init
+		friend DirLight* Noise3D::LightManager::CreateDynamicDirLight(SceneNode*,N_UID,N_SHADOW_MAPPING_PARAM );
+		
 		friend IFactory<DirLight>;
 
 		DirLight();
@@ -208,7 +208,7 @@ namespace Noise3D
 
 	private:
 
-		friend LightManager;
+		friend PointLight* LightManager::CreateDynamicPointLight(SceneNode*, N_UID);
 		friend IFactory<PointLight>;
 
 		PointLight();
@@ -274,7 +274,7 @@ namespace Noise3D
 
 	private:
 
-		friend LightManager;
+		friend SpotLight*	LightManager::CreateDynamicSpotLight(SceneNode*,N_UID);
 		friend IFactory<SpotLight>;
 
 		SpotLight();

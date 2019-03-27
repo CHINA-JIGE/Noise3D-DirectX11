@@ -35,6 +35,9 @@ namespace Noise3D
 		//(which can be directly retrived until the cache is cleared)
 		AffineTransform EvalWorldTransform(bool cacheResult = false);//normally the cacheResult should be set true by Noise3D(?)
 
+		//similar to evalWorldTransform, except that it only count T & R
+		AffineTransform EvalWorldTransform_Rigid(bool cacheResult = false);//normally the cacheResult should be set true by Noise3D(?)
+
 		//clear world transform cache, disable direct retrival of cache in 'EvalWorldTransform'
 		void ClearWorldTransformCache();
 

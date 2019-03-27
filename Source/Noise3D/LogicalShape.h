@@ -36,7 +36,7 @@ namespace Noise3D
 		virtual float ComputeArea() =0 ;
 
 		//determine if point is inside this shape
-		virtual bool IsPointInside(NVECTOR3 p) = 0;
+		//virtual bool IsPointInside(NVECTOR3 p) = 0;
 
 		//..
 		void SetMaterial(Material* pMat) 

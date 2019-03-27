@@ -8,9 +8,9 @@
 #include "Noise3D.h"
 
 using namespace Noise3D;
-using namespace Noise3D::D3D;
 
-Noise3D::LogicalBox::LogicalBox()
+Noise3D::LogicalBox::LogicalBox():
+	mLocalBox(NVECTOR3(-1.0f,-1.0f,-1.0f),NVECTOR3(1.0f,1.0f,1.0f))
 {
 }
 
@@ -42,3 +42,25 @@ N_AABB Noise3D::LogicalBox::GetLocalBox()
 	return mLocalBox;
 }
 
+NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalBox::GetObjectType() const
+{
+	return NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX;
+}
+
+N_AABB Noise3D::LogicalBox::GetLocalAABB()
+{
+	return mLocalBox;
+}
+
+N_AABB Noise3D::LogicalBox::ComputeWorldAABB_Accurate()
+{
+	//AABB of AABB (note that local box is also an AABB)
+	return ISceneObject::ComputeWorldAABB_Fast();
+}
+
+float Noise3D::LogicalBox::ComputeArea()
+{
+	if (!mLocalBox.IsValid())return 0.0f;
+	NVECTOR3 delta = mLocalBox.max - mLocalBox.min;
+	return 2.0f*(delta.x * delta.y + delta.y * delta.z + delta.z * delta.x);
+}

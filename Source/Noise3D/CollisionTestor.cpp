@@ -336,7 +336,7 @@ bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pB
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
 	RayIntersectionTransformHelper helper;
-	if (!helper.Ray_WorldToModel(ray, pBox, localRay))return false;
+	if (!helper.Ray_WorldToModel(ray, false, pBox, localRay))return false;
 
 	//perform Ray-AABB intersection in local space
 	N_AABB localBox = pBox->GetLocalBox();
@@ -361,7 +361,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
 	RayIntersectionTransformHelper helper;
-	if (!helper.Ray_WorldToModel(ray, pSphere, localRay))return false;
+	if (!helper.Ray_WorldToModel(ray, true, pSphere, localRay))return false;
 
 	//Ray-Sphere intersection can be easily evaluated by solving a quadratic equation
 	//*** Ray P=O+tD
@@ -499,7 +499,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	//convert ray to model space (but first scene object must attach to scene node)
 	N_Ray localRay;
 	RayIntersectionTransformHelper helper;
-	if (!helper.Ray_WorldToModel(ray, pMesh, localRay))return false;
+	if (!helper.Ray_WorldToModel(ray,false, pMesh, localRay))return false;
 
 	//get vertex data (be noted that the vertex is in MODEL SPACE
 	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
@@ -636,7 +636,8 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	if (isDirNeg)std::swap(nearHit, farHit);
 }
 
-bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(const N_Ray& in_ray_world, ISceneObject * pObj, N_Ray& out_ray_local)
+bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
+	const N_Ray& in_ray_world, bool isRigidTransform, ISceneObject * pObj, N_Ray& out_ray_local)
 {
 	//convert the box to local space to use Ray-AABB intersection
 	SceneNode* pNode = pObj->GetAttachedSceneNode();
@@ -647,7 +648,14 @@ bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
 	}
 
 	//get 'World' related transform matrix (all are useful)
-	pNode->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
+	if (isRigidTransform)
+	{
+		pNode->EvalWorldTransform_Rigid().GetAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
+	}
+	else
+	{
+		pNode->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvMat, worldInvTransposeMat);
+	}
 
 	//transform the ray into local space
 	N_Ray localRay;

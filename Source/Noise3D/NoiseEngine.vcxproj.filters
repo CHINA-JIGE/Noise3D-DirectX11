@@ -582,5 +582,8 @@
     <ClCompile Include="LogicalSphere.cpp">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClCompile>
+    <ClCompile Include="LogicalShapeManager.cpp">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

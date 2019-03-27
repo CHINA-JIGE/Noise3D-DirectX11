@@ -11,6 +11,8 @@
 
 namespace Noise3D
 {
+
+	//(2019.3.27) all 'Scale' is ignored when evaluating world transform
 	class /*_declspec(dllexport)*/ LogicalSphere :
 		public ILogicalShape,
 		public Collidable
@@ -36,9 +38,12 @@ namespace Noise3D
 		virtual float ComputeArea() override;
 
 		//ILogicalShape::
-		virtual bool IsPointInside(NVECTOR3 p) override;
+		//virtual bool IsPointInside(NVECTOR3 p) override;
 
 	private:
+		friend LogicalSphere* LogicalShapeManager::CreateSphere(SceneNode*, N_UID);
+
+		friend IFactory<LogicalSphere>;
 
 		LogicalSphere();
 

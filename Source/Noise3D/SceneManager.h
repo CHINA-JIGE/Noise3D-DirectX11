@@ -25,7 +25,8 @@ namespace Noise3D
 		public IFactory<TextManager>,
 		public IFactory<MeshLoader>,
 		public IFactory<ModelProcessor>,
-		public IFactory<CollisionTestor>
+		public IFactory<CollisionTestor>,
+		public IFactory<LogicalShapeManager>
 	{
 	public:
 
@@ -61,6 +62,8 @@ namespace Noise3D
 		ModelProcessor*			GetModelProcessor();
 
 		CollisionTestor*			GetCollisionTestor();
+
+		LogicalShapeManager* GetLogicalShapeMgr();
 
 	private:
 

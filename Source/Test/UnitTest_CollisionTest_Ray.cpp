@@ -16,10 +16,12 @@ Atmosphere* pAtmos;
 MeshLoader* pModelLoader;
 MeshManager* pMeshMgr;
 std::vector<Mesh*> meshList;
+std::vector<LogicalSphere*> logicalSphereList;
 MaterialManager*	pMatMgr;
 TextureManager*	pTexMgr;
 GraphicObjectManager*	pGraphicObjMgr;
 GraphicObject*	pGraphicObjBuffer;
+LogicalShapeManager* pShapeMgr;
 LightManager* pLightMgr;
 DirLight*		pDirLight1;
 PointLight*	pPointLight1;
@@ -94,6 +96,8 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr = pScene->GetTextureMgr();
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
+	pShapeMgr = pScene->GetLogicalShapeMgr();
+
 	SceneGraph& sg = pScene->GetSceneGraph();
 	sceneRoot = sg.GetRoot();
 	a = sceneRoot->CreateChildNode();
@@ -107,8 +111,8 @@ BOOL Init3D(HWND hwnd)
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
-	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 128, 128, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture");
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
@@ -132,44 +136,71 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
 
-	for (int i = 0; i < 10; ++i)
+	const int c_shapeCount = 10;
+	for (int i = 0; i < c_shapeCount; ++i)
 	{
 		SceneNode* pNode = sg.GetRoot()->CreateChildNode();
+		//bind mesh
 		Mesh* pMesh = pMeshMgr->CreateMesh(pNode, "sphere"+ std::to_string(i));
+		pMesh->SetCollidable(false);
+
+		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNode, "logicSPH" + std::to_string(i));
+		pSphere->SetCollidable(true);
+
 		GI::RandomSampleGenerator g;
-		float randomRadius = g.CanonicalReal() * 20.0f + 5.0f;
+		float randomRadius = g.CanonicalReal() * 20.0f + 3.0f;
 		pModelLoader->LoadSphere(pMesh, randomRadius, 15, 15);
 		float randomX = g.NormalizedReal() * 50.0f;
 		float randomY = g.NormalizedReal() * 50.0f;
 		float randomZ = g.NormalizedReal() * 50.0f;
-
 		pNode->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
+
+		pSphere->SetRadius(randomRadius);
+
 		meshList.push_back(pMesh);
+		logicalSphereList.push_back(pSphere);
 	}
 
 	for (auto & name : res.meshNameList)
 	{
 		Mesh* pMesh = pMeshMgr->GetObjectPtr(name);
-		meshList.push_back(pMesh);
 		pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-		pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
+		//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
 		pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+		meshList.push_back(pMesh);
 	}
 
 	//-----Generate Rays--------
 	std::vector<N_Ray> rayArray;
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("rays");
-	for (int rayId = 0; rayId < 500; ++rayId)
+	const int c_rayCount = 100;
+	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		GI::RandomSampleGenerator g;
-		NVECTOR3 origin = { g.NormalizedReal() * 50.0f,g.NormalizedReal() * 50.0f,g.NormalizedReal() * 50.0f };
+		NVECTOR3 origin = { g.NormalizedReal() * 100.0f,g.NormalizedReal() * 100.0f,g.NormalizedReal() * 100.0f };
 		//dir heads approximately the origin
 		NVECTOR3 dir = { g.CanonicalReal() * (-2.0f*origin.x),g.CanonicalReal() * (-2.0f*origin.y),g.CanonicalReal() * (-2.0f*origin.z) };
-		N_Ray r = N_Ray(origin, dir);
+		//NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
+		N_Ray r = N_Ray(origin, dir, 1.0f);
 		rayArray.push_back(r);
-	
-		//if (CollisionTestor::IntersectRaySphere(r, ));
+	}
 
+	for (int rayId = 0; rayId < c_rayCount; ++rayId)
+	{
+		N_Ray r = rayArray.at(rayId);
+		for (int i = 0; i < logicalSphereList.size(); ++i)
+		{
+			N_RayHitResult hitRes;
+			LogicalSphere* pSphere = logicalSphereList.at(i);
+			if (CollisionTestor::IntersectRaySphere(r, pSphere, hitRes))
+			{
+				pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0, 0, 0, 1.0f));
+			}
+			else
+			{
+				pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+			}
+		}
 	}
 
 
@@ -197,7 +228,6 @@ BOOL Init3D(HWND hwnd)
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight(pScene->GetSceneGraph().GetRoot(), "myDirLight1");
-	uint32_t a = pLightMgr->GetObjectCount<DirLight>();
 	N_DirLightDesc dirLightDesc;
 	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
 	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);

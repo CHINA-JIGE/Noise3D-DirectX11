@@ -13,6 +13,7 @@
 // 3. Corresponding Creation method
 
 #include "Noise3D.h"
+#include "SceneManager.h"
 
 using namespace Noise3D;
 
@@ -29,7 +30,8 @@ SceneManager::SceneManager():
 	IFactory<TextManager>(1),
 	IFactory<MeshLoader>(1),
 	IFactory<ModelProcessor>(1),
-	IFactory<CollisionTestor>(1)
+	IFactory<CollisionTestor>(1),
+	IFactory<LogicalShapeManager>(1)
 {
 
 }
@@ -101,7 +103,6 @@ Renderer * SceneManager::GetRenderer()
 	}
 };
 
-
 MeshManager * SceneManager::GetMeshMgr()
 {
 	static const N_UID uid = "sceneMeshMgr";
@@ -111,7 +112,6 @@ MeshManager * SceneManager::GetMeshMgr()
 	}
 	return IFactory<MeshManager>::GetObjectPtr(uid);
 };
-
 
 Camera * SceneManager::GetCamera()
 {
@@ -255,6 +255,16 @@ CollisionTestor * SceneManager::GetCollisionTestor()
 		}
 	}
 	return IFactory<CollisionTestor>::GetObjectPtr(uid);
+}
+
+LogicalShapeManager * Noise3D::SceneManager::GetLogicalShapeMgr()
+{
+	const N_UID uid = "sceneShapeMgr";
+	if (IFactory<LogicalShapeManager>::FindUid(uid) == false)
+	{
+		IFactory<LogicalShapeManager>::CreateObject(uid);
+	}
+	return IFactory<LogicalShapeManager>::GetObjectPtr(uid);
 }
 
 

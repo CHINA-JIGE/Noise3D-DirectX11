@@ -69,10 +69,11 @@
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "BvhTree.h"
 
+#include "LogicalShapeManager.h"
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
 #include "LogicalBox.h"
-#include "LogicalShapeManager.h"
+
 
 #include "ModelProcessor.h"
 #include "Camera.h"
@@ -80,8 +81,8 @@
 #include "Mesh.h"
 #include "MeshManager.h"
 #include "ShadowCommonInterface.h"
-#include "Lights.h"
 #include "LightManager.h"
+#include "Lights.h"
 #include "ITexture.h"
 #include "Texture2D.h"
 #include "TextureCubeMap.h"
