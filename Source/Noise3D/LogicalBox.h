@@ -35,7 +35,8 @@ namespace Noise3D
 		static NVECTOR3 ComputeNormal(NOISE_BOX_FACET facet);
 
 		//box is AABB in local space
-		void SetLocalBox(N_AABB aabb);
+		//void SetLocalBox(N_AABB aabb);
+		void SetSizeXYZ(NVECTOR3 size);
 
 		//box is AABB in local space
 		N_AABB GetLocalBox();
@@ -65,7 +66,8 @@ namespace Noise3D
 
 		~LogicalBox();
 
-		N_AABB mLocalBox;
+		//N_AABB mLocalBox;
+		NVECTOR3 mSize;
 
 	};
 

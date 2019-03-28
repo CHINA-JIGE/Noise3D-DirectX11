@@ -223,7 +223,7 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 
 		//try to narrow the t value interval
 		if (t_near > t_resultMin) { t_resultMin = t_near; isNearHit = true; }
-		if (t_far < t_resultMax) { t_resultMax = t_far; isFarHit = true; }
+		if (t_far < t_resultMax) { t_resultMax = t_far;  isFarHit = true; }
 
 		//validate t interval. 
 		if (t_resultMin >= t_resultMax)
@@ -233,8 +233,9 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 		}
 	}
 
-	//t_max rejection
-	if (t_resultMax > ray.t_max)isFarHit = false;
+	//t_min& t_max rejection
+	if (t_resultMin<ray.t_min || t_resultMin > ray.t_max)isNearHit = false;
+	if (t_resultMax<ray.t_min || t_resultMax > ray.t_max)isFarHit = false;
 
 	//2 intersection points at most, but if there is none:
 	if (!isNearHit && !isFarHit)return false;
@@ -293,8 +294,9 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 		}
 	}
 
-	//t_max rejection
-	if (t_resultMax > ray.t_max)isFarHit = false;
+	//t_min& t_max rejection
+	if (t_resultMin<ray.t_min || t_resultMin > ray.t_max)isNearHit = false;
+	if (t_resultMax<ray.t_min || t_resultMax > ray.t_max)isFarHit = false;
 
 	//2 intersection points at most, but if there is none then quit
 	if (!isNearHit && !isFarHit)return false;
@@ -321,6 +323,28 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 
 	return true;
 
+}
+
+bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox * pBox)
+{
+	if (pBox == nullptr)
+	{
+		ERROR_MSG("CollisionTestor: object is nullptr.");
+		return false;
+	}
+
+	if (!pBox->Collidable::IsCollidable())return false;
+
+	//convert ray to model space (but first scene object must attach to scene node)
+	N_Ray localRay;
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, false, pBox, localRay))return false;
+
+	//perform Ray-AABB intersection in local space
+	N_AABB localBox = pBox->GetLocalBox();
+	bool anyHit = CollisionTestor::IntersectRayAabb(localRay, localBox);
+
+	return anyHit;
 }
 
 bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox* pBox, N_RayHitResult & outHitRes)
@@ -389,29 +413,35 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 	{
 		float sqrtDet = std::sqrtf(det);
 
-		//local space hit info 1
-		N_RayHitInfo hitInfo1;
-		float t1 = (-B + sqrtDet)/ (2.0f * A);
-		hitInfo1.t = t1;
-		hitInfo1.pos = ray.Eval(t1);
-		hitInfo1.normal = hitInfo1.pos;
-		hitInfo1.normal.Normalize();
-		outHitRes.hitList.push_back(hitInfo1);
+		float t1 = (-B + sqrtDet) / (2.0f * A);
+		if (t1 >= ray.t_min && t1 <= ray.t_max)//t_min && t_max rejection
+		{
+			//local space hit info 1
+			N_RayHitInfo hitInfo1;
+			hitInfo1.t = t1;
+			hitInfo1.pos = ray.Eval(t1);
+			hitInfo1.normal = hitInfo1.pos;
+			hitInfo1.normal.Normalize();
+			outHitRes.hitList.push_back(hitInfo1);
+		}
 
-		//local space hit info 2
-		N_RayHitInfo hitInfo2;
 		float t2 = (-B - sqrtDet) / (2.0f * A);
-		hitInfo2.t = t2;
-		hitInfo2.pos = ray.Eval(t2);
-		hitInfo2.normal = hitInfo2.pos;
-		hitInfo2.normal.Normalize();
-		outHitRes.hitList.push_back(hitInfo2);
+		if (t2 >= ray.t_min && t2 <= ray.t_max)//t_min && t_max rejection
+		{
+			//local space hit info 2
+			N_RayHitInfo hitInfo2;
+			hitInfo2.t = t2;
+			hitInfo2.pos = ray.Eval(t2);
+			hitInfo2.normal = hitInfo2.pos;
+			hitInfo2.normal.Normalize();
+			outHitRes.hitList.push_back(hitInfo2);
+		}
 	}
 
 	//transform the result hit back to world space
 	helper.HitResult_ModelToWorld(outHitRes);
 
-	return true;
+	return outHitRes.HasAnyHit();
 }
 
 bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
@@ -444,8 +474,8 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 
 
 	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
 
-	//t_max rejection
-	if (result_t > ray.t_max)return false;
+	//t_min && t_max rejection
+	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
 	outHitInfo.t = result_t;
 	outHitInfo.pos = ray.Eval(result_t);
@@ -476,8 +506,8 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_D
 
 	float result_t = invDet * E2.Dot(Q);//t = invDet * (E2 dot Q)
 
-	//t_max rejection
-	if (result_t > ray.t_max)return false;
+	//t_min && t_max rejection
+	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
 	outHitInfo.t = result_t;
 	outHitInfo.pos = ray.Eval(result_t);
@@ -658,9 +688,12 @@ bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
 	}
 
 	//transform the ray into local space
+	//note that dir(vector) has no translation, we can't just apply affine matrix worldInv to it
 	N_Ray localRay;
 	localRay.origin = AffineTransform::TransformVector_MatrixMul(in_ray_world.origin, worldInvMat);
-	localRay.dir = AffineTransform::TransformVector_MatrixMul(in_ray_world.dir, worldInvMat);
+	NVECTOR3 localRayEnd = AffineTransform::TransformVector_MatrixMul(in_ray_world.Eval(1.0f), worldInvMat);
+	localRay.dir = localRayEnd - localRay.origin;
+	localRay.t_max = in_ray_world.t_max;
 
 	out_ray_local = localRay;
 	return true;
@@ -674,6 +707,6 @@ void Noise3D::CollisionTestor::RayIntersectionTransformHelper::HitResult_ModelTo
 		//hitInfo.t = hitInfo.t
 		hitInfo.normal = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldInvTransposeMat);
 		hitInfo.normal.Normalize();
-		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldMat);
+		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.pos, worldMat);
 	}
 }

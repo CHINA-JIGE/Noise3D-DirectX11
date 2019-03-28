@@ -16,7 +16,7 @@ Atmosphere* pAtmos;
 MeshLoader* pModelLoader;
 MeshManager* pMeshMgr;
 std::vector<Mesh*> meshList;
-std::vector<LogicalSphere*> logicalSphereList;
+std::vector<ILogicalShape*> logicalShapeList;
 MaterialManager*	pMatMgr;
 TextureManager*	pTexMgr;
 GraphicObjectManager*	pGraphicObjMgr;
@@ -30,12 +30,12 @@ TextManager* pTextMgr;
 DynamicText* pMyText_fps;
 
 SceneNode* sceneRoot;
-SceneNode* a;
-SceneNode* aa;
-SceneNode* ab;
-SceneNode* ac;
-SceneNode* aca;
-SceneNode* b;
+SceneNode* snode_a;
+SceneNode* snode_aa;
+SceneNode* snode_ab;
+SceneNode* snode_ac;
+SceneNode* snode_aca;
+SceneNode* snode_b;
 SceneNode* fbxNode;
 
 Ut::Timer timer(Ut::NOISE_TIMER_TIMEUNIT_MILLISECOND);
@@ -100,12 +100,12 @@ BOOL Init3D(HWND hwnd)
 
 	SceneGraph& sg = pScene->GetSceneGraph();
 	sceneRoot = sg.GetRoot();
-	a = sceneRoot->CreateChildNode();
-	aa = a->CreateChildNode();
-	ab = a->CreateChildNode();
-	ac = a->CreateChildNode();
-	aca = ac->CreateChildNode();
-	b = sceneRoot->CreateChildNode();
+	snode_a = sceneRoot->CreateChildNode();
+	snode_aa = snode_a->CreateChildNode();
+	snode_ab = snode_a->CreateChildNode();
+	snode_ac = snode_a->CreateChildNode();
+	snode_aca = snode_ac->CreateChildNode();
+	snode_b = sceneRoot->CreateChildNode();
 
 	//Âþ·´ÉäÌùÍ¼
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
@@ -139,35 +139,62 @@ BOOL Init3D(HWND hwnd)
 	const int c_shapeCount = 10;
 	for (int i = 0; i < c_shapeCount; ++i)
 	{
-		SceneNode* pNode = sg.GetRoot()->CreateChildNode();
+		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
 		//bind mesh
-		Mesh* pMesh = pMeshMgr->CreateMesh(pNode, "sphere"+ std::to_string(i));
-		pMesh->SetCollidable(false);
+		Mesh* pMeshSphere = pMeshMgr->CreateMesh(pNodeSphere, "sphere"+ std::to_string(i));
+		pMeshSphere->SetCollidable(false);
 
-		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNode, "logicSPH" + std::to_string(i));
+		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNodeSphere, "logicSPH" + std::to_string(i));
 		pSphere->SetCollidable(true);
 
-		GI::RandomSampleGenerator g;
-		float randomRadius = g.CanonicalReal() * 20.0f + 3.0f;
-		pModelLoader->LoadSphere(pMesh, randomRadius, 15, 15);
-		float randomX = g.NormalizedReal() * 50.0f;
-		float randomY = g.NormalizedReal() * 50.0f;
-		float randomZ = g.NormalizedReal() * 50.0f;
-		pNode->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
+		SceneNode* pNodeBox = sg.GetRoot()->CreateChildNode();
 
+		Mesh* pMeshBox = pMeshMgr->CreateMesh(pNodeBox, "box" + std::to_string(i));
+		pMeshBox->SetCollidable(false);
+
+		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i));
+		pBox->SetCollidable(true);
+
+		// **************************************************
+		GI::RandomSampleGenerator g1;
+		float randomRadius = g1.CanonicalReal() * 20.0f + 3.0f;
 		pSphere->SetRadius(randomRadius);
-
-		meshList.push_back(pMesh);
-		logicalSphereList.push_back(pSphere);
+		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
+		float randomX = g1.NormalizedReal() * 100.0f;
+		float randomY = g1.NormalizedReal() * 100.0f;
+		float randomZ = g1.NormalizedReal() * 100.0f;
+		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
+		// **************************************************
+		/*pModelLoader->LoadSphere(pMesh, 5.0f, 10, 10);
+		pSphere->SetRadius(5.0f);
+		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
+		// **************************************************
+		GI::RandomSampleGenerator g;
+		float randomWidthX = g.CanonicalReal() * 30.0f + 3.0f;
+		float randomWidthY = g.CanonicalReal() * 30.0f + 3.0f;
+		float randomWidthZ = g.CanonicalReal() * 30.0f + 3.0f;
+		pBox->SetSizeXYZ(NVECTOR3(randomWidthX, randomWidthY, randomWidthZ));
+		pModelLoader->LoadBox(pMeshBox, randomWidthX, randomWidthY, randomWidthZ);
+		float randomBoxX = g.NormalizedReal() * 100.0f;
+		float randomBoxY = g.NormalizedReal() * 100.0f;
+		float randomBoxZ = g.NormalizedReal() * 100.0f;
+		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);
+		// **************************************************
+		/*pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
+		pBox->SetSizeXYZ(NVECTOR3(10.0f,10.0f,5.0f));
+		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
+		// **************************************************
+		//meshList.push_back(pMeshBox);
+		meshList.push_back(pMeshSphere);
+		//logicalShapeList.push_back(pBox);
+		logicalShapeList.push_back(pSphere);
 	}
 
-	for (auto & name : res.meshNameList)
+	for (auto& pMesh : meshList)
 	{
-		Mesh* pMesh = pMeshMgr->GetObjectPtr(name);
 		pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-		//pMesh->SetShadeMode(NOISE_SHADEMODE_GOURAUD);
-		pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-		meshList.push_back(pMesh);
+		//pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+		pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
 	}
 
 	//-----Generate Rays--------
@@ -176,31 +203,61 @@ BOOL Init3D(HWND hwnd)
 	const int c_rayCount = 100;
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
+		// **************************************************
 		GI::RandomSampleGenerator g;
-		NVECTOR3 origin = { g.NormalizedReal() * 100.0f,g.NormalizedReal() * 100.0f,g.NormalizedReal() * 100.0f };
-		//dir heads approximately the origin
-		NVECTOR3 dir = { g.CanonicalReal() * (-2.0f*origin.x),g.CanonicalReal() * (-2.0f*origin.y),g.CanonicalReal() * (-2.0f*origin.z) };
-		//NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
-		N_Ray r = N_Ray(origin, dir, 1.0f);
+		NVECTOR3 origin = { g.NormalizedReal() * 150.0f,g.NormalizedReal() * 150.0f,g.NormalizedReal() * 150.0f };
+		NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
+		N_Ray r = N_Ray(origin, dir, 1.0f,0.001f);
+		//**************************************************
+		/*NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
+		NVECTOR3 dir = { 0,0,-100.0f };
+		N_Ray r = N_Ray(origin, dir, 1.0f);*/
+		// **************************************************
+		/*NVECTOR3 origin = { -10.0f , -10.0f, -10.0f };
+		NVECTOR3 dir = { 20.0f,5.0f,50.0f };
+		N_Ray r = N_Ray(origin, dir, 1.0f);*/
+		// **************************************************
 		rayArray.push_back(r);
 	}
 
+	std::vector<bool> anyHit_List(c_rayCount, false);
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		N_Ray r = rayArray.at(rayId);
-		for (int i = 0; i < logicalSphereList.size(); ++i)
+		for (int i = 0; i < logicalShapeList.size(); ++i)
 		{
 			N_RayHitResult hitRes;
-			LogicalSphere* pSphere = logicalSphereList.at(i);
-			if (CollisionTestor::IntersectRaySphere(r, pSphere, hitRes))
+
+			ILogicalShape* pShape = logicalShapeList.at(i);
+			switch (pShape->GetObjectType())
 			{
-				pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0, 0, 0, 1.0f));
-			}
-			else
+			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE:
 			{
-				pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+				LogicalSphere* pSphere = dynamic_cast<LogicalSphere*>(logicalShapeList.at(i));
+				if (CollisionTestor::IntersectRaySphere(r, pSphere, hitRes))anyHit_List.at(rayId) = true;
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos,h.pos+h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				break;
 			}
+			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX:
+			{
+				LogicalBox* pBox = dynamic_cast<LogicalBox*>(logicalShapeList.at(i));
+				if (CollisionTestor::IntersectRayBox(r, pBox, hitRes))anyHit_List.at(rayId) = true;
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddPoint3D(h.pos, NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				break;
+			}
+			}
+			
 		}
+	}
+
+	//add ray's line3D
+	for (int rayId=0;rayId<c_rayCount; ++rayId)
+	{
+		N_Ray r = rayArray.at(rayId);
+		if(anyHit_List.at(rayId))
+		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));}
+		else
+		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));}
 	}
 
 
@@ -261,10 +318,10 @@ void MainLoop()
 	std::stringstream tmpS;
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
-	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
-	ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
-	aca->GetLocalTransform().SetScale(NVECTOR3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
-	aca->GetLocalTransform().SetPosition(NVECTOR3(0, 0, 30.0f));
+	snode_a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
+	snode_ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
+	snode_aca->GetLocalTransform().SetScale(NVECTOR3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
+	snode_aca->GetLocalTransform().SetPosition(NVECTOR3(0, 0, 30.0f));
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
@@ -317,6 +374,7 @@ void InputProcess()
 	{
 		NVECTOR3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
 		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f, 0);
+		euler.x = Ut::Clamp(euler.x, -Ut::PI / 2.0f + 0.001f, Ut::PI / 2.0f - 0.001f);
 		pCamera->GetWorldTransform().SetRotation(euler.x, euler.y, euler.z);
 	}
 

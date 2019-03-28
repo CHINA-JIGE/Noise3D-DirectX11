@@ -28,7 +28,7 @@ TextManager* pTextMgr;
 DynamicText* pMyText_fps;
 
 SceneNode* sceneRoot;
-SceneNode* a;
+SceneNode* snode_a;
 SceneNode* aa;
 SceneNode* ab;
 SceneNode* ac;
@@ -96,10 +96,10 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 	SceneGraph& sg = pScene->GetSceneGraph();
 	sceneRoot = sg.GetRoot();
-	a = sceneRoot->CreateChildNode();
-	aa = a->CreateChildNode();
-	ab = a->CreateChildNode();
-	ac = a->CreateChildNode();
+	snode_a = sceneRoot->CreateChildNode();
+	aa = snode_a->CreateChildNode();
+	ab = snode_a->CreateChildNode();
+	ac = snode_a->CreateChildNode();
 	aca = ac->CreateChildNode();
 	b = sceneRoot->CreateChildNode();
 
@@ -236,7 +236,7 @@ void MainLoop()
 	std::stringstream tmpS;
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
-	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
+	snode_a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);

@@ -65,6 +65,9 @@ namespace Noise3D
 		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb, N_RayHitResult& outHitRes);
 
 		//ray-Box intersection. box can be transformed in world space.
+		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox);
+
+		//ray-Box intersection. box can be transformed in world space.
 		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox, N_RayHitResult& outHitRes);
 
 		//ray-sphere intersecton. simply solve an quadratic equation

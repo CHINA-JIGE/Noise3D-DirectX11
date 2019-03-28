@@ -10,7 +10,8 @@
 using namespace Noise3D;
 
 Noise3D::LogicalBox::LogicalBox():
-	mLocalBox(NVECTOR3(-1.0f,-1.0f,-1.0f),NVECTOR3(1.0f,1.0f,1.0f))
+	//mLocalBox(NVECTOR3(-1.0f,-1.0f,-1.0f),NVECTOR3(1.0f,1.0f,1.0f))
+	mSize(1.0f,1.0f,1.0f)
 {
 }
 
@@ -32,14 +33,19 @@ NVECTOR3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
 	return NVECTOR3(0, 0, 0);
 }
 
-void Noise3D::LogicalBox::SetLocalBox(N_AABB aabb)
+
+void Noise3D::LogicalBox::SetSizeXYZ(NVECTOR3 size)
 {
-	mLocalBox = aabb;
+	mSize = NVECTOR3(abs(size.x), abs(size.y), abs(size.z));
 }
 
 N_AABB Noise3D::LogicalBox::GetLocalBox()
 {
-	return mLocalBox;
+	//return mLocalBox;
+	N_AABB a;
+	a.min = NVECTOR3(-mSize.x / 2.0f, -mSize.y / 2.0f, -mSize.z / 2.0f);
+	a.max = NVECTOR3(mSize.x / 2.0f, mSize.y / 2.0f, mSize.z / 2.0f);
+	return a;
 }
 
 NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalBox::GetObjectType() const
@@ -49,7 +55,7 @@ NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalBox::GetObjectType() const
 
 N_AABB Noise3D::LogicalBox::GetLocalAABB()
 {
-	return mLocalBox;
+	return LogicalBox::GetLocalBox();
 }
 
 N_AABB Noise3D::LogicalBox::ComputeWorldAABB_Accurate()
@@ -60,7 +66,7 @@ N_AABB Noise3D::LogicalBox::ComputeWorldAABB_Accurate()
 
 float Noise3D::LogicalBox::ComputeArea()
 {
-	if (!mLocalBox.IsValid())return 0.0f;
-	NVECTOR3 delta = mLocalBox.max - mLocalBox.min;
+	N_AABB aabb = GetLocalAABB();
+	NVECTOR3 delta = aabb.max - aabb.min;
 	return 2.0f*(delta.x * delta.y + delta.y * delta.z + delta.z * delta.x);
 }
