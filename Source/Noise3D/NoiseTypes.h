@@ -154,7 +154,7 @@ namespace Noise3D
 	{
 		N_Ray():origin(NVECTOR3(0,0,0)), dir(NVECTOR3(0, 0, 0)), t_max(std::numeric_limits<float>::infinity()),t_min(0.001f){}
 		N_Ray(NVECTOR3 _origin, NVECTOR3 _dir) :origin(_origin), dir(_dir), t_max(std::numeric_limits<float>::infinity()) {}
-		N_Ray(NVECTOR3 _origin,NVECTOR3 _dir, float _t_max= std::numeric_limits<float>::infinity(), float _t_min=0.001f) :origin(_origin),dir(_dir),t_max(_t_max), t_min(_t_min) {}
+		N_Ray(NVECTOR3 _origin,NVECTOR3 _dir, float _t_min = 0.001f, float _t_max= std::numeric_limits<float>::infinity()) :origin(_origin),dir(_dir),t_max(_t_max), t_min(_t_min) {}
 
 		//evaluate position given ray's parameter t
 		NVECTOR3 Eval(float t) const { return origin + t * dir; }

@@ -395,7 +395,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 	// A = D.x^2 + D.y^2 +  D.z^2  = D dot D
 	// B = 2(D.x*O.x + D.y*O.y + D.z*O.z）= 2(D dot O)
 	// C = O.x^2 + O.y^2 + O.z^2 - r^2 = O dot O -r^2
-	float r = pSphere->GetRadius();
+	float r = pSphere->GetRadius();//no scale
 	NVECTOR3& D = localRay.dir;
 	NVECTOR3& O = localRay.origin;
 	float A = D.Dot(D);
@@ -419,7 +419,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 			//local space hit info 1
 			N_RayHitInfo hitInfo1;
 			hitInfo1.t = t1;
-			hitInfo1.pos = ray.Eval(t1);
+			hitInfo1.pos = localRay.Eval(t1);
 			hitInfo1.normal = hitInfo1.pos;
 			hitInfo1.normal.Normalize();
 			outHitRes.hitList.push_back(hitInfo1);
@@ -431,7 +431,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 			//local space hit info 2
 			N_RayHitInfo hitInfo2;
 			hitInfo2.t = t2;
-			hitInfo2.pos = ray.Eval(t2);
+			hitInfo2.pos = localRay.Eval(t2);
 			hitInfo2.normal = hitInfo2.pos;
 			hitInfo2.normal.Normalize();
 			outHitRes.hitList.push_back(hitInfo2);
@@ -702,11 +702,11 @@ bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
 void Noise3D::CollisionTestor::RayIntersectionTransformHelper::HitResult_ModelToWorld(N_RayHitResult & hitResult)
 {
 	//transform only the hit results back to world space(minimize the count of inv transform)
-	for (auto hitInfo : hitResult.hitList)
+	for (auto& refHitInfo : hitResult.hitList)
 	{
 		//hitInfo.t = hitInfo.t
-		hitInfo.normal = AffineTransform::TransformVector_MatrixMul(hitInfo.normal, worldInvTransposeMat);
-		hitInfo.normal.Normalize();
-		hitInfo.pos = AffineTransform::TransformVector_MatrixMul(hitInfo.pos, worldMat);
+		refHitInfo.normal = AffineTransform::TransformVector_MatrixMul(refHitInfo.normal, worldInvTransposeMat);
+		refHitInfo.normal.Normalize();
+		refHitInfo.pos = AffineTransform::TransformVector_MatrixMul(refHitInfo.pos, worldMat);
 	}
 }

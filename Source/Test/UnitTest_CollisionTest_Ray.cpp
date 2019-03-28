@@ -155,14 +155,15 @@ BOOL Init3D(HWND hwnd)
 		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i));
 		pBox->SetCollidable(true);
 
+		const float objectRandomRangeScale = 100.0f;
 		// **************************************************
 		GI::RandomSampleGenerator g1;
 		float randomRadius = g1.CanonicalReal() * 20.0f + 3.0f;
 		pSphere->SetRadius(randomRadius);
 		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
-		float randomX = g1.NormalizedReal() * 100.0f;
-		float randomY = g1.NormalizedReal() * 100.0f;
-		float randomZ = g1.NormalizedReal() * 100.0f;
+		float randomX = g1.NormalizedReal() * objectRandomRangeScale;
+		float randomY = g1.NormalizedReal() * objectRandomRangeScale;
+		float randomZ = g1.NormalizedReal() * objectRandomRangeScale;
 		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
 		// **************************************************
 		/*pModelLoader->LoadSphere(pMesh, 5.0f, 10, 10);
@@ -175,26 +176,27 @@ BOOL Init3D(HWND hwnd)
 		float randomWidthZ = g.CanonicalReal() * 30.0f + 3.0f;
 		pBox->SetSizeXYZ(NVECTOR3(randomWidthX, randomWidthY, randomWidthZ));
 		pModelLoader->LoadBox(pMeshBox, randomWidthX, randomWidthY, randomWidthZ);
-		float randomBoxX = g.NormalizedReal() * 100.0f;
-		float randomBoxY = g.NormalizedReal() * 100.0f;
-		float randomBoxZ = g.NormalizedReal() * 100.0f;
+
+		float randomBoxX = g.NormalizedReal() * objectRandomRangeScale;
+		float randomBoxY = g.NormalizedReal() * objectRandomRangeScale;
+		float randomBoxZ = g.NormalizedReal() * objectRandomRangeScale;
 		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);
 		// **************************************************
 		/*pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
 		pBox->SetSizeXYZ(NVECTOR3(10.0f,10.0f,5.0f));
 		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
 		// **************************************************
-		//meshList.push_back(pMeshBox);
+		meshList.push_back(pMeshBox);
 		meshList.push_back(pMeshSphere);
-		//logicalShapeList.push_back(pBox);
+		logicalShapeList.push_back(pBox);
 		logicalShapeList.push_back(pSphere);
 	}
 
 	for (auto& pMesh : meshList)
 	{
 		pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-		//pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-		pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
+		pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+		//pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
 	}
 
 	//-----Generate Rays--------
@@ -205,17 +207,18 @@ BOOL Init3D(HWND hwnd)
 	{
 		// **************************************************
 		GI::RandomSampleGenerator g;
-		NVECTOR3 origin = { g.NormalizedReal() * 150.0f,g.NormalizedReal() * 150.0f,g.NormalizedReal() * 150.0f };
+		const float randomRangeScale = 150.0f;
+		NVECTOR3 origin = { g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale };
 		NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
-		N_Ray r = N_Ray(origin, dir, 1.0f,0.001f);
+		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
 		//**************************************************
 		/*NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
 		NVECTOR3 dir = { 0,0,-100.0f };
-		N_Ray r = N_Ray(origin, dir, 1.0f);*/
+		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
 		// **************************************************
 		/*NVECTOR3 origin = { -10.0f , -10.0f, -10.0f };
 		NVECTOR3 dir = { 20.0f,5.0f,50.0f };
-		N_Ray r = N_Ray(origin, dir, 1.0f);*/
+		N_Ray r = N_Ray(origin, dir,  0.001f,1.0f);*/
 		// **************************************************
 		rayArray.push_back(r);
 	}
@@ -242,7 +245,7 @@ BOOL Init3D(HWND hwnd)
 			{
 				LogicalBox* pBox = dynamic_cast<LogicalBox*>(logicalShapeList.at(i));
 				if (CollisionTestor::IntersectRayBox(r, pBox, hitRes))anyHit_List.at(rayId) = true;
-				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddPoint3D(h.pos, NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
 			}
@@ -261,9 +264,9 @@ BOOL Init3D(HWND hwnd)
 	}
 
 
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
-	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
 
 	//----------------------------------------------------------
 
