@@ -16,7 +16,7 @@ Atmosphere* pAtmos;
 MeshLoader* pModelLoader;
 MeshManager* pMeshMgr;
 std::vector<Mesh*> meshList;
-std::vector<ILogicalShape*> logicalShapeList;
+std::vector<ISceneObject*> sceneObjectList;
 MaterialManager*	pMatMgr;
 TextureManager*	pTexMgr;
 GraphicObjectManager*	pGraphicObjMgr;
@@ -136,29 +136,42 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader = pScene->GetModelLoader();
 	N_SceneLoadingResult res;
 
+
+	//mesh
+	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
+	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
+	pMesh->SetCollidable(true);
+	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
+	meshList.push_back(pMesh);
+	sceneObjectList.push_back(pMesh); // renderable
+	pNodeMesh->GetLocalTransform().SetPosition(100.0f, 0, 0);
+	pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
+	pNodeMesh->GetLocalTransform().SetRotation(1.0f,1.0f,0.5f);
+
 	const int c_shapeCount = 10;
 	for (int i = 0; i < c_shapeCount; ++i)
 	{
 		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
-		//bind mesh
+		//bind sphere and visualization mesh
 		Mesh* pMeshSphere = pMeshMgr->CreateMesh(pNodeSphere, "sphere"+ std::to_string(i));
 		pMeshSphere->SetCollidable(false);
 
 		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNodeSphere, "logicSPH" + std::to_string(i));
 		pSphere->SetCollidable(true);
 
+		//bind box and visualization mesh
 		SceneNode* pNodeBox = sg.GetRoot()->CreateChildNode();
-
 		Mesh* pMeshBox = pMeshMgr->CreateMesh(pNodeBox, "box" + std::to_string(i));
 		pMeshBox->SetCollidable(false);
 
 		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i));
 		pBox->SetCollidable(true);
 
+
 		const float objectRandomRangeScale = 100.0f;
 		// **************************************************
 		GI::RandomSampleGenerator g1;
-		float randomRadius = g1.CanonicalReal() * 20.0f + 3.0f;
+		float randomRadius = g1.CanonicalReal() * 30.0f + 3.0f;
 		pSphere->SetRadius(randomRadius);
 		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
 		float randomX = g1.NormalizedReal() * objectRandomRangeScale;
@@ -186,17 +199,22 @@ BOOL Init3D(HWND hwnd)
 		pBox->SetSizeXYZ(NVECTOR3(10.0f,10.0f,5.0f));
 		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
 		// **************************************************
+
 		meshList.push_back(pMeshBox);
 		meshList.push_back(pMeshSphere);
-		logicalShapeList.push_back(pBox);
-		logicalShapeList.push_back(pSphere);
+
+		sceneObjectList.push_back(pBox);//not render
+		sceneObjectList.push_back(pSphere); // not render
+		sceneObjectList.push_back(pMeshBox);//not collidable ,renderable
+		sceneObjectList.push_back(pMeshSphere);//not collidable ,renderable
+
 	}
 
 	for (auto& pMesh : meshList)
 	{
 		pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-		pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-		//pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
+		//pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
+		pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
 	}
 
 	//-----Generate Rays--------
@@ -227,24 +245,31 @@ BOOL Init3D(HWND hwnd)
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		N_Ray r = rayArray.at(rayId);
-		for (int i = 0; i < logicalShapeList.size(); ++i)
+		for (int i = 0; i < sceneObjectList.size(); ++i)
 		{
 			N_RayHitResult hitRes;
 
-			ILogicalShape* pShape = logicalShapeList.at(i);
+			ISceneObject* pShape = sceneObjectList.at(i);
 			switch (pShape->GetObjectType())
 			{
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE:
 			{
-				LogicalSphere* pSphere = dynamic_cast<LogicalSphere*>(logicalShapeList.at(i));
+				LogicalSphere* pSphere = dynamic_cast<LogicalSphere*>(sceneObjectList.at(i));
 				if (CollisionTestor::IntersectRaySphere(r, pSphere, hitRes))anyHit_List.at(rayId) = true;
 				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos,h.pos+h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX:
 			{
-				LogicalBox* pBox = dynamic_cast<LogicalBox*>(logicalShapeList.at(i));
+				LogicalBox* pBox = dynamic_cast<LogicalBox*>(sceneObjectList.at(i));
 				if (CollisionTestor::IntersectRayBox(r, pBox, hitRes))anyHit_List.at(rayId) = true;
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				break;
+			}
+			case NOISE_SCENE_OBJECT_TYPE::MESH:
+			{
+				Mesh* pMesh = dynamic_cast<Mesh*>(sceneObjectList.at(i));
+				if (CollisionTestor::IntersectRayMesh(r, pMesh, hitRes))anyHit_List.at(rayId) = true;
 				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
@@ -270,14 +295,10 @@ BOOL Init3D(HWND hwnd)
 
 	//----------------------------------------------------------
 
-	pCamera->LookAt(0, 0, 0);
 	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
-	N_AABB meshAABB = meshList.at(0)->ComputeWorldAABB_Fast();
-	float rotateRadius = sqrtf(meshAABB.max.x*meshAABB.max.x + meshAABB.max.z*meshAABB.max.z)*1.2f;
-	float rotateY = meshAABB.max.y*1.3f;
-	pCamera->GetWorldTransform().SetPosition(rotateRadius*0.7f, rotateY, rotateRadius*0.7f);
+	pCamera->GetWorldTransform().SetPosition(50.0f, 0, 0);
 	pCamera->LookAt(0, 0, 0);
 
 

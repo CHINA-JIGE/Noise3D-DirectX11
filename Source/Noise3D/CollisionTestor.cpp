@@ -533,14 +533,15 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 
 	//get vertex data (be noted that the vertex is in MODEL SPACE
 	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
+	const std::vector<uint32_t>* pIB = pMesh->GetIndexBuffer();
 
 	//apply ray-triangle intersection for each triangle in model space
 	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
 	{
 		N_RayHitInfo hitInfo;
-		const N_DefaultVertex& v0 = pVB->at(3 * i + 0);
-		const N_DefaultVertex& v1 = pVB->at(3 * i + 1);
-		const N_DefaultVertex& v2 = pVB->at(3 * i + 2);
+		const N_DefaultVertex& v0 = pVB->at(pIB->at(3 * i + 0));
+		const N_DefaultVertex& v1 = pVB->at(pIB->at(3 * i + 1));
+		const N_DefaultVertex& v2 = pVB->at(pIB->at(3 * i + 2));
 
 		//!!!!!!!!!!!!!!!
 		//(2019.3.23)there might be a problem, if ray hit the triangle edge, 
