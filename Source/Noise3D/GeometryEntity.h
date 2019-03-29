@@ -16,7 +16,7 @@ namespace Noise3D
 	//manage vertex buffer and (possibly) index buffer as the same time
 	template <typename vertex_t, typename index_t>
 	class GeometryEntity:
-		public ISceneObject
+		public ICollidableSceneObject
 	{
 	public:
 

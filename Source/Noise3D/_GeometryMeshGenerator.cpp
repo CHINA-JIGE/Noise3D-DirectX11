@@ -24,7 +24,7 @@ void IGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCo
 		outIndicesList);
 }
 
-void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iWidthStep, UINT iHeightStep, UINT iDepthStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	/*
 	Y  |
@@ -643,9 +643,9 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 	tmpNormal = vBasisVector1.Cross(vBasisVector2);
 	tmpNormal.Normalize();
 
-	for (UINT i = 0;i < StepCount1;i++)
+	for (uint32_t i = 0;i < StepCount1; i++)
 	{
-		for (UINT j = 0;j < StepCount2;j++)
+		for (uint32_t j = 0;j < StepCount2; j++)
 		{
 			tmpCompleteV.Normal = tmpNormal;
 			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
@@ -662,7 +662,7 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 		for (UINT j = 0;j<StepCount2 - 1;j++)
 		{
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
-			//thus inde offset is needed
+			//thus index offset is needed
 			outIndicesList.push_back(iBaseIndex + i *		StepCount2 + j);
 			outIndicesList.push_back(iBaseIndex + (i + 1)* StepCount2 + j);
 			outIndicesList.push_back(iBaseIndex + i *		StepCount2 + j + 1);
@@ -677,19 +677,18 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 
 inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
 (NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
-	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
+	// it is used to build a Quad , or say Rectangle . StepCount is the count of sections/regions
 {
 #pragma region GenerateVertex
 
-	UINT i = 0, j = 0;
 	NVECTOR3 tmpNormal;
 	N_SimpleVertex tmpCompleteV;
 	tmpNormal = vBasisVector1.Cross(vBasisVector2);
 	tmpNormal.Normalize();
 
-	for (i = 0;i < StepCount1;i++)
+	for (uint32_t i = 0;i < StepCount1;i++)
 	{
-		for (j = 0;j < StepCount2;j++)
+		for (uint32_t j = 0;j < StepCount2;j++)
 		{
 			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
 			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
@@ -701,10 +700,10 @@ inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
 
 
 #pragma region GenerateIndex
-	i = 0;j = 0;
-	for (i = 0;i<StepCount1 - 1;i++)
+
+	for (uint32_t i = 0;i<StepCount1 - 1;i++)
 	{
-		for (j = 0;j<StepCount2 - 1;j++)
+		for (uint32_t j = 0;j<StepCount2 - 1;j++)
 		{
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
 			//thus inde offset is needed

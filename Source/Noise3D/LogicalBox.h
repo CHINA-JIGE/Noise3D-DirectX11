@@ -25,8 +25,7 @@ namespace Noise3D
 	};
 
 	class /*_declspec(dllexport)*/ LogicalBox :
-		public ILogicalShape,
-		public Collidable
+		public ILogicalShape
 	{
 	public:
 

@@ -14,8 +14,7 @@ namespace Noise3D
 
 	//(2019.3.27) all 'Scale' is ignored when evaluating world transform
 	class /*_declspec(dllexport)*/ LogicalSphere :
-		public ILogicalShape,
-		public Collidable
+		public ILogicalShape
 	{
 	public:
 

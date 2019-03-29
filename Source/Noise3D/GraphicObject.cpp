@@ -104,7 +104,7 @@ NVECTOR2 GraphicObject::GetBasePosOffset()
 	return outBaseTopLeftPixel;
 }
 
-UINT GraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+uint32_t GraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, 
@@ -115,7 +115,36 @@ UINT GraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR
 	return GetLine3DCount() - 1;
 }
 
-UINT GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+uint32_t Noise3D::GraphicObject::AddLine3D_AABB(NVECTOR3 min, NVECTOR3 max, NVECTOR4 color1)
+{
+	NVECTOR3 v[8] = {
+		{ min}, //0
+		{ max.x,min.y, min.z},//1
+		{ min.x,max.y, min.z },//2
+		{ min.x,min.y, max.z },//3
+		{ max.x,max.y, min.z },//4
+		{ min.x,max.y, max.z },//5
+		{ max.x,min.y, max.z },//6
+		{max}//7
+	};
+
+	uint32_t edge[12][2]=
+	{
+		{0,1}, {0,3}, {1,6},{3,6},
+		{0,2}, {1,4}, {6,7}, {3,5},
+		{2,4}, {4,7}, {2,5}, {5,7}
+	};
+
+	for (int i = 0; i < 12; ++i)
+	{
+		mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D,
+		{ v[edge[i][0]],v[edge[i][1]] }, { color1,color1 }, { NVECTOR2(0,0),NVECTOR2(0,0) });
+	}
+
+	return GraphicObject::GetLine3DCount() - 1;
+}
+
+uint32_t GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -131,7 +160,7 @@ UINT GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR
 	return GetLine2DCount()-1;
 }
 
-UINT GraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
+uint32_t GraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D,
@@ -142,7 +171,7 @@ UINT GraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
 	return GetPoint3DCount() - 1;
 }
 
-UINT GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
+uint32_t GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v);
@@ -157,7 +186,7 @@ UINT GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 	return GetPoint2DCount() - 1;
 }
 
-UINT GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+uint32_t GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -174,7 +203,7 @@ UINT GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR
 	return GetTriangle2DCount() - 1;
 }
 
-UINT GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
+uint32_t GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
@@ -199,7 +228,7 @@ UINT GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR
 	return GetRectCount()-1;
 }
 
-UINT GraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
+uint32_t GraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	UINT newRectID = NOISE_MACRO_INVALID_ID;

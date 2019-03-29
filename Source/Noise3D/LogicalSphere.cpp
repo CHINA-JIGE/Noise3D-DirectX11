@@ -60,7 +60,7 @@ N_AABB Noise3D::LogicalSphere::ComputeWorldAABB_Accurate()
 	AffineTransform t = pNode->EvalWorldTransform();
 	NVECTOR3 worldCenterPos = t.GetPosition();
 	NVECTOR3 offset = NVECTOR3(mRadius, mRadius, mRadius);
-	return N_AABB(worldCenterPos + offset, worldCenterPos - offset);
+	return N_AABB(worldCenterPos - offset, worldCenterPos + offset);
 }
 
 float Noise3D::LogicalSphere::ComputeArea()

@@ -173,7 +173,8 @@ namespace Noise3D
 	{
 	public:
 
-		TreeTemplate() :m_pRoot(new derivedNode_t)
+		TreeTemplate() :
+			m_pRoot(new derivedNode_t)
 		{
 			m_pRoot->m_pHostTree = static_cast<derivedTree_t*>(this);
 		}

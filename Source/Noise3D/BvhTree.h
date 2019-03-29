@@ -45,6 +45,10 @@ namespace Noise3D
 	{
 	public:
 
+		BvhTree();
+
+		~BvhTree();
+
 		bool Construct(SceneGraph* pSG);
 
 	private:
@@ -60,6 +64,8 @@ namespace Noise3D
 		};
 
 		bool mFunction_Split_MidPoint(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList);
+
+		bool mFunction_Split_MidPoint_3Branches(BvhNode* pNode, const std::vector<ObjectAabbPair>& infoList);
 
 	};
 

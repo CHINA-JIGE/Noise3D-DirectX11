@@ -39,19 +39,21 @@ namespace Noise3D
 
 		NVECTOR2 GetBasePosOffset();
 
-		UINT	AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine3D_AABB(NVECTOR3 min, NVECTOR3 max, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddPoint3D(NVECTOR3 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddPoint2D(NVECTOR2 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddPoint3D(NVECTOR3 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddPoint2D(NVECTOR2 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName = "");
+		uint32_t AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		UINT	AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName = "");
+		uint32_t AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName = "");
+
+		uint32_t AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName = "");
 
 		void		AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount);
 

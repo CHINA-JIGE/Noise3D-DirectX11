@@ -382,11 +382,11 @@
     <ClInclude Include="LogicalBox.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
-    <ClInclude Include="_Collidable.h">
-      <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
-    </ClInclude>
     <ClInclude Include="LogicalShapeManager.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClInclude>
+    <ClInclude Include="_Collidable.h">
+      <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

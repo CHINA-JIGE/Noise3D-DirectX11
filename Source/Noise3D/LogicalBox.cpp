@@ -39,7 +39,7 @@ void Noise3D::LogicalBox::SetSizeXYZ(NVECTOR3 size)
 	mSize = NVECTOR3(abs(size.x), abs(size.y), abs(size.z));
 }
 
-N_AABB Noise3D::LogicalBox::GetLocalBox()
+inline N_AABB Noise3D::LogicalBox::GetLocalBox()
 {
 	//return mLocalBox;
 	N_AABB a;

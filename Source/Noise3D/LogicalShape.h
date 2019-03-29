@@ -15,7 +15,7 @@ namespace Noise3D
 	class Material;
 
 	class /*_declspec(dllexport)*/ ILogicalShape:
-		public ISceneObject
+		public ICollidableSceneObject
 	{
 	public:
 

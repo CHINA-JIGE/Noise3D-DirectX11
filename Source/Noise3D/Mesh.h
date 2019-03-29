@@ -29,8 +29,7 @@ namespace Noise3D
 		public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
-		public CRenderSettingShadeMode,
-		public Collidable
+		public CRenderSettingShadeMode
 	{
 	public:
 

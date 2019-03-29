@@ -69,7 +69,12 @@ namespace Noise3D
 
 		std::string mUid;//object name, initialized once in IFactory<XXX>
 
-
 	};
 
+	class ICollidableSceneObject:
+		public ISceneObject,
+		public Collidable
+	{
+
+	};
 };
