@@ -113,7 +113,7 @@ BOOL Init3D(HWND hwnd)
 	//pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
 	pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
-	//pTexMgr->CreateTextureFromFile("../media/bottom-right-conner-title.jpg", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", TRUE, 0, 0, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/UniverseEnv.dds", "AtmoTexture");
 	ITexture* pNormalMap = pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
 	//pNormalMap->ConvertTextureToGreyMap();
@@ -144,8 +144,8 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
 	meshList.push_back(pMesh);
 	sceneObjectList.push_back(pMesh); // renderable
-	pNodeMesh->GetLocalTransform().SetPosition(100.0f, 0, 0);
-	pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
+	pNodeMesh->GetLocalTransform().SetPosition(150.0f, 0, 0);
+	pNodeMesh->GetLocalTransform().SetScale(0.3f, 0.3f, 0.3f);
 	pNodeMesh->GetLocalTransform().SetRotation(1.0f,1.0f,0.5f);
 
 	const int c_shapeCount = 10;
@@ -170,20 +170,20 @@ BOOL Init3D(HWND hwnd)
 
 		const float objectRandomRangeScale = 100.0f;
 		// **************************************************
-		GI::RandomSampleGenerator g1;
+		/*GI::RandomSampleGenerator g1;
 		float randomRadius = g1.CanonicalReal() * 30.0f + 3.0f;
 		pSphere->SetRadius(randomRadius);
 		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
 		float randomX = g1.NormalizedReal() * objectRandomRangeScale;
 		float randomY = g1.NormalizedReal() * objectRandomRangeScale;
 		float randomZ = g1.NormalizedReal() * objectRandomRangeScale;
-		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
+		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);*/
 		// **************************************************
 		/*pModelLoader->LoadSphere(pMesh, 5.0f, 10, 10);
 		pSphere->SetRadius(5.0f);
-		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
+		pNodeSphere->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
 		// **************************************************
-		GI::RandomSampleGenerator g;
+		/*GI::RandomSampleGenerator g;
 		float randomWidthX = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthY = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthZ = g.CanonicalReal() * 30.0f + 3.0f;
@@ -193,20 +193,20 @@ BOOL Init3D(HWND hwnd)
 		float randomBoxX = g.NormalizedReal() * objectRandomRangeScale;
 		float randomBoxY = g.NormalizedReal() * objectRandomRangeScale;
 		float randomBoxZ = g.NormalizedReal() * objectRandomRangeScale;
-		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);
+		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);*/
 		// **************************************************
-		/*pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
+		pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
 		pBox->SetSizeXYZ(NVECTOR3(10.0f,10.0f,5.0f));
-		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
+		pNodeBox->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);
 		// **************************************************
 
 		meshList.push_back(pMeshBox);
-		meshList.push_back(pMeshSphere);
+		//meshList.push_back(pMeshSphere);
 
 		sceneObjectList.push_back(pBox);//not render
-		sceneObjectList.push_back(pSphere); // not render
+		//sceneObjectList.push_back(pSphere); // not render
 		sceneObjectList.push_back(pMeshBox);//not collidable ,renderable
-		sceneObjectList.push_back(pMeshSphere);//not collidable ,renderable
+		//sceneObjectList.push_back(pMeshSphere);//not collidable ,renderable
 
 	}
 
@@ -224,15 +224,15 @@ BOOL Init3D(HWND hwnd)
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		// **************************************************
-		GI::RandomSampleGenerator g;
+		/*GI::RandomSampleGenerator g;
 		const float randomRangeScale = 150.0f;
 		NVECTOR3 origin = { g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale };
 		NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
-		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
-		//**************************************************
-		/*NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
-		NVECTOR3 dir = { 0,0,-100.0f };
 		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
+		//**************************************************
+		NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
+		NVECTOR3 dir = { 0,0,-100.0f };
+		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
 		// **************************************************
 		/*NVECTOR3 origin = { -10.0f , -10.0f, -10.0f };
 		NVECTOR3 dir = { 20.0f,5.0f,50.0f };
@@ -319,7 +319,7 @@ BOOL Init3D(HWND hwnd)
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(870.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return TRUE;

@@ -140,7 +140,7 @@ BOOL Init3D(HWND hwnd)
 	//mesh
 	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
 	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
-	pMesh->SetCollidable(false);
+	pMesh->SetCollidable(true);
 	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
 	meshList.push_back(pMesh);
 	sceneObjectList.push_back(pMesh); // renderable
@@ -168,7 +168,7 @@ BOOL Init3D(HWND hwnd)
 		pBox->SetCollidable(true);
 
 
-		const float objectRandomRangeScale = 50.0f;
+		const float objectRandomRangeScale = 70.0f;
 		// **************************************************
 		GI::RandomSampleGenerator g1;
 		float randomRadius = g1.CanonicalReal() * 10.0f + 3.0f;
@@ -260,7 +260,7 @@ BOOL Init3D(HWND hwnd)
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(NVECTOR2(870.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return TRUE;

@@ -107,7 +107,7 @@ bool Noise3D::BvhTree::Construct(SceneGraph * pTree)
 
 	//start to recursive splitting(info list might be splitted and copied many times)
 	//(2019.3.25)could be optimized with std::partition
-	if (!mFunction_Split_MidPoint_3Branches(pRootNode, infoList))
+	if (!mFunction_SplitMidPointViaAabbSlabs(pRootNode, infoList))
 	{
 		ERROR_MSG("BvhTree: failed to split the root BVH node.");
 		return false;
@@ -116,7 +116,8 @@ bool Noise3D::BvhTree::Construct(SceneGraph * pTree)
 	return true;
 }
 
-bool Noise3D::BvhTree::mFunction_Split_MidPoint(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList)
+//deprecated
+bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
@@ -204,30 +205,28 @@ bool Noise3D::BvhTree::mFunction_Split_MidPoint(BvhNode* pNode,const std::vector
 	{
 		BvhNode* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
-		mFunction_Split_MidPoint(pLeftChild, leftInfoList);
+		mFunction_SplitMidPointViaCentroid(pLeftChild, leftInfoList);
 	}
 
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
 		BvhNode* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
-		mFunction_Split_MidPoint(pRightChild, rightInfoList);
+		mFunction_SplitMidPointViaCentroid(pRightChild, rightInfoList);
 	}
 	
 	return true;
 }
 
-bool Noise3D::BvhTree::mFunction_Split_MidPoint_3Branches(BvhNode * pNode, const std::vector<ObjectAabbPair>& infoList)
+bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
 	//this method splits objects into 2 piles according to the mid point in the axis 
 	//where the aabb has the maximum width among 3 axes.
-	//(2019.3.29)this method use aabb to determine the split strategy instead of centroid
-	// so there will be 3 circumstances:
-	//  min max | mid  --left
-	// min | mid | max --middle
-	// mid | min | max -- right
+
+	//(2019.3.30)this method use aabb to determine the split strategy instead of centroid
+	// so there will be several circumstances depend on the aabb slab's distance to mid point.
 
 	//0.******* leaf node return condition*********
 	if (infoList.empty())return false;
@@ -255,7 +254,7 @@ bool Noise3D::BvhTree::mFunction_Split_MidPoint_3Branches(BvhNode * pNode, const
 
 	//3. partition the objects into two piles in terms of centroid position, 
 	//compute Big AABB for each of the object cluster
-	N_AABB leftAabb,middleAabb, rightAabb;
+	N_AABB leftAabb, rightAabb;
 	std::vector<ObjectAabbPair> leftInfoList, middileInfoList, rightInfoList;
 	leftInfoList.reserve(infoList.size() / 2);
 	rightInfoList.reserve(infoList.size() / 2);
@@ -264,53 +263,89 @@ bool Noise3D::BvhTree::mFunction_Split_MidPoint_3Branches(BvhNode * pNode, const
 		SceneNode* pNode = pair.pObj->GetAttachedSceneNode();
 		const N_AABB& objectAabb = pair.aabb;
 
-		//flatten positions into array
-		float centerPos[3] = { bigAabbCenterPos.x, bigAabbCenterPos.y, bigAabbCenterPos.z };
-		float minPos[3] = { objectAabb.min.x, objectAabb.min.y, objectAabb.min.z };
-		float maxPos[3] = { objectAabb.max.x, objectAabb.max.y, objectAabb.max.z };
+		//get vec component via the splitting axis
+		float centerPos = mFunction_GetVecComponent(bigAabbCenterPos, splitAxisId);
+		float minPos = mFunction_GetVecComponent(objectAabb.min, splitAxisId);
+		float maxPos = mFunction_GetVecComponent(objectAabb.max, splitAxisId);
 
-		//classify object, using one vector component of their aabb's state
-		if(minPos[splitAxisId] < centerPos[splitAxisId] && maxPos[splitAxisId] <= centerPos[splitAxisId])
+		//***classify objects***
+		//---min---max---MIDPOINT------------
+		if(minPos < centerPos && maxPos <= centerPos)
 		{
 			leftInfoList.push_back(pair);
 			leftAabb.Union(pair.aabb);
-		}
-		else if (minPos[splitAxisId] < centerPos[splitAxisId] && maxPos[splitAxisId] > centerPos[splitAxisId])
-		{
-			middileInfoList.push_back(pair);
-			middleAabb.Union(pair.aabb);
-		}
-		else if (minPos[splitAxisId] >= centerPos[splitAxisId] && maxPos[splitAxisId] > centerPos[splitAxisId])
+		}//-----MIDPOINT---min---max-----
+		else if (minPos >= centerPos && maxPos > centerPos)
 		{
 			rightInfoList.push_back(pair);
 			rightAabb.Union(pair.aabb);
-		}
-	}
+		}//---min---MIDPOINT---max---, different treatment depending on the slab's distance to middle
+		else if (minPos< centerPos && maxPos> centerPos)
+		{
+			// absolute distance from min/max to midpoint
+			float dist_min2mid = abs(mFunction_GetVecComponent(objectAabb.min - bigAabbCenterPos, splitAxisId));
+			float dist_max2mid = abs(mFunction_GetVecComponent(objectAabb.max - bigAabbCenterPos, splitAxisId));
+			float aabbWidth = mFunction_GetVecComponent(objectAabb.max - objectAabb.min, splitAxisId);
+
+			//object aabb occupy too much space near MIDPOINT, spare them one BVH node for each object
+			if (dist_min2mid > 0.2f *aabbWidth && dist_max2mid > 0.2f * aabbWidth)
+			{
+				middileInfoList.push_back(pair);
+			}
+			else if (dist_min2mid < dist_max2mid)
+			{
+				//--min--MIDPOINT------------max---,  more 'right' than 'left'
+				//(and at least one side is close enough (dist<=0.2w) to MIDPOINT)
+				rightInfoList.push_back(pair);
+				rightAabb.Union(pair.aabb);
+			}
+			else if (dist_min2mid >= dist_max2mid)
+			{
+				//--min--------------MIDPOINT--max---,  more 'left' than 'right'
+				//(and at least one side is close enough (dist<=0.2w) to MIDPOINT)
+				leftInfoList.push_back(pair);
+				leftAabb.Union(pair.aabb);
+			}
+		}//minPos< centerPos && maxPos> centerPos)
+	}//pos comparison with MIDPOINT
 
 	//4. create new BVH child node for current node and start recursion
 	//(but haha, for N-ary tree, actually there is no such a thing as 'left' or 'right')
-	if (middleAabb.IsValid() && !middileInfoList.empty())
-	{
-		//one node for each
-		ERROR_MSG("plz implement one node for each object or sth to prevent infinite recursion");
-		BvhNode* pMidChild = pNode->CreateChildNode();
-		pMidChild->SetAABB(middleAabb);
-		mFunction_Split_MidPoint_3Branches(pMidChild, middileInfoList);
-	}
-
+	//----- left -----
 	if (leftAabb.IsValid() && !leftInfoList.empty())
 	{
 		BvhNode* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
-		mFunction_Split_MidPoint_3Branches(pLeftChild, leftInfoList);
+		mFunction_SplitMidPointViaAabbSlabs(pLeftChild, leftInfoList);
 	}
-
+	//----- right -----
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
 		BvhNode* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
-		mFunction_Split_MidPoint_3Branches(pRightChild, rightInfoList);
+		mFunction_SplitMidPointViaAabbSlabs(pRightChild, rightInfoList);
+	}
+
+	//----- middle -----
+	//one BVH node for each object that occupyies too many space near MIDPOINT
+	//end recursion
+	for (auto& info : middileInfoList)
+	{
+		BvhNode* pMidChild = pNode->CreateChildNode();
+		pMidChild->SetAABB(info.aabb);
+		pMidChild->SetSceneObject(info.pObj);
 	}
 
 	return true;
+}
+
+inline float Noise3D::BvhTree::mFunction_GetVecComponent(NVECTOR3 vec, uint32_t id)
+{
+	switch (id)
+	{
+	case 0:return vec.x;
+	case 1: return vec.y;
+	case 2:return vec.z;
+	default:return std::numeric_limits<float>::quiet_NaN();
+	}
 }

@@ -63,10 +63,12 @@ namespace Noise3D
 			N_AABB aabb;//cached result
 		};
 
-		bool mFunction_Split_MidPoint(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList);
+		//deprecated
+		bool mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList);
 
-		bool mFunction_Split_MidPoint_3Branches(BvhNode* pNode, const std::vector<ObjectAabbPair>& infoList);
+		bool mFunction_SplitMidPointViaAabbSlabs(BvhNode* pNode, const std::vector<ObjectAabbPair>& infoList);
 
+		float mFunction_GetVecComponent(NVECTOR3 vec, uint32_t id);
 	};
 
 }
