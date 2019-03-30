@@ -18,7 +18,6 @@ namespace Noise3D
 	{
 	public:
 
-		//Lookat & Position
 		void		LookAt(NVECTOR3 vLookat);
 
 		void		LookAt(float x, float y, float z);
@@ -47,9 +46,17 @@ namespace Noise3D
 
 		void		SetOrthoViewSize(float width, float height);//for orhtographic
 
-		void		FireRay_ViewSpace(NPIXELCOORD2 pixelCoord);//fire a ray from cam pos, used for picking or path tracing
+		//fire a ray from cam pos(0,0,0),return ray dir, used for picking or path tracing
+		NVECTOR3	FireRay_ViewSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
 
-		void		FireRay_WorldSpace(NPIXELCOORD2 pixelCoord);//fire a ray from cam pos, used for picking or path tracing
+		//fire a ray from cam pos(0,0,0), return ray dir, used for picking or path tracing
+		NVECTOR3	FireRay_ViewSpace(NVECTOR2 uv);
+
+		//fire a ray from cam pos using pixel coord, return an world space ray. used for picking or path tracing
+		N_Ray	FireRay_WorldSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
+
+		//fire a ray from cam pos using NDC [-1,1]x[-1,1], return an world space ray. used for picking or path tracing
+		N_Ray	FireRay_WorldSpace(NVECTOR2 uv);
 
 		void		fps_MoveForward(float fSignedDistance, bool enableYAxisMovement = false);
 
@@ -70,7 +77,7 @@ namespace Noise3D
 
 		//(2019.3.8) sorry, currently Camera doesn't support hierarchical transform.
 		//its world transform will simply be the local transform. because lookat
-		AffineTransform& GetWorldTransform();
+		RigidTransform& GetWorldTransform();
 
 		//SceneNode::
 		NMATRIX EvalWorldAffineTransformMatrix() = delete;

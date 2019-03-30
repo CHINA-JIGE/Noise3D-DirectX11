@@ -1,8 +1,7 @@
 
-
 /***********************************************************************
 
-                           h£ººê
+                           h£º MACROs
 
 ************************************************************************/
 
@@ -58,7 +57,6 @@
 		OutputDebugStringA(debugMsg.str().c_str());\
 		debugMsg.clear();\
 	}\
-;
 
 #define DEBUG_MSG(msg)  OutputDebugStringA(msg);
 
@@ -76,3 +74,5 @@
 				ERROR_MSG(MsgText);\
 				return nullptr;\
 				};\
+
+;

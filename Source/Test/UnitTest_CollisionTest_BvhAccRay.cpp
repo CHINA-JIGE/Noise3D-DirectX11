@@ -129,6 +129,12 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
+	//---------------init cam before firing a ray---------
+	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCamera->SetViewFrustumPlane(1.0f, 500.f);
+	//use bounding box of mesh to init camera pos
+	pCamera->GetWorldTransform().SetPosition(0, 0, 200.0f);
+	pCamera->LookAt(0, 0, 0);
 
 	//------------------MESH INITIALIZATION----------------
 
@@ -224,11 +230,11 @@ BOOL Init3D(HWND hwnd)
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		// **************************************************
-		GI::RandomSampleGenerator g;
+		/*GI::RandomSampleGenerator g;
 		const float randomRangeScale = 150.0f;
 		NVECTOR3 origin = { g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale };
 		NVECTOR3 dir = { g.CanonicalReal() * (-1.5f*origin.x),g.CanonicalReal() * (-1.5f*origin.y),g.CanonicalReal() * (-1.5f*origin.z) };
-		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
+		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
 		//**************************************************
 		/*NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
 		NVECTOR3 dir = { 0,0,-100.0f };
@@ -238,6 +244,12 @@ BOOL Init3D(HWND hwnd)
 		NVECTOR3 dir = { 20.0f,5.0f,50.0f };
 		N_Ray r = N_Ray(origin, dir,  0.001f,1.0f);*/
 		// **************************************************
+		//fire ray from initial position of camera
+		float x = 0.1f * uint32_t(float(rayId) / 10.0f) - 0.5f;
+		float y = 0.1f * (rayId % 10) - 0.5f;
+		N_Ray r = pCamera->FireRay_WorldSpace(NVECTOR2(x, y));
+		r.dir *= 200.0f;
+		r.t_max = 1.0f;
 		rayArray.push_back(r);
 	}
 
@@ -274,11 +286,6 @@ BOOL Init3D(HWND hwnd)
 
 	//----------------------------------------------------------
 
-	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
-	pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	//use bounding box of mesh to init camera pos
-	pCamera->GetWorldTransform().SetPosition(50.0f, 0, 0);
-	pCamera->LookAt(0, 0, 0);
 
 
 	pModelLoader->LoadSkyDome(pAtmos, "Universe", 4.0f, 2.0f);

@@ -75,6 +75,7 @@ void Noise3D::Camera::SetProjectionType(bool isPerspective)
 
 void Noise3D::Camera::GetViewMatrix(NMATRIX & outMat)
 {
+	//view  matrix: coordinate transform from WORLD to VIEW
 	//WARNING: Row-Major matrix
 	NVECTOR3 pos = Camera::GetWorldTransform().GetPosition();
 
@@ -84,7 +85,7 @@ void Noise3D::Camera::GetViewMatrix(NMATRIX & outMat)
 	//rotate the align the camera view dir to +z/-z axis
 	NMATRIX tmpRotationMat = Camera::GetWorldTransform().GetRotationMatrix();
 
-	////inverse
+	//transpose == inverse (orthonormal matrix)
 	tmpRotationMat = tmpRotationMat.Transpose();
 
 	//combine 2 ROW-MAJOR matrix, translate first, rotate later
@@ -106,11 +107,15 @@ void Noise3D::Camera::GetProjMatrix(NMATRIX & outMat)
 
 void Noise3D::Camera::GetViewInvMatrix(NMATRIX & outMat)
 {
-	NMATRIX viewMat;
-	Camera::GetViewMatrix(viewMat);
+	//(2019.3.30)view matrix is coordinate transform from WORLD to VIEW
+	//thus viewInv matrix is equivalent to the coordinate transform from VIEW to WORLD
+	RigidTransform t = Camera::GetWorldTransform();
+	outMat = t.GetRigidTransformMatrix();
+
+	/*Camera::GetViewMatrix(viewMat);
 	outMat = XMMatrixInverse(nullptr, viewMat);
 	//if the inverse doesn't exist, then matrix will be set to infinite
-	if (XMMatrixIsInfinite(outMat))ERROR_MSG("CameraTransform : Inverse of View Matrix not exist!");
+	if (XMMatrixIsInfinite(outMat))ERROR_MSG("CameraTransform : Inverse of View Matrix not exist!");*/
 }
 
 void Noise3D::Camera::SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ)
@@ -137,6 +142,47 @@ void Noise3D::Camera::SetOrthoViewSize(float width, float height)
 	if (height > 0.0f)mOrthoViewHeight = height;
 }
 
+NVECTOR3 Noise3D::Camera::FireRay_ViewSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight)
+{
+	float normalizedX = pixelCoord.x / float(backBuffPxWidth);// [0,1]  -> x
+	float normalizedY = pixelCoord.y / float(backBuffPxHeight);// [1,0] ^ y
+	float u = 2.0f*normalizedX - 1.0f;//left to right: [-1,1]
+	float v = -2.0f*normalizedY + 1.0f;//bottom to up: [-1,1]
+	//assume that z = 1.0f
+	float tanFovY = tanf(mViewAngleY_Radian/2.0f); //(y/z)
+	float tanFovX = tanFovY * mAspectRatio; //(x/z) = (y/z) * (x/y)
+	NVECTOR3 rayDir = { u * tanFovX, v * tanFovY, 1.0f };
+	return rayDir;
+}
+
+NVECTOR3 Noise3D::Camera::FireRay_ViewSpace(NVECTOR2 uv)
+{
+	//assume that z = 1.0f
+	float tanFovY = (mViewAngleY_Radian/2.0f); //(y/z)
+	float tanFovX = tanFovY * mAspectRatio; //(x/z) = (y/z) * (x/y)
+	NVECTOR3 rayDir = { uv.x *tanFovX, uv.y *tanFovY, 1.0f };
+	return rayDir;
+}
+
+N_Ray Noise3D::Camera::FireRay_WorldSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight)
+{
+	//rayEnd = (0,0,0) + rayDir
+	NVECTOR3 rayEndV = Camera::FireRay_ViewSpace(pixelCoord, backBuffPxWidth, backBuffPxHeight);
+	RigidTransform t = Camera::GetWorldTransform();
+	NVECTOR3 rayStartW = t.GetPosition();
+	NVECTOR3 rayEndW = t.TransformVector_Rigid(rayEndV);
+	return N_Ray(rayStartW, rayEndW - rayStartW);
+}
+
+N_Ray Noise3D::Camera::FireRay_WorldSpace(NVECTOR2 uv)
+{
+	//rayEnd = (0,0,0) + rayDir
+	NVECTOR3 rayEndV = Camera::FireRay_ViewSpace(uv);
+	RigidTransform t = Camera::GetWorldTransform();
+	NVECTOR3 rayStartW = t.GetPosition();
+	NVECTOR3 rayEndW = t.TransformVector_Rigid(rayEndV);
+	return N_Ray(rayStartW, rayEndW- rayStartW);
+}
 
 void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
 {
@@ -286,9 +332,11 @@ NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()const
 	return NOISE_SCENE_OBJECT_TYPE::CAMERA;
 }
 
-AffineTransform & Noise3D::Camera::GetWorldTransform()
+RigidTransform & Noise3D::Camera::GetWorldTransform()
 {
-	return ISceneObject::GetAttachedSceneNode()->GetLocalTransform();
+	SceneNode* pNode = ISceneObject::GetAttachedSceneNode();
+	if (pNode == nullptr)ERROR_MSG("Camera: not attached to scene node.");
+	return pNode->GetLocalTransform();
 }
 
 /************************************************************************
