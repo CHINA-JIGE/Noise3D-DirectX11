@@ -36,8 +36,8 @@ NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalSphere::GetObjectType() const
 
 N_AABB Noise3D::LogicalSphere::GetLocalAABB()
 {
-	NVECTOR3 max = NVECTOR3(mRadius, mRadius, mRadius);
-	NVECTOR3 min = NVECTOR3(-mRadius, -mRadius, -mRadius);
+	Vec3 max = Vec3(mRadius, mRadius, mRadius);
+	Vec3 min = Vec3(-mRadius, -mRadius, -mRadius);
 	return N_AABB(min, max);
 }
 
@@ -58,8 +58,8 @@ N_AABB Noise3D::LogicalSphere::ComputeWorldAABB_Accurate()
 	if (pNode == nullptr)return N_AABB();
 
 	AffineTransform t = pNode->EvalWorldTransform();
-	NVECTOR3 worldCenterPos = t.GetPosition();
-	NVECTOR3 offset = NVECTOR3(mRadius, mRadius, mRadius);
+	Vec3 worldCenterPos = t.GetPosition();
+	Vec3 offset = Vec3(mRadius, mRadius, mRadius);
 	return N_AABB(worldCenterPos - offset, worldCenterPos + offset);
 }
 

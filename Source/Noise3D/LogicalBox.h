@@ -31,11 +31,11 @@ namespace Noise3D
 
 		//compute normal on given surface position
 		//('facet' is used to explicit decide  face, avoid the rounding error on box's corner, might round to adjacent facet)
-		static NVECTOR3 ComputeNormal(NOISE_BOX_FACET facet);
+		static Vec3 ComputeNormal(NOISE_BOX_FACET facet);
 
 		//box is AABB in local space
 		//void SetLocalBox(N_AABB aabb);
-		void SetSizeXYZ(NVECTOR3 size);
+		void SetSizeXYZ(Vec3 size);
 
 		//box is AABB in local space
 		N_AABB GetLocalBox();
@@ -53,7 +53,7 @@ namespace Noise3D
 		virtual float ComputeArea() override;
 
 		//ILogicalShape::
-		//virtual bool IsPointInside(NVECTOR3 p) override;
+		//virtual bool IsPointInside(Vec3 p) override;
 
 	private:
 
@@ -66,7 +66,7 @@ namespace Noise3D
 		~LogicalBox();
 
 		//N_AABB mLocalBox;
-		NVECTOR3 mSize;
+		Vec3 mSize;
 
 	};
 

@@ -109,13 +109,13 @@ namespace Noise3D
 		//set general variables
 		void SetVar(const char* var, void* pVal,int size);
 
-		void SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX& data);
+		void SetMatrix(NOISE_SHADER_VAR_MATRIX var, const Matrix& data);
 
-		void SetVector2(NOISE_SHADER_VAR_VECTOR var, const NVECTOR2& data);
+		void SetVector2(NOISE_SHADER_VAR_VECTOR var, const Vec2& data);
 
-		void SetVector3(NOISE_SHADER_VAR_VECTOR var, const NVECTOR3& data);
+		void SetVector3(NOISE_SHADER_VAR_VECTOR var, const Vec3& data);
 
-		void SetVector4(NOISE_SHADER_VAR_VECTOR var, const NVECTOR4& data);
+		void SetVector4(NOISE_SHADER_VAR_VECTOR var, const Vec4& data);
 
 		void SetFloat(NOISE_SHADER_VAR_SCALAR var, float val);
 

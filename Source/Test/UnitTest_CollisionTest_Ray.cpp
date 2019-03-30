@@ -123,9 +123,9 @@ BOOL Init3D(HWND hwnd)
 	//create font texture
 	pTextMgr = pScene->GetTextMgr();
 	pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	pMyText_fps = pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
+	pMyText_fps = pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
+	pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(170, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
@@ -187,7 +187,7 @@ BOOL Init3D(HWND hwnd)
 		float randomWidthX = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthY = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthZ = g.CanonicalReal() * 30.0f + 3.0f;
-		pBox->SetSizeXYZ(NVECTOR3(randomWidthX, randomWidthY, randomWidthZ));
+		pBox->SetSizeXYZ(Vec3(randomWidthX, randomWidthY, randomWidthZ));
 		pModelLoader->LoadBox(pMeshBox, randomWidthX, randomWidthY, randomWidthZ);
 
 		float randomBoxX = g.NormalizedReal() * objectRandomRangeScale;
@@ -196,7 +196,7 @@ BOOL Init3D(HWND hwnd)
 		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);*/
 		// **************************************************
 		pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
-		pBox->SetSizeXYZ(NVECTOR3(10.0f,10.0f,5.0f));
+		pBox->SetSizeXYZ(Vec3(10.0f,10.0f,5.0f));
 		pNodeBox->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);
 		// **************************************************
 
@@ -226,16 +226,16 @@ BOOL Init3D(HWND hwnd)
 		// **************************************************
 		/*GI::RandomSampleGenerator g;
 		const float randomRangeScale = 150.0f;
-		NVECTOR3 origin = { g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale };
-		NVECTOR3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
+		Vec3 origin = { g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale,g.NormalizedReal() * randomRangeScale };
+		Vec3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
 		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
 		//**************************************************
-		NVECTOR3 origin = { rayId * 3.35f , 0, 50.0f };
-		NVECTOR3 dir = { 0,0,-100.0f };
+		Vec3 origin = { rayId * 3.35f , 0, 50.0f };
+		Vec3 dir = { 0,0,-100.0f };
 		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
 		// **************************************************
-		/*NVECTOR3 origin = { -10.0f , -10.0f, -10.0f };
-		NVECTOR3 dir = { 20.0f,5.0f,50.0f };
+		/*Vec3 origin = { -10.0f , -10.0f, -10.0f };
+		Vec3 dir = { 20.0f,5.0f,50.0f };
 		N_Ray r = N_Ray(origin, dir,  0.001f,1.0f);*/
 		// **************************************************
 		rayArray.push_back(r);
@@ -256,21 +256,21 @@ BOOL Init3D(HWND hwnd)
 			{
 				LogicalSphere* pSphere = dynamic_cast<LogicalSphere*>(sceneObjectList.at(i));
 				if (CollisionTestor::IntersectRaySphere(r, pSphere, hitRes))anyHit_List.at(rayId) = true;
-				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos,h.pos+h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos,h.pos+h.normal *5.0f, Vec4(1.0f, 0, 1.0f, 1.0f), Vec4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX:
 			{
 				LogicalBox* pBox = dynamic_cast<LogicalBox*>(sceneObjectList.at(i));
 				if (CollisionTestor::IntersectRayBox(r, pBox, hitRes))anyHit_List.at(rayId) = true;
-				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, Vec4(1.0f, 0, 1.0f, 1.0f), Vec4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
 			case NOISE_SCENE_OBJECT_TYPE::MESH:
 			{
 				Mesh* pMesh = dynamic_cast<Mesh*>(sceneObjectList.at(i));
 				if (CollisionTestor::IntersectRayMesh(r, pMesh, hitRes))anyHit_List.at(rayId) = true;
-				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, NVECTOR4(1.0f, 0, 1.0f, 1.0f), NVECTOR4(1.0f, 0, 1.0f, 1.0f));
+				for (auto h : hitRes.hitList)pGraphicObjBuffer->AddLine3D(h.pos, h.pos + h.normal *5.0f, Vec4(1.0f, 0, 1.0f, 1.0f), Vec4(1.0f, 0, 1.0f, 1.0f));
 				break;
 			}
 			}
@@ -283,9 +283,9 @@ BOOL Init3D(HWND hwnd)
 	{
 		N_Ray r = rayArray.at(rayId);
 		if(anyHit_List.at(rayId))
-		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));}
+		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));}
 		else
-		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));}
+		{ pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));}
 	}
 
 
@@ -305,21 +305,21 @@ BOOL Init3D(HWND hwnd)
 	pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
 	//pModelLoader->LoadSkyBox(pAtmos, "Universe", 1000.0f, 1000.0f, 1000.0f);
 	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(50.0f, 100.0f, Vec3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight(pScene->GetSceneGraph().GetRoot(), "myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(1.0f, -1.0f, 0);
+	dirLightDesc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
+	dirLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.direction = Vec3(1.0f, -1.0f, 0);
 	dirLightDesc.specularIntensity = 1.0f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(870.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(Vec2(870.0f, 680.0f), Vec2(1080.0f, 720.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return TRUE;
@@ -330,7 +330,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	//pDirLight1->SetDirection(Vec3(sin(incrNum),-1,cos(incrNum)));
 
 
 	//GUIMgr.Update();
@@ -342,10 +342,10 @@ void MainLoop()
 	std::stringstream tmpS;
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
-	snode_a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
-	snode_ac->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
-	snode_aca->GetLocalTransform().SetScale(NVECTOR3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
-	snode_aca->GetLocalTransform().SetPosition(NVECTOR3(0, 0, 30.0f));
+	snode_a->GetLocalTransform().Rotate(Vec3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
+	snode_ac->GetLocalTransform().Rotate(Vec3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
+	snode_aca->GetLocalTransform().SetScale(Vec3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
+	snode_aca->GetLocalTransform().SetPosition(Vec3(0, 0, 30.0f));
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
@@ -396,8 +396,8 @@ void InputProcess()
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
-		NVECTOR3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
-		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f, 0);
+		Vec3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
+		euler += Vec3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f, 0);
 		euler.x = Ut::Clamp(euler.x, -Ut::PI / 2.0f + 0.001f, Ut::PI / 2.0f - 0.001f);
 		pCamera->GetWorldTransform().SetRotation(euler.x, euler.y, euler.z);
 	}

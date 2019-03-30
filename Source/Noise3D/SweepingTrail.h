@@ -36,7 +36,7 @@ namespace Noise3D
 		N_LineSegment GetHeader();
 
 		//the center of the header segment(world space)
-		NVECTOR3 GetHeaderCenterPos();
+		Vec3 GetHeaderCenterPos();
 
 		//time limit of cooling down the header line segment and GENERATE a new "free" header
 		//unit: Milli-second
@@ -71,7 +71,7 @@ namespace Noise3D
 		N_UID GetTextureName();
 
 		//for debug use. Copy the whole list to outside. This might cause performance overhead, plz be noticed.
-		void GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList);
+		void GetTangentList(std::vector<std::pair<Vec3, Vec3>>& outList);
 
 		void GetVerticesList(std::vector<Noise3D::N_LineSegment>& outList);
 
@@ -96,14 +96,14 @@ namespace Noise3D
 
 			uint32_t interpolation_steps;//final sub-regions count. e.g. 5 steps, each 0.2 lerp ratio, 4 cuts
 			float collapsingFactor;//for tail quad, mTailCollapsingFactor should be passed in
-			NVECTOR3 frontPos1;
-			NVECTOR3 frontPos2;
-			NVECTOR3 frontTangent1;//estimated tangent (for Cubic Hermite Spline)
-			NVECTOR3 frontTangent2;//estimated tangent (for Cubic Hermite Spline)
-			NVECTOR3 backPos1;
-			NVECTOR3 backPos2;
-			NVECTOR3 backTangent1;//estimated tangent (for Cubic Hermite Spline)
-			NVECTOR3 backTangent2;//estimated tangent (for Cubic Hermite Spline)
+			Vec3 frontPos1;
+			Vec3 frontPos2;
+			Vec3 frontTangent1;//estimated tangent (for Cubic Hermite Spline)
+			Vec3 frontTangent2;//estimated tangent (for Cubic Hermite Spline)
+			Vec3 backPos1;
+			Vec3 backPos2;
+			Vec3 backTangent1;//estimated tangent (for Cubic Hermite Spline)
+			Vec3 backTangent2;//estimated tangent (for Cubic Hermite Spline)
 		};
 
 		friend class SweepingTrailManager;
@@ -155,9 +155,9 @@ namespace Noise3D
 		uint32_t mGeneratedVerticesCount;//updated after each "update" call
 
 		//Tangents for Hermite Interpolation
-		std::vector< std::pair<NVECTOR3, NVECTOR3>> mTangentList;
-		NVECTOR3 mFreeTailTangent1;		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
-		NVECTOR3 mFreeTailTangent2;
+		std::vector< std::pair<Vec3, Vec3>> mTangentList;
+		Vec3 mFreeTailTangent1;		//store old tangents(calculated for the 2nd last LS previously) to prevent that the estimated tangent changes suddenly
+		Vec3 mFreeTailTangent2;
 
 		float mHeaderCoolDownTimeThreshold;//after given time, the header segment will be fixed down and add to "Cooled down line segments"
 		float mHeaderCoolDownTimer;	//timer (initially 0, increment)

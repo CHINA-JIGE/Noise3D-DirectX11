@@ -183,7 +183,7 @@ N_AABB Noise3D::GeometryEntity<vertex_t, index_t>::GetLocalAABB()
 		return mLocalBoundingBox;
 	}
 
-	NVECTOR3 tmpV;
+	Vec3 tmpV;
 	//Aabb's min & max had been set to infinite far
 	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
 	{

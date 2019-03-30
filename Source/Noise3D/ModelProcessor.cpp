@@ -43,7 +43,7 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh)
 			constexpr float factor1 = 0.3568f;
 			constexpr float factor2 = 0.2479f;
 			constexpr float factor3 = 1.0f - factor1 - factor2;
-			const NVECTOR3& pos = v.Pos;
+			const Vec3& pos = v.Pos;
 			//return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
 			return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
 		}
@@ -55,8 +55,8 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh)
 	{
 		inline bool operator()(const N_DefaultVertex& v1, const N_DefaultVertex& v2) const
 		{
-			const NVECTOR3& pos1 = v1.Pos;
-			const NVECTOR3& pos2 = v2.Pos;
+			const Vec3& pos1 = v1.Pos;
+			const Vec3& pos2 = v2.Pos;
 			return (pos1.x == pos2.x && pos1.y == pos2.y && pos1.z == pos2.z);
 		}
 	};
@@ -132,7 +132,7 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh, float PositionEqualThresho
 			constexpr float factor1 = 0.33333f;//0.3568f;
 			constexpr float factor2 = 0.33333f;//0.2479f;
 			constexpr float factor3 = 1.0f - factor1 - factor2;
-			const NVECTOR3& pos = v.Pos;
+			const Vec3& pos = v.Pos;
 			//return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
 			return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
 		}
@@ -145,8 +145,8 @@ void ModelProcessor::WeldVertices(Mesh * pTargetMesh, float PositionEqualThresho
 	{
 		inline bool operator()(const N_DefaultVertex& v1, const N_DefaultVertex& v2) const
 		{
-			const NVECTOR3& pos1 = v1.Pos;
-			const NVECTOR3& pos2 = v2.Pos;
+			const Vec3& pos1 = v1.Pos;
+			const Vec3& pos2 = v2.Pos;
 			//return (pos1.x == pos2.x && pos1.y == pos2.y && pos1.z == pos2.z);
 			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) <= static_PositionEqualThreshold);
 		}
@@ -224,7 +224,7 @@ void ModelProcessor::MeshSimplify(Mesh * pTargetMesh, float PositionEqualThresho
 			constexpr float factor1 = 0.33333f;//0.3568f;
 			constexpr float factor2 = 0.33333f;//0.2479f;
 			constexpr float factor3 = 1.0f - factor1 - factor2;
-			const NVECTOR3& pos = v.Pos;
+			const Vec3& pos = v.Pos;
 			//return pos.x * factor1 + pos.y * factor2 + pos.z * factor3;
 			return int(pos.x * factor1 + pos.y * factor2 + pos.z * factor3);
 		}
@@ -236,8 +236,8 @@ void ModelProcessor::MeshSimplify(Mesh * pTargetMesh, float PositionEqualThresho
 	{
 		inline bool operator()(const N_DefaultVertex& v1, const N_DefaultVertex& v2) const
 		{
-			const NVECTOR3& pos1 = v1.Pos;
-			const NVECTOR3& pos2 = v2.Pos;
+			const Vec3& pos1 = v1.Pos;
+			const Vec3& pos2 = v2.Pos;
 			//return (pos1.x == pos2.x && pos1.y == pos2.y && pos1.z == pos2.z);
 			return (abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y) + abs(pos1.z - pos2.z) <= static_PositionEqualThreshold);
 		}
@@ -301,7 +301,7 @@ void ModelProcessor::Smooth_Laplacian(Mesh * pTargetMesh)
 	//get ref to vertex buffer
 	std::vector<N_DefaultVertex>&  vb = (pTargetMesh->mVB_Mem);
 	const std::vector<UINT>& ib = *(pTargetMesh->GetIndexBuffer());
-	std::vector<NVECTOR3> tmpPosList;
+	std::vector<Vec3> tmpPosList;
 
 	//one "adjacent index list" for each vertex
 	adjList.resize(vb.size());
@@ -357,12 +357,12 @@ void ModelProcessor::Smooth_Laplacian(Mesh * pTargetMesh)
 	{
 		auto& indexList = adjList.at(i);
 
-		NVECTOR3 averagePos(0,0,0);
+		Vec3 averagePos(0,0,0);
 
 		//traverse adjacent vertices and sum up those vectors
 		for (auto idx : indexList)
 		{
-			const NVECTOR3& adjVertex = vb.at(idx).Pos;
+			const Vec3& adjVertex = vb.at(idx).Pos;
 			averagePos += adjVertex;
 		}
 

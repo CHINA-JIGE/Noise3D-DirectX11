@@ -47,7 +47,7 @@ bool Atmosphere::IsFogEnabled()
 	return mFogEnabled;
 }
 
-void		Atmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
+void		Atmosphere::SetFogParameter(float fogNear, float fogFar, Vec3 color)
 {
 	//perhaps i can skip checking the size comparison between NEAR & FAR
 

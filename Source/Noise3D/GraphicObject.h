@@ -35,43 +35,43 @@ namespace Noise3D
 
 	public:
 
-		void		SetBasePosOffset(NVECTOR2 pixelOffset);
+		void		SetBasePosOffset(Vec2 pixelOffset);
 
-		NVECTOR2 GetBasePosOffset();
+		Vec2 GetBasePosOffset();
 
-		uint32_t AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine3D(Vec3 v1, Vec3 v2, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddLine3D_AABB(NVECTOR3 min, NVECTOR3 max, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine3D_AABB(Vec3 min, Vec3 max, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddLine2D(Vec2 v1, Vec2 v2, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddPoint3D(NVECTOR3 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddPoint3D(Vec3 v, Vec4 color = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddPoint2D(NVECTOR2 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddPoint2D(Vec2 v, Vec4 color = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		uint32_t AddTriangle2D(Vec2 v1, Vec2 v2, Vec2 v3, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color3 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		uint32_t AddRectangle(NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName = "");
+		uint32_t AddRectangle(Vec2 vTopLeft, Vec2 vBottomRight, Vec4 color, const N_UID& texName = "");
 
-		uint32_t AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName = "");
+		uint32_t AddRectangle(Vec2 vCenter, float fWidth, float fHeight, Vec4 color, const N_UID& texName = "");
 
 		void		AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT newElementCount);
 
-		void		SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		void		SetLine3D(UINT index, Vec3 v1, Vec3 v2, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		void		SetLine2D(UINT index, Vec2 v1, Vec2 v2, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		void		SetPoint3D(UINT index, Vec3 v, Vec4 color = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		void		SetPoint2D(UINT index, Vec2 v, Vec4 color = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color2 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), NVECTOR4 color3 = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		void		SetTriangle2D(UINT index, Vec2 v1, Vec2 v2, Vec2 v3, Vec4 color1 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color2 = Vec4(1.0f, 1.0f, 1.0f, 1.0f), Vec4 color3 = Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		void		SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName);
+		void		SetRectangle(UINT index, Vec2 vTopLeft, Vec2 vBottomRight, Vec4 color, const N_UID& texName);
 
-		void		SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName);
+		void		SetRectangle(UINT index, Vec2 vCenter, float fWidth, float fHeight, Vec4 color, const N_UID& texName);
 
-		void		SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft, NVECTOR2 texCoordBottomRight);
+		void		SetRectangleTexCoord(UINT index, Vec2 texCoordTopLeft, Vec2 texCoordBottomRight);
 
 		void		SetRectangleDepth(UINT index, float posZ);
 
@@ -115,16 +115,16 @@ namespace Noise3D
 		AffineTransform& GetLocalTransform() = delete;
 
 		//SceneNode::
-		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+		Matrix EvalWorldAffineTransformMatrix() = delete;
 
 		//SceneNode::
-		NMATRIX EvalWorldRigidTransformMatrix() = delete;
+		Matrix EvalWorldRigidTransformMatrix() = delete;
 
 		//SceneNode::
-		NMATRIX EvalWorldRotationMatrix() = delete;
+		Matrix EvalWorldRotationMatrix() = delete;
 
 		//SceneNode::
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+		void EvalWorldAffineTransformMatrix(Matrix& outWorldMat, Matrix& outWorldInvTranspose) = delete;
 
 		//ISceneObject::
 		virtual N_AABB GetLocalAABB() override;
@@ -155,19 +155,19 @@ namespace Noise3D
 		void			NOISE_MACRO_FUNCTION_EXTERN_CALL 	mFunction_UpdateVerticesToGpu(UINT objType_ID);//by renderer
 
 		//set/add/delete  using initializer_list
-		void			mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
+		void			mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<Vec2> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList);
 
-		void			mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
+		void			mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<Vec3> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList);
 
-		void			mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
+		void			mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<Vec2> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList);
 
-		void			mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList);
+		void			mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<Vec3> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList);
 
 		void			mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, UINT iVertexCount);
 
-		void			mFunction_ConvertFloatVec2PixelVec(NVECTOR2& vec);
+		void			mFunction_ConvertFloatVec2PixelVec(Vec2& vec);
 
-		void			mFunction_ConvertPixelVec2FloatVec(NVECTOR2& in_out_vec);
+		void			mFunction_ConvertPixelVec2FloatVec(Vec2& in_out_vec);
 
 		float			mFunction_ConvertPixelLength2FloatLength(float pxLen, bool isWidth);
 
@@ -185,7 +185,7 @@ namespace Noise3D
 
 		std::vector<N_SimpleVertex>*	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_BUFFER_COUNT];
 
-		NVECTOR2*			m_pBaseScreenSpacePosOffset;
+		Vec2*			m_pBaseScreenSpacePosOffset;
 
 		//used to store TexID of rectangles
 		std::vector<N_UID>*			m_pTextureUidList_Rect;

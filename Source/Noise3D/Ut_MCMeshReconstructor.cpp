@@ -31,7 +31,7 @@ bool MarchingCubeMeshReconstructor::Compute(const VoxelizedModel & model, uint16
 	return true;
 }
 
-void MarchingCubeMeshReconstructor::GetResult(std::vector<NVECTOR3>& outVertexList)
+void MarchingCubeMeshReconstructor::GetResult(std::vector<Vec3>& outVertexList)
 {
 	outVertexList = mVertexList;
 }
@@ -314,7 +314,7 @@ void MarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_N
 	float halfW = m_pVoxelizedModel->GetModelWidth() / 2.0f;//half width of the whole model
 	float halfH = m_pVoxelizedModel->GetModelHeight() / 2.0f;//half height of the whole model
 	float halfD = m_pVoxelizedModel->GetModelDepth() / 2.0f;//half depth of the whole model
-	NVECTOR3 basePos =
+	Vec3 basePos =
 	{
 		cube.cubeIndexX * cw - halfW,
 		cube.cubeIndexY * ch - halfH,
@@ -322,24 +322,24 @@ void MarchingCubeMeshReconstructor::mFunction_MarchingCubeGenTriangles(const N_N
 	};
 
 	//1. coordinates of 8 cube vertices 
-	NVECTOR3 v[8] =
+	Vec3 v[8] =
 	{
-		basePos + NVECTOR3(0,0,0) ,
-		basePos + NVECTOR3(cw,0,0),
-		basePos + NVECTOR3(cw,ch,0),
-		basePos + NVECTOR3(0,ch,0),
-		basePos + NVECTOR3(0,0,cd),
-		basePos + NVECTOR3(cw,0,cd),
-		basePos + NVECTOR3(cw,ch,cd),
-		basePos + NVECTOR3(0,ch,cd),
+		basePos + Vec3(0,0,0) ,
+		basePos + Vec3(cw,0,0),
+		basePos + Vec3(cw,ch,0),
+		basePos + Vec3(0,ch,0),
+		basePos + Vec3(0,0,cd),
+		basePos + Vec3(cw,0,cd),
+		basePos + Vec3(cw,ch,cd),
+		basePos + Vec3(0,ch,cd),
 	};
 
 	//2. then coordinates of points on edges
-	NVECTOR3 pointOnEdge[12];
+	Vec3 pointOnEdge[12];
 	for (int i = 0; i < 12; ++i)
 	{
-		NVECTOR3 start = v[c_edgeList[i][0]];
-		NVECTOR3 end = v[c_edgeList[i][1]];
+		Vec3 start = v[c_edgeList[i][0]];
+		Vec3 end = v[c_edgeList[i][1]];
 		pointOnEdge[i] = Lerp(start, end, cube.arrayEdgeLerpRatio[i]);
 	}
 

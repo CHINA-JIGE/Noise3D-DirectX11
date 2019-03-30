@@ -68,7 +68,7 @@ namespace Noise3D
 
 		bool mFunction_SplitMidPointViaAabbSlabs(BvhNode* pNode, const std::vector<ObjectAabbPair>& infoList);
 
-		float mFunction_GetVecComponent(NVECTOR3 vec, uint32_t id);
+		float mFunction_GetVecComponent(Vec3 vec, uint32_t id);
 	};
 
 }

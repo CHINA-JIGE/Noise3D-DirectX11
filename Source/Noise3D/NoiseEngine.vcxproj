@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="LogicalShapeManager.h" />
+    <ClInclude Include="PathTracer.h" />
     <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="LogicalBox.cpp" />
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
+    <ClCompile Include="PathTracer.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />

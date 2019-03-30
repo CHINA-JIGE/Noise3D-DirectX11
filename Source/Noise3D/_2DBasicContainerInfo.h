@@ -22,21 +22,21 @@ namespace Noise3D
 
 			void  SetDiagonal(float x_topLeft, float y_topLeft, float x_bottomRight, float y_bottomRight);
 
-			void  SetDiagonal(NVECTOR2 v_topLeft, NVECTOR2 v_bottomRight);
+			void  SetDiagonal(Vec2 v_topLeft, Vec2 v_bottomRight);
 
-			NVECTOR2 GetTopLeft();
+			Vec2 GetTopLeft();
 
-			NVECTOR2 GetBottomRight();
+			Vec2 GetBottomRight();
 
 			void	SetCenterPos(float x, float y);
 
-			void	SetCenterPos(NVECTOR2 v);
+			void	SetCenterPos(Vec2 v);
 
 			void	Move(float relativeX, float relativeY);
 
-			void	Move(NVECTOR2 relativePos);
+			void	Move(Vec2 relativePos);
 
-			NVECTOR2 GetCenterPos();
+			Vec2 GetCenterPos();
 
 			void	SetWidth(float w);
 
@@ -46,9 +46,9 @@ namespace Noise3D
 
 			float GetHeight();
 
-			void	SetBasicColor(NVECTOR4 c);//if texture is invalid,use basic color to draw solid rect
+			void	SetBasicColor(Vec4 c);//if texture is invalid,use basic color to draw solid rect
 
-			NVECTOR4 GetBasicColor();//if texture is invalid,use basic color to draw solid rect
+			Vec4 GetBasicColor();//if texture is invalid,use basic color to draw solid rect
 
 			void	SetEnabled(bool isEnabled);
 
@@ -59,12 +59,12 @@ namespace Noise3D
 			float	GetPosZ();
 
 		protected:
-			bool		 IsPointInContainer(NVECTOR2 v);
+			bool		 IsPointInContainer(Vec2 v);
 			bool		mIsEnabled;
-			NVECTOR2	mPositionCenter;
+			Vec2	mPositionCenter;
 			float		mWidth;
 			float		mHeight;
 			float		mPosZ;//the real "Z" coordinate of 2D triangle
-			NVECTOR4	mBasicColor;
+			Vec4	mBasicColor;
 		};
 }

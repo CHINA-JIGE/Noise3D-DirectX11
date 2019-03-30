@@ -37,11 +37,11 @@ namespace Noise3D
 
 			int		GetWordSpacingOffset();
 
-			NVECTOR2 GetWordLocalPosOffset(UINT wordIndex);//index of word in string,not ascii code
+			Vec2 GetWordLocalPosOffset(UINT wordIndex);//index of word in string,not ascii code
 
-			NVECTOR2 GetWordRealSize(UINT wordIndex);
+			Vec2 GetWordRealSize(UINT wordIndex);
 
-			NVECTOR2 GetFontSize(UINT fontID);
+			Vec2 GetFontSize(UINT fontID);
 
 		private:
 
@@ -53,7 +53,7 @@ namespace Noise3D
 
 			~DynamicText();
 
-			void	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj, UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
+			void	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj, UINT pxWidth, UINT pxHeight, Vec4 color, N_UID texName);
 
 			void  NOISE_MACRO_FUNCTION_EXTERN_CALL	mFunction_UpdateGraphicObject();//by renderer
 

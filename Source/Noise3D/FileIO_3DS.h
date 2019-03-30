@@ -58,8 +58,8 @@ namespace Noise3D
 	struct N_Load3ds_MeshObject
 	{
 		std::string meshName;
-		std::vector<NVECTOR3> verticesList;
-		std::vector<NVECTOR2> texcoordList;
+		std::vector<Vec3> verticesList;
+		std::vector<Vec2> texcoordList;
 		std::vector<UINT> indicesList;
 		std::vector<N_MeshSubsetInfo>subsetList;
 	};
@@ -119,7 +119,7 @@ namespace Noise3D
 
 		void				ParseSpecularColor();//4
 
-		void					ReadAndParseColorChunk(Noise3D::NVECTOR3& outColor);//level 5 for each color chunk
+		void					ReadAndParseColorChunk(Noise3D::Vec3& outColor);//level 5 for each color chunk
 
 		void				ParseDiffuseMap();//4
 

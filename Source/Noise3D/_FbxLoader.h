@@ -42,9 +42,9 @@ namespace Noise3D
 		std::vector<uint32_t> indexBuffer;
 		std::vector<N_MeshSubsetInfo> subsetList;
 		std::vector<N_FbxMaterialInfo> matList;
-		NVECTOR3 pos;//world translation
-		NVECTOR3 scale;
-		NVECTOR3 rotation;
+		Vec3 pos;//world translation
+		Vec3 scale;
+		Vec3 rotation;
 	};
 
 	struct N_FbxSkeletonInfo
@@ -90,20 +90,20 @@ namespace Noise3D
 		void		mFunction_ProcessSceneNode_Mesh(FbxNode* pNode);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex color is defined
-		void		mFunction_LoadMesh_VertexColor(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR4& outColor);
+		void		mFunction_LoadMesh_VertexColor(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4& outColor);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex Normal is defined
-		void		mFunction_LoadMesh_VertexNormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3& outNormal);
+		void		mFunction_LoadMesh_VertexNormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outNormal);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex tangent is defined
-		void		mFunction_LoadMesh_VertexTangent(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3& outTangent);
+		void		mFunction_LoadMesh_VertexTangent(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outTangent);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex UV is defined
-		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, NVECTOR2& outTexcoord);
+		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2& outTexcoord);
 
 		//Actually i don't want to import binormal at first. 
 		//But the handness of tangent space basis could not determine without binormal(what a big pit!!)
-		void		mFunction_LoadMesh_VertexBinormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3& outBinormal);
+		void		mFunction_LoadMesh_VertexBinormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outBinormal);
 
 		//load the mapping of triangle id and material id
 		void		mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh* pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList);

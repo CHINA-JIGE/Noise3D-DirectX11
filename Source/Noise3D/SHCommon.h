@@ -12,13 +12,13 @@ namespace Noise3D
 	namespace GI
 	{
 		//Real Spherical Harmonic function evaluation. l:band index. m:coefficient index (band 0 ~3)
-		extern float SH(int l, int m, NVECTOR3 dir);
+		extern float SH(int l, int m, Vec3 dir);
 
 		//Real Spherical Harmonic function evaluation(band 0~3)(theta--pitch; phi--yaw, start from z axis)
 		extern float SH(int l, int m, float yaw, float pitch);
 
 		//Real Spherical Harmonic function evaluation(infinite band, implemented with recursive formula)
-		extern float SH_Recursive(int l, int m, NVECTOR3 dir);
+		extern float SH_Recursive(int l, int m, Vec3 dir);
 
 		//Real Spherical Harmonic function evaluation(infinite band, implemented with recursive formula)(theta--pitch; phi--yaw, start from z axis)
 		extern float SH_Recursive(int l, int m, float yaw, float pitch);

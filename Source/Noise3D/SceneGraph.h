@@ -65,7 +65,7 @@ namespace Noise3D
 		//(2019.3.23)to avoid tremendous re-calculation by setting 'cacheResult'
 		//when eval world transform matrix
 		bool mIsWorldMatrixCached;
-		//NMATRIX mWorldMatrixCache;
+		//Matrix mWorldMatrixCache;
 		AffineTransform mWorldTransformCache;
 
 	};

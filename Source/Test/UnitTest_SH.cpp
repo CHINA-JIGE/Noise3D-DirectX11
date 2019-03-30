@@ -81,15 +81,15 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 
 	pOriginTex = pTexMgr->CreateTextureFromFile("../media/chuyin.jpg", "Tex", true, 512, 512, true);
-	pShTex = pTexMgr->CreatePureColorTexture("ShTex", 512, 512, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
+	pShTex = pTexMgr->CreatePureColorTexture("ShTex", 512, 512, Vec4(1.0f, 0.0f, 0.0f, 1.0f), true);
 	SHPreprocess();
 
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
 	pFontMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(300, 60));
+	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
+	pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(300, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
@@ -104,19 +104,19 @@ BOOL Init3D(HWND hwnd)
 
 	pModelLoader->LoadSkyDome(pAtmos, "Universe", 4.0f, 2.0f);
 	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(50.0f, 100.0f, Vec3(0, 0, 1.0f));
 
 
 	/*pGO_Axis = pGraphicObjMgr->CreateGraphicObj("Axis");
-	pGO_Axis->AddRectangle(NVECTOR2(1080.0f, 780.0f), NVECTOR2(1280.0f,800.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGO_Axis->AddRectangle(Vec2(1080.0f, 780.0f), Vec2(1280.0f,800.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 	pGO_Axis->AddLine3D({ 0,0,0 }, { 100.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,100.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
 	pGO_Axis->AddLine3D({ 0,0,0 }, { 0,0,100.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });*/
 	pGO_GUI = pGraphicObjMgr->CreateGraphicObj("tanList");
 	pGO_GUI->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	pGO_GUI->AddRectangle(NVECTOR2(50.0f, 50.0f), NVECTOR2(50.0f + 512.0f, 50.0f+512.0f), NVECTOR4(1.0f, 0, 0, 1.0f), "Tex");
-	pGO_GUI->AddRectangle(NVECTOR2(50.0f+512.0f+30.0f, 50.0f), NVECTOR2(50.0f + 512.0f + 30.0f + 512.0f, 50.0f + 512.0f), NVECTOR4(1.0f, 0, 0, 1.0f), "ShTex");
+	pGO_GUI->AddRectangle(Vec2(50.0f, 50.0f), Vec2(50.0f + 512.0f, 50.0f+512.0f), Vec4(1.0f, 0, 0, 1.0f), "Tex");
+	pGO_GUI->AddRectangle(Vec2(50.0f+512.0f+30.0f, 50.0f), Vec2(50.0f + 512.0f + 30.0f + 512.0f, 50.0f + 512.0f), Vec4(1.0f, 0, 0, 1.0f), "ShTex");
 
 	return TRUE;
 };
@@ -139,8 +139,8 @@ void SHPreprocess()
 			float normalizedV = float(y) / float(height);//[0,1]
 			float yaw = (normalizedU - 0.5f) * 2.0f * MATH_PI;//[-pi,pi]
 			float pitch = (normalizedV - 0.5f) * MATH_PI;//[pi/2,-pi/2]
-			NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch)};
-			NVECTOR3 reconstructedColor = shvec.Eval(dir);
+			Vec3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch)};
+			Vec3 reconstructedColor = shvec.Eval(dir);
 			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}
@@ -154,7 +154,7 @@ void MainLoop()
 	static float incrNum = 0.0;
 
 	InputProcess();
-	pRenderer->ClearBackground(NVECTOR4(0.2f,0.2f,0.2f,1.0f));
+	pRenderer->ClearBackground(Vec4(0.2f,0.2f,0.2f,1.0f));
 	timer.NextTick();
 
 	//update fps lable

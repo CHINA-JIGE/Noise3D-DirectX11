@@ -28,7 +28,7 @@ float Noise3D::GI::RandomSampleGenerator::NormalizedReal()
 	return mNormalizedDist(mRandomEngine);
 }
 
-NVECTOR3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()
+Vec3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()
 {
 	float var1 = mCanonicalDist(mRandomEngine);
 	float var2 = mCanonicalDist(mRandomEngine);
@@ -44,14 +44,14 @@ NVECTOR3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()
 	float phi = 2 * Ut::PI * var2;
 
 	//this parameterization is different from the common one
-	NVECTOR3 out;
+	Vec3 out;
 	out.x = sinf(theta)*cosf(phi);
 	out.y = cos(theta);
 	out.z = sinf(theta)*sinf(phi);
 	return out;
 }
 
-NVECTOR2 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Azimulthal()
+Vec2 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Azimulthal()
 {
 	std::uniform_real_distribution<float> canonicalDist(0.0f, 1.0f);
 	float var1 = canonicalDist(mRandomEngine);
@@ -66,5 +66,5 @@ NVECTOR2 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Azimulthal()
 	//but obviously, arccos(1-2x) is a alittle more computationally efficient
 	float theta = acosf(1 - 2.0f * var1);
 	float phi = 2 * Ut::PI * var2;
-	return NVECTOR2(theta, phi);
+	return Vec2(theta, phi);
 }

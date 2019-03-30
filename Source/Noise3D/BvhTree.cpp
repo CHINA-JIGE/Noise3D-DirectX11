@@ -137,7 +137,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const s
 
 	//(>= 2 objects)
 	//2. find the axis where aabb has maximum width
-	NVECTOR3 width = bigAabb.max - bigAabb.min;
+	Vec3 width = bigAabb.max - bigAabb.min;
 	int splitAxisId = 0;	//0 for x, 1 for y, 2 for z
 	if (width.x > width.y && width.x > width.z)splitAxisId = 0;
 	else if (width.y > width.x && width.y > width.z)splitAxisId = 1;
@@ -152,8 +152,8 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const s
 	for (auto& pair : infoList)
 	{
 		SceneNode* pNode = pair.pObj->GetAttachedSceneNode();
-		NVECTOR3 objectCentroidPos = pNode->EvalWorldTransform().GetPosition();
-		NVECTOR3 aabbCenterPos = bigAabb.Centroid();
+		Vec3 objectCentroidPos = pNode->EvalWorldTransform().GetPosition();
+		Vec3 aabbCenterPos = bigAabb.Centroid();
 
 		//flatten positions into array
 		float flattenedObjectPos[3] = { objectCentroidPos.x, objectCentroidPos.y, objectCentroidPos.z };
@@ -228,7 +228,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 
 	N_AABB bigAabb = pNode->GetAABB();
 	if (!bigAabb.IsValid())return false;
-	NVECTOR3 bigAabbCenterPos = bigAabb.Centroid();
+	Vec3 bigAabbCenterPos = bigAabb.Centroid();
 
 	//if only 1 object is in current cluster, leaf node, bound SCENE OBJECT and return
 	if (infoList.size() == 1)
@@ -241,7 +241,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 
 	//(>= 2 objects)
 	//2. find the axis where aabb has maximum width
-	NVECTOR3 width = bigAabb.max - bigAabb.min;
+	Vec3 width = bigAabb.max - bigAabb.min;
 	int splitAxisId = 0;	//0 for x, 1 for y, 2 for z
 	if (width.x > width.y && width.x > width.z)splitAxisId = 0;
 	else if (width.y > width.x && width.y > width.z)splitAxisId = 1;
@@ -334,7 +334,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 	return true;
 }
 
-inline float Noise3D::BvhTree::mFunction_GetVecComponent(NVECTOR3 vec, uint32_t id)
+inline float Noise3D::BvhTree::mFunction_GetVecComponent(Vec3 vec, uint32_t id)
 {
 	switch (id)
 	{

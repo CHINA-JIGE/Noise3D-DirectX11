@@ -118,8 +118,8 @@ bool MeshLoader::LoadCustomizedModel(Mesh * const pTargetMesh, const std::vector
 bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 {
 	std::vector<UINT>			tmpIndexList;
-	std::vector<NVECTOR3> tmpVertexList;
-	std::vector<NVECTOR3> tmpNormalList;
+	std::vector<Vec3> tmpVertexList;
+	std::vector<Vec3> tmpNormalList;
 	std::string							tmpInfo;
 
 	//Load STL using file manager
@@ -133,19 +133,19 @@ bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 
 	//compute the center pos of bounding box
 	N_AABB bbox= pTargetMesh->GetLocalAABB();
-	NVECTOR3			tmpBoundingBoxCenter(0, 0, 0);
-	tmpBoundingBoxCenter = NVECTOR3(
+	Vec3			tmpBoundingBoxCenter(0, 0, 0);
+	tmpBoundingBoxCenter = Vec3(
 		(bbox.max.x + bbox.min.x) / 2.0f,
 		(bbox.max.y + bbox.min.y) / 2.0f,
 		(bbox.max.z + bbox.min.z) / 2.0f);
 
 	//lambda function : compute texcoord for spherical mapping
-	auto ComputeTexCoord_SphericalWrap= [](NVECTOR3 vBoxCenter, NVECTOR3 vPoint)->NVECTOR2
+	auto ComputeTexCoord_SphericalWrap= [](Vec3 vBoxCenter, Vec3 vPoint)->Vec2
 	{
 		//a simple texture coord wrapping (spherical)
 
-		NVECTOR2 outTexCoord(0, 0);
-		NVECTOR3 tmpP = vPoint - vBoxCenter;
+		Vec2 outTexCoord(0, 0);
+		Vec3 tmpP = vPoint - vBoxCenter;
 
 		//project to unit sphere
 		tmpP.Normalize();
@@ -174,17 +174,17 @@ bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	for (UINT i = 0;i < tmpVertexList.size();i++)
 	{
 		N_DefaultVertex	tmpCompleteV;
-		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+		tmpCompleteV.Color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		tmpCompleteV.Pos = tmpVertexList.at(i);
 		tmpCompleteV.Normal = tmpNormalList.at(normal_index);
 		//tangent
 		if (tmpCompleteV.Normal.x==0.0f && tmpCompleteV.Normal.z==0.0f)
 		{
-			tmpCompleteV.Tangent = NVECTOR3(1.0f, 0, 0);
+			tmpCompleteV.Tangent = Vec3(1.0f, 0, 0);
 		}
 		else
 		{
-			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
+			Vec3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
 			tmpCompleteV.Tangent = tmpCompleteV.Normal.Cross(tmpVec);
 			//D3DXVec3Cross(&tmpCompleteV.Tangent, &tmpCompleteV.Normal, &tmpVec);
 			tmpCompleteV.Tangent.Normalize();
@@ -496,8 +496,8 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 
 		//to compute vertex normal ,we should generate adjacent information of vertices first.
 		//thus "vertexNormalList" holds the sum of face normal (the triangle is adjacent to corresponding vertex)
-		std::vector<NVECTOR3>	vertexNormalList(currentMesh.verticesList.size(), NVECTOR3(0, 0, 0));
-		std::vector<NVECTOR3>	vertexTangentList;
+		std::vector<Vec3>	vertexNormalList(currentMesh.verticesList.size(), Vec3(0, 0, 0));
+		std::vector<Vec3>	vertexTangentList;
 
 		//1. compute vertex normal of faces
 		for (UINT i = 0;i < currentMesh.indicesList.size();i += 3)
@@ -506,12 +506,12 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 			uint16_t idx1 = currentMesh.indicesList.at(i);
 			uint16_t idx2 = currentMesh.indicesList.at(i + 1);
 			uint16_t idx3 = currentMesh.indicesList.at(i + 2);
-			NVECTOR3 v1 = currentMesh.verticesList.at(idx1);
-			NVECTOR3 v2 = currentMesh.verticesList.at(idx2);
-			NVECTOR3 v3 = currentMesh.verticesList.at(idx3);
-			NVECTOR3 vec1 = v2 - v1;
-			NVECTOR3 vec2 = v3 - v1;
-			NVECTOR3 faceNormal(0, 0.0f, 0);
+			Vec3 v1 = currentMesh.verticesList.at(idx1);
+			Vec3 v2 = currentMesh.verticesList.at(idx2);
+			Vec3 v3 = currentMesh.verticesList.at(idx3);
+			Vec3 vec1 = v2 - v1;
+			Vec3 vec2 = v3 - v1;
+			Vec3 faceNormal(0, 0.0f, 0);
 			//D3DXVec3Normalize(&vec1, &vec1);
 			//D3DXVec3Normalize(&vec2, &vec2);
 			D3DXVec3Cross(&faceNormal, &vec1, &vec2);
@@ -530,10 +530,10 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 			D3DXVec3Normalize(&vn, &vn);
 
 			//see if tangent is parallel with Y axis
-			NVECTOR3 tmpTangent(1.0f, 0, 0);
+			Vec3 tmpTangent(1.0f, 0, 0);
 			if (!(vn.x == 0 && vn.z == 0))
 			{
-				NVECTOR3 tmpVec(-vn.z, 0, vn.x);
+				Vec3 tmpVec(-vn.z, 0, vn.x);
 				D3DXVec3Cross(&tmpTangent, &vn, &tmpVec);
 				D3DXVec3Normalize(&tmpTangent, &tmpTangent);
 			}
@@ -551,7 +551,7 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 
 			try
 			{
-				tmpCompleteVertex.Color = NVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+				tmpCompleteVertex.Color = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 				tmpCompleteVertex.Normal = vertexNormalList.at(i);
 				tmpCompleteVertex.Pos = currentMesh.verticesList.at(i);
 				tmpCompleteVertex.Tangent = vertexTangentList.at(i);

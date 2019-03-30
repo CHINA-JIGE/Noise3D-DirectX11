@@ -336,7 +336,7 @@ void	IFileIO_3DS::ReadStringFromFileW(std::wstring& outString)
 
 //father: xxx color chunk
 //child:none
-void IFileIO_3DS::ReadAndParseColorChunk(NVECTOR3 & outColor)
+void IFileIO_3DS::ReadAndParseColorChunk(Vec3 & outColor)
 {
 	//please refer to project "Assimp" for more chunk information
 
@@ -501,7 +501,7 @@ void IFileIO_3DS::ParseVerticesChunk()
 	vertexList.reserve(vertexList.size()+verticesCount);
 	for (UINT i = 0;i < verticesCount;i++)
 	{
-		NVECTOR3 tmpVertex(0, 0, 0);
+		Vec3 tmpVertex(0, 0, 0);
 		BINARY_READ(tmpVertex.x);
 		BINARY_READ(tmpVertex.z);
 		BINARY_READ(tmpVertex.y);
@@ -638,7 +638,7 @@ void IFileIO_3DS::ParseTextureCoordinate()
 	auto& texcoordList = m_pMeshObjList->back().texcoordList;
 	for (UINT i = 0;i < texcoordCount;i++)
 	{
-		NVECTOR2 tmpTexCoord(0, 0);
+		Vec2 tmpTexCoord(0, 0);
 		BINARY_READ(tmpTexCoord.x);
 		BINARY_READ(tmpTexCoord.y);
 		texcoordList.push_back(tmpTexCoord);

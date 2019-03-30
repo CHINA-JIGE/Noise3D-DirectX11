@@ -32,7 +32,7 @@ namespace Noise3D
 
 			bool Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeCountY, uint16_t cubeCountZ);
 
-			bool Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth);
+			bool Init(const std::vector<Vec3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth);
 
 			void Voxelize();
 
@@ -74,9 +74,9 @@ namespace Noise3D
 
 			VoxelizedModel mVoxelizedModel;
 
-			NVECTOR2 mLayerPosMin;
+			Vec2 mLayerPosMin;
 
-			NVECTOR2 mLayerPosMax;
+			Vec2 mLayerPosMax;
 
 			float	mLayerRealWidth;//boundingbox' XZ of original mesh
 

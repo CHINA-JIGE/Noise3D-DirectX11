@@ -14,7 +14,7 @@ using namespace Noise3D;
 									INTERFACE
 
 *********************************************************************/
-bool IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string & refFileInfo)
+bool IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<Vec3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<Vec3>& refNormalBuffer, std::string & refFileInfo)
 {
 	std::ifstream tmpFile(pFilePath, std::ios::binary);
 
@@ -49,7 +49,7 @@ bool IFileIO_STL::ImportFile_STL(NFilePath pFilePath, std::vector<NVECTOR3>& ref
 	}
 }
 
-bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer, const std::vector<UINT>& inIndexBuffer)
+bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<Vec3>& inVertexBuffer, const std::vector<UINT>& inIndexBuffer)
 {
 	std::ofstream fileOut(filePath, std::ios::binary);
 
@@ -93,12 +93,12 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 	for(UINT i=0;i<triangleCount;++i)
 	{
 		//3 vertices of a triangle
-		NVECTOR3 v1 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 0));
-		NVECTOR3 v2 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 1));
-		NVECTOR3 v3 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 2));
-		NVECTOR3 edge1 = v3 - v1;
-		NVECTOR3 edge2 = v2 - v1;
-		NVECTOR3 triNorm(0, 0, 0);
+		Vec3 v1 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 0));
+		Vec3 v2 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 1));
+		Vec3 v3 = inVertexBuffer.at(inIndexBuffer.at(3 * i + 2));
+		Vec3 edge1 = v3 - v1;
+		Vec3 edge2 = v2 - v1;
+		Vec3 triNorm(0, 0, 0);
 
 		//normal vector of this triangle
 		triNorm = edge1.Cross(edge2);
@@ -132,7 +132,7 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 	return true;
 }
 
-bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<NVECTOR3>& inVertexBuffer)
+bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & headerInfo, const std::vector<Vec3>& inVertexBuffer)
 {
 	std::ofstream fileOut(filePath, std::ios::binary);
 
@@ -180,12 +180,12 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 	for (UINT i = 0; i<triangleCount; ++i)
 	{
 		//3 vertices of a triangle
-		NVECTOR3 v1 = inVertexBuffer.at(3 * i + 0);
-		NVECTOR3 v2 = inVertexBuffer.at(3 * i + 1);
-		NVECTOR3 v3 = inVertexBuffer.at(3 * i + 2);
-		NVECTOR3 edge1 = v3 - v1;
-		NVECTOR3 edge2 = v2 - v1;
-		NVECTOR3 triNorm(0, 0, 0);
+		Vec3 v1 = inVertexBuffer.at(3 * i + 0);
+		Vec3 v2 = inVertexBuffer.at(3 * i + 1);
+		Vec3 v3 = inVertexBuffer.at(3 * i + 2);
+		Vec3 edge1 = v3 - v1;
+		Vec3 edge2 = v2 - v1;
+		Vec3 triNorm(0, 0, 0);
 
 		//normal vector of this triangle
 		triNorm = edge1.Cross(edge2);
@@ -225,8 +225,8 @@ bool IFileIO_STL::ExportFile_STL_Binary(NFilePath filePath, const std::string & 
 								LOCAL FUNCTION
 
 *********************************************************************/
-bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer,
-	std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
+bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vector<Vec3>& refVertexBuffer,
+	std::vector<UINT>& refIndexBuffer, std::vector<Vec3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath, std::ios::binary);
 
@@ -292,7 +292,7 @@ bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 	{
 
 		//a facet normal
-		NVECTOR3 tmpVec3(0, 0, 0);
+		Vec3 tmpVec3(0, 0, 0);
 		REINTERPRET_READ(tmpVec3.x);
 		REINTERPRET_READ(tmpVec3.z);
 		REINTERPRET_READ(tmpVec3.y);
@@ -330,7 +330,7 @@ bool IFileIO_STL::mFunction_ImportFile_STL_Binary(NFilePath pFilePath, std::vect
 	return true;
 }
 
-bool IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<NVECTOR3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<NVECTOR3>& refNormalBuffer, std::string& refFileInfo)
+bool IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vector<Vec3>& refVertexBuffer, std::vector<UINT>& refIndexBuffer, std::vector<Vec3>& refNormalBuffer, std::string& refFileInfo)
 {
 	std::ifstream fileIn(pFilePath);
 
@@ -380,7 +380,7 @@ bool IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vecto
 		//"facet normal" + x+y+z
 		if (currString == "normal")
 		{
-			NVECTOR3 tmpFaceNormal(0, 0, 0);
+			Vec3 tmpFaceNormal(0, 0, 0);
 			fileIn >> tmpFaceNormal.x >> tmpFaceNormal.z >> tmpFaceNormal.y;
 			//face normal (may be used as vertex normal)
 			refNormalBuffer.push_back(tmpFaceNormal);
@@ -389,7 +389,7 @@ bool IFileIO_STL::mFunction_ImportFile_STL_Ascii(NFilePath pFilePath, std::vecto
 		//"vertex" +x +y+z
 		if (currString == "vertex")
 		{
-			NVECTOR3 tmpPoint(0, 0, 0);
+			Vec3 tmpPoint(0, 0, 0);
 			fileIn >> tmpPoint.x >> tmpPoint.z >> tmpPoint.y;
 			refVertexBuffer.push_back(tmpPoint);
 		}

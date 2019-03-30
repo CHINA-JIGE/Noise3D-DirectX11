@@ -39,7 +39,7 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(uint32_t faceID, uint32_t x, uint32_t
 	return  NColor4u(255, 0, 255, 255);
 }
 
-NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode)
+NColor4u Noise3D::TextureCubeMap::GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode)
 {
 	if (dir.x == 0 && dir.y == 0 && dir.z == 0)
 	{

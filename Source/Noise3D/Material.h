@@ -19,9 +19,9 @@ namespace Noise3D
 	{
 		N_BasicMaterialDesc()
 		{
-			ambientColor = NVECTOR3(0, 0, 0);
-			diffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-			specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+			ambientColor = Vec3(0, 0, 0);
+			diffuseColor = Vec3(0.1f, 0.1f, 0.1f);
+			specularColor = Vec3(1.0f, 1.0f, 1.0f);
 			specularSmoothLevel = 10;
 			normalMapBumpIntensity = 0.1f;
 			environmentMapTransparency = 0.1f;
@@ -29,9 +29,9 @@ namespace Noise3D
 		}
 		
 		//base attribute offset that will be added to final color
-		NVECTOR3	ambientColor;		int32_t	specularSmoothLevel;
-		NVECTOR3	diffuseColor;		float		normalMapBumpIntensity;
-		NVECTOR3	specularColor;		float		environmentMapTransparency;
+		Vec3	ambientColor;		int32_t	specularSmoothLevel;
+		Vec3	diffuseColor;		float		normalMapBumpIntensity;
+		Vec3	specularColor;		float		environmentMapTransparency;
 		float				transparency;		int32_t	pad1; int32_t pad2; int32_t pad3;
 
 	};
@@ -73,13 +73,13 @@ namespace Noise3D
 	public:
 
 		//name
-		void	SetAmbientColor(const NVECTOR3& color);
+		void	SetAmbientColor(const Vec3& color);
 
 		//name
-		void	SetDiffuseColor(const NVECTOR3& color);
+		void	SetDiffuseColor(const Vec3& color);
 
 		//name
-		void	SetSpecularColor(const NVECTOR3& color);
+		void	SetSpecularColor(const Vec3& color);
 
 		//0 to 100
 		void	SetSpecularSmoothLevel(int level);

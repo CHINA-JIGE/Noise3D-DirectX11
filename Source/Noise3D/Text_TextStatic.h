@@ -14,7 +14,7 @@ namespace Noise3D
 		{
 		public:
 
-			NVECTOR2 GetFontSize();
+			Vec2 GetFontSize();
 
 		private:
 
@@ -26,7 +26,7 @@ namespace Noise3D
 
 			~StaticText();
 
-			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName);
+			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, Vec4 color, N_UID texName);
 
 			void		NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_UpdateGraphicObject();//extern call by renderer
 

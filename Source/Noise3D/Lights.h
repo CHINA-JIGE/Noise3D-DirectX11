@@ -12,15 +12,15 @@ namespace Noise3D
 	struct N_CommonLightDesc
 	{
 		N_CommonLightDesc():
-			ambientColor(NVECTOR3( 0, 0, 0 )),
+			ambientColor(Vec3( 0, 0, 0 )),
 			specularIntensity(0.0f),
-			diffuseColor(NVECTOR3(0, 0, 0)),
+			diffuseColor(Vec3(0, 0, 0)),
 			diffuseIntensity( 0.0f),
-			specularColor(NVECTOR3(0, 0, 0))
+			specularColor(Vec3(0, 0, 0))
 			{}
-		NVECTOR3	ambientColor;		float				specularIntensity;
-		NVECTOR3	diffuseColor;		float				diffuseIntensity;
-		NVECTOR3	specularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
+		Vec3	ambientColor;		float				specularIntensity;
+		Vec3	diffuseColor;		float				diffuseIntensity;
+		Vec3	specularColor;	//4 bytes left to pad to fulfill 128 bytes alignment
 	};
 
 
@@ -30,10 +30,10 @@ namespace Noise3D
 	{
 		N_DirLightDesc() {  };
 
-		/*NVECTOR3	ambientColor;		float				specularIntensity;
-		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/	float		mPad2;
-		NVECTOR3 direction;				float		mPad3;
+		/*Vec3	ambientColor;		float				specularIntensity;
+		Vec3	diffuseColor;				float				diffuseIntensity;
+		Vec3	specularColor;*/	float		mPad2;
+		Vec3 direction;				float		mPad3;
 	};
 
 
@@ -43,10 +43,10 @@ namespace Noise3D
 	{
 		N_PointLightDesc() { }
 
-		/*NVECTOR3	ambientColor;		float				specularIntensity;
-		NVECTOR3	diffuseColor;				float				diffuseIntensity;
-		NVECTOR3	specularColor;*/		float		attenuationFactor;
-		NVECTOR3 position;					float		lightingRange;
+		/*Vec3	ambientColor;		float				specularIntensity;
+		Vec3	diffuseColor;				float				diffuseIntensity;
+		Vec3	specularColor;*/		float		attenuationFactor;
+		Vec3 position;					float		lightingRange;
 
 	};
 
@@ -57,11 +57,11 @@ namespace Noise3D
 	{
 		N_SpotLightDesc(){}
 
-		/*NVECTOR3 ambientColor;		float specularIntensity;
-		NVECTOR3 diffuseColor;			float diffuseIntensity;
-		NVECTOR3 specularColor;*/	float attenuationFactor;
-		NVECTOR3 lookAt;					float lightingAngle;
-		NVECTOR3 position;			float lightingRange;
+		/*Vec3 ambientColor;		float specularIntensity;
+		Vec3 diffuseColor;			float diffuseIntensity;
+		Vec3 specularColor;*/	float attenuationFactor;
+		Vec3 lookAt;					float lightingAngle;
+		Vec3 position;			float lightingRange;
 	};
 
 
@@ -72,11 +72,11 @@ namespace Noise3D
 
 		IBaseLight();
 
-		void SetAmbientColor(const NVECTOR3& color);
+		void SetAmbientColor(const Vec3& color);
 
-		void SetDiffuseColor(const NVECTOR3& color);
+		void SetDiffuseColor(const Vec3& color);
 
-		void SetSpecularColor(const NVECTOR3& color);
+		void SetSpecularColor(const Vec3& color);
 
 		void SetSpecularIntensity(float specInt);
 
@@ -106,13 +106,13 @@ namespace Noise3D
 	public:
 
 		//set local direction (which can be rotated and transform to world space)
-		void	SetDirection(const NVECTOR3& dir);
+		void	SetDirection(const Vec3& dir);
 
 		//get local direction
-		NVECTOR3 GetDirection();
+		Vec3 GetDirection();
 
 		//get world space direction (which can be rotated to transform to world space)
-		NVECTOR3 GetDirection_WorldSpace();
+		Vec3 GetDirection_WorldSpace();
 
 		//many CLAMP op happens in this
 		void SetDesc(const N_DirLightDesc& desc);
@@ -138,10 +138,10 @@ namespace Noise3D
 		AffineTransform& GetLocalTransform()=delete;
 
 		//SceneNode::
-		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+		Matrix EvalWorldAffineTransformMatrix() = delete;
 
 		//SceneNode::
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+		void EvalWorldAffineTransformMatrix(Matrix& outWorldMat, Matrix& outWorldInvTranspose) = delete;
 
 
 	protected:
@@ -174,13 +174,13 @@ namespace Noise3D
 	public:
 
 		//local space
-		void SetPosition(const NVECTOR3& pos);
+		void SetPosition(const Vec3& pos);
 
 		//local space
-		NVECTOR3 GetPostion();
+		Vec3 GetPostion();
 
 		//world space
-		NVECTOR3 GetPosition_WorldSpace();
+		Vec3 GetPosition_WorldSpace();
 
 		void SetAttenuationFactor(float attFactor);
 
@@ -226,19 +226,19 @@ namespace Noise3D
 	{
 	public:
 
-		void SetPosition(const NVECTOR3& pos);
+		void SetPosition(const Vec3& pos);
 
-		NVECTOR3 GetPosition();
+		Vec3 GetPosition();
 
-		NVECTOR3 GetPosition_WorldSpace();
+		Vec3 GetPosition_WorldSpace();
 
 		void SetAttenuationFactor(float attFactor);
 
-		void	SetLookAt(const NVECTOR3& vLitAt);
+		void	SetLookAt(const Vec3& vLitAt);
 
-		NVECTOR3 GetLookAt();
+		Vec3 GetLookAt();
 
-		NVECTOR3 GetLookAt_WorldSpace();
+		Vec3 GetLookAt_WorldSpace();
 
 		void	SetLightingAngle(float coneAngle_Rad);
 
@@ -267,10 +267,10 @@ namespace Noise3D
 		AffineTransform& GetLocalTransform() = delete;
 
 		//SceneNode::
-		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+		Matrix EvalWorldAffineTransformMatrix() = delete;
 
 		//SceneNode::
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+		void EvalWorldAffineTransformMatrix(Matrix& outWorldMat, Matrix& outWorldInvTranspose) = delete;
 
 	private:
 

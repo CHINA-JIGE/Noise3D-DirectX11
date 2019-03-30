@@ -74,10 +74,10 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 
 	//min / max are initialized infinite far
 	N_AABB outAabb;
-	NVECTOR3 tmpV;
+	Vec3 tmpV;
 	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
 	{
-		const NMATRIX& worldMat = pNode->EvalWorldTransform().GetAffineTransformMatrix();
+		const Matrix& worldMat = pNode->EvalWorldTransform().GetAffineTransformMatrix();
 		tmpV = AffineTransform::TransformVector_MatrixMul(mVB_Mem.at(i).Pos, worldMat);
 
 		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }

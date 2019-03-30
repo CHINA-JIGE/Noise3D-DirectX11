@@ -26,7 +26,7 @@ TextureManager::~TextureManager()
 
 
 //--------------------------------TEXTURE CREATION-----------------------------
-Texture2D* TextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory)
+Texture2D* TextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, Vec4 color, bool keepCopyInMemory)
 {
 	return TextureManager::CreatePureColorTexture(texName, pixelWidth, pixelHeight, NColor4u(color), keepCopyInMemory);
 };
@@ -51,7 +51,7 @@ Texture2D * Noise3D::TextureManager::CreatePureColorTexture(N_UID texName, UINT 
 	tmpTexObj.mTexName = tmpStringTextureName;
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;*/
 
-	//assign a lot of same NVECTOR4 color to vector
+	//assign a lot of same Vec4 color to vector
 	std::vector<NColor4u> initPixelBuffer(pixelWidth*pixelHeight, color);
 
 

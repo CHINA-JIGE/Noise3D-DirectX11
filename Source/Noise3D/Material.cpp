@@ -18,19 +18,19 @@ Material::~Material()
 {
 }
 
-void Material::SetAmbientColor(const NVECTOR3 & color)
+void Material::SetAmbientColor(const Vec3 & color)
 {
-	mMatDesc.ambientColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.ambientColor = Clamp(color, Vec3(0, 0, 0), Vec3(1.0f, 1.0f, 1.0f));
 }
 
-void Material::SetDiffuseColor(const NVECTOR3 & color)
+void Material::SetDiffuseColor(const Vec3 & color)
 {
-	mMatDesc.diffuseColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.diffuseColor = Clamp(color, Vec3(0, 0, 0), Vec3(1.0f, 1.0f, 1.0f));
 }
 
-void Material::SetSpecularColor(const NVECTOR3 & color)
+void Material::SetSpecularColor(const Vec3 & color)
 {
-	mMatDesc.specularColor = Clamp(color, NVECTOR3(0, 0, 0), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mMatDesc.specularColor = Clamp(color, Vec3(0, 0, 0), Vec3(1.0f, 1.0f, 1.0f));
 }
 
 void Material::SetSpecularSmoothLevel(int level)

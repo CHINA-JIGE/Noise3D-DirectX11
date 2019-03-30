@@ -15,7 +15,7 @@ StaticText::~StaticText()
 {
 }
 
-NVECTOR2 StaticText::GetFontSize()
+Vec2 StaticText::GetFontSize()
 {
 	//this is static text, font size is fixed when created. font name was recorded,
 	//thus we can query font size from FontMgr
@@ -28,14 +28,14 @@ NVECTOR2 StaticText::GetFontSize()
 											P R I V A T E
 ************************************************************************/
 
-void StaticText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight,NVECTOR4 color,N_UID texName)
+void StaticText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight,Vec4 color,N_UID texName)
 {
 
 	m_pGraphicObj = pCreatedObj;
 	mTextureName = texName;
 
 	m_pGraphicObj->AddRectangle(
-		NVECTOR2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
+		Vec2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
 		float(pxWidth),
 		float(pxHeight),
 		color,
@@ -56,7 +56,7 @@ void StaticText::mFunction_UpdateGraphicObject()
 		0,
 		IBasicContainerInfo::GetTopLeft(),
 		IBasicContainerInfo::GetBottomRight(),
-		NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f),
+		Vec4(1.0f, 1.0f, 1.0f, 1.0f),
 		mTextureName
 		);
 

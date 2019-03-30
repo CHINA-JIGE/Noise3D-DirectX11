@@ -57,7 +57,7 @@ namespace Noise3D
 	{
 		constexpr float PI = 3.141592653f;
 
-		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight);
+		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(Vec2 v, Vec2 vTopLeft, Vec2 vBottomRight);
 
 		extern /*_declspec(dllexport)*/ int	GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);
 
@@ -69,13 +69,13 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/  std::wstring ConvertAnsiStrToWStr(std::string srcStr);
 
-		extern /*_declspec(dllexport)*/ NVECTOR3 PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight);//spherical mapping
+		extern /*_declspec(dllexport)*/ Vec3 PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight);//spherical mapping
 
-		extern /*_declspec(dllexport)*/ void DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, int pixelWidth, int pixelHeight,uint32_t& outPixelX, uint32_t& outPixelY);//spherical mapping
+		extern /*_declspec(dllexport)*/ void DirectionToPixelCoord_SphericalMapping(Vec3 dir, int pixelWidth, int pixelHeight,uint32_t& outPixelX, uint32_t& outPixelY);//spherical mapping
 
-		extern /*_declspec(dllexport)*/void DirectionToYawPitch(NVECTOR3 dir,float& outYaw, float& outPitch);
+		extern /*_declspec(dllexport)*/void DirectionToYawPitch(Vec3 dir,float& outYaw, float& outPitch);
 
-		extern /*_declspec(dllexport)*/ NVECTOR3 YawPitchToDirection(float yaw, float pitch);
+		extern /*_declspec(dllexport)*/ Vec3 YawPitchToDirection(float yaw, float pitch);
 
 		extern /*_declspec(dllexport)*/ uint32_t Factorial32(uint32_t x);
 
@@ -85,9 +85,9 @@ namespace Noise3D
 
 		extern /*_declspec(dllexport)*/ float Lerp(float a, float b, float t);
 
-		extern /*_declspec(dllexport)*/ NVECTOR2 Lerp(NVECTOR2 v1, NVECTOR2 v2, float t);
+		extern /*_declspec(dllexport)*/ Vec2 Lerp(Vec2 v1, Vec2 v2, float t);
 
-		extern /*_declspec(dllexport)*/ NVECTOR3 Lerp(NVECTOR3 v1, NVECTOR3 v2, float t);
+		extern /*_declspec(dllexport)*/ Vec3 Lerp(Vec3 v1, Vec3 v2, float t);
 
 		extern /*_declspec(dllexport)*/ float Clamp(float val, float min, float max);
 
@@ -95,13 +95,13 @@ namespace Noise3D
 
 		extern /*declspec(dllexport)*/ double Clamp(double val, double min, double max);
 
-		extern /*_declspec(dllexport)*/ NVECTOR3 Clamp(const NVECTOR3& target, const NVECTOR3& min, const NVECTOR3& max);
+		extern /*_declspec(dllexport)*/ Vec3 Clamp(const Vec3& target, const Vec3& min, const Vec3& max);
 
-		extern /*_declspec(dllexport)*/ NVECTOR4 Clamp(const NVECTOR4& target, const NVECTOR4& min, const NVECTOR4& max);
+		extern /*_declspec(dllexport)*/ Vec4 Clamp(const Vec4& target, const Vec4& min, const Vec4& max);
 
-		extern /*_declspec(dllexport)*/ NColor4f Clamp(const NColor4f& target, const NColor4f& min, const NColor4f& max);
+		extern /*_declspec(dllexport)*/ Color4f Clamp(const Color4f& target, const Color4f& min, const Color4f& max);
 
-		extern /*_declspec(dllexport)*/ NVECTOR3 CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t);
+		extern /*_declspec(dllexport)*/ Vec3 CubicHermite(const Vec3 & v1, const Vec3 & v2, const Vec3 & t1, const Vec3 & t2, float t);
 	
 		extern /*_declspec(dllexport)*/ bool TolerantEqual(float lhs, float rhs, float errorLimit = std::numeric_limits<float>::epsilon());
 

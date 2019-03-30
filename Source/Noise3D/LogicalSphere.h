@@ -18,7 +18,7 @@ namespace Noise3D
 	{
 	public:
 
-		//NVECTOR3 ComputeVec(float theta_pitch, float phi_yaw);
+		//Vec3 ComputeVec(float theta_pitch, float phi_yaw);
 
 		void SetRadius(float r);
 
@@ -37,7 +37,7 @@ namespace Noise3D
 		virtual float ComputeArea() override;
 
 		//ILogicalShape::
-		//virtual bool IsPointInside(NVECTOR3 p) override;
+		//virtual bool IsPointInside(Vec3 p) override;
 
 	private:
 		friend LogicalSphere* LogicalShapeManager::CreateSphere(SceneNode*, N_UID);

@@ -31,7 +31,7 @@ CollisionTestor::~CollisionTestor()
 	ReleaseCOM(m_pDSS_DisableDepthTest);
 }
 
-void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord, std::vector<NVECTOR3>& outCollidedPointList)
+void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const Vec2 & mouseNormalizedCoord, std::vector<Vec3>& outCollidedPointList)
 {
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
@@ -45,11 +45,11 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update camera Info
 	Camera* pCamera = GetScene()->GetCamera();
-	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
+	Matrix projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
 	pCamera->GetViewInvMatrix(invViewMatrix);
-	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
+	Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
@@ -57,7 +57,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 
 	//update target tested mesh world Matrix
-	NMATRIX worldMat, worldInvTransMat;
+	Matrix worldMat, worldInvTransMat;
 	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
@@ -109,8 +109,8 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//WARNING: please match the primitive format of 'shader SO' and 'here' 
 	//SO primitive vertex format is defined in Effect source file.
-	//(2017.1.28)currently POSITION.xyz <--> NVECTOR3
-	NVECTOR3* pVecList = reinterpret_cast<NVECTOR3*>(mappedSR.pData);
+	//(2017.1.28)currently POSITION.xyz <--> Vec3
+	Vec3* pVecList = reinterpret_cast<Vec3*>(mappedSR.pData);
 	for (UINT i = 0; i < returnedPrimCount; ++i)
 	{
 		outCollidedPointList.push_back(*(pVecList + i));
@@ -120,7 +120,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 }
 
-UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNormalizedCoord)
+UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const Vec2 & mouseNormalizedCoord)
 {
 	//preparation is similar to another PICKING
 
@@ -136,18 +136,18 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 
 	//update camera Info
 	Camera* pCamera = GetScene()->GetCamera();
-	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
+	Matrix projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
 	pCamera->GetViewInvMatrix(invViewMatrix);
-	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
+	Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
 	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 
 	//update target tested mesh world Matrix
-	NMATRIX worldMat, worldInvTransMat;
+	Matrix worldMat, worldInvTransMat;
 	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
@@ -395,15 +395,15 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 	// B = 2(D.x*O.x + D.y*O.y + D.z*O.z）= 2(D dot O)
 	// C = O.x^2 + O.y^2 + O.z^2 - r^2 = O dot O -r^2
 	float r = pSphere->GetRadius();//no scale
-	NVECTOR3& D = localRay.dir;
-	NVECTOR3& O = localRay.origin;
+	Vec3& D = localRay.dir;
+	Vec3& O = localRay.origin;
 	float A = D.Dot(D);
 	float B = 2.0f * D.Dot(O);
 	float C = O.Dot(O) - r*r;
 
 	//determinant of quadratic equation
 	float det = B * B - 4.0f * A*C;
-	if (det < 0.0001f || D == NVECTOR3(0.0f,0.0f,0.0f))
+	if (det < 0.0001f || D == Vec3(0.0f,0.0f,0.0f))
 	{
 		//0(miss) or 1(tangent) solution, or A==0(then the equation even not exist)
 		return false;
@@ -443,7 +443,7 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 	return outHitRes.HasAnyHit();
 }
 
-bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo & outHitInfo)
+bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, Vec3 v0, Vec3 v1, Vec3 v2, N_RayHitInfo & outHitInfo)
 {
 	//[Reference for the implementation]
 	//Tomas Möller, Trumbore B . Fast, Minimum Storage Ray-Triangle Intersection[J]. 2005.
@@ -455,19 +455,19 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, NVECTOR3 
 	//		O+tD = (1-u-v)V0 + uV1 + vV2		******(u >0, v>0, u+v<=1)
 	// for more info, plz refer to document [Notes]Intersection between Ray and Shapes.docx
 	//the code here won't be intuitive, because it's mainly algebraic inductions.
-	NVECTOR3 E1 = v1 - v0;
-	NVECTOR3 E2 = v2 - v0;
+	Vec3 E1 = v1 - v0;
+	Vec3 E2 = v2 - v0;
 
-	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
+	Vec3 P = ray.dir.Cross(E2);//P = D x E2
 	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
 	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;
 
 	float invDet = 1.0f / det;//calculate once
-	NVECTOR3 M = ray.origin - v0;// M = O - V0
+	Vec3 M = ray.origin - v0;// M = O - V0
 	float u = invDet * M.Dot(P);// invDet * (M dot P)
 	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
 
-	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
+	Vec3 Q = M.Cross(E1);//Q = M x E1
 	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
 	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
 
@@ -487,19 +487,19 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_D
 	//same as another overload of IntersectTriangle(), with with Mesh's vertex format as input
 	//(to make full use of the normal/Tangent vector of Mesh*)
 	//Normal interpolation of hit point is implemented.
-	NVECTOR3 E1 = v1.Pos - v0.Pos;
-	NVECTOR3 E2 = v2.Pos - v0.Pos;
+	Vec3 E1 = v1.Pos - v0.Pos;
+	Vec3 E2 = v2.Pos - v0.Pos;
 
-	NVECTOR3 P = ray.dir.Cross(E2);//P = D x E2
+	Vec3 P = ray.dir.Cross(E2);//P = D x E2
 	float det = P.Dot(E1);//3x3 matrix's determinant= (d x e2) dot e1 = P dot e1
 	if (std::abs(det) <= std::numeric_limits<float>::epsilon())return false;//early return to avoid further computation
 
 	float invDet = 1.0f / det;//calculate once
-	NVECTOR3 M = ray.origin - v0.Pos;// M = O - V0
+	Vec3 M = ray.origin - v0.Pos;// M = O - V0
 	float u = invDet * M.Dot(P);// invDet * (M dot P)
 	if (u < 0.0f || u> 1.0f)return false;//early return to avoid further computation
 
-	NVECTOR3 Q = M.Cross(E1);//Q = M x E1
+	Vec3 Q = M.Cross(E1);//Q = M x E1
 	float v = invDet * ray.dir.Dot(Q);//v = invDet * (D dot Q)
 	if (v < 0.0f || u + v>1.0f)return false;//early return to avoid further computation
 
@@ -766,7 +766,7 @@ bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
 	//note that dir(vector) has no translation, we can't just apply affine matrix worldInv to it
 	N_Ray localRay;
 	localRay.origin = AffineTransform::TransformVector_MatrixMul(in_ray_world.origin, worldInvMat);
-	NVECTOR3 localRayEnd = AffineTransform::TransformVector_MatrixMul(in_ray_world.Eval(1.0f), worldInvMat);
+	Vec3 localRayEnd = AffineTransform::TransformVector_MatrixMul(in_ray_world.Eval(1.0f), worldInvMat);
 	localRay.dir = localRayEnd - localRay.origin;
 	localRay.t_max = in_ray_world.t_max;
 

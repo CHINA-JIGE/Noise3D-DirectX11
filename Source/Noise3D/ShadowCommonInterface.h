@@ -80,7 +80,7 @@ namespace Noise3D
 
 		bool IsReceivingShadowEnabled();
 
-		void SetShadowColor(NColor4f c);//including transparency
+		void SetShadowColor(Color4f c);//including transparency
 
 	protected:
 
@@ -88,7 +88,7 @@ namespace Noise3D
 
 		bool mIsReceivingShadowEnabled;
 
-		NColor4f mShadowColor;
+		Color4f mShadowColor;
 
 	};
 

@@ -14,7 +14,7 @@ namespace Noise3D
 		public IFactory<TextureCubeMap>
 	{
 	public:
-		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NVECTOR4 color, bool keepCopyInMemory = false);
+		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, Vec4 color, bool keepCopyInMemory = false);
 
 		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory = false);
 

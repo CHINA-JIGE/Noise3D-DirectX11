@@ -105,7 +105,7 @@ void IShaderVariableManager::SetVar(const char * var, void * pVal, int size)
 	g_pFX->GetVariableByName(var)->SetRawValue(pVal, 0, size);
 }
 
-void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX & data)
+void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const Matrix & data)
 {
 	//Effect::SetMatrix will automatically re-arrange  the data
 	//(i used to manually transpose the matrix to make it right in shader)
@@ -114,18 +114,18 @@ void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRI
 	 m_pFxMatrix[var]->SetMatrix((float*)&data);
 }
 
-void IShaderVariableManager::SetVector2(NOISE_SHADER_VAR_VECTOR var, const NVECTOR2 & data)
+void IShaderVariableManager::SetVector2(NOISE_SHADER_VAR_VECTOR var, const Vec2 & data)
 {
 	//so the dimension of the vector is managed by Effects11???
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }
 
-void IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR var, const NVECTOR3 & data)
+void IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR var, const Vec3 & data)
 {
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }
 
-void IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR var, const NVECTOR4 & data)
+void IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR var, const Vec4 & data)
 {
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }

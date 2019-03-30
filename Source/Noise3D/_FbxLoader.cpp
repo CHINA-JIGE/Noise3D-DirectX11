@@ -209,10 +209,10 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	//to convert handness correctly
 	//对不起，忍不住说句中文了，这FBX文件的手性转换简直就是玄学吧？？
 	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
-	refCurrentMesh.pos = NVECTOR3(float(pos4.mData[0]), float(pos4.mData[1]),-float(pos4.mData[2]));
+	refCurrentMesh.pos = Vec3(float(pos4.mData[0]), float(pos4.mData[1]),-float(pos4.mData[2]));
 
 	FbxVector4 scale4 = pNode->EvaluateLocalScaling();
-	refCurrentMesh.scale = NVECTOR3(float(scale4.mData[0]), float(scale4.mData[2]), float(scale4.mData[1]));
+	refCurrentMesh.scale = Vec3(float(scale4.mData[0]), float(scale4.mData[2]), float(scale4.mData[1]));
 
 	//euler angle decomposition from 3dsmax to noise3d
 	//		R=Y1X2Z3 (right-handed, z-up) z~roll, x-pitch, y-yaw
@@ -227,19 +227,19 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	float rz = float(rotate4.mData[2]) / 180.0f *Ut::PI;
 	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
 	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
-	NMATRIX mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
+	Matrix mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
 	
 	//(2019.3.11)use AffineTransform to help decompose euler angle in ZXY
 	AffineTransform t;
 	t.SetRigidTransformMatrix(mat);
-	NVECTOR3 euler = t.GetEulerAngleZXY();
+	Vec3 euler = t.GetEulerAngleZXY();
 	refCurrentMesh.rotation = euler;
 	//(deprecated code)
 	/*float s2 = mat.m[1][2];
 	float noiseEulerY = atan2(mat.m[0][2], mat.m[2][2]);
 	float noiseEulerX = asin(-mat.m[1][2]);
 	float noiseEulerZ = (s2 == 1.0f ? Ut::PI / 2.0f : asinf(mat.m[1][ 0] / sqrtf(1.0f - s2*s2)));
-	refCurrentMesh.rotation = NVECTOR3(noiseEulerX,noiseEulerY,noiseEulerZ);*/
+	refCurrentMesh.rotation = Vec3(noiseEulerX,noiseEulerY,noiseEulerZ);*/
 
 
 	//--------------------------------MESH GEOMETRY--------------------------
@@ -290,19 +290,19 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 			//control point could be split according to each vertex attribute
 
 			//vertex color
-			NVECTOR4 color;
+			Vec4 color;
 			mFunction_LoadMesh_VertexColor(pMesh, ctrlPointIndex, polygonVertexIndex, color);
 
 			//vertex normal
-			NVECTOR3 normal;
+			Vec3 normal;
 			mFunction_LoadMesh_VertexNormal(pMesh, ctrlPointIndex, polygonVertexIndex, normal);
 
 			//vertex tangent (nice!!!)
-			NVECTOR3 tangent;
+			Vec3 tangent;
 			mFunction_LoadMesh_VertexTangent(pMesh, ctrlPointIndex, polygonVertexIndex, tangent);
 
 			//texture coordinates could be multiple layers, but we only support 1 layer here
-			NVECTOR2 texcoord;
+			Vec2 texcoord;
 			mFunction_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, uvIndex, 0, texcoord);
 
 			//if current control point has been loaded before,then we should test and 
@@ -367,7 +367,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	}
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR4 & outColor)
+void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4 & outColor)
 {
 	//if no vertex color is defined, output an zero-ed color
 	if (pMesh->GetElementVertexColorCount() < 1)
@@ -437,7 +437,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIn
 	outColor.w = float(v.mAlpha);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3 & outNormal)
+void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outNormal)
 {
 	if (pMesh->GetElementNormalCount() < 1)
 	{
@@ -505,7 +505,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointI
 	outNormal.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3 & outTangent)
+void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outTangent)
 {
 	if (pMesh->GetElementTangentCount() < 1)
 	{
@@ -573,7 +573,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 	outTangent.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, NVECTOR2 & outTexcoord)
+void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2 & outTexcoord)
 {
 	if (pMesh->GetElementUVCount() < 1)
 	{
@@ -638,7 +638,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 	outTexcoord.y = float(1.0f - v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, NVECTOR3 & outBinormal)
+void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outBinormal)
 {
 	if (pMesh->GetElementNormalCount() < 1)
 	{
@@ -793,15 +793,15 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxM
 		{
 			// Ambient Color  
 			FbxDouble3 amb= ((FbxSurfacePhong*)pSurfaceMaterial)->Ambient;
-			basicMat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
+			basicMat.ambientColor = Vec3(amb.mData[0], amb.mData[1], amb.mData[2]);
 
 			// Diffuse Color  
 			FbxDouble3 diff= ((FbxSurfacePhong*)pSurfaceMaterial)->Diffuse;
-			basicMat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
+			basicMat.diffuseColor = Vec3(diff.mData[0], diff.mData[1], diff.mData[2]);
 			
 			// Specular Color  
 			FbxDouble3 spec= ((FbxSurfacePhong*)pSurfaceMaterial)->Specular;
-			basicMat.specularColor = NVECTOR3(spec.mData[0], spec.mData[1], spec.mData[2]);
+			basicMat.specularColor = Vec3(spec.mData[0], spec.mData[1], spec.mData[2]);
 
 			// Emissive Color  
 			FbxDouble3 emissive= ((FbxSurfacePhong*)pSurfaceMaterial)->Emissive;
@@ -830,11 +830,11 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxM
 
 			// Ambient Color  
 			FbxDouble3 amb= ((FbxSurfaceLambert*)pSurfaceMaterial)->Ambient;
-			basicMat.ambientColor = NVECTOR3(amb.mData[0], amb.mData[1], amb.mData[2]);
+			basicMat.ambientColor = Vec3(amb.mData[0], amb.mData[1], amb.mData[2]);
 
 			// Diffuse Color  
 			FbxDouble3 diff= ((FbxSurfaceLambert*)pSurfaceMaterial)->Diffuse;
-			basicMat.diffuseColor = NVECTOR3(diff.mData[0], diff.mData[1], diff.mData[2]);
+			basicMat.diffuseColor = Vec3(diff.mData[0], diff.mData[1], diff.mData[2]);
 
 			// Emissive Color  
 			FbxDouble3 emissive= ((FbxSurfaceLambert*)pSurfaceMaterial)->Emissive;

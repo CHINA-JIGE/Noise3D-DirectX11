@@ -27,9 +27,9 @@ namespace Noise3D
 	private:
 
 		//help creating a box or plane
-		void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
+		void		mFunction_Build_A_Quad(Vec3 vOriginPoint, Vec3 vBasisVector1, Vec3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
 
-		void		mFunction_Build_A_Quad(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
+		void		mFunction_Build_A_Quad(Vec3 vOriginPoint, Vec3 vBasisVector1, Vec3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
 
 	};
 }

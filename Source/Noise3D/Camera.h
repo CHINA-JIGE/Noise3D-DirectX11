@@ -18,25 +18,25 @@ namespace Noise3D
 	{
 	public:
 
-		void		LookAt(NVECTOR3 vLookat);
+		void		LookAt(Vec3 vLookat);
 
 		void		LookAt(float x, float y, float z);
 
-		void		SetDirection(NVECTOR3 viewDir);
+		void		SetDirection(Vec3 viewDir);
 
 		void		SetDirection(float x, float y, float z);
 
-		NVECTOR3	GetLookAtPos();
+		Vec3	GetLookAtPos();
 
-		NVECTOR3	GetDirection();
+		Vec3	GetDirection();
 
 		void		SetProjectionType(bool isPerspective = true);//true for perspective, false for orthographic
 
-		void		GetViewMatrix(NMATRIX& outMat);
+		void		GetViewMatrix(Matrix& outMat);
 
-		void		GetProjMatrix(NMATRIX& outMat);
+		void		GetProjMatrix(Matrix& outMat);
 
-		void		GetViewInvMatrix(NMATRIX& outMat);
+		void		GetViewInvMatrix(Matrix& outMat);
 
 		void		SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);//for perspective
 
@@ -47,16 +47,16 @@ namespace Noise3D
 		void		SetOrthoViewSize(float width, float height);//for orhtographic
 
 		//fire a ray from cam pos(0,0,0),return ray dir, used for picking or path tracing
-		NVECTOR3	FireRay_ViewSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
+		Vec3	FireRay_ViewSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
 
 		//fire a ray from cam pos(0,0,0), return ray dir, used for picking or path tracing
-		NVECTOR3	FireRay_ViewSpace(NVECTOR2 uv);
+		Vec3	FireRay_ViewSpace(Vec2 uv);
 
 		//fire a ray from cam pos using pixel coord, return an world space ray. used for picking or path tracing
-		N_Ray	FireRay_WorldSpace(NPIXELCOORD2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
+		N_Ray	FireRay_WorldSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
 
 		//fire a ray from cam pos using NDC [-1,1]x[-1,1], return an world space ray. used for picking or path tracing
-		N_Ray	FireRay_WorldSpace(NVECTOR2 uv);
+		N_Ray	FireRay_WorldSpace(Vec2 uv);
 
 		void		fps_MoveForward(float fSignedDistance, bool enableYAxisMovement = false);
 
@@ -80,10 +80,10 @@ namespace Noise3D
 		RigidTransform& GetWorldTransform();
 
 		//SceneNode::
-		NMATRIX EvalWorldAffineTransformMatrix() = delete;
+		Matrix EvalWorldAffineTransformMatrix() = delete;
 
 		//SceneNode::
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose) = delete;
+		void EvalWorldAffineTransformMatrix(Matrix& outWorldMat, Matrix& outWorldInvTranspose) = delete;
 		
 		//SceneNode::
 		AffineTransform& GetLocalTransform() =delete;
@@ -107,7 +107,7 @@ namespace Noise3D
 		//update rotation after 'lookat'/SetDirection
 		void		mFunc_UpdateRotation();
 
-		NVECTOR3	mLookat;
+		Vec3	mLookat;
 		bool		mIsPerspective;
 		float		mViewAngleY_Radian;//radian
 		float		mAspectRatio;// horizontal/vertical

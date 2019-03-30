@@ -150,7 +150,7 @@ bool TextManager::IsFontExisted(N_UID fontName)
 	return IFactory<N_FontObject>::FindUid(fontName);
 }
 
-StaticText*	 TextManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+StaticText*	 TextManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//conver WString to AsciiString
 	std::wstring tmpWString;
@@ -159,7 +159,7 @@ StaticText*	 TextManager::CreateStaticTextA(N_UID fontName, N_UID textObjectName
 	return pText;
 };
 
-StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName, std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//check fontName if it repeats
 	if (IFactory<N_FontObject>::FindUid(fontName) == false)
@@ -183,7 +183,7 @@ StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName
 		tmpTextureName,
 		boundaryWidth,
 		boundaryHeight,
-		NVECTOR4(0, 0, 0, 0),
+		Vec4(0, 0, 0, 0),
 		true
 		);
 
@@ -237,7 +237,7 @@ StaticText*	 TextManager::CreateStaticTextW(N_UID fontName, N_UID textObjectName
 	return pText;
 }
 
-DynamicText*	 TextManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, int wordSpacingOffset, int lineSpacingOffset)
+DynamicText*	 TextManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//dynamic text use bitmap table & texture coordinate to  render text
 
@@ -289,7 +289,7 @@ DynamicText*	 TextManager::CreateDynamicTextA(N_UID fontName, N_UID textObjectNa
 	return pText;
 }
 
-NVECTOR2 TextManager::GetFontSize(N_UID fontName)
+Vec2 TextManager::GetFontSize(N_UID fontName)
 {
 	float fontWidth = 0.0f; float fontHeight = 0.0f;
 	if (IFactory<N_FontObject>::FindUid(fontName)==true)
@@ -298,7 +298,7 @@ NVECTOR2 TextManager::GetFontSize(N_UID fontName)
 		fontHeight = float(pObj->mFontSize);
 		fontWidth = fontHeight*pObj->mAspectRatio;
 	}
-	return NVECTOR2(fontWidth,fontHeight);
+	return Vec2(fontWidth,fontHeight);
 }
 
 bool TextManager::DeleteFont(N_UID fontName)
@@ -443,7 +443,7 @@ bool TextManager::mFunction_Init(TextureManager* in_created_pTexMgr, GraphicObje
 	return true;
 }
 
-void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, NVECTOR4 textColor)
+void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap & outFontBitmap, Vec4 textColor)
 {
 	//didn't check fontID here , only be able to get the bitmap
 	
@@ -482,7 +482,7 @@ void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targ
 	//---------------------CHAR SIZE--------------------
 	//after multiple passing firstly started in CreateFont
 	//the reference of FontObj finally come here to get bitmap size for each char
-	fontObj.mAsciiCharSizeList.push_back(NVECTOR2(float(charWidth), float(charHeight)));
+	fontObj.mAsciiCharSizeList.push_back(Vec2(float(charWidth), float(charHeight)));
 
 	for (int i = 0;i < charWidth*charHeight;i++)
 	{
@@ -491,7 +491,7 @@ void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targ
 			//add colors to user-defined buffer (greyScaleIntensity * color)
 			float greyScaleColor = float(charBitmap.buffer[i]) / 256.0f;
 			outFontBitmap.bitmapBuffer.push_back(
-				NColor4u(NVECTOR4(
+				NColor4u(Vec4(
 					greyScaleColor *textColor.x,
 					greyScaleColor* textColor.y,
 					greyScaleColor* textColor.z,
@@ -507,7 +507,7 @@ void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targ
 	outFontBitmap.width = charWidth;
 }
 
-void	TextManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
+void	TextManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset)
 {
 	//arbitrarily get a wchar to Get the basic size of char
 	N_Font_Bitmap singleCharBitmap;
@@ -523,7 +523,7 @@ void	TextManager::mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstri
 	//a string rectangle must be big enough to contain at least  1 word
 	if (CharBoundarySizeX > boundaryWidth)boundaryWidth = CharBoundarySizeX + 1;
 	if (CharBoundarySizeY > boundaryHeight)boundaryHeight = CharBoundarySizeY + 1;
-	outFontBitmap.bitmapBuffer.resize(boundaryWidth*boundaryHeight, NVECTOR4(0, 0, 0, 0));
+	outFontBitmap.bitmapBuffer.resize(boundaryWidth*boundaryHeight, Vec4(0, 0, 0, 0));
 
 
 	//used to locate the position of current drawing char
@@ -605,7 +605,7 @@ bool TextManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj
 		 fontObj.mInternalTextureName,
 		tablePxWidth,
 		tablePxHeight,
-		NVECTOR4(0, 0, 0, 0),
+		Vec4(0, 0, 0, 0),
 		true
 		);
 
@@ -626,7 +626,7 @@ bool TextManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj
 		{
 
 			N_Font_Bitmap tmpFontBitmap;
-			mFunction_GetBitmapOfWChar(fontObj,rowID*tableColumnCount+colID, tmpFontBitmap, NVECTOR4(1.0f, 0, 0, 1.0f));
+			mFunction_GetBitmapOfWChar(fontObj,rowID*tableColumnCount+colID, tmpFontBitmap, Vec4(1.0f, 0, 0, 1.0f));
 			
 			for (UINT localY = 0;localY < charHeight;localY++)
 			{

@@ -10,7 +10,7 @@
 using namespace Noise3D;
 #define SH_ASSERT(expr, prompt) if((expr)==false){ERROR_MSG(prompt);return 0.0f;}
 
-float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
+float Noise3D::GI::SH(int l, int m, Vec3 dir)
 {
 	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
 	SH_ASSERT(l >= 0, "SH function: band index l should be positive");
@@ -89,12 +89,12 @@ float Noise3D::GI::SH(int l, int m, NVECTOR3 dir)
 
 float Noise3D::GI::SH(int l, int m, float yaw, float pitch)
 {
-	//NVECTOR3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
-	NVECTOR3 vec=Ut::YawPitchToDirection(yaw, pitch);
+	//Vec3 vec = { sinf(yaw)*cosf(pitch), cosf(yaw)*cosf(pitch), sinf(pitch) };
+	Vec3 vec=Ut::YawPitchToDirection(yaw, pitch);
 	return SH(l, m, vec);
 }
 
-float Noise3D::GI::SH_Recursive(int l, int m, NVECTOR3 dir)
+float Noise3D::GI::SH_Recursive(int l, int m, Vec3 dir)
 {
 	SH_ASSERT(dir.Length() >= 0.01f, "SH function:  dir length is less than threshold");
 	//normalize the dir (unit sphere assumption)

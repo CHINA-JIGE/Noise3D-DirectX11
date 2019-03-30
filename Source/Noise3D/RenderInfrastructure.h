@@ -60,7 +60,7 @@ namespace Noise3D
 		void		SetPostProcessRemainingPassCount(uint32_t passCount);
 
 		//clear render target view(s) and depth stencil view(s)
-		void		ClearRtvAndDsv(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
+		void		ClearRtvAndDsv(const Vec4& color = Vec4(0, 0, 0, 0.0f));
 
 		void		UpdateCameraMatrix(Camera* const pCamera);
 

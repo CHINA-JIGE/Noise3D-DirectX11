@@ -15,10 +15,10 @@ using namespace Noise3D;
 IBasicContainerInfo::IBasicContainerInfo(): 
 	mPosZ(1.0f),//the deepest
 	mIsEnabled(true),
-	mPositionCenter(NVECTOR2(50, 30)),
+	mPositionCenter(Vec2(50, 30)),
 	mWidth(100),
 	mHeight(60),
-	mBasicColor(NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f))
+	mBasicColor(Vec4(0.3f, 0.3f, 1.0f, 1.0f))
 {
 
 }
@@ -35,20 +35,20 @@ void IBasicContainerInfo::SetDiagonal(float x_topLeft, float y_topLeft,float x_b
 	}
 };
 
-void IBasicContainerInfo::SetDiagonal(NVECTOR2 v_topLeft, NVECTOR2 v_bottomRight)
+void IBasicContainerInfo::SetDiagonal(Vec2 v_topLeft, Vec2 v_bottomRight)
 {
 	//use another overloaded function
 	SetDiagonal(v_topLeft.x, v_topLeft.y, v_bottomRight.x, v_bottomRight.y);
 }
 
-NVECTOR2 IBasicContainerInfo::GetTopLeft()
+Vec2 IBasicContainerInfo::GetTopLeft()
 {
-	return mPositionCenter-NVECTOR2(mWidth/2,mHeight/2);
+	return mPositionCenter-Vec2(mWidth/2,mHeight/2);
 }
 
-NVECTOR2 IBasicContainerInfo::GetBottomRight()
+Vec2 IBasicContainerInfo::GetBottomRight()
 {
-	return  mPositionCenter + NVECTOR2(mWidth / 2, mHeight / 2);
+	return  mPositionCenter + Vec2(mWidth / 2, mHeight / 2);
 };
 
 void IBasicContainerInfo::SetCenterPos(float x, float y)
@@ -57,7 +57,7 @@ void IBasicContainerInfo::SetCenterPos(float x, float y)
 	mPositionCenter.y = y;
 };
 
-void IBasicContainerInfo::SetCenterPos(NVECTOR2 v)
+void IBasicContainerInfo::SetCenterPos(Vec2 v)
 {
 	mPositionCenter = v;
 }
@@ -67,12 +67,12 @@ void IBasicContainerInfo::Move(float relativeX, float relativeY)
 	SetCenterPos(mPositionCenter.x + relativeX, mPositionCenter.y + relativeY);
 }
 
-void IBasicContainerInfo::Move(NVECTOR2 relativePos)
+void IBasicContainerInfo::Move(Vec2 relativePos)
 {
 	Move(relativePos.x, relativePos.y);
 }
 
-NVECTOR2 IBasicContainerInfo::GetCenterPos()
+Vec2 IBasicContainerInfo::GetCenterPos()
 {
 	return mPositionCenter;
 }
@@ -100,21 +100,21 @@ float IBasicContainerInfo::GetHeight()
 }
 
 
-bool IBasicContainerInfo::IsPointInContainer(NVECTOR2 v)
+bool IBasicContainerInfo::IsPointInContainer(Vec2 v)
 {
 	return Ut::IsPointInRect2D(
 		v,
-		mPositionCenter - NVECTOR2(mWidth / 2, mHeight / 2),
-		mPositionCenter + NVECTOR2(mWidth / 2, mHeight / 2)
+		mPositionCenter - Vec2(mWidth / 2, mHeight / 2),
+		mPositionCenter + Vec2(mWidth / 2, mHeight / 2)
 		);
 };
 
-void IBasicContainerInfo::SetBasicColor(NVECTOR4 c)
+void IBasicContainerInfo::SetBasicColor(Vec4 c)
 {
 	mBasicColor = c;
 }
 
-NVECTOR4 IBasicContainerInfo::GetBasicColor()
+Vec4 IBasicContainerInfo::GetBasicColor()
 {
 	return mBasicColor;
 }

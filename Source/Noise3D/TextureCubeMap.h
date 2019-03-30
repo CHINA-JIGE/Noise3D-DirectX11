@@ -26,7 +26,7 @@ namespace Noise3D
 
 		NColor4u	 GetPixel(uint32_t faceID, uint32_t x, uint32_t y);
 
-		NColor4u	 GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode);
+		NColor4u	 GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode);
 
 	private:
 

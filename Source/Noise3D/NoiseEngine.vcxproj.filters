@@ -160,6 +160,9 @@
     <Filter Include="GeneralBasicClass\_FileIO">
       <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\GI\PathTracer">
+      <UniqueIdentifier>{5fd65d78-9578-4cab-859c-9b2b09b6ac70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -388,6 +391,9 @@
     <ClInclude Include="FileIO.h">
       <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClInclude>
+    <ClInclude Include="PathTracer.h">
+      <Filter>NoiseGraphic\GI\PathTracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -584,6 +590,9 @@
     </ClCompile>
     <ClCompile Include="FileIO.cpp">
       <Filter>GeneralBasicClass\_FileIO</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracer.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

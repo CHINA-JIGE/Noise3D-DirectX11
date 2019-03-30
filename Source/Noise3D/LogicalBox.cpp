@@ -10,7 +10,7 @@
 using namespace Noise3D;
 
 Noise3D::LogicalBox::LogicalBox():
-	//mLocalBox(NVECTOR3(-1.0f,-1.0f,-1.0f),NVECTOR3(1.0f,1.0f,1.0f))
+	//mLocalBox(Vec3(-1.0f,-1.0f,-1.0f),Vec3(1.0f,1.0f,1.0f))
 	mSize(1.0f,1.0f,1.0f)
 {
 }
@@ -19,32 +19,32 @@ Noise3D::LogicalBox::~LogicalBox()
 {
 }
 
-NVECTOR3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
+Vec3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
 {
 	switch (facet)
 	{
-	case NOISE_BOX_FACET::POS_X: return NVECTOR3(1.0f, 0, 0);
-	case NOISE_BOX_FACET::NEG_X: return NVECTOR3(-1.0f, 0, 0);
-	case NOISE_BOX_FACET::POS_Y: return NVECTOR3(0, 1.0f, 0);
-	case NOISE_BOX_FACET::NEG_Y: return NVECTOR3(0, -1.0f, 0);
-	case NOISE_BOX_FACET::POS_Z: return NVECTOR3(0, 0, 1.0f);
-	case NOISE_BOX_FACET::NEG_Z: return NVECTOR3(0, 0, -1.0f);
+	case NOISE_BOX_FACET::POS_X: return Vec3(1.0f, 0, 0);
+	case NOISE_BOX_FACET::NEG_X: return Vec3(-1.0f, 0, 0);
+	case NOISE_BOX_FACET::POS_Y: return Vec3(0, 1.0f, 0);
+	case NOISE_BOX_FACET::NEG_Y: return Vec3(0, -1.0f, 0);
+	case NOISE_BOX_FACET::POS_Z: return Vec3(0, 0, 1.0f);
+	case NOISE_BOX_FACET::NEG_Z: return Vec3(0, 0, -1.0f);
 	}
-	return NVECTOR3(0, 0, 0);
+	return Vec3(0, 0, 0);
 }
 
 
-void Noise3D::LogicalBox::SetSizeXYZ(NVECTOR3 size)
+void Noise3D::LogicalBox::SetSizeXYZ(Vec3 size)
 {
-	mSize = NVECTOR3(abs(size.x), abs(size.y), abs(size.z));
+	mSize = Vec3(abs(size.x), abs(size.y), abs(size.z));
 }
 
 inline N_AABB Noise3D::LogicalBox::GetLocalBox()
 {
 	//return mLocalBox;
 	N_AABB a;
-	a.min = NVECTOR3(-mSize.x / 2.0f, -mSize.y / 2.0f, -mSize.z / 2.0f);
-	a.max = NVECTOR3(mSize.x / 2.0f, mSize.y / 2.0f, mSize.z / 2.0f);
+	a.min = Vec3(-mSize.x / 2.0f, -mSize.y / 2.0f, -mSize.z / 2.0f);
+	a.max = Vec3(mSize.x / 2.0f, mSize.y / 2.0f, mSize.z / 2.0f);
 	return a;
 }
 
@@ -67,6 +67,6 @@ N_AABB Noise3D::LogicalBox::ComputeWorldAABB_Accurate()
 float Noise3D::LogicalBox::ComputeArea()
 {
 	N_AABB aabb = GetLocalAABB();
-	NVECTOR3 delta = aabb.max - aabb.min;
+	Vec3 delta = aabb.max - aabb.min;
 	return 2.0f*(delta.x * delta.y + delta.y * delta.z + delta.z * delta.x);
 }

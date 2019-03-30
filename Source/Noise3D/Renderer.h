@@ -58,7 +58,7 @@ namespace Noise3D
 
 		void		Render();//render object in a fixed order
 
-		void		ClearBackground(const NVECTOR4& color = NVECTOR4(0, 0, 0, 0.0f));
+		void		ClearBackground(const Vec4& color = Vec4(0, 0, 0, 0.0f));
 
 		void		PresentToScreen();
 

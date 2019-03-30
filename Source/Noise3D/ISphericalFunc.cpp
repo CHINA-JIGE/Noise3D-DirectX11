@@ -15,12 +15,12 @@ void Noise3D::GI::ISphericalFunc_Texture2dSampler::SetTexturePtr(Texture2D * pTe
 	m_pTex = pTex;
 }
 
-NColor4f Noise3D::GI::ISphericalFunc_Texture2dSampler::Eval(const NVECTOR3 & dir)
+Color4f Noise3D::GI::ISphericalFunc_Texture2dSampler::Eval(const Vec3 & dir)
 {
 	uint32_t pixelX = 0, pixelY = 0;
 	Ut::DirectionToPixelCoord_SphericalMapping(dir, m_pTex->GetWidth(), m_pTex->GetHeight(), pixelX, pixelY);
 	NColor4u c=  m_pTex->GetPixel(pixelX, pixelY);
-	NColor4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
+	Color4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
 	return result;
 };
 
@@ -32,9 +32,9 @@ void Noise3D::GI::ISphericalFunc_CubeMapSampler::SetTexturePtr(TextureCubeMap * 
 	m_pTex = pTex;
 }
 
-NColor4f Noise3D::GI::ISphericalFunc_CubeMapSampler::Eval(const NVECTOR3 & dir)
+Color4f Noise3D::GI::ISphericalFunc_CubeMapSampler::Eval(const Vec3 & dir)
 {
 	NColor4u c = m_pTex->GetPixel(dir,TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::BILINEAR);
-	NColor4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
+	Color4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
 	return result;
 }

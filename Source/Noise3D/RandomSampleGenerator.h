@@ -24,10 +24,10 @@ namespace Noise3D
 			float NormalizedReal();
 
 			//generate uniform random unit vector which distributes on unit sphere
-			NVECTOR3 UniformSpherical_Vector();
+			Vec3 UniformSpherical_Vector();
 
 			//generate uniform random unit vector's( which distributes on unit sphere)azimulthal (vec.x==theta==pitch, vec.y==phi==yaw)
-			NVECTOR2 UniformSpherical_Azimulthal();
+			Vec2 UniformSpherical_Azimulthal();
 
 		private:
 

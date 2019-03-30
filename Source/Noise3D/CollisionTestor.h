@@ -22,8 +22,8 @@ namespace Noise3D
 		bool IsValid()	{	return (t != std::numeric_limits<float>::infinity());	}
 
 		float t;//ray's hit parameter t
-		NVECTOR3 pos;//hit point's pos
-		NVECTOR3 normal;//hit point's normal vector
+		Vec3 pos;//hit point's pos
+		Vec3 normal;//hit point's normal vector
 	};
 
 	//collection of RayHitInfo
@@ -59,10 +59,10 @@ namespace Noise3D
 	public:
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		void Picking_GpuBased(Mesh* pMesh, const NVECTOR2& mouseNormalizedCoord,std::vector<NVECTOR3>& outCollidedPointList);
+		void Picking_GpuBased(Mesh* pMesh, const Vec2& mouseNormalizedCoord,std::vector<Vec3>& outCollidedPointList);
 
 		//normalized Coord frame(Cartesian) centered at the middle of screen ,with X & Y both valued in [-1,1]
-		UINT Picking_GpuBased(Mesh* pMesh, const NVECTOR2& mouseNormalizedCoord);
+		UINT Picking_GpuBased(Mesh* pMesh, const Vec2& mouseNormalizedCoord);
 
 		//ray-Aabb intersection. 'slabs' method, can refer to pbrt-v3 or peter-shirley's <Ray Tracing:The Next Week>
 		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb);
@@ -80,7 +80,7 @@ namespace Noise3D
 		static bool IntersectRaySphere(const N_Ray& ray, LogicalSphere* pSphere, N_RayHitResult& outHitRes);
 
 		//ray-triangle intersection
-		static bool IntersectRayTriangle(const N_Ray& ray, NVECTOR3 v0, NVECTOR3 v1, NVECTOR3 v2, N_RayHitInfo& outHitInfo);
+		static bool IntersectRayTriangle(const N_Ray& ray, Vec3 v0, Vec3 v1, Vec3 v2, N_RayHitInfo& outHitInfo);
 
 		//ray-triangle intersection with normal interpolation
 		static bool IntersectRayTriangle(const N_Ray& ray, const N_DefaultVertex& v0, const N_DefaultVertex& v1, const N_DefaultVertex& v2, N_RayHitInfo& outHitInfo);
@@ -116,9 +116,9 @@ namespace Noise3D
 
 			void HitResult_ModelToWorld(N_RayHitResult& hitResult);
 
-			NMATRIX worldMat; 
-			NMATRIX worldInvMat; 
-			NMATRIX worldInvTransposeMat;
+			Matrix worldMat; 
+			Matrix worldInvMat; 
+			Matrix worldInvTransposeMat;
 		};
 
 		//init d3d-related interface

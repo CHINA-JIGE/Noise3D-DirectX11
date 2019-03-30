@@ -29,38 +29,38 @@ Noise3D::RigidTransform::RigidTransform(const RigidTransform & t):
 {
 }
 
-void Noise3D::RigidTransform::SetPosition(NVECTOR3 vPos)
+void Noise3D::RigidTransform::SetPosition(Vec3 vPos)
 {
 	mPosition = vPos;
 }
 
 void Noise3D::RigidTransform::SetPosition(float x, float y, float z)
 {
-	mPosition = NVECTOR3(x, y, z);
+	mPosition = Vec3(x, y, z);
 }
 
-void Noise3D::RigidTransform::Move(NVECTOR3 deltaPos)
+void Noise3D::RigidTransform::Move(Vec3 deltaPos)
 {
 	mPosition += deltaPos;
 }
 
 void Noise3D::RigidTransform::Move(float dx, float dy, float dz)
 {
-	mPosition += NVECTOR3(dx, dy, dz);
+	mPosition += Vec3(dx, dy, dz);
 }
 
-NVECTOR3 Noise3D::RigidTransform::GetPosition() const 
+Vec3 Noise3D::RigidTransform::GetPosition() const 
 {
 	return mPosition;
 }
 
-NVECTOR3 Noise3D::RigidTransform::GetEulerAngleZXY() const
+Vec3 Noise3D::RigidTransform::GetEulerAngleZXY() const
 {
 	//Quaternion--->Matrix
-	NMATRIX rotMat=RigidTransform::GetRotationMatrix();
+	Matrix rotMat=RigidTransform::GetRotationMatrix();
 
 	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
-	NVECTOR3 euler = mFunc_RotationMatrixToEulerZXY(rotMat);
+	Vec3 euler = mFunc_RotationMatrixToEulerZXY(rotMat);
 
 	return euler;
 }
@@ -68,7 +68,7 @@ NVECTOR3 Noise3D::RigidTransform::GetEulerAngleZXY() const
 N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::GetEulerAngleZYZ() const
 {
 	//Quaternion--->Matrix
-	NMATRIX rotMat = RigidTransform::GetRotationMatrix();
+	Matrix rotMat = RigidTransform::GetRotationMatrix();
 
 	//Matrix---->EulerAngle (Gimbal lock is dealt with inside the conversion function)
 	N_EULER_ANGLE_ZYZ euler = mFunc_RotationMatrixToEulerZYZ(rotMat);
@@ -76,12 +76,12 @@ N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::GetEulerAngleZYZ() const
 	return euler;
 }
 
-NQUATERNION Noise3D::RigidTransform::GetQuaternion() const 
+Quaternion Noise3D::RigidTransform::GetQuaternion() const 
 {
 	return mQuaternion;
 }
 
-NMATRIX Noise3D::RigidTransform::GetRotationMatrix() const
+Matrix Noise3D::RigidTransform::GetRotationMatrix() const
 {
 	//Quaternion---->Matrix
 	//ref.1 : https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Conversion_to_and_from_the_matrix_representation
@@ -96,7 +96,7 @@ NMATRIX Noise3D::RigidTransform::GetRotationMatrix() const
 }
 
 
-void Noise3D::RigidTransform::Rotate(NVECTOR3 axis, float angle)
+void Noise3D::RigidTransform::Rotate(Vec3 axis, float angle)
 {
 	//AxisAngle---->Quaternion
 	// COLUMN vector
@@ -107,11 +107,11 @@ void Noise3D::RigidTransform::Rotate(NVECTOR3 axis, float angle)
 					[zsin(a/2)	]
 					[cos(y/2)	]
 	*/
-	NQUATERNION deltaRotQ= XMQuaternionRotationAxis(axis, angle);
+	Quaternion deltaRotQ= XMQuaternionRotationAxis(axis, angle);
 	RigidTransform::Rotate(deltaRotQ);
 }
 
-bool Noise3D::RigidTransform::Rotate(NQUATERNION q)
+bool Noise3D::RigidTransform::Rotate(Quaternion q)
 {
 	if (!Ut::TolerantEqual(q.Length(),1.0f, 0.0001f))
 	{
@@ -129,10 +129,10 @@ bool Noise3D::RigidTransform::Rotate(NQUATERNION q)
 
 void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
 {
-	NVECTOR3 euler = RigidTransform::GetEulerAngleZXY();
+	Vec3 euler = RigidTransform::GetEulerAngleZXY();
 
 	//rotate with delta euler angle
-	euler += NVECTOR3(pitch_x, yaw_y, roll_z);
+	euler += Vec3(pitch_x, yaw_y, roll_z);
 
 	//Euler---->Quaternion
 	//pitch-x, yaw-y, roll-z, left-handed, zxy convention, COLUMN vector
@@ -152,7 +152,7 @@ void Noise3D::RigidTransform::Rotate(float pitch_x, float yaw_y, float roll_z)
 	mQuaternion = XMQuaternionRotationRollPitchYaw(euler.x, euler.y, euler.z);
 }
 
-bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
+bool Noise3D::RigidTransform::Rotate(const Matrix & deltaRotMat)
 {
 	//top left 3x3 must be orthonormal
 	bool isOrtho = mFunc_CheckTopLeft3x3Orthonomal(deltaRotMat);
@@ -163,7 +163,7 @@ bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
 	}
 
 	//Quaternion---->Matrix
-	NMATRIX currentMat=RigidTransform::GetRotationMatrix();
+	Matrix currentMat=RigidTransform::GetRotationMatrix();
 
 	//left-multiply/concatenate a delta rotation matrix
 	currentMat = deltaRotMat * currentMat;
@@ -174,7 +174,7 @@ bool Noise3D::RigidTransform::Rotate(const NMATRIX & deltaRotMat)
 	return true;
 }
 
-void Noise3D::RigidTransform::SetRotation(NVECTOR3 axis, float angle)
+void Noise3D::RigidTransform::SetRotation(Vec3 axis, float angle)
 {
 	//AxisAngle---->Quaternion
 	// COLUMN vector
@@ -188,7 +188,7 @@ void Noise3D::RigidTransform::SetRotation(NVECTOR3 axis, float angle)
 	mQuaternion =  XMQuaternionRotationAxis(axis,angle);
 }
 
-bool Noise3D::RigidTransform::SetRotation(NQUATERNION q)
+bool Noise3D::RigidTransform::SetRotation(Quaternion q)
 {
 	if (!Ut::TolerantEqual(q.Length() ,1.0f, 0.0001f))
 	{
@@ -219,12 +219,12 @@ void Noise3D::RigidTransform::SetRotation(float pitch_x, float yaw_y, float roll
 	mQuaternion = XMQuaternionRotationRollPitchYaw(pitch_x, yaw_y, roll_z);
 }
 
-void Noise3D::RigidTransform::SetRotation(NVECTOR3 eulerAngles)
+void Noise3D::RigidTransform::SetRotation(Vec3 eulerAngles)
 {
 	RigidTransform::SetRotation(eulerAngles.x, eulerAngles.y, eulerAngles.z);
 }
 
-bool Noise3D::RigidTransform::SetRotation(const NMATRIX & mat)
+bool Noise3D::RigidTransform::SetRotation(const Matrix & mat)
 {
 	//top left 3x3 must be orthonormal
 	bool isOrtho = mFunc_CheckTopLeft3x3Orthonomal(mat);
@@ -245,19 +245,19 @@ void Noise3D::RigidTransform::InvertRotation()
 	mQuaternion = XMQuaternionInverse(mQuaternion);
 }
 
-NVECTOR3 Noise3D::RigidTransform::TransformVector_Rigid(NVECTOR3 vec)const 
+Vec3 Noise3D::RigidTransform::TransformVector_Rigid(Vec3 vec)const 
 {
-	NVECTOR3 outVec = NVECTOR3(0, 0, 0);
-	if (vec != NVECTOR3(0, 0, 0))
+	Vec3 outVec = Vec3(0, 0, 0);
+	if (vec != Vec3(0, 0, 0))
 	{
 		//Quaternion Rotation: R(q) = qpq^(-1), with p=(vec3, 0), a pure quaternion
 		//https://zh.wikipedia.org/wiki/%E5%9B%9B%E5%85%83%E6%95%B0%E4%B8%8E%E7%A9%BA%E9%97%B4%E6%97%8B%E8%BD%AC
-		NQUATERNION v = NQUATERNION(vec.x, vec.y, vec.z, 0);
-		NQUATERNION q = mQuaternion;
-		NQUATERNION q_inv = XMQuaternionInverse(mQuaternion);
-		NQUATERNION p_rotated = q * v *q_inv;
+		Quaternion v = Quaternion(vec.x, vec.y, vec.z, 0);
+		Quaternion q = mQuaternion;
+		Quaternion q_inv = XMQuaternionInverse(mQuaternion);
+		Quaternion p_rotated = q * v *q_inv;
 		//extract rotated vector
-		outVec = NVECTOR3(p_rotated.x, p_rotated.y, p_rotated.z);
+		outVec = Vec3(p_rotated.x, p_rotated.y, p_rotated.z);
 	}
 
 	//plus translation
@@ -271,15 +271,15 @@ void Noise3D::RigidTransform::SetRigidTransform(const RigidTransform & t)
 	SetPosition(t.GetPosition());
 }
 
-void Noise3D::RigidTransform::SetRigidTransformMatrix(const NMATRIX & mat)
+void Noise3D::RigidTransform::SetRigidTransformMatrix(const Matrix & mat)
 {
-	mPosition = NVECTOR3(mat.m[3][0], mat.m[3][1], mat.m[3][2]);
+	mPosition = Vec3(mat.m[3][0], mat.m[3][1], mat.m[3][2]);
 	RigidTransform::SetRotation(mat);
 }
 
-NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
+Matrix Noise3D::RigidTransform::GetRigidTransformMatrix() const
 {
-	NMATRIX outMat = RigidTransform::GetRotationMatrix();
+	Matrix outMat = RigidTransform::GetRotationMatrix();
 
 	//this generate an COLUMN matrix
 	/*out.m[3][0] = 0.0f;
@@ -307,7 +307,7 @@ NMATRIX Noise3D::RigidTransform::GetRigidTransformMatrix() const
 									PRIVATE
 
 ****************************************************/
-bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & mat)
+bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const Matrix & mat)
 {
 	//the determination of orthogonal matrix:
 	//M * M^T = M^T * M = I
@@ -320,9 +320,9 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	[ C ]							[0 0 1]
 	*/
 
-	NMATRIX T = mat.Transpose();
-	NMATRIX mat1 = mat * T;
-	NMATRIX mat2 = T * mat;
+	Matrix T = mat.Transpose();
+	Matrix mat1 = mat * T;
+	Matrix mat2 = T * mat;
 	bool isOrthonormal = true;
 
 	//check multiplied result's top left 3x3 sub-matrix whether it's identity
@@ -363,7 +363,7 @@ bool Noise3D::RigidTransform::mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX & ma
 	return isOrthonormal;
 }
 
-NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZXY(const NMATRIX & mat) const
+Vec3 Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZXY(const Matrix & mat) const
 {
 	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
 	COLUMN MAJOR
@@ -392,7 +392,7 @@ NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZXY(const NMATRIX &
 	/*
 
 	*/
-	NVECTOR3 outEuler = NVECTOR3(0,0,0);
+	Vec3 outEuler = Vec3(0,0,0);
 
 	//XM-generated row major matrix
 	if (mat.m[2][1] != 1.0f && mat.m[2][1] != -1.0f)
@@ -443,7 +443,7 @@ NVECTOR3 Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZXY(const NMATRIX &
 	return outEuler;
 }
 
-N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZYZ(const NMATRIX & mat) const
+N_EULER_ANGLE_ZYZ Noise3D::RigidTransform::mFunc_RotationMatrixToEulerZYZ(const Matrix & mat) const
 {
 	/*c1,s1~Yaw_Y ; c2,s2~Pitch_X ; c3,s3~Roll_Z
 	COLUMN MAJOR

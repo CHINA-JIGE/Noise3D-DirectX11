@@ -58,7 +58,7 @@ NColor4u Texture2D::GetPixel(UINT x, UINT y)
 	{
 		ERROR_MSG("GetPixel : didn't keep a copy in memory !!!");
 	}
-	return NVECTOR4(0, 0, 0, 0);
+	return Vec4(0, 0, 0, 0);
 }
 
 //less redundant bound check to increase efficiency
@@ -230,7 +230,7 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 	{
 		for (UINT i = 0;i < picWidth;i++)
 		{
-			NVECTOR3	currentNormal(0, 0, 0);
+			Vec3	currentNormal(0, 0, 0);
 
 			UINT vertexID1=0, vertexID2=0, vertexID3=0;
 
@@ -278,14 +278,14 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 			NColor4u color2 = mPixelBuffer.at(vertexID2);
 			NColor4u color3 = mPixelBuffer.at(vertexID3);
 			//because it's grey map , so we can only use one color channel
-			NVECTOR3	v1 = NVECTOR3(1.0f, 0, heightFieldScaleFactor* (color2.r - color1.r));
-			NVECTOR3	v2 = NVECTOR3(0, 1.0f, heightFieldScaleFactor* (color3.r - color1.r));
+			Vec3	v1 = Vec3(1.0f, 0, heightFieldScaleFactor* (color2.r - color1.r));
+			Vec3	v2 = Vec3(0, 1.0f, heightFieldScaleFactor* (color3.r - color1.r));
 			currentNormal = v1.Cross(v2);
 			//D3DXVec3Cross(&currentNormal, &v1, &v2);
 
 			//convert normal to Normal Map Color
 			tmpNormalMap.at(vertexID1) =
-				NColor4u(NVECTOR4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f));
+				NColor4u(Vec4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f));
 		}
 	}
 

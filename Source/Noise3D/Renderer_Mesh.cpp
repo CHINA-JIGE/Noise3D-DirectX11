@@ -246,7 +246,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* const pMesh)
 {
 	//update world/worldInv matrix
-	NMATRIX worldMat,worldInvTransposeMat;
+	Matrix worldMat,worldInvTransposeMat;
 	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransposeMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransposeMat);
