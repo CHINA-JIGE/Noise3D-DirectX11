@@ -180,7 +180,7 @@ ISceneObject * Noise3D::SceneNode::GetSceneObject(uint32_t index)
 
 *******************************************/
 
-void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult)
+void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const
 {
 	std::vector<SceneNode*> nodeList;
 

@@ -560,6 +560,27 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	return outHitRes.HasAnyHit();
 }
 
+bool Noise3D::CollisionTestor::IntersectRayScene(const N_Ray & ray, N_RayHitResult & outHitRes)
+{
+	//warn the user if BVH is not rebuilt
+	BvhNode* pBvhRoot = mBvhTree.GetRoot();
+	if (pBvhRoot->IsLeafNode() && pBvhRoot->GetSceneObject() == nullptr)
+	{
+		WARNING_MSG("IntersectRayScene: BVH tree seems to be empty. Forgot to rebuild BVH? or there is no collidable object in the scene?");
+		return false;
+	}
+
+	//start the recursion and BVH branch pruning
+	mFunction_IntersectRayBvhNode(ray, pBvhRoot, outHitRes);
+	return outHitRes.HasAnyHit();
+}
+
+bool Noise3D::CollisionTestor::RebuildBvhTree(const SceneGraph & graph)
+{
+	mBvhTree.Reset();
+	return mBvhTree.Construct(graph);
+}
+
 
 /*************************************************
 
@@ -626,7 +647,7 @@ bool CollisionTestor::mFunction_Init()
 	return true;
 }
 
-inline bool CollisionTestor::mFunction_InitDSS()
+bool CollisionTestor::mFunction_InitDSS()
 {
 	HRESULT hr = S_OK;
 	//depth stencil state
@@ -642,7 +663,7 @@ inline bool CollisionTestor::mFunction_InitDSS()
 	return true;
 }
 
-float Noise3D::CollisionTestor::mFunc_Gamma(int n)
+inline float Noise3D::CollisionTestor::mFunc_Gamma(int n)
 {
 	//'gamma' for floating error in pbrt-v3 /scr/core/pbrt.h
 	return (n * std::numeric_limits<float>::epsilon()) / (1 - n * std::numeric_limits<float>::epsilon());
@@ -665,6 +686,60 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	//if dir component is negative, reverse the result
 	bool isDirNeg = dirComponent<0.0f;
 	if (isDirNeg)std::swap(nearHit, farHit);
+}
+
+void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, BvhNode * bvhNode, N_RayHitResult& outHitRes)
+{
+	//test ray against current bvh AABB
+	//(2019.3.30)WARNING: in some cases, the ray is inside AABB, but there won't be intersection on the surface
+	//however, the ray might still hit something inside the AABB
+	N_AABB aabb = bvhNode->GetAABB();
+	bool isRayEndPointInside = aabb.IsPointInside(ray.origin) || aabb.IsPointInside(ray.Eval(1.0f));
+	bool isHit = CollisionTestor::IntersectRayAabb(ray, aabb);//ray's start,end are outside the AABB but still possible to hit
+	if (isRayEndPointInside || isHit )
+	{
+		//extract concrete object to intersect
+		if (bvhNode->IsLeafNode())
+		{
+			ISceneObject* pObj = bvhNode->GetSceneObject();
+			N_RayHitResult tmpResult;
+			
+			//(2019.3.30)well, it shouldn't run into the 'return' line if the BVH construction is correct.
+			//but i'm not totally confident about that orz= =
+			if (pObj == nullptr)return;
+
+			switch (pObj->GetObjectType())
+			{
+			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX:
+				CollisionTestor::IntersectRayBox(ray, static_cast<LogicalBox*>(pObj), tmpResult);
+				break;
+			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE:
+				CollisionTestor::IntersectRaySphere(ray, static_cast<LogicalSphere*>(pObj), tmpResult);
+				break;
+			case NOISE_SCENE_OBJECT_TYPE::MESH:
+				CollisionTestor::IntersectRayMesh(ray, static_cast<Mesh*>(pObj), tmpResult);
+				break;
+			default:
+				ERROR_MSG("Error: Bug!! I forgot to include some collidable object.");
+				break;
+			}
+			outHitRes.Union(tmpResult);
+
+		}//isLeafNode
+		else
+		{
+			//gather results from
+			for (uint32_t i = 0; i < bvhNode->GetChildNodeCount(); ++i)
+			{
+				N_RayHitResult tmpResult;
+				BvhNode* pChildNode = bvhNode->GetChildNode(i);
+				CollisionTestor::mFunction_IntersectRayBvhNode(ray, pChildNode, tmpResult);
+				outHitRes.Union(tmpResult);//push to back
+			}
+
+		}
+	}//isHit
+	//else, BVH branch pruned. thus accelerated.
 }
 
 bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(

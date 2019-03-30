@@ -49,7 +49,7 @@ namespace Noise3D
 
 		~BvhTree();
 
-		bool Construct(SceneGraph* pSG);
+		bool Construct(const SceneGraph& pSG);
 
 	private:
 

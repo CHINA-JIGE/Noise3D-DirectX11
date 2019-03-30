@@ -58,17 +58,12 @@ Noise3D::BvhTree::~BvhTree()
 {
 }
 
-bool Noise3D::BvhTree::Construct(SceneGraph * pTree)
+bool Noise3D::BvhTree::Construct(const SceneGraph& tree)
 {
-	if (pTree == nullptr) 
-	{
-		ERROR_MSG("BvhTree: scene graph ptr invalid. failed to construct.");
-		return false; 
-	}
 
 	//i arbitrarily choose an traverse order to get all the scene nodes
 	std::vector<ISceneObject*> tmpSceneObjectList;
-	pTree->TraverseSceneObjects(SceneGraph::NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, tmpSceneObjectList);
+	tree.TraverseSceneObjects(SceneGraph::NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, tmpSceneObjectList);
 
 	//store computed AABB of object in pair
 	std::vector<ObjectAabbPair> infoList;

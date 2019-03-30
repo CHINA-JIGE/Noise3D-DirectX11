@@ -53,10 +53,11 @@ namespace Noise3D
 		{
 			this->mChildNodeList = rhs.mChildNodeList;//deep copy
 			this->m_pFatherNode = rhs.m_pFatherNode;
+			this->m_pHostTree = rhs.m_pHostTree;
 		}
 
 		//father node
-		derivedNode_t* GetFatherNode()
+		derivedNode_t* GetFatherNode()const
 		{
 			return m_pFatherNode;
 		}
@@ -94,7 +95,7 @@ namespace Noise3D
 		};
 
 		//...
-		bool IsAttachedToFatherNode() 
+		bool IsAttachedToFatherNode()const 
 		{
 			return (m_pFatherNode != nullptr);
 		}
@@ -110,7 +111,7 @@ namespace Noise3D
 		}
 
 		//get child node via index
-		derivedNode_t* GetChildNode(int index) 
+		derivedNode_t* GetChildNode(uint32_t index) const 
 		{
 			if (index < mChildNodeList.size())
 			{
@@ -120,19 +121,19 @@ namespace Noise3D
 		}
 
 		//how many attached child nodes
-		uint32_t GetChildNodeCount()
+		uint32_t GetChildNodeCount() const
 		{
 			return mChildNodeList.size();
 		}
 
 		//get the tree it belongs to
-		derivedTree_t* GetHostTree()
+		derivedTree_t* GetHostTree() const
 		{
 			return m_pHostTree;
 		}
 
 		//determine if it's leaf node
-		bool IsLeafNode()
+		bool IsLeafNode() const
 		{
 			return mChildNodeList.empty();
 		}
@@ -187,7 +188,7 @@ namespace Noise3D
 		}
 
 		//start from given node. Append to traverse result to ref output(doesn't clear the list)
-		void Traverse_PreOrder(derivedNode_t* pNode,std::vector<derivedNode_t*>& outResult)
+		void Traverse_PreOrder(derivedNode_t* pNode,std::vector<derivedNode_t*>& outResult)const
 		{
 			if (pNode == nullptr)return;
 
@@ -200,7 +201,7 @@ namespace Noise3D
 		}
 
 		//start from given node. Append to traverse result to ref output(doesn't clear the list)
-		void Traverse_PostOrder(derivedNode_t* pNode, std::vector<derivedNode_t*>& outResult)
+		void Traverse_PostOrder(derivedNode_t* pNode, std::vector<derivedNode_t*>& outResult)const
 		{
 			if (pNode == nullptr)return;
 
@@ -213,7 +214,7 @@ namespace Noise3D
 		}
 
 		//start from given node. Append to traverse result to ref output(doesn't clear the list)
-		void Traverse_LayerOrder(derivedNode_t* pNode, std::vector<derivedNode_t*>& outResult)
+		void Traverse_LayerOrder(derivedNode_t* pNode, std::vector<derivedNode_t*>& outResult)const
 		{
 			if (pNode == nullptr)return;
 
@@ -238,25 +239,25 @@ namespace Noise3D
 
 		//start from root. Append to traverse result to ref output(doesn't clear the list)
 		//identical to Traverse_XXX(root, outResult)
-		void Traverse_PreOrder(std::vector<derivedNode_t*>& outResult)
+		void Traverse_PreOrder(std::vector<derivedNode_t*>& outResult)const
 		{
 			TreeTemplate::Traverse_PreOrder(m_pRoot, outResult);
 		}
 
 		//start from root. Append to traverse result to ref output(doesn't clear the list)
-		void Traverse_PostOrder(std::vector<derivedNode_t*>& outResult)
+		void Traverse_PostOrder(std::vector<derivedNode_t*>& outResult)const
 		{
 			TreeTemplate::Traverse_PostOrder(m_pRoot, outResult);
 		}
 
 		//start from root. Append to traverse result to ref output(doesn't clear the list)
-		void Traverse_LayerOrder(std::vector<derivedNode_t*>& outResult)
+		void Traverse_LayerOrder(std::vector<derivedNode_t*>& outResult)const
 		{
 			TreeTemplate::Traverse_LayerOrder(m_pRoot, outResult);
 		}
 
 		//traverse the path from current node to root (inclusive)(can be used in scenario like scene graph world transform eval)
-		void TraversePathToRoot(derivedNode_t* pStartNode, std::vector<derivedNode_t*>& outResult)
+		void TraversePathToRoot(derivedNode_t* pStartNode, std::vector<derivedNode_t*>& outResult)const
 		{
 			if (pStartNode == nullptr)return;
 			if (pStartNode->GetHostTree() != this)
@@ -288,8 +289,16 @@ namespace Noise3D
 			mFunc_Remove<false>(pNode);
 		}
 
+		//delete all nodes except root. and reset the root
+		void Reset()
+		{
+			mFunc_Remove<false>(m_pRoot);
+			m_pRoot->mChildNodeList.clear();
+			m_pRoot->m_pFatherNode = nullptr;
+		}
+
 		//get the root of the tree
-		derivedNode_t* GetRoot()
+		derivedNode_t* GetRoot()const
 		{
 			return m_pRoot;
 		}
@@ -308,7 +317,7 @@ namespace Noise3D
 			{
 				if (pNode == m_pRoot)
 				{
-					ERROR_MSG("Not allowed to manually delete Tree's root.");
+					//WARNING_MSG("Not allowed to manually delete Tree's root.");
 					return;
 				}
 			}

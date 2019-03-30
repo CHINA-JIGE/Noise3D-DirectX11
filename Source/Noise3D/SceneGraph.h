@@ -82,7 +82,7 @@ namespace Noise3D
 			LAYER_ORDER
 		};
 
-		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult);
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
 
 	private:
 

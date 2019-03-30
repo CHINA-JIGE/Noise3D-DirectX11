@@ -45,6 +45,12 @@ namespace Noise3D
 			return !hitList.empty();
 		}
 
+		void Union(const N_RayHitResult& rhs)
+		{
+			if (rhs.hitList.empty())return;
+			hitList.insert(hitList.end(), rhs.hitList.begin(), rhs.hitList.end());
+		}
+
 		std::vector<N_RayHitInfo> hitList;
 	};
 
@@ -82,8 +88,12 @@ namespace Noise3D
 		//ray-Mesh intersection. cpu impl.
 		static bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
 
-		//ray-scene(all objects bound to scene graph) intersection with BVH acceleration, O(logN) in average 
-		static void IntersectRayScene(const N_Ray& ray,SceneGraph* pSceneGraph ,N_RayHitResult& outHitRes);
+		//remember to Rebuild BVH tree before intersectRayScene
+		//ray-scene(all objects that attached to scene graph) intersection with BVH acceleration, O(logN) in average 
+		bool IntersectRayScene(const N_Ray& ray,N_RayHitResult& outHitRes);
+
+		//(re-)build BVH tree from scene graph
+		bool RebuildBvhTree(const SceneGraph& graph);
 
 		//TODO: ray-Mesh intersection. gpu impl. simply modify a little bit to Picking_GpuBased
 		//bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_HitResult& outHitRes);
@@ -123,9 +133,17 @@ namespace Noise3D
 		//get facet id for Ray-AABB intersection
 		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
+		//recursion function for BVH acceleration
+		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNode* bvhNode, N_RayHitResult& outHitRes);
+
+		//low level render/shader variables support
 		IShaderVariableManager* m_pRefShaderVarMgr;
 
-		static const uint32_t c_maxSOVertexCount = 200;//-------Var for Gpu Picking-----------
+		//for ray-scene intersection acceleration
+		BvhTree mBvhTree;
+
+		//-------Var for Gpu Picking-----------
+		static const uint32_t c_maxSOVertexCount = 200;
 		ID3D11Buffer*			m_pSOGpuWriteableBuffer;
 		ID3D11Buffer*			m_pSOCpuReadableBuffer;//this buffer will be used only when concrete collision point pos is needed
 		ID3D11Query*			m_pSOQuery;//Inherited from ID3D11Async which is used to query SO information

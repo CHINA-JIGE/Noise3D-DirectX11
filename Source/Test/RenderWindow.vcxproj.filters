@@ -56,5 +56,8 @@
     <ClCompile Include="UnitTest_CollisionTest_Ray.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_CollisionTest_BvhAccRay.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

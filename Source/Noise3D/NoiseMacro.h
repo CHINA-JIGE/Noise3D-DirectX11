@@ -71,7 +71,7 @@
 		debugMsg << "file: " << __FILE__ << std::endl;\
 		debugMsg << "line: " << __LINE__ << std::endl;\
 		debugMsg << "function:" << __func__ << std::endl;\
-		throw std::exception(debugMsg.str().c_str());\
+		OutputDebugStringA(debugMsg.str().c_str());\
 		debugMsg.clear();\
 	}\
 ;

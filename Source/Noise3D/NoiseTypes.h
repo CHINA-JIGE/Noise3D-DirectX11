@@ -139,6 +139,13 @@ namespace Noise3D
 			return (max + min) / 2.0f;
 		}
 
+		//determine if given point is inside AABB
+		bool IsPointInside(NVECTOR3 v)
+		{
+			return (v.x <= max.x && v.y <= max.y && v.z <= max.z&&
+				v.x >= min.x && v.y >= min.y && min.z >= min.z);
+		}
+
 		NVECTOR3 max;
 		NVECTOR3 min;
 	};
