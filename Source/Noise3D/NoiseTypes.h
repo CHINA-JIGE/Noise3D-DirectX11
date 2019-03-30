@@ -20,6 +20,7 @@ namespace Noise3D
 	typedef	std::string		NString;
 	typedef	std::string		N_UID;
 	typedef	SimpleMath::Color 	NColor4f;
+	typedef	SimpleMath::Vector2 NPIXELCOORD2;
 
 	struct NColor4u
 	{

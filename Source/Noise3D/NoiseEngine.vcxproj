@@ -183,7 +183,7 @@
     <ClInclude Include="Text_TextStatic.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Root.h" />
-    <ClInclude Include="FileManager.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="FileIO_3DS.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -270,7 +270,7 @@
     <ClCompile Include="Ut_VoxelizedModel.cpp" />
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
-    <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileIO_3DS.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

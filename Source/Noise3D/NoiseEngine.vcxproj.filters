@@ -16,9 +16,6 @@
     <Filter Include="GeneralBasicClass">
       <UniqueIdentifier>{33b8c1e0-39dc-4df0-88cc-9156de4f0922}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GeneralBasicClass\_FileManager">
-      <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GeneralBasicClass\_Factory">
       <UniqueIdentifier>{7921cecc-2d7a-4940-99de-c23ae1ee5aa6}</UniqueIdentifier>
     </Filter>
@@ -160,6 +157,9 @@
     <Filter Include="NoiseGraphic\Scene\LogicalShape">
       <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneralBasicClass\_FileIO">
+      <UniqueIdentifier>{09bb6d8d-c809-48d2-8adb-1ae0051da9bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -179,9 +179,6 @@
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>NoiseGraphic\Scene\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="FileManager.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
     </ClInclude>
     <ClInclude Include="Atmosphere.h">
       <Filter>NoiseGraphic\Scene\Atmosphere</Filter>
@@ -241,13 +238,13 @@
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
     <ClInclude Include="FileIO_OBJ.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClInclude>
     <ClInclude Include="FileIO_STL.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClInclude>
     <ClInclude Include="FileIO_3DS.h">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClInclude>
     <ClInclude Include="ModelProcessor.h">
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
@@ -388,6 +385,9 @@
     <ClInclude Include="_Collidable.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
+    <ClInclude Include="FileIO.h">
+      <Filter>GeneralBasicClass\_FileIO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -450,9 +450,6 @@
     <ClCompile Include="Material.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="FileManager.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
-    </ClCompile>
     <ClCompile Include="pchGen.cpp">
       <Filter>Global</Filter>
     </ClCompile>
@@ -460,13 +457,13 @@
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClCompile>
     <ClCompile Include="FileIO_OBJ.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClCompile>
     <ClCompile Include="FileIO_STL.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClCompile>
     <ClCompile Include="FileIO_3DS.cpp">
-      <Filter>GeneralBasicClass\_FileManager</Filter>
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClCompile>
     <ClCompile Include="ModelProcessor.cpp">
       <Filter>NoiseGraphic\Scene\ModelProcessor</Filter>
@@ -584,6 +581,9 @@
     </ClCompile>
     <ClCompile Include="LogicalShapeManager.cpp">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

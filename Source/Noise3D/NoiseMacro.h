@@ -32,22 +32,6 @@
 				ComPointer=nullptr;\
 				}\
 
-
-//debug msg for HRESULT
-#define HR_DEBUG(hr,MsgText)\
-				if(FAILED(hr)) \
-				{\
-				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
-				return false;\
-				};\
-
-#define HR_DEBUG_CREATETEX(hr,MsgText)\
-				if(FAILED(hr)) \
-				{\
-				ERROR_MSG(MsgText);\
-				return nullptr;\
-				};\
-
 //implementing these 2 op with functions is not acceptable because pre-processed
 //data will be wiped out.
 #define ERROR_MSG(msg)\
@@ -75,3 +59,20 @@
 		debugMsg.clear();\
 	}\
 ;
+
+#define DEBUG_MSG(msg)  OutputDebugStringA(msg);
+
+//debug msg for HRESULT
+#define HR_DEBUG(hr,MsgText)\
+				if(FAILED(hr)) \
+				{\
+				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
+				return false;\
+				};\
+
+#define HR_DEBUG_CREATETEX(hr,MsgText)\
+				if(FAILED(hr)) \
+				{\
+				ERROR_MSG(MsgText);\
+				return nullptr;\
+				};\

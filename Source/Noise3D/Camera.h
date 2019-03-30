@@ -37,7 +37,7 @@ namespace Noise3D
 
 		void		GetProjMatrix(NMATRIX& outMat);
 
-		void		GetInvViewMatrix(NMATRIX& outMat);
+		void		GetViewInvMatrix(NMATRIX& outMat);
 
 		void		SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ);//for perspective
 
@@ -47,6 +47,9 @@ namespace Noise3D
 
 		void		SetOrthoViewSize(float width, float height);//for orhtographic
 
+		void		FireRay_ViewSpace(NPIXELCOORD2 pixelCoord);//fire a ray from cam pos, used for picking or path tracing
+
+		void		FireRay_WorldSpace(NPIXELCOORD2 pixelCoord);//fire a ray from cam pos, used for picking or path tracing
 
 		void		fps_MoveForward(float fSignedDistance, bool enableYAxisMovement = false);
 
@@ -66,7 +69,7 @@ namespace Noise3D
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() const override;
 
 		//(2019.3.8) sorry, currently Camera doesn't support hierarchical transform.
-		//its transform is directly the World transform. because lookat
+		//its world transform will simply be the local transform. because lookat
 		AffineTransform& GetWorldTransform();
 
 		//SceneNode::
@@ -100,11 +103,11 @@ namespace Noise3D
 		NVECTOR3	mLookat;
 		bool		mIsPerspective;
 		float		mViewAngleY_Radian;//radian
-		float		mAspectRatio;
+		float		mAspectRatio;// horizontal/vertical
 		float		mNearPlane;
 		float		mFarPlane;
-		float		mOrthoViewWidth;
-		float		mOrthoViewHeight;
+		float		mOrthoViewWidth;//used in orthographic projection
+		float		mOrthoViewHeight;//used in orthographic projection
 
 	};
 

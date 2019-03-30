@@ -48,7 +48,7 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
-	pCamera->GetInvViewMatrix(invViewMatrix);
+	pCamera->GetViewInvMatrix(invViewMatrix);
 	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
@@ -139,7 +139,7 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	NMATRIX projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
 	pCamera->GetProjMatrix(projMatrix);
 	pCamera->GetViewMatrix(viewMatrix);
-	pCamera->GetInvViewMatrix(invViewMatrix);
+	pCamera->GetViewInvMatrix(invViewMatrix);
 	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
@@ -151,7 +151,6 @@ UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const NVECTOR2 & mouseNorma
 	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
-
 
 
 	UINT offset = 0;

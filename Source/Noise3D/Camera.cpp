@@ -1,8 +1,8 @@
-/************************************************************************
+/**********************************************************
 
-			cpp:   Camera(transform based on CameraTransform)
+						cpp :   Camera
 				
-************************************************************************/
+**********************************************************/
 
 #pragma once
 #include "Noise3D.h"
@@ -104,7 +104,7 @@ void Noise3D::Camera::GetProjMatrix(NMATRIX & outMat)
 
 }
 
-void Noise3D::Camera::GetInvViewMatrix(NMATRIX & outMat)
+void Noise3D::Camera::GetViewInvMatrix(NMATRIX & outMat)
 {
 	NMATRIX viewMat;
 	Camera::GetViewMatrix(viewMat);

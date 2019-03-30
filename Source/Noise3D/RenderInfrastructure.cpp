@@ -388,7 +388,7 @@ void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
 	//but only 'mouse picking' in CollisionTestor needs it.... and it is updated inside CollisionTestor
-	//pCamera->GetInvViewMatrix(tmpMatrix);
+	//pCamera->GetViewInvMatrix(tmpMatrix);
 	//m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
 	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();

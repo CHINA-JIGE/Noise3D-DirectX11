@@ -1,10 +1,7 @@
 
 /***********************************************************************
 
-                           类：NOISE File Manager
-
-			简述：各种文件操作，不同文件还是分在不同的cpp实现吧，
-			相对独立一点
+                           class : File IO
 
 ************************************************************************/
 
@@ -13,14 +10,14 @@
 using namespace Noise3D;
 
 /*
-ios::in 		读
-ios::out		写
-ios::app		从文件末尾开始写
-ios::binary       二进制模式
-ios::nocreate	打开一个文件时，如果文件不存在，不创建文件。
-ios::noreplace	打开一个文件时，如果文件不存在，创建该文件
-ios::trunc		打开一个文件，然后清空内容
-ios::ate		打开一个文件时，将位置移动到文件尾
+ios::in 		read
+ios::out		write
+ios::app		append, start from the end of file
+ios::binary       binary R/W mode
+ios::nocreate	open a file, even if file doesnt exist, the program won't create one
+ios::noreplace	
+ios::trunc		open a file, clear the content
+ios::ate		open a file, move the cursor to the end
 */
 
 IFileIO::IFileIO()
