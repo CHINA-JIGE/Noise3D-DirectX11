@@ -11,12 +11,14 @@
 
 namespace Noise3D
 {
-	class /*_declspec(dllexport)*/ AreaLight
+	namespace GI
 	{
-	public:
-		 
-	private:
+		class /*_declspec(dllexport)*/ AreaLight
+		{
+		public:
 
-	};
+		private:
 
+		};
+	}
 }

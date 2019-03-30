@@ -117,6 +117,10 @@
 #include "SHRotation.h"
 #include "SHVector.h"
 
+//--------GI :Path Tracer-----------
+#include "PathTracer.h"
+#include "GI_Light.h"
+
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"
 #include "Ut_MeshSlicer.h"
