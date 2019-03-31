@@ -40,6 +40,22 @@ namespace Noise3D
 				[](const N_RayHitInfo &v1, const N_RayHitInfo &v2)->bool {return v1.t < v2.t; });
 		}
 
+		//get the closest hit's index in hit list
+		int GetClosestHitIndex() 
+		{
+			int index = -1;
+			float closest_t = std::numeric_limits<float>::infinity();
+			for (int i = 0; i < hitList.size(); ++i)
+			{
+				if (hitList.at(i).t < closest_t)
+				{
+					closest_t = hitList.at(i).t;
+					index = i;
+				}
+			}
+			return index;
+		}
+
 		bool HasAnyHit()
 		{
 			return !hitList.empty();

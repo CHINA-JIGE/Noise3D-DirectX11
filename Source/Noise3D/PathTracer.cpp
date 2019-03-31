@@ -17,14 +17,17 @@ Noise3D::GI::PathTracer::PathTracer():
 	mTileWidth(16),
 	mTileHeight(16)
 {
+	m_pCT = Noise3D::GetScene()->GetCollisionTestor();
 }
 
 Noise3D::GI::PathTracer::~PathTracer()
 {
 	m_pRenderTarget = nullptr;
+	m_pCT = nullptr;
+	m_pShader = nullptr;
 }
 
-void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoftShader * pShader)
+void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoftShader* pShader)
 {
 	if (pNode == nullptr || pShader==nullptr)
 	{
@@ -33,8 +36,7 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 	}
 
 	//re-build BVH to accelerate ray-object intersection
-	CollisionTestor* pCT = Noise3D::GetScene()->GetCollisionTestor();
-	pCT->RebuildBvhTree(pNode);
+	m_pCT->RebuildBvhTree(pNode);
 
 	//set soft shader
 	m_pShader = pShader;
@@ -78,14 +80,24 @@ void Noise3D::GI::PathTracer::SetRenderTileSize(uint32_t width, uint32_t height)
 	mTileHeight = height > 0 ? height : 1;
 }
 
-ITexture * Noise3D::GI::PathTracer::GetRenderTarget()
+Texture2D * Noise3D::GI::PathTracer::GetRenderTarget()
 {
 	return m_pRenderTarget;
 }
 
-void Noise3D::GI::PathTracer::SetRenderTarget(ITexture * pRenderTarget)
+void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 {
-	if(pRenderTarget!=nullptr)m_pRenderTarget = pRenderTarget;
+	if (pRenderTarget != nullptr)
+	{
+		if (pRenderTarget->IsSysMemBufferValid())
+		{
+			m_pRenderTarget = pRenderTarget;
+		}
+		else
+		{
+			WARNING_MSG("PathTracer: render target doesn't have doubled data in system memory.");
+		}
+	}
 }
 
 void Noise3D::GI::PathTracer::SetBounces(uint32_t bounces)
@@ -106,4 +118,53 @@ void Noise3D::GI::PathTracer::SetRayMaxTravelDist(float dist)
 float Noise3D::GI::PathTracer::GetRayMaxTravelDist()
 {
 	return mRayMaxTravelDist;
+}
+
+/***********************************************
+
+							PRIVATE
+
+***********************************************/
+void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
+{
+	Camera* pCam = Noise3D::GetScene()->GetCamera();
+	for (uint32_t x = 0; x < info.width; ++x)
+	{
+		for (uint32_t y = 0; y < info.height; ++y)
+		{
+			N_Ray ray = pCam->FireRay_WorldSpace(
+				PixelCoord2(float(x), float(y)), 
+				m_pRenderTarget->GetWidth(), 
+				m_pRenderTarget->GetHeight());
+
+			//start tracing a ray with payload
+			N_TraceRayPayload payload;
+			TraceRay(ray, payload);
+
+			//set one pixel at a time 
+			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
+			Color4f tmpColor = Color4f(payload.radiance.x, payload.radiance.y, payload.radiance.z, 1.0f);
+			Color4u outputColor(tmpColor);//convert to 8bitx4 color via constructor
+			m_pRenderTarget->SetPixel(info.topLeftX + x, info.topLeftY + y, outputColor);
+		}
+	}
+}
+
+void Noise3D::GI::PathTracer::TraceRay(N_Ray & ray, N_TraceRayPayload & payload)
+{
+	//intersect the ray with the scene and get results
+	N_RayHitResult hitResult;
+	m_pCT->IntersectRayScene(ray, hitResult);
+
+	//call shader. Radiance and other infos are carried by Payload reference.
+	if (hitResult.HasAnyHit())
+	{
+		int index = hitResult.GetClosestHitIndex();
+		m_pShader->ClosestHit(ray, hitResult.hitList.front(), payload);
+	}
+	else
+	{
+		m_pShader->Miss(ray, payload);
+	}
+
 }

@@ -9,14 +9,19 @@
 
 #pragma once
 
-#include "_PathTracerSoftShaderInterface.h"
-
 namespace Noise3D
 {
 	namespace GI
 	{
 		typedef Noise3D::Vec3 Radiance;
 		typedef Noise3D::Vec3 Irradiance;
+		class IPathTracerSoftShader;
+
+		struct N_TraceRayPayload
+		{
+			Radiance radiance;
+			float travelledDistance;
+		};
 
 		class /*_declspec(dllexport)*/ PathTracer
 		{
@@ -32,10 +37,10 @@ namespace Noise3D
 			void SetRenderTileSize(uint32_t width, uint32_t height);
 
 			//default render target will be created at initialization automatically
-			ITexture* GetRenderTarget();
+			Texture2D* GetRenderTarget();
 
 			//you can also set your own render target, but it must have a doubled copy of data in SYSTEM MEMORY
-			void SetRenderTarget(ITexture* pRenderTarget);//must be doubled-data
+			void SetRenderTarget(Texture2D* pRenderTarget);//must be doubled-data
 
 			//bounces count of light (recursive ray gen)
 			void SetBounces(uint32_t bounces);
@@ -61,11 +66,6 @@ namespace Noise3D
 				uint32_t height;
 			};
 
-			struct N_TraceRayPayload
-			{
-				Radiance radiance;
-			};
-
 			//could be called recursively
 			void TraceRay(N_Ray& ray, N_TraceRayPayload& payload);
 
@@ -88,9 +88,11 @@ namespace Noise3D
 			//extern init by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight, ITexture* m_pRenderTarget);
 
-			ITexture* m_pRenderTarget;//created by SceneManager
+			Texture2D* m_pRenderTarget;//created by SceneManager
 
-			IPathTracerSoftShaderInterface* m_pShader;//path tracer's soft shader
+			IPathTracerSoftShader* m_pShader;//path tracer's soft shader
+
+			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 
 			uint32_t mBounces;
 
