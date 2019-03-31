@@ -580,6 +580,12 @@ bool Noise3D::CollisionTestor::RebuildBvhTree(const SceneGraph & graph)
 	return mBvhTree.Construct(graph);
 }
 
+bool Noise3D::CollisionTestor::RebuildBvhTree(SceneNode * pNode)
+{
+	mBvhTree.Reset();
+	return mBvhTree.Construct(pNode);
+}
+
 
 /*************************************************
 

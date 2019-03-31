@@ -133,6 +133,8 @@
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
+    <ClInclude Include="PathTracerShader_SimpleTest.h" />
+    <ClInclude Include="_PathTracerSoftShaderInterface.h" />
     <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />

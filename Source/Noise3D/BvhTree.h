@@ -40,6 +40,7 @@ namespace Noise3D
 	};
 
 	//BVH tree, might be used in collision testor as an acceleration data structure
+	//only scene objects attached to BvhNode will support ray-object intersection
 	class BvhTree:
 		public TreeTemplate<BvhNode, BvhTree>
 	{
@@ -50,6 +51,8 @@ namespace Noise3D
 		~BvhTree();
 
 		bool Construct(const SceneGraph& pSG);
+
+		bool Construct(SceneNode* pNode);
 
 	private:
 

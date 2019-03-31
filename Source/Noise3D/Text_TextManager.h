@@ -12,7 +12,7 @@ namespace Noise3D
 		{
 			UINT width;
 			UINT height;
-			std::vector<NColor4u> bitmapBuffer;
+			std::vector<Color4u> bitmapBuffer;
 		};
 
 		struct N_FontObject

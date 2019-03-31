@@ -163,6 +163,9 @@
     <Filter Include="NoiseGraphic\GI\PathTracer">
       <UniqueIdentifier>{5fd65d78-9578-4cab-859c-9b2b09b6ac70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders">
+      <UniqueIdentifier>{d41d1631-85f2-42da-b30e-a839fff4f0ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NoiseGlobal.h">
@@ -392,6 +395,12 @@
       <Filter>GeneralBasicClass\_FileIO</Filter>
     </ClInclude>
     <ClInclude Include="PathTracer.h">
+      <Filter>NoiseGraphic\GI\PathTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_SimpleTest.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_PathTracerSoftShaderInterface.h">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,7 +19,7 @@ Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::SetPixel(UINT x, UINT y, const NColor4u & color)
+void Texture2D::SetPixel(UINT x, UINT y, const Color4u & color)
 {
 	if (mIsPixelBufferInMemValid)
 	{
@@ -40,7 +40,7 @@ void Texture2D::SetPixel(UINT x, UINT y, const NColor4u & color)
 	}
 }
 
-NColor4u Texture2D::GetPixel(UINT x, UINT y)
+Color4u Texture2D::GetPixel(UINT x, UINT y)
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -62,7 +62,7 @@ NColor4u Texture2D::GetPixel(UINT x, UINT y)
 }
 
 //less redundant bound check to increase efficiency
-bool Texture2D::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
+bool Texture2D::SetPixelArray(const std::vector<Color4u>& in_ColorArray)
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -80,7 +80,7 @@ bool Texture2D::SetPixelArray(const std::vector<NColor4u>& in_ColorArray)
 	return false;
 }
 
-bool Texture2D::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
+bool Texture2D::SetPixelArray(std::vector<Color4u>&& in_ColorArray)
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -98,7 +98,7 @@ bool Texture2D::SetPixelArray(std::vector<NColor4u>&& in_ColorArray)
 	return false;
 }
 
-bool Texture2D::GetPixelArray(std::vector<NColor4u>& outColorArray)
+bool Texture2D::GetPixelArray(std::vector<Color4u>& outColorArray)
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -176,7 +176,7 @@ bool Texture2D::ConvertTextureToGreyMap(float factorR, float factorG, float fact
 	{
 		//float greyScale = factorR *c.x + factorG*c.y + factorB*c.z;
 		float greyScale = factorR *c.r + factorG*c.g + factorB*c.b;
-		c = NColor4u(uint8_t(greyScale), uint8_t(greyScale), uint8_t(greyScale), c.a);
+		c = Color4u(uint8_t(greyScale), uint8_t(greyScale), uint8_t(greyScale), c.a);
 	}
 
 	//after modifying buffer in memory, update to GPU
@@ -224,7 +224,7 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 
 
 	//use a temp buffer to avoid calculated pixel from being affected by previous normal vectors' color;
-	std::vector<NColor4u> tmpNormalMap(mPixelBuffer.size());
+	std::vector<Color4u> tmpNormalMap(mPixelBuffer.size());
 	//loop to generate normal map
 	for (UINT j = 0;j < picHeight;j++)
 	{
@@ -274,9 +274,9 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 			}
 
 			//after confirm 3 vertices composing a triangle, apply CROSS operation
-			NColor4u color1 = mPixelBuffer.at(vertexID1);
-			NColor4u color2 = mPixelBuffer.at(vertexID2);
-			NColor4u color3 = mPixelBuffer.at(vertexID3);
+			Color4u color1 = mPixelBuffer.at(vertexID1);
+			Color4u color2 = mPixelBuffer.at(vertexID2);
+			Color4u color3 = mPixelBuffer.at(vertexID3);
 			//because it's grey map , so we can only use one color channel
 			Vec3	v1 = Vec3(1.0f, 0, heightFieldScaleFactor* (color2.r - color1.r));
 			Vec3	v2 = Vec3(0, 1.0f, heightFieldScaleFactor* (color3.r - color1.r));
@@ -285,7 +285,7 @@ bool Texture2D::ConvertHeightMapToNormalMap(float heightFieldScaleFactor)
 
 			//convert normal to Normal Map Color
 			tmpNormalMap.at(vertexID1) =
-				NColor4u(Vec4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f));
+				Color4u(Vec4((currentNormal.x + 1.0f) / 2.0f, (currentNormal.y + 1.0f) / 2.0f, (currentNormal.z + 1.0f) / 2.0f, 1.0f));
 		}
 	}
 
@@ -415,7 +415,7 @@ bool Texture2D::SaveTexture2DToFile(NFilePath filePath, NOISE_IMAGE_FILE_FORMAT 
 ********************************************************************/
 
 //invoked by texture manager
-void NOISE_MACRO_FUNCTION_EXTERN_CALL Texture2D::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<NColor4u>&& pixelBuff, bool isSysMemBuffValid)
+void NOISE_MACRO_FUNCTION_EXTERN_CALL Texture2D::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID& uid, std::vector<Color4u>&& pixelBuff, bool isSysMemBuffValid)
 {
 	m_pSRV = pSRV;
 	mTextureUid = uid;

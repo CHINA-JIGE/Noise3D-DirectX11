@@ -95,6 +95,9 @@ namespace Noise3D
 		//(re-)build BVH tree from scene graph
 		bool RebuildBvhTree(const SceneGraph& graph);
 
+		//(re-)build BVH tree from scene graph, but rooted at given node
+		bool RebuildBvhTree(SceneNode* pNode);
+
 		//TODO: ray-Mesh intersection. gpu impl. simply modify a little bit to Picking_GpuBased
 		//bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_HitResult& outHitRes);
 

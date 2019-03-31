@@ -491,7 +491,7 @@ void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targ
 			//add colors to user-defined buffer (greyScaleIntensity * color)
 			float greyScaleColor = float(charBitmap.buffer[i]) / 256.0f;
 			outFontBitmap.bitmapBuffer.push_back(
-				NColor4u(Vec4(
+				Color4u(Vec4(
 					greyScaleColor *textColor.x,
 					greyScaleColor* textColor.y,
 					greyScaleColor* textColor.z,
@@ -500,7 +500,7 @@ void TextManager::mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targ
 		else
 			//current pixel  is black (not in glyph)
 		{
-			outFontBitmap.bitmapBuffer.push_back(NColor4u(0, 0, 0, 0));
+			outFontBitmap.bitmapBuffer.push_back(Color4u(0, 0, 0, 0));
 		}
 	}
 	outFontBitmap.height = charHeight;
@@ -618,7 +618,7 @@ bool TextManager::mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj
 	
 	//-----Up to now,the texture is still a pure color bitmap-------
 	//-----we are gonna write an ASCII bitmap table to it (code 0~127)--
-	std::vector<NColor4u> pixelBuff(tablePxWidth*tablePxHeight);
+	std::vector<Color4u> pixelBuff(tablePxWidth*tablePxHeight);
 
 	for (UINT rowID = 0;rowID < tableRowCount;rowID++)
 	{

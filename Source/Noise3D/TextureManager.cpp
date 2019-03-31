@@ -28,10 +28,10 @@ TextureManager::~TextureManager()
 //--------------------------------TEXTURE CREATION-----------------------------
 Texture2D* TextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, Vec4 color, bool keepCopyInMemory)
 {
-	return TextureManager::CreatePureColorTexture(texName, pixelWidth, pixelHeight, NColor4u(color), keepCopyInMemory);
+	return TextureManager::CreatePureColorTexture(texName, pixelWidth, pixelHeight, Color4u(color), keepCopyInMemory);
 };
 
-Texture2D * Noise3D::TextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, NColor4u color, bool keepCopyInMemory)
+Texture2D * Noise3D::TextureManager::CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, Color4u color, bool keepCopyInMemory)
 {
 	//create New Texture Object
 	HRESULT hr = S_OK;
@@ -52,7 +52,7 @@ Texture2D * Noise3D::TextureManager::CreatePureColorTexture(N_UID texName, UINT 
 	tmpTexObj.mTextureType = NOISE_TEXTURE_TYPE_COMMON;*/
 
 	//assign a lot of same Vec4 color to vector
-	std::vector<NColor4u> initPixelBuffer(pixelWidth*pixelHeight, color);
+	std::vector<Color4u> initPixelBuffer(pixelWidth*pixelHeight, color);
 
 
 	//texture2D desc (create a default usage texture)
@@ -295,19 +295,19 @@ Texture2D* TextureManager::CreateTextureFromFile(NFilePath filePath, N_UID texNa
 	{
 		uint32_t pixelCount = resizedImageWidth * resizedImageHeight;
 		uint8_t* pData = convertedImage.GetPixels();
-		std::vector<NColor4u> pixelBuffer(pixelCount);
+		std::vector<Color4u> pixelBuffer(pixelCount);
 
 		//copy data of converted image to ITexture's system memory
 		for (uint32_t pixelId = 0; pixelId < pixelCount; ++pixelId)
 		{
-			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
+			pixelBuffer[pixelId] = *(Color4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
 		}
 
 		pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(pixelBuffer), true);
 	}
 	else
 	{
-		std::vector<NColor4u> emptyBuff;
+		std::vector<Color4u> emptyBuff;
 		pTexObj->mFunction_InitTexture(tmp_pSRV, texName, std::move(emptyBuff), false);
 	}
 
@@ -418,19 +418,19 @@ TextureCubeMap* TextureManager::CreateCubeMapFromDDS(NFilePath dds_FileName, N_U
 		uint32_t pixelCount = Ut::ComputeMipMapChainPixelCount(srcMetaData.mipLevels,srcMetaData.width,srcMetaData.height) * srcMetaData.arraySize;//arraysize should be 6
 		//uint32_t pixelCount = srcMetaData.width*srcMetaData.height * srcMetaData.arraySize;//arraysize should be 6
 		uint8_t* pData = convertedImage.GetPixels();
-		std::vector<NColor4u> pixelBuffer(pixelCount);
+		std::vector<Color4u> pixelBuffer(pixelCount);
 
 		//copy data of converted image to ITexture's system memory
 		for (uint32_t pixelId = 0; pixelId<pixelCount; ++pixelId)
 		{
-			pixelBuffer[pixelId] = *(NColor4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
+			pixelBuffer[pixelId] = *(Color4u*)(pData + pixelId * NOISE_MACRO_DEFAULT_COLOR_BYTESIZE);
 		}
 
 		pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(pixelBuffer), true);
 	}
 	else
 	{
-		std::vector<NColor4u> emptyBuff;
+		std::vector<Color4u> emptyBuff;
 		pTexObj->mFunction_InitTexture(tmp_pSRV, cubeTextureName, std::move(emptyBuff), false);
 	}
 

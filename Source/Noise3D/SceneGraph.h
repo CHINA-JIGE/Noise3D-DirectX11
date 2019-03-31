@@ -84,6 +84,8 @@ namespace Noise3D
 
 		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
 
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, SceneNode* pNode, std::vector<ISceneObject*>& outResult) const;
+
 	private:
 
 		friend class SceneManager;

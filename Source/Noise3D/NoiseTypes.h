@@ -10,7 +10,6 @@ using namespace DirectX;
 
 namespace Noise3D
 {
-
 	typedef	SimpleMath::Vector2 	Vec2;
 	typedef	SimpleMath::Vector3 	Vec3;
 	typedef	SimpleMath::Vector4 	Vec4;
@@ -22,11 +21,11 @@ namespace Noise3D
 	typedef	SimpleMath::Color 	Color4f;
 	typedef	SimpleMath::Vector2 PixelCoord2;
 
-	struct NColor4u
+	struct Color4u
 	{
-		NColor4u():r(0),g(0),b(0),a(0){}
-		NColor4u(const Vec4& c) :r(uint8_t(c.x * 255)), g(uint8_t(c.y * 255)), b(uint8_t(c.z * 255)), a(uint8_t(c.w * 255)) {}
-		NColor4u(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a ) :r(_r),g(_g),b(_b),a(_a) {}
+		Color4u():r(0),g(0),b(0),a(0){}
+		Color4u(const Vec4& c) :r(uint8_t(c.x * 255)), g(uint8_t(c.y * 255)), b(uint8_t(c.z * 255)), a(uint8_t(c.w * 255)) {}
+		Color4u(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a ) :r(_r),g(_g),b(_b),a(_a) {}
 
 		uint8_t r;
 		uint8_t g;

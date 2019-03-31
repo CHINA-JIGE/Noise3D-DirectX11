@@ -60,10 +60,20 @@ Noise3D::BvhTree::~BvhTree()
 
 bool Noise3D::BvhTree::Construct(const SceneGraph& tree)
 {
+	return BvhTree::Construct(tree.GetRoot());
+}
 
+bool Noise3D::BvhTree::Construct(SceneNode * pNode)
+{
+	if (pNode == nullptr)
+	{
+		ERROR_MSG("BvhTree: construction failed. scene node is nullptr.");
+		return false;
+	}
 	//i arbitrarily choose an traverse order to get all the scene nodes
 	std::vector<ISceneObject*> tmpSceneObjectList;
-	tree.TraverseSceneObjects(SceneGraph::NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, tmpSceneObjectList);
+	SceneGraph* pGraph = pNode->GetHostTree();
+	pGraph->TraverseSceneObjects(SceneGraph::NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER,pNode, tmpSceneObjectList);
 
 	//store computed AABB of object in pair
 	std::vector<ObjectAabbPair> infoList;
@@ -86,7 +96,7 @@ bool Noise3D::BvhTree::Construct(const SceneGraph& tree)
 	}
 
 	//AABB of Bvh Node that include the whole scene
-	N_AABB rootAabb;	
+	N_AABB rootAabb;
 
 	//1.calculate the largest aabb that bound the whole scene (AABB of all small AABBs)
 	for (auto& info : infoList) rootAabb.Union(info.aabb);

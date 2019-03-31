@@ -180,6 +180,15 @@ ISceneObject * Noise3D::SceneNode::GetSceneObject(uint32_t index)
 
 *******************************************/
 
+Noise3D::SceneGraph::SceneGraph()
+{
+}
+
+Noise3D::SceneGraph::~SceneGraph()
+{
+}
+
+
 void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const
 {
 	std::vector<SceneNode*> nodeList;
@@ -192,10 +201,10 @@ void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, 
 		SceneGraph::Traverse_PreOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
-		SceneGraph::Traverse_PreOrder(nodeList); break;
+		SceneGraph::Traverse_PostOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
-		SceneGraph::Traverse_PreOrder(nodeList); break;
+		SceneGraph::Traverse_LayerOrder(nodeList); break;
 
 	default:
 		break;
@@ -211,10 +220,35 @@ void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, 
 	}
 }
 
-Noise3D::SceneGraph::SceneGraph()
+void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, SceneNode * pNode, std::vector<ISceneObject*>& outResult) const
 {
+	if (pNode == nullptr)return;
+	std::vector<SceneNode*> nodeList;
+
+	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
+	//are copied, but nodes with no scene object bound to it are useless here.
+	switch (order)
+	{
+	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
+		SceneGraph::Traverse_PreOrder(pNode,nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
+		SceneGraph::Traverse_PostOrder(pNode, nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
+		SceneGraph::Traverse_LayerOrder(pNode, nodeList); break;
+
+	default:
+		break;
+	}
+
+	//output scene objects bound to nodes
+	for (auto pn : nodeList)
+	{
+		for (uint32_t i = 0; i < pn->GetSceneObjectCount(); ++i)
+		{
+			outResult.push_back(pn->GetSceneObject(i));
+		}
+	}
 }
 
-Noise3D::SceneGraph::~SceneGraph()
-{
-}
