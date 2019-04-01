@@ -31,7 +31,8 @@ SceneManager::SceneManager():
 	IFactory<MeshLoader>(1),
 	IFactory<ModelProcessor>(1),
 	IFactory<CollisionTestor>(1),
-	IFactory<LogicalShapeManager>(1)
+	IFactory<LogicalShapeManager>(1),
+	IFactory<GI::PathTracer>(1)
 {
 
 }
@@ -70,15 +71,10 @@ Renderer * SceneManager::CreateRenderer(UINT BufferWidth, UINT BufferHeight,HWND
 	static const N_UID uid = "sceneRenderer";
 	if (IFactory<Renderer>::FindUid(uid) == false)
 	{
-		Renderer* pRd = IFactory<Renderer>::CreateObject(uid);
-
 		//init of shaders/RV/states/....
+		Renderer* pRd = IFactory<Renderer>::CreateObject(uid);
 		bool isSucceeded = pRd->mFunction_Init(BufferWidth,BufferHeight, renderWindowHWND);
-		if (isSucceeded)
-		{
-			return pRd;
-		}
-		else
+		if (!isSucceeded)
 		{
 			IFactory<Renderer>::DestroyObject(uid);
 			ERROR_MSG("SceneManager: Renderer Initialization failed.");
@@ -199,14 +195,10 @@ TextManager * SceneManager::GetTextMgr()
 		auto pGObjMgr = mFunction_GetGObjMgrInsideFontMgr();
 
 		bool isSucceeded = pFontMgr->mFunction_Init(pTexMgr,pGObjMgr);
-		if (isSucceeded)
-		{
-			return pFontMgr;
-		}
-		else
+		if (!isSucceeded)
 		{
 			IFactory<TextManager>::DestroyObject(uid);
-			ERROR_MSG("SceneManager: Font Manager Initialization failed.");
+			ERROR_MSG("SceneManager: Text Manager Initialization failed.");
 			return nullptr;
 		}
 	}
@@ -239,15 +231,8 @@ CollisionTestor * SceneManager::GetCollisionTestor()
 	if (IFactory<CollisionTestor>::FindUid(uid) == false)
 	{
 		CollisionTestor* pCT = IFactory<CollisionTestor>::CreateObject(uid);
-
-		//init of FreeType, internal TexMgr,GraphicObjMgr
-
 		bool isSucceeded = pCT->mFunction_Init();
-		if (isSucceeded)
-		{
-			return pCT;
-		}
-		else
+		if (!isSucceeded)
 		{
 			IFactory<CollisionTestor>::DestroyObject(uid);
 			ERROR_MSG("SceneManager: Collision Testor Initialization failed.");
@@ -267,6 +252,36 @@ LogicalShapeManager * Noise3D::SceneManager::GetLogicalShapeMgr()
 	return IFactory<LogicalShapeManager>::GetObjectPtr(uid);
 }
 
+GI::PathTracer * Noise3D::SceneManager::CreatePathTracer(uint32_t pixelWidth, uint32_t pixelHeight)
+{
+	static const N_UID uid = "pathTracer";
+	if (IFactory<GI::PathTracer>::FindUid(uid) == false)
+	{
+		GI::PathTracer* pTracer = IFactory<GI::PathTracer>::CreateObject(uid);
+		bool isSucceeded = pTracer->mFunction_Init(pixelWidth,pixelHeight);
+		if(!isSucceeded)
+		{
+			IFactory<Renderer>::DestroyObject(uid);
+			ERROR_MSG("SceneManager: path tracer Initialization failed.");
+			return nullptr;
+		}
+	}
+	return IFactory<GI::PathTracer>::GetObjectPtr(uid);
+}
+
+GI::PathTracer * Noise3D::SceneManager::GetPathTracer()
+{
+	static const N_UID uid = "pathTracer";
+	if (IFactory<GI::PathTracer>::FindUid(uid) == false)
+	{
+		ERROR_MSG("SceneManager: GetPathTracer() : must be initialized by CreatePathTracer() method.");
+		return nullptr;
+	}
+	else
+	{
+		return IFactory<GI::PathTracer>::GetObjectPtr(uid);
+	}
+}
 
 
 /************************************************************************

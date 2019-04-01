@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="main">
+      <UniqueIdentifier>{e69e1f9f-971e-4a48-b3b4-a3e93bd21f56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainApp">
+      <UniqueIdentifier>{6f4f6872-6143-4d94-b9e4-5c47a914eb2d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="MainApp.cpp">
+      <Filter>mainApp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainApp.h">
+      <Filter>mainApp</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

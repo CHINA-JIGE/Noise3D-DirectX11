@@ -86,7 +86,7 @@ namespace Noise3D
 		private:
 
 			//extern init by SceneManager
-			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight, ITexture* m_pRenderTarget);
+			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight);
 
 			Texture2D* m_pRenderTarget;//created by SceneManager
 

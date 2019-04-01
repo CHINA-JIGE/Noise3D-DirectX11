@@ -397,11 +397,11 @@
     <ClInclude Include="PathTracer.h">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_SimpleTest.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClInclude>
     <ClInclude Include="_PathTracerSoftShaderInterface.h">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Minimal.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -602,6 +602,9 @@
     </ClCompile>
     <ClCompile Include="PathTracer.cpp">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Minimal.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

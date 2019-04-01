@@ -119,8 +119,10 @@
 
 //--------GI :Path Tracer-----------
 #include "PathTracer.h"
-#include "_PathTracerSoftShaderInterface.h"
 #include "GI_Light.h"
+#include "_PathTracerSoftShaderInterface.h"
+#include "PathTracerShader_Minimal.h"
+
 
 //-----------Noise Ut -----------
 #include "Ut_Timer.h"

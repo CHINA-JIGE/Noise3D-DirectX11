@@ -27,6 +27,26 @@ Noise3D::GI::PathTracer::~PathTracer()
 	m_pShader = nullptr;
 }
 
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight)
+{
+	//create back buffer for path tracer(must enable CPU doubled data)
+	if (pixelWidth < 16)pixelWidth = 16;
+	if (pixelHeight < 16)pixelHeight = 16;
+	TextureManager* pTexMgr = Noise3D::GetScene()->GetTextureMgr();
+	Texture2D* pRenderTarget = pTexMgr->CreatePureColorTexture(
+		"default_pathTracerRT",
+		pixelWidth, pixelHeight, Color4u(0, 0, 0, 0), true);
+
+	if (pRenderTarget == nullptr)
+	{
+		ERROR_MSG("PathTracer: failed to create path tracer's default back buffer/texture2d.");
+		return false;
+	}
+	
+	m_pRenderTarget = pRenderTarget;
+	return true;
+}
+
 void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoftShader* pShader)
 {
 	if (pNode == nullptr || pShader==nullptr)

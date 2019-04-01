@@ -10,6 +10,10 @@
 namespace Noise3D
 {
 	class MeshLoader;
+	namespace GI 
+	{
+		class PathTracer;
+	};
 
 
 	class /*_declspec(dllexport)*/ SceneManager:
@@ -26,7 +30,8 @@ namespace Noise3D
 		public IFactory<MeshLoader>,
 		public IFactory<ModelProcessor>,
 		public IFactory<CollisionTestor>,
-		public IFactory<LogicalShapeManager>
+		public IFactory<LogicalShapeManager>,
+		public IFactory<GI::PathTracer>
 	{
 	public:
 
@@ -64,6 +69,10 @@ namespace Noise3D
 		CollisionTestor*			GetCollisionTestor();
 
 		LogicalShapeManager* GetLogicalShapeMgr();
+
+		GI::PathTracer*			CreatePathTracer(uint32_t pixelWidth, uint32_t pixelHeight);
+
+		GI::PathTracer*			GetPathTracer();
 
 	private:
 

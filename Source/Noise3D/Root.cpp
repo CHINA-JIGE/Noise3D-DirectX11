@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-                           class：Root
+									class：Root
 
 			desc: the first class that should be created when 
 			using Noise3D. handle some basic global var.
@@ -52,8 +52,6 @@ using namespace Noise3D::D3D;
 	return  ptr;
 };
 
-
-
 //Constructor
 Root::Root() :
 	IFactory<SceneManager>(1)
@@ -86,24 +84,22 @@ HWND Root::CreateRenderWindow(UINT pixelWidth, UINT pixelHeight, LPCWSTR windowT
 {
 
 	WNDCLASS wndclass;
-	HWND outHWND;//句柄
+	HWND outHWND;//handle
 	mRenderWindowHINSTANCE = hInstance;
 	mRenderWindowTitle = windowTitle;
 	mRenderWindowClassName = L"Noise Engine Render Window";
 
-	//窗体类注册
+	//register window class
 	if (mFunction_InitWindowClass(&wndclass) == false)
 	{
-		ERROR_MSG("Window Class 创建失败");
+		ERROR_MSG("Root: Failed to create window class.");
 		return false;
 	};
-
-	//创建窗体
 
 	outHWND = mFunction_InitWindow(pixelWidth,pixelHeight);
 	if (outHWND == 0)
 	{
-		ERROR_MSG("窗体创建失败");
+		ERROR_MSG("Root: Failed to create render window.");
 		return false;
 	};
 
@@ -114,7 +110,7 @@ bool Root::Init()
 {
 	HRESULT hr = S_OK;
 
-	//硬件驱动类型
+	//hard-driven types
 	D3D_DRIVER_TYPE driverTypes[] =
 	{
 		D3D_DRIVER_TYPE_HARDWARE,	//HAL
@@ -222,8 +218,7 @@ void Root::Mainloop()
 			TranslateMessage(&msg);//翻译消息并发送到windows消息队列
 			DispatchMessage(&msg);//接收信息
 		}
-		else
-			//消息队列没东西处理了 那就搞主循环
+		else//no message to handle, we'll call the main loop
 		{
 			switch (mMainLoopStatus)
 			{

@@ -133,7 +133,7 @@
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
-    <ClInclude Include="PathTracerShader_SimpleTest.h" />
+    <ClInclude Include="PathTracerShader_Minimal.h" />
     <ClInclude Include="_PathTracerSoftShaderInterface.h" />
     <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
@@ -230,6 +230,7 @@
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="PathTracer.cpp" />
+    <ClCompile Include="PathTracerShader_Minimal.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
