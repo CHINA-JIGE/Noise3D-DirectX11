@@ -126,9 +126,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RealTimeRenderModule.cpp" />
     <ClCompile Include="MainApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RealTimeRenderModule.h" />
     <ClInclude Include="MainApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

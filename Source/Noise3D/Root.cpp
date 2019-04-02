@@ -54,19 +54,54 @@ using namespace Noise3D::D3D;
 
 //Constructor
 Root::Root() :
-	IFactory<SceneManager>(1)
+	IFactory<SceneManager>(1),
+	m_pMainloopInterface(nullptr),
+	m_pMainLoopFunction(nullptr),
+	mMainLoopStatus(NOISE_MAINLOOP_STATUS_RUNNING),
+	mMainBackBufferWidth(0),
+	mMainBackBufferHeight(0)
 {
 	mRenderWindowTitle = L"Noise 3D - Render Window";
-	m_pMainLoopFunction = nullptr;
-	mMainLoopStatus = NOISE_MAINLOOP_STATUS_BUSY;
-	mMainBackBufferHeight = 0;
-	mMainBackBufferWidth = 0;
 }
 
 Root::~Root()
 {
 	m_pMainLoopFunction = nullptr;
-	ReleaseAll();
+	m_pMainloopInterface = nullptr;
+	mMainLoopStatus = NOISE_MAINLOOP_STATUS_QUIT_LOOP;
+
+	if (mRenderWindowClassName)
+	{
+		UnregisterClass(mRenderWindowClassName, mRenderWindowHINSTANCE);
+		mRenderWindowClassName = NULL;
+	}
+
+	SceneManager* pScene = GetSceneMgrPtr();
+	pScene->ReleaseAllChildObject();
+	//IFactory<SceneManager>::DestroyAllObject();
+
+	ReleaseCOM(g_pVertexLayout_Default);
+	ReleaseCOM(g_pVertexLayout_Simple);
+	ReleaseCOM(g_pImmediateContext);
+	ReleaseCOM(g_pFX);
+	//check live object
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug *d3dDebug;
+	HRESULT hr = S_OK;
+
+	if (g_pd3dDevice11 != nullptr)
+	{
+		hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
+		if (SUCCEEDED(hr))
+		{
+			hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		}
+
+		ReleaseCOM(d3dDebug);
+		ReleaseCOM(g_pd3dDevice11);
+	}
+
+#endif
 }
 
 SceneManager* Root::GetSceneMgrPtr()
@@ -168,67 +203,43 @@ bool Root::Init()
 
 };
 
-void Root::ReleaseAll()
-{
-
-	SceneManager* pScene = GetSceneMgrPtr();
-	pScene->ReleaseAllChildObject();
-	//IFactory<SceneManager>::DestroyAllObject();
-
-	ReleaseCOM(g_pVertexLayout_Default);
-	ReleaseCOM(g_pVertexLayout_Simple);
-	ReleaseCOM(g_pImmediateContext);
-	ReleaseCOM(g_pFX);
-	//check live object
-#if defined(DEBUG) || defined(_DEBUG)
-	ID3D11Debug *d3dDebug;
-	HRESULT hr = S_OK;
-
-	if (g_pd3dDevice11 != nullptr)
-	{
-		hr = g_pd3dDevice11->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
-		if (SUCCEEDED(hr))
-		{
-			hr = d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-		}
-
-		ReleaseCOM(d3dDebug);
-		ReleaseCOM(g_pd3dDevice11);
-	}
-
-#endif
-}
-
 void Root::Mainloop()
 {
-	MSG msg;//消息体
+	MSG msg;
 	ZeroMemory(&msg, sizeof(msg));
 
-	//在程序还没有接收到“退出”消息的时候
 	while (msg.message != WM_QUIT)
 	{
-		/*PM_REMOVE  PeekMessage处理后，消息从队列里除掉。
-		而函数PeekMesssge是以查看的方式从系统中获取消息，
-		可以不将消息从系统中移除，是非阻塞函数；
-		当系统无消息时，返回FALSE，继续执行后续代码。*/
+		/*
+		PM_REMOVE : after PeekMessage(), remove to msg from queue.
+		PeekMessage() just 'Peek' message from system in a
+		NON-BLOCKED way(thus it can't remove message from the queue)
+		when no message sent from system, return FALSE, 
+		then continue to execute the following program.
+		*/
 
-		//有消息的时候赶紧处理了 即Peek返回TRUE的时候
+		//handles the message if returns TRUE
+		//(it's necessary, or WM_RESIZE, WM_PAINT or other system msg will be ignore
+		//then the window will have no respondance)
 		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
 		{
-			TranslateMessage(&msg);//翻译消息并发送到windows消息队列
-			DispatchMessage(&msg);//接收信息
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 		else//no message to handle, we'll call the main loop
 		{
 			switch (mMainLoopStatus)
 			{
-			case NOISE_MAINLOOP_STATUS_BUSY:
-				//如果主循环函数有效
-				if (m_pMainLoopFunction)
+			case NOISE_MAINLOOP_STATUS_RUNNING:
+				if (m_pMainloopInterface)
+				{
+					m_pMainloopInterface->Callback_Mainloop();
+				}
+				else if (m_pMainLoopFunction)
 				{
 					(*m_pMainLoopFunction)();
 				}
-					break;
+				break;
 
 			case NOISE_MAINLOOP_STATUS_QUIT_LOOP:
 				return;
@@ -241,13 +252,16 @@ void Root::Mainloop()
 		}
 	};
 
-	//ReleaseAll();
-	UnregisterClass(mRenderWindowClassName, mRenderWindowHINSTANCE);
 }
 
-void Root::SetMainLoopFunction( void (*pFunction)(void) )
+void Root::SetMainloopFunction( void (*pFunction)(void) )
 {
 	m_pMainLoopFunction =pFunction;
+}
+
+void Noise3D::Root::SetMainloopFunction(IMainloop * pInterface)
+{
+	m_pMainloopInterface = pInterface;
 }
 
 void Root::SetMainLoopStatus(NOISE_MAINLOOP_STATUS loopStatus)

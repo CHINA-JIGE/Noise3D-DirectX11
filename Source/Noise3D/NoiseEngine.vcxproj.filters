@@ -397,10 +397,10 @@
     <ClInclude Include="PathTracer.h">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
     </ClInclude>
-    <ClInclude Include="_PathTracerSoftShaderInterface.h">
-      <Filter>NoiseGraphic\GI\PathTracer</Filter>
-    </ClInclude>
     <ClInclude Include="PathTracerShader_Minimal.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_PathTracerSoftShaderInterface.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>

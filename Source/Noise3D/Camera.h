@@ -26,9 +26,9 @@ namespace Noise3D
 
 		void		SetDirection(float x, float y, float z);
 
-		Vec3	GetLookAtPos();
+		Vec3		GetLookAtPos();
 
-		Vec3	GetDirection();
+		Vec3		GetDirection();
 
 		void		SetProjectionType(bool isPerspective = true);//true for perspective, false for orthographic
 

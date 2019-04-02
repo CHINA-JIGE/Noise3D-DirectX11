@@ -3,7 +3,6 @@
 
 BOOL Init3D(HWND hwnd);
 void MainLoop();
-void Cleanup();
 void	InputProcess();
 
 using namespace Noise3D;
@@ -59,13 +58,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 
 	//register main loop function
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//enter main loop
 	pRoot->Mainloop();
-
-	//program end
-	Cleanup();
 
 	//..
 	return 0;
@@ -133,7 +129,7 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
 	//use bounding box of mesh to init camera pos
-	pCamera->GetWorldTransform().SetPosition(0, 0, 200.0f);
+	pCamera->GetWorldTransform().SetPosition(0, 0, 50.0f);
 	pCamera->LookAt(0, 0, 0);
 
 	//------------------MESH INITIALIZATION----------------
@@ -146,7 +142,7 @@ BOOL Init3D(HWND hwnd)
 	//mesh
 	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
 	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
-	pMesh->SetCollidable(true);
+	pMesh->SetCollidable(false);
 	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
 	meshList.push_back(pMesh);
 	sceneObjectList.push_back(pMesh); // renderable
@@ -154,7 +150,7 @@ BOOL Init3D(HWND hwnd)
 	pNodeMesh->GetLocalTransform().SetScale(0.3f, 0.3f, 0.3f);
 	pNodeMesh->GetLocalTransform().SetRotation(1.0f, 1.0f, 0.5f);
 
-	const int c_shapeCount = 10;
+	const int c_shapeCount = 1;
 	for (int i = 0; i < c_shapeCount; ++i)
 	{
 		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
@@ -176,20 +172,25 @@ BOOL Init3D(HWND hwnd)
 
 		const float objectRandomRangeScale = 100.0f;
 		// **************************************************
-		GI::RandomSampleGenerator g1;
+		/*GI::RandomSampleGenerator g1;
 		float randomRadius = g1.CanonicalReal() * 30.0f + 3.0f;
 		pSphere->SetRadius(randomRadius);
 		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
 		float randomX = g1.NormalizedReal() * objectRandomRangeScale;
 		float randomY = g1.NormalizedReal() * objectRandomRangeScale;
 		float randomZ = g1.NormalizedReal() * objectRandomRangeScale;
-		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
+		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);*/
 		// **************************************************
-		/*pModelLoader->LoadSphere(pMesh, 5.0f, 10, 10);
+		/*pModelLoader->LoadSphere(pMeshSphere, 5.0f, 10, 10);
 		pSphere->SetRadius(5.0f);
 		pNodeSphere->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
 		// **************************************************
-		GI::RandomSampleGenerator g;
+		pModelLoader->LoadSphere(pMeshSphere, 10.0, 10, 10);
+		pSphere->SetRadius(10.0f);
+		pNodeSphere->GetLocalTransform().SetPosition(0, 0.0f, 0.0f);
+		pNodeSphere->GetLocalTransform().SetScale(1.0f, 1.0f, 1.0f);
+		// **************************************************
+		/*GI::RandomSampleGenerator g;
 		float randomWidthX = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthY = g.CanonicalReal() * 30.0f + 3.0f;
 		float randomWidthZ = g.CanonicalReal() * 30.0f + 3.0f;
@@ -199,11 +200,15 @@ BOOL Init3D(HWND hwnd)
 		float randomBoxX = g.NormalizedReal() * objectRandomRangeScale;
 		float randomBoxY = g.NormalizedReal() * objectRandomRangeScale;
 		float randomBoxZ = g.NormalizedReal() * objectRandomRangeScale;
-		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);
+		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);*/
 		// **************************************************
 		/*pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
 		pBox->SetSizeXYZ(Vec3(10.0f, 10.0f, 5.0f));
 		pNodeBox->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
+		// **************************************************
+		pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 10.0f);
+		pBox->SetSizeXYZ(Vec3(10.0f, 10.0f, 10.0f));
+		pNodeBox->GetLocalTransform().SetPosition(20.0f, 0.0f, 0.0f);
 		// **************************************************
 
 		meshList.push_back(pMeshBox);
@@ -226,7 +231,7 @@ BOOL Init3D(HWND hwnd)
 	//-----Generate Rays--------
 	std::vector<N_Ray> rayArray;
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("rays");
-	const int c_rayCount = 100;
+	const int c_rayCount = 900;
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		// **************************************************
@@ -245,13 +250,28 @@ BOOL Init3D(HWND hwnd)
 		N_Ray r = N_Ray(origin, dir,  0.001f,1.0f);*/
 		// **************************************************
 		//fire ray from initial position of camera
-		float x = 0.1f * uint32_t(float(rayId) / 10.0f) - 0.5f;
+		/*float x = 0.1f * uint32_t(float(rayId) / 10.0f) - 0.5f;
 		float y = 0.1f * (rayId % 10) - 0.5f;
 		N_Ray r = pCamera->FireRay_WorldSpace(Vec2(x, y));
 		r.dir *= 200.0f;
-		r.t_max = 1.0f;
-		rayArray.push_back(r);
+		r.t_max = 1.0f;*/
+		//**************************************************
+
 	}
+	
+	pCamera->GetWorldTransform().SetPosition(50.0f, 0, 50.0f);
+	pCamera->LookAt(0, 0, 0);
+	for (uint32_t x = 0; x < 30; ++x)
+	{
+		for (uint32_t y = 0; y < 30; ++y)
+		{
+			N_Ray r = pCamera->FireRay_WorldSpace(PixelCoord2(x, y),30,30);
+			r.dir *= 50.0f;
+			r.t_max = 1.0f;
+			rayArray.push_back(r);
+		}
+	}
+
 
 	std::vector<bool> anyHit_List(c_rayCount, false);
 	CollisionTestor* pCT = pScene->GetCollisionTestor();
@@ -280,9 +300,9 @@ BOOL Init3D(HWND hwnd)
 	}
 
 
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
-	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
+	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
 
 	//----------------------------------------------------------
 
@@ -394,10 +414,4 @@ void InputProcess()
 		pRoot->SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
 	}
 
-};
-
-
-void Cleanup()
-{
-	pRoot->ReleaseAll();
 };

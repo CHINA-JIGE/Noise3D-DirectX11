@@ -216,6 +216,17 @@ void Noise3D::RigidTransform::SetRotation(float pitch_x, float yaw_y, float roll
 		[-sin(y/2)sin(x/2)cos(z/2)+cos(y/2)cos(x/2)sin(z/2)	]
 		[cos(y/2)cos(x/2)cos(z/2)+sin(y/2)sin(x/2)sin(z/2)	]
 	*/
+	/*float cx = cosf(pitch_x / 2.0f);
+	float sx = sinf(pitch_x / 2.0f);
+	float cy = cosf(yaw_y / 2.0f);
+	float sy = sinf(yaw_y / 2.0f);
+	float cz = cosf(roll_z / 2.0f);
+	float sz = sinf(roll_z / 2.0f);
+	mQuaternion.x = cy * sx * cz + sy * cx * sz;
+	mQuaternion.y = sy * cx * cz - cy * sx * sz;
+	mQuaternion.z = -sy * sx * cz + cy * cx * sz;
+	mQuaternion.w = cy * cx * cz + sy * sx * sz;*/
+
 	mQuaternion = XMQuaternionRotationRollPitchYaw(pitch_x, yaw_y, roll_z);
 }
 
@@ -254,8 +265,14 @@ Vec3 Noise3D::RigidTransform::TransformVector_Rigid(Vec3 vec)const
 		//https://zh.wikipedia.org/wiki/%E5%9B%9B%E5%85%83%E6%95%B0%E4%B8%8E%E7%A9%BA%E9%97%B4%E6%97%8B%E8%BD%AC
 		Quaternion v = Quaternion(vec.x, vec.y, vec.z, 0);
 		Quaternion q = mQuaternion;
-		Quaternion q_inv = XMQuaternionInverse(mQuaternion);
-		Quaternion p_rotated = q * v *q_inv;
+		Quaternion q_inv = XMQuaternionInverse(q);
+
+		//(2019.4.2)why???Path Tracer's ray are correct if write this way
+		//column/row major matters?????? current expression gives result same as matrix mul
+		//Quaternion p_rotated = q * v *q_inv;(previous)
+		//Quaternion p_rotated = (q * v) *q_inv;(wrong)
+		Quaternion p_rotated = q_inv * v *q;
+
 		//extract rotated vector
 		outVec = Vec3(p_rotated.x, p_rotated.y, p_rotated.z);
 	}

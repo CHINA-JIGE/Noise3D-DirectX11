@@ -237,9 +237,9 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	if (t_resultMax<ray.t_min || t_resultMax > ray.t_max)isFarHit = false;
 
 	//2 intersection points at most, but if there is none:
-	if (!isNearHit && !isFarHit)return false;
+	//if (!isNearHit && !isFarHit)return false;
 
-	return true;
+	return isNearHit||isFarHit;
 }
 
 bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB & aabb, N_RayHitResult & outHitRes)
@@ -699,7 +699,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 	//(2019.3.30)WARNING: in some cases, the ray is inside AABB, but there won't be intersection on the surface
 	//however, the ray might still hit something inside the AABB
 	N_AABB aabb = bvhNode->GetAABB();
-	bool isRayEndPointInside = aabb.IsPointInside(ray.origin) || aabb.IsPointInside(ray.Eval(1.0f));
+	bool isRayEndPointInside = aabb.IsPointInside(ray.origin) || aabb.IsPointInside(ray.Eval(ray.t_max));
 	bool isHit = CollisionTestor::IntersectRayAabb(ray, aabb);//ray's start,end are outside the AABB but still possible to hit
 	if (isRayEndPointInside || isHit )
 	{

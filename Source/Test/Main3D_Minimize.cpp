@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	pRenderer = pScene->CreateRenderer(bufferWidth,bufferHeight, windowHWND);
 
 	//register MAINLOOP function (it will be called every frame)
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//do some customized init stuff
 	Init3D();

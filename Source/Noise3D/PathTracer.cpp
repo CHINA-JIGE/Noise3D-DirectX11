@@ -27,26 +27,6 @@ Noise3D::GI::PathTracer::~PathTracer()
 	m_pShader = nullptr;
 }
 
-bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight)
-{
-	//create back buffer for path tracer(must enable CPU doubled data)
-	if (pixelWidth < 16)pixelWidth = 16;
-	if (pixelHeight < 16)pixelHeight = 16;
-	TextureManager* pTexMgr = Noise3D::GetScene()->GetTextureMgr();
-	Texture2D* pRenderTarget = pTexMgr->CreatePureColorTexture(
-		"default_pathTracerRT",
-		pixelWidth, pixelHeight, Color4u(0, 0, 0, 0), true);
-
-	if (pRenderTarget == nullptr)
-	{
-		ERROR_MSG("PathTracer: failed to create path tracer's default back buffer/texture2d.");
-		return false;
-	}
-	
-	m_pRenderTarget = pRenderTarget;
-	return true;
-}
-
 void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoftShader* pShader)
 {
 	if (pNode == nullptr || pShader==nullptr)
@@ -62,8 +42,8 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 	m_pShader = pShader;
 
 	//back buffer's size, partition it into tiles
-	uint32_t h = m_pRenderTarget->GetWidth();
-	uint32_t w = m_pRenderTarget->GetHeight();
+	uint32_t w = m_pRenderTarget->GetWidth();
+	uint32_t h = m_pRenderTarget->GetHeight();
 	uint32_t completeTileCountX = (w / mTileWidth);
 	uint32_t completeTileCountY = (h / mTileHeight);
 	uint32_t partialTileWidth = w % mTileWidth;//some tile might be incomplete
@@ -75,8 +55,8 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 		for (uint32_t tileIdX = 0; tileIdX <= completeTileCountX; ++tileIdX)
 		{
 			//incomplete block at the right/bottom edeg are considered
-			uint32_t currentTileW = (tileIdX == completeTileCountX ? mTileWidth : partialTileWidth);
-			uint32_t currentTileH = (tileIdY == completeTileCountY ? mTileHeight : partialTileHeight);
+			uint32_t currentTileW = (tileIdX != completeTileCountX ? mTileWidth : partialTileWidth);
+			uint32_t currentTileH = (tileIdY != completeTileCountY ? mTileHeight : partialTileHeight);
 
 			N_RenderTileInfo info;
 			info.topLeftX = mTileWidth * tileIdX;
@@ -145,6 +125,26 @@ float Noise3D::GI::PathTracer::GetRayMaxTravelDist()
 							PRIVATE
 
 ***********************************************/
+bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight)
+{
+	//create back buffer for path tracer(must enable CPU doubled data)
+	if (pixelWidth < 16)pixelWidth = 16;
+	if (pixelHeight < 16)pixelHeight = 16;
+	TextureManager* pTexMgr = Noise3D::GetScene()->GetTextureMgr();
+	Texture2D* pRenderTarget = pTexMgr->CreatePureColorTexture(
+		"default_pathTracerRT",
+		pixelWidth, pixelHeight, Color4u(0, 0, 0, 0), true);
+
+	if (pRenderTarget == nullptr)
+	{
+		ERROR_MSG("PathTracer: failed to create path tracer's default back buffer/texture2d.");
+		return false;
+	}
+
+	m_pRenderTarget = pRenderTarget;
+	return true;
+}
+
 void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 {
 	Camera* pCam = Noise3D::GetScene()->GetCamera();
@@ -153,7 +153,7 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 		for (uint32_t y = 0; y < info.height; ++y)
 		{
 			N_Ray ray = pCam->FireRay_WorldSpace(
-				PixelCoord2(float(x), float(y)), 
+				PixelCoord2(float(info.topLeftX+x), float(info.topLeftY+y)), 
 				m_pRenderTarget->GetWidth(), 
 				m_pRenderTarget->GetHeight());
 

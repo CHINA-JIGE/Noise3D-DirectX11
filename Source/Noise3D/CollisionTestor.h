@@ -43,9 +43,9 @@ namespace Noise3D
 		//get the closest hit's index in hit list
 		int GetClosestHitIndex() 
 		{
-			int index = -1;
+			uint32_t index = 0xffffffff;
 			float closest_t = std::numeric_limits<float>::infinity();
-			for (int i = 0; i < hitList.size(); ++i)
+			for (uint32_t i = 0; i < hitList.size(); ++i)
 			{
 				if (hitList.at(i).t < closest_t)
 				{

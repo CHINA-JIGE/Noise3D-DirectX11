@@ -168,9 +168,10 @@ N_Ray Noise3D::Camera::FireRay_WorldSpace(PixelCoord2 pixelCoord, size_t backBuf
 {
 	//rayEnd = (0,0,0) + rayDir
 	Vec3 rayEndV = Camera::FireRay_ViewSpace(pixelCoord, backBuffPxWidth, backBuffPxHeight);
-	RigidTransform t = Camera::GetWorldTransform();
+	RigidTransform& t = Camera::GetWorldTransform();
 	Vec3 rayStartW = t.GetPosition();
 	Vec3 rayEndW = t.TransformVector_Rigid(rayEndV);
+	//Vec3 rayEndW = AffineTransform::TransformVector_MatrixMul(rayEndV, t.GetRigidTransformMatrix());
 	return N_Ray(rayStartW, rayEndW - rayStartW);
 }
 

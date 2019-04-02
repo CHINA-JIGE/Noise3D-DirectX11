@@ -16,9 +16,9 @@ namespace Noise3D
 		{
 		public:
 
-			virtual GI::Radiance ClosestHit(N_Ray ray, const N_RayHitInfo& hitInfo, N_TraceRayPayload& in_out_payload) override;
+			virtual void ClosestHit(N_Ray ray, const N_RayHitInfo& hitInfo, N_TraceRayPayload& in_out_payload) override;
 
-			virtual GI::Radiance Miss(N_Ray ray, N_TraceRayPayload& in_out_payload) override;
+			virtual void  Miss(N_Ray ray, N_TraceRayPayload& in_out_payload) override;
 
 		};
 	}

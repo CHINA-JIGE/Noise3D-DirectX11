@@ -34,10 +34,10 @@ namespace Noise3D
 			//3. Intersect() (impl in CollisionTestor)
 
 			//4. closest hit, most material/lighting/texturing stuffs will happen here
-			virtual GI::Radiance ClosestHit(N_Ray ray, const N_RayHitInfo& hitInfo, N_TraceRayPayload& in_out_payload)=0;
+			virtual void ClosestHit(N_Ray ray, const N_RayHitInfo& hitInfo, N_TraceRayPayload& in_out_payload)=0;
 
 			//5. doesn't hit anything, might want to sample the skydome/skybox cubemap or sth
-			virtual GI::Radiance Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
+			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
 
 		};
 	}

@@ -41,7 +41,7 @@ public slots:
 
 private:
 
-	void mFunc_OutputShCoefficients(int shOrder, std::vector<Noise3D::NColor4f>& shVector);
+	void mFunc_OutputShCoefficients(int shOrder, std::vector<Noise3D::Color4f>& shVector);
 
 	Ui::SHLightingGuiApp mUI;
 	Widget_RenderCanvas* m_pRenderCanvas;//customized widget (manually created)

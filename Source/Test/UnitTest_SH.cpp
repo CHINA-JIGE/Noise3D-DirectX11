@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 
 	//register main loop function
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//enter main loop
 	pRoot->Mainloop();

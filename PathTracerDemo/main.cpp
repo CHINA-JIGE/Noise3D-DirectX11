@@ -1,6 +1,7 @@
 
 #include "Noise3D.h"
-#include "mainApp.h"
+#include "RealTimeRenderModule.h"
+#include "MainApp.h"
 
 MainApp app;
 

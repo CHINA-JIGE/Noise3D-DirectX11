@@ -17,21 +17,21 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ SceneManager:
-		public IFactory<Renderer>,
-		public IFactory<Camera>,
-		public IFactory<MeshManager>,
-		public IFactory<LightManager>,
-		public IFactory<TextureManager>,
-		public IFactory<MaterialManager>,
-		public IFactory<GraphicObjectManager>,
-		public IFactory<SweepingTrailManager>,
-		public IFactory<Atmosphere>,
-		public IFactory<TextManager>,
-		public IFactory<MeshLoader>,
-		public IFactory<ModelProcessor>,
-		public IFactory<CollisionTestor>,
-		public IFactory<LogicalShapeManager>,
-		public IFactory<GI::PathTracer>
+		protected IFactory<Renderer>,
+		protected IFactory<Camera>,
+		protected IFactory<MeshManager>,
+		protected IFactory<LightManager>,
+		protected IFactory<TextureManager>,
+		protected IFactory<MaterialManager>,
+		protected IFactory<GraphicObjectManager>,
+		protected IFactory<SweepingTrailManager>,
+		protected IFactory<Atmosphere>,
+		protected IFactory<TextManager>,
+		protected IFactory<MeshLoader>,
+		protected IFactory<ModelProcessor>,
+		protected IFactory<CollisionTestor>,
+		protected IFactory<LogicalShapeManager>,
+		protected IFactory<GI::PathTracer>
 	{
 	public:
 
