@@ -128,10 +128,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RealTimeRenderModule.cpp" />
     <ClCompile Include="MainApp.cpp" />
+    <ClCompile Include="SceneLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RealTimeRenderModule.h" />
     <ClInclude Include="MainApp.h" />
+    <ClInclude Include="SceneLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

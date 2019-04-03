@@ -21,7 +21,7 @@ namespace Noise3D
 		};
 
 		//concrete spherical func implementation based on texture sampling in spherical mapping way
-		class ISphericalFunc_Texture2dSampler : public ISphericalFunc<Color4f>
+		class Texture2dSampler_Spherical : public ISphericalFunc<Color4f>
 		{
 		public:
 
@@ -36,7 +36,7 @@ namespace Noise3D
 		};
 
 		//concrete spherical func implementation based on cube map
-		class ISphericalFunc_CubeMapSampler : public ISphericalFunc<Color4f>
+		class CubeMapSampler : public ISphericalFunc<Color4f>
 		{
 		public:
 

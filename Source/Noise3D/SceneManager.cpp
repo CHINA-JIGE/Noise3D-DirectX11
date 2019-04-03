@@ -205,7 +205,7 @@ TextManager * SceneManager::GetTextMgr()
 	return IFactory<TextManager>::GetObjectPtr(uid);
 }
 
-MeshLoader * SceneManager::GetModelLoader()
+MeshLoader * SceneManager::GetMeshLoader()
 {
 	const N_UID uid = "sceneModelLoader";
 	if (IFactory<MeshLoader>::FindUid(uid) == false)

@@ -62,7 +62,7 @@ namespace Noise3D
 
 		TextManager*				GetTextMgr();
 
-		MeshLoader*				GetModelLoader();
+		MeshLoader*				GetMeshLoader();
 
 		ModelProcessor*			GetModelProcessor();
 

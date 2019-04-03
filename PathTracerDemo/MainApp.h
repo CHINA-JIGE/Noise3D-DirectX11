@@ -37,8 +37,6 @@ private:
 
 	void _InitPathTracer();
 
-	void _InitPathTracingSceneObject();
-
 	void _InitGraphicsObjectOfPreviewRender();
 
 	void _InitAreaLight();

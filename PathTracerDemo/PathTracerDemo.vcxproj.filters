@@ -10,6 +10,9 @@
     <Filter Include="MainApp">
       <UniqueIdentifier>{b0a9627c-4444-4e99-8116-028496110f72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SceneLoader">
+      <UniqueIdentifier>{3c83eee9-e523-4c6f-aa43-131dd4960f8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,6 +24,9 @@
     <ClCompile Include="MainApp.cpp">
       <Filter>MainApp</Filter>
     </ClCompile>
+    <ClCompile Include="SceneLoader.cpp">
+      <Filter>SceneLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RealTimeRenderModule.h">
@@ -28,6 +34,9 @@
     </ClInclude>
     <ClInclude Include="MainApp.h">
       <Filter>MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneLoader.h">
+      <Filter>SceneLoader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

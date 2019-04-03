@@ -1,4 +1,5 @@
 #include "Noise3D.h"
+#include "SceneLoader.h"
 #include "RealTimeRenderModule.h"
 #include "MainApp.h"
 
@@ -40,7 +41,6 @@ void MainApp::Init_GI()
 {
 	MainApp::_InitPathTracer();
 	MainApp::_InitGraphicsObjectOfPreviewRender();
-	MainApp::_InitPathTracingSceneObject();
 	MainApp::_InitAreaLight();
 }
 
@@ -55,19 +55,6 @@ void MainApp::_InitPathTracer()
 {
 	m_pPathTracer = m_pScene->CreatePathTracer(c_PathTracerBufferWidth, c_PathTracerBufferHeight);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
-}
-
-void MainApp::_InitPathTracingSceneObject()
-{
-	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(m_pSnode_Sphere, "logicSPH0");
-	pSphere->SetCollidable(true);
-	pSphere->SetRadius(10.0f);
-	m_pSnode_Sphere->GetLocalTransform().SetPosition(0,0,0);
-
-	LogicalBox* pBox = m_pShapeMgr->CreateBox(m_pSnode_Box, "logicBox0");
-	pBox->SetCollidable(true);
-	pBox->SetSizeXYZ(Vec3(10.0f, 10.0f, 10.0f));
-	m_pSnode_Box->GetLocalTransform().SetPosition(20.0f, 0, 0);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()
