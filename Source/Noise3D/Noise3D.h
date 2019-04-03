@@ -31,6 +31,8 @@
 #include <type_traits>
 #include <random>
 #include <memory>
+#include <thread>
+#include <future>
 
 //Third Party : Microsoft's Effects11/FX11
 #include <Effects11\d3dx11effect.h>

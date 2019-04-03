@@ -11,8 +11,7 @@ MainApp::MainApp():
 	mMainloopState(MAINLOOP_STATE::PREVIEW),
 	m_pPathTracer(nullptr),
 	m_pGraphicObj_ResultPreview(nullptr),
-	m_pPathTracerRenderTarget(nullptr),
-	mIsPathTracerRenderFinished(false)
+	m_pPathTracerRenderTarget(nullptr)
 {
 }
 
@@ -23,13 +22,18 @@ MainApp::~MainApp()
 void MainApp::PathTracerStartRender()
 {
 	mTotalPathTracerRenderTime = 0.0f;
-	mIsPathTracerRenderFinished = false;
 	mTimer.ResetAll();
 	mTimer.NextTick();
-	m_pPathTracer->Render(m_pScene->GetSceneGraph().GetRoot(), &mPathTracerShader_Minimal);
-	mIsPathTracerRenderFinished = true;
-	//update PathTracer render target data to GPU
-	m_pPathTracerRenderTarget->UpdateToVideoMemory();
+
+	//start an independent thread from path tracer render
+	struct PathTracerRenderFunctor
+	{
+		void operator()(GI::PathTracer* p, SceneNode* pNode, GI::IPathTracerSoftShader* pShaders){	p->Render(pNode, pShaders);}
+	};
+	PathTracerRenderFunctor functor;
+	std::thread renderThread(functor,m_pPathTracer, m_pScene->GetSceneGraph().GetRoot(), &mPathTracerShader_Minimal);
+	renderThread.detach();
+
 }
 
 void MainApp::Init_GI()
@@ -74,6 +78,7 @@ void MainApp::_InitGraphicsObjectOfPreviewRender()
 		Vec2(0, 0), Vec2(m_pRenderer->GetBackBufferWidth(), m_pRenderer->GetBackBufferHeight()),
 		Vec4(0, 0, 0, 1.0f), 
 		m_pPathTracerRenderTarget->GetTextureName());
+	m_pMyText_fps->SetTextColor(Vec4(1.0f,1.0,1.0f,1.0f));
 }
 
 void MainApp::_InitAreaLight()
@@ -128,10 +133,22 @@ void MainApp::Mainloop_RenderPathTracedResult()
 	Sleep(500);
 	m_pRenderer->ClearBackground();
 	mTimer.NextTick();
-	if (!mIsPathTracerRenderFinished)
+
+	static bool hasRTLastUpdate = false;	//last update of render target
+	bool isFinished = m_pPathTracer->IsRenderFinished();
+	if (!isFinished)
 	{
 		mTotalPathTracerRenderTime += float(mTimer.GetInterval());
+		m_pPathTracerRenderTarget->UpdateToVideoMemory();
 	}
+
+	if(!hasRTLastUpdate && isFinished)
+	{
+		mTotalPathTracerRenderTime += float(mTimer.GetInterval());
+		m_pPathTracerRenderTarget->UpdateToVideoMemory();
+		hasRTLastUpdate = true;
+	}
+
 
 	//update fps lable
 	std::string tmpS;

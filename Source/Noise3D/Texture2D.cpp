@@ -137,7 +137,7 @@ bool Texture2D::UpdateToVideoMemory()
 	else
 	{
 		//mIsPixelBufferInMemValid==false
-		ERROR_MSG("UpdateTextureToGraphicMemory : Texture didn't have a copy in System Memory!");
+		ERROR_MSG("UpdateTextureToVideoMemory : Texture didn't have a copy in System Memory!");
 		return false;
 	}
 

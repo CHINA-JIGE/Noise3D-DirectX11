@@ -27,6 +27,9 @@ namespace Noise3D
 		{
 		public:
 
+			IPathTracerSoftShader() :
+				m_pFatherPathTracer(nullptr) {}
+
 			//1. FireRay() (impl in PathTracer class)
 
 			//2. AnyHit() (for alpha mask, but doesn't intend to impl)
@@ -38,6 +41,13 @@ namespace Noise3D
 
 			//5. doesn't hit anything, might want to sample the skydome/skybox cubemap or sth
 			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
+
+		protected:
+
+			friend void PathTracer::Render(Noise3D::SceneNode*, IPathTracerSoftShader*);
+
+			//initialized by PathTracer
+			PathTracer* m_pFatherPathTracer;
 
 		};
 	}

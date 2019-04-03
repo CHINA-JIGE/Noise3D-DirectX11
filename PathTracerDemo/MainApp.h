@@ -48,7 +48,6 @@ private:
 	const uint32_t c_PathTracerBufferHeight;
 	GI::PathTracer* m_pPathTracer;
 	GI::PathTracerShader_Minimal mPathTracerShader_Minimal;
-	bool mIsPathTracerRenderFinished;
 	Texture2D* m_pPathTracerRenderTarget;
 	GraphicObject* m_pGraphicObj_ResultPreview;
 	float mTotalPathTracerRenderTime;

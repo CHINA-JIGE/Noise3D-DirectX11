@@ -52,6 +52,12 @@ namespace Noise3D
 
 			float GetRayMaxTravelDist();
 
+			//could be called by soft shader(and could be called recursively)
+			void TraceRay(N_Ray& ray, N_TraceRayPayload& payload);
+
+			//poll
+			bool IsRenderFinished();
+
 		protected:
 
 			struct N_RenderTileInfo
@@ -65,9 +71,6 @@ namespace Noise3D
 				uint32_t width;
 				uint32_t height;
 			};
-
-			//could be called recursively
-			void TraceRay(N_Ray& ray, N_TraceRayPayload& payload);
 
 			//render an image tile (let's say, 16x16, could be parallelized using multi-thread)
 			//task:fire and trace rays(could be multi-threaded), 
@@ -102,6 +105,7 @@ namespace Noise3D
 
 			uint32_t mTileHeight;
 
+			bool mIsRenderedFinished;
 		};
 	}
 }
