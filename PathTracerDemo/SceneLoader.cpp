@@ -17,9 +17,10 @@ void SceneLoader::LoadScene()
 	_LoadTextures();
 	_LoadMaterials();
 
-	_LoadSphere(sg, Vec3(0,0,0), 10.0f);
-	_LoadSphere(sg, Vec3(10.0f, 10.0f, 10.0f), 5.0f);
-	_LoadBox(sg, Vec3(20.0f, 0, 0), Vec3(10.0f, 10.0f, 10.0f));
+	_LoadSphere(sg, Vec3(0,5.0f,0), 10.0f);
+	_LoadSphere(sg, Vec3(-20.0f, 7.0f, -20.0f), 12.0f);
+	_LoadBox(sg, Vec3(30.0f, 10.0, 0), Vec3(20.0f, 20.0f, 20.0f));
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(100.0f, 100.0f));
 }
 
 void SceneLoader::_LoadTextures()
@@ -28,7 +29,6 @@ void SceneLoader::_LoadTextures()
 	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", TRUE, 0, 0, FALSE);
-	Texture2D* pTex;
 
 	//ITexture* pNormalMap = m_pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
 	//pNormalMap->ConvertTextureToGreyMap();
@@ -62,8 +62,7 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)
 	m_pModelLoader->LoadSphere(pMeshSphere, radius, 15, 15);
 	pMeshSphere->SetCollidable(false);
 
-	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "logicSPH" + std::to_string(id));
-	pSphere->SetRadius(radius);
+	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "LSph" + std::to_string(id),radius);
 	pSphere->SetCollidable(true);
 
 	mMeshList.push_back(pMeshSphere);
@@ -81,9 +80,26 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size)
 	m_pModelLoader->LoadBox(pMeshBox, size.x, size.y, size.z);
 	pMeshBox->SetCollidable(false);
 
-	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "logicBox" + std::to_string(id));
+	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "LBox" + std::to_string(id),size);
 	pBox->SetCollidable(true);
-	pBox->SetSizeXYZ(size);
 
 	mMeshList.push_back(pMeshBox);
+}
+
+void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size)
+{
+	static int id = 0;
+	id++;
+
+	SceneNode* pNode = sg.GetRoot()->CreateChildNode();
+	pNode->GetLocalTransform().SetPosition(pos);
+
+	Mesh* pMeshRect = m_pMeshMgr->CreateMesh(pNode, "rect" + std::to_string(id));
+	m_pModelLoader->LoadPlane(pMeshRect, size.x, size.y, 3,3);
+	pMeshRect->SetCollidable(false);
+
+	LogicalRect* pRect = m_pShapeMgr->CreateRect(pNode, "Lrect" + std::to_string(id),size, ori);
+	pRect->SetCollidable(true);
+
+	mMeshList.push_back(pMeshRect);
 }

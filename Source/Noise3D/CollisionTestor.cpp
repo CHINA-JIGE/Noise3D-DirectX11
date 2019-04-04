@@ -304,24 +304,121 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	//[t_resultMin, t_resultMax] is still valid, then output the result
 	if (isNearHit)
 	{
-		N_RayHitInfo hitInfo;
-		hitInfo.t = t_resultMin;
-		hitInfo.pos = ray.Eval(t_resultMin);
-		hitInfo.normal = LogicalBox::ComputeNormal(result_minHitFacetId);//static function to compute normal of an AABB
+		N_RayHitInfo hitInfo(
+			ray, //ray
+			t_resultMin,//t
+			ray.Eval(t_resultMin),//pos
+			LogicalBox::ComputeNormal(result_minHitFacetId));//normal
 		outHitRes.hitList.push_back(hitInfo);
 	}
 
 	if (isFarHit)
 	{
-		N_RayHitInfo hitInfo;
-		hitInfo.t = t_resultMax;
-		hitInfo.pos = ray.Eval(t_resultMax);
-		hitInfo.normal = LogicalBox::ComputeNormal(result_maxHitFacetId);//static function to compute normal of an AABB
+		N_RayHitInfo hitInfo(
+			ray,//ray
+			t_resultMax, //t
+			ray.Eval(t_resultMax), //pos
+			LogicalBox::ComputeNormal(result_maxHitFacetId));//normal
 		outHitRes.hitList.push_back(hitInfo);
 	}
 
 	return true;
 
+}
+
+bool Noise3D::CollisionTestor::IntersectRayRect(const N_Ray & ray, LogicalRect * pRect, N_RayHitResult & outHitRes)
+{
+	if (pRect == nullptr)
+	{
+		ERROR_MSG("CollisionTestor: object is nullptr.");
+		return false;
+	}
+
+	if (!pRect->Collidable::IsCollidable())return false;
+
+	//convert ray to model space (but first scene object must attach to scene node)
+	N_Ray localRay;
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, false, pRect, localRay))return false;
+
+	//calculate t like ray-AABB do.
+	bool isPossibleHit = false;
+	float result_t = -std::numeric_limits<float>::infinity();
+	Vec3 normal1 = Vec3(0, 0, 0);
+	Vec3 normal2 = Vec3(0, 0, 0);
+	Vec3 pos = Vec3(0, 0, 0);
+	const Vec2 halfSize = pRect->GetSize()/2.0f;
+	switch (pRect->GetOrientation())
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		if (localRay.dir.z != 0)//ray can't be parallel with the plane
+		{
+			result_t = - localRay.origin.z/ localRay.dir.z;
+			normal1 = Vec3(0 ,0, 1.0f);
+			normal2 = Vec3(0, 0, -1.0f);
+			pos = localRay.Eval(result_t);
+			pos.z = 0.0f;
+			//region limit
+			if (pos.x >= -halfSize.x && pos.x <= halfSize.x && pos.y >= -halfSize.y && pos.y <= halfSize.y)
+			{
+				isPossibleHit = true;
+			}
+		}
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		if (localRay.dir.y != 0)//ray can't be parallel with the plane
+		{
+			result_t = -localRay.origin.y / localRay.dir.y;
+			normal1 = Vec3(0, 1.0f, 0);
+			normal2 = Vec3(0, -1.0f, 0);
+			pos = localRay.Eval(result_t);
+			pos.y = 0.0f;
+			//region limit
+			if (pos.y >= -halfSize.x && pos.x <= halfSize.x && pos.z >= -halfSize.y && pos.z <= halfSize.y)
+			{
+				isPossibleHit = true;
+			}
+		}
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		if (localRay.dir.x != 0)//ray can't be parallel with the plane
+		{
+			result_t = -localRay.origin.x / localRay.dir.x;
+			normal1 = Vec3(1.0f, 0, 0);
+			normal2 = Vec3(1.0f, 0, 0);
+			pos = localRay.Eval(result_t);
+			pos.x = 0.0f;
+			//region limit
+			if (pos.y >= -halfSize.x && pos.y <= halfSize.x && pos.z >= -halfSize.y && pos.z <= halfSize.y)
+			{
+				isPossibleHit = true;
+			}
+		}
+		break;
+
+	default:
+		WARNING_MSG("IntersectRayRect: unexpected orientation.");
+		break;
+	}
+
+	if (!isPossibleHit)return false;
+	
+	//t_min && t_max rejection
+	if (result_t < ray.t_min || result_t > ray.t_max)return false;
+
+	//output local hit info (generate 2 intersection with opposite normal
+	N_RayHitInfo hitInfo1(ray, result_t, pos, normal1);
+	N_RayHitInfo hitInfo2(ray, result_t, pos, normal2);
+
+	outHitRes.hitList.push_back(hitInfo1);
+	outHitRes.hitList.push_back(hitInfo2);
+
+	//convert result point back to world space
+	helper.HitResult_ModelToWorld(outHitRes);
+
+	return true;
 }
 
 bool Noise3D::CollisionTestor::IntersectRayBox(const N_Ray & ray, LogicalBox * pBox)
@@ -416,11 +513,10 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 		if (t1 >= ray.t_min && t1 <= ray.t_max)//t_min && t_max rejection
 		{
 			//local space hit info 1
-			N_RayHitInfo hitInfo1;
-			hitInfo1.t = t1;
-			hitInfo1.pos = localRay.Eval(t1);
-			hitInfo1.normal = hitInfo1.pos;
-			hitInfo1.normal.Normalize();
+			Vec3 pos = localRay.Eval(t1);
+			Vec3 n = pos;
+			n.Normalize();
+			N_RayHitInfo hitInfo1(ray, t1, pos, n);
 			outHitRes.hitList.push_back(hitInfo1);
 		}
 
@@ -428,11 +524,10 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 		if (t2 >= ray.t_min && t2 <= ray.t_max)//t_min && t_max rejection
 		{
 			//local space hit info 2
-			N_RayHitInfo hitInfo2;
-			hitInfo2.t = t2;
-			hitInfo2.pos = localRay.Eval(t2);
-			hitInfo2.normal = hitInfo2.pos;
-			hitInfo2.normal.Normalize();
+			Vec3 pos = localRay.Eval(t2);
+			Vec3 n = pos;
+			n.Normalize();
+			N_RayHitInfo hitInfo2(ray, t2, pos, n);
 			outHitRes.hitList.push_back(hitInfo2);
 		}
 	}
@@ -476,9 +571,13 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, Vec3 v0, 
 	//t_min && t_max rejection
 	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
-	outHitInfo.t = result_t;
-	outHitInfo.pos = ray.Eval(result_t);
-	outHitInfo.normal = E1.Cross(E2);
+
+	//output info
+	Vec3 pos = ray.Eval(result_t);
+	Vec3 n = E1.Cross(E2);
+	n.Normalize();
+	N_RayHitInfo hitInfo(ray, result_t, pos, n);
+	outHitInfo = std::move(hitInfo);
 	return true;
 }
 
@@ -508,10 +607,12 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_D
 	//t_min && t_max rejection
 	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
-	outHitInfo.t = result_t;
-	outHitInfo.pos = ray.Eval(result_t);
-	outHitInfo.normal = ((1.0f - u - v)*v0.Normal + u*v1.Normal + v*v2.Normal);//normal's interpolation
-	outHitInfo.normal.Normalize();
+	//output info
+	Vec3 pos = ray.Eval(result_t);
+	Vec3 n = ((1.0f - u - v)*v0.Normal + u*v1.Normal + v*v2.Normal);
+	n.Normalize();
+	N_RayHitInfo hitInfo(ray,result_t,pos, n);
+	outHitInfo = std::move(hitInfo);
 	return true;
 }
 
@@ -537,7 +638,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	//apply ray-triangle intersection for each triangle in model space
 	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
 	{
-		N_RayHitInfo hitInfo;
+		N_RayHitInfo hitInfo(N_Ray(),-123456789.0f,Vec3(),Vec3());
 		const N_DefaultVertex& v0 = pVB->at(pIB->at(3 * i + 0));
 		const N_DefaultVertex& v1 = pVB->at(pIB->at(3 * i + 1));
 		const N_DefaultVertex& v2 = pVB->at(pIB->at(3 * i + 2));
@@ -703,7 +804,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 	bool isHit = CollisionTestor::IntersectRayAabb(ray, aabb);//ray's start,end are outside the AABB but still possible to hit
 	if (isRayEndPointInside || isHit )
 	{
-		//extract concrete object to intersect
+		//BVH leaf node, extract concrete object to intersect
 		if (bvhNode->IsLeafNode())
 		{
 			ISceneObject* pObj = bvhNode->GetSceneObject();
@@ -721,11 +822,14 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE:
 				CollisionTestor::IntersectRaySphere(ray, static_cast<LogicalSphere*>(pObj), tmpResult);
 				break;
+			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT:
+				CollisionTestor::IntersectRayRect(ray, static_cast<LogicalRect*>(pObj), tmpResult);
+				break;
 			case NOISE_SCENE_OBJECT_TYPE::MESH:
 				CollisionTestor::IntersectRayMesh(ray, static_cast<Mesh*>(pObj), tmpResult);
 				break;
 			default:
-				ERROR_MSG("Error: Bug!! I forgot to include some collidable object.");
+				ERROR_MSG("Error: Bug!! The stupid author forgot to include some collidable object.");
 				break;
 			}
 			outHitRes.Union(tmpResult);
@@ -741,7 +845,6 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 				CollisionTestor::mFunction_IntersectRayBvhNode(ray, pChildNode, tmpResult);
 				outHitRes.Union(tmpResult);//push to back
 			}
-
 		}
 	}//isHit
 	//else, BVH branch pruned. thus accelerated.
@@ -786,6 +889,7 @@ void Noise3D::CollisionTestor::RayIntersectionTransformHelper::HitResult_ModelTo
 	for (auto& refHitInfo : hitResult.hitList)
 	{
 		//hitInfo.t = hitInfo.t
+		//hitInfo.ray = hitInfo.ray;//world space ray can be directly assigned to
 		refHitInfo.normal = AffineTransform::TransformVector_MatrixMul(refHitInfo.normal, worldInvTransposeMat);
 		refHitInfo.normal.Normalize();
 		refHitInfo.pos = AffineTransform::TransformVector_MatrixMul(refHitInfo.pos, worldMat);

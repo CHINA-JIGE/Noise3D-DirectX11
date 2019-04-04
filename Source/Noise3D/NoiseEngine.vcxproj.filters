@@ -403,6 +403,9 @@
     <ClInclude Include="_PathTracerSoftShaderInterface.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
+    <ClInclude Include="LogicalRect.h">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -605,6 +608,9 @@
     </ClCompile>
     <ClCompile Include="PathTracerShader_Minimal.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalRect.cpp">
+      <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

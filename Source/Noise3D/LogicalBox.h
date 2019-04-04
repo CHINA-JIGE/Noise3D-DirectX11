@@ -11,6 +11,7 @@
 
 namespace Noise3D
 {
+	class LogicalShapeManager;
 
 	//side's of AABB (or box in local space)
 	enum NOISE_BOX_FACET
@@ -38,7 +39,7 @@ namespace Noise3D
 		void SetSizeXYZ(Vec3 size);
 
 		//box is AABB in local space
-		N_AABB GetLocalBox();
+		N_AABB GetLocalBox() const;
 
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
@@ -56,8 +57,9 @@ namespace Noise3D
 		//virtual bool IsPointInside(Vec3 p) override;
 
 	private:
-
-		friend LogicalBox* LogicalShapeManager::CreateBox(SceneNode*, N_UID);
+		//header include's order matters
+		//friend LogicalBox* LogicalShapeManager::CreateBox(SceneNode*, N_UID, Vec3);
+		friend LogicalShapeManager;
 		
 		friend class IFactory<LogicalBox>;
 

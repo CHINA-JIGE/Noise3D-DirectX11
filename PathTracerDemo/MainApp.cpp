@@ -29,10 +29,13 @@ void MainApp::PathTracerStartRender()
 	//start an independent thread from path tracer render
 	struct PathTracerRenderFunctor
 	{
-		void operator()(GI::PathTracer* p, SceneNode* pNode, GI::IPathTracerSoftShader* pShaders){	p->Render(pNode, pShaders);}
+		void operator()(GI::PathTracer* p, SceneNode* pNode, GI::IPathTracerSoftShader* pShaders)
+		{	
+			p->Render(pNode, pShaders);
+		}
 	};
 	PathTracerRenderFunctor functor;
-	std::thread renderThread(functor,m_pPathTracer, m_pScene->GetSceneGraph().GetRoot(), &mPathTracerShader_Minimal);
+	std::thread renderThread(functor, m_pPathTracer, m_pScene->GetSceneGraph().GetRoot(), &mPathTracerShader_Minimal);
 	renderThread.detach();
 
 }
@@ -117,16 +120,17 @@ void MainApp::Mainloop_RealTimePreview()
 
 void MainApp::Mainloop_RenderPathTracedResult()
 {
-	Sleep(500);
-	m_pRenderer->ClearBackground();
+	//Sleep(50);
 	mTimer.NextTick();
-
+	m_pRenderer->ClearBackground();
 	static bool hasRTLastUpdate = false;	//last update of render target
+
 	bool isFinished = m_pPathTracer->IsRenderFinished();
-	if (!isFinished)
+	if (!isFinished && mTimer.GetTotalTimeElapsed()>500.0f)
 	{
 		mTotalPathTracerRenderTime += float(mTimer.GetInterval());
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
+		mTimer.ResetTotalTime();
 	}
 
 	if(!hasRTLastUpdate && isFinished)
@@ -139,7 +143,7 @@ void MainApp::Mainloop_RenderPathTracedResult()
 
 	//update fps lable
 	std::string tmpS;
-	tmpS += "Elapsed Time :" + std::to_string(mTotalPathTracerRenderTime);// << std::endl;
+	tmpS += "Elapsed Time :" + std::to_string(mTotalPathTracerRenderTime) +"ms";// << std::endl;
 	m_pMyText_fps->SetTextAscii(tmpS);
 
 

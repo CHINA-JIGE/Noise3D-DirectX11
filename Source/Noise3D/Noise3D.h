@@ -73,11 +73,11 @@
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "BvhTree.h"
 
-#include "LogicalShapeManager.h"
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
 #include "LogicalBox.h"
-
+#include "LogicalRect.h"
+#include "LogicalShapeManager.h"
 
 #include "ModelProcessor.h"
 #include "Camera.h"

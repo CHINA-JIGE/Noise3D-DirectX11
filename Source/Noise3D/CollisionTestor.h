@@ -16,11 +16,14 @@ namespace Noise3D
 	//record of a single successful collision between Ray and XX
 	struct N_RayHitInfo
 	{
-		N_RayHitInfo():t(-std::numeric_limits<float>::infinity()) {}
+		//N_RayHitInfo():t(-std::numeric_limits<float>::infinity()) {}
+		N_RayHitInfo(const N_Ray& _ray, float _t, Vec3 _pos, Vec3 _normal) :
+			ray(_ray), t(_t), pos(_pos), normal(_normal) {}
 
 		//validate the hit, check param t and see whether it's infinity(it shouldn't be)
 		bool IsValid()	{	return (t != std::numeric_limits<float>::infinity());	}
 
+		N_Ray ray;
 		float t;//ray's hit parameter t
 		Vec3 pos;//hit point's pos
 		Vec3 normal;//hit point's normal vector
@@ -44,12 +47,14 @@ namespace Noise3D
 		int GetClosestHitIndex() 
 		{
 			uint32_t index = 0xffffffff;
-			float closest_t = std::numeric_limits<float>::infinity();
+			float closest_dist = std::numeric_limits<float>::infinity();
 			for (uint32_t i = 0; i < hitList.size(); ++i)
 			{
-				if (hitList.at(i).t < closest_t)
+				N_RayHitInfo& info= hitList.at(i);
+				float dist = info.ray.Distance(info.t);
+				if (dist < closest_dist)
 				{
-					closest_t = hitList.at(i).t;
+					closest_dist = dist;
 					index = i;
 				}
 			}
@@ -85,6 +90,9 @@ namespace Noise3D
 
 		//ray-Aabb intersection(detailed hit info). 'slabs' method, can refer to pbrt-v3 or peter-shirley's <Ray Tracing:The Next Week>
 		static bool IntersectRayAabb(const N_Ray& ray, const N_AABB& aabb, N_RayHitResult& outHitRes);
+
+		//ray-Rect intersection. the original rect lies on XY/XZ/YZ plane, calculation can be reduced
+		static bool IntersectRayRect(const N_Ray& ray, LogicalRect* pRect, N_RayHitResult& outHitRes);
 
 		//ray-Box intersection. box can be transformed in world space.
 		static bool IntersectRayBox(const N_Ray& ray, LogicalBox* pBox);

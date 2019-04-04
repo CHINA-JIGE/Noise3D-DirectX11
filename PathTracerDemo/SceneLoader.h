@@ -20,7 +20,7 @@ private:
 
 	void _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size);
 
-	void _LoadRect();
+	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size);
 
 protected:
 

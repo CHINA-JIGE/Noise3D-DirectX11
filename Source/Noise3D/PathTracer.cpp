@@ -231,7 +231,7 @@ void Noise3D::GI::PathTracer::TraceRay(N_Ray & ray, N_TraceRayPayload & payload)
 	if (hitResult.HasAnyHit())
 	{
 		int index = hitResult.GetClosestHitIndex();
-		m_pShader->ClosestHit(ray, hitResult.hitList.front(), payload);
+		m_pShader->ClosestHit(ray, hitResult.hitList.at(index), payload);
 	}
 	else
 	{

@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BvhTree.h" />
+    <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
@@ -227,6 +228,7 @@
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
     <ClCompile Include="LogicalBox.cpp" />
+    <ClCompile Include="LogicalRect.cpp" />
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="PathTracer.cpp" />

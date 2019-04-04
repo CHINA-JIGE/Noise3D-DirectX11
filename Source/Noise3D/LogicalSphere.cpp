@@ -24,7 +24,7 @@ void Noise3D::LogicalSphere::SetRadius(float r)
 	mRadius = r > 0.0f ? r : 1.0f;
 }
 
-float Noise3D::LogicalSphere::GetRadius()
+float Noise3D::LogicalSphere::GetRadius()const
 {
 	return mRadius;
 }

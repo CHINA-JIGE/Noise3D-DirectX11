@@ -169,6 +169,8 @@ namespace Noise3D
 		//evaluate position given ray's parameter t
 		Vec3 Eval(float t) const { return origin + t * dir; }
 
+		float Distance(float t) const { return (t * dir).Length(); }
+
 		Vec3 origin;
 		Vec3 dir;//(2019.3.28)could be non-normalized vector
 		float t_max;//the maximum acceptable parameter t (e.g. used in ray tracing for maximum distance)

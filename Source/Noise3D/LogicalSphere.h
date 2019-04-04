@@ -11,6 +11,7 @@
 
 namespace Noise3D
 {
+	class LogicalShapeManager;
 
 	//(2019.3.27) all 'Scale' is ignored when evaluating world transform
 	class /*_declspec(dllexport)*/ LogicalSphere :
@@ -22,7 +23,7 @@ namespace Noise3D
 
 		void SetRadius(float r);
 
-		float GetRadius();
+		float GetRadius() const;
 
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
@@ -40,7 +41,9 @@ namespace Noise3D
 		//virtual bool IsPointInside(Vec3 p) override;
 
 	private:
-		friend LogicalSphere* LogicalShapeManager::CreateSphere(SceneNode*, N_UID);
+		//header include's order matters
+		//friend LogicalSphere* LogicalShapeManager::CreateSphere(SceneNode*, N_UID, float);
+		friend LogicalShapeManager;
 
 		friend IFactory<LogicalSphere>;
 
