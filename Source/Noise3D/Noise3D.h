@@ -91,8 +91,10 @@
 #include "Texture2D.h"
 #include "TextureCubeMap.h"
 #include "TextureManager.h"
-#include "Material.h"
+
+#include "LambertMaterial.h"
 #include "MaterialManager.h"
+
 #include "GraphicObject.h"
 #include "GraphicObjManager.h"
 #include "SweepingTrail.h"
@@ -124,6 +126,7 @@
 #include "GI_Light.h"
 #include "_PathTracerSoftShaderInterface.h"
 #include "PathTracerShader_Minimal.h"
+#include "PathTracerShader_EnvLighting.h"
 
 
 //-----------Noise Ut -----------

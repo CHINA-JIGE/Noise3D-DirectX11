@@ -148,7 +148,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
-	N_MaterialDesc tmpMat;
+	N_LambertMaterialDesc tmpMat;
 	if (IsMatNameValid== false)
 	{
 		WARNING_MSG("IRenderer : material UID not valid !");

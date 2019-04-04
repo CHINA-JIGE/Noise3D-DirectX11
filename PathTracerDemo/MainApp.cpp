@@ -140,12 +140,10 @@ void MainApp::Mainloop_RenderPathTracedResult()
 		hasRTLastUpdate = true;
 	}
 
-
 	//update fps lable
 	std::string tmpS;
 	tmpS += "Elapsed Time :" + std::to_string(mTotalPathTracerRenderTime) +"ms";// << std::endl;
 	m_pMyText_fps->SetTextAscii(tmpS);
-
 
 	//add to render list
 	m_pRenderer->AddToRenderQueue(m_pGraphicObj_ResultPreview);

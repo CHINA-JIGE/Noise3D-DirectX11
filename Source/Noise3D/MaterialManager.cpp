@@ -14,32 +14,32 @@
 using namespace Noise3D;
 
 MaterialManager::MaterialManager()
-	:IFactory<Material>(100000)
+	:IFactory<LambertMaterial>(100000)
 {
 	mFunction_CreateDefaultMaterial();
 }
 
 MaterialManager::~MaterialManager()
 {
-	IFactory<Material>::DestroyAllObject();
+	IFactory<LambertMaterial>::DestroyAllObject();
 }
 
-Material* MaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
+LambertMaterial* MaterialManager::CreateMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc)
 {
-	if (IFactory<Material>::FindUid(matName))
+	if (IFactory<LambertMaterial>::FindUid(matName))
 	{
 		ERROR_MSG("IMaterialManager: material name exist! mat creation failed! name:" + matName);
 		return nullptr;
 	}
 
-	Material* pMat = IFactory<Material>::CreateObject(matName);
+	LambertMaterial* pMat = IFactory<LambertMaterial>::CreateObject(matName);
 	pMat->SetDesc(matDesc);
 	return pMat;
 }
 
-Material*		MaterialManager::GetDefaultMaterial()
+LambertMaterial*		MaterialManager::GetDefaultMaterial()
 {
-	return IFactory<Material>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	return IFactory<LambertMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
 
 /**********************************************************
@@ -52,7 +52,7 @@ void MaterialManager::mFunction_CreateDefaultMaterial()
 	//only with a material can a object be rendered  (even without a texture)
 	//thus a default material is needed when an object was rendered with invalid material
 
-	N_MaterialDesc defaultMatDesc;
+	N_LambertMaterialDesc defaultMatDesc;
 	defaultMatDesc.ambientColor = Vec3(0.0f, 0.0f, 0.0f);
 	defaultMatDesc.diffuseColor = Vec3(0.1f, 0.1f, 0.1f);
 	defaultMatDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
@@ -65,6 +65,6 @@ void MaterialManager::mFunction_CreateDefaultMaterial()
 	defaultMatDesc.normalMapName = "";
 
 	
-	Material* pMat = IFactory<Material>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	LambertMaterial* pMat = IFactory<LambertMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 	pMat->SetDesc(defaultMatDesc);
 }

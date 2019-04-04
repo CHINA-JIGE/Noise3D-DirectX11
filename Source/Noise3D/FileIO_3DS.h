@@ -8,7 +8,7 @@
 
 namespace Noise3D
 {
-	struct N_MaterialDesc;
+	struct N_LambertMaterialDesc;
 	struct N_MeshSubsetInfo;
 
 	enum NOISE_3DS_CHUNKID
@@ -74,7 +74,7 @@ namespace Noise3D
 		bool ImportFile_3DS(
 			NFilePath pFilePath,
 			std::vector<N_Load3ds_MeshObject>& outMeshInfoList,
-			std::vector<N_MaterialDesc>& outMaterialList,
+			std::vector<N_LambertMaterialDesc>& outMaterialList,
 			std::vector<std::string>& outMatNameList,
 			std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList);
 
@@ -133,7 +133,7 @@ namespace Noise3D
 	private:
 
 		std::vector<N_Load3ds_MeshObject>*				m_pMeshObjList;		//Material Lists
-		std::vector<N_MaterialDesc>*							m_pMaterialList;
+		std::vector<N_LambertMaterialDesc>*							m_pMaterialList;
 		std::vector<std::string>*										m_pMatNameList;
 		std::unordered_map<std::string, NFilePath>*	m_pTexName2FilePathPairList;	//string as UID, FilePath is used to load file
 

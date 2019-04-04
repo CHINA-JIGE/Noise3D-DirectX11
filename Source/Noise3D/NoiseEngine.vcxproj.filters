@@ -237,9 +237,6 @@
     <ClInclude Include="Lights.h">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>NoiseGraphic\Scene\Material</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionTestor.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
@@ -406,6 +403,15 @@
     <ClInclude Include="LogicalRect.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
+    <ClInclude Include="LambertMaterial.h">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="AdvancedGiMaterial.h">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_EnvLighting.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -464,9 +470,6 @@
     </ClCompile>
     <ClCompile Include="Lights.cpp">
       <Filter>NoiseGraphic\Scene\Lights%28Dynamic%29</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
     <ClCompile Include="pchGen.cpp">
       <Filter>Global</Filter>
@@ -611,6 +614,15 @@
     </ClCompile>
     <ClCompile Include="LogicalRect.cpp">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
+    </ClCompile>
+    <ClCompile Include="LambertMaterial.cpp">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="AdvancedGiMaterial.cpp">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_EnvLighting.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

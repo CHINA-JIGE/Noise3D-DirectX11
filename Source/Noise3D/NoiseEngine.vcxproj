@@ -134,7 +134,9 @@
     <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
+    <ClInclude Include="PathTracerShader_EnvLighting.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
+    <ClInclude Include="AdvancedGiMaterial.h" />
     <ClInclude Include="_PathTracerSoftShaderInterface.h" />
     <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
@@ -177,7 +179,7 @@
     <ClInclude Include="ModelProcessor.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Lights.h" />
-    <ClInclude Include="Material.h" />
+    <ClInclude Include="LambertMaterial.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="IFactory.h" />
     <ClInclude Include="MeshLoader.h" />
@@ -221,6 +223,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AdvancedGiMaterial.cpp" />
     <ClCompile Include="BvhTree.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
@@ -232,6 +235,7 @@
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="PathTracer.cpp" />
+    <ClCompile Include="PathTracerShader_EnvLighting.cpp" />
     <ClCompile Include="PathTracerShader_Minimal.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
@@ -262,7 +266,7 @@
     <ClCompile Include="GraphicObjManager.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Lights.cpp" />
-    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="LambertMaterial.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Text_TextManager.cpp" />

@@ -133,7 +133,7 @@ namespace Noise3D
 
 		void	SetDynamicSpotLight(int index, const N_SpotLightDesc& dynamicLightDesc);
 
-		void	SetMaterial(N_BasicMaterialDesc mat);
+		void	SetMaterial(N_BasicLambertMaterialDesc mat);
 
 
 	private:

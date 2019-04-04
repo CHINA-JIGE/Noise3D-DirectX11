@@ -12,7 +12,7 @@
 
 namespace Noise3D
 {
-	class Material;
+	class LambertMaterial;
 
 	class /*_declspec(dllexport)*/ ILogicalShape:
 		public ICollidableSceneObject
@@ -39,7 +39,7 @@ namespace Noise3D
 		//virtual bool IsPointInside(Vec3 p) = 0;
 
 		//..
-		void SetMaterial(Material* pMat) 
+		void SetMaterial(LambertMaterial* pMat) 
 		{
 			m_pMaterial = pMat;
 		};
@@ -48,7 +48,7 @@ namespace Noise3D
 
 		friend IFactory<ILogicalShape>;
 
-		Material* m_pMaterial;
+		LambertMaterial* m_pMaterial;
 
 	};
 

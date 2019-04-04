@@ -13,7 +13,7 @@
 
 namespace Noise3D
 {
-	struct N_MaterialDesc;
+	struct N_LambertMaterialDesc;
 
 		class /*_declspec(dllexport)*/ IFileIO : 
 			public IFileIO_STL,

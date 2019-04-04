@@ -12,7 +12,7 @@
 namespace Noise3D
 {
 	struct N_MeshSubsetInfo;
-	struct N_BasicMaterialDesc;
+	struct N_BasicLambertMaterialDesc;
 
 	struct N_FbxTextureMapsInfo
 	{
@@ -29,7 +29,7 @@ namespace Noise3D
 	struct N_FbxMaterialInfo
 	{
 		std::string matName;
-		N_BasicMaterialDesc matBasicInfo;
+		N_BasicLambertMaterialDesc matBasicInfo;
 		N_FbxTextureMapsInfo texMapInfo;//including loading path and names of texture maps
 	};
 

@@ -785,7 +785,7 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxM
 
 		//material name
 		N_FbxMaterialInfo newFbxMat;
-		N_BasicMaterialDesc& basicMat = newFbxMat.matBasicInfo;
+		N_BasicLambertMaterialDesc& basicMat = newFbxMat.matBasicInfo;
 		newFbxMat.matName = pSurfaceMaterial->GetName();
 
 		// Phong material  

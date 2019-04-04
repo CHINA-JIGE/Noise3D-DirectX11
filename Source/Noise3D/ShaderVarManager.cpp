@@ -171,7 +171,7 @@ void IShaderVariableManager::SetDynamicSpotLight(int index, const N_SpotLightDes
 	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_SPOTLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
 }
 
-void IShaderVariableManager::SetMaterial(N_BasicMaterialDesc  mat)
+void IShaderVariableManager::SetMaterial(N_BasicLambertMaterialDesc  mat)
 {
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::MATERIAL_BASIC]->SetRawValue(&mat, 0, sizeof(mat));
 }

@@ -15,9 +15,9 @@ namespace Noise3D
 	//4, structure in shaders
 
 	//basic Desc (that can be upload to CONSTANT BUFFER
-	struct N_BasicMaterialDesc
+	struct N_BasicLambertMaterialDesc
 	{
-		N_BasicMaterialDesc()
+		N_BasicLambertMaterialDesc()
 		{
 			ambientColor = Vec3(0, 0, 0);
 			diffuseColor = Vec3(0.1f, 0.1f, 0.1f);
@@ -32,16 +32,16 @@ namespace Noise3D
 		Vec3	ambientColor;		int32_t	specularSmoothLevel;
 		Vec3	diffuseColor;		float		normalMapBumpIntensity;
 		Vec3	specularColor;		float		environmentMapTransparency;
-		float				transparency;		int32_t	pad1; int32_t pad2; int32_t pad3;
+		float	transparency;		int32_t	pad1; int32_t pad2; int32_t pad3;
 
 	};
 
 	//Material Description including texture info (texture part will be upload to GraphicMem in the
 	//form of shader resource
-	struct N_MaterialDesc :
-		public N_BasicMaterialDesc
+	struct N_LambertMaterialDesc :
+		public N_BasicLambertMaterialDesc
 	{
-		N_MaterialDesc() :
+		N_LambertMaterialDesc() :
 			diffuseMapName(""),
 			normalMapName(""),
 			specularMapName(""),
@@ -49,8 +49,8 @@ namespace Noise3D
 			environmentMapName("")
 		{ };
 
-		N_MaterialDesc(const N_BasicMaterialDesc& basicDesc) :
-			N_BasicMaterialDesc(basicDesc),
+		N_LambertMaterialDesc(const N_BasicLambertMaterialDesc& basicDesc) :
+			N_BasicLambertMaterialDesc(basicDesc),
 			diffuseMapName(""),
 			normalMapName(""),
 			specularMapName(""),
@@ -66,9 +66,7 @@ namespace Noise3D
 		N_UID environmentMapName;
 	};
 
-
-
-	class Material
+	class LambertMaterial
 	{
 	public:
 
@@ -105,19 +103,19 @@ namespace Noise3D
 		//string
 		void SetEnvMap(const N_UID& environmentMapName);
 
-		void SetDesc(const N_MaterialDesc& desc);
+		void SetDesc(const N_LambertMaterialDesc& desc);
 
-		void	GetDesc(N_MaterialDesc& outDesc);
+		void	GetDesc(N_LambertMaterialDesc& outDesc);
 
 	private:
 
-		friend class IFactory<Material>;
+		friend class IFactory<LambertMaterial>;
 
-		Material();
+		LambertMaterial();
 
-		~Material();
+		~LambertMaterial();
 
-		N_MaterialDesc mMatDesc;
+		N_LambertMaterialDesc mMatDesc;
 	};
 
 

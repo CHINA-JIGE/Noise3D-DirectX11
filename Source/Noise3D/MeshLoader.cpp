@@ -360,7 +360,7 @@ void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoad
 			}
 			
 			//create material
-			N_MaterialDesc newMatDesc( fbxMat.matBasicInfo);
+			N_LambertMaterialDesc newMatDesc( fbxMat.matBasicInfo);
 			newMatDesc.diffuseMapName = diffMapName;
 			newMatDesc.normalMapName = normalMapName;
 			newMatDesc.specularMapName = specMapName;
@@ -370,7 +370,7 @@ void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoad
 			if (!matName.empty())
 			{
 				if (pMatMgr->FindUid(matName) == true)continue;//material that is already created
-				Material* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
+				LambertMaterial* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{
 					WARNING_MSG("Model Loader: Load FBX scene: Material failed to load: material name:"
@@ -454,7 +454,7 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 /*bool MeshLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
 {
 	std::vector<N_Load3ds_MeshObject>	meshList;
-	std::vector<N_MaterialDesc>					materialList;
+	std::vector<N_LambertMaterialDesc>					materialList;
 	std::vector<std::string>							matNameList;
 	std::unordered_map<std::string, std::string> texName2FilePathMap;
 
