@@ -12,7 +12,10 @@
 
 namespace Noise3D
 {
-	class LambertMaterial;
+	namespace GI
+	{
+		class AdvancedGiMaterial;
+	}
 
 	class /*_declspec(dllexport)*/ ILogicalShape:
 		public ICollidableSceneObject
@@ -39,16 +42,21 @@ namespace Noise3D
 		//virtual bool IsPointInside(Vec3 p) = 0;
 
 		//..
-		void SetMaterial(LambertMaterial* pMat) 
+		void SetMaterial(GI::AdvancedGiMaterial* pMat) 
 		{
 			m_pMaterial = pMat;
 		};
+
+		GI::AdvancedGiMaterial* GetMaterial()
+		{
+			return m_pMaterial;
+		}
 
 	protected:
 
 		friend IFactory<ILogicalShape>;
 
-		LambertMaterial* m_pMaterial;
+		GI::AdvancedGiMaterial* m_pMaterial;
 
 	};
 

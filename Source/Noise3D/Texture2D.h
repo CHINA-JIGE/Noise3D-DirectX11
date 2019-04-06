@@ -29,13 +29,13 @@ namespace Noise3D
 
 		void				SetPixel(UINT x, UINT y, const Color4u& color);
 
-		Color4u		GetPixel(UINT x, UINT y);
+		Color4u		GetPixel(UINT x, UINT y) const;
 
 		bool				SetPixelArray(const std::vector<Color4u>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
 		bool				SetPixelArray(std::vector<Color4u>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		bool				GetPixelArray(std::vector<Color4u>& outColorArray);
+		bool				GetPixelArray(std::vector<Color4u>& outColorArray) const;
 
 		bool				UpdateToVideoMemory();//update image's memory data to video memory
 

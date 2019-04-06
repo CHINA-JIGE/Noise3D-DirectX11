@@ -22,7 +22,7 @@ namespace Noise3D
 
 		uint32_t GetHeight() { return mHeight; }
 
-		bool	IsSysMemBufferValid() { return mIsPixelBufferInMemValid; }
+		bool	IsSysMemBufferValid()const { return mIsPixelBufferInMemValid; }
 
 		uint32_t GetMipMapLevels() { return mMipMapLevels; }
 

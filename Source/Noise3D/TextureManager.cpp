@@ -13,8 +13,7 @@ using namespace Noise3D;
 using namespace Noise3D::D3D;
 
 TextureManager::TextureManager():
-	IFactory<Texture2D>(100000),//maxCount of Textures,
-	IFactory<TextureCubeMap>(100000)
+	IFactoryEx<Texture2D, TextureCubeMap>({ 100000,10000 })
 {
 
 };

@@ -172,8 +172,8 @@ namespace Noise3D
 		float Distance(float t) const { return (t * dir).Length(); }
 
 		Vec3 origin;
+		float t_min;//the epsilon offset of ray to avoid origin hit the surface
 		Vec3 dir;//(2019.3.28)could be non-normalized vector
 		float t_max;//the maximum acceptable parameter t (e.g. used in ray tracing for maximum distance)
-		float t_min;//the epsilon offset of ray to avoid origin hit the surface
 	};
 };

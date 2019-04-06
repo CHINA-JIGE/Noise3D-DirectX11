@@ -9,71 +9,12 @@
 
 #pragma once
 
+#include "_RayHitInfo.h"
+
 namespace Noise3D
 {
 	class IShaderVariableManager;//for gpu-accelerated stuffs
 
-	//record of a single successful collision between Ray and XX
-	struct N_RayHitInfo
-	{
-		//N_RayHitInfo():t(-std::numeric_limits<float>::infinity()) {}
-		N_RayHitInfo(const N_Ray& _ray, float _t, Vec3 _pos, Vec3 _normal) :
-			ray(_ray), t(_t), pos(_pos), normal(_normal) {}
-
-		//validate the hit, check param t and see whether it's infinity(it shouldn't be)
-		bool IsValid()	{	return (t != std::numeric_limits<float>::infinity());	}
-
-		N_Ray ray;
-		float t;//ray's hit parameter t
-		Vec3 pos;//hit point's pos
-		Vec3 normal;//hit point's normal vector
-	};
-
-	//collection of RayHitInfo
-	struct N_RayHitResult
-	{
-		N_RayHitResult() {};
-		N_RayHitResult(const N_RayHitResult& rhs) { hitList = rhs.hitList; }
-
-		//sort by depth (in ascending order)(or ray's parameter t)
-		void SortByDepth()
-		{
-			// "<" in predicate will cause ASCENDING order
-			std::sort(hitList.begin(), hitList.end(),
-				[](const N_RayHitInfo &v1, const N_RayHitInfo &v2)->bool {return v1.t < v2.t; });
-		}
-
-		//get the closest hit's index in hit list
-		int GetClosestHitIndex() 
-		{
-			uint32_t index = 0xffffffff;
-			float closest_dist = std::numeric_limits<float>::infinity();
-			for (uint32_t i = 0; i < hitList.size(); ++i)
-			{
-				N_RayHitInfo& info= hitList.at(i);
-				float dist = info.ray.Distance(info.t);
-				if (dist < closest_dist)
-				{
-					closest_dist = dist;
-					index = i;
-				}
-			}
-			return index;
-		}
-
-		bool HasAnyHit()
-		{
-			return !hitList.empty();
-		}
-
-		void Union(const N_RayHitResult& rhs)
-		{
-			if (rhs.hitList.empty())return;
-			hitList.insert(hitList.end(), rhs.hitList.begin(), rhs.hitList.end());
-		}
-
-		std::vector<N_RayHitInfo> hitList;
-	};
 
 	class /*_declspec(dllexport)*/ CollisionTestor
 	{
@@ -115,6 +56,10 @@ namespace Noise3D
 		//remember to Rebuild BVH tree before intersectRayScene
 		//ray-scene(all objects that attached to scene graph) intersection with BVH acceleration, O(logN) in average 
 		bool IntersectRayScene(const N_Ray& ray,N_RayHitResult& outHitRes);
+
+		//remember to Rebuild BVH tree before intersectRayScene
+		//another version of ray-scene collision for path tracer
+		bool IntersectRaySceneForPathTracer(const N_Ray& ray, N_RayHitResultForPathTracer& outHitRes);
 
 		//(re-)build BVH tree from scene graph
 		bool RebuildBvhTree(const SceneGraph& graph);
@@ -162,6 +107,9 @@ namespace Noise3D
 
 		//recursion function for BVH acceleration
 		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNode* bvhNode, N_RayHitResult& outHitRes);
+
+		//recursion function for BVH acceleration. extra info are added
+		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNode* bvhNode, N_RayHitResultForPathTracer& outHitRes);
 
 		//low level render/shader variables support
 		IShaderVariableManager* m_pRefShaderVarMgr;

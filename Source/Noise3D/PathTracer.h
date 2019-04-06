@@ -19,8 +19,10 @@ namespace Noise3D
 
 		struct N_TraceRayPayload
 		{
+			N_TraceRayPayload() :radiance(0, 0, 0){};
 			Radiance radiance;
-			float travelledDistance;
+			//float travelledDistance;
+			//int bounces;
 		};
 
 		class /*_declspec(dllexport)*/ PathTracer
@@ -43,9 +45,9 @@ namespace Noise3D
 			void SetRenderTarget(Texture2D* pRenderTarget);//must be doubled-data
 
 			//bounces count of light (recursive ray gen)
-			void SetBounces(uint32_t bounces);
+			void SetMaxBounces(uint32_t bounces);
 
-			uint32_t GetBounces();
+			uint32_t GetMaxBounces();
 
 			//ray's max travel distance
 			void SetRayMaxTravelDist(float dist);
@@ -53,7 +55,7 @@ namespace Noise3D
 			float GetRayMaxTravelDist();
 
 			//could be called by soft shader(and could be called recursively)
-			void TraceRay(N_Ray& ray, N_TraceRayPayload& payload);
+			void TraceRay(int bounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload);
 
 			//poll
 			bool IsRenderFinished();

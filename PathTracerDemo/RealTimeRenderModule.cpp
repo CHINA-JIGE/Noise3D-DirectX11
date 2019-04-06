@@ -98,7 +98,7 @@ void RealTimeRenderModule::_InitText()
 	//create font texture
 	m_pTextMgr = m_pScene->GetTextMgr();
 	m_pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	m_pMyText_fps = m_pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	m_pMyText_fps = m_pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 300, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
 	m_pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
 	m_pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(170, 60));
 	m_pMyText_fps->SetFont("myFont");

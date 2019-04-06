@@ -31,6 +31,8 @@ private:
 
 	void InputProcess_Preview();
 
+	void InputProcess_PathTracerRendering();
+
 	MAINLOOP_STATE mMainloopState;
 
 private:
@@ -41,11 +43,15 @@ private:
 
 	void _InitAreaLight();
 
+	void _InitSoftShader();
+
+
 	//**GI**
 	const uint32_t c_PathTracerBufferWidth;
 	const uint32_t c_PathTracerBufferHeight;
 	GI::PathTracer* m_pPathTracer;
 	GI::PathTracerShader_Minimal mPathTracerShader_Minimal;
+	GI::PathTracerShader_Sky mPathTracerShader_Sky;
 	Texture2D* m_pPathTracerRenderTarget;
 	GraphicObject* m_pGraphicObj_ResultPreview;
 	float mTotalPathTracerRenderTime;

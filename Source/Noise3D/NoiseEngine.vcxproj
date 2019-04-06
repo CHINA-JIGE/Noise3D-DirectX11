@@ -134,10 +134,12 @@
     <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
-    <ClInclude Include="PathTracerShader_EnvLighting.h" />
+    <ClInclude Include="PathTracerShader_AO.h" />
+    <ClInclude Include="PathTracerShader_Sky.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
     <ClInclude Include="AdvancedGiMaterial.h" />
-    <ClInclude Include="_PathTracerSoftShaderInterface.h" />
+    <ClInclude Include="_RayHitInfo.h" />
+    <ClInclude Include="_PathTracerSoftShaderInterface.hpp" />
     <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
@@ -145,7 +147,7 @@
     <ClInclude Include="LogicalBox.h" />
     <ClInclude Include="LogicalShape.h" />
     <ClInclude Include="LogicalSphere.h" />
-    <ClInclude Include="TreeDataStructureTemplate.h" />
+    <ClInclude Include="TreeDataStructureTemplate.hpp" />
     <ClInclude Include="GeometryEntity.h" />
     <ClInclude Include="ISceneObject.h" />
     <ClInclude Include="ITexture.h" />
@@ -181,7 +183,7 @@
     <ClInclude Include="Lights.h" />
     <ClInclude Include="LambertMaterial.h" />
     <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="IFactory.h" />
+    <ClInclude Include="IFactory.hpp" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_TextManager.h" />
@@ -214,7 +216,7 @@
     <ClInclude Include="Ut_MeshSlicer.h" />
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
-    <ClInclude Include="_BasicRenderSettings.h" />
+    <ClInclude Include="_BasicRenderSettings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -235,7 +237,7 @@
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="PathTracer.cpp" />
-    <ClCompile Include="PathTracerShader_EnvLighting.cpp" />
+    <ClCompile Include="PathTracerShader_Sky.cpp" />
     <ClCompile Include="PathTracerShader_Minimal.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />

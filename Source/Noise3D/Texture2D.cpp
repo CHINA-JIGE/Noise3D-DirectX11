@@ -40,7 +40,7 @@ void Texture2D::SetPixel(UINT x, UINT y, const Color4u & color)
 	}
 }
 
-Color4u Texture2D::GetPixel(UINT x, UINT y)
+Color4u Texture2D::GetPixel(UINT x, UINT y)const
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -51,14 +51,14 @@ Color4u Texture2D::GetPixel(UINT x, UINT y)
 		}
 		else
 		{
-			ERROR_MSG("GetPixel : Point out of range!");
+			WARNING_MSG("GetPixel : Point out of range!");
 		}
 	}
 	else
 	{
-		ERROR_MSG("GetPixel : didn't keep a copy in memory !!!");
+		WARNING_MSG("GetPixel : didn't keep a copy in memory !!!");
 	}
-	return Vec4(0, 0, 0, 0);
+	return Color4u(0, 0, 0, 0);
 }
 
 //less redundant bound check to increase efficiency
@@ -98,7 +98,7 @@ bool Texture2D::SetPixelArray(std::vector<Color4u>&& in_ColorArray)
 	return false;
 }
 
-bool Texture2D::GetPixelArray(std::vector<Color4u>& outColorArray)
+bool Texture2D::GetPixelArray(std::vector<Color4u>& outColorArray) const
 {
 	if (ITexture::IsSysMemBufferValid())
 	{

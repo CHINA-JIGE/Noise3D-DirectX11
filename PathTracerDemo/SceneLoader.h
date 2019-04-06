@@ -30,5 +30,7 @@ protected:
 	MaterialManager*	m_pMatMgr;
 	TextureManager*	m_pTexMgr;
 	LogicalShapeManager* m_pShapeMgr;
-	std::vector<Mesh*> mMeshList;
+	std::vector<Mesh*> mRealTimeRenderMeshList;
+
+	GI::AdvancedGiMaterial* m_pMat1;
 };

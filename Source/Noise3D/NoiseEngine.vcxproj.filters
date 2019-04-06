@@ -222,9 +222,6 @@
     <ClInclude Include="_2DBasicContainerInfo.h">
       <Filter>NoiseGraphic\_2DBasicContainerInfo</Filter>
     </ClInclude>
-    <ClInclude Include="IFactory.h">
-      <Filter>GeneralBasicClass\_Factory</Filter>
-    </ClInclude>
     <ClInclude Include="Text_2DBasicTextInfo.h">
       <Filter>NoiseGraphic\Scene\Text\_BasicTextInfo</Filter>
     </ClInclude>
@@ -255,9 +252,6 @@
     <ClInclude Include="Noise3D.h" />
     <ClInclude Include="_GeometryMeshGenerator.h">
       <Filter>NoiseGraphic\Scene\MeshLoader\_GeometryMeshGenerator</Filter>
-    </ClInclude>
-    <ClInclude Include="_BasicRenderSettings.h">
-      <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
     <ClInclude Include="Ut_Voxelizer.h">
       <Filter>NoiseUtility\Voxelizer</Filter>
@@ -358,9 +352,6 @@
     <ClInclude Include="GeometryEntity.h">
       <Filter>NoiseGraphic\Scene\_GeometryEntity</Filter>
     </ClInclude>
-    <ClInclude Include="TreeDataStructureTemplate.h">
-      <Filter>GeneralBasicClass\_TreeDataStructureTemplate</Filter>
-    </ClInclude>
     <ClInclude Include="SceneGraph.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
@@ -397,9 +388,6 @@
     <ClInclude Include="PathTracerShader_Minimal.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
-    <ClInclude Include="_PathTracerSoftShaderInterface.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClInclude>
     <ClInclude Include="LogicalRect.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
@@ -409,7 +397,25 @@
     <ClInclude Include="AdvancedGiMaterial.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_EnvLighting.h">
+    <ClInclude Include="_RayHitInfo.h">
+      <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Sky.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_PathTracerSoftShaderInterface.hpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="IFactory.hpp">
+      <Filter>GeneralBasicClass\_Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeDataStructureTemplate.hpp">
+      <Filter>GeneralBasicClass\_TreeDataStructureTemplate</Filter>
+    </ClInclude>
+    <ClInclude Include="_BasicRenderSettings.hpp">
+      <Filter>NoiseGraphic\_RenderSetting</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_AO.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>
@@ -621,7 +627,7 @@
     <ClCompile Include="AdvancedGiMaterial.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracerShader_EnvLighting.cpp">
+    <ClCompile Include="PathTracerShader_Sky.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>

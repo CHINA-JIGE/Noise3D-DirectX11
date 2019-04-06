@@ -17,9 +17,10 @@ Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()const
 	return NOISE_SCENE_OBJECT_TYPE::MESH;
 }
 
-Mesh::Mesh()
+Mesh::Mesh() :
+	m_pGiMat(nullptr)
 {
-	SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	Mesh::SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
 
 Mesh::~Mesh()
@@ -52,6 +53,16 @@ void Mesh::SetSubsetList(const std::vector<N_MeshSubsetInfo>& subsetList)
 void Mesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
 {
 	outRefSubsetList = mSubsetInfoList;
+}
+
+void Noise3D::Mesh::SetGiMaterial(GI::AdvancedGiMaterial * pMat)
+{
+	m_pGiMat = pMat;
+}
+
+GI::AdvancedGiMaterial * Noise3D::Mesh::GetGiMaterial()
+{
+	return m_pGiMat;
 }
 
 N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()

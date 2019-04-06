@@ -44,7 +44,7 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 
 	//set soft shader
 	m_pShader = pShader;
-	pShader->m_pFatherPathTracer = this;
+	pShader->_InitInfrastructure(this, m_pCT);
 
 	//back buffer's size, partition it into tiles
 	uint32_t w = m_pRenderTarget->GetWidth();
@@ -115,9 +115,9 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 		}
 
 		//threads join here
-		for (uint32_t localTaskId = 0; localTaskId < localTaskCount; ++localTaskId)
+		for (uint32_t j= 0; j< localTaskCount; ++j)
 		{
-			returnedVal[localTaskId].get();
+			returnedVal[j].get();
 			//threadGroup[localTaskId].join();
 		}
 	}
@@ -151,12 +151,12 @@ void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 	}
 }
 
-void Noise3D::GI::PathTracer::SetBounces(uint32_t bounces)
+void Noise3D::GI::PathTracer::SetMaxBounces(uint32_t bounces)
 {
 	mBounces = bounces;
 }
 
-uint32_t Noise3D::GI::PathTracer::GetBounces()
+uint32_t Noise3D::GI::PathTracer::GetMaxBounces()
 {
 	return mBounces;
 }
@@ -210,7 +210,7 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
-			TraceRay(ray, payload);
+			TraceRay(0, 0.0f, ray, payload);
 
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
@@ -221,17 +221,31 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 	}
 }
 
-void Noise3D::GI::PathTracer::TraceRay(N_Ray & ray, N_TraceRayPayload & payload)
+void Noise3D::GI::PathTracer::TraceRay(int bounces, float travelledDistance,const N_Ray & ray, N_TraceRayPayload & payload)
 {
+	//initial bounces and travelled distance must remain in limit
+	if (bounces > PathTracer::GetMaxBounces() || 
+		travelledDistance > PathTracer::GetRayMaxTravelDist())return;
+
 	//intersect the ray with the scene and get results
-	N_RayHitResult hitResult;
-	m_pCT->IntersectRayScene(ray, hitResult);
+	N_RayHitResultForPathTracer hitResult;
+	m_pCT->IntersectRaySceneForPathTracer(ray, hitResult);
+
+	//update bounce count
+	int newBounces = bounces + 1;
+	if (newBounces > PathTracer::GetMaxBounces())return;
 
 	//call shader. Radiance and other infos are carried by Payload reference.
 	if (hitResult.HasAnyHit())
 	{
 		int index = hitResult.GetClosestHitIndex();
-		m_pShader->ClosestHit(ray, hitResult.hitList.at(index), payload);
+		N_RayHitInfoForPathTracer& info = hitResult.hitList.at(index);
+
+		//update ray's travelled distance
+		float newTravelledDistance = travelledDistance + ray.Distance(info.t);
+		if (newTravelledDistance > PathTracer::GetRayMaxTravelDist())return;
+
+		m_pShader->ClosestHit(newBounces, newTravelledDistance, ray, info, payload);
 	}
 	else
 	{

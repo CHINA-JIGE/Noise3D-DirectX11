@@ -10,8 +10,7 @@ namespace Noise3D
 {
 
 	class /*_declspec(dllexport)*/ TextureManager :
-		public IFactory<Texture2D>,
-		public IFactory<TextureCubeMap>
+		public IFactoryEx<Texture2D, TextureCubeMap>
 	{
 	public:
 		Texture2D*	CreatePureColorTexture(N_UID texName, UINT pixelWidth, UINT pixelHeight, Vec4 color, bool keepCopyInMemory = false);

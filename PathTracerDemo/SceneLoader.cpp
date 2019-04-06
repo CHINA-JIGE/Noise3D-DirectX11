@@ -18,17 +18,20 @@ void SceneLoader::LoadScene()
 	_LoadMaterials();
 
 	_LoadSphere(sg, Vec3(0,5.0f,0), 10.0f);
-	_LoadSphere(sg, Vec3(-20.0f, 7.0f, -20.0f), 12.0f);
-	_LoadBox(sg, Vec3(30.0f, 10.0, 0), Vec3(20.0f, 20.0f, 20.0f));
+	_LoadSphere(sg, Vec3(-30.0f, 15.0f, -30.0f), 12.0f);
+	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(20.0f, 20.0f, 20.0f));
+	//_LoadBox(sg, Vec3(0, 16.0f, 0), Vec3(20.0f, 20.0f, 20.0f));
+	//_LoadBox(sg, Vec3(-30.0, 15.0f, -40.0f), Vec3(20.0f, 20.0f, 20.0f));
 	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(100.0f, 100.0f));
 }
 
 void SceneLoader::_LoadTextures()
 {
 	//m_pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
-	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", FALSE, 256, 256, FALSE);
+	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
-	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", TRUE, 0, 0, FALSE);
+	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap1.jpg", "envmap", false, 1024, 512, true);
 
 	//ITexture* pNormalMap = m_pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
 	//pNormalMap->ConvertTextureToGreyMap();
@@ -37,17 +40,7 @@ void SceneLoader::_LoadTextures()
 
 void SceneLoader::_LoadMaterials()
 {
-	N_MaterialDesc Mat1;
-	Mat1.ambientColor = Vec3(0, 0, 0);
-	Mat1.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
-	Mat1.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	Mat1.specularSmoothLevel = 40;
-	Mat1.normalMapBumpIntensity = 0.2f;
-	Mat1.environmentMapTransparency = 0.1f;
-	Mat1.diffuseMapName = "Earth";//"Earth");
-	//Mat1.normalMapName = "EarthNormalMap";
-	//Mat1.environmentMapName = "AtmoTexture";
-	m_pMatMgr->CreateMaterial("mat1", Mat1);
+	//m_pMat1 = ;
 }
 
 void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)
@@ -65,7 +58,7 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)
 	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "LSph" + std::to_string(id),radius);
 	pSphere->SetCollidable(true);
 
-	mMeshList.push_back(pMeshSphere);
+	mRealTimeRenderMeshList.push_back(pMeshSphere);
 }
 
 void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size)
@@ -83,7 +76,7 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size)
 	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "LBox" + std::to_string(id),size);
 	pBox->SetCollidable(true);
 
-	mMeshList.push_back(pMeshBox);
+	mRealTimeRenderMeshList.push_back(pMeshBox);
 }
 
 void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size)
@@ -101,5 +94,5 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 	LogicalRect* pRect = m_pShapeMgr->CreateRect(pNode, "Lrect" + std::to_string(id),size, ori);
 	pRect->SetCollidable(true);
 
-	mMeshList.push_back(pMeshRect);
+	mRealTimeRenderMeshList.push_back(pMeshRect);
 }

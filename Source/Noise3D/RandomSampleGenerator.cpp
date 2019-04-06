@@ -43,7 +43,8 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSpherical_Vector()
 	float theta = acosf(1 - 2.0f * var1);
 	float phi = 2 * Ut::PI * var2;
 
-	//this parameterization is different from the common one
+	//NOTE: this parameterization is different from the common one
+	//the 'theta' start from the top of the Y-axis
 	Vec3 out;
 	out.x = sinf(theta)*cosf(phi);
 	out.y = cos(theta);

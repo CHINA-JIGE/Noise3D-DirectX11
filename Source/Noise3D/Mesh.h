@@ -42,6 +42,11 @@ namespace Noise3D
 
 		void		GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList);
 
+		//(2019.4.5)material for GI renderer, for now doesn't support multiple GI mat for one mesh
+		void		SetGiMaterial(GI::AdvancedGiMaterial* pMat);
+
+		GI::AdvancedGiMaterial* GetGiMaterial();
+
 		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
@@ -64,5 +69,6 @@ namespace Noise3D
 
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset
 
+		GI::AdvancedGiMaterial* m_pGiMat;
 	};
 };

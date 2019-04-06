@@ -59,12 +59,12 @@
 #include "NoiseMacro.h"
 #include "NoiseTypes.h"
 #include "NoiseGlobal.h"
-#include "IFactory.h"
-#include "TreeDataStructureTemplate.h"
+#include "IFactory.hpp"
+#include "TreeDataStructureTemplate.hpp"
 #include "_2DBasicContainerInfo.h"
 #include "FileIO.h"
 #include "_GeometryMeshGenerator.h"
-#include "_BasicRenderSettings.h"
+#include "_BasicRenderSettings.hpp"
 #include "_Collidable.h"
 #include "RigidTransform.h"
 #include "AffineTransform.h"
@@ -93,6 +93,7 @@
 #include "TextureManager.h"
 
 #include "LambertMaterial.h"
+#include "AdvancedGiMaterial.h"
 #include "MaterialManager.h"
 
 #include "GraphicObject.h"
@@ -124,9 +125,9 @@
 //--------GI :Path Tracer-----------
 #include "PathTracer.h"
 #include "GI_Light.h"
-#include "_PathTracerSoftShaderInterface.h"
+#include "_PathTracerSoftShaderInterface.hpp"
 #include "PathTracerShader_Minimal.h"
-#include "PathTracerShader_EnvLighting.h"
+#include "PathTracerShader_Sky.h"
 
 
 //-----------Noise Ut -----------

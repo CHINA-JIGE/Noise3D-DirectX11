@@ -170,7 +170,7 @@ inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(Vec3 dir, int pi
 
 	//mapped to [0,1]
 	float normalizedU = (yaw / (2.0f * Ut::PI)) + 0.5f;
-	float normalizedV = (pitch / Ut::PI) + 0.5f;
+	float normalizedV = (-pitch / Ut::PI) + 0.5f;
 	uint32_t x = uint32_t(float(pixelWidth) * normalizedU);
 	uint32_t y = uint32_t(float(pixelHeight) * normalizedV);
 	if (x == pixelWidth) x = pixelWidth - 1;

@@ -7,8 +7,8 @@ using namespace Noise3D;
 
 MainApp::MainApp():
 	mTotalPathTracerRenderTime(0.0f),
-	c_PathTracerBufferWidth(480),
-	c_PathTracerBufferHeight(320),
+	c_PathTracerBufferWidth(1280),
+	c_PathTracerBufferHeight(720),
 	mMainloopState(MAINLOOP_STATE::PREVIEW),
 	m_pPathTracer(nullptr),
 	m_pGraphicObj_ResultPreview(nullptr),
@@ -18,6 +18,14 @@ MainApp::MainApp():
 
 MainApp::~MainApp()
 {
+}
+
+void MainApp::Init_GI()
+{
+	MainApp::_InitPathTracer();
+	MainApp::_InitGraphicsObjectOfPreviewRender();
+	MainApp::_InitAreaLight();
+	MainApp::_InitSoftShader();
 }
 
 void MainApp::PathTracerStartRender()
@@ -35,16 +43,13 @@ void MainApp::PathTracerStartRender()
 		}
 	};
 	PathTracerRenderFunctor functor;
-	std::thread renderThread(functor, m_pPathTracer, m_pScene->GetSceneGraph().GetRoot(), &mPathTracerShader_Minimal);
+	std::thread renderThread(
+		functor, 
+		m_pPathTracer,
+		m_pScene->GetSceneGraph().GetRoot(), 
+		&mPathTracerShader_Sky);
 	renderThread.detach();
 
-}
-
-void MainApp::Init_GI()
-{
-	MainApp::_InitPathTracer();
-	MainApp::_InitGraphicsObjectOfPreviewRender();
-	MainApp::_InitAreaLight();
 }
 
 
@@ -58,6 +63,8 @@ void MainApp::_InitPathTracer()
 {
 	m_pPathTracer = m_pScene->CreatePathTracer(c_PathTracerBufferWidth, c_PathTracerBufferHeight);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
+	m_pPathTracer->SetMaxBounces(2);
+	m_pPathTracer->SetRayMaxTravelDist(1000.0f);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()
@@ -65,7 +72,8 @@ void MainApp::_InitGraphicsObjectOfPreviewRender()
 	//draw full-screen quad
 	m_pGraphicObj_ResultPreview = m_pGraphicObjMgr->CreateGraphicObject("GO_result");
 	m_pGraphicObj_ResultPreview->AddRectangle(
-		Vec2(0, 0), Vec2(m_pRenderer->GetBackBufferWidth(), m_pRenderer->GetBackBufferHeight()),
+		Vec2(0, 0), 
+		Vec2(float(m_pRenderer->GetBackBufferWidth()), float(m_pRenderer->GetBackBufferHeight())),
 		Vec4(0, 0, 0, 1.0f), 
 		m_pPathTracerRenderTarget->GetTextureName());
 	m_pMyText_fps->SetTextColor(Vec4(1.0f,1.0,1.0f,1.0f));
@@ -73,6 +81,15 @@ void MainApp::_InitGraphicsObjectOfPreviewRender()
 
 void MainApp::_InitAreaLight()
 {
+}
+
+void MainApp::_InitSoftShader()
+{
+	//Minimal
+	//....
+
+	//Sky
+	mPathTracerShader_Sky.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
 }
 
 /**************************************
@@ -98,9 +115,9 @@ void MainApp::Callback_Mainloop()
 
 void MainApp::Mainloop_RealTimePreview()
 {
-	InputProcess_Preview();
 	m_pRenderer->ClearBackground();
 	mTimer.NextTick();
+	InputProcess_Preview();
 
 	//update fps lable
 	std::string tmpS;
@@ -108,7 +125,7 @@ void MainApp::Mainloop_RealTimePreview()
 	m_pMyText_fps->SetTextAscii(tmpS);
 
 	//add to render list
-	for (auto& pMesh : mMeshList)m_pRenderer->AddToRenderQueue(pMesh);
+	for (auto& pMesh : mRealTimeRenderMeshList)m_pRenderer->AddToRenderQueue(pMesh);
 	m_pRenderer->AddToRenderQueue(m_pGraphicObjBuffer);
 	m_pRenderer->AddToRenderQueue(m_pMyText_fps);
 	m_pRenderer->SetActiveAtmosphere(m_pAtmos);
@@ -120,22 +137,25 @@ void MainApp::Mainloop_RealTimePreview()
 
 void MainApp::Mainloop_RenderPathTracedResult()
 {
-	//Sleep(50);
+	Sleep(50);
 	mTimer.NextTick();
 	m_pRenderer->ClearBackground();
-	static bool hasRTLastUpdate = false;	//last update of render target
+	InputProcess_PathTracerRendering();
 
+
+	static bool hasRTLastUpdate = false;	//last update of render target
 	bool isFinished = m_pPathTracer->IsRenderFinished();
+
+	if (!isFinished)mTotalPathTracerRenderTime += float(mTimer.GetInterval());
+
 	if (!isFinished && mTimer.GetTotalTimeElapsed()>500.0f)
 	{
-		mTotalPathTracerRenderTime += float(mTimer.GetInterval());
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
 		mTimer.ResetTotalTime();
 	}
 
 	if(!hasRTLastUpdate && isFinished)
 	{
-		mTotalPathTracerRenderTime += float(mTimer.GetInterval());
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
 		hasRTLastUpdate = true;
 	}
@@ -204,4 +224,18 @@ void MainApp::InputProcess_Preview()
 		m_pRoot->SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
 	}
 
+}
+
+void MainApp::InputProcess_PathTracerRendering()
+{
+	if (mInputE.IsKeyPressed(Ut::NOISE_KEY::NOISE_KEY_SYSRQ))
+	{
+		m_pPathTracerRenderTarget->SaveTexture2DToFile("output.bmp", NOISE_IMAGE_FILE_FORMAT_BMP);
+	}
+
+	//quit main loop and terminate program
+	if (mInputE.IsKeyPressed(Ut::NOISE_KEY_ESCAPE))
+	{
+		m_pRoot->SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
+	}
 }
