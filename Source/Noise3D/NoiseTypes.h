@@ -162,8 +162,8 @@ namespace Noise3D
 
 	struct N_Ray
 	{
-		N_Ray():origin(Vec3(0,0,0)), dir(Vec3(0, 0, 0)), t_min(0.001f), t_max(std::numeric_limits<float>::infinity()){}
-		N_Ray(Vec3 _origin, Vec3 _dir) :origin(_origin), dir(_dir), t_min(0.001f), t_max(std::numeric_limits<float>::infinity()) {}
+		N_Ray():origin(Vec3(0,0,0)), dir(Vec3(0, 0, 0)), t_min(0.0001f), t_max(std::numeric_limits<float>::infinity()){}
+		N_Ray(Vec3 _origin, Vec3 _dir) :origin(_origin), dir(_dir), t_min(0.0001f), t_max(std::numeric_limits<float>::infinity()) {}
 		N_Ray(Vec3 _origin,Vec3 _dir, float _t_min, float _t_max) :origin(_origin),dir(_dir),t_max(_t_max), t_min(_t_min) {}
 
 		//evaluate position given ray's parameter t

@@ -210,7 +210,7 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
-			TraceRay(0, 0.0f, ray, payload);
+			TraceRay(-1, 0.0f, ray, payload);
 
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
@@ -224,7 +224,7 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 void Noise3D::GI::PathTracer::TraceRay(int bounces, float travelledDistance,const N_Ray & ray, N_TraceRayPayload & payload)
 {
 	//initial bounces and travelled distance must remain in limit
-	if (bounces > PathTracer::GetMaxBounces() || 
+	if (bounces > int(PathTracer::GetMaxBounces()) || 
 		travelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
 	//intersect the ray with the scene and get results
@@ -233,7 +233,7 @@ void Noise3D::GI::PathTracer::TraceRay(int bounces, float travelledDistance,cons
 
 	//update bounce count
 	int newBounces = bounces + 1;
-	if (newBounces > PathTracer::GetMaxBounces())return;
+	if (newBounces > int(PathTracer::GetMaxBounces()))return;
 
 	//call shader. Radiance and other infos are carried by Payload reference.
 	if (hitResult.HasAnyHit())

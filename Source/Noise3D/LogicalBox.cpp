@@ -29,8 +29,10 @@ Vec3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
 	case NOISE_BOX_FACET::NEG_Y: return Vec3(0, -1.0f, 0);
 	case NOISE_BOX_FACET::POS_Z: return Vec3(0, 0, 1.0f);
 	case NOISE_BOX_FACET::NEG_Z: return Vec3(0, 0, -1.0f);
+	default:
+		WARNING_MSG("logical box: compute normal, facet param invalid.")
 	}
-	return Vec3(0, 0, 0);
+	//return Vec3(0, 0, 0);
 }
 
 
@@ -43,8 +45,8 @@ inline N_AABB Noise3D::LogicalBox::GetLocalBox()const
 {
 	//return mLocalBox;
 	N_AABB a;
-	a.min = Vec3(-mSize.x / 2.0f, -mSize.y / 2.0f, -mSize.z / 2.0f);
-	a.max = Vec3(mSize.x / 2.0f, mSize.y / 2.0f, mSize.z / 2.0f);
+	a.min = -mSize / 2.0f;
+	a.max = mSize / 2.0f;
 	return a;
 }
 

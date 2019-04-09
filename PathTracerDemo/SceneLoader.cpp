@@ -33,14 +33,15 @@ void SceneLoader::_LoadTextures()
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
 	m_pTexMgr->CreateTextureFromFile("../media/envmap1.jpg", "envmap", false, 1024, 512, true);
 
-	//ITexture* pNormalMap = m_pTexMgr->CreateTextureFromFile("../media/earth-normal.png", "EarthNormalMap", FALSE, 512, 512, TRUE);
-	//pNormalMap->ConvertTextureToGreyMap();
-	//pNormalMap->ConvertHeightMapToNormalMap(10.0f);
 }
 
 void SceneLoader::_LoadMaterials()
 {
-	//m_pMat1 = ;
+	N_LambertMaterialDesc desc;
+	desc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
+	desc.diffuseColor = Vec3(0.5f, 0.5f, 0.5f);
+	desc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
+	LambertMaterial* pMat1 = m_pMatMgr->CreateMaterial("previewMat", desc);
 }
 
 void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)
@@ -54,6 +55,7 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)
 	Mesh* pMeshSphere = m_pMeshMgr->CreateMesh(pNode, "sphere"+std::to_string(id));
 	m_pModelLoader->LoadSphere(pMeshSphere, radius, 15, 15);
 	pMeshSphere->SetCollidable(false);
+	pMeshSphere->SetMaterial("previewMat");
 
 	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "LSph" + std::to_string(id),radius);
 	pSphere->SetCollidable(true);
@@ -72,6 +74,7 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size)
 	Mesh* pMeshBox = m_pMeshMgr->CreateMesh(pNode, "box" + std::to_string(id));
 	m_pModelLoader->LoadBox(pMeshBox, size.x, size.y, size.z);
 	pMeshBox->SetCollidable(false);
+	pMeshBox->SetMaterial("previewMat");
 
 	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "LBox" + std::to_string(id),size);
 	pBox->SetCollidable(true);
@@ -90,6 +93,7 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 	Mesh* pMeshRect = m_pMeshMgr->CreateMesh(pNode, "rect" + std::to_string(id));
 	m_pModelLoader->LoadPlane(pMeshRect, size.x, size.y, 3,3);
 	pMeshRect->SetCollidable(false);
+	pMeshRect->SetMaterial("previewMat");
 
 	LogicalRect* pRect = m_pShapeMgr->CreateRect(pNode, "Lrect" + std::to_string(id),size, ori);
 	pRect->SetCollidable(true);

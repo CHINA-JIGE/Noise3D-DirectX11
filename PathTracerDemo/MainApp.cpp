@@ -44,10 +44,11 @@ void MainApp::PathTracerStartRender()
 	};
 	PathTracerRenderFunctor functor;
 	std::thread renderThread(
-		functor, 
+		functor,
 		m_pPathTracer,
-		m_pScene->GetSceneGraph().GetRoot(), 
+		m_pScene->GetSceneGraph().GetRoot(),
 		&mPathTracerShader_Sky);
+		//&mPathTracerShader_Minimal);
 	renderThread.detach();
 
 }
@@ -64,7 +65,7 @@ void MainApp::_InitPathTracer()
 	m_pPathTracer = m_pScene->CreatePathTracer(c_PathTracerBufferWidth, c_PathTracerBufferHeight);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxBounces(2);
-	m_pPathTracer->SetRayMaxTravelDist(1000.0f);
+	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()
