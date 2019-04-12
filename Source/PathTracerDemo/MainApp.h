@@ -52,6 +52,7 @@ private:
 	GI::PathTracer* m_pPathTracer;
 	GI::PathTracerShader_Minimal mPathTracerShader_Minimal;
 	GI::PathTracerShader_Sky mPathTracerShader_Sky;
+	GI::PathTracerShader_Diffuse mPathTracerShader_DiffuseDemo;
 	Texture2D* m_pPathTracerRenderTarget;
 	GraphicObject* m_pGraphicObj_ResultPreview;
 	float mTotalPathTracerRenderTime;

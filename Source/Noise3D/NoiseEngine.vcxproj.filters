@@ -400,9 +400,6 @@
     <ClInclude Include="_RayHitInfo.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_Sky.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClInclude>
     <ClInclude Include="_PathTracerSoftShaderInterface.hpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
@@ -415,7 +412,10 @@
     <ClInclude Include="_BasicRenderSettings.hpp">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_PBR.h">
+    <ClInclude Include="PathTracerShader_Diffuse.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Reflection.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>
@@ -627,7 +627,10 @@
     <ClCompile Include="AdvancedGiMaterial.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracerShader_Sky.cpp">
+    <ClCompile Include="PathTracerShader_Diffuse.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Reflection.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>

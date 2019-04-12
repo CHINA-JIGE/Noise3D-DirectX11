@@ -134,8 +134,8 @@
     <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
-    <ClInclude Include="PathTracerShader_PBR.h" />
-    <ClInclude Include="PathTracerShader_Sky.h" />
+    <ClInclude Include="PathTracerShader_Diffuse.h" />
+    <ClInclude Include="PathTracerShader_Reflection.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
     <ClInclude Include="AdvancedGiMaterial.h" />
     <ClInclude Include="_RayHitInfo.h" />
@@ -237,7 +237,8 @@
     <ClCompile Include="LogicalShapeManager.cpp" />
     <ClCompile Include="LogicalSphere.cpp" />
     <ClCompile Include="PathTracer.cpp" />
-    <ClCompile Include="PathTracerShader_Sky.cpp" />
+    <ClCompile Include="PathTracerShader_Diffuse.cpp" />
+    <ClCompile Include="PathTracerShader_Reflection.cpp" />
     <ClCompile Include="PathTracerShader_Minimal.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />

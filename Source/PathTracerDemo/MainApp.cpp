@@ -7,8 +7,8 @@ using namespace Noise3D;
 
 MainApp::MainApp():
 	mTotalPathTracerRenderTime(0.0f),
-	c_PathTracerBufferWidth(1280),
-	c_PathTracerBufferHeight(720),
+	c_PathTracerBufferWidth(320),
+	c_PathTracerBufferHeight(240),
 	mMainloopState(MAINLOOP_STATE::PREVIEW),
 	m_pPathTracer(nullptr),
 	m_pGraphicObj_ResultPreview(nullptr),
@@ -18,6 +18,7 @@ MainApp::MainApp():
 
 MainApp::~MainApp()
 {
+	m_pPathTracer->TerminateRenderTask();
 }
 
 void MainApp::Init_GI()
@@ -47,7 +48,8 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_Sky);
+		&mPathTracerShader_DiffuseDemo);
+		//&mPathTracerShader_Sky);
 		//&mPathTracerShader_Minimal);
 	renderThread.detach();
 
@@ -66,7 +68,7 @@ void MainApp::_InitPathTracer()
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxSpecularBounces(20);
 	m_pPathTracer->SetMaxDiffuseBounces(1);
-	m_pPathTracer->SetMaxDiffuseSampleCount(64);
+	m_pPathTracer->SetMaxDiffuseSampleCount(256);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 }
 
@@ -93,6 +95,9 @@ void MainApp::_InitSoftShader()
 
 	//Sky
 	mPathTracerShader_Sky.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
+
+	//Diffuse
+	mPathTracerShader_DiffuseDemo.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
 }
 
 /**************************************

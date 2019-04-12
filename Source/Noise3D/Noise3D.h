@@ -127,8 +127,8 @@
 #include "GI_Light.h"
 #include "_PathTracerSoftShaderInterface.hpp"
 #include "PathTracerShader_Minimal.h"
-#include "PathTracerShader_Sky.h"
-#include "PathTracerShader_PBR.h"
+#include "PathTracerShader_Reflection.h"
+#include "PathTracerShader_Diffuse.h"
 
 
 //-----------Noise Ut -----------

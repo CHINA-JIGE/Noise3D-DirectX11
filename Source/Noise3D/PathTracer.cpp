@@ -112,7 +112,14 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 		{
 			uint32_t globalTaskId = i * c_parallelTaskCount + localTaskId;
 			PathTracerRenderTileFunctor renderTileFunctor;
-			returnedVal[localTaskId] = std::async(renderTileFunctor, this, renderTaskList.at(globalTaskId));
+			try
+			{
+				returnedVal[localTaskId] = std::async(renderTileFunctor, this, renderTaskList.at(globalTaskId));
+			}
+			catch (std::exception)
+			{
+				return;
+			}
 			//threadGroup[localTaskId] = std::thread(renderTileFunctor, this, renderTaskList.at(globalTaskId));
 		}
 
@@ -225,6 +232,9 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 	{
 		for (uint32_t y = 0; y < info.height; ++y)
 		{
+			//if render process is manually forced to terminate, then quit immediately.
+			if (mIsRenderedFinished)return;
+
 			N_Ray ray = pCam->FireRay_WorldSpace(
 				PixelCoord2(float(info.topLeftX+x), float(info.topLeftY+y)), 
 				m_pRenderTarget->GetWidth(), 
@@ -276,4 +286,9 @@ void Noise3D::GI::PathTracer::TraceRay(int diffuseBounces, int specularScatterBo
 bool Noise3D::GI::PathTracer::IsRenderFinished()
 {
 	return mIsRenderedFinished;
+}
+
+void Noise3D::GI::PathTracer::TerminateRenderTask()
+{
+	mIsRenderedFinished = true;
 }

@@ -70,6 +70,9 @@ namespace Noise3D
 			//poll
 			bool IsRenderFinished();
 
+			//end all rendering immediately
+			void TerminateRenderTask();
+
 		protected:
 
 			struct N_RenderTileInfo

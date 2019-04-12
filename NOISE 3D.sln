@@ -13,6 +13,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI-SHLighting", "Source\GU
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PathTracerDemo", "Source\PathTracerDemo\PathTracerDemo.vcxproj", "{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{989DEC98-69C7-4F44-AEFC-D5D4BBF57B90} = {989DEC98-69C7-4F44-AEFC-D5D4BBF57B90}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -63,6 +63,11 @@ namespace Noise3D
 				return m_pFatherPathTracer->GetMaxDiffuseBounces();
 			}
 
+			uint32_t _MaxDiffuseSample()
+			{
+				return m_pFatherPathTracer->GetMaxDiffuseSampleCount();
+			}
+
 			uint32_t _MaxSpecularScatterBounces()
 			{
 				return m_pFatherPathTracer->GetMaxSpecularScatterBounces();
