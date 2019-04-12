@@ -32,6 +32,7 @@ void SceneLoader::_LoadTextures()
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
 	m_pTexMgr->CreateTextureFromFile("../media/envmap1.jpg", "envmap", false, 1024, 512, true);
+	//m_pTexMgr->CreateTextureFromFile("../media/cathedral.jpg", "envmap", false, 1024, 512, true);
 
 }
 

@@ -415,7 +415,7 @@
     <ClInclude Include="_BasicRenderSettings.hpp">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_AO.h">
+    <ClInclude Include="PathTracerShader_PBR.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>

@@ -128,6 +128,7 @@
 #include "_PathTracerSoftShaderInterface.hpp"
 #include "PathTracerShader_Minimal.h"
 #include "PathTracerShader_Sky.h"
+#include "PathTracerShader_PBR.h"
 
 
 //-----------Noise Ut -----------

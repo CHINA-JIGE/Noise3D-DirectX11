@@ -134,7 +134,7 @@
     <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />
     <ClInclude Include="PathTracer.h" />
-    <ClInclude Include="PathTracerShader_AO.h" />
+    <ClInclude Include="PathTracerShader_PBR.h" />
     <ClInclude Include="PathTracerShader_Sky.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
     <ClInclude Include="AdvancedGiMaterial.h" />

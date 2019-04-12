@@ -12,7 +12,9 @@ using namespace Noise3D;
 Noise3D::GI::PathTracer::PathTracer():
 	m_pRenderTarget(nullptr),
 	m_pShader(nullptr),
-	mBounces(0),
+	mMaxDiffuseBounces(1),
+	mMaxDiffuseSampleCount(64),
+	mMaxSpecularBounces(1),
 	mRayMaxTravelDist(100.0f),
 	mTileWidth(16),
 	mTileHeight(16),
@@ -151,14 +153,34 @@ void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 	}
 }
 
-void Noise3D::GI::PathTracer::SetMaxBounces(uint32_t bounces)
+void Noise3D::GI::PathTracer::SetMaxSpecularBounces(uint32_t bounces)
 {
-	mBounces = bounces;
+	mMaxSpecularBounces = bounces;
 }
 
-uint32_t Noise3D::GI::PathTracer::GetMaxBounces()
+uint32_t Noise3D::GI::PathTracer::GetMaxSpecularScatterBounces()
 {
-	return mBounces;
+	return mMaxSpecularBounces;
+}
+
+void Noise3D::GI::PathTracer::SetMaxDiffuseBounces(uint32_t bounces)
+{
+	mMaxDiffuseBounces = bounces;
+}
+
+uint32_t Noise3D::GI::PathTracer::GetMaxDiffuseBounces()
+{
+	return mMaxDiffuseBounces;
+}
+
+void Noise3D::GI::PathTracer::SetMaxDiffuseSampleCount(uint32_t sampleCount)
+{
+	mMaxDiffuseSampleCount = sampleCount;
+}
+
+uint32_t Noise3D::GI::PathTracer::GetMaxDiffuseSampleCount()
+{
+	return mMaxDiffuseSampleCount;
 }
 
 void Noise3D::GI::PathTracer::SetRayMaxTravelDist(float dist)
@@ -210,7 +232,7 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
-			TraceRay(-1, 0.0f, ray, payload);
+			TraceRay(0, 0, 0.0f, ray, payload);
 
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
@@ -221,19 +243,16 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 	}
 }
 
-void Noise3D::GI::PathTracer::TraceRay(int bounces, float travelledDistance,const N_Ray & ray, N_TraceRayPayload & payload)
+void Noise3D::GI::PathTracer::TraceRay(int diffuseBounces, int specularScatterBounces, float travelledDistance,const N_Ray & ray, N_TraceRayPayload & payload)
 {
 	//initial bounces and travelled distance must remain in limit
-	if (bounces > int(PathTracer::GetMaxBounces()) || 
+	if (specularScatterBounces > int(PathTracer::GetMaxSpecularScatterBounces()) ||
+		diffuseBounces > int(PathTracer::GetMaxDiffuseBounces()) ||
 		travelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
 	//intersect the ray with the scene and get results
 	N_RayHitResultForPathTracer hitResult;
 	m_pCT->IntersectRaySceneForPathTracer(ray, hitResult);
-
-	//update bounce count
-	int newBounces = bounces + 1;
-	if (newBounces > int(PathTracer::GetMaxBounces()))return;
 
 	//call shader. Radiance and other infos are carried by Payload reference.
 	if (hitResult.HasAnyHit())
@@ -245,7 +264,7 @@ void Noise3D::GI::PathTracer::TraceRay(int bounces, float travelledDistance,cons
 		float newTravelledDistance = travelledDistance + ray.Distance(info.t);
 		if (newTravelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
-		m_pShader->ClosestHit(newBounces, newTravelledDistance, ray, info, payload);
+		m_pShader->ClosestHit(diffuseBounces, specularScatterBounces, newTravelledDistance, ray, info, payload);
 	}
 	else
 	{

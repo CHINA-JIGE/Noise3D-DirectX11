@@ -1,3 +1,5 @@
+//**created in 2019.4.12***
+
 #include "Noise3D.h"
 #include <sstream>
 
@@ -85,10 +87,6 @@ BOOL Init3D(HWND hwnd)
 	//retrieve meshMgr and Create new mesh
 	pMeshMgr = pScene->GetMeshMgr();
 
-	//use "myMesh1" string to initialize UID (unique-Identifier)
-	//pMesh1= pMeshMgr->CreateMesh("myMesh1");
-
-
 	pRenderer = pScene->CreateRenderer(bufferWidth, bufferHeight, hwnd);
 	pCamera = pScene->GetCamera();
 	pLightMgr = pScene->GetLightMgr();
@@ -97,17 +95,9 @@ BOOL Init3D(HWND hwnd)
 	pAtmos = pScene->GetAtmosphere();
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 	pShapeMgr = pScene->GetLogicalShapeMgr();
+	pModelLoader = pScene->GetMeshLoader();
 
-	SceneGraph& sg = pScene->GetSceneGraph();
-	sceneRoot = sg.GetRoot();
-	snode_a = sceneRoot->CreateChildNode();
-	snode_aa = snode_a->CreateChildNode();
-	snode_ab = snode_a->CreateChildNode();
-	snode_ac = snode_a->CreateChildNode();
-	snode_aca = snode_ac->CreateChildNode();
-	snode_b = sceneRoot->CreateChildNode();
-
-	//只郡符薮夕
+	//diffuse map
 	pTexMgr->CreateTextureFromFile("../media/earth.jpg", "Earth", TRUE, 1024, 1024, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/Jade.jpg", "Jade", FALSE, 256, 256, FALSE);
 	//pTexMgr->CreateTextureFromFile("../media/universe.jpg", "Universe", FALSE, 256, 256, FALSE);
@@ -129,112 +119,36 @@ BOOL Init3D(HWND hwnd)
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-
-	//------------------MESH INITIALIZATION----------------
-
-	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
-	pModelLoader = pScene->GetMeshLoader();
-	N_SceneLoadingResult res;
-
-
-	//mesh
-	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
-	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
-	pMesh->SetCollidable(true);
-	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
-	meshList.push_back(pMesh);
-	sceneObjectList.push_back(pMesh); // renderable
-	pNodeMesh->GetLocalTransform().SetPosition(100.0f, 0, 0);
-	pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
-	pNodeMesh->GetLocalTransform().SetRotation(1.0f, 1.0f, 0.5f);
-
-	const int c_shapeCount = 10;
-	for (int i = 0; i < c_shapeCount; ++i)
+	//-----Generate Rays--------
+	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("rays");
+	const int c_rayCount = 100;
+	const int c_clusterCount = 10;
+	for (int i = 0; i < c_clusterCount; ++i)
 	{
-		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
-		//bind sphere and visualization mesh
-		Mesh* pMeshSphere = pMeshMgr->CreateMesh(pNodeSphere, "sphere" + std::to_string(i));
-		pMeshSphere->SetCollidable(false);
-
-		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNodeSphere, "logicSPH" + std::to_string(i),1.0f);
-		pSphere->SetCollidable(true);
-
-		//bind box and visualization mesh
-		SceneNode* pNodeBox = sg.GetRoot()->CreateChildNode();
-		Mesh* pMeshBox = pMeshMgr->CreateMesh(pNodeBox, "box" + std::to_string(i));
-		pMeshBox->SetCollidable(false);
-
-		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i),Vec3(1.0f,1.0f,1.0f));
-		pBox->SetCollidable(true);
-
-
-		const float objectRandomRangeScale = 70.0f;
-		// **************************************************
-		GI::RandomSampleGenerator g1;
-		float randomRadius = g1.CanonicalReal() * 10.0f + 3.0f;
-		pSphere->SetRadius(randomRadius);
-		pModelLoader->LoadSphere(pMeshSphere, randomRadius, 15, 15);
-		float randomX = g1.NormalizedReal() * objectRandomRangeScale;
-		float randomY = g1.NormalizedReal() * objectRandomRangeScale;
-		float randomZ = g1.NormalizedReal() * objectRandomRangeScale;
-		pNodeSphere->GetLocalTransform().SetPosition(randomX, randomY, randomZ);
-		// **************************************************
-		/*pModelLoader->LoadSphere(pMesh, 5.0f, 10, 10);
-		pSphere->SetRadius(5.0f);
-		pNode->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
-		// **************************************************
+		Vec3 origin = { float(i) * 30.0f , 0, 0 };
+		Vec3 normal = Vec3(std::cosf(i), std::sinf(i), 0);
+		N_Ray centerRay = N_Ray(origin, normal * 20.0f, 0.001f, 1.0f);
+		pGraphicObjBuffer->AddLine3D(centerRay.origin, centerRay.Eval(1.0f), Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));
 		GI::RandomSampleGenerator g;
-		float randomWidthX = g.CanonicalReal() * 10.0f + 3.0f;
-		float randomWidthY = g.CanonicalReal() * 10.0f + 3.0f;
-		float randomWidthZ = g.CanonicalReal() * 10.0f + 3.0f;
-		pBox->SetSizeXYZ(Vec3(randomWidthX, randomWidthY, randomWidthZ));
-		pModelLoader->LoadBox(pMeshBox, randomWidthX, randomWidthY, randomWidthZ);
 
-		float randomBoxX = g.NormalizedReal() * objectRandomRangeScale;
-		float randomBoxY = g.NormalizedReal() * objectRandomRangeScale;
-		float randomBoxZ = g.NormalizedReal() * objectRandomRangeScale;
-		pNodeBox->GetLocalTransform().SetPosition(randomBoxX, randomBoxY, randomBoxZ);
-		// **************************************************
-		/*pModelLoader->LoadBox(pMeshBox, 10.0f, 10.0f, 5.0f);
-		pBox->SetSizeXYZ(Vec3(10.0f,10.0f,5.0f));
-		pNodeBox->GetLocalTransform().SetPosition(15.0f * i, 0.0f, 0.0f);*/
-		// **************************************************
-
-		meshList.push_back(pMeshBox);
-		meshList.push_back(pMeshSphere);
-
-		sceneObjectList.push_back(pBox);//not render
-		sceneObjectList.push_back(pSphere); // not render
-		sceneObjectList.push_back(pMeshBox);//not collidable ,renderable
-		sceneObjectList.push_back(pMeshSphere);//not collidable ,renderable
-
+		for (int rayId = 0; rayId < c_rayCount; ++rayId)
+		{
+			Vec3 dir = g.UniformSphericalVec_Cone(normal, Ut::PI / 4.0f);
+			float len = dir.Length();
+			if (len != 1.0f)
+			{
+				WARNING_MSG("?asd");
+			}
+			N_Ray r = N_Ray(origin, dir * 20.0f, 0.001f, 1.0f);
+			pGraphicObjBuffer->AddLine3D(r.origin, r.Eval(1.0f), Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
+		}
 	}
 
-	for (auto& pMesh : meshList)
-	{
-		pMesh->SetCullMode(NOISE_CULLMODE_NONE);
-		//pMesh->SetFillMode(NOISE_FILLMODE_WIREFRAME);
-		pMesh->SetFillMode(NOISE_FILLMODE_SOLID);
-	}
-
-	//-------Build BVH----------
-	BvhTree bvh;
-	bvh.Construct(sg);
-	std::vector<BvhNode*> bvhNodeList;
-	bvh.Traverse_PreOrder(bvhNodeList);
-
-	//-----add Debug AABB--------
-	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("aabb");
-	for (auto pNode : bvhNodeList)
-	{
-		N_AABB aabb= pNode->GetAABB();
-		pGraphicObjBuffer->AddLine3D_AABB(aabb.min, aabb.max, Vec4(1.0f, 0.7f, 0.7f, 1.0f));
-	}
-
-	//----------------------------------------------------------
 	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 }, { 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 }, { 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
 	//pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,50.0f }, { 0,0,1.0f,1.0f }, { 0,0,1.0f,1.0f });
+
+	//----------------------------------------------------------
 
 	pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCamera->SetViewFrustumPlane(1.0f, 500.f);
@@ -247,17 +161,6 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSkyBox(pAtmos, "Universe", 1000.0f, 1000.0f, 1000.0f);
 	pAtmos->SetFogEnabled(false);
 	pAtmos->SetFogParameter(50.0f, 100.0f, Vec3(0, 0, 1.0f));
-
-	//！！！！！！菊高！！！！！！！！
-	pDirLight1 = pLightMgr->CreateDynamicDirLight(pScene->GetSceneGraph().GetRoot(), "myDirLight1");
-	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
-	dirLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = Vec3(1.0f, -1.0f, 0);
-	dirLightDesc.specularIntensity = 1.0f;
-	dirLightDesc.diffuseIntensity = 1.0f;
-	pDirLight1->SetDesc(dirLightDesc);
 
 	//bottom right
 	pGraphicObjBuffer->AddRectangle(Vec2(870.0f, 680.0f), Vec2(1080.0f, 720.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
@@ -283,21 +186,12 @@ void MainLoop()
 	std::stringstream tmpS;
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
-	snode_a->GetLocalTransform().Rotate(Vec3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
-	snode_ac->GetLocalTransform().Rotate(Vec3(1.0f, 1.0f, 1.0f), 0.005f * timer.GetInterval());
-	snode_aca->GetLocalTransform().SetScale(Vec3(0.6f + 0.5f* sinf(0.001f * timer.GetTotalTimeElapsed()), 1.0f, 1.0f));
-	snode_aca->GetLocalTransform().SetPosition(Vec3(0, 0, 30.0f));
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
 	pRenderer->AddToRenderQueue(pGraphicObjBuffer);
 	pRenderer->AddToRenderQueue(pMyText_fps);
 	pRenderer->SetActiveAtmosphere(pAtmos);
-	static N_PostProcessGreyScaleDesc desc;
-	desc.factorR = 0.3f;
-	desc.factorG = 0.59f;
-	desc.factorB = 0.11f;
-	//pRenderer->AddToPostProcessList_GreyScale(desc);
 
 	//render
 	pRenderer->Render();
@@ -354,4 +248,5 @@ void InputProcess()
 
 void Cleanup()
 {
+
 };

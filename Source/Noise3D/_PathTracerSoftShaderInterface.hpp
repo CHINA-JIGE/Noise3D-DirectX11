@@ -36,7 +36,7 @@ namespace Noise3D
 			//3. Intersect() (impl in CollisionTestor)
 
 			//4. closest hit, most material/lighting/texturing stuffs will happen here
-			virtual void ClosestHit(int bounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload)=0;
+			virtual void ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload)=0;
 
 			//5. doesn't hit anything, might want to sample the skydome/skybox cubemap or sth
 			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
@@ -51,15 +51,21 @@ namespace Noise3D
 				m_pCollisionTestor = ct;
 			}
 
-			void _TraceRay(int bounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload)
+			void _TraceRay(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload)
 			{
-				//bounces and distance will be accumulated automatically in PathTracer::TraceRay()
-				m_pFatherPathTracer->TraceRay(bounces, travelledDistance, ray, payload);
+				//distance will be accumulated automatically in PathTracer::TraceRay()
+				//diffuse/specular bounces should be updated manually
+				m_pFatherPathTracer->TraceRay(diffuseBounces, specularBounces, travelledDistance, ray, payload);
 			}
 
-			uint32_t _MaxBounce()
+			uint32_t _MaxDiffuseBounces()
 			{
-				return m_pFatherPathTracer->GetMaxBounces();
+				return m_pFatherPathTracer->GetMaxDiffuseBounces();
+			}
+
+			uint32_t _MaxSpecularScatterBounces()
+			{
+				return m_pFatherPathTracer->GetMaxSpecularScatterBounces();
 			}
 
 			float _MaxDistance()

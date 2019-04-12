@@ -24,10 +24,19 @@ namespace Noise3D
 			float NormalizedReal();
 
 			//generate uniform random unit vector which distributes on unit sphere
-			Vec3 UniformSpherical_Vector();
+			Vec3 UniformSphericalVec();
 
 			//generate uniform random unit vector's( which distributes on unit sphere)azimulthal (vec.x==theta==pitch, vec.y==phi==yaw)
-			Vec2 UniformSpherical_Azimulthal();
+			Vec2 UniformSphericalAzimuthal();
+
+			//generate uniform random unit vector distribute in a cone, given cone's generatrix and angle
+			//the procedure is similar to gen uniform sample on unit sphere,
+			//but a post-transform is needed.
+			// maxAngle== PI stands for a whole sphere
+			// maxAngle==PI/2 stands for a hemisphere
+			Vec3 UniformSphericalVec_Cone(Vec3 normal, float maxAngle);
+
+			Vec3 UniformSphericalVec_Hemisphere(Vec3 normal);
 
 		private:
 

@@ -16,7 +16,7 @@ namespace Noise3D
 		{
 		public:
 
-			virtual void ClosestHit(int bounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload) override;
+			virtual void ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload) override;
 
 			virtual void  Miss(N_Ray ray, N_TraceRayPayload& in_out_payload) override;
 

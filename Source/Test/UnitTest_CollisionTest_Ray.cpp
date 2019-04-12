@@ -133,7 +133,7 @@ BOOL Init3D(HWND hwnd)
 	//------------------MESH INITIALIZATION----------------
 
 	//pModelLoader->LoadSphere(pMesh1,5.0f, 30, 30);
-	pModelLoader = pScene->GetModelLoader();
+	pModelLoader = pScene->GetMeshLoader();
 	N_SceneLoadingResult res;
 
 
@@ -156,7 +156,7 @@ BOOL Init3D(HWND hwnd)
 		Mesh* pMeshSphere = pMeshMgr->CreateMesh(pNodeSphere, "sphere"+ std::to_string(i));
 		pMeshSphere->SetCollidable(false);
 
-		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNodeSphere, "logicSPH" + std::to_string(i));
+		LogicalSphere* pSphere = pShapeMgr->CreateSphere(pNodeSphere, "logicSPH" + std::to_string(i),1.0f);
 		pSphere->SetCollidable(true);
 
 		//bind box and visualization mesh
@@ -164,7 +164,7 @@ BOOL Init3D(HWND hwnd)
 		Mesh* pMeshBox = pMeshMgr->CreateMesh(pNodeBox, "box" + std::to_string(i));
 		pMeshBox->SetCollidable(false);
 
-		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i));
+		LogicalBox* pBox = pShapeMgr->CreateBox(pNodeBox, "logicBox" + std::to_string(i),Vec3(1.0f,1.0f,1.0f));
 		pBox->SetCollidable(true);
 
 
@@ -413,5 +413,4 @@ void InputProcess()
 
 void Cleanup()
 {
-	pRoot->ReleaseAll();
 };

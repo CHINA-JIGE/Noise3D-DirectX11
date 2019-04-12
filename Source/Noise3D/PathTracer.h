@@ -44,10 +44,19 @@ namespace Noise3D
 			//you can also set your own render target, but it must have a doubled copy of data in SYSTEM MEMORY
 			void SetRenderTarget(Texture2D* pRenderTarget);//must be doubled-data
 
-			//bounces count of light (recursive ray gen)
-			void SetMaxBounces(uint32_t bounces);
+			//maximum reflect/refract count of specular reflected light
+			void SetMaxSpecularBounces(uint32_t bounces);
 
-			uint32_t GetMaxBounces();
+			uint32_t GetMaxSpecularScatterBounces();
+
+			// diffuse ray's maximum scatter count
+			void SetMaxDiffuseBounces(uint32_t bounces);
+
+			uint32_t GetMaxDiffuseBounces();
+
+			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
+
+			uint32_t GetMaxDiffuseSampleCount();
 
 			//ray's max travel distance
 			void SetRayMaxTravelDist(float dist);
@@ -55,7 +64,8 @@ namespace Noise3D
 			float GetRayMaxTravelDist();
 
 			//could be called by soft shader(and could be called recursively)
-			void TraceRay(int bounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload);
+			//bounces should be added manually
+			void TraceRay(int diffuseBounces, int specularScatterBounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload);
 
 			//poll
 			bool IsRenderFinished();
@@ -99,7 +109,11 @@ namespace Noise3D
 
 			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 
-			uint32_t mBounces;
+			uint32_t mMaxSpecularBounces;//max count of specular reflect/refract
+
+			uint32_t mMaxDiffuseBounces;//max count of diffuse ray's recursion
+
+			uint32_t mMaxDiffuseSampleCount;//max count of ray generated to evaluate a diffuse point
 
 			float mRayMaxTravelDist;
 

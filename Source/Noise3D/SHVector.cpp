@@ -40,7 +40,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 #pragma omp parallel for
 	for (int sampleIndex = 0; sampleIndex < monteCarloSampleCount; ++sampleIndex)
 	{
-		Vec3 dir = randomGen.UniformSpherical_Vector();
+		Vec3 dir = randomGen.UniformSphericalVec();
 
 		//for every direction sample, calculate all of its SH coefficient by convolving f(x) and corresponding SH function value
 		//L--band index
