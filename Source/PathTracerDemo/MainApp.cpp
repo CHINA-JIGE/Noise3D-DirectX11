@@ -7,8 +7,6 @@ using namespace Noise3D;
 
 MainApp::MainApp():
 	mTotalPathTracerRenderTime(0.0f),
-	c_PathTracerBufferWidth(320),
-	c_PathTracerBufferHeight(240),
 	mMainloopState(MAINLOOP_STATE::PREVIEW),
 	m_pPathTracer(nullptr),
 	m_pGraphicObj_ResultPreview(nullptr),
@@ -18,7 +16,7 @@ MainApp::MainApp():
 
 MainApp::~MainApp()
 {
-	m_pPathTracer->TerminateRenderTask();
+
 }
 
 void MainApp::Init_GI()
@@ -44,14 +42,14 @@ void MainApp::PathTracerStartRender()
 		}
 	};
 	PathTracerRenderFunctor functor;
-	std::thread renderThread(
+	mRenderThread = std::thread(
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
 		&mPathTracerShader_DiffuseDemo);
 		//&mPathTracerShader_Sky);
 		//&mPathTracerShader_Minimal);
-	renderThread.detach();
+	//mRenderThread.detach();
 
 }
 
@@ -64,11 +62,11 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(c_PathTracerBufferWidth, c_PathTracerBufferHeight);
+	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxSpecularBounces(20);
 	m_pPathTracer->SetMaxDiffuseBounces(1);
-	m_pPathTracer->SetMaxDiffuseSampleCount(256);
+	m_pPathTracer->SetMaxDiffuseSampleCount(200);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 }
 
@@ -121,6 +119,12 @@ void MainApp::Callback_Mainloop()
 	}
 }
 
+void MainApp::Callback_Cleanup()
+{
+	if(m_pPathTracer)m_pPathTracer->TerminateRenderTask();
+	if(mRenderThread.joinable())mRenderThread.join();
+}
+
 void MainApp::Mainloop_RealTimePreview()
 {
 	m_pRenderer->ClearBackground();
@@ -165,6 +169,7 @@ void MainApp::Mainloop_RenderPathTracedResult()
 	if(!hasRTLastUpdate && isFinished)
 	{
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
+		m_pPathTracerRenderTarget->SaveTexture2DToFile("out.jpg", NOISE_IMAGE_FILE_FORMAT_JPG);
 		hasRTLastUpdate = true;
 	}
 
@@ -230,6 +235,7 @@ void MainApp::InputProcess_Preview()
 	if (mInputE.IsKeyPressed(Ut::NOISE_KEY_ESCAPE))
 	{
 		m_pRoot->SetMainLoopStatus(NOISE_MAINLOOP_STATUS_QUIT_LOOP);
+		m_pPathTracer->TerminateRenderTask();
 	}
 
 }

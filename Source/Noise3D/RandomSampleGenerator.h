@@ -36,7 +36,14 @@ namespace Noise3D
 			// maxAngle==PI/2 stands for a hemisphere
 			Vec3 UniformSphericalVec_Cone(Vec3 normal, float maxAngle);
 
+			void UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList);
+
 			Vec3 UniformSphericalVec_Hemisphere(Vec3 normal);
+
+			void UniformSphericalVec_Hemisphere(Vec3 normal, int sampleCount, std::vector<Vec3>& outVecList);
+
+			//ray gen with varied PDF(probability density function)
+			void CosinePdfSphericalVec_Cone(Vec3 dir, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 		private:
 
@@ -45,6 +52,8 @@ namespace Noise3D
 			static std::uniform_real_distribution<float> mCanonicalDist;
 
 			static std::uniform_real_distribution<float> mNormalizedDist;
+
+			Vec3 mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi);
 		};
 	}
 };

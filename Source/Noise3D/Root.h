@@ -19,6 +19,8 @@ namespace Noise3D
 	{
 	public:
 		virtual void Callback_Mainloop() = 0;
+
+		virtual void Callback_Cleanup() = 0;
 	};
 
 
@@ -34,7 +36,7 @@ namespace Noise3D
 
 		bool		Init();
 
-		//void		ReleaseAll();
+		//void	ReleaseAll();
 
 		//mainloop body, IMainloop interface or function ptr is called back.
 		//it depends on which one is valid.

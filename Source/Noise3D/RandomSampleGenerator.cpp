@@ -45,10 +45,8 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec()
 
 	//NOTE: this parameterization is different from the common one
 	//the 'theta' start from the top of the Y-axis
-	Vec3 out;
-	out.x = sinf(theta)*cosf(phi);
-	out.y = cos(theta);
-	out.z = sinf(theta)*sinf(phi);
+	Vec3 out = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+
 	return out;
 }
 
@@ -80,13 +78,8 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	float theta = acosf(1 - 2.0f * var1);
 	float phi = 2 * Ut::PI * var2;
 
-	//NOTE: this parameterization is different from the common one
-	//the 'theta' start from the top of the Y-axis
 	//(2019.4.12)and they lie within a cone with angle 'maxAngle'
-	Vec3 vec;
-	vec.x = sinf(theta)*cosf(phi);
-	vec.y = cosf(theta);
-	vec.z = sinf(theta)*sinf(phi);
+	Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
 	//no need to transform
 	if (normal.x==0.0f && normal.z ==0.0f && normal.y!=0.0f)return vec;
@@ -102,7 +95,6 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	Vec3 new_y_axis = normal;
 	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
 	new_x_axis.Normalize();
-	new_y_axis.Normalize();
 	new_z_axis.Normalize();
 
 	//construct transform matrix
@@ -129,7 +121,123 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	return out;
 }
 
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList)
+{
+	//transform matrix/basis only construct once
+	normal.Normalize();
+	Vec3 y_axis = Vec3(0, 1.0f, 0);
+
+	//new basis
+	Vec3 new_x_axis = y_axis.Cross(normal);
+	Vec3 new_y_axis = normal;
+	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
+	new_x_axis.Normalize();
+	new_z_axis.Normalize();
+
+	//construct transform matrix
+	/*
+	[ (Y x N)   (N)   ((YxN)xN)] * vec
+	*/
+	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
+	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
+	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		float var1 = mCanonicalDist(mRandomEngine) * maxAngle / Ut::PI;
+		float var2 = mCanonicalDist(mRandomEngine);
+		float theta = acosf(1 - 2.0f * var1);
+		float phi = 2 * Ut::PI * var2;
+		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+
+		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		{
+			outVecList.push_back(vec);
+		}
+		else
+		{
+			//flattened matrix mul/basis transformation
+			Vec3 out;
+			out.x = matRow1.Dot(vec);
+			out.y = matRow2.Dot(vec);
+			out.z = matRow3.Dot(vec);
+			outVecList.push_back(out);
+		}
+	}
+
+}
+
 Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 normal)
 {
 	return GI::RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f);
+}
+
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 normal, int sampleCount, std::vector<Vec3>& outVecList)
+{
+	RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f, sampleCount, outVecList);
+}
+
+void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+{
+	//transform matrix/basis only construct once
+	normal.Normalize();
+	Vec3 y_axis = Vec3(0, 1.0f, 0);
+
+	//new basis
+	Vec3 new_x_axis = y_axis.Cross(normal);
+	Vec3 new_y_axis = normal;
+	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
+	new_x_axis.Normalize();
+	new_z_axis.Normalize();
+
+	//construct transform matrix
+	/*
+	[ (Y x N)   (N)   ((YxN)xN)] * vec
+	*/
+	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
+	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
+	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+
+	float cosMaxAngle = cosf(maxAngle);
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		float var1 = mCanonicalDist(mRandomEngine) * maxAngle / Ut::PI;
+		float var2 = mCanonicalDist(mRandomEngine);
+		float theta = Ut::PI * var1;
+		float phi = 2.0f * Ut::PI * var2;
+		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+
+		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		{
+			outVecList.push_back(vec);
+		}
+		else
+		{
+			//flattened matrix mul/basis transformation
+			Vec3 out;
+			out.x = matRow1.Dot(vec);
+			out.y = matRow2.Dot(vec);
+			out.z = matRow3.Dot(vec);
+			outVecList.push_back(out);
+		}
+		//differential sphere area: dA = 4pi/sintheta
+		// pdf when spill on the whole sphere = sintheta/4pi
+		// area of partial sphere: \int(0->theta){2* pi * R * R * sin(theta) d(theta)}
+		// =  (2 * pi * R^2 (1-costheta))
+		// pdf = sintheta/(2*pi*R^2 * (1-costheta))
+		float pdf = sinf(theta) / (2.0f * Ut::PI * (1.0001f - cosMaxAngle));
+		outPdfList.push_back(pdf);
+	}
+}
+
+inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi)
+{
+	//NOTE: this parameterization is different from the common one
+	//the 'theta' start from the top of the Y-axis
+	Vec3 vec;
+	vec.x = sinf(theta)*cosf(phi);
+	vec.y = cosf(theta);
+	vec.z = sinf(theta)*sinf(phi);
+	return vec;
 }

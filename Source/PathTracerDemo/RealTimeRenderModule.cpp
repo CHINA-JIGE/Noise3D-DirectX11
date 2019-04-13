@@ -70,7 +70,7 @@ void RealTimeRenderModule::_InitCamera()
 {
 	m_pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	m_pCamera->GetWorldTransform().SetPosition(10.0f, 30.0f, 30.0f);
+	m_pCamera->GetWorldTransform().SetPosition(-50.0f, 50.0f, 50.0f);
 	m_pCamera->LookAt(0, 0, 0);
 }
 
@@ -112,7 +112,7 @@ void RealTimeRenderModule::_InitLight_RealTime()
 	dirLightDesc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
 	dirLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
 	dirLightDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = Vec3(1.0f, -1.0f, 0);
+	dirLightDesc.direction = Vec3(1.0f, -0.5f, 0);
 	dirLightDesc.specularIntensity = 1.0f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);

@@ -32,7 +32,7 @@ Vec3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
 	default:
 		WARNING_MSG("logical box: compute normal, facet param invalid.")
 	}
-	//return Vec3(0, 0, 0);
+	return Vec3(0, 0, 0);
 }
 
 

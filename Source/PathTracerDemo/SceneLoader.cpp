@@ -17,12 +17,12 @@ void SceneLoader::LoadScene()
 	_LoadTextures();
 	_LoadMaterials();
 
-	_LoadSphere(sg, Vec3(0,5.0f,0), 10.0f);
-	_LoadSphere(sg, Vec3(-30.0f, 15.0f, -30.0f), 12.0f);
-	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(20.0f, 20.0f, 20.0f));
-	//_LoadBox(sg, Vec3(0, 16.0f, 0), Vec3(20.0f, 20.0f, 20.0f));
-	//_LoadBox(sg, Vec3(-30.0, 15.0f, -40.0f), Vec3(20.0f, 20.0f, 20.0f));
-	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(100.0f, 100.0f));
+	_LoadSphere(sg, Vec3(0,20.0f,50), 15.0f);
+	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f);
+	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(50.0f, 30.0f, 60.0f));
+	_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 50.0f));
+	_LoadBox(sg, Vec3(50.0, 30.0f, 70.0f), Vec3(30.0f, 60.0f, 60.0f));
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f));
 }
 
 void SceneLoader::_LoadTextures()
@@ -31,7 +31,7 @@ void SceneLoader::_LoadTextures()
 	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
-	m_pTexMgr->CreateTextureFromFile("../media/envmap1.jpg", "envmap", false, 1024, 512, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", false, 1024, 512, true);
 	//m_pTexMgr->CreateTextureFromFile("../media/cathedral.jpg", "envmap", false, 1024, 512, true);
 
 }

@@ -512,6 +512,8 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 		{
 			//local space hit info 1
 			Vec3 pos = localRay.Eval(t1);
+			pos.Normalize();
+			pos *= pSphere->GetRadius();//to avoid part of the floating point error
 			Vec3 n = pos;
 			n.Normalize();
 			N_RayHitInfo hitInfo1(t1, pos, n);
@@ -523,6 +525,8 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 		{
 			//local space hit info 2
 			Vec3 pos = localRay.Eval(t2);
+			pos.Normalize();
+			pos *= pSphere->GetRadius();//to avoid part of the floating point error
 			Vec3 n = pos;
 			n.Normalize();
 			N_RayHitInfo hitInfo2(t2, pos, n);

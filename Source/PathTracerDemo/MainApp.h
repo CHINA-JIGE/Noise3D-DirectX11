@@ -25,6 +25,8 @@ private:
 
 	virtual void Callback_Mainloop() override;
 
+	virtual void Callback_Cleanup() override;
+
 	void Mainloop_RealTimePreview();
 
 	void Mainloop_RenderPathTracedResult();
@@ -45,10 +47,10 @@ private:
 
 	void _InitSoftShader();
 
+	//**multi-thread
+	std::thread mRenderThread;
 
 	//**GI**
-	const uint32_t c_PathTracerBufferWidth;
-	const uint32_t c_PathTracerBufferHeight;
 	GI::PathTracer* m_pPathTracer;
 	GI::PathTracerShader_Minimal mPathTracerShader_Minimal;
 	GI::PathTracerShader_Sky mPathTracerShader_Sky;

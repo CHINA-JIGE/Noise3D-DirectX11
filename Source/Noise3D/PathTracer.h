@@ -42,7 +42,9 @@ namespace Noise3D
 			Texture2D* GetRenderTarget();
 
 			//you can also set your own render target, but it must have a doubled copy of data in SYSTEM MEMORY
-			void SetRenderTarget(Texture2D* pRenderTarget);//must be doubled-data
+			//Texture2d* must be doubled-data
+			//and one more internal R32G32B32A32 HDR render target
+			void SetRenderTarget(Texture2D* pRenderTarget);
 
 			//maximum reflect/refract count of specular reflected light
 			void SetMaxSpecularBounces(uint32_t bounces);
@@ -87,9 +89,13 @@ namespace Noise3D
 				uint32_t height;
 			};
 
+			//4 or 8 or xx workers thread run independently,
+			//actively pop out task and run it, until no task left
+			void _RenderTileWorkerThread(std::queue<N_RenderTileInfo>& renderTaskList);
+
 			//render an image tile (let's say, 16x16, could be parallelized using multi-thread)
 			//task:fire and trace rays(could be multi-threaded), 
-			void RenderTile(const N_RenderTileInfo& info);
+			void _RenderTile(const N_RenderTileInfo& info);
 
 		private:
 
@@ -103,12 +109,20 @@ namespace Noise3D
 
 		private:
 
+			static const uint32_t c_parallelWorkerThreadCount = 8;
+
 			//extern init by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight);
 
-			Texture2D* m_pRenderTarget;//created by SceneManager
+			std::vector<Color4f> mHdrRenderTarget;//temporary internal HDR render target
+
+			Texture2D* m_pFinalRenderTarget;//created by SceneManager
 
 			IPathTracerSoftShader* m_pShader;//path tracer's soft shader
+
+			//multi-thread
+			std::thread mWorkerThreadArr[c_parallelWorkerThreadCount];
+			std::mutex mRenderTaskMutex;
 
 			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 

@@ -24,7 +24,11 @@ namespace Noise3D
 	struct Color4u
 	{
 		Color4u():r(0),g(0),b(0),a(0){}
-		Color4u(const Vec4& c) :r(uint8_t(c.x * 255)), g(uint8_t(c.y * 255)), b(uint8_t(c.z * 255)), a(uint8_t(c.w * 255)) {}
+		Color4u(const Vec4& c) :
+			r(uint8_t(c.x > 0.995f? 255 :c.x * 255)), 
+			g(uint8_t(c.y> 0.995f ? 255: c.y * 255)),
+			b(uint8_t(c.z > 0.995f ? 255: c.z *255)),
+			a(uint8_t(c.w > 0.995f ? 255: c.w * 255)) {}
 		Color4u(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a ) :r(_r),g(_g),b(_b),a(_a) {}
 
 		uint8_t r;

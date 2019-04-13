@@ -223,8 +223,16 @@ void Root::Mainloop()
 		//then the window will have no respondance)
 		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if (msg.message == WM_QUIT)
+			{
+				if (m_pMainloopInterface)m_pMainloopInterface->Callback_Cleanup();
+				return;
+			}
+			else
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
 		else//no message to handle, we'll call the main loop
 		{
@@ -242,6 +250,10 @@ void Root::Mainloop()
 				break;
 
 			case NOISE_MAINLOOP_STATUS_QUIT_LOOP:
+				if (m_pMainloopInterface)
+				{
+					m_pMainloopInterface->Callback_Cleanup();
+				}
 				return;
 				break;
 

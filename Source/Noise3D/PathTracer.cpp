@@ -10,7 +10,7 @@
 using namespace Noise3D;
 
 Noise3D::GI::PathTracer::PathTracer():
-	m_pRenderTarget(nullptr),
+	m_pFinalRenderTarget(nullptr),
 	m_pShader(nullptr),
 	mMaxDiffuseBounces(1),
 	mMaxDiffuseSampleCount(64),
@@ -25,7 +25,8 @@ Noise3D::GI::PathTracer::PathTracer():
 
 Noise3D::GI::PathTracer::~PathTracer()
 {
-	m_pRenderTarget = nullptr;
+	PathTracer::TerminateRenderTask();
+	m_pFinalRenderTarget = nullptr;
 	m_pCT = nullptr;
 	m_pShader = nullptr;
 }
@@ -49,15 +50,15 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 	pShader->_InitInfrastructure(this, m_pCT);
 
 	//back buffer's size, partition it into tiles
-	uint32_t w = m_pRenderTarget->GetWidth();
-	uint32_t h = m_pRenderTarget->GetHeight();
+	uint32_t w = m_pFinalRenderTarget->GetWidth();
+	uint32_t h = m_pFinalRenderTarget->GetHeight();
 	uint32_t completeTileCountX = (w / mTileWidth);
 	uint32_t completeTileCountY = (h / mTileHeight);
 	uint32_t partialTileWidth = w % mTileWidth;//some tile might be incomplete
 	uint32_t partialTileHeight = h % mTileHeight;//some tile might be incomplete
 
 	//generate render tile task info list
-	std::vector<N_RenderTileInfo> renderTaskList;
+	std::queue<N_RenderTileInfo> renderTaskList;
 	for (uint32_t tileIdY = 0; tileIdY <= completeTileCountY; ++tileIdY)
 	{
 		for (uint32_t tileIdX = 0; tileIdX <= completeTileCountX; ++tileIdX)
@@ -75,60 +76,36 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 			//ignore edge tile with no pixel
 			if (currentTileW>0 && currentTileH >0)
 			{
-				renderTaskList.push_back(info);
-				//PathTracer::RenderTile(info);
+				renderTaskList.push(info);
 			}
 		}
 	}
 
-	//dispatch render tasks, run several thread/async at the same time
-	//calculate thread cluster count and the thread count of the last cluster
-	const uint32_t c_parallelTaskCount = 8;
-	uint32_t numTaskClusters = renderTaskList.size() / c_parallelTaskCount;
-	uint32_t numLastClusterThreadCount = renderTaskList.size() % c_parallelTaskCount;
-	if (numLastClusterThreadCount != 0)
-		numTaskClusters++;
-	else 
-		numLastClusterThreadCount = c_parallelTaskCount;
 
-	//dispatch (std::async & get) or (std::thread & join)
-	//if system budget is tight, std::async might choose not to create a thread
-	//or create a thread in a deferred way
+	//dispatch several 'renderTile' worker thread (runs independently),
+	//each of them pop one render task from front and do it
+	//but remember to lock the renderTaskList before popping front
+	std::mutex mutex_renderTaskList;
+
+	//thread functor
 	struct PathTracerRenderTileFunctor
 	{
-		void operator()(PathTracer* p, const N_RenderTileInfo& info){p->RenderTile(info);}
-	};
+		void operator()(PathTracer* p, std::queue<N_RenderTileInfo>& renderTaskList)
+		{
+			p->_RenderTileWorkerThread(renderTaskList);
+		}
+	} RenderTileWorkerFunc;
 
-	//dispatch all render tasks (c_parallelTaskCount * numTaskClusters + numLastClusterThreadCount)
-	for(uint32_t i=0; i<numTaskClusters;++i)
+	//dispatch worker threads
+	for (uint32_t i = 0; i < c_parallelWorkerThreadCount; ++i)
 	{
-		uint32_t localTaskCount = (i == numTaskClusters - 1 ?
-			numLastClusterThreadCount : c_parallelTaskCount);
-
-		//dispatch async task (probably threads)
-		std::future<void> returnedVal[c_parallelTaskCount];
-		//std::thread threadGroup[c_parallelTaskCount];
-		for (uint32_t localTaskId = 0; localTaskId < localTaskCount; ++localTaskId)
-		{
-			uint32_t globalTaskId = i * c_parallelTaskCount + localTaskId;
-			PathTracerRenderTileFunctor renderTileFunctor;
-			try
-			{
-				returnedVal[localTaskId] = std::async(renderTileFunctor, this, renderTaskList.at(globalTaskId));
-			}
-			catch (std::exception)
-			{
-				return;
-			}
-			//threadGroup[localTaskId] = std::thread(renderTileFunctor, this, renderTaskList.at(globalTaskId));
-		}
-
-		//threads join here
-		for (uint32_t j= 0; j< localTaskCount; ++j)
-		{
-			returnedVal[j].get();
-			//threadGroup[localTaskId].join();
-		}
+		mWorkerThreadArr[i] = std::thread(RenderTileWorkerFunc, this, std::ref(renderTaskList));
+	}
+	
+	//synchronize (all jobs are done now)
+	for (uint32_t i = 0; i < c_parallelWorkerThreadCount; ++i)
+	{
+		if(mWorkerThreadArr[i].joinable())mWorkerThreadArr[i].join();
 	}
 
 	mIsRenderedFinished = true;
@@ -142,7 +119,7 @@ void Noise3D::GI::PathTracer::SetRenderTileSize(uint32_t width, uint32_t height)
 
 Texture2D * Noise3D::GI::PathTracer::GetRenderTarget()
 {
-	return m_pRenderTarget;
+	return m_pFinalRenderTarget;
 }
 
 void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
@@ -151,7 +128,8 @@ void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 	{
 		if (pRenderTarget->IsSysMemBufferValid())
 		{
-			m_pRenderTarget = pRenderTarget;
+			m_pFinalRenderTarget = pRenderTarget;
+			mHdrRenderTarget.resize(pRenderTarget->GetWidth()* pRenderTarget->GetHeight());
 		}
 		else
 		{
@@ -200,6 +178,20 @@ float Noise3D::GI::PathTracer::GetRayMaxTravelDist()
 	return mRayMaxTravelDist;
 }
 
+bool Noise3D::GI::PathTracer::IsRenderFinished()
+{
+	return mIsRenderedFinished;
+}
+
+void Noise3D::GI::PathTracer::TerminateRenderTask()
+{
+	mIsRenderedFinished = true;
+	for (int i = 0; i < c_parallelWorkerThreadCount; ++i)
+	{
+		if(mWorkerThreadArr[i].joinable())mWorkerThreadArr[i].join();
+	}
+}
+
 /***********************************************
 
 							PRIVATE
@@ -221,24 +213,49 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(ui
 		return false;
 	}
 
-	m_pRenderTarget = pRenderTarget;
+	PathTracer::SetRenderTarget(pRenderTarget);
 	return true;
 }
 
-void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
+void Noise3D::GI::PathTracer::_RenderTileWorkerThread(std::queue<N_RenderTileInfo>& renderTaskList)
+{
+	//serveral worker thread works continuously, independently with no break.
+	//all wait to be fed by new task. (
+	//until all work are done
+	while (true)
+	{
+		//if render process is manually forced to terminate, then quit immediately.
+		if (mIsRenderedFinished)break;
+
+		//lock mutex and retrieve undone job info from queue
+		//but only one thread can access queue at the same time
+		while (!mRenderTaskMutex.try_lock());
+		if (renderTaskList.empty())break;
+		N_RenderTileInfo info = renderTaskList.front();
+		renderTaskList.pop();
+		mRenderTaskMutex.unlock();
+
+		//start to do real thing
+		PathTracer::_RenderTile(std::move(info));
+	}
+	mRenderTaskMutex.unlock();
+}
+
+void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 {
 	Camera* pCam = Noise3D::GetScene()->GetCamera();
 	for (uint32_t x = 0; x < info.width; ++x)
 	{
 		for (uint32_t y = 0; y < info.height; ++y)
 		{
-			//if render process is manually forced to terminate, then quit immediately.
-			if (mIsRenderedFinished)return;
+			uint32_t globalPixelX = info.topLeftX + x;
+			uint32_t globalPixelY = info.topLeftY + y;
+			uint32_t totalWidth = m_pFinalRenderTarget->GetWidth();
+			uint32_t totalHeight = m_pFinalRenderTarget->GetHeight();
 
 			N_Ray ray = pCam->FireRay_WorldSpace(
-				PixelCoord2(float(info.topLeftX+x), float(info.topLeftY+y)), 
-				m_pRenderTarget->GetWidth(), 
-				m_pRenderTarget->GetHeight());
+				PixelCoord2(float(globalPixelX), float(globalPixelY)),
+				totalWidth,totalHeight);
 
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
@@ -247,8 +264,10 @@ void Noise3D::GI::PathTracer::RenderTile(const N_RenderTileInfo & info)
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
 			Color4f tmpColor = Color4f(payload.radiance.x, payload.radiance.y, payload.radiance.z, 1.0f);
+			mHdrRenderTarget.at(globalPixelY * totalWidth + globalPixelX) = tmpColor;
+
 			Color4u outputColor(tmpColor);//convert to 8bitx4 color via constructor
-			m_pRenderTarget->SetPixel(info.topLeftX + x, info.topLeftY + y, outputColor);
+			m_pFinalRenderTarget->SetPixel(info.topLeftX + x, info.topLeftY + y, outputColor);
 		}
 	}
 }
@@ -281,14 +300,4 @@ void Noise3D::GI::PathTracer::TraceRay(int diffuseBounces, int specularScatterBo
 		m_pShader->Miss(ray, payload);
 	}
 
-}
-
-bool Noise3D::GI::PathTracer::IsRenderFinished()
-{
-	return mIsRenderedFinished;
-}
-
-void Noise3D::GI::PathTracer::TerminateRenderTask()
-{
-	mIsRenderedFinished = true;
 }
