@@ -369,8 +369,8 @@ void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoad
 			const std::string& matName = fbxMat.matName;
 			if (!matName.empty())
 			{
-				if (pMatMgr->FindUid(matName) == true)continue;//material that is already created
-				LambertMaterial* pMat = pMatMgr->CreateMaterial(matName, newMatDesc);
+				if (pMatMgr->FindUid<LambertMaterial>(matName) == true)continue;//material that is already created
+				LambertMaterial* pMat = pMatMgr->CreateLambertMaterial(matName, newMatDesc);
 				if (pMat == nullptr)
 				{
 					WARNING_MSG("Model Loader: Load FBX scene: Material failed to load: material name:"
@@ -605,7 +605,7 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 		for (UINT i = 0;i < materialList.size();i++)
 		{
 			//----------Create Material-----------
-			IMaterial* pMat = pMatMgr->CreateMaterial(matNameList.at(i), materialList.at(i));
+			IMaterial* pMat = pMatMgr->CreateLambertMaterial(matNameList.at(i), materialList.at(i));
 			if (pMat == nullptr)
 				WARNING_MSG("WARNING : Load 3ds : Material Creation Failed!!");
 

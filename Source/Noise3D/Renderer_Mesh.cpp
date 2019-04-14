@@ -144,7 +144,7 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
-	bool  IsMatNameValid = pMatMgr->FindUid(currSubsetMatName);
+	bool  IsMatNameValid = pMatMgr->FindUid<LambertMaterial>(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
@@ -152,11 +152,11 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 	if (IsMatNameValid== false)
 	{
 		WARNING_MSG("IRenderer : material UID not valid !");
-		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
+		pMatMgr->GetDefaultLambertMaterial()->GetDesc(tmpMat);
 	}
 	else
 	{
-		pMatMgr->GetObjectPtr(currSubsetMatName)->GetDesc(tmpMat);
+		pMatMgr->GetObjectPtr<LambertMaterial>(currSubsetMatName)->GetDesc(tmpMat);
 	}
 
 	//update basic material info

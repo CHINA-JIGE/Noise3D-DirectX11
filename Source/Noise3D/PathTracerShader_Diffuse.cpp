@@ -49,7 +49,7 @@ void Noise3D::GI::PathTracerShader_Diffuse::ClosestHit(int diffuseBounces, int s
 	// estimated = sum/ (pdf*count), pdf = p_hemispherical = 1/ (1/2pi) = 2pi 
 	float monteCarloScaleFactor =1.0f / float(diffSampleCount);
 	diffuseRadiance *= (monteCarloScaleFactor * albedo);
-	diffuseRadiance /= 8.0f;//avoid hdr
+	diffuseRadiance /= 4.0f;//avoid hdr
 
 	in_out_payload.radiance = diffuseRadiance;
 }

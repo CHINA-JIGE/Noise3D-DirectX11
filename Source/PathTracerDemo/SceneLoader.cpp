@@ -17,10 +17,10 @@ void SceneLoader::LoadScene()
 	_LoadTextures();
 	_LoadMaterials();
 
-	_LoadSphere(sg, Vec3(0,20.0f,50), 15.0f);
+	_LoadSphere(sg, Vec3(-20.0f,20.0f,50), 15.0f);
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f);
 	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(50.0f, 30.0f, 60.0f));
-	_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 50.0f));
+	_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 70.0f));
 	_LoadBox(sg, Vec3(50.0, 30.0f, 70.0f), Vec3(30.0f, 60.0f, 60.0f));
 	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f));
 }
@@ -42,7 +42,7 @@ void SceneLoader::_LoadMaterials()
 	desc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
 	desc.diffuseColor = Vec3(0.5f, 0.5f, 0.5f);
 	desc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	LambertMaterial* pMat1 = m_pMatMgr->CreateMaterial("previewMat", desc);
+	LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("previewMat", desc);
 }
 
 void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius)

@@ -9,13 +9,15 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ MaterialManager
-		:public IFactory<LambertMaterial>
+		:public IFactoryEx<LambertMaterial, GI::AdvancedGiMaterial>
 	{
 	public:
 
-		LambertMaterial*		CreateMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc);
+		LambertMaterial*		CreateLambertMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc);
 
-		LambertMaterial*		GetDefaultMaterial();
+		LambertMaterial*		GetDefaultLambertMaterial();
+
+		GI::AdvancedGiMaterial* CreateAdvancedMaterial(N_UID matName, const GI::N_AdvancedMatDesc& matDesc);
 
 	private:
 

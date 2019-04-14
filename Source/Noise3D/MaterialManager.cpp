@@ -14,7 +14,7 @@
 using namespace Noise3D;
 
 MaterialManager::MaterialManager()
-	:IFactory<LambertMaterial>(100000)
+	:IFactoryEx<LambertMaterial, GI::AdvancedGiMaterial>({ 100000, 100000 })
 {
 	mFunction_CreateDefaultMaterial();
 }
@@ -24,7 +24,7 @@ MaterialManager::~MaterialManager()
 	IFactory<LambertMaterial>::DestroyAllObject();
 }
 
-LambertMaterial* MaterialManager::CreateMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc)
+LambertMaterial* MaterialManager::CreateLambertMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc)
 {
 	if (IFactory<LambertMaterial>::FindUid(matName))
 	{
@@ -37,9 +37,22 @@ LambertMaterial* MaterialManager::CreateMaterial(N_UID matName,const N_LambertMa
 	return pMat;
 }
 
-LambertMaterial*		MaterialManager::GetDefaultMaterial()
+LambertMaterial*		MaterialManager::GetDefaultLambertMaterial()
 {
 	return IFactory<LambertMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+}
+
+GI::AdvancedGiMaterial * Noise3D::MaterialManager::CreateAdvancedMaterial(N_UID matName, const GI::N_AdvancedMatDesc & matDesc)
+{
+	if (IFactory<GI::AdvancedGiMaterial>::FindUid(matName))
+	{
+		ERROR_MSG("IMaterialManager: material name exist! mat creation failed! name:" + matName);
+		return nullptr;
+	}
+
+	GI::AdvancedGiMaterial* pMat = IFactory<GI::AdvancedGiMaterial>::CreateObject(matName);
+	pMat->SetDesc(matDesc);
+	return pMat;
 }
 
 /**********************************************************
