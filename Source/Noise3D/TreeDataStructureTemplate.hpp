@@ -9,6 +9,13 @@
 
 namespace Noise3D
 {
+	enum NOISE_TREE_TRAVERSE_ORDER
+	{
+		PRE_ORDER,
+		POST_ORDER,
+		LAYER_ORDER
+	};
+
 	//a more detailed node like SceneNode or BvhNode should be derived from TreeNodeTemplate<derivedNode_t>
 	//a compile-time check is implemented using std::is_base_of
 	//if derivedNode_t is not derived from TreeNodeTemplate<derivedNode_t>, then there will be an LINKING error

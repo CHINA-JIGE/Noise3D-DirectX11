@@ -57,6 +57,8 @@ namespace Noise3D
 	{
 		constexpr float PI = 3.141592653f;
 
+		constexpr float INV_PI = 1.0f / PI;
+
 		extern /*_declspec(dllexport)*/ bool IsPointInRect2D(Vec2 v, Vec2 vTopLeft, Vec2 vBottomRight);
 
 		extern /*_declspec(dllexport)*/ int	GetCharAlignmentOffsetPixelY(UINT boundaryPxHeight, UINT charRealHeight, wchar_t inputChar);

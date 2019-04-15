@@ -1,7 +1,7 @@
 
 /***********************************************************
 
-			GI: implementation of path tracer soft shader
+GI: implementation of path tracer soft shader
 
 **************************************************************/
 
@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		class PathTracerShader_Diffuse :
+		class PathTracerShader_Refraction :
 			public IPathTracerSoftShader
 		{
 		public:

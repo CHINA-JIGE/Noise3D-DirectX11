@@ -704,6 +704,11 @@ bool Noise3D::CollisionTestor::RebuildBvhTree(SceneNode * pNode)
 	return mBvhTree.Construct(pNode);
 }
 
+const BvhTree & Noise3D::CollisionTestor::GetBvhTree()
+{
+	return mBvhTree;
+}
+
 
 /*************************************************
 
@@ -891,7 +896,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 				LogicalBox* pBox = static_cast<LogicalBox*>(pObj);
 				CollisionTestor::IntersectRayBox(ray, pBox, tmpResult);
 				for (auto& e : tmpResult.hitList)
-					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pBox->GetMaterial(), e));
+					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pBox->GetGiMaterial(), e));
 				break; 
 			}
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE:
@@ -899,7 +904,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 				LogicalSphere* pSphere = static_cast<LogicalSphere*>(pObj);
 				CollisionTestor::IntersectRaySphere(ray, pSphere, tmpResult);
 				for (auto& e : tmpResult.hitList)
-					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pSphere->GetMaterial(), e));
+					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pSphere->GetGiMaterial(), e));
 				break; 
 			}
 			case NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT:
@@ -907,7 +912,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 				LogicalRect* pRect = static_cast<LogicalRect*>(pObj);
 				CollisionTestor::IntersectRayRect(ray, static_cast<LogicalRect*>(pObj), tmpResult);
 				for (auto& e : tmpResult.hitList)
-					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pRect->GetMaterial(), e));
+					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pRect->GetGiMaterial(), e));
 				break;
 			}
 			case NOISE_SCENE_OBJECT_TYPE::MESH:

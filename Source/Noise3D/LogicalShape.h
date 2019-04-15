@@ -12,19 +12,16 @@
 
 namespace Noise3D
 {
-	namespace GI
-	{
-		class AdvancedGiMaterial;
-	}
 
 	class /*_declspec(dllexport)*/ ILogicalShape:
-		public ICollidableSceneObject
+		public ICollidableSceneObject,
+		public GI::IAdvancedGiMaterialOwner
 	{
 	public:
 
-		ILogicalShape(): m_pMaterial(nullptr) {};
+		ILogicalShape(){};
 
-		virtual ~ILogicalShape() { m_pMaterial = nullptr; };
+		virtual ~ILogicalShape() { };
 
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override = 0 ;
@@ -38,25 +35,9 @@ namespace Noise3D
 		//Compute Area for the shape(might be useful for area lighting)
 		virtual float ComputeArea() =0 ;
 
-		//determine if point is inside this shape
-		//virtual bool IsPointInside(Vec3 p) = 0;
-
-		//..
-		void SetMaterial(GI::AdvancedGiMaterial* pMat) 
-		{
-			m_pMaterial = pMat;
-		};
-
-		GI::AdvancedGiMaterial* GetMaterial()
-		{
-			return m_pMaterial;
-		}
-
 	protected:
 
 		friend IFactory<ILogicalShape>;
-
-		GI::AdvancedGiMaterial* m_pMaterial;
 
 	};
 

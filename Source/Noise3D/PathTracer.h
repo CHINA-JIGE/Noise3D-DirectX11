@@ -16,7 +16,25 @@ namespace Noise3D
 		typedef Noise3D::Vec3 Radiance;
 		typedef Noise3D::Vec3 Irradiance;
 		class IPathTracerSoftShader;
+		
+		//input param for TraceRay()
+		struct N_TraceRayParam
+		{
+			N_TraceRayParam():
+				bounces(0), 
+				travelledDistance(0.0f), 
+				ray(N_Ray()),
+				isInsideObject(false),
+				isShadowRay(false){}
 
+			int bounces;//recursion count
+			float travelledDistance;
+			N_Ray ray;//which ray is tracing
+			bool isInsideObject;//for refraction/transmission
+			bool isShadowRay;//for local lighting/area lighting
+		};
+
+		//output for TraceRay();
 		struct N_TraceRayPayload
 		{
 			N_TraceRayPayload() :radiance(0, 0, 0){};
@@ -46,19 +64,18 @@ namespace Noise3D
 			//and one more internal R32G32B32A32 HDR render target
 			void SetRenderTarget(Texture2D* pRenderTarget);
 
-			//maximum reflect/refract count of specular reflected light
-			void SetMaxSpecularBounces(uint32_t bounces);
-
-			uint32_t GetMaxSpecularScatterBounces();
-
 			// diffuse ray's maximum scatter count
-			void SetMaxDiffuseBounces(uint32_t bounces);
+			void SetMaxBounces(uint32_t bounces);
 
-			uint32_t GetMaxDiffuseBounces();
+			uint32_t GetMaxBounces();
 
 			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
 
 			uint32_t GetMaxDiffuseSampleCount();
+
+			void SetMaxSpecularScatterSample(uint32_t sampleCount);
+
+			uint32_t GetMaxSpecularScatterSample();
 
 			//ray's max travel distance
 			void SetRayMaxTravelDist(float dist);
@@ -67,7 +84,7 @@ namespace Noise3D
 
 			//could be called by soft shader(and could be called recursively)
 			//bounces should be added manually
-			void TraceRay(int diffuseBounces, int specularScatterBounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload);
+			void TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload);
 
 			//poll
 			bool IsRenderFinished();
@@ -114,6 +131,8 @@ namespace Noise3D
 			//extern init by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight);
 
+			void mFunction_CalculateEmissiveObjectList(std::vector<ISceneObject*>& outList);
+
 			std::vector<Color4f> mHdrRenderTarget;//temporary internal HDR render target
 
 			Texture2D* m_pFinalRenderTarget;//created by SceneManager
@@ -126,11 +145,11 @@ namespace Noise3D
 
 			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 
-			uint32_t mMaxSpecularBounces;//max count of specular reflect/refract
-
-			uint32_t mMaxDiffuseBounces;//max count of diffuse ray's recursion
+			uint32_t mMaxBounces;//max count of ray's recursion
 
 			uint32_t mMaxDiffuseSampleCount;//max count of ray generated to evaluate a diffuse point
+
+			uint32_t mMaxSpecularScatterSampleCount;//max sample count of microfacet-based specular scatter
 
 			float mRayMaxTravelDist;
 

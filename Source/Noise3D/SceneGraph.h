@@ -75,12 +75,6 @@ namespace Noise3D
 	{
 	public:
 
-		enum NOISE_TREE_TRAVERSE_ORDER
-		{
-			PRE_ORDER,
-			POST_ORDER,
-			LAYER_ORDER
-		};
 
 		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
 

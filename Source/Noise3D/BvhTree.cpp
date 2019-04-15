@@ -73,7 +73,7 @@ bool Noise3D::BvhTree::Construct(SceneNode * pNode)
 	//i arbitrarily choose an traverse order to get all the scene nodes
 	std::vector<ISceneObject*> tmpSceneObjectList;
 	SceneGraph* pGraph = pNode->GetHostTree();
-	pGraph->TraverseSceneObjects(SceneGraph::NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER,pNode, tmpSceneObjectList);
+	pGraph->TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER,pNode, tmpSceneObjectList);
 
 	//store computed AABB of object in pair
 	std::vector<ObjectAabbPair> infoList;
@@ -119,6 +119,38 @@ bool Noise3D::BvhTree::Construct(SceneNode * pNode)
 	}
 
 	return true;
+}
+
+void Noise3D::BvhTree::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const
+{
+	std::vector<BvhNode*> nodeList;
+
+	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
+	//are copied, but nodes with no scene object bound to it are useless here.
+	switch (order)
+	{
+	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
+		BvhTree::Traverse_PreOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
+		BvhTree::Traverse_PostOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
+		BvhTree::Traverse_LayerOrder(nodeList); break;
+
+	default:
+		break;
+	}
+
+	//output scene objects bound to nodes
+	for (auto pn : nodeList)
+	{
+		ISceneObject* pObj = pn->GetSceneObject();
+		if (pn!=nullptr && pObj != nullptr)
+		{
+			outResult.push_back(pObj);
+		}
+	}
 }
 
 //deprecated

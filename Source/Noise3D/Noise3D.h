@@ -73,6 +73,10 @@
 #include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "BvhTree.h"
 
+#include "LambertMaterial.h"
+#include "AdvancedGiMaterial.h"
+#include "MaterialManager.h"
+
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
 #include "LogicalBox.h"
@@ -91,10 +95,6 @@
 #include "Texture2D.h"
 #include "TextureCubeMap.h"
 #include "TextureManager.h"
-
-#include "LambertMaterial.h"
-#include "AdvancedGiMaterial.h"
-#include "MaterialManager.h"
 
 #include "GraphicObject.h"
 #include "GraphicObjManager.h"
@@ -124,11 +124,13 @@
 
 //--------GI :Path Tracer-----------
 #include "PathTracer.h"
+#include "BxdfUt.h"
 #include "GI_Light.h"
 #include "_PathTracerSoftShaderInterface.hpp"
 #include "PathTracerShader_Minimal.h"
 #include "PathTracerShader_Reflection.h"
 #include "PathTracerShader_Diffuse.h"
+#include "PathTracerShader_Refraction.h"
 
 
 //-----------Noise Ut -----------

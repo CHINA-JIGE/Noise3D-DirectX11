@@ -36,7 +36,7 @@ namespace Noise3D
 			//3. Intersect() (impl in CollisionTestor)
 
 			//4. closest hit, most material/lighting/texturing stuffs will happen here
-			virtual void ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload)=0;
+			virtual void ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload)=0;
 
 			//5. doesn't hit anything, might want to sample the skydome/skybox cubemap or sth
 			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
@@ -45,22 +45,23 @@ namespace Noise3D
 
 			friend void PathTracer::Render(Noise3D::SceneNode*, IPathTracerSoftShader*);
 
-			void _InitInfrastructure(PathTracer* pt, CollisionTestor* ct) 
+			void _InitInfrastructure(PathTracer* pt, CollisionTestor* ct, std::vector<ISceneObject*>&& emissiveObjList)
 			{
 				m_pFatherPathTracer = pt; 
 				m_pCollisionTestor = ct;
+				mEmissiveObjectList = std::move(emissiveObjList);
 			}
 
-			void _TraceRay(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, N_TraceRayPayload& payload)
+			void _TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload)
 			{
 				//distance will be accumulated automatically in PathTracer::TraceRay()
 				//diffuse/specular bounces should be updated manually
-				m_pFatherPathTracer->TraceRay(diffuseBounces, specularBounces, travelledDistance, ray, payload);
+				m_pFatherPathTracer->TraceRay(param, out_payload);
 			}
 
-			uint32_t _MaxDiffuseBounces()
+			uint32_t _MaxBounces()
 			{
-				return m_pFatherPathTracer->GetMaxDiffuseBounces();
+				return m_pFatherPathTracer->GetMaxBounces();
 			}
 
 			uint32_t _MaxDiffuseSample()
@@ -68,9 +69,9 @@ namespace Noise3D
 				return m_pFatherPathTracer->GetMaxDiffuseSampleCount();
 			}
 
-			uint32_t _MaxSpecularScatterBounces()
+			uint32_t _MaxSpecularScatterSample()
 			{
-				return m_pFatherPathTracer->GetMaxSpecularScatterBounces();
+				return m_pFatherPathTracer->GetMaxSpecularScatterSample();
 			}
 
 			float _MaxDistance()
@@ -83,6 +84,8 @@ namespace Noise3D
 			PathTracer* m_pFatherPathTracer;
 
 			CollisionTestor* m_pCollisionTestor;
+
+			std::vector<ISceneObject*> mEmissiveObjectList;
 
 		};
 	}

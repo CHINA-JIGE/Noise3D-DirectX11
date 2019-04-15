@@ -10,6 +10,7 @@
 //and it is invisible in user-created material list ( actually they share the same unorder_map & vector)...
 
 #include "Noise3D.h"
+#include "MaterialManager.h"
 
 using namespace Noise3D;
 
@@ -55,6 +56,12 @@ GI::AdvancedGiMaterial * Noise3D::MaterialManager::CreateAdvancedMaterial(N_UID 
 	return pMat;
 }
 
+GI::AdvancedGiMaterial * Noise3D::MaterialManager::GetDefaultAdvancedMaterial()
+{
+	return  IFactory<GI::AdvancedGiMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	;
+}
+
 /**********************************************************
 							P R I V A T E
 *************************************************************/
@@ -66,18 +73,11 @@ void MaterialManager::mFunction_CreateDefaultMaterial()
 	//thus a default material is needed when an object was rendered with invalid material
 
 	N_LambertMaterialDesc defaultMatDesc;
-	defaultMatDesc.ambientColor = Vec3(0.0f, 0.0f, 0.0f);
-	defaultMatDesc.diffuseColor = Vec3(0.1f, 0.1f, 0.1f);
-	defaultMatDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	defaultMatDesc.environmentMapTransparency = 0.0f;
-	defaultMatDesc.normalMapBumpIntensity = 0.1f;
-	defaultMatDesc.specularSmoothLevel = 10;
-	defaultMatDesc.diffuseMapName = "";
-	defaultMatDesc.specularMapName = "";
-	defaultMatDesc.environmentMapName = "";
-	defaultMatDesc.normalMapName = "";
+	LambertMaterial* pLambertMat = IFactory<LambertMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	pLambertMat->SetDesc(defaultMatDesc);
 
-	
-	LambertMaterial* pMat = IFactory<LambertMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-	pMat->SetDesc(defaultMatDesc);
+	//------------------------------
+	GI::N_AdvancedMatDesc giMatDesc;
+	GI::AdvancedGiMaterial* pGiMat = IFactory<GI::AdvancedGiMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	pGiMat->SetDesc(giMatDesc);
 }

@@ -24,7 +24,7 @@ namespace Noise3D
 			//volume render wil be required, which is far too complicated.
 			//so we now assume: many
 
-			//surface(?) param, describing object's diffuse(local SSS) absorbance
+			//surface(?) param, describing object's diffuse(local SSS) absorbance of dielectric part
 			Color4f albedo;
 
 			//surface param, Cook-Torrance's microfacet model's param of D & G 
@@ -36,6 +36,12 @@ namespace Noise3D
 
 			//volume param, describing object's percentage of 'being metal'(otherwise dielectric)
 			float metallicity;
+
+			//index of refraction (related to F0)
+			float ior;
+
+			//Fresnel Reflectance of normal incident, F0 (related to ior)
+			Vec3 metal_F0;
 
 			//surface param, color and intensity of emission (HDR)
 			Vec3 emission;
@@ -68,17 +74,50 @@ namespace Noise3D
 
 			void SetEmission(Vec3 hdrEmission);
 
+			void SetMetalF0(Vec3 F0);
+
+			void SetRefractiveIndex(float ior);//also update F0
+
 			bool IsTransmissionEnabled();
 
 			bool IsEmissionEnabled();//true for light source
 
 			void SetDesc(const N_AdvancedMatDesc& desc);
 
-			N_AdvancedMatDesc& GetDesc();
+			const N_AdvancedMatDesc& GetDesc();
+
+			//preset material
+			void Preset_PerfectGlass(float ior=2.0f);
 
 		private:
 
+			float mFunc_IorToF0(float ior);
+
 			N_AdvancedMatDesc mMatDesc;
 		};
+
+		//ut interface for path tracer
+		class IAdvancedGiMaterialOwner
+		{
+		public:
+
+			//(2019.4.5)material for GI renderer, for now doesn't support multiple GI mat for one mesh
+			void	SetGiMaterial(GI::AdvancedGiMaterial* pMat);
+
+			GI::AdvancedGiMaterial* GetGiMaterial();
+
+		protected:
+
+			IAdvancedGiMaterialOwner();
+
+			~IAdvancedGiMaterialOwner();
+
+
+		private:
+
+			GI::AdvancedGiMaterial* m_pGiMat;
+
+		};
+
 	}
 }

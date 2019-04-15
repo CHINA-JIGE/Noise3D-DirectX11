@@ -15,7 +15,7 @@ void Noise3D::GI::PathTracerShader_Diffuse::SetSkyTexture(Texture2D * pTex)
 	m_pSkyDomeTexture = pTex;
 }
 
-void Noise3D::GI::PathTracerShader_Diffuse::ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray & ray, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
+void Noise3D::GI::PathTracerShader_Diffuse::ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
 	GI::RandomSampleGenerator g;
 	GI::Radiance diffuseRadiance;
@@ -33,13 +33,25 @@ void Noise3D::GI::PathTracerShader_Diffuse::ClosestHit(int diffuseBounces, int s
 		Vec3 diffSampleDir = dirList.at(i);
 		N_Ray diffSampleRay = N_Ray(hitInfo.pos, diffSampleDir);
 		N_TraceRayPayload payload;
-		IPathTracerSoftShader::_TraceRay(diffuseBounces + 1, specularBounces, travelledDistance, diffSampleRay, payload);
+		N_TraceRayParam newParam = param;
+		newParam.bounces = param.bounces + 1;
+		newParam.ray = diffSampleRay;
+		IPathTracerSoftShader::_TraceRay(newParam, payload);
 		
-		//lambert surface
+		//lambert surface/ or disney diffuse
 		float LdotN = diffSampleDir.Dot(hitInfo.normal);
+		Vec3 viewVec = -param.ray.dir;
+		Vec3 lightVec = diffSampleDir;
+		Vec3 halfVector = (viewVec + lightVec);// v + h
+		halfVector.Normalize();
+		Color4f albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+
 		if (LdotN > 0.0f) 
 		{ 
-			GI::Radiance deltaRadiance = payload.radiance * LdotN;
+			//GI::Radiance deltaRadiance = payload.radiance * LdotN * Ut::INV_PI;
+			Color4f disneyDiffuseBrdf = BxdfUt::DisneyDiffuse(albedo, viewVec, lightVec, hitInfo.normal, halfVector, 1.0f);
+			GI::Radiance deltaRadiance = payload.radiance * disneyDiffuseBrdf;
+
 			//deltaRadiance /= pdfList.at(i);//monte carlo
 			float pdf = 2.0f * Ut::PI;
 			deltaRadiance *= pdf;

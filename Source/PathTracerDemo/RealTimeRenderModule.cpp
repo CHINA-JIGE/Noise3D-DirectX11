@@ -70,7 +70,7 @@ void RealTimeRenderModule::_InitCamera()
 {
 	m_pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	m_pCamera->GetWorldTransform().SetPosition(-50.0f, 50.0f, 50.0f);
+	m_pCamera->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
 	m_pCamera->LookAt(0, 0, 0);
 }
 

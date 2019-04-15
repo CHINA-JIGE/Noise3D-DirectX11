@@ -15,16 +15,19 @@ void Noise3D::GI::PathTracerShader_Sky::SetSkyTexture(Texture2D * pTex)
 	m_pSkyDomeTexture = pTex;
 }
 
-void Noise3D::GI::PathTracerShader_Sky::ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance, const N_Ray& ray, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
+void Noise3D::GI::PathTracerShader_Sky::ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
 	//Texture2dSampler_Spherical sampler;
 	//sampler.SetTexturePtr(m_pSkyDomeTexture);
-	Vec3 reflectedDir = Vec3::Reflect(ray.dir, hitInfo.normal);
+	Vec3 reflectedDir = Vec3::Reflect(param.ray.dir, hitInfo.normal);
 	reflectedDir.Normalize();
 	N_Ray reflectedRay = N_Ray(hitInfo.pos, reflectedDir);
 	//bounces and travelled distance is added automatically
 	N_TraceRayPayload payload;
-	IPathTracerSoftShader::_TraceRay(diffuseBounces, specularBounces+1, travelledDistance,reflectedRay, payload);
+	N_TraceRayParam newParam = param;
+	newParam.bounces = param.bounces + 1;
+	newParam.ray = reflectedRay;
+	IPathTracerSoftShader::_TraceRay(newParam, payload);
 	GI::Radiance reflectedColor = payload.radiance;
 	in_out_payload.radiance = reflectedColor;
 }

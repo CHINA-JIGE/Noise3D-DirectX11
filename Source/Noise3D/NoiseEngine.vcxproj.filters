@@ -418,6 +418,12 @@
     <ClInclude Include="PathTracerShader_Reflection.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
+    <ClInclude Include="BxdfUt.h">
+      <Filter>NoiseGraphic\GI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Refraction.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">
@@ -631,6 +637,12 @@
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
     <ClCompile Include="PathTracerShader_Reflection.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="BxdfUt.cpp">
+      <Filter>NoiseGraphic\GI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Refraction.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>

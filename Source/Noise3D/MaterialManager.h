@@ -19,6 +19,9 @@ namespace Noise3D
 
 		GI::AdvancedGiMaterial* CreateAdvancedMaterial(N_UID matName, const GI::N_AdvancedMatDesc& matDesc);
 
+		GI::AdvancedGiMaterial*		GetDefaultAdvancedMaterial();
+
+
 	private:
 
 		friend  class SceneManager;

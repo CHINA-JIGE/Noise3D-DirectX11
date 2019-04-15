@@ -54,6 +54,8 @@ namespace Noise3D
 
 		bool Construct(SceneNode* pNode);
 
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
+
 	private:
 
 		//SceneObject ptr and its aabb cache

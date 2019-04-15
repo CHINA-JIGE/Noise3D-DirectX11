@@ -12,9 +12,9 @@ using namespace Noise3D;
 Noise3D::GI::PathTracer::PathTracer():
 	m_pFinalRenderTarget(nullptr),
 	m_pShader(nullptr),
-	mMaxDiffuseBounces(1),
+	mMaxBounces(1),
 	mMaxDiffuseSampleCount(64),
-	mMaxSpecularBounces(1),
+	mMaxSpecularScatterSampleCount(64),
 	mRayMaxTravelDist(100.0f),
 	mTileWidth(16),
 	mTileHeight(16),
@@ -47,7 +47,9 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 
 	//set soft shader
 	m_pShader = pShader;
-	pShader->_InitInfrastructure(this, m_pCT);
+	std::vector<ISceneObject*> emissiveObjList;
+	mFunction_CalculateEmissiveObjectList(emissiveObjList);
+	pShader->_InitInfrastructure(this, m_pCT, std::move(emissiveObjList));
 
 	//back buffer's size, partition it into tiles
 	uint32_t w = m_pFinalRenderTarget->GetWidth();
@@ -138,24 +140,15 @@ void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 	}
 }
 
-void Noise3D::GI::PathTracer::SetMaxSpecularBounces(uint32_t bounces)
+
+void Noise3D::GI::PathTracer::SetMaxBounces(uint32_t bounces)
 {
-	mMaxSpecularBounces = bounces;
+	mMaxBounces = bounces;
 }
 
-uint32_t Noise3D::GI::PathTracer::GetMaxSpecularScatterBounces()
+uint32_t Noise3D::GI::PathTracer::GetMaxBounces()
 {
-	return mMaxSpecularBounces;
-}
-
-void Noise3D::GI::PathTracer::SetMaxDiffuseBounces(uint32_t bounces)
-{
-	mMaxDiffuseBounces = bounces;
-}
-
-uint32_t Noise3D::GI::PathTracer::GetMaxDiffuseBounces()
-{
-	return mMaxDiffuseBounces;
+	return mMaxBounces;
 }
 
 void Noise3D::GI::PathTracer::SetMaxDiffuseSampleCount(uint32_t sampleCount)
@@ -166,6 +159,16 @@ void Noise3D::GI::PathTracer::SetMaxDiffuseSampleCount(uint32_t sampleCount)
 uint32_t Noise3D::GI::PathTracer::GetMaxDiffuseSampleCount()
 {
 	return mMaxDiffuseSampleCount;
+}
+
+void Noise3D::GI::PathTracer::SetMaxSpecularScatterSample(uint32_t sampleCount)
+{
+	mMaxSpecularScatterSampleCount = sampleCount;
+}
+
+uint32_t Noise3D::GI::PathTracer::GetMaxSpecularScatterSample()
+{
+	return mMaxSpecularScatterSampleCount;
 }
 
 void Noise3D::GI::PathTracer::SetRayMaxTravelDist(float dist)
@@ -217,6 +220,46 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(ui
 	return true;
 }
 
+void Noise3D::GI::PathTracer::mFunction_CalculateEmissiveObjectList(std::vector<ISceneObject*>& outList)
+{
+	//gather all emssive objects' info, as light sources
+	//local lighting at each closest hit is needed (to cast shadow ray to emissive object)
+	const BvhTree& bvh = m_pCT->GetBvhTree();
+	std::vector<ISceneObject*> objList;
+	bvh.TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, objList);
+
+	//traverse all scene object, and see if their material's emission is black
+	for (auto pSO : objList)
+	{
+		GI::AdvancedGiMaterial* pMat = nullptr;
+		//(2019.4.15)perhaps i should make new classes, 'GiRenderableXXX' derived from XXX and GiMatOwner
+		//instead of 'switching'. but the time budget is tight, never mind... maybe later
+		switch (pSO->GetObjectType())
+		{
+		case NOISE_SCENE_OBJECT_TYPE::MESH: 
+			pMat = static_cast<Mesh*>(pSO)->GetGiMaterial(); 
+			break;
+		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX: 
+			pMat = static_cast<LogicalBox*>(pSO)->GetGiMaterial();
+			break;
+		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT: 
+			pMat = static_cast<LogicalRect*>(pSO)->GetGiMaterial();
+			break;
+		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE: 
+			pMat = static_cast<LogicalSphere*>(pSO)->GetGiMaterial();
+			break;
+		default:
+			ERROR_MSG("Error: Bug!! The stupid author forgot to include some object with GI Material");
+			break;
+		}
+
+		if (pMat->IsEmissionEnabled())
+		{
+			outList.push_back(pSO);
+		}
+	}
+}
+
 void Noise3D::GI::PathTracer::_RenderTileWorkerThread(std::queue<N_RenderTileInfo>& renderTaskList)
 {
 	//serveral worker thread works continuously, independently with no break.
@@ -253,13 +296,15 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 			uint32_t totalWidth = m_pFinalRenderTarget->GetWidth();
 			uint32_t totalHeight = m_pFinalRenderTarget->GetHeight();
 
-			N_Ray ray = pCam->FireRay_WorldSpace(
-				PixelCoord2(float(globalPixelX), float(globalPixelY)),
-				totalWidth,totalHeight);
-
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
-			TraceRay(0, 0, 0.0f, ray, payload);
+			N_TraceRayParam param;
+			param.bounces = 0;
+			param.travelledDistance = 0.0f;
+			param.ray = pCam->FireRay_WorldSpace(PixelCoord2(float(globalPixelX), float(globalPixelY)),totalWidth, totalHeight);
+			param.isInsideObject = false;
+			param.isShadowRay = false;
+			PathTracer::TraceRay(param, payload);
 
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
@@ -272,16 +317,15 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 	}
 }
 
-void Noise3D::GI::PathTracer::TraceRay(int diffuseBounces, int specularScatterBounces, float travelledDistance,const N_Ray & ray, N_TraceRayPayload & payload)
+void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload)
 {
 	//initial bounces and travelled distance must remain in limit
-	if (specularScatterBounces > int(PathTracer::GetMaxSpecularScatterBounces()) ||
-		diffuseBounces > int(PathTracer::GetMaxDiffuseBounces()) ||
-		travelledDistance > PathTracer::GetRayMaxTravelDist())return;
+	if (param.bounces > int(PathTracer::GetMaxBounces()) ||
+		param.travelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
 	//intersect the ray with the scene and get results
 	N_RayHitResultForPathTracer hitResult;
-	m_pCT->IntersectRaySceneForPathTracer(ray, hitResult);
+	m_pCT->IntersectRaySceneForPathTracer(param.ray, hitResult);
 
 	//call shader. Radiance and other infos are carried by Payload reference.
 	if (hitResult.HasAnyHit())
@@ -290,14 +334,14 @@ void Noise3D::GI::PathTracer::TraceRay(int diffuseBounces, int specularScatterBo
 		N_RayHitInfoForPathTracer& info = hitResult.hitList.at(index);
 
 		//update ray's travelled distance
-		float newTravelledDistance = travelledDistance + ray.Distance(info.t);
+		float newTravelledDistance = param.travelledDistance + param.ray.Distance(info.t);
 		if (newTravelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
-		m_pShader->ClosestHit(diffuseBounces, specularScatterBounces, newTravelledDistance, ray, info, payload);
+		m_pShader->ClosestHit(param, info, out_payload);
 	}
 	else
 	{
-		m_pShader->Miss(ray, payload);
+		m_pShader->Miss(param.ray, out_payload);
 	}
 
 }

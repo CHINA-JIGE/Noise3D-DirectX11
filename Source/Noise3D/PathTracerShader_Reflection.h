@@ -18,7 +18,7 @@ namespace Noise3D
 
 			void SetSkyTexture(Texture2D* pTex);
 
-			virtual void ClosestHit(int diffuseBounces, int specularBounces, float travelledDistance,const N_Ray& ray, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload) override;
+			virtual void ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload) override;
 
 			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload) override;
 
