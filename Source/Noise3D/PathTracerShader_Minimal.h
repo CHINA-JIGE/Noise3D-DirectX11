@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		class PathTracerShader_Minimal:
+		class PathTracerShader_MinimalDemo:
 			public IPathTracerSoftShader
 		{
 		public:

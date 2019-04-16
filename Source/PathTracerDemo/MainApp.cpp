@@ -23,7 +23,6 @@ void MainApp::Init_GI()
 {
 	MainApp::_InitPathTracer();
 	MainApp::_InitGraphicsObjectOfPreviewRender();
-	MainApp::_InitAreaLight();
 	MainApp::_InitSoftShader();
 }
 
@@ -46,8 +45,9 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_DiffuseDemo);
-		//&mPathTracerShader_Sky);
+		&mPathTracerShader_RefractionDemo);
+		//&mPathTracerShader_DiffuseDemo);
+		//&mPathTracerShader_ReflectionDemo);
 		//&mPathTracerShader_Minimal);
 	//mRenderThread.detach();
 
@@ -62,10 +62,12 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
+	m_pPathTracer = m_pScene->CreatePathTracer(1280, 720);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
-	m_pPathTracer->SetMaxBounces(1);
-	m_pPathTracer->SetMaxDiffuseSampleCount(256);
+	m_pPathTracer->SetMaxDiffuseBounces(1);
+	m_pPathTracer->SetMaxSpecularReflectionBounces(3);
+	m_pPathTracer->SetMaxRefractionBounces(2);
+	m_pPathTracer->SetMaxDiffuseSampleCount(128);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 }
 
@@ -81,20 +83,19 @@ void MainApp::_InitGraphicsObjectOfPreviewRender()
 	m_pMyText_fps->SetTextColor(Vec4(1.0f,1.0,1.0f,1.0f));
 }
 
-void MainApp::_InitAreaLight()
-{
-}
-
 void MainApp::_InitSoftShader()
 {
 	//Minimal
 	//....
 
-	//Sky
-	mPathTracerShader_Sky.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
+	//reflection demo
+	mPathTracerShader_ReflectionDemo.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
 
-	//Diffuse
+	//Diffuse demo
 	mPathTracerShader_DiffuseDemo.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
+
+	//refraction demo
+	mPathTracerShader_RefractionDemo.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
 }
 
 /**************************************

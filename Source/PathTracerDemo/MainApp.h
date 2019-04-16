@@ -43,8 +43,6 @@ private:
 
 	void _InitGraphicsObjectOfPreviewRender();
 
-	void _InitAreaLight();
-
 	void _InitSoftShader();
 
 	//**multi-thread
@@ -52,9 +50,10 @@ private:
 
 	//**GI**
 	GI::PathTracer* m_pPathTracer;
-	GI::PathTracerShader_Minimal mPathTracerShader_Minimal;
-	GI::PathTracerShader_Sky mPathTracerShader_Sky;
-	GI::PathTracerShader_Diffuse mPathTracerShader_DiffuseDemo;
+	GI::PathTracerShader_MinimalDemo mPathTracerShader_Minimal;
+	GI::PathTracerShader_ReflectionDemo mPathTracerShader_ReflectionDemo;
+	GI::PathTracerShader_DiffuseDemo mPathTracerShader_DiffuseDemo;
+	GI::PathTracerShader_RefractionDemo mPathTracerShader_RefractionDemo;
 	Texture2D* m_pPathTracerRenderTarget;
 	GraphicObject* m_pGraphicObj_ResultPreview;
 	float mTotalPathTracerRenderTime;

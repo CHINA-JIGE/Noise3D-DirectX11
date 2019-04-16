@@ -61,7 +61,7 @@ namespace Noise3D
 
 			uint32_t _MaxBounces()
 			{
-				return m_pFatherPathTracer->GetMaxBounces();
+				return m_pFatherPathTracer->GetMaxDiffuseBounces();
 			}
 
 			uint32_t _MaxDiffuseSample()

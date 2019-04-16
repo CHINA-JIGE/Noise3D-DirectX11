@@ -40,7 +40,17 @@ Color4f Noise3D::GI::BxdfUt::DisneyDiffuse(Color4f albedo, Vec3 v, Vec3 l, Vec3 
 
 	float LdotH = l.Dot(h);
 	float F_D90 = 0.5f + 2.0f * LdotH * LdotH * alpha;
-	float tmpResult =  Ut::INV_PI * (1.0f + (F_D90 - 1.0f) * oneMinusCosLSqr * oneMinusCosLSqr * oneMinusCosL) *
-		(1.0f + (F_D90 - 1.0f) * oneMinusCosVSqr * oneMinusCosVSqr * oneMinusCosV);
+	float tmpResult =  Ut::INV_PI * (1.0f -F_D90+ (F_D90 - 1.0f) * oneMinusCosLSqr * oneMinusCosLSqr * oneMinusCosL) *
+		(1.0f - F_D90 + (F_D90 - 1.0f) * oneMinusCosVSqr * oneMinusCosVSqr * oneMinusCosV);
 	return albedo * tmpResult;
+}
+
+Color4f Noise3D::GI::BxdfUt::LambertDiffuse(Color4f albedo, Vec3 l, Vec3 n)
+{
+	return albedo  * l.Dot(n)  * Ut::INV_PI;
+}
+
+Color4f Noise3D::GI::BxdfUt::LambertDiffuse(Color4f albedo, float LdotN)
+{
+	return albedo  * LdotN  *Ut::INV_PI;
 }

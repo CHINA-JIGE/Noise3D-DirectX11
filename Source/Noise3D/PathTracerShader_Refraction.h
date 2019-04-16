@@ -11,7 +11,7 @@ namespace Noise3D
 {
 	namespace GI
 	{
-		class PathTracerShader_Refraction :
+		class PathTracerShader_RefractionDemo :
 			public IPathTracerSoftShader
 		{
 		public:

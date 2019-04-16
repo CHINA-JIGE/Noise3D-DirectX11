@@ -22,6 +22,10 @@ namespace Noise3D
 
 			static Color4f DisneyDiffuse(Color4f albedo, Vec3 v, Vec3 l, Vec3 n, Vec3 h, float alpha);
 
+			static Color4f LambertDiffuse(Color4f albedo, Vec3 l, Vec3 n);
+
+			static Color4f LambertDiffuse(Color4f albedo, float LdotN);
+
 		private:
 
 		};

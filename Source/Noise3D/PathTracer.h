@@ -21,13 +21,17 @@ namespace Noise3D
 		struct N_TraceRayParam
 		{
 			N_TraceRayParam():
-				bounces(0), 
+				diffusebounces(0),
+				specularReflectionBounces(0),
+				refractionBounces(0),
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
 				isShadowRay(false){}
 
-			int bounces;//recursion count
+			int diffusebounces;//recursion count
+			int specularReflectionBounces;//internal reflection bounces count of transparent object
+			int refractionBounces;//internal reflection bounces count of transparent object
 			float travelledDistance;
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
@@ -65,16 +69,16 @@ namespace Noise3D
 			void SetRenderTarget(Texture2D* pRenderTarget);
 
 			// diffuse ray's maximum scatter count
-			void SetMaxBounces(uint32_t bounces);
-
-			uint32_t GetMaxBounces();
+			void SetMaxDiffuseBounces(uint32_t bounces);
+			void SetMaxSpecularReflectionBounces(uint32_t bounces);
+			void SetMaxRefractionBounces(uint32_t bounces);
+			uint32_t GetMaxDiffuseBounces();
+			uint32_t GetMaxSpecularReflectionBounces();
+			uint32_t GetMaxRefractionBounces();
 
 			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
-
-			uint32_t GetMaxDiffuseSampleCount();
-
 			void SetMaxSpecularScatterSample(uint32_t sampleCount);
-
+			uint32_t GetMaxDiffuseSampleCount();
 			uint32_t GetMaxSpecularScatterSample();
 
 			//ray's max travel distance
@@ -145,7 +149,11 @@ namespace Noise3D
 
 			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 
-			uint32_t mMaxBounces;//max count of ray's recursion
+			uint32_t mMaxDiffuseBounces;//max count of ray's diffuse recursion
+
+			uint32_t mMaxSpecularReflectionBounces;//max count of ray's reflection recursion
+
+			uint32_t mMaxRefractionBounces;//refraction and total internal reflection/
 
 			uint32_t mMaxDiffuseSampleCount;//max count of ray generated to evaluate a diffuse point
 

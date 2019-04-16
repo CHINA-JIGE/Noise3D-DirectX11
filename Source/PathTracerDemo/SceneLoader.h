@@ -8,19 +8,23 @@ public:
 
 	void Init(SceneManager* pMgr);
 
-	void LoadScene();
+	void LoadScene_DiffuseDemo(Camera * pCam);
+
+	void LoadScene_RefractionDemo(Camera * pCam);
 
 private:
 
 	void _LoadTextures();
 
-	void _LoadMaterials();
+	void _LoadLambertMaterials();
 
-	void _LoadSphere(SceneGraph& sg,Vec3 pos, float radius);
+	void _LoadAdvancedMaterials();
 
-	void _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size);
+	void _LoadSphere(SceneGraph& sg,Vec3 pos, float radius, N_UID matUid);
 
-	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size);
+	void _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size, N_UID matUid);
+
+	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size, N_UID matUid);
 
 protected:
 
@@ -31,6 +35,4 @@ protected:
 	TextureManager*	m_pTexMgr;
 	LogicalShapeManager* m_pShapeMgr;
 	std::vector<Mesh*> mRealTimeRenderMeshList;
-
-	GI::AdvancedGiMaterial* m_pMat1;
 };

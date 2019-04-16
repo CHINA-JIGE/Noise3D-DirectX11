@@ -133,7 +133,8 @@ BOOL Init3D(HWND hwnd)
 
 		for (int rayId = 0; rayId < c_rayCount; ++rayId)
 		{
-			Vec3 dir = g.UniformSphericalVec_Cone(normal, Ut::PI / 4.0f);
+			//Vec3 dir = g.UniformSphericalVec_Cone(normal, Ut::PI / 4.0f);
+			Vec3 dir = g.UniformSphericalVec_Hemisphere(normal);
 			float len = dir.Length();
 			if (len != 1.0f)
 			{

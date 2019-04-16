@@ -42,9 +42,8 @@ void RealTimeRenderModule::_InitRealTime3D(HWND hwnd)
 {
 	if (!m_pRoot->Init())return;
 	SceneLoader::Init(m_pRoot->GetSceneMgrPtr());//m_pScene will be init inside
-	SceneLoader::LoadScene();
 	RealTimeRenderModule::_InitMgrsAndRenderers(hwnd);
-	RealTimeRenderModule::_InitCamera();
+	RealTimeRenderModule::_InitScene();
 	RealTimeRenderModule::_InitAtmos();
 	RealTimeRenderModule::_InitGraphicObjects();
 	RealTimeRenderModule::_InitText();
@@ -66,12 +65,10 @@ void RealTimeRenderModule::_InitMgrsAndRenderers(HWND hwnd)
 	m_pLightMgr = m_pScene->GetLightMgr();
 }
 
-void RealTimeRenderModule::_InitCamera()
+void RealTimeRenderModule::_InitScene()
 {
-	m_pCamera->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
-	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);
-	m_pCamera->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
-	m_pCamera->LookAt(0, 0, 0);
+	//SceneLoader::LoadScene_DiffuseDemo(m_pCamera);
+	SceneLoader::LoadScene_RefractionDemo(m_pCamera);
 }
 
 void RealTimeRenderModule::_InitAtmos()

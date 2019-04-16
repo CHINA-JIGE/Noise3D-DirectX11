@@ -25,7 +25,7 @@ private:
 
 	void _InitMgrsAndRenderers(HWND hwnd);
 
-	void _InitCamera();
+	void _InitScene();
 
 	void _InitAtmos();
 

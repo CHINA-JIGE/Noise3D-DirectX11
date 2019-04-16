@@ -45,6 +45,8 @@ void Noise3D::GI::AdvancedGiMaterial::SetMetalF0(Vec3 F0)
 
 void Noise3D::GI::AdvancedGiMaterial::SetRefractiveIndex(float ior)
 {
+	if (ior <= 1.0f)ior = 1.001f;
+	mMatDesc.ior = ior;
 }
 
 bool Noise3D::GI::AdvancedGiMaterial::IsTransmissionEnabled()
