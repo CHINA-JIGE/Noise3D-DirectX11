@@ -11,21 +11,26 @@
 
 namespace Noise3D
 {
-	class BvhTree;
+	namespace GI
+	{
+		class IGiRenderable;
+	}
+
+	class BvhTreeForGI;
 
 	//a single node in BVH tree
-	class BvhNode:
-		public TreeNodeTemplate<BvhNode, BvhTree>
+	class BvhNodeForGI:
+		public TreeNodeTemplate<BvhNodeForGI, BvhTreeForGI>
 	{
 	public:
 
-		BvhNode();
+		BvhNodeForGI();
 
-		~BvhNode();
+		~BvhNodeForGI();
 
-		void SetSceneObject(ISceneObject* pObj);
+		void SetGiRenderable(GI::IGiRenderable* pObj);
 		
-		ISceneObject* GetSceneObject();
+		GI::IGiRenderable* GetGiRenderable();
 
 		void SetAABB(const N_AABB& aabb);
 
@@ -33,28 +38,28 @@ namespace Noise3D
 
 	private:
 
-		ISceneObject* m_pSceneObject;//for leaf node
+		GI::IGiRenderable* m_pSceneObject;//for leaf node
 
 		N_AABB mAabb;
 
 	};
 
 	//BVH tree, might be used in collision testor as an acceleration data structure
-	//only scene objects attached to BvhNode will support ray-object intersection
-	class BvhTree:
-		public TreeTemplate<BvhNode, BvhTree>
+	//only scene objects attached to BvhNodeForGI will support ray-object intersection
+	class BvhTreeForGI:
+		public TreeTemplate<BvhNodeForGI, BvhTreeForGI>
 	{
 	public:
 
-		BvhTree();
+		BvhTreeForGI();
 
-		~BvhTree();
+		~BvhTreeForGI();
 
 		bool Construct(const SceneGraph& pSG);
 
 		bool Construct(SceneNode* pNode);
 
-		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<GI::IGiRenderable*>& outResult) const;
 
 	private:
 
@@ -64,14 +69,14 @@ namespace Noise3D
 			ObjectAabbPair() : pObj(nullptr) {}
 			ObjectAabbPair(const ObjectAabbPair& rhs):pObj(rhs.pObj ), aabb(rhs.aabb){}
 
-			ISceneObject* pObj;
+			GI::IGiRenderable* pObj;
 			N_AABB aabb;//cached result
 		};
 
 		//deprecated
-		bool mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList);
+		bool mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNode,const std::vector<ObjectAabbPair>& infoList);
 
-		bool mFunction_SplitMidPointViaAabbSlabs(BvhNode* pNode, const std::vector<ObjectAabbPair>& infoList);
+		bool mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI* pNode, const std::vector<ObjectAabbPair>& infoList);
 
 		float mFunction_GetVecComponent(Vec3 vec, uint32_t id);
 	};

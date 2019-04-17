@@ -54,7 +54,7 @@ namespace Noise3D
 
 		uint32_t GetSceneObjectCount();
 
-		ISceneObject* GetSceneObject(uint32_t index);
+		ISceneObject* GetGiRenderable(uint32_t index);
 
 	protected:
 

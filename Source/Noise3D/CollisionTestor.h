@@ -61,13 +61,13 @@ namespace Noise3D
 		//another version of ray-scene collision for path tracer
 		bool IntersectRaySceneForPathTracer(const N_Ray& ray, N_RayHitResultForPathTracer& outHitRes);
 
-		//(re-)build BVH tree from scene graph
-		bool RebuildBvhTree(const SceneGraph& graph);
+		//(re-)build BVH tree from scene graph for ray tracer
+		bool RebuildBvhTreeForGI(const SceneGraph& graph);
 
-		//(re-)build BVH tree from scene graph, but rooted at given node
-		bool RebuildBvhTree(SceneNode* pNode);
+		//(re-)build BVH tree from scene graph for ray tracer, but rooted at given node
+		bool RebuildBvhTreeForGI(SceneNode* pNode);
 
-		const BvhTree& GetBvhTree();
+		const BvhTreeForGI& GetBvhTree();
 
 		//TODO: ray-Mesh intersection. gpu impl. simply modify a little bit to Picking_GpuBased
 		//bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_HitResult& outHitRes);
@@ -108,16 +108,16 @@ namespace Noise3D
 		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
 		//recursion function for BVH acceleration
-		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNode* bvhNode, N_RayHitResult& outHitRes);
+		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNodeForGI* bvhNode, N_RayHitResult& outHitRes);
 
 		//recursion function for BVH acceleration. extra info are added
-		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNode* bvhNode, N_RayHitResultForPathTracer& outHitRes);
+		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNodeForGI* bvhNode, N_RayHitResultForPathTracer& outHitRes);
 
 		//low level render/shader variables support
 		IShaderVariableManager* m_pRefShaderVarMgr;
 
 		//for ray-scene intersection acceleration
-		BvhTree mBvhTree;
+		BvhTreeForGI mBvhTree;
 
 		//-------Var for Gpu Picking-----------
 		static const uint32_t c_maxSOVertexCount = 200;

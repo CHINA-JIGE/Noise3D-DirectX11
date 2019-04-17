@@ -45,13 +45,13 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 	mIsRenderedFinished = false;
 
 	//re-build BVH to accelerate ray-object intersection
-	m_pCT->RebuildBvhTree(pNode);
+	m_pCT->RebuildBvhTreeForGI(pNode);
 
-	//set soft shader
+	//set soft shader and pass light source list
 	m_pShader = pShader;
-	std::vector<ISceneObject*> emissiveObjList;
-	mFunction_CalculateEmissiveObjectList(emissiveObjList);
-	pShader->_InitInfrastructure(this, m_pCT, std::move(emissiveObjList));
+	std::vector<GI::IGiRenderable*> lightSourceList;
+	mFunction_ComputeLightSourceList(lightSourceList);
+	pShader->_InitInfrastructure(this, m_pCT, std::move(lightSourceList));
 
 	//back buffer's size, partition it into tiles
 	uint32_t w = m_pFinalRenderTarget->GetWidth();
@@ -242,21 +242,30 @@ bool NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::GI::PathTracer::mFunction_Init(ui
 	return true;
 }
 
-void Noise3D::GI::PathTracer::mFunction_CalculateEmissiveObjectList(std::vector<ISceneObject*>& outList)
+void Noise3D::GI::PathTracer::mFunction_ComputeLightSourceList(std::vector<GI::IGiRenderable*>& outList)
 {
 	//gather all emssive objects' info, as light sources
 	//local lighting at each closest hit is needed (to cast shadow ray to emissive object)
-	const BvhTree& bvh = m_pCT->GetBvhTree();
-	std::vector<ISceneObject*> objList;
+	const BvhTreeForGI& bvh = m_pCT->GetBvhTree();
+	std::vector<GI::IGiRenderable*> objList;
 	bvh.TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, objList);
 
 	//traverse all scene object, and see if their material's emission is black
-	for (auto pSO : objList)
+	for (auto pRenderable : objList)
 	{
 		GI::AdvancedGiMaterial* pMat = nullptr;
+		if (pRenderable->IsGiLightSource())
+		{
+			pMat = pRenderable->GetGiMaterial();
+
+			if (pMat->IsEmissionEnabled())
+			{
+				outList.push_back(pRenderable);
+			}
+		}
 		//(2019.4.15)perhaps i should make new classes, 'GiRenderableXXX' derived from XXX and GiMatOwner
 		//instead of 'switching'. but the time budget is tight, never mind... maybe later
-		switch (pSO->GetObjectType())
+		/*switch (pSO->GetObjectType())
 		{
 		case NOISE_SCENE_OBJECT_TYPE::MESH: 
 			pMat = static_cast<Mesh*>(pSO)->GetGiMaterial(); 
@@ -273,12 +282,8 @@ void Noise3D::GI::PathTracer::mFunction_CalculateEmissiveObjectList(std::vector<
 		default:
 			ERROR_MSG("Error: Bug!! The stupid author forgot to include some object with GI Material");
 			break;
-		}
+		}*/
 
-		if (pMat->IsEmissionEnabled())
-		{
-			outList.push_back(pSO);
-		}
 	}
 }
 

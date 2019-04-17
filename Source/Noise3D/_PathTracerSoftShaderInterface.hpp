@@ -45,11 +45,11 @@ namespace Noise3D
 
 			friend void PathTracer::Render(Noise3D::SceneNode*, IPathTracerSoftShader*);
 
-			void _InitInfrastructure(PathTracer* pt, CollisionTestor* ct, std::vector<ISceneObject*>&& emissiveObjList)
+			void _InitInfrastructure(PathTracer* pt, CollisionTestor* ct, std::vector<GI::IGiRenderable*>&& lightSourceList)
 			{
 				m_pFatherPathTracer = pt; 
 				m_pCollisionTestor = ct;
-				mEmissiveObjectList = std::move(emissiveObjList);
+				mLightSourceList = std::move(lightSourceList);
 			}
 
 			void _TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload)
@@ -85,7 +85,7 @@ namespace Noise3D
 
 			CollisionTestor* m_pCollisionTestor;
 
-			std::vector<ISceneObject*> mEmissiveObjectList;
+			std::vector<GI::IGiRenderable*> mLightSourceList;
 
 		};
 	}

@@ -9,7 +9,6 @@
 
 namespace Noise3D
 {
-
 	//correspond to one draw call of MESH
 	struct N_MeshSubsetInfo
 	{
@@ -25,12 +24,11 @@ namespace Noise3D
 
 
 	class /*_declspec(dllexport)*/ Mesh
-		: public GeometryEntity<N_DefaultVertex, uint32_t>,//derived from ISceneObject
+		: public GeometryEntity<N_DefaultVertex, uint32_t>,//derived from ISceneObject blabla
 		public CRenderSettingBlendMode,
 		public CRenderSettingCullMode,
 		public CRenderSettingFillMode,
-		public CRenderSettingShadeMode,
-		public GI::IAdvancedGiMaterialOwner
+		public CRenderSettingShadeMode
 	{
 	public:
 

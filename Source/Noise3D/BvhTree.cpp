@@ -15,31 +15,31 @@
 
 using namespace Noise3D;
 
-Noise3D::BvhNode::BvhNode():
+Noise3D::BvhNodeForGI::BvhNodeForGI():
 	m_pSceneObject(nullptr)
 {
 }
 
-Noise3D::BvhNode::~BvhNode()
+Noise3D::BvhNodeForGI::~BvhNodeForGI()
 {
 }
 
-void Noise3D::BvhNode::SetSceneObject(ISceneObject * pObj)
+void Noise3D::BvhNodeForGI::SetGiRenderable(GI::IGiRenderable * pObj)
 {
 	 if(pObj!=nullptr) m_pSceneObject = pObj;
 }
 
-ISceneObject * Noise3D::BvhNode::GetSceneObject()
+GI::IGiRenderable * Noise3D::BvhNodeForGI::GetGiRenderable()
 {
 	return m_pSceneObject;
 }
 
-void Noise3D::BvhNode::SetAABB(const N_AABB & aabb)
+void Noise3D::BvhNodeForGI::SetAABB(const N_AABB & aabb)
 {
 	mAabb = aabb;
 }
 
-N_AABB Noise3D::BvhNode::GetAABB()
+N_AABB Noise3D::BvhNodeForGI::GetAABB()
 {
 	return mAabb;
 }
@@ -50,24 +50,24 @@ N_AABB Noise3D::BvhNode::GetAABB()
 
 ***********************************************/
 
-Noise3D::BvhTree::BvhTree()
+Noise3D::BvhTreeForGI::BvhTreeForGI()
 {
 }
 
-Noise3D::BvhTree::~BvhTree()
+Noise3D::BvhTreeForGI::~BvhTreeForGI()
 {
 }
 
-bool Noise3D::BvhTree::Construct(const SceneGraph& tree)
+bool Noise3D::BvhTreeForGI::Construct(const SceneGraph& tree)
 {
-	return BvhTree::Construct(tree.GetRoot());
+	return BvhTreeForGI::Construct(tree.GetRoot());
 }
 
-bool Noise3D::BvhTree::Construct(SceneNode * pNode)
+bool Noise3D::BvhTreeForGI::Construct(SceneNode * pNode)
 {
 	if (pNode == nullptr)
 	{
-		ERROR_MSG("BvhTree: construction failed. scene node is nullptr.");
+		ERROR_MSG("BvhTreeForGI: construction failed. scene node is nullptr.");
 		return false;
 	}
 	//i arbitrarily choose an traverse order to get all the scene nodes
@@ -80,8 +80,8 @@ bool Noise3D::BvhTree::Construct(SceneNode * pNode)
 	infoList.reserve(tmpSceneObjectList.size());
 	for (uint32_t i = 0; i < tmpSceneObjectList.size(); ++i)
 	{
-		//it should be an collidable object first
-		if (ICollidableSceneObject* pSO = dynamic_cast<ICollidableSceneObject*>(tmpSceneObjectList.at(i)))
+		//it should be an Collidable object/ GI Renderable first
+		if (GI::IGiRenderable* pSO = dynamic_cast<GI::IGiRenderable*>(tmpSceneObjectList.at(i)))
 		{
 			//not collidable, then no need to add it to BVH
 			//after all, BVH is built for acceleration of ray-XXX intersection
@@ -102,41 +102,41 @@ bool Noise3D::BvhTree::Construct(SceneNode * pNode)
 	for (auto& info : infoList) rootAabb.Union(info.aabb);
 	if (!rootAabb.IsValid())
 	{
-		ERROR_MSG("BvhTree: AABB of root(the whole scene) should have a positive volume.");
+		ERROR_MSG("BvhTreeForGI: AABB of root(the whole scene) should have a positive volume.");
 		return false;
 	}
 
 	//2. set aabb to root bvh node, and start to recursive split
-	BvhNode* pRootNode = BvhTree::GetRoot();
+	BvhNodeForGI* pRootNode = BvhTreeForGI::GetRoot();
 	pRootNode->SetAABB(rootAabb);
 
 	//start to recursive splitting(info list might be splitted and copied many times)
 	//(2019.3.25)could be optimized with std::partition
 	if (!mFunction_SplitMidPointViaAabbSlabs(pRootNode, infoList))
 	{
-		ERROR_MSG("BvhTree: failed to split the root BVH node.");
+		ERROR_MSG("BvhTreeForGI: failed to split the root BVH node.");
 		return false;
 	}
 
 	return true;
 }
 
-void Noise3D::BvhTree::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const
+void Noise3D::BvhTreeForGI::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<GI::IGiRenderable*>& outResult) const
 {
-	std::vector<BvhNode*> nodeList;
+	std::vector<BvhNodeForGI*> nodeList;
 
 	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
 	//are copied, but nodes with no scene object bound to it are useless here.
 	switch (order)
 	{
 	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
-		BvhTree::Traverse_PreOrder(nodeList); break;
+		BvhTreeForGI::Traverse_PreOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
-		BvhTree::Traverse_PostOrder(nodeList); break;
+		BvhTreeForGI::Traverse_PostOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
-		BvhTree::Traverse_LayerOrder(nodeList); break;
+		BvhTreeForGI::Traverse_LayerOrder(nodeList); break;
 
 	default:
 		break;
@@ -145,7 +145,7 @@ void Noise3D::BvhTree::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std
 	//output scene objects bound to nodes
 	for (auto pn : nodeList)
 	{
-		ISceneObject* pObj = pn->GetSceneObject();
+		GI::IGiRenderable* pObj = pn->GetGiRenderable();
 		if (pn!=nullptr && pObj != nullptr)
 		{
 			outResult.push_back(pObj);
@@ -154,7 +154,7 @@ void Noise3D::BvhTree::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std
 }
 
 //deprecated
-bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const std::vector<ObjectAabbPair>& infoList)
+bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNode,const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
@@ -173,7 +173,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const s
 	{
 		const ObjectAabbPair& info = infoList.front();
 		pNode->SetAABB(info.aabb);
-		pNode->SetSceneObject(info.pObj);
+		pNode->SetGiRenderable(info.pObj);
 		return true;
 	}
 
@@ -240,14 +240,14 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const s
 	//(but haha, for N-ary tree, actually there is no such a thing as 'left' or 'right')
 	if (leftAabb.IsValid() && !leftInfoList.empty())
 	{
-		BvhNode* pLeftChild = pNode->CreateChildNode();
+		BvhNodeForGI* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
 		mFunction_SplitMidPointViaCentroid(pLeftChild, leftInfoList);
 	}
 
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
-		BvhNode* pRightChild = pNode->CreateChildNode();
+		BvhNodeForGI* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
 		mFunction_SplitMidPointViaCentroid(pRightChild, rightInfoList);
 	}
@@ -255,7 +255,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaCentroid(BvhNode* pNode,const s
 	return true;
 }
 
-bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, const std::vector<ObjectAabbPair>& infoList)
+bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * pNode, const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
@@ -277,7 +277,7 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 	{
 		const ObjectAabbPair& info = infoList.front();
 		pNode->SetAABB(info.aabb);
-		pNode->SetSceneObject(info.pObj);
+		pNode->SetGiRenderable(info.pObj);
 		return true;
 	}
 
@@ -351,14 +351,14 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 	//----- left -----
 	if (leftAabb.IsValid() && !leftInfoList.empty())
 	{
-		BvhNode* pLeftChild = pNode->CreateChildNode();
+		BvhNodeForGI* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
 		mFunction_SplitMidPointViaAabbSlabs(pLeftChild, leftInfoList);
 	}
 	//----- right -----
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
-		BvhNode* pRightChild = pNode->CreateChildNode();
+		BvhNodeForGI* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
 		mFunction_SplitMidPointViaAabbSlabs(pRightChild, rightInfoList);
 	}
@@ -368,15 +368,15 @@ bool Noise3D::BvhTree::mFunction_SplitMidPointViaAabbSlabs(BvhNode * pNode, cons
 	//end recursion
 	for (auto& info : middileInfoList)
 	{
-		BvhNode* pMidChild = pNode->CreateChildNode();
+		BvhNodeForGI* pMidChild = pNode->CreateChildNode();
 		pMidChild->SetAABB(info.aabb);
-		pMidChild->SetSceneObject(info.pObj);
+		pMidChild->SetGiRenderable(info.pObj);
 	}
 
 	return true;
 }
 
-inline float Noise3D::BvhTree::mFunction_GetVecComponent(Vec3 vec, uint32_t id)
+inline float Noise3D::BvhTreeForGI::mFunction_GetVecComponent(Vec3 vec, uint32_t id)
 {
 	switch (id)
 	{

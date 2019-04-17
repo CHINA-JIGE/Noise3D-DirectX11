@@ -70,12 +70,13 @@
 #include "AffineTransform.h"
 #include "SceneGraph.h"
 #include "ISceneObject.h"
-#include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "BvhTree.h"
 
 #include "LambertMaterial.h"
 #include "AdvancedGiMaterial.h"
 #include "MaterialManager.h"
+
+#include "_GI.h"//common GI
 
 #include "LogicalShape.h"
 #include "LogicalSphere.h"
@@ -83,6 +84,7 @@
 #include "LogicalRect.h"
 #include "LogicalShapeManager.h"
 
+#include "GeometryEntity.h"//geometry data container(RAM & VRAM)
 #include "ModelProcessor.h"
 #include "Camera.h"
 #include "Atmosphere.h"
@@ -115,6 +117,14 @@
 #include "Root.h"
 #include "SceneManager.h"
 
+//-----------Noise Ut -----------
+#include "Ut_Timer.h"
+#include "Ut_MeshSlicer.h"
+#include "Ut_InputEngine.h"
+#include "Ut_Voxelizer.h"
+#include "Ut_MCMeshReconstructor.h"
+
+
 //--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"
 #include "ISphericalFunc.h"
@@ -125,23 +135,14 @@
 //--------GI :Path Tracer-----------
 #include "PathTracer.h"
 #include "BxdfUt.h"
-#include "GI_Light.h"
+#include "GiAreaLight.h"
 #include "_PathTracerSoftShaderInterface.hpp"
+#include "PathTracerStandardShader.h"
 #include "PathTracerShader_Minimal.h"
 #include "PathTracerShader_Reflection.h"
 #include "PathTracerShader_Diffuse.h"
 #include "PathTracerShader_Refraction.h"
-
-
-//-----------Noise Ut -----------
-#include "Ut_Timer.h"
-#include "Ut_MeshSlicer.h"
-#include "Ut_InputEngine.h"
-#include "Ut_Voxelizer.h"
-#include "Ut_MCMeshReconstructor.h"
-
+#include "PathTracerShader_AreaLighting.h"
 
 //-----------Noise GUI-------------
 //#include "NoiseGUISystem.h"
-
-;

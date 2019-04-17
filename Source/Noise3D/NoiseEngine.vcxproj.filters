@@ -151,9 +151,6 @@
     <Filter Include="NoiseGraphic\Scene\MeshLoader\_FBXSDK">
       <UniqueIdentifier>{34d29bbd-382d-4800-bbb6-66993ff0ac23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\GI\AreaLight">
-      <UniqueIdentifier>{48087c73-fecd-4068-a6f6-d4617ce8fde7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\LogicalShape">
       <UniqueIdentifier>{53521199-1221-4648-a8c4-fed9f838c33a}</UniqueIdentifier>
     </Filter>
@@ -165,6 +162,15 @@
     </Filter>
     <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders">
       <UniqueIdentifier>{d41d1631-85f2-42da-b30e-a839fff4f0ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\GILight">
+      <UniqueIdentifier>{48087c73-fecd-4068-a6f6-d4617ce8fde7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Demo">
+      <UniqueIdentifier>{5a38ae16-e965-40b1-a898-4e874726ebac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Standard">
+      <UniqueIdentifier>{f0b5a782-fbe3-43b2-8696-e1de1b4cb867}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -367,9 +373,6 @@
     <ClInclude Include="LogicalShape.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
-    <ClInclude Include="GI_Light.h">
-      <Filter>NoiseGraphic\GI\AreaLight</Filter>
-    </ClInclude>
     <ClInclude Include="LogicalBox.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
@@ -384,9 +387,6 @@
     </ClInclude>
     <ClInclude Include="PathTracer.h">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
-    </ClInclude>
-    <ClInclude Include="PathTracerShader_Minimal.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
     <ClInclude Include="LogicalRect.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
@@ -412,17 +412,35 @@
     <ClInclude Include="_BasicRenderSettings.hpp">
       <Filter>NoiseGraphic\_RenderSetting</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerShader_Diffuse.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClInclude>
-    <ClInclude Include="PathTracerShader_Reflection.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClInclude>
     <ClInclude Include="BxdfUt.h">
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClInclude>
+    <ClInclude Include="GiLightMgr.h">
+      <Filter>NoiseGraphic\GI\GILight</Filter>
+    </ClInclude>
+    <ClInclude Include="GiAreaLight.h">
+      <Filter>NoiseGraphic\GI\GILight</Filter>
+    </ClInclude>
+    <ClInclude Include="_GI.h">
+      <Filter>NoiseGraphic\GI</Filter>
+    </ClInclude>
     <ClInclude Include="PathTracerShader_Refraction.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_AreaLighting.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Diffuse.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Minimal.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerShader_Reflection.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerStandardShader.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -621,9 +639,6 @@
     <ClCompile Include="PathTracer.cpp">
       <Filter>NoiseGraphic\GI\PathTracer</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracerShader_Minimal.cpp">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClCompile>
     <ClCompile Include="LogicalRect.cpp">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClCompile>
@@ -633,17 +648,26 @@
     <ClCompile Include="AdvancedGiMaterial.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracerShader_Diffuse.cpp">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClCompile>
-    <ClCompile Include="PathTracerShader_Reflection.cpp">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
-    </ClCompile>
     <ClCompile Include="BxdfUt.cpp">
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClCompile>
+    <ClCompile Include="PathTracerShader_AreaLighting.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Diffuse.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Minimal.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerShader_Reflection.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClCompile>
     <ClCompile Include="PathTracerShader_Refraction.cpp">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerStandardShader.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

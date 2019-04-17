@@ -135,7 +135,7 @@ namespace Noise3D
 			//extern init by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(uint32_t pixelWidth, uint32_t pixelHeight);
 
-			void mFunction_CalculateEmissiveObjectList(std::vector<ISceneObject*>& outList);
+			void mFunction_ComputeLightSourceList(std::vector<GI::IGiRenderable*>& outList);
 
 			std::vector<Color4f> mHdrRenderTarget;//temporary internal HDR render target
 

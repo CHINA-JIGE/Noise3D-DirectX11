@@ -16,7 +16,8 @@ void Noise3D::GI::PathTracerShader_RefractionDemo::ClosestHit(const N_TraceRayPa
 {
 	//refract: transmit_dir = (n_i/n_t) (- in_dir) + [ (n_i /n _t)(in_dir dot n) - cos theta_t ] n
 	GI::Radiance finalTransmittedColor;
-	float ior_object_over_air = hitInfo.pMat->GetDesc().ior;
+	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
+	float ior_object_over_air = pMat->GetDesc().ior;
 
 	//ray is traced object-to-air
 	if (param.isInsideObject)

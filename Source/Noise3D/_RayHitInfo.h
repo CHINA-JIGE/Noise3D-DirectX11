@@ -29,13 +29,13 @@ namespace Noise3D
 	struct N_RayHitInfoForPathTracer :
 		N_RayHitInfo
 	{
-		N_RayHitInfoForPathTracer(GI::AdvancedGiMaterial* _pMat,
-			float _t, Vec3 _pos, Vec3 _normal): N_RayHitInfo(_t, _pos, _normal),pMat(_pMat){}
+		N_RayHitInfoForPathTracer(GI::IGiRenderable* _pObj,
+			float _t, Vec3 _pos, Vec3 _normal): N_RayHitInfo(_t, _pos, _normal),pHitObj(_pObj){}
 
-		N_RayHitInfoForPathTracer(GI::AdvancedGiMaterial* _pMat, 
-			const N_RayHitInfo& e) :	N_RayHitInfo(e), pMat(_pMat) {}
+		N_RayHitInfoForPathTracer(GI::IGiRenderable* _pObj,
+			const N_RayHitInfo& e) :	N_RayHitInfo(e),pHitObj(_pObj){}
 
-		GI::AdvancedGiMaterial* pMat;//material info can be retrieved.
+		GI::IGiRenderable* pHitObj;//for shadow ray??
 		//N_Ray ray;//the ray
 	};
 
