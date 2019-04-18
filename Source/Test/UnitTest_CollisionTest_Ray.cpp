@@ -230,16 +230,30 @@ BOOL Init3D(HWND hwnd)
 		Vec3 dir = { g.CanonicalReal() * (-origin.x),g.CanonicalReal() * (-origin.y),g.CanonicalReal() * (-origin.z) };
 		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
 		//**************************************************
-		Vec3 origin = { rayId * 3.35f , 0, 50.0f };
+		/*Vec3 origin = { rayId * 3.35f , 0, 50.0f };
 		Vec3 dir = { 0,0,-100.0f };
-		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);
+		N_Ray r = N_Ray(origin, dir, 0.001f,1.0f);*/
 		// **************************************************
 		/*Vec3 origin = { -10.0f , -10.0f, -10.0f };
 		Vec3 dir = { 20.0f,5.0f,50.0f };
 		N_Ray r = N_Ray(origin, dir,  0.001f,1.0f);*/
 		// **************************************************
+		//rayArray.push_back(r);
+	}
+
+	GI::RandomSampleGenerator g;
+	Vec3 origin = { 0,0,-40.0f };
+	std::vector<Vec3> dirList;
+	ISceneObject* pObj = pShapeMgr->GetObjectPtr<LogicalBox>("logicBox5");
+	g.UniformSphericalVec_ShadowRays(origin, pObj, c_rayCount, dirList);
+	for (int rayId = 0; rayId < c_rayCount; ++rayId)
+	{
+		N_Ray r = N_Ray(origin, dirList.at(rayId)*100.0f, 0.001f, 1.0f);
 		rayArray.push_back(r);
 	}
+
+
+
 
 	std::vector<bool> anyHit_List(c_rayCount, false);
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)

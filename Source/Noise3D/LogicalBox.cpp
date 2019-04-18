@@ -66,6 +66,15 @@ N_AABB Noise3D::LogicalBox::ComputeWorldAABB_Accurate()
 	return ISceneObject::ComputeWorldAABB_Fast();
 }
 
+N_BoundingSphere Noise3D::LogicalBox::ComputeWorldBoundingSphere_Accurate()
+{
+	N_AABB aabb= LogicalBox::ComputeWorldAABB_Accurate();
+	N_BoundingSphere sphere;
+	sphere.pos = aabb.Centroid();
+	sphere.radius = (aabb.max - aabb.Centroid()).Length();
+	return sphere;
+}
+
 float Noise3D::LogicalBox::ComputeArea()
 {
 	N_AABB aabb = GetLocalAABB();

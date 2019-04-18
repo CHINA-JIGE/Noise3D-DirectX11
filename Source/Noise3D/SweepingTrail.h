@@ -82,7 +82,10 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
 		//ISceneObject::
-		virtual N_AABB ComputeWorldAABB_Fast();
+		virtual N_AABB ComputeWorldAABB_Fast() override;
+
+		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
 
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() const override;

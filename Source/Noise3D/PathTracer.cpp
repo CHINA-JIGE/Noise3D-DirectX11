@@ -254,36 +254,13 @@ void Noise3D::GI::PathTracer::mFunction_ComputeLightSourceList(std::vector<GI::I
 	for (auto pRenderable : objList)
 	{
 		GI::AdvancedGiMaterial* pMat = nullptr;
-		if (pRenderable->IsGiLightSource())
-		{
-			pMat = pRenderable->GetGiMaterial();
 
-			if (pMat->IsEmissionEnabled())
-			{
-				outList.push_back(pRenderable);
-			}
+		pMat = pRenderable->GetGiMaterial();
+
+		if (pMat->IsEmissionEnabled())
+		{
+			outList.push_back(pRenderable);
 		}
-		//(2019.4.15)perhaps i should make new classes, 'GiRenderableXXX' derived from XXX and GiMatOwner
-		//instead of 'switching'. but the time budget is tight, never mind... maybe later
-		/*switch (pSO->GetObjectType())
-		{
-		case NOISE_SCENE_OBJECT_TYPE::MESH: 
-			pMat = static_cast<Mesh*>(pSO)->GetGiMaterial(); 
-			break;
-		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_BOX: 
-			pMat = static_cast<LogicalBox*>(pSO)->GetGiMaterial();
-			break;
-		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT: 
-			pMat = static_cast<LogicalRect*>(pSO)->GetGiMaterial();
-			break;
-		case NOISE_SCENE_OBJECT_TYPE::LOGICAL_SPHERE: 
-			pMat = static_cast<LogicalSphere*>(pSO)->GetGiMaterial();
-			break;
-		default:
-			ERROR_MSG("Error: Bug!! The stupid author forgot to include some object with GI Material");
-			break;
-		}*/
-
 	}
 }
 

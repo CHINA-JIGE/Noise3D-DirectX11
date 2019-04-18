@@ -160,6 +160,11 @@ N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
+N_BoundingSphere Noise3D::SweepingTrail::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;

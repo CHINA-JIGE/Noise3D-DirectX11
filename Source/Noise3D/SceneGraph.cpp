@@ -164,7 +164,7 @@ uint32_t Noise3D::SceneNode::GetSceneObjectCount()
 	return mAttachedSceneObjectList.size() ;
 }
 
-ISceneObject * Noise3D::SceneNode::GetGiRenderable(uint32_t index)
+ISceneObject * Noise3D::SceneNode::GetSceneObject(uint32_t index)
 {
 	if (index < mAttachedSceneObjectList.size())
 	{
@@ -215,7 +215,7 @@ void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, 
 	{
 		for (uint32_t i = 0; i < pn->GetSceneObjectCount();++i)
 		{
-			outResult.push_back(pn->GetGiRenderable(i));
+			outResult.push_back(pn->GetSceneObject(i));
 		}
 	}
 }
@@ -247,7 +247,7 @@ void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, 
 	{
 		for (uint32_t i = 0; i < pn->GetSceneObjectCount(); ++i)
 		{
-			outResult.push_back(pn->GetGiRenderable(i));
+			outResult.push_back(pn->GetSceneObject(i));
 		}
 	}
 }

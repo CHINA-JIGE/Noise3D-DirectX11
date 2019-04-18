@@ -132,6 +132,9 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Fast() override;
 
 		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
 
 		//SceneNode::
@@ -204,6 +207,9 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Fast() override;
 
 		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
 
 	private:
@@ -262,6 +268,9 @@ namespace Noise3D
 
 		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
+
+		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
 
 		//SceneNode::
 		AffineTransform& GetLocalTransform() = delete;

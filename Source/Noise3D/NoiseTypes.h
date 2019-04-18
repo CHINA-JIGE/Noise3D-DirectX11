@@ -154,6 +154,32 @@ namespace Noise3D
 		Vec3 min;
 	};
 
+	struct N_BoundingSphere
+	{
+		N_BoundingSphere() { Reset(); };
+		N_BoundingSphere(Vec3 _pos, float _r) { pos = _pos; radius = _r; };
+
+		void Reset()
+		{
+			pos = Vec3(0, 0, 0);
+			radius = 0.0f;
+		}
+
+		bool IsValid()const
+		{
+			return radius >= 0.0f;
+		}
+
+		//determine if given point is inside AABB
+		bool IsPointInside(Vec3 v)
+		{
+			return (v-pos).Length()<radius;
+		}
+
+		Vec3 pos;
+		float radius;
+	};
+
 	struct N_LineSegment
 	{
 		N_LineSegment() {}

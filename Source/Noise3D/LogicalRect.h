@@ -47,6 +47,9 @@ namespace Noise3D
 		//ISceneObject::
 		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
+		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
 		//ILogicalShape::
 		virtual float ComputeArea() override;
 

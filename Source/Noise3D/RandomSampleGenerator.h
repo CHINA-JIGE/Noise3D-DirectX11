@@ -42,8 +42,7 @@ namespace Noise3D
 
 			void UniformSphericalVec_Hemisphere(Vec3 normal, int sampleCount, std::vector<Vec3>& outVecList);
 
-			//ray gen with varied PDF(probability density function)
-			void CosinePdfSphericalVec_Cone(Vec3 dir, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+			void UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList);
 
 		private:
 

@@ -45,6 +45,8 @@ namespace Noise3D
 
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
 
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
 	private:
 
 		friend class IRenderModuleForMesh;

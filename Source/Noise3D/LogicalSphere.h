@@ -37,6 +37,9 @@ namespace Noise3D
 		//ILogicalShape::
 		virtual float ComputeArea() override;
 
+		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
 		//ILogicalShape::
 		//virtual bool IsPointInside(Vec3 p) override;
 

@@ -69,3 +69,16 @@ float Noise3D::LogicalSphere::ComputeArea()
 	return 4.0f * Ut::PI * mRadius * mRadius ;
 }
 
+N_BoundingSphere Noise3D::LogicalSphere::ComputeWorldBoundingSphere_Accurate()
+{
+	SceneNode* pNode = ISceneObject::GetAttachedSceneNode();
+	if (pNode == nullptr)return N_BoundingSphere();
+
+	N_BoundingSphere sphere;
+	AffineTransform t = pNode->EvalWorldTransform();
+	sphere.pos= t.GetPosition();
+	sphere.radius = mRadius;
+
+	return sphere;
+}
+

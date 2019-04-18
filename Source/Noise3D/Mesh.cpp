@@ -73,11 +73,11 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 	}
 
 	//min / max are initialized infinite far
+	const Matrix& worldMat = pNode->EvalWorldTransform().GetAffineTransformMatrix();
 	N_AABB outAabb;
 	Vec3 tmpV;
 	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
 	{
-		const Matrix& worldMat = pNode->EvalWorldTransform().GetAffineTransformMatrix();
 		tmpV = AffineTransform::TransformVector_MatrixMul(mVB_Mem.at(i).Pos, worldMat);
 
 		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
@@ -90,6 +90,38 @@ N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 	}
 
 	return outAabb;
+}
+
+N_BoundingSphere Noise3D::Mesh::ComputeWorldBoundingSphere_Accurate()
+{
+	//get accumulated transform from scene graph (relative to root node)
+	SceneNode* pNode = ISceneObject::GetAttachedSceneNode();
+	if (pNode == nullptr)
+	{
+		ERROR_MSG("ISceneObject: not bound to a scene node. Can't compute world space Bounding Sphere.");
+		return N_BoundingSphere();
+	}
+
+	if (mVB_Mem.size() == 0)
+	{
+		return  N_BoundingSphere();//radius is initialized to 0
+	}
+
+	AffineTransform t = pNode->EvalWorldTransform();
+	N_BoundingSphere outSphere;
+	for (uint32_t i = 0; i < mVB_Mem.size(); i++)
+	{
+		Vec3 transformedVecPos = t.TransformVector_Affine(mVB_Mem.at(i).Pos);
+		float currentDist = transformedVecPos.Length();
+		if (currentDist > outSphere.radius)outSphere.radius = currentDist;
+
+		//accumulate average pos
+		//e.g. : (a+b+c+d)/4 = (a+b+c)/3 * (3/4) + d /4
+		float one_over_i_plus_one = 1.0f / float(i + 1);
+		outSphere.pos = outSphere.pos * (float(i)*one_over_i_plus_one) + transformedVecPos * one_over_i_plus_one;
+	}
+
+	return outSphere;
 }
 
 /***********************************************************************

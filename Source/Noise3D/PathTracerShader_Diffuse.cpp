@@ -29,7 +29,7 @@ void Noise3D::GI::PathTracerShader_DiffuseDemo::ClosestHit(const N_TraceRayParam
 	g.UniformSphericalVec_Hemisphere(hitInfo.normal, diffSampleCount, dirList);
 	//g.CosinePdfSphericalVec_Cone(hitInfo.normal, Ut::PI / 2.0f, diffSampleCount, dirList, pdfList);
 
-	for (int i = 0; i < diffSampleCount; ++i)
+	for (uint32_t i = 0; i < diffSampleCount; ++i)
 	{
 		//gen random ray for diff sample
 		Vec3 diffSampleDir = dirList.at(i);

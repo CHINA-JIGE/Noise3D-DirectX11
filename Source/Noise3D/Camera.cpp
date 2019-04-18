@@ -328,6 +328,11 @@ N_AABB Noise3D::Camera::ComputeWorldAABB_Accurate()
 	return N_AABB();
 }
 
+N_BoundingSphere Noise3D::Camera::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::CAMERA;

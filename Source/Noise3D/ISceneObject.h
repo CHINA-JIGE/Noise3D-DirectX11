@@ -46,6 +46,9 @@ namespace Noise3D
 		//bounding box of transformed bounding box
 		virtual N_AABB ComputeWorldAABB_Fast();
 
+		//required concrete geometry data
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate()=0;
+
 		//object name/uid (initialized in IFactory<> creation)
 		std::string GetName();
 

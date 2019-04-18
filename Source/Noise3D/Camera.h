@@ -73,6 +73,9 @@ namespace Noise3D
 		virtual	N_AABB ComputeWorldAABB_Accurate() override;
 
 		//ISceneObject::
+		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
+
+		//ISceneObject::
 		virtual	NOISE_SCENE_OBJECT_TYPE GetObjectType() const override;
 
 		//(2019.3.8) sorry, currently Camera doesn't support hierarchical transform.

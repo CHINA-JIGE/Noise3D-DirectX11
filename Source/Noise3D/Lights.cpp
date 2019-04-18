@@ -132,6 +132,11 @@ N_AABB Noise3D::DirLight::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
+N_BoundingSphere Noise3D::DirLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::DirLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
@@ -267,6 +272,11 @@ N_AABB Noise3D::PointLight::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
+N_BoundingSphere Noise3D::PointLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::PointLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
@@ -397,5 +407,10 @@ N_AABB Noise3D::SpotLight::ComputeWorldAABB_Fast()
 NOISE_SCENE_OBJECT_TYPE Noise3D::SpotLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
+}
+
+N_BoundingSphere Noise3D::SpotLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
 }
 

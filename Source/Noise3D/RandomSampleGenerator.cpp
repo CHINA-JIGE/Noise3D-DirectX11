@@ -72,11 +72,14 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	//(2019.4.12)perahps there is no need to clamp to [0, pi]
 
 	//(2019.4.12) similar to the original UniformSphericalVec()
-	float var1 = mCanonicalDist(mRandomEngine) * maxAngle / Ut::PI;
+	float var1 = mCanonicalDist(mRandomEngine);
 	float var2 = mCanonicalDist(mRandomEngine);
 
-	float theta = acosf(1 - 2.0f * var1);
-	float phi = 2 * Ut::PI * var2;
+	//(2019.4.18)derived with partial sphere's pdf and Inverse Transform Sampling
+	//float theta = acosf(1 - 2.0f * var1);
+	//float phi = 2 * Ut::PI * var2;
+	float theta = acosf(1.0f - (1.0f - cosf(maxAngle))*var1);
+	float phi = 2.0f * Ut::PI * var2;
 
 	//(2019.4.12)and they lie within a cone with angle 'maxAngle'
 	Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
@@ -144,10 +147,13 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
-		float var1 = mCanonicalDist(mRandomEngine) * maxAngle / Ut::PI;
+		float var1 = mCanonicalDist(mRandomEngine);
 		float var2 = mCanonicalDist(mRandomEngine);
-		float theta = acosf(1 - 2.0f * var1);
-		float phi = 2 * Ut::PI * var2;
+		//float theta = acosf(1 - 2.0f * var1) * maxAngle / Ut::PI;
+		//float phi = 2 * Ut::PI * var2;
+		//F(theta)=(1-costheta)/(r^2(1-cosMaxAngle))
+		float theta = acosf(1.0f - (1.0f - cosf(maxAngle))*var1);
+		float phi = 2.0f * Ut::PI * var2;
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
 		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
@@ -177,58 +183,24 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 nor
 	RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f, sampleCount, outVecList);
 }
 
-void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList)
 {
-	//transform matrix/basis only construct once
-	normal.Normalize();
-	Vec3 y_axis = Vec3(0, 1.0f, 0);
+	//cast rays to objects to sample local lighting
+	if (pObj == nullptr)return;
+	N_BoundingSphere sphere = pObj->ComputeWorldBoundingSphere_Accurate();
+	Vec3 centerDirVec =  sphere.pos - pos;//trace a cone of rays from pos to light source (pObj)
 
-	//new basis
-	Vec3 new_x_axis = y_axis.Cross(normal);
-	Vec3 new_y_axis = normal;
-	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
-	new_x_axis.Normalize();
-	new_z_axis.Normalize();
-
-	//construct transform matrix
-	/*
-	[ (Y x N)   (N)   ((YxN)xN)] * vec
-	*/
-	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
-	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
-	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
-
-	float cosMaxAngle = cosf(maxAngle);
-
-	for (int i = 0; i < sampleCount; ++i)
+	//calculate tangent cone  (start from pos) of bounding sphere
+	float a = sphere.radius;
+	//float b, the tangent line
+	float c = (centerDirVec == Vec3(0,0,0)? 0: centerDirVec.Length());//hypotenuse
+	float coneAngle = 0.0f;
+	if (a != 0)
 	{
-		float var1 = mCanonicalDist(mRandomEngine) * maxAngle / Ut::PI;
-		float var2 = mCanonicalDist(mRandomEngine);
-		float theta = Ut::PI * var1;
-		float phi = 2.0f * Ut::PI * var2;
-		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
-
-		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
-		{
-			outVecList.push_back(vec);
-		}
-		else
-		{
-			//flattened matrix mul/basis transformation
-			Vec3 out;
-			out.x = matRow1.Dot(vec);
-			out.y = matRow2.Dot(vec);
-			out.z = matRow3.Dot(vec);
-			outVecList.push_back(out);
-		}
-		//differential sphere area: dA = 4pi/sintheta
-		// pdf when spill on the whole sphere = sintheta/4pi
-		// area of partial sphere: \int(0->theta){2* pi * R * R * sin(theta) d(theta)}
-		// =  (2 * pi * R^2 (1-costheta))
-		// pdf = sintheta/(2*pi*R^2 * (1-costheta))
-		float pdf = sinf(theta) / (2.0f * Ut::PI * (1.0001f - cosMaxAngle));
-		outPdfList.push_back(pdf);
+		coneAngle = a > c ? (Ut::PI /2.0f) : (Ut::PI / 2.0f - std::acosf(a / c));
 	}
+
+	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList);
 }
 
 inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi)
