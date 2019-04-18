@@ -22,6 +22,8 @@ namespace Noise3D
 
 		private:
 
+			GI::Radiance _EvalDirectLighting(N_Ray shadowRay, uint32_t lightSourceId);
+
 		};
 	}
 }

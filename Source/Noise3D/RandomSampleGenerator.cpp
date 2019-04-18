@@ -124,7 +124,7 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	return out;
 }
 
-void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList)
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea)
 {
 	//transform matrix/basis only construct once
 	normal.Normalize();
@@ -144,6 +144,9 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
 	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
 	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+
+	//S=2 *pi * r^2( 1-cos theta)
+	outPartialSphereArea = 2.0f * Ut::PI * 1.0f * 1.0f * (1 - cosf(maxAngle));
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -170,20 +173,21 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 			outVecList.push_back(out);
 		}
 	}
-
 }
 
 Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 normal)
 {
+	//can be optimized using UniformSphereVec (inverse those in the other side of hemisphere)
 	return GI::RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f);
 }
 
 void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 normal, int sampleCount, std::vector<Vec3>& outVecList)
 {
-	RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f, sampleCount, outVecList);
+	float tmpS;
+	RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f, sampleCount, outVecList,tmpS);
 }
 
-void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList)
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea)
 {
 	//cast rays to objects to sample local lighting
 	if (pObj == nullptr)return;
@@ -200,7 +204,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos
 		coneAngle = a > c ? (Ut::PI /2.0f) : (Ut::PI / 2.0f - std::acosf(a / c));
 	}
 
-	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList);
+	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList,outPartialSphereArea);
 }
 
 inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi)

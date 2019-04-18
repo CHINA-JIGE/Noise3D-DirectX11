@@ -79,13 +79,15 @@ namespace Noise3D
 				return m_pFatherPathTracer->GetRayMaxTravelDist();
 			}
 
+		protected:
+
+			std::vector<GI::IGiRenderable*> mLightSourceList;
+
 		private:
 
 			PathTracer* m_pFatherPathTracer;
 
 			CollisionTestor* m_pCollisionTestor;
-
-			std::vector<GI::IGiRenderable*> mLightSourceList;
 
 		};
 	}

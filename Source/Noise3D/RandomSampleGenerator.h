@@ -36,13 +36,13 @@ namespace Noise3D
 			// maxAngle==PI/2 stands for a hemisphere
 			Vec3 UniformSphericalVec_Cone(Vec3 normal, float maxAngle);
 
-			void UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList);
+			void UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList,float& outPartialSphereArea);
 
 			Vec3 UniformSphericalVec_Hemisphere(Vec3 normal);
 
 			void UniformSphericalVec_Hemisphere(Vec3 normal, int sampleCount, std::vector<Vec3>& outVecList);
 
-			void UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList);
+			void UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea);
 
 		private:
 

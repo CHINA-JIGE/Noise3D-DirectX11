@@ -16,6 +16,8 @@ namespace Noise3D
 				roughness(0.0f),
 				metallicity(0.0f),
 				opacity(0.0f),
+				ior(1.1f),
+				metal_F0(0.04f,0.04f,0.04f),
 				emission(0, 0, 0) {};
 
 			//(2019.4.14)metalness, opacity shall be 3D parameters that affect transimission ray throughout the object

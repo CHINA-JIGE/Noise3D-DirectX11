@@ -56,7 +56,7 @@ bool Noise3D::GI::AdvancedGiMaterial::IsTransmissionEnabled()
 
 bool Noise3D::GI::AdvancedGiMaterial::IsEmissionEnabled()
 {
-	return mMatDesc.emission== Vec3(0,0,0);
+	return mMatDesc.emission!= Vec3(0,0,0);
 }
 
 void Noise3D::GI::AdvancedGiMaterial::SetDesc(const N_AdvancedMatDesc & desc)

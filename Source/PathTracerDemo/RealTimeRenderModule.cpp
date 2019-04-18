@@ -68,7 +68,8 @@ void RealTimeRenderModule::_InitMgrsAndRenderers(HWND hwnd)
 void RealTimeRenderModule::_InitScene()
 {
 	//SceneLoader::LoadScene_DiffuseDemo(m_pCamera);
-	SceneLoader::LoadScene_RefractionDemo(m_pCamera);
+	//SceneLoader::LoadScene_RefractionDemo(m_pCamera);
+	SceneLoader::LoadScene_AreaLightingDemo(m_pCamera);
 }
 
 void RealTimeRenderModule::_InitAtmos()

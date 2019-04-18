@@ -27,7 +27,8 @@ namespace Noise3D
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
-				isShadowRay(false){}
+				isShadowRay(false), 
+				shadowRayLightSourceId(-1){}
 
 			int diffusebounces;//recursion count
 			int specularReflectionBounces;//internal reflection bounces count of transparent object
@@ -36,6 +37,7 @@ namespace Noise3D
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
 			bool isShadowRay;//for local lighting/area lighting
+			int shadowRayLightSourceId;//for shadow ray
 		};
 
 		//output for TraceRay();

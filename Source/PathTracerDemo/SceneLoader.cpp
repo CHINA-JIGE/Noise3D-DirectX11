@@ -16,13 +16,14 @@ void SceneLoader::LoadScene_DiffuseDemo(Camera * pCam)
 	SceneGraph& sg = m_pScene->GetSceneGraph();
 	_LoadTextures();
 	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
 
 	_LoadSphere(sg, Vec3(-20.0f,20.0f,50), 15.0f, "");
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "");
-	//_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(50.0f, 30.0f, 60.0f), "");
-	//_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 70.0f), "");
-	//_LoadBox(sg, Vec3(50.0, 30.0f, 70.0f), Vec3(30.0f, 60.0f, 60.0f), "");
-	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f),"");
+	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(50.0f, 30.0f, 60.0f), "");
+	_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 70.0f), "");
+	_LoadBox(sg, Vec3(50.0, 30.0f, 70.0f), Vec3(30.0f, 60.0f, 60.0f), "");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f),"");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -51,6 +52,26 @@ void SceneLoader::LoadScene_RefractionDemo(Camera * pCam)
 	pCam->LookAt(0, 0, 0);
 }
 
+void SceneLoader::LoadScene_AreaLightingDemo(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	_LoadSphere(sg, Vec3(-20.0f, 20.0f, 50), 15.0f, "albedo_red");
+	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "albedo_green");
+	_LoadBox(sg, Vec3(-60.0f, 15.0f, 59.0f), Vec3(10.0f, 30.0f, 40.0f), "albedo_blue");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "");
+	//light
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 80.0f, 0), Vec2(100.0f, 100.0f), "emissive_white");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
+	pCam->LookAt(0, 0, 0);
+}
+
 //---------------------------------------
 
 void SceneLoader::_LoadTextures()
@@ -66,11 +87,21 @@ void SceneLoader::_LoadTextures()
 
 void SceneLoader::_LoadLambertMaterials()
 {
-	N_LambertMaterialDesc desc;
-	desc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
-	desc.diffuseColor = Vec3(0.5f, 0.5f, 0.5f);
-	desc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
-	LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("previewMat", desc);
+	{
+		N_LambertMaterialDesc desc;
+		desc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
+		desc.diffuseColor = Vec3(0.5f, 0.5f, 0.5f);
+		desc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
+		LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("previewObjMat", desc);
+	}
+
+	{
+		N_LambertMaterialDesc desc;
+		desc.ambientColor = Vec3(1.0f, 0.1f, 0.1f);
+		desc.diffuseColor = Vec3(1.0f, 0, 0);
+		desc.specularColor = Vec3(1.0f, 0, 0);
+		LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("previewLightMat", desc);
+	}
 }
 
 void SceneLoader::_LoadAdvancedMaterials()
@@ -82,6 +113,31 @@ void SceneLoader::_LoadAdvancedMaterials()
 		auto pMat = m_pMatMgr->CreateAdvancedMaterial("glass" +std::to_string(i), desc);
 		pMat->Preset_PerfectGlass();
 		pMat->SetRefractiveIndex(1.01f + 0.05f * i);
+	}
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(0.5f, 1.0f, 0.5f, 1.0f);
+		m_pMatMgr->CreateAdvancedMaterial("albedo_green", desc);
+	}
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(1.0f, 0.5f, 0.5f, 1.0f);
+		m_pMatMgr->CreateAdvancedMaterial("albedo_red", desc);
+	}
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(0.5f, 0.5f, 1.0f, 1.0f);
+		m_pMatMgr->CreateAdvancedMaterial("albedo_blue", desc);
+	}
+
+	{
+		//light source
+		GI::N_AdvancedMatDesc desc;
+		desc.emission = Vec3(20000.0f, 20000.0f, 20000.0f);
+		auto pMat = m_pMatMgr->CreateAdvancedMaterial("emissive_white", desc);
 	}
 }
 
@@ -96,7 +152,7 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius, N_UID matU
 	Mesh* pMeshSphere = m_pMeshMgr->CreateMesh(pNode, "sphere"+std::to_string(id));
 	m_pModelLoader->LoadSphere(pMeshSphere, radius, 15, 15);
 	pMeshSphere->SetCollidable(false);
-	pMeshSphere->SetMaterial("previewMat");
+	pMeshSphere->SetMaterial("previewObjMat");
 
 	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "LSph" + std::to_string(id),radius);
 	pSphere->SetCollidable(true);
@@ -117,7 +173,7 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size, N_UID matUid)
 	Mesh* pMeshBox = m_pMeshMgr->CreateMesh(pNode, "box" + std::to_string(id));
 	m_pModelLoader->LoadBox(pMeshBox, size.x, size.y, size.z);
 	pMeshBox->SetCollidable(false);
-	pMeshBox->SetMaterial("previewMat");
+	pMeshBox->SetMaterial("previewObjMat");
 
 	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "LBox" + std::to_string(id),size);
 	pBox->SetCollidable(true);
@@ -138,12 +194,22 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 	Mesh* pMeshRect = m_pMeshMgr->CreateMesh(pNode, "rect" + std::to_string(id));
 	m_pModelLoader->LoadPlane(pMeshRect, size.x, size.y, 3,3);
 	pMeshRect->SetCollidable(false);
-	pMeshRect->SetMaterial("previewMat");
+	pMeshRect->SetMaterial("previewObjMat");
 
 	LogicalRect* pRect = m_pShapeMgr->CreateRect(pNode, "Lrect" + std::to_string(id),size, ori);
 	pRect->SetCollidable(true);
 	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
-	if (pMat != nullptr)pRect->SetGiMaterial(pMat);
+	if (pMat != nullptr)
+	{
+		pRect->SetGiMaterial(pMat);
+
+		if (pMat->IsEmissionEnabled())
+		{
+			pMeshRect->SetMaterial("previewLightMat");
+		}
+	}
+	
+
 
 	mRealTimeRenderMeshList.push_back(pMeshRect);
 }

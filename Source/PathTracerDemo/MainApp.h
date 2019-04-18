@@ -54,6 +54,7 @@ private:
 	GI::PathTracerShader_ReflectionDemo mPathTracerShader_ReflectionDemo;
 	GI::PathTracerShader_DiffuseDemo mPathTracerShader_DiffuseDemo;
 	GI::PathTracerShader_RefractionDemo mPathTracerShader_RefractionDemo;
+	GI::PathTracerShader_AreaLightingDemo mPathTracerShader_AreaLightingDemo;
 	Texture2D* m_pPathTracerRenderTarget;
 	GraphicObject* m_pGraphicObj_ResultPreview;
 	float mTotalPathTracerRenderTime;

@@ -12,6 +12,9 @@ public:
 
 	void LoadScene_RefractionDemo(Camera * pCam);
 
+	void LoadScene_AreaLightingDemo(Camera * pCam);
+
+
 private:
 
 	void _LoadTextures();

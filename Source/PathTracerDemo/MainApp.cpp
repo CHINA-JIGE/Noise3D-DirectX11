@@ -45,7 +45,8 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_RefractionDemo);
+		&mPathTracerShader_AreaLightingDemo);
+		//&mPathTracerShader_RefractionDemo);
 		//&mPathTracerShader_DiffuseDemo);
 		//&mPathTracerShader_ReflectionDemo);
 		//&mPathTracerShader_Minimal);
@@ -62,12 +63,12 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(1280, 720);
+	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxDiffuseBounces(1);
 	m_pPathTracer->SetMaxSpecularReflectionBounces(3);
 	m_pPathTracer->SetMaxRefractionBounces(2);
-	m_pPathTracer->SetMaxDiffuseSampleCount(128);
+	m_pPathTracer->SetMaxDiffuseSampleCount(512);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 }
 
@@ -96,6 +97,9 @@ void MainApp::_InitSoftShader()
 
 	//refraction demo
 	mPathTracerShader_RefractionDemo.SetSkyTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
+
+	//area lighting
+	//...
 }
 
 /**************************************
