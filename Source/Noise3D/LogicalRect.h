@@ -38,6 +38,9 @@ namespace Noise3D
 
 		Vec2 GetSize()const;
 
+		//generate random sample point without world transform
+		Vec3 GenLocalRandomPoint();
+
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
 

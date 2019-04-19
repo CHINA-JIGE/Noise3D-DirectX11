@@ -38,7 +38,6 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 		return;
 	}
 	
-	
 	GI::RandomSampleGenerator g;
 	GI::Radiance accumulatedDiffuseRadiance;
 	Color4f albedo = pMat->GetDesc().albedo;
@@ -52,13 +51,20 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 		uint32_t diffSampleCount = IPathTracerSoftShader::_MaxDiffuseSample() / denominator;
 		std::vector<Vec3> dirList;
 		std::vector<float> pdfList;//used by importance sampling demo
-		float partialSphereArea = 0.0f;//used to compute pdf
+		float constantPdf = 0.0f;//used to compute pdf
 #define COSINE_WEIGHTED_IMPORTANCE_SAMPLING
 
 #ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
-		g.CosinePdfSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, pdfList);
-#else
-		g.UniformSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, partialSphereArea);
+		if (param.isShadowRay && hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
+		{
+			g.RectShadowRays(hitInfo.pos, static_cast<LogicalRect*>(hitInfo.pHitObj), diffSampleCount, dirList, constantPdf);
+		}
+		else
+		{
+			g.CosinePdfSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, pdfList);
+		}
+#else 
+		g.UniformSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, constantPdf);
 #endif
 
 		for (uint32_t i = 0; i < diffSampleCount; ++i)
@@ -93,9 +99,16 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 
 				//float pdf = 2.0f * Ut::PI;
 #ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
-				deltaRadiance /= pdfList.at(i);
+				if (param.isShadowRay &&hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
+				{
+					deltaRadiance /= constantPdf;
+				}
+				else
+				{
+					deltaRadiance /= pdfList.at(i);
+				}
 #else
-				deltaRadiance *= partialSphereArea;//pdf == (1.0f/Area)
+				deltaRadiance /= constantPdf;
 #endif
 
 				diffuseRadiancePerLight += deltaRadiance;

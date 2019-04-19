@@ -51,6 +51,26 @@ Vec2 Noise3D::LogicalRect::GetSize() const
 	return mSize;
 }
 
+Vec3 Noise3D::LogicalRect::GenLocalRandomPoint()
+{
+	GI::RandomSampleGenerator g;
+	switch (mOrientation)
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		return Vec3(g.NormalizedReal() * mSize.x/2.0f, g.NormalizedReal() * mSize.y /2.0f, 0.0f);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		return Vec3(g.NormalizedReal() * mSize.x / 2.0f,  0.0f, g.NormalizedReal() * mSize.y / 2.0f);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		return Vec3(0.0f, g.NormalizedReal() * mSize.x / 2.0f, g.NormalizedReal() * mSize.y / 2.0f);
+		break;
+	}
+	return Vec3(0, 0, 0);
+}
+
 NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalRect::GetObjectType() const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT;

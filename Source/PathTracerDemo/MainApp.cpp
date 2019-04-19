@@ -63,7 +63,7 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
+	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxDiffuseBounces(1);
 	m_pPathTracer->SetMaxSpecularReflectionBounces(3);

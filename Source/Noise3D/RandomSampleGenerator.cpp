@@ -110,7 +110,7 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	return out;
 }
 
-void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea)
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, float& outPdf)
 {
 	//transform matrix/basis only construct once
 	normal.Normalize();
@@ -118,7 +118,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
 
 	//S=2 *pi * r^2( 1-cos theta)
-	outPartialSphereArea = 2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle));
+	outPdf = 1.0f / (2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle)));
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -160,7 +160,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Hemisphere(Vec3 nor
 	RandomSampleGenerator::UniformSphericalVec_Cone(normal, Ut::PI / 2.0f, sampleCount, outVecList,tmpS);
 }
 
-void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea)
+void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList, float& outPdf)
 {
 	//cast rays to objects to sample local lighting
 	if (pObj == nullptr)return;
@@ -168,7 +168,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos
 	float coneAngle = 0.0f;
 	mFunc_ComputeConeAngleForShadowRay(pObj, pos, centerDirVec, coneAngle);
 
-	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList,outPartialSphereArea);
+	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList, outPdf);
 }
 
 void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
@@ -227,6 +227,27 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_ShadowRays(Vec3 p
 	mFunc_ComputeConeAngleForShadowRay(pObj, pos, centerDirVec, coneAngle);
 
 	RandomSampleGenerator::CosinePdfSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList,outPdfList);
+
+}
+
+void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * pRect, int sampleCount, std::vector<Vec3>& outVecList, float & outPdf)
+{
+	if (pRect == nullptr)return;
+
+	//get rect's world transform
+	AffineTransform t = pRect->GetAttachedSceneNode()->EvalWorldTransform();
+	NOISE_RECT_ORIENTATION ori = pRect->GetOrientation();
+	outVecList.reserve(sampleCount);
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		Vec3 localPointOnRect = pRect->GenLocalRandomPoint();
+		Vec3 worldPointOnRect = t.TransformVector_Affine(localPointOnRect);
+		outVecList.push_back(worldPointOnRect-pos);
+	}
+
+	//now the sample parameter uses (u,v) on rect instead of (theta,phi) of tracing position
+	outPdf = 1.0f / pRect->ComputeArea();
 
 }
 
