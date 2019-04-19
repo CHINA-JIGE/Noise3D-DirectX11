@@ -51,8 +51,15 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 		uint32_t denominator = (param.diffusebounces + 1)*(param.diffusebounces + 1);
 		uint32_t diffSampleCount = IPathTracerSoftShader::_MaxDiffuseSample() / denominator;
 		std::vector<Vec3> dirList;
+		std::vector<float> pdfList;//used by importance sampling demo
 		float partialSphereArea = 0.0f;//used to compute pdf
+#define COSINE_WEIGHTED_IMPORTANCE_SAMPLING
+
+#ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
+		g.CosinePdfSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, pdfList);
+#else
 		g.UniformSphericalVec_ShadowRays(hitInfo.pos, mLightSourceList.at(lightId), diffSampleCount, dirList, partialSphereArea);
+#endif
 
 		for (uint32_t i = 0; i < diffSampleCount; ++i)
 		{
@@ -85,7 +92,12 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 				//GI::Radiance deltaRadiance = payload.radiance * disneyDiffuseBrdf;
 
 				//float pdf = 2.0f * Ut::PI;
+#ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
+				deltaRadiance /= pdfList.at(i);
+#else
 				deltaRadiance *= partialSphereArea;//pdf == (1.0f/Area)
+#endif
+
 				diffuseRadiancePerLight += deltaRadiance;
 			}
 			// estimated = sum/ (pdf*count), pdf = p_hemispherical = 1/ (1/2pi) = 2pi 

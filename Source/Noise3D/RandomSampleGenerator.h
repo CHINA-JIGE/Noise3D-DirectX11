@@ -44,6 +44,12 @@ namespace Noise3D
 
 			void UniformSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList, float& outPartialSphereArea);
 
+			//with cosine weight pdf, most density near the 'normal' direction
+			void CosinePdfSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+
+			void CosinePdfSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+
+
 		private:
 
 			static std::default_random_engine mRandomEngine;
@@ -53,6 +59,10 @@ namespace Noise3D
 			static std::uniform_real_distribution<float> mNormalizedDist;
 
 			Vec3 mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi);
+
+			void mFunc_ConstructTransformMatrixFromYtoNormal(Vec3 n, Vec3& outMatRow1, Vec3& outMatRow2, Vec3& outMatRow3);
+		
+			void mFunc_ComputeConeAngleForShadowRay(ISceneObject* pObj, Vec3 pos, Vec3& outCenterDirVec, float& outConeAngle);
 		};
 	}
 };

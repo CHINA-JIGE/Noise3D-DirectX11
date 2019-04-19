@@ -91,22 +91,8 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	//original samples are centered vec is Y axis (0,1,0) if theta = 0;
 	//now need to transform to new basis whose new Y axis is 'normal'
 	normal.Normalize();
-	Vec3 y_axis = Vec3(0, 1.0f, 0);
-
-	//new basis
-	Vec3 new_x_axis = y_axis.Cross(normal);
-	Vec3 new_y_axis = normal;
-	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
-	new_x_axis.Normalize();
-	new_z_axis.Normalize();
-
-	//construct transform matrix
-	/*
-	[ (Y x N)   (N)   ((YxN)xN)] * vec
-	*/
-	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
-	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
-	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+	Vec3 matRow1, matRow2, matRow3;
+	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
 
 	//flattened matrix mul/basis transformation
 	Vec3 out;
@@ -128,25 +114,11 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 {
 	//transform matrix/basis only construct once
 	normal.Normalize();
-	Vec3 y_axis = Vec3(0, 1.0f, 0);
-
-	//new basis
-	Vec3 new_x_axis = y_axis.Cross(normal);
-	Vec3 new_y_axis = normal;
-	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
-	new_x_axis.Normalize();
-	new_z_axis.Normalize();
-
-	//construct transform matrix
-	/*
-	[ (Y x N)   (N)   ((YxN)xN)] * vec
-	*/
-	Vec3 matRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
-	Vec3 matRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
-	Vec3 matRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+	Vec3 matRow1, matRow2, matRow3;
+	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
 
 	//S=2 *pi * r^2( 1-cos theta)
-	outPartialSphereArea = 2.0f * Ut::PI * 1.0f * 1.0f * (1 - cosf(maxAngle));
+	outPartialSphereArea = 2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle));
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -155,8 +127,9 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 		//float theta = acosf(1 - 2.0f * var1) * maxAngle / Ut::PI;
 		//float phi = 2 * Ut::PI * var2;
 		//F(theta)=(1-costheta)/(r^2(1-cosMaxAngle))
-		float theta = acosf(1.0f - (1.0f - cosf(maxAngle))*var1);
-		float phi = 2.0f * Ut::PI * var2;
+		float oneMinusCos = 1.0f - cosf(maxAngle);
+		float theta = acosf(1.0f - oneMinusCos*var1);
+		float phi = Ut::PI * 2.0f * var2;
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
 		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
@@ -191,21 +164,77 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_ShadowRays(Vec3 pos
 {
 	//cast rays to objects to sample local lighting
 	if (pObj == nullptr)return;
-	N_BoundingSphere sphere = pObj->ComputeWorldBoundingSphere_Accurate();
-	Vec3 centerDirVec =  sphere.pos - pos;//trace a cone of rays from pos to light source (pObj)
-
-	//calculate tangent cone  (start from pos) of bounding sphere
-	float a = sphere.radius;
-	//float b, the tangent line
-	float c = (centerDirVec == Vec3(0,0,0)? 0: centerDirVec.Length());//hypotenuse
+	Vec3 centerDirVec;
 	float coneAngle = 0.0f;
-	if (a != 0)
-	{
-		coneAngle = a > c ? (Ut::PI /2.0f) : (Ut::PI / 2.0f - std::acosf(a / c));
-	}
+	mFunc_ComputeConeAngleForShadowRay(pObj, pos, centerDirVec, coneAngle);
 
 	RandomSampleGenerator::UniformSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList,outPartialSphereArea);
 }
+
+void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+{
+	//maxAngle : gamma
+	if (maxAngle >= Ut::PI / 2.0f) maxAngle = Ut::PI / 2.0f - 0.0001f;
+
+	//transform matrix/basis only construct once
+	normal.Normalize();
+	Vec3 matRow1, matRow2, matRow3;
+	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
+	//float pdfNormalizeFactor = 1.0f / (2.0f * Ut::PI * sinf(maxAngle));//denominator of cosine-weighted pdf
+	float pdfNormalizeFactor = 2.0f / (Ut::PI * (1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		float var1 = mCanonicalDist(mRandomEngine);
+		float var2 = mCanonicalDist(mRandomEngine);
+		//more info, plz refer to my zhihu article about 'SH lighting and Uniform Spherical sampling'
+		//learn about the Inverse Transform Sampling(ITS)
+
+		// assume pdf p(theta,phi)= (k costheta)/ S_cone, then
+		//F_theta = sintheta / singamma
+		//float theta =asinf(sinf(maxAngle) * var1);
+		//float phi = 2.0f * Ut::PI *  var2;
+
+		float theta = 0.5f * acosf(1.0f - (1.0f - cosf(2.0f * maxAngle))* var1);
+		float phi =2.0f * Ut::PI *  var2;
+
+		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+
+		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		{
+			outVecList.push_back(vec);
+		}
+		else
+		{
+			//flattened matrix mul/basis transformation
+			Vec3 out;
+			out.x = matRow1.Dot(vec);
+			out.y = matRow2.Dot(vec);
+			out.z = matRow3.Dot(vec);
+			outVecList.push_back(out);
+		}
+
+		outPdfList.push_back(cosf(theta)*pdfNormalizeFactor);
+	}
+}
+
+void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_ShadowRays(Vec3 pos, ISceneObject * pObj, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+{
+	//cast rays to objects to sample local lighting
+	if (pObj == nullptr)return;
+	Vec3 centerDirVec;
+	float coneAngle = 0.0f;
+	mFunc_ComputeConeAngleForShadowRay(pObj, pos, centerDirVec, coneAngle);
+
+	RandomSampleGenerator::CosinePdfSphericalVec_Cone(centerDirVec, coneAngle,sampleCount,outVecList,outPdfList);
+
+}
+
+/*****************************************
+
+							PRIVATE
+
+*****************************************/
 
 inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_AzimuthalToDir(float theta, float phi)
 {
@@ -216,4 +245,40 @@ inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_Azi
 	vec.y = cosf(theta);
 	vec.z = sinf(theta)*sinf(phi);
 	return vec;
+}
+
+void Noise3D::GI::RandomSampleGenerator::mFunc_ConstructTransformMatrixFromYtoNormal(Vec3 n, Vec3 & outMatRow1, Vec3 & outMatRow2, Vec3 & outMatRow3)
+{
+	Vec3 y_axis = Vec3(0, 1.0f, 0);
+
+	//new basis
+	Vec3 new_x_axis = y_axis.Cross(n);
+	Vec3 new_y_axis = n;
+	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
+	new_x_axis.Normalize();
+	new_z_axis.Normalize();
+
+	//construct transform matrix
+	/*
+	[ (Y x N)   (N)   ((YxN)xN)] * vec
+	*/
+	outMatRow1 = { new_x_axis.x, new_y_axis.x ,new_z_axis.x };
+	outMatRow2 = { new_x_axis.y, new_y_axis.y ,new_z_axis.y };
+	outMatRow3 = { new_x_axis.z, new_y_axis.z ,new_z_axis.z };
+}
+
+inline void Noise3D::GI::RandomSampleGenerator::mFunc_ComputeConeAngleForShadowRay(ISceneObject * pObj, Vec3 pos, Vec3 & outCenterDirVec, float & outConeAngle)
+{
+	N_BoundingSphere sphere = pObj->ComputeWorldBoundingSphere_Accurate();
+	outCenterDirVec =  sphere.pos - pos;//trace a cone of rays from pos to light source (pObj)
+
+	//calculate tangent cone  (start from pos) of bounding sphere
+	float a = sphere.radius;
+	//float b, the tangent line
+	float c = (outCenterDirVec == Vec3(0,0,0)? 0: outCenterDirVec.Length());//hypotenuse
+	outConeAngle = 0.0f;
+	if (a != 0)
+	{
+		outConeAngle = a > c ? (Ut::PI /2.0f) : (Ut::PI / 2.0f - std::acosf(a / c));
+	}
 }

@@ -220,7 +220,7 @@ BOOL Init3D(HWND hwnd)
 	//-----Generate Rays--------
 	std::vector<N_Ray> rayArray;
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObject("rays");
-	const int c_rayCount = 100;
+	const int c_rayCount = 500;
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		// **************************************************
@@ -244,8 +244,10 @@ BOOL Init3D(HWND hwnd)
 	GI::RandomSampleGenerator g;
 	Vec3 origin = { 0,0,-40.0f };
 	std::vector<Vec3> dirList;
+	std::vector<float> pdfList;
 	ISceneObject* pObj = pShapeMgr->GetObjectPtr<LogicalBox>("logicBox5");
-	g.UniformSphericalVec_ShadowRays(origin, pObj, c_rayCount, dirList);
+	//g.UniformSphericalVec_ShadowRays(origin, pObj, c_rayCount, dirList);
+	g.CosinePdfSphericalVec_Cone(Vec3(0, 1, 0), Ut::PI / 2.0f, c_rayCount, dirList, pdfList);
 	for (int rayId = 0; rayId < c_rayCount; ++rayId)
 	{
 		N_Ray r = N_Ray(origin, dirList.at(rayId)*100.0f, 0.001f, 1.0f);
