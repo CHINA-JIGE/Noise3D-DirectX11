@@ -20,7 +20,8 @@ Noise3D::GI::PathTracer::PathTracer():
 	mRayMaxTravelDist(100.0f),
 	mTileWidth(16),
 	mTileHeight(16),
-	mIsRenderedFinished(false)
+	mIsRenderedFinished(false),
+	mLogExposurePreAmp(1.0f)
 {
 	m_pCT = Noise3D::GetScene()->GetCollisionTestor();
 }
@@ -217,6 +218,12 @@ void Noise3D::GI::PathTracer::TerminateRenderTask()
 	}
 }
 
+void Noise3D::GI::PathTracer::SetExposure(float e)
+{
+	if (e < 0.0f)e = 0.0f;
+	mLogExposurePreAmp = e;
+}
+
 /***********************************************
 
 							PRIVATE
@@ -262,6 +269,21 @@ void Noise3D::GI::PathTracer::mFunction_ComputeLightSourceList(std::vector<GI::I
 			outList.push_back(pRenderable);
 		}
 	}
+}
+
+Color4f Noise3D::GI::PathTracer::mFunction_ToneMapping(Color4f c)
+{
+	/*tmpColor *= mLogExposurePreAmp;
+	Color4f logExposureColor = Color4f(
+		log10f(tmpColor.x + 1.0f),
+		log10f(tmpColor.y + 1.0f),
+		log10f(tmpColor.z + 1.0f), 0.0f);*/
+
+	float r = 1.0f - std::expf(-c.R * mLogExposurePreAmp);
+	float g = 1.0f - std::expf(-c.G * mLogExposurePreAmp);
+	float b = 1.0f - std::expf(-c.B * mLogExposurePreAmp);
+	float a = 1.0f - std::expf(-c.A * mLogExposurePreAmp);
+	return Color4f(r,g,b,a);
 }
 
 void Noise3D::GI::PathTracer::_RenderTileWorkerThread(std::queue<N_RenderTileInfo>& renderTaskList)
@@ -317,7 +339,8 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 			Color4f tmpColor = Color4f(payload.radiance.x, payload.radiance.y, payload.radiance.z, 1.0f);
 			mHdrRenderTarget.at(globalPixelY * totalWidth + globalPixelX) = tmpColor;
 
-			Color4u outputColor(tmpColor);//convert to 8bitx4 color via constructor
+			//(2019.4.19)log exposure to remap hdr(?) (perhaps tone mapping later)
+			Color4u outputColor(mFunction_ToneMapping(tmpColor));//convert to 8bitx4 color via constructor
 			m_pFinalRenderTarget->SetPixel(info.topLeftX + x, info.topLeftY + y, outputColor);
 		}
 	}

@@ -63,13 +63,15 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
+	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxDiffuseBounces(1);
 	m_pPathTracer->SetMaxSpecularReflectionBounces(3);
 	m_pPathTracer->SetMaxRefractionBounces(2);
 	m_pPathTracer->SetMaxDiffuseSampleCount(128);
+	m_pPathTracer->SetMaxSpecularScatterSample(32);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
+	m_pPathTracer->SetExposure(1.0f);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()

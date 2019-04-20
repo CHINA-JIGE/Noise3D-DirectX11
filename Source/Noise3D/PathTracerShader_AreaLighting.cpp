@@ -11,9 +11,7 @@ using namespace Noise3D;
 
 /***********************************************************
 
-Path Tracer Shader: Diffuse
-
-diffuse demo
+			Path Tracer Shader: Area Lighting
 
 ***********************************************************/
 #include "Noise3D.h"
@@ -25,16 +23,18 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
 	if (pMat->IsEmissionEnabled())
 	{
-		float invDist = 1.0f / (param.ray.Distance(hitInfo.t));
-		in_out_payload.radiance = pMat->GetDesc().emission * invDist* invDist;
+		float invDist = 1.0f/(param.ray.Distance(hitInfo.t)+1.0f);
+		//float logExposureInvDist = 1.0f/(log(dist)+0.1f);
+		in_out_payload.radiance = pMat->GetDesc().emission * invDist * invDist;
 		return;
 	}
 
 	if (param.isShadowRay)
 	{
 		if (hitInfo.pHitObj != mLightSourceList.at(param.shadowRayLightSourceId))return;
-		float invDist = 1.0f / (param.ray.Distance(hitInfo.t));
-		in_out_payload.radiance = _EvalDirectLighting(param.ray, param.shadowRayLightSourceId)* invDist* invDist;
+		float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
+		//float logExposureInvDist = 1.0f / (log(dist) + 0.1f);
+		in_out_payload.radiance = _EvalDirectLighting(param.ray, param.shadowRayLightSourceId)* invDist * invDist;
 		return;
 	}
 	
@@ -132,7 +132,7 @@ GI::Radiance Noise3D::GI::PathTracerShader_AreaLightingDemo::_EvalDirectLighting
 	GI::IGiRenderable* pLightSrc = mLightSourceList.at(lightSourceId);
 	const N_AdvancedMatDesc& desc = pLightSrc->GetGiMaterial()->GetDesc();
 	//float distInv = 1.0f / (shadowRay.dir.Length()+0.01f);
-//	return GI::Radiance(desc.emission) * distInv * distInv;
+	//return GI::Radiance(desc.emission) * distInv * distInv;
 	return GI::Radiance(desc.emission);
 }
 

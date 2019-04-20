@@ -50,7 +50,7 @@ Color4u Noise3D::TextureCubeMap::GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mo
 	if (ITexture::IsSysMemBufferValid())
 	{
 		//normalize the direction to put its end on a width=2 cube 
-		float normalizedFactor = max(max(abs(dir.x), abs(dir.y)), abs(dir.z));
+		float normalizedFactor = std::max<float>(std::max<float>(abs(dir.x), abs(dir.y)), abs(dir.z));
 		dir /= -normalizedFactor;
 		std::swap(dir.x, dir.z);//right-handed to left-handed
 

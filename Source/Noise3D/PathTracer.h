@@ -98,6 +98,9 @@ namespace Noise3D
 			//end all rendering immediately
 			void TerminateRenderTask();
 
+			//image's exposure factor for tone mapping
+			void SetExposure(float e);
+
 		protected:
 
 			struct N_RenderTileInfo
@@ -139,6 +142,9 @@ namespace Noise3D
 
 			void mFunction_ComputeLightSourceList(std::vector<GI::IGiRenderable*>& outList);
 
+			Color4f mFunction_ToneMapping(Color4f c);
+
+
 			std::vector<Color4f> mHdrRenderTarget;//temporary internal HDR render target
 
 			Texture2D* m_pFinalRenderTarget;//created by SceneManager
@@ -168,6 +174,9 @@ namespace Noise3D
 			uint32_t mTileHeight;
 
 			bool mIsRenderedFinished;
+
+			//log exposure
+			float mLogExposurePreAmp;
 		};
 	}
 }

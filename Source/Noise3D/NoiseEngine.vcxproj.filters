@@ -163,9 +163,6 @@
     <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders">
       <UniqueIdentifier>{d41d1631-85f2-42da-b30e-a839fff4f0ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\GI\GILight">
-      <UniqueIdentifier>{48087c73-fecd-4068-a6f6-d4617ce8fde7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Demo">
       <UniqueIdentifier>{5a38ae16-e965-40b1-a898-4e874726ebac}</UniqueIdentifier>
     </Filter>
@@ -414,12 +411,6 @@
     </ClInclude>
     <ClInclude Include="BxdfUt.h">
       <Filter>NoiseGraphic\GI\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="GiLightMgr.h">
-      <Filter>NoiseGraphic\GI\GILight</Filter>
-    </ClInclude>
-    <ClInclude Include="GiAreaLight.h">
-      <Filter>NoiseGraphic\GI\GILight</Filter>
     </ClInclude>
     <ClInclude Include="_GI.h">
       <Filter>NoiseGraphic\GI</Filter>

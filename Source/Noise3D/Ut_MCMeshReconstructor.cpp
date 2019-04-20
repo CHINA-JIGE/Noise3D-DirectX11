@@ -274,7 +274,7 @@ inline float MarchingCubeMeshReconstructor::mFunction_ComputeEdgeLerpRatio(int e
 	//(where the value happen to exceed BinarizedThreshold)
 	float edgeStartVal = mFunction_Sample(start_i, start_j, start_k);
 	bool isInitValLargerThanThreshold = bool(edgeStartVal > c_SampleBinarizationThreshold);
-	int maxStepCount = int(max(max(mResampleScaleX, mResampleScaleY), mResampleScaleZ));
+	int maxStepCount = int(std::max<int>(std::max<int>(mResampleScaleX, mResampleScaleY), mResampleScaleZ));
 
 	for (int stepCount=0; stepCount<maxStepCount;++stepCount)
 	{

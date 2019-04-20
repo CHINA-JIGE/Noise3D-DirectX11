@@ -128,7 +128,7 @@ using namespace Noise3D;
 	//Note that if find_last_of() failed, a int(-1) will be returned
 	int pos1 = completeFilePath.find_last_of('/');
 	int pos2 = completeFilePath.find_last_of('\\');
-	std::string result = completeFilePath.substr(max(pos1, pos2) + 1);
+	std::string result = completeFilePath.substr(std::max<int>(pos1, pos2) + 1);
 	return result;
 }
 
