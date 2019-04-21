@@ -32,6 +32,8 @@ namespace Noise3D
 
 		NOISE_RECT_ORIENTATION GetOrientation()const;
 
+		Vec2 ComputeUV(Vec3 pos);
+
 		void SetSize(float width, float height);
 
 		void SetSize(Vec2 size);
@@ -40,6 +42,8 @@ namespace Noise3D
 
 		//generate random sample point without world transform
 		Vec3 GenLocalRandomPoint();
+
+		void SetUVNegative(bool isNeg);//neg_uv: (1.0f,1.0f)-(u,v)
 
 		//ISceneObject::
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;
@@ -71,5 +75,7 @@ namespace Noise3D
 		Vec2 mSize;
 
 		NOISE_RECT_ORIENTATION mOrientation;
+
+		bool mUVNegative;//1.0f-u, 1.0f-v
 	};
 }

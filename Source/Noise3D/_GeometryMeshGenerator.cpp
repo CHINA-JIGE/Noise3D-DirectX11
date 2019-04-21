@@ -11,17 +11,39 @@
 
 using namespace Noise3D;
 
-void IGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreatePlane(NOISE_RECT_ORIENTATION ori,float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
-	mFunction_Build_A_Quad(
-		Vec3(-fWidth / 2, 0, fDepth / 2),
-		Vec3(fWidth / (float)(iColumnCount - 1), 0, 0),//tangent
-		Vec3(0, 0, -fDepth / (float)(iRowCount - 1)),
-		iRowCount,
-		iColumnCount, 
-		0,
-		outVerticeList,
-		outIndicesList);
+	switch (ori)
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		mFunction_Build_A_Quad(
+			Vec3(-fWidth / 2.0f, fDepth / 2.0f, 0 ),
+			Vec3(fWidth / float(iColumnCount - 1), 0, 0),//tangent
+			Vec3(0, -fDepth / float(iRowCount - 1),0 ),
+			iRowCount,iColumnCount,0,outVerticeList,outIndicesList);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		mFunction_Build_A_Quad(
+			Vec3(-fWidth / 2.0f, 0,fDepth / 2.0f),
+			Vec3(fWidth / float(iColumnCount - 1), 0, 0),//tangent
+			Vec3(0, 0, -fDepth / float(iRowCount - 1)),
+			iRowCount, iColumnCount, 0, outVerticeList, outIndicesList);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		mFunction_Build_A_Quad(
+			Vec3(0, -fWidth / 2.0f, fDepth / 2.0f),
+			Vec3(0, fWidth / float(iColumnCount - 1), 0),//tangent
+			Vec3(0, 0, -fDepth / float(iRowCount - 1)),
+			iRowCount, iColumnCount, 0, outVerticeList, outIndicesList);
+		break;
+
+	default:
+		ERROR_MSG("CreatePlane: no such orientation.");
+		break;
+	}
+
 }
 
 void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iWidthStep, UINT iHeightStep, UINT iDepthStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)

@@ -30,9 +30,38 @@ Vec3 Noise3D::LogicalBox::ComputeNormal(NOISE_BOX_FACET facet)
 	case NOISE_BOX_FACET::POS_Z: return Vec3(0, 0, 1.0f);
 	case NOISE_BOX_FACET::NEG_Z: return Vec3(0, 0, -1.0f);
 	default:
-		WARNING_MSG("logical box: compute normal, facet param invalid.")
+		WARNING_MSG("logical box: compute normal: facet param invalid.")
 	}
 	return Vec3(0, 0, 0);
+}
+
+Vec2 Noise3D::LogicalBox::ComputeUV(const N_AABB & aabb, NOISE_BOX_FACET facet, Vec3 pos)
+{
+	Vec3 extent = aabb.max - aabb.min;
+	float t_x = (pos.x - aabb.min.x) / extent.x;
+	float t_y = (pos.y - aabb.min.y) / extent.y;
+	float t_z = (pos.z - aabb.min.z) / extent.z;
+	t_x = std::modff(t_x, nullptr);//get its fractional part
+	t_y = std::modff(t_y, nullptr);
+	t_z = std::modff(t_z, nullptr);
+	switch (facet)
+	{
+	case NOISE_BOX_FACET::POS_X: return Vec2(t_y, t_z);
+	case NOISE_BOX_FACET::NEG_X: return Vec2(1.0f - t_y, 1.0f - t_z);
+	case NOISE_BOX_FACET::POS_Y: return Vec2(t_x, t_z);
+	case NOISE_BOX_FACET::NEG_Y: return Vec2(1.0f - t_x, 1.0f - t_z);
+	case NOISE_BOX_FACET::POS_Z: return Vec2(t_x, t_y);
+	case NOISE_BOX_FACET::NEG_Z: return Vec2(1.0f - t_x, 1.0f - t_y);
+	default:
+		WARNING_MSG("logical box: compute uv: facet param invalid.")
+	}
+	return Vec2(0, 0);
+}
+
+Vec2 Noise3D::LogicalBox::ComputeUV(NOISE_BOX_FACET facet, Vec3 pos)
+{
+	N_AABB aabb = LogicalBox::GetLocalBox();
+	return LogicalBox::ComputeUV(aabb, facet, pos);
 }
 
 

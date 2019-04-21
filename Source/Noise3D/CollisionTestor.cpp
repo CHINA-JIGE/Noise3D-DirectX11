@@ -304,19 +304,23 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 	//[t_resultMin, t_resultMax] is still valid, then output the result
 	if (isNearHit)
 	{
+		Vec3 pos = ray.Eval(t_resultMin);
 		N_RayHitInfo hitInfo(
 			t_resultMin,//t
-			ray.Eval(t_resultMin),//pos
-			LogicalBox::ComputeNormal(result_minHitFacetId));//normal
+			pos,//pos
+			LogicalBox::ComputeNormal(result_minHitFacetId),//normal
+			LogicalBox::ComputeUV(aabb,result_minHitFacetId, pos));//uv
 		outHitRes.hitList.push_back(hitInfo);
 	}
 
 	if (isFarHit)
 	{
+		Vec3 pos = ray.Eval(t_resultMax);
 		N_RayHitInfo hitInfo(
 			t_resultMax, //t
 			ray.Eval(t_resultMax), //pos
-			LogicalBox::ComputeNormal(result_maxHitFacetId));//normal
+			LogicalBox::ComputeNormal(result_maxHitFacetId),//normal
+			LogicalBox::ComputeUV(aabb, result_maxHitFacetId, pos));//uv
 		outHitRes.hitList.push_back(hitInfo);
 	}
 
@@ -346,6 +350,8 @@ bool Noise3D::CollisionTestor::IntersectRayRect(const N_Ray & ray, LogicalRect *
 	Vec3 normal2 = Vec3(0, 0, 0);
 	Vec3 pos = Vec3(0, 0, 0);
 	const Vec2 halfSize = pRect->GetSize()/2.0f;
+	const Vec2 uv = pRect->ComputeUV(pos);
+
 	switch (pRect->GetOrientation())
 	{
 	case NOISE_RECT_ORIENTATION::RECT_XY:
@@ -407,8 +413,8 @@ bool Noise3D::CollisionTestor::IntersectRayRect(const N_Ray & ray, LogicalRect *
 	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
 	//output local hit info (generate 2 intersection with opposite normal
-	N_RayHitInfo hitInfo1(result_t, pos, normal1);
-	N_RayHitInfo hitInfo2(result_t, pos, normal2);
+	N_RayHitInfo hitInfo1(result_t, pos, normal1, uv);
+	N_RayHitInfo hitInfo2(result_t, pos, normal2, uv);
 
 	outHitRes.hitList.push_back(hitInfo1);
 	outHitRes.hitList.push_back(hitInfo2);
@@ -516,7 +522,8 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 			pos *= pSphere->GetRadius();//to avoid part of the floating point error
 			Vec3 n = pos;
 			n.Normalize();
-			N_RayHitInfo hitInfo1(t1, pos, n);
+			Vec2 uv = pSphere->ComputeUV(pos);
+			N_RayHitInfo hitInfo1(t1, pos, n, uv);
 			outHitRes.hitList.push_back(hitInfo1);
 		}
 
@@ -529,7 +536,8 @@ bool Noise3D::CollisionTestor::IntersectRaySphere(const N_Ray & ray, LogicalSphe
 			pos *= pSphere->GetRadius();//to avoid part of the floating point error
 			Vec3 n = pos;
 			n.Normalize();
-			N_RayHitInfo hitInfo2(t2, pos, n);
+			Vec2 uv = pSphere->ComputeUV(pos);
+			N_RayHitInfo hitInfo2(t2, pos, n, uv);
 			outHitRes.hitList.push_back(hitInfo2);
 		}
 	}
@@ -578,7 +586,7 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, Vec3 v0, 
 	Vec3 pos = ray.Eval(result_t);
 	Vec3 n = E1.Cross(E2);
 	n.Normalize();
-	N_RayHitInfo hitInfo(result_t, pos, n);
+	N_RayHitInfo hitInfo(result_t, pos, n, Vec2(0,0));
 	outHitInfo = std::move(hitInfo);
 	return true;
 }
@@ -611,9 +619,10 @@ bool Noise3D::CollisionTestor::IntersectRayTriangle(const N_Ray & ray, const N_D
 
 	//output info
 	Vec3 pos = ray.Eval(result_t);
-	Vec3 n = ((1.0f - u - v)*v0.Normal + u*v1.Normal + v*v2.Normal);
+	Vec3 n = (1.0f - u - v)*v0.Normal + u*v1.Normal + v*v2.Normal;
 	n.Normalize();
-	N_RayHitInfo hitInfo(result_t,pos, n);
+	Vec2 texcoord = (1.0f - u - v)*v0.TexCoord + u*v1.TexCoord + v*v2.TexCoord;
+	N_RayHitInfo hitInfo(result_t,pos, n, texcoord);
 	outHitInfo = std::move(hitInfo);
 	return true;
 }
@@ -640,7 +649,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	//apply ray-triangle intersection for each triangle in model space
 	for (uint32_t i = 0; i < pMesh->GetTriangleCount(); ++i)
 	{
-		N_RayHitInfo hitInfo(-123456789.0f,Vec3(),Vec3());
+		N_RayHitInfo hitInfo(-123456789.0f,Vec3(),Vec3(),Vec2());
 		const N_DefaultVertex& v0 = pVB->at(pIB->at(3 * i + 0));
 		const N_DefaultVertex& v1 = pVB->at(pIB->at(3 * i + 1));
 		const N_DefaultVertex& v2 = pVB->at(pIB->at(3 * i + 2));

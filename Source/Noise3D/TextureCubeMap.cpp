@@ -57,11 +57,11 @@ Color4u Noise3D::TextureCubeMap::GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mo
 		//cube maps faces: +x, -x, +y, -y, +z, -z
 		uint32_t faceID = -1;
 		if (Ut::TolerantEqual(dir.x , 1.0f))faceID = 0;
-		if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
-		if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
-		if (Ut::TolerantEqual(dir.y , -1.0f))faceID =3;
-		if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
-		if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
+		else if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
+		else if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
+		else if (Ut::TolerantEqual(dir.y , -1.0f))faceID =3;
+		else if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
+		else if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
 
 		if (faceID >= 6)
 		{

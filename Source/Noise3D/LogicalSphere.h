@@ -21,6 +21,10 @@ namespace Noise3D
 
 		//Vec3 ComputeVec(float theta_pitch, float phi_yaw);
 
+		Vec3 ComputeNormal(Vec3 pos);
+
+		Vec2 ComputeUV(Vec3 pos);
+
 		void SetRadius(float r);
 
 		float GetRadius() const;

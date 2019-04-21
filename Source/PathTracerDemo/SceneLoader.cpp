@@ -199,7 +199,7 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 	pNode->GetLocalTransform().SetPosition(pos);
 
 	Mesh* pMeshRect = m_pMeshMgr->CreateMesh(pNode, "rect" + std::to_string(id));
-	m_pModelLoader->LoadPlane(pMeshRect, size.x, size.y, 3,3);
+	m_pModelLoader->LoadPlane(pMeshRect, ori, size.x, size.y, 3,3);
 	pMeshRect->SetCollidable(false);
 	pMeshRect->SetMaterial("previewObjMat");
 

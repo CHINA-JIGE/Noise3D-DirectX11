@@ -155,7 +155,7 @@ void MainApp::Mainloop_RealTimePreview()
 
 void MainApp::Mainloop_RenderPathTracedResult()
 {
-	Sleep(50);
+	Sleep(200);
 	mTimer.NextTick();
 	m_pRenderer->ClearBackground();
 	InputProcess_PathTracerRendering();
@@ -166,7 +166,7 @@ void MainApp::Mainloop_RenderPathTracedResult()
 
 	if (!isFinished)mTotalPathTracerRenderTime += float(mTimer.GetInterval());
 
-	if (!isFinished && mTimer.GetTotalTimeElapsed()>500.0f)
+	if (!isFinished && mTimer.GetTotalTimeElapsed()>1000.0f)
 	{
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
 		mTimer.ResetTotalTime();

@@ -34,6 +34,10 @@ namespace Noise3D
 		//('facet' is used to explicit decide  face, avoid the rounding error on box's corner, might round to adjacent facet)
 		static Vec3 ComputeNormal(NOISE_BOX_FACET facet);
 
+		static Vec2 ComputeUV(const N_AABB& aabb, NOISE_BOX_FACET facet, Vec3 pos);
+
+		Vec2 ComputeUV(NOISE_BOX_FACET facet, Vec3 pos);
+
 		//box is AABB in local space
 		//void SetLocalBox(N_AABB aabb);
 		void SetSizeXYZ(Vec3 size);

@@ -29,6 +29,39 @@ NOISE_RECT_ORIENTATION Noise3D::LogicalRect::GetOrientation() const
 	return mOrientation;
 }
 
+Vec2 Noise3D::LogicalRect::ComputeUV(Vec3 pos)
+{
+	Vec2 negHalfSize = -mSize / 2.0f;
+	float u = 0.0f, v = 0.0f;
+
+	switch (mOrientation)
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		float u = (pos.x - negHalfSize.x) / mSize.x;
+		float v = (pos.y - negHalfSize.y) / mSize.y;
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		float u = (pos.x - negHalfSize.x) / mSize.x;
+		float v = (pos.z - negHalfSize.y) / mSize.y;
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		float u = (pos.y - negHalfSize.x) / mSize.x;
+		float v = (pos.z - negHalfSize.y) / mSize.y;
+		break;
+	}
+
+	u = std::modff(u, nullptr);
+	v = std::modff(v, nullptr);
+	if (mUVNegative)
+	{
+		u = 1.0f - u;
+		v = 1.0f - v;
+	}
+	return Vec2(u, v);
+}
+
 void Noise3D::LogicalRect::SetSize(float width, float height)
 {
 	if (width != 0 && height != 0)
@@ -69,6 +102,11 @@ Vec3 Noise3D::LogicalRect::GenLocalRandomPoint()
 		break;
 	}
 	return Vec3(0, 0, 0);
+}
+
+void Noise3D::LogicalRect::SetUVNegative(bool isNeg)
+{
+	mUVNegative = isNeg;
 }
 
 NOISE_SCENE_OBJECT_TYPE Noise3D::LogicalRect::GetObjectType() const

@@ -20,7 +20,7 @@ MeshLoader::~MeshLoader()
 
 };
 
-bool MeshLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
+bool MeshLoader::LoadPlane(Mesh * const pTargetMesh, NOISE_RECT_ORIENTATION ori, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
 	if (pTargetMesh == nullptr)return false;
 
@@ -31,7 +31,7 @@ bool MeshLoader::LoadPlane(Mesh * const pTargetMesh, float fWidth, float fDepth,
 	//delegate vert/idx creation duty to MeshGenerator 
 	std::vector<N_DefaultVertex> tmpVB;
 	std::vector<UINT> tmpIB;
-	mMeshGenerator.CreatePlane(fWidth, fDepth, iRowCount, iColumnCount, tmpVB, tmpIB);
+	mMeshGenerator.CreatePlane(ori, fWidth, fDepth, iRowCount, iColumnCount, tmpVB, tmpIB);
 
 	//copy won't be overhead because std::move is used inside the function
 	bool isUpdateOk = pTargetMesh->mFunction_CreateGpuBufferAndUpdateData(tmpVB, tmpIB);

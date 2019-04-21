@@ -19,6 +19,13 @@ Noise3D::LogicalSphere::~LogicalSphere()
 {
 }
 
+Vec2 Noise3D::LogicalSphere::ComputeUV(Vec3 pos)
+{
+	float yaw = 0.0f, pitch = 0.0f;
+	Ut::DirectionToYawPitch(pos, yaw, pitch);
+	return Vec2(yaw/(Ut::PI*2.0f), (pitch/Ut::PI)+0.5f);
+}
+
 void Noise3D::LogicalSphere::SetRadius(float r)
 {
 	mRadius = r > 0.0f ? r : 1.0f;

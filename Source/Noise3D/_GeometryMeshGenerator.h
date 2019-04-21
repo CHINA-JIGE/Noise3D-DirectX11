@@ -12,7 +12,7 @@ namespace Noise3D
 	{
 	public:
 
-		void	CreatePlane(float fWidth, float fHeight, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
+		void	CreatePlane(NOISE_RECT_ORIENTATION ori, float fWidth, float fHeight, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
 
 		void CreateBox(float fWidth, float fHeight, float fDepth, UINT iWidthStep, UINT iHeightStep, UINT iDepthStep,  std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList);
 

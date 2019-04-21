@@ -29,7 +29,7 @@ namespace Noise3D
 	public:
 
 		//pointer won't be modified.(object pointer should be created by MeshManager)
-		bool		LoadPlane(Mesh* const pTargetMesh, float fWidth, float fDepth, UINT iRowCount = 5, UINT iColumnCount = 5);
+		bool		LoadPlane(Mesh* const pTargetMesh, NOISE_RECT_ORIENTATION ori, float fWidth, float fDepth, UINT iRowCount = 5, UINT iColumnCount = 5);
 
 		bool		LoadBox(Mesh* const pTargetMesh, float fWidth, float fHeight, float fDepth, UINT iDepthStep = 3, UINT iWidthStep = 3, UINT iHeightStep = 3);
 
