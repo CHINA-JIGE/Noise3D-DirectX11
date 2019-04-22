@@ -37,23 +37,23 @@ Vec2 Noise3D::LogicalRect::ComputeUV(Vec3 pos)
 	switch (mOrientation)
 	{
 	case NOISE_RECT_ORIENTATION::RECT_XY:
-		float u = (pos.x - negHalfSize.x) / mSize.x;
-		float v = (pos.y - negHalfSize.y) / mSize.y;
+		u = (pos.x - negHalfSize.x) / mSize.x;
+		v = (pos.y - negHalfSize.y) / mSize.y;
 		break;
 
 	case NOISE_RECT_ORIENTATION::RECT_XZ:
-		float u = (pos.x - negHalfSize.x) / mSize.x;
-		float v = (pos.z - negHalfSize.y) / mSize.y;
+		u = (pos.x - negHalfSize.x) / mSize.x;
+		v = (pos.z - negHalfSize.y) / mSize.y;
 		break;
 
 	case NOISE_RECT_ORIENTATION::RECT_YZ:
-		float u = (pos.y - negHalfSize.x) / mSize.x;
-		float v = (pos.z - negHalfSize.y) / mSize.y;
+		u = (pos.y - negHalfSize.x) / mSize.x;
+		v = (pos.z - negHalfSize.y) / mSize.y;
 		break;
 	}
 
-	u = std::modff(u, nullptr);
-	v = std::modff(v, nullptr);
+	u = std::fmodf(u, 1.0f);
+	v = std::fmodf(v, 1.0f);
 	if (mUVNegative)
 	{
 		u = 1.0f - u;

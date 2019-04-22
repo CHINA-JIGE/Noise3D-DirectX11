@@ -28,9 +28,8 @@ float Noise3D::GI::BxdfUt::SchlickFresnel(float F0, Vec3 v, Vec3 h)
 	return F;
 }
 
-Color4f Noise3D::GI::BxdfUt::DisneyDiffuse(Color4f albedo, Vec3 v, Vec3 l, Vec3 n, Vec3 h, float alpha)
+Vec3 Noise3D::GI::BxdfUt::DisneyDiffuse(Vec3 albedo, Vec3 v, Vec3 l, Vec3 n, Vec3 h, float alpha)
 {
-	albedo.w = 0.0f;
 	//v:view, l:light, n:normal, h:half vector, alpha:roughness^2
 	//disney diffuse = ( albedo/pi ) *(1+ (F_D90-1)(1- (v dot n))^5)*(1+ (F_D90-1)(1- (l dot n))^5)
 	float oneMinusCosL = 1.0f - Ut::Clamp(l.Dot(n), 0.0f, 1.0f);
@@ -45,22 +44,22 @@ Color4f Noise3D::GI::BxdfUt::DisneyDiffuse(Color4f albedo, Vec3 v, Vec3 l, Vec3 
 	return albedo * tmpResult;
 }
 
-Color4f Noise3D::GI::BxdfUt::LambertDiffuse(Color4f albedo, Vec3 l, Vec3 n)
+Vec3 Noise3D::GI::BxdfUt::LambertDiffuse(Vec3 albedo, Vec3 l, Vec3 n)
 {
 	return albedo  * l.Dot(n)  * Ut::INV_PI;
 }
 
-Color4f Noise3D::GI::BxdfUt::LambertDiffuse(Color4f albedo, float LdotN)
+Vec3 Noise3D::GI::BxdfUt::LambertDiffuse(Vec3 albedo, float LdotN)
 {
 	return albedo  * LdotN  *Ut::INV_PI;
 }
 
-Color4f Noise3D::GI::BxdfUt::OrenNayarDiffuse(Color4f albedo, Vec3 l, Vec3 v, Vec3 n, float sigmaAngle)
+Vec3 Noise3D::GI::BxdfUt::OrenNayarDiffuse(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float sigmaAngle)
 {
 	//[Oren-Nayar94] [pbrt-8.4.1]
 	float A = 0.0f, B = 0.0f;
 	BxdfUt::OrenNayarDiffuseAB(sigmaAngle, A, B);
-	Color4f diffuse = BxdfUt::OrenNayarDiffuse(albedo, l, v, n, A, B);
+	Vec3 diffuse = BxdfUt::OrenNayarDiffuse(albedo, l, v, n, A, B);
 	return diffuse;
 }
 
@@ -71,7 +70,7 @@ void Noise3D::GI::BxdfUt::OrenNayarDiffuseAB(float sigma, float & A, float & B)
 	B = 0.45f * sig2 / (sig2 + 0.09f);
 }
 
-Color4f Noise3D::GI::BxdfUt::OrenNayarDiffuse(Color4f albedo, Vec3 l, Vec3 v, Vec3 n, float A, float B)
+Vec3 Noise3D::GI::BxdfUt::OrenNayarDiffuse(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float A, float B)
 {
 	//(2019.4.20)this is modified. it originally needs acosf() and cosf/sinf
 	float cosIn = std::abs(n.Dot(l));
@@ -82,7 +81,7 @@ Color4f Noise3D::GI::BxdfUt::OrenNayarDiffuse(Color4f albedo, Vec3 l, Vec3 v, Ve
 	float sinAngleAlpha = std::max<float>(sinIn, sinOut);//alpha = max(theta_i, theta_o)
 	float cosAngleBeta = std::max<float>(cosIn, cosOut);//beta= min(theta_i, theta_o) = max(cos(theta_i),cos(theta_o))
 
-	Color4f diffuse = albedo *Ut::INV_PI * (A + B* cosInOutTerm * sinAngleAlpha * cosAngleBeta);
+	Vec3 diffuse = albedo *Ut::INV_PI * (A + B* cosInOutTerm * sinAngleAlpha * cosAngleBeta);
 	return diffuse;
 }
 
@@ -193,4 +192,9 @@ float Noise3D::GI::BxdfUt::G_SmithBeckmann(Vec3 l, Vec3 v, Vec3 n, float alpha)
 	float G = G1*G2;
 
 	return G;
+}
+
+float Noise3D::GI::BxdfUt::CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D, float G)
+{
+	return (D*G) / (4.0f*v.Dot(n)*l.Dot(n));
 }

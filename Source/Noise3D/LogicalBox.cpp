@@ -41,9 +41,9 @@ Vec2 Noise3D::LogicalBox::ComputeUV(const N_AABB & aabb, NOISE_BOX_FACET facet, 
 	float t_x = (pos.x - aabb.min.x) / extent.x;
 	float t_y = (pos.y - aabb.min.y) / extent.y;
 	float t_z = (pos.z - aabb.min.z) / extent.z;
-	t_x = std::modff(t_x, nullptr);//get its fractional part
-	t_y = std::modff(t_y, nullptr);
-	t_z = std::modff(t_z, nullptr);
+	t_x = std::fmodf(t_x, 1.0f);//get its fractional part
+	t_y = std::fmodf(t_y, 1.0f);
+	t_z = std::fmodf(t_z, 1.0f);
 	switch (facet)
 	{
 	case NOISE_BOX_FACET::POS_X: return Vec2(t_y, t_z);

@@ -1,9 +1,15 @@
+/***********************************************************************
+
+				a header to place stable headers (for PCH)
+
+************************************************************************/
+#pragma once
 
 /***********************************************************************
 
-							**Main header of Noise3D**
+**Main header of Noise3D**
 
-						currently precompile header is used
+currently precompile header is used
 
 ************************************************************************/
 

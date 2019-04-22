@@ -189,7 +189,7 @@ void Noise3D::GI::PathTracer::SetMaxSpecularScatterSample(uint32_t sampleCount)
 	mMaxSpecularScatterSampleCount = sampleCount;
 }
 
-uint32_t Noise3D::GI::PathTracer::GetMaxSpecularScatterSample()
+uint32_t Noise3D::GI::PathTracer::GetMaxSpecularScatterSampleCount()
 {
 	return mMaxSpecularScatterSampleCount;
 }
@@ -279,10 +279,10 @@ Color4f Noise3D::GI::PathTracer::mFunction_ToneMapping(Color4f c)
 		log10f(tmpColor.y + 1.0f),
 		log10f(tmpColor.z + 1.0f), 0.0f);*/
 
-	float r = 1.0f - std::expf(-c.R * mLogExposurePreAmp);
-	float g = 1.0f - std::expf(-c.G * mLogExposurePreAmp);
-	float b = 1.0f - std::expf(-c.B * mLogExposurePreAmp);
-	float a = 1.0f - std::expf(-c.A * mLogExposurePreAmp);
+	float r = 1.0f - std::expf(-c.x * mLogExposurePreAmp);
+	float g = 1.0f - std::expf(-c.y * mLogExposurePreAmp);
+	float b = 1.0f - std::expf(-c.z * mLogExposurePreAmp);
+	float a = 1.0f - std::expf(-c.w * mLogExposurePreAmp);
 	return Color4f(r,g,b,a);
 }
 

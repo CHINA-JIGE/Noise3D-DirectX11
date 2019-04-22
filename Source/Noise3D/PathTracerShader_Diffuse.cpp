@@ -46,11 +46,11 @@ void Noise3D::GI::PathTracerShader_DiffuseDemo::ClosestHit(const N_TraceRayParam
 		Vec3 lightVec = diffSampleDir;
 		Vec3 halfVector = (viewVec + lightVec);// v + l
 		halfVector.Normalize();
-		Color4f albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		Vec3 albedo = Vec3(1.0f, 1.0f, 1.0f);
 
 		if (LdotN > 0.0f) 
 		{ 
-			Color4f lambertDiffuseBrdf = BxdfUt::LambertDiffuse(albedo, LdotN);
+			Vec3 lambertDiffuseBrdf = BxdfUt::LambertDiffuse(albedo, LdotN);
 			GI::Radiance deltaRadiance = payload.radiance *lambertDiffuseBrdf;
 			//Color4f disneyDiffuseBrdf = BxdfUt::DisneyDiffuse(albedo, viewVec, lightVec, hitInfo.normal, halfVector, 1.0f);
 			//GI::Radiance deltaRadiance = payload.radiance * disneyDiffuseBrdf;

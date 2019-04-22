@@ -21,26 +21,50 @@ using namespace Noise3D;
 void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
 	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
-	if (pMat->IsEmissionEnabled())
-	{
-		float invDist = 1.0f/(param.ray.Distance(hitInfo.t)+1.0f);
-		//float logExposureInvDist = 1.0f/(log(dist)+0.1f);
-		in_out_payload.radiance = pMat->GetDesc().emission * invDist * invDist;
-		return;
-	}
 
+	GI::Radiance outEmission;
+
+	/*if (param.isShadowRay)
+	{
+		if (hitInfo.pHitObj != mLightSourceList.at(param.shadowRayLightSourceId))return;
+
+		float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
+		//float logExposureInvDist = 1.0f / (log(dist) + 0.1f);
+		outEmission = pMat->GetDesc().emission* invDist * invDist;//_EvalEmission(param.ray, param.shadowRayLightSourceId)* invDist * invDist;
+		if (outEmission.Length() > 2.0f)
+		{
+			in_out_payload.radiance = outEmission;
+			return;
+		}
+	}
+	else
+	{
+		//primary ray
+		if (pMat->IsEmissionEnabled())
+		{
+			float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
+			//float logExposureInvDist = 1.0f/(log(dist)+0.1f);
+			outEmission = pMat->GetDesc().emission * invDist * invDist;
+			in_out_payload.radiance = outEmission;
+			return;
+		}
+	}*/
 	if (param.isShadowRay)
 	{
 		if (hitInfo.pHitObj != mLightSourceList.at(param.shadowRayLightSourceId))return;
+	}
+	if (pMat->IsEmissionEnabled())
+	{
 		float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
-		//float logExposureInvDist = 1.0f / (log(dist) + 0.1f);
-		in_out_payload.radiance = _EvalDirectLighting(param.ray, param.shadowRayLightSourceId)* invDist * invDist;
+		//float logExposureInvDist = 1.0f/(log(dist)+0.1f);
+		outEmission = pMat->GetDesc().emission * invDist * invDist;
+		in_out_payload.radiance = outEmission;
 		return;
 	}
-	
+
 	GI::RandomSampleGenerator g;
 	GI::Radiance accumulatedDiffuseRadiance;
-	Color4f albedo = pMat->GetDesc().albedo;
+	Vec3 albedo = pMat->GetDesc().albedo;
 
 	//g.UniformSphericalVec_Hemisphere(hitInfo.normal, diffSampleCount, dirList);
 	//g.CosinePdfSphericalVec_Cone(hitInfo.normal, Ut::PI / 2.0f, diffSampleCount, dirList, pdfList);
@@ -92,7 +116,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 			GI::Radiance diffuseRadiancePerLight;
 			if (LdotN > 0.0f)
 			{
-				Color4f lambertDiffuseBrdf = BxdfUt::LambertDiffuse(albedo, LdotN);
+				Vec3 lambertDiffuseBrdf = BxdfUt::LambertDiffuse(albedo, LdotN);
 				GI::Radiance deltaRadiance = payload.radiance *lambertDiffuseBrdf;
 				//Color4f disneyDiffuseBrdf = BxdfUt::DisneyDiffuse(albedo, viewVec, lightVec, hitInfo.normal, halfVector, 1.0f);
 				//GI::Radiance deltaRadiance = payload.radiance * disneyDiffuseBrdf;
@@ -119,7 +143,9 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 		}
 
 	}
-	in_out_payload.radiance = accumulatedDiffuseRadiance;
+
+
+	in_out_payload.radiance = accumulatedDiffuseRadiance + outEmission;
 }
 
 void Noise3D::GI::PathTracerShader_AreaLightingDemo::Miss(N_Ray ray, N_TraceRayPayload & in_out_payload)
@@ -127,7 +153,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::Miss(N_Ray ray, N_TraceRayP
 	in_out_payload.radiance = GI::Radiance(0,0,0);
 }
 
-GI::Radiance Noise3D::GI::PathTracerShader_AreaLightingDemo::_EvalDirectLighting(N_Ray shadowRay, uint32_t lightSourceId)
+GI::Radiance Noise3D::GI::PathTracerShader_AreaLightingDemo::_EvalEmission(N_Ray shadowRay, uint32_t lightSourceId)
 {
 	GI::IGiRenderable* pLightSrc = mLightSourceList.at(lightSourceId);
 	const N_AdvancedMatDesc& desc = pLightSrc->GetGiMaterial()->GetDesc();

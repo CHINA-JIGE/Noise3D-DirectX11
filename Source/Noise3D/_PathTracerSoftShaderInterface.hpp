@@ -59,7 +59,7 @@ namespace Noise3D
 				m_pFatherPathTracer->TraceRay(param, out_payload);
 			}
 
-			uint32_t _MaxBounces()
+			uint32_t _MaxDiffuseBounces()
 			{
 				return m_pFatherPathTracer->GetMaxDiffuseBounces();
 			}
@@ -71,7 +71,7 @@ namespace Noise3D
 
 			uint32_t _MaxSpecularScatterSample()
 			{
-				return m_pFatherPathTracer->GetMaxSpecularScatterSample();
+				return m_pFatherPathTracer->GetMaxSpecularScatterSampleCount();
 			}
 
 			float _MaxDistance()

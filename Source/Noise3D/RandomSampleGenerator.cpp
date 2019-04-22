@@ -248,7 +248,6 @@ void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * 
 
 	//now the sample parameter uses (u,v) on rect instead of (theta,phi) of tracing position
 	outPdf = 1.0f / pRect->ComputeArea();
-
 }
 
 /*****************************************

@@ -8,6 +8,15 @@
 
 namespace Noise3D
 {
+
+	//plane that the rect lies on
+	enum NOISE_RECT_ORIENTATION
+	{
+		RECT_XY = 0,
+		RECT_XZ = 1,
+		RECT_YZ = 2
+	};
+
 	class /*_declspec(dllexport)*/  IGeometryMeshGenerator
 	{
 	public:

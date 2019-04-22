@@ -28,27 +28,41 @@ namespace Noise3D
 
 		private:
 
+			struct BxdfInfo
+			{
+				Vec3 k_d;//BxDF ratio is related to wave length
+				Vec3 k_s;
+				Vec3 k_t;
+				//Vec3 diffuseBRDF;
+				//float reflectionBRDF;//k_s/ Fresnel will be multiplied later
+				//float transmissionBTDF;
+			};
+
 			//final integration of all results of integration (blend 3 BxDF according to the ratio of sample count/variance)
-			GI::Radiance _FinalIntegration();
+			GI::Radiance _FinalIntegration(const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo);
 
-			//integration of  mul(light sources direct light,  complete BSDF)
-			GI::Radiance _IntegrateOverLightSources(int samplesPerLight);
+			//integration of  mul(light sources direct light,  surface BRDF)
+			void _IntegrateBsdfDirectLighting(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxDF, GI::Radiance& outDiffuse, GI::Radiance& outReflection);
 
-			 //integration of mul(non-light source indirect ligh, reflection BRDF+refraction BTDF)
+			 //integration of mul(non-light source indirect light, reflection BRDF+refraction BTDF)
 			//(additional sample for indirect lighting, less sample; might have importance sampling)
-			void _IntegrateSpecularBsdf(int samplesCount, GI::Radiance& outReflection, GI::Radiance& outTransmission);
+			void _IntegrateSpecularBrdfIndirect(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outReflection, GI::Radiance& outTransmission);
 
 			//integration of mul(non-light source indirect light, diffuse BRDF)
 			//(additional sample for indirect lighting of diffusion, SH vector will be used. )
-			GI::Radiance _IntegrateDiffuseBrdf(int samplesCount);
+			void _IntegrateDiffuseIndirect(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiff);
 
-			Vec3 _CompleteBsdf(const N_Ray& newSampleRay, const N_TraceRayParam& hitRayParam, const N_RayHitInfoForPathTracer & hitInfo);
 
-			Vec3 _DiffuseBrdf(Color4f albedo, Vec3 l, Vec3 v, Vec3 n, float alpha);
 
-			void _SpecularBsdf(Vec3 l, Vec3 v, Vec3 n, Vec3& outFresnel, Vec3& outReflectionBrdf, Vec3& outTransmissionBtdf);//microfacet reflection
+			//eval a complete BSDF
+			void _CalculateBxdfCoefficients(Vec3 lightDir, Vec3 viewDir, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo);
 
-			//Vec3 _SpecularTransmissionBtdf(Vec3 l, Vec3 v, Vec3 n, float D, float G, Vec3 F);//microfacet refraction/transmission
+			Vec3 _DiffuseBRDF(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float alpha);
+
+			//Fresnel term is not involved here. it's in k_s
+			float _SpecularReflectionBRDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet reflection
+
+			float _SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet refraction/transmission
 
 			NOISE_ATMOSPHERE_SKYTYPE mSkyType;
 

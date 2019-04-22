@@ -30,17 +30,17 @@ namespace Noise3D
 
 			static float SchlickFresnel(float F0, Vec3 v, Vec3 h);
 
-			static Color4f DisneyDiffuse(Color4f albedo, Vec3 v, Vec3 l, Vec3 n, Vec3 h, float alpha);
+			static Vec3 DisneyDiffuse(Vec3 albedo, Vec3 v, Vec3 l, Vec3 n, Vec3 h, float alpha);
 
-			static Color4f LambertDiffuse(Color4f albedo, Vec3 l, Vec3 n);
+			static Vec3 LambertDiffuse(Vec3 albedo, Vec3 l, Vec3 n);
 
-			static Color4f LambertDiffuse(Color4f albedo, float LdotN);
+			static Vec3 LambertDiffuse(Vec3 albedo, float LdotN);
 
-			static Color4f OrenNayarDiffuse(Color4f albedo, Vec3 l, Vec3 v, Vec3 n, float sigmaAngle);
+			static Vec3 OrenNayarDiffuse(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float sigmaAngle);
 
 			static void OrenNayarDiffuseAB(float sigma, float& A, float& B);
 
-			static Color4f OrenNayarDiffuse(Color4f albedo, Vec3 l, Vec3 v, Vec3 n, float A, float B);
+			static Vec3 OrenNayarDiffuse(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float A, float B);
 
 			static float D_GGX(Vec3 n, Vec3 h, float alpha);//NDF, Normal distribution function
 
@@ -53,7 +53,8 @@ namespace Noise3D
 
 			static float G_SmithBeckmann(Vec3 l, Vec3 v, Vec3 n, float alpha);
 
-			static Vec3 CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D, float G, Vec3 F);
+			//WARNING: this Cook-Torrance term computes WITHOUT Fresnel Term
+			static float CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D, float G);
 
 		private:
 

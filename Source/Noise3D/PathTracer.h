@@ -81,7 +81,7 @@ namespace Noise3D
 			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
 			void SetMaxSpecularScatterSample(uint32_t sampleCount);
 			uint32_t GetMaxDiffuseSampleCount();
-			uint32_t GetMaxSpecularScatterSample();
+			uint32_t GetMaxSpecularScatterSampleCount();
 
 			//ray's max travel distance
 			void SetRayMaxTravelDist(float dist);

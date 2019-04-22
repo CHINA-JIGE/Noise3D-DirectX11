@@ -45,7 +45,8 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_AreaLightingDemo);
+		&mPathTracerShader_Standard);
+		//&mPathTracerShader_AreaLightingDemo);
 		//&mPathTracerShader_RefractionDemo);
 		//&mPathTracerShader_DiffuseDemo);
 		//&mPathTracerShader_ReflectionDemo);
@@ -102,6 +103,9 @@ void MainApp::_InitSoftShader()
 
 	//area lighting
 	//...
+
+	//standard
+	mPathTracerShader_Standard.SetSkyDomeTexture(m_pTexMgr->GetObjectPtr<Texture2D>("envmap"));
 }
 
 /**************************************

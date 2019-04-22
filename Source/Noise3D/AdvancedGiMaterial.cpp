@@ -24,7 +24,7 @@ void Noise3D::GI::AdvancedGiMaterial::SetRoughness(float r)
 void Noise3D::GI::AdvancedGiMaterial::SetOpacity(float o)
 {
 	o= Ut::Clamp(o, 0.0f, 1.0f);
-	mMatDesc.opacity = o;
+	mMatDesc.transparency = o;
 }
 
 void Noise3D::GI::AdvancedGiMaterial::SetMetallicity(float m)
@@ -51,7 +51,7 @@ void Noise3D::GI::AdvancedGiMaterial::SetRefractiveIndex(float ior)
 
 bool Noise3D::GI::AdvancedGiMaterial::IsTransmissionEnabled()
 {
-	return mMatDesc.opacity != 1.0f;
+	return mMatDesc.transparency != 1.0f;
 }
 
 bool Noise3D::GI::AdvancedGiMaterial::IsEmissionEnabled()
@@ -77,7 +77,7 @@ void Noise3D::GI::AdvancedGiMaterial::Preset_PerfectGlass(float ior)
 	mMatDesc.metallicity = 0.0f;
 	float F0 = mFunc_IorToF0(mMatDesc.ior);
 	mMatDesc.metal_F0 = Vec3(F0, F0, F0);
-	mMatDesc.opacity = 0.0f;
+	mMatDesc.transparency = 0.0f;
 	mMatDesc.roughness = 0.0f;
 }
 

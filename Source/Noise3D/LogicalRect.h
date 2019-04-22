@@ -13,14 +13,6 @@ namespace Noise3D
 {
 	class LogicalShapeManager;
 
-	//plane that the rect lies on
-	enum NOISE_RECT_ORIENTATION
-	{
-		RECT_XY = 0,
-		RECT_XZ = 1,
-		RECT_YZ = 2
-	};
-
 	//create a rect centered at origin
 	class /*_declspec(dllexport)*/ LogicalRect :
 		public ILogicalShape
