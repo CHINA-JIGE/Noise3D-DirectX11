@@ -14,6 +14,8 @@ public:
 
 	void LoadScene_AreaLightingDemo(Camera * pCam);
 
+	void LoadScene_StandardShader(Camera * pCam);
+
 
 private:
 

@@ -49,8 +49,8 @@ namespace Noise3D
 
 			void CosinePdfSphericalVec_ShadowRays(Vec3 pos, ISceneObject* pObj, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
-			//shadow rays to sample a rect area light src
-			void RectShadowRays(Vec3 pos, LogicalRect* pRect, int sampleCount, std::vector<Vec3>& outVecList, float& outPdf);
+			//shadow rays to sample a rect area light src(normal r used to calculate pdf)
+			void RectShadowRays(Vec3 pos, LogicalRect* pRect, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 		private:
 

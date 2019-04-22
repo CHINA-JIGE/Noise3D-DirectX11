@@ -81,7 +81,9 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 #ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
 		if (param.isShadowRay && hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
 		{
-			g.RectShadowRays(hitInfo.pos, static_cast<LogicalRect*>(hitInfo.pHitObj), diffSampleCount, dirList, constantPdf);
+			//g.RectShadowRays(hitInfo.pos, static_cast<LogicalRect*>(hitInfo.pHitObj), diffSampleCount, dirList, constantPdf);
+			g.RectShadowRays(hitInfo.pos, static_cast<LogicalRect*>(hitInfo.pHitObj), diffSampleCount, dirList, pdfList);
+
 		}
 		else
 		{
@@ -125,7 +127,8 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 #ifdef COSINE_WEIGHTED_IMPORTANCE_SAMPLING
 				if (param.isShadowRay &&hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
 				{
-					deltaRadiance /= constantPdf;
+					//deltaRadiance /= constantPdf;
+					deltaRadiance /= pdfList.at(i);
 				}
 				else
 				{

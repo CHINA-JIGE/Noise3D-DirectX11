@@ -12,12 +12,12 @@ namespace Noise3D
 		struct N_AdvancedMatDesc
 		{
 			N_AdvancedMatDesc() :
-				albedo(1.0f, 1.0f, 1.0f, 1.0),
+				albedo(1.0f, 1.0f, 1.0f, 1.0f),
 				roughness(0.0f),
 				metallicity(0.0f),
 				transparency(0.0f),
 				ior(1.1f),
-				metal_F0(0.04f,0.04f,0.04f),
+				metal_F0(1.0f, 1.0f, 1.0f),
 				emission(0, 0, 0) {};
 
 			//(2019.4.14)metalness, transparency shall be 3D parameters that affect transimission ray throughout the object

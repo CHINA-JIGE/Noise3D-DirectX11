@@ -132,6 +132,8 @@
   <ItemGroup>
     <ClInclude Include="BvhTree.h" />
     <ClInclude Include="BxdfUt.h" />
+    <ClInclude Include="Noise3D_InDevHeader.h" />
+    <ClInclude Include="Noise3D_StableCommonHeader.h" />
     <ClInclude Include="PathTracerShader_AreaLighting.h" />
     <ClInclude Include="PathTracerStandardShader.h" />
     <ClInclude Include="_GI.h" />
@@ -270,9 +272,10 @@
     <ClCompile Include="pchGen.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Noise3D.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Noise3D_StableCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Noise3D_StableCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="GraphicObjManager.cpp" />
     <ClCompile Include="Texture2D.cpp" />

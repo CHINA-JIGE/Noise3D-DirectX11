@@ -6,6 +6,7 @@
 ********************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -27,6 +28,26 @@ void Noise3D::LogicalRect::SetOrientation(NOISE_RECT_ORIENTATION ori)
 NOISE_RECT_ORIENTATION Noise3D::LogicalRect::GetOrientation() const
 {
 	return mOrientation;
+}
+
+Vec3 Noise3D::LogicalRect::ComputeNormal()
+{
+	switch (mOrientation)
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		return Vec3(0, 0, 1.0f);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		return Vec3(0, 1.0f, 0);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		return Vec3(1.0f, 0, 0);
+		break;
+	}
+
+	return Vec3(0, 0, 0);
 }
 
 Vec2 Noise3D::LogicalRect::ComputeUV(Vec3 pos)

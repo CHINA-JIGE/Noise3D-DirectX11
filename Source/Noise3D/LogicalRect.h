@@ -24,6 +24,8 @@ namespace Noise3D
 
 		NOISE_RECT_ORIENTATION GetOrientation()const;
 
+		Vec3 ComputeNormal();
+
 		Vec2 ComputeUV(Vec3 pos);
 
 		void SetSize(float width, float height);

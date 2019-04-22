@@ -5,6 +5,7 @@
 *****************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -12,7 +13,7 @@ Vec3 Noise3D::GI::BxdfUt::SchlickFresnel_Vec3(Vec3 F0, Vec3 v, Vec3 h)
 {
 	//v:view, l:light, n:normal, h:half vector, alpha:roughness^2
 	//F = F0 + (1-F0)(1-(v dot H))^5
-	float OneMinusCos = Ut::Clamp(v.Dot(h),0.0f,1.0f);
+	float OneMinusCos = 1.0f - Ut::Clamp(v.Dot(h), 0.0f, 1.0f);
 	float OneMinusCos2 = OneMinusCos * OneMinusCos;
 	Vec3 F = F0 + (Vec3(1.0f, 1.0f, 1.0f) - F0) * OneMinusCos2 * OneMinusCos2 *OneMinusCos;
 	return F;

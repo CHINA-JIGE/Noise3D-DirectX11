@@ -5,6 +5,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -230,7 +231,7 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_ShadowRays(Vec3 p
 
 }
 
-void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * pRect, int sampleCount, std::vector<Vec3>& outVecList, float & outPdf)
+void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * pRect, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
 {
 	if (pRect == nullptr)return;
 
@@ -238,16 +239,28 @@ void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * 
 	AffineTransform t = pRect->GetAttachedSceneNode()->EvalWorldTransform();
 	NOISE_RECT_ORIENTATION ori = pRect->GetOrientation();
 	outVecList.reserve(sampleCount);
+	outPdfList.reserve(sampleCount);
 
+	Vec3 localNormal = pRect->ComputeNormal();//used to compute pdf
 	for (int i = 0; i < sampleCount; ++i)
 	{
 		Vec3 localPointOnRect = pRect->GenLocalRandomPoint();
 		Vec3 worldPointOnRect = t.TransformVector_Affine(localPointOnRect);
-		outVecList.push_back(worldPointOnRect-pos);
+		Vec3 dir = worldPointOnRect - pos;
+		float dirLength = dir.Length();
+		dir.Normalize();
+		outVecList.push_back(dir);
+
+		Vec3 worldNormal = t.TransformVector_Rigid(localNormal);
+		worldNormal -= t.GetPosition();
+		//d \omega / dA = <n,dir>/r^2
+		float cos = abs(worldNormal.Dot(dir));
+		outPdfList.push_back((dirLength*dirLength) /(cos * pRect->ComputeArea()) );
+
 	}
 
 	//now the sample parameter uses (u,v) on rect instead of (theta,phi) of tracing position
-	outPdf = 1.0f / pRect->ComputeArea();
+	//outArea_InvPdf = pRect->ComputeArea();
 }
 
 /*****************************************

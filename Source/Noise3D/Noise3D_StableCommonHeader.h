@@ -1,17 +1,9 @@
 /***********************************************************************
 
-				a header to place stable headers (for PCH)
+				a header to place stable headers (for PreCompiled Header)
 
 ************************************************************************/
 #pragma once
-
-/***********************************************************************
-
-**Main header of Noise3D**
-
-currently precompile header is used
-
-************************************************************************/
 
 #pragma once
 
@@ -131,7 +123,7 @@ currently precompile header is used
 #include "Ut_MCMeshReconstructor.h"
 
 
-//--------GI: Spherical Harmonic----------
+/*//--------GI: Spherical Harmonic----------
 #include "RandomSampleGenerator.h"
 #include "ISphericalFunc.h"
 #include "SHCommon.h"
@@ -147,7 +139,7 @@ currently precompile header is used
 #include "PathTracerShader_Reflection.h"
 #include "PathTracerShader_Diffuse.h"
 #include "PathTracerShader_Refraction.h"
-#include "PathTracerShader_AreaLighting.h"
+#include "PathTracerShader_AreaLighting.h"*/
 
 //-----------Noise GUI-------------
 //#include "NoiseGUISystem.h"

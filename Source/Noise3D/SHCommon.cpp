@@ -6,6 +6,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 #define SH_ASSERT(expr, prompt) if((expr)==false){ERROR_MSG(prompt);return 0.0f;}

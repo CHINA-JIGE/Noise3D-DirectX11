@@ -7,6 +7,7 @@
 
 ***********************************************************/
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -59,8 +60,9 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 		if (pMat->IsEmissionEnabled())
 		{
 			//TODO:sample emissive map here
-			float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
-			outEmission = pMat->GetDesc().emission * invDist * invDist;
+			//float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
+			//outEmission = pMat->GetDesc().emission * invDist * invDist;
+			outEmission = pMat->GetDesc().emission;
 			in_out_payload.radiance = outEmission;
 			return;
 		}
@@ -71,8 +73,9 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 		if (pMat->IsEmissionEnabled())
 		{
 			//TODO:sample emissive map here
-			float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
-			outEmission = pMat->GetDesc().emission * invDist * invDist;
+			//float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
+			//outEmission = pMat->GetDesc().emission * invDist * invDist;
+			outEmission = pMat->GetDesc().emission;
 			in_out_payload.radiance = outEmission;
 
 			//perhaps i will delete this 'return' to count in other BxDF
@@ -86,7 +89,9 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 
 void Noise3D::GI::PathTracerStandardShader::Miss(N_Ray ray, N_TraceRayPayload & in_out_payload)
 {
-	in_out_payload.radiance = GI::Radiance(1.0f, 0, 0);
+	Color4f c =mShVecSky.Eval(ray.dir);
+	//Color4f c= GI::Radiance(0,0,0);
+	in_out_payload.radiance = GI::Radiance(c.R(), c.G(), c.B());
 }
 
 /***************************************
@@ -101,54 +106,56 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 	int directLightingSampleCount = _MaxDiffuseSample();
 
 	//additional samples for microfacet-based specular reflection/transmission
-	int indirectBsdfSampleCount = _MaxSpecularScatterSample();
+	int specularScatterampleCount = _MaxSpecularScatterSample();
 
 	//additional sample for indirect diffuse lighting and perhaps SH-based env lighting
 	int indirectDiffuseSampleCount = _MaxDiffuseSample();
 
-	//BxDF components' final radiance sum
-	BxdfInfo info;
-
 	//1.
-	GI::Radiance d_1, s_1, t_1;
-	_IntegrateBrdfDirectLighting(directLightingSampleCount,param, hitInfo, info, d_1, s_1, t_1);
+	GI::Radiance d_1, s_1;
+	_IntegrateBrdfDirectLighting(directLightingSampleCount,param, hitInfo, d_1, s_1);
 
 	//2.
-	GI::Radiance s_2, t_2;
-	_IntegrateSpecularBsdfIndirect(indirectBsdfSampleCount,param, hitInfo,  s_2, t_2);
+	GI::Radiance d_2, s_2;
+	_IntegrateBrdfIndirectLightingUniformly(indirectDiffuseSampleCount, param, hitInfo, d_2, s_2);
 
 	//3.
-	GI::Radiance d_2;
-	 _IntegrateDiffuseIndirect(indirectDiffuseSampleCount, param, hitInfo, d_2);
+	GI::Radiance t_1;
+	_IntegrateTransmission(specularScatterampleCount, param, hitInfo, t_1);
 
-	 //result k_x * (direct(emissive) + indirect)
-	 GI::Radiance result = info.k_d * (d_1 + d_2) + info.k_s * (s_1 + s_2) + info.k_t * (t_1 + t_2);
+	//4.
+	GI::Radiance s_3;
+	_AdditionalIntegrateSpecular(specularScatterampleCount, param, hitInfo, s_3);
 
-	return GI::Radiance();
+	 //result. (d_direct+ d_indirect) + 0.5(s_direct + s_indirect) + 0.5(s_complete)
+	//GI::Radiance result = (d_1 + d_2) + 0.3f*(s_1 + s_2) + 0.7f *s_3 + t_1;
+	GI::Radiance result = (d_1 + d_2) + s_3 + t_1;
+
+	return result;
 }
 
 void Noise3D::GI::PathTracerStandardShader::_IntegrateBrdfDirectLighting(
 	int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, 
-	BxdfInfo& outBxDF,  GI::Radiance& outDiffuse, GI::Radiance& outReflection, GI::Radiance& outTransmission)
+	GI::Radiance& outDiffuse, GI::Radiance& outReflection)
 {
 	GI::RandomSampleGenerator g;
 
 	//loop through light sources/emissive objects
 	for (uint32_t lightId = 0; lightId < mLightSourceList.size(); ++lightId)
 	{
-		GI::Radiance DiffusePerLight, SpecularPerLight, TransmissionPerLight;
+		GI::Radiance DiffusePerLight;
+		GI::Radiance SpecularPerLight;
 
 		//reduce sample counts as bounces grow
 		uint32_t sampleCount = (param.diffusebounces > 1 ? 1 : samplesPerLight);
 
 		std::vector<Vec3> dirList;
 		std::vector<float> pdfList;//used by (possibly) importance sampling
-		float constantPdf = 0.0f;//used to store constant pdf (like Rect)
-		float shadowRayConeAngle = 0.0f;
 
-		if (param.isShadowRay && hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
-		{
-			g.RectShadowRays(hitInfo.pos, static_cast<LogicalRect*>(hitInfo.pHitObj), sampleCount, dirList, constantPdf);
+		if (mLightSourceList.at(lightId)->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
+		{			
+			LogicalRect* pRect = dynamic_cast<LogicalRect*>(mLightSourceList.at(lightId));
+			g.RectShadowRays(hitInfo.pos, pRect, sampleCount, dirList, pdfList);
 		}
 		else
 		{
@@ -164,67 +171,104 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateBrdfDirectLighting(
 			Vec3 v = -param.ray.dir;
 			Vec3 n = hitInfo.normal;
 
-			//!!!!!!!!!! trace shadow rays/direct lighting
-			N_TraceRayPayload payload;
-			N_TraceRayParam newParam = param;
-			newParam.diffusebounces = param.diffusebounces;//shadow ray
-			newParam.ray = sampleRay;
-			newParam.isShadowRay = true;
-			newParam.shadowRayLightSourceId = lightId;
-			if (l.Dot(n) < 0)newParam.isInsideObject = true;//transmission vector
-			IPathTracerSoftShader::_TraceRay(newParam, payload);
-
-
-			//compute complete BxDF
-			BxdfInfo bxdfInfo;
-			_CompleteBSDF(sampleDir, -param.ray.dir, hitInfo, bxdfInfo);
-
-			//accumulate radiance for 3 BxDF components
-			GI::Radiance delta_d = payload.radiance * bxdfInfo.diffuseBRDF;
-			GI::Radiance delta_s = payload.radiance * bxdfInfo.reflectionBRDF;
-			GI::Radiance delta_t = payload.radiance * bxdfInfo.transmissionBTDF;
-
-			//float pdf = 2.0f * Ut::PI;
-			if (param.isShadowRay &&hitInfo.pHitObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::LOGICAL_RECT)
+			if (l.Dot(n) > 0.0f)
 			{
-				delta_d /= constantPdf;
-				delta_s /= constantPdf;
-				delta_t /= constantPdf;
-			}
-			else
-			{
+				//!!!!!!!!!! trace shadow rays/direct lighting
+				N_TraceRayPayload payload;
+				N_TraceRayParam newParam = param;
+				newParam.diffusebounces = param.diffusebounces;//shadow ray
+				newParam.ray = sampleRay;
+				newParam.isShadowRay = true;
+				newParam.shadowRayLightSourceId = lightId;
+				IPathTracerSoftShader::_TraceRay(newParam, payload);
+
+				//compute BxDF info (vary over space)
+				BxdfInfo bxdfInfo;
+				_CalculateBxDF(BxDF_LightTransfer_Diffuse | BxDF_LightTransfer_Specular, sampleDir, -param.ray.dir, hitInfo, bxdfInfo);
+
+				//accumulate radiance for 3 BxDF components
+				GI::Radiance delta_d = payload.radiance * bxdfInfo.k_d *  bxdfInfo.diffuseBRDF;
+				GI::Radiance delta_s = payload.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF;
+
 				delta_d /= pdfList.at(i);
 				delta_s /= pdfList.at(i);
-				delta_t /= pdfList.at(i);
-			}
 
-			DiffusePerLight += delta_d;
-			SpecularPerLight += delta_s;
-			TransmissionPerLight += delta_t;
+				DiffusePerLight += delta_d;
+				SpecularPerLight += delta_s;
+			}
 		}
 		// estimated = sum/ (pdf*count)
 		DiffusePerLight /= float(sampleCount);
 		SpecularPerLight /= float(sampleCount);
-		TransmissionPerLight /= float(sampleCount);
 
 		outDiffuse += DiffusePerLight;
 		outReflection += SpecularPerLight;
-		outTransmission += TransmissionPerLight;
 	}
-
-
 }
 
-void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecularBsdfIndirect(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outReflection, GI::Radiance & outTransmission)
+void Noise3D::GI::PathTracerStandardShader::_IntegrateBrdfIndirectLightingUniformly(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outDiffuse, GI::Radiance & outReflection)
 {
 }
 
-void Noise3D::GI::PathTracerStandardShader::_IntegrateDiffuseIndirect(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outDiff)
+void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outTransmission)
 {
 }
 
-void Noise3D::GI::PathTracerStandardShader::_CompleteBSDF(Vec3 lightDir, Vec3 viewDir, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo)
+void Noise3D::GI::PathTracerStandardShader::_AdditionalIntegrateSpecular(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outReflection)
 {
+	GI::RandomSampleGenerator g;
+	const N_AdvancedMatDesc& mat = hitInfo.pHitObj->GetGiMaterial()->GetDesc();
+
+	//reduce sample counts as bounces grow
+	int sampleCount = (param.specularReflectionBounces > 1 ? 1 : samplesCount);
+	std::vector<Vec3> dirList;
+	std::vector<float> pdfList;//used by (possibly) importance sampling
+
+	//estimate ray cone angle (according to microfacet BRDF)
+	float EstimatedConeAngle = 0.001f+ (Ut::PI / 2.0001f) * mat.roughness * mat.roughness;
+
+	//gen samples for specular reflection (cone angle varys with roughness)
+	Vec3 reflectedDir = Vec3::Reflect(param.ray.dir, hitInfo.normal);
+	reflectedDir.Normalize();
+	g.CosinePdfSphericalVec_Cone(reflectedDir, EstimatedConeAngle, sampleCount, dirList, pdfList);
+
+	for (uint32_t i = 0; i < sampleCount; ++i)
+	{
+		//gen random ray for direct lighting
+		Vec3 sampleDir = dirList.at(i);
+		N_Ray sampleRay = N_Ray(hitInfo.pos, sampleDir);
+		Vec3 l = sampleDir;
+		Vec3 v = -param.ray.dir;
+		Vec3 n = hitInfo.normal;
+
+		if (l.Dot(n) > 0.0f)
+		{
+			//!!!!!!!!!! trace shadow rays/direct lighting
+			N_TraceRayPayload payload;
+			N_TraceRayParam newParam = param;
+			newParam.specularReflectionBounces = param.specularReflectionBounces+1;
+			newParam.ray = sampleRay;
+			newParam.isShadowRay = false;
+			IPathTracerSoftShader::_TraceRay(newParam, payload);
+
+			//compute BxDF info (vary over space)
+			BxdfInfo bxdfInfo;
+			_CalculateBxDF(BxDF_LightTransfer_Specular, sampleDir, -param.ray.dir, hitInfo, bxdfInfo);
+
+			//accumulate radiance for 3 BxDF components
+			GI::Radiance delta_s = payload.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF;
+			delta_s /= pdfList.at(i);
+			outReflection += delta_s;
+		}
+	}
+	// estimated = sum/ (pdf*count)
+	outReflection /= float(sampleCount);
+}
+
+void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransferType, Vec3 lightDir, Vec3 viewDir, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo)
+{
+	if (lightTransferType == 0)return;
+
 	Vec3 k_d = Vec3(0, 0, 0);//difuse energy ratio
 	Vec3 k_s = Vec3(0, 0, 0);//(microfacet-based) specular reflection
 	Vec3 k_t = Vec3(0, 0, 0);//(microfacet-based) specular refraction
@@ -246,11 +290,11 @@ void Noise3D::GI::PathTracerStandardShader::_CompleteBSDF(Vec3 lightDir, Vec3 vi
 	float alpha = mat.roughness * mat.roughness;
 
 	//Calculate Fresnel term first
-	Vec3 F = BxdfUt::SchlickFresnel_Vec3(mat.metal_F0, v, l);
+	Vec3 F0 = Ut::Lerp(Vec3(0.03f, 0.03f, 0.03f), mat.metal_F0, mat.metallicity);
+	Vec3 F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
 
-	//WARNING: fresnel term is ignored in Cook-Torrance specular reflection term 
 	//k_s = m*F
-	k_s = mat.metallicity * F;
+	k_s = F;
 
 	//k_d = rho *(1-m) * (1-t) * (1-s), transparency is dielectric's absorbance caused by  medium's in-homogeneousness
 	k_d = albedo * (1.0f - mat.metallicity) * (1.0f - mat.transparency) * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
@@ -259,22 +303,34 @@ void Noise3D::GI::PathTracerStandardShader::_CompleteBSDF(Vec3 lightDir, Vec3 vi
 	k_t = albedo * (1.0f - mat.metallicity) * mat.transparency * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
 
 	//diffuse BRDF
-	if (LdotN>0.0f &&  k_d != Vec3(0, 0, 0))
+	if (lightTransferType | uint32_t(BxDF_LightTransfer_Diffuse))
 	{
-		f_d = _DiffuseBRDF(albedo, l, v, n, alpha);
+		if (LdotN > 0.0f &&  k_d != Vec3(0, 0, 0))
+		{
+			f_d = _DiffuseBRDF(albedo, l, v, n, alpha);
+		}
 	}
 
 	//specular BxDF
 	float D = BxdfUt::D_GGX(n, h, alpha);//NDF
+	//float D = BxdfUt::D_Beckmann(n, h, alpha);
 	float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
-	if (LdotN > 0.0f && k_s != Vec3(0, 0, 0))
+	if (lightTransferType | BxDF_LightTransfer_Specular)
 	{
-		f_s = _SpecularReflectionBRDF(l, v, n, D, G);
+		if (LdotN > 0.0f && k_s != Vec3(0, 0, 0))
+		{
+			//WARNING: fresnel term is ignored in Cook-Torrance specular reflection term 
+			f_s = _SpecularReflectionBRDF(l, v, n, D, G);
+		}
 	}
 
-	if (LdotN <0.0f && k_t != Vec3(0, 0, 0))
+	//specular transmission
+	if (lightTransferType | BxDF_LightTransfer_Transmission)
 	{
-		//f_t = _SpecularTransmissionBTDF (l, v, n, D, G);
+		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
+		{
+			f_t = _SpecularTransmissionBTDF(l, v, n, D, G);
+		}
 	}
 
 	outBxdfInfo.k_d = k_d;

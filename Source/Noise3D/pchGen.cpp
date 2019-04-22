@@ -1,5 +1,5 @@
 
-#include "Noise3D.h"
+#include "Noise3D_StableCommonHeader.h"
 
 //#define NOISE_CLR_ENABLE
 #ifdef NOISE_CLR_ENABLE

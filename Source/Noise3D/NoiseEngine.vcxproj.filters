@@ -433,6 +433,12 @@
     <ClInclude Include="PathTracerStandardShader.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
     </ClInclude>
+    <ClInclude Include="Noise3D_StableCommonHeader.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise3D_InDevHeader.h">
+      <Filter>Global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">

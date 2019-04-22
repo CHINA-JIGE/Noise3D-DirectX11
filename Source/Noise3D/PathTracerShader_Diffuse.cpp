@@ -6,9 +6,9 @@
 
 ***********************************************************/
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
-
 
 void Noise3D::GI::PathTracerShader_DiffuseDemo::SetSkyTexture(Texture2D * pTex)
 {
