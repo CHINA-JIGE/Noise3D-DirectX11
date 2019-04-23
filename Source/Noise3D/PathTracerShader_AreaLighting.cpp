@@ -151,7 +151,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 	in_out_payload.radiance = accumulatedDiffuseRadiance + outEmission;
 }
 
-void Noise3D::GI::PathTracerShader_AreaLightingDemo::Miss(N_Ray ray, N_TraceRayPayload & in_out_payload)
+void Noise3D::GI::PathTracerShader_AreaLightingDemo::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)
 {
 	in_out_payload.radiance = GI::Radiance(0,0,0);
 }

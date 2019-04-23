@@ -373,7 +373,7 @@ void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayP
 	}
 	else
 	{
-		m_pShader->Miss(param.ray, out_payload);
+		m_pShader->Miss(param, out_payload);
 	}
 
 }

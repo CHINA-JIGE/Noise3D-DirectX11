@@ -81,15 +81,16 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
 
-	/*_LoadSphere(sg, Vec3(-20.0f, 25.0f, 50), 15.0f, "albedo_red");
-	_LoadSphere(sg, Vec3(50.0f, 20.0f, 30), 10.0f, "albedo_yellow");
+	/*_LoadSphere(sg, Vec3(-20.0f, 10.0f, 80), 15.0f, "albedo_red");
+	_LoadSphere(sg, Vec3(50.0f, 20.0f, 30), 10.0f, "emissive_yellow");
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "albedo_green");
 	_LoadBox(sg, Vec3(10.0f, 15.0f, -30.0f), Vec3(30.0f, 30.0f, 30.0f), "albedo_red");
 	_LoadBox(sg, Vec3(-60.0f, 15.0f, 59.0f), Vec3(10.0f, 30.0f, 40.0f), "albedo_blue");*/
-	_LoadSphere(sg, Vec3(0, 20, 0), 40.0f, "ground");
-	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
+	//_LoadBox(sg, Vec3(-80.0f, 20.0f, 3.0f), Vec3(30.0f, 30.0f, 30.0f), "box");
+	_LoadSphere(sg, Vec3(0, 20, 0), 40.0f, "centerBall");
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
 	//light
-	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 100.0f, 0), Vec2(100.0f, 100.0f), "emissive_white");
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 100.0f, 0), Vec2(100.0f, 100.0f), "emissive_white");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -105,7 +106,7 @@ void SceneLoader::_LoadTextures()
 	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
-	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", false, 1024, 512, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", false, 1024, 512, true);
 	//m_pTexMgr->CreateTextureFromFile("../media/cathedral.jpg", "envmap", false, 1024, 512, true);
 
 }
@@ -143,24 +144,25 @@ void SceneLoader::_LoadAdvancedMaterials()
 	{
 		GI::N_AdvancedMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.0f;
-		desc.metallicity = 1.0f;
+		desc.roughness = 0.5f;
+		desc.metallicity = 0.8f;
 		m_pMatMgr->CreateAdvancedMaterial("ground", desc);
 	}
 
 	{
 		GI::N_AdvancedMatDesc desc;
-		desc.albedo = Color4f(0.5f, 0.5f, 1.0f, 1.0f);
-		desc.roughness = 1.0f;
-		desc.metallicity = 0.0f;
-		m_pMatMgr->CreateAdvancedMaterial("albedo_blue", desc);
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.5;
+		desc.metallicity = 1.0f;
+		m_pMatMgr->CreateAdvancedMaterial("centerBall", desc);
 	}
 
 	{
 		GI::N_AdvancedMatDesc desc;
-		desc.albedo = Color4f(0.5f, 1.0f, 0.5f, 1.0f);
-		desc.roughness = 0.01f;
-		m_pMatMgr->CreateAdvancedMaterial("albedo_green", desc);
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.1f;
+		desc.metallicity = 0.0f;
+		m_pMatMgr->CreateAdvancedMaterial("box", desc);
 	}
 
 	{
@@ -174,14 +176,16 @@ void SceneLoader::_LoadAdvancedMaterials()
 	{
 		GI::N_AdvancedMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 0.3f, 1.0f);
-		m_pMatMgr->CreateAdvancedMaterial("albedo_yellow", desc);
+		desc.roughness = 1.0f;
+		desc.emission = Vec3(3.0f, 3.0f, 1.0f);
+		m_pMatMgr->CreateAdvancedMaterial("emissive_yellow", desc);
 	}
 
 	{
 		//light source
 		GI::N_AdvancedMatDesc desc;
 		//desc.emission = Vec3(150000.0f, 150000.0f, 150000.0f);
-		desc.emission = Vec3(7.0f, 7.0f, 7.0f);
+		desc.emission = Vec3(3.0f, 3.0f, 3.0f);
 		auto pMat = m_pMatMgr->CreateAdvancedMaterial("emissive_white", desc);
 	}
 }

@@ -113,20 +113,24 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 
 void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, float maxAngle, int sampleCount, std::vector<Vec3>& outVecList, float& outPdf)
 {
+	//maxAngle = <center axis, cone edge>
+
 	//transform matrix/basis only construct once
 	normal.Normalize();
 	Vec3 matRow1, matRow2, matRow3;
 	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
 
 	//S=2 *pi * r^2( 1-cos theta)
-	outPdf = 1.0f / (2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle)));
+	//outPdf = 1.0f / (2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle)));
+
+	//probability to sample = pdf_per_area * AreaOfSolidAngleOnUnitSphere 
+	//sampleCount will be divided in integration
+	outPdf = 1.0f;
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
 		float var1 = mCanonicalDist(mRandomEngine);
 		float var2 = mCanonicalDist(mRandomEngine);
-		//float theta = acosf(1 - 2.0f * var1) * maxAngle / Ut::PI;
-		//float phi = 2 * Ut::PI * var2;
 		//F(theta)=(1-costheta)/(r^2(1-cosMaxAngle))
 		float oneMinusCos = 1.0f - cosf(maxAngle);
 		float theta = acosf(1.0f - oneMinusCos*var1);
@@ -181,8 +185,9 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal,
 	normal.Normalize();
 	Vec3 matRow1, matRow2, matRow3;
 	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
-	//float pdfNormalizeFactor = 1.0f / (2.0f * Ut::PI * sinf(maxAngle));//denominator of cosine-weighted pdf
-	float pdfNormalizeFactor = 2.0f / (Ut::PI * (1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+	//float pdfNormalizeFactor = 2.0f / (Ut::PI * (1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+	float pdfNormalizeFactor = 4.0f * (1.0f-cosf(maxAngle))/ ((1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+	if (pdfNormalizeFactor > 1.0f)pdfNormalizeFactor = 1.0f;
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -215,6 +220,7 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal,
 			outVecList.push_back(out);
 		}
 
+		//
 		outPdfList.push_back(cosf(theta)*pdfNormalizeFactor);
 	}
 }
@@ -261,6 +267,45 @@ void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * 
 
 	//now the sample parameter uses (u,v) on rect instead of (theta,phi) of tracing position
 	//outArea_InvPdf = pRect->ComputeArea();
+}
+
+void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 normal, float ggx_alpha,int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+{
+	//transform matrix/basis only construct once
+	normal.Normalize();
+	Vec3 matRow1, matRow2, matRow3;
+	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		float var1 = mCanonicalDist(mRandomEngine);
+		float var2 = mCanonicalDist(mRandomEngine);
+		//ref: https://agraphicsguy.wordpress.com/2015/11/01/sampling-microfacet-brdf/
+		//or [Walter07]
+		float theta = atanf(ggx_alpha * sqrtf(var1 / (1.0f - var1)));
+		float phi = 2.0f * Ut::PI * var2;
+
+		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+
+		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		{
+			outVecList.push_back(vec);
+		}
+		else
+		{
+			//flattened matrix mul/basis transformation
+			Vec3 out;
+			out.x = matRow1.Dot(vec);
+			out.y = matRow2.Dot(vec);
+			out.z = matRow3.Dot(vec);
+			outVecList.push_back(out);
+		}
+
+		//
+		//float pdf = BxdfUt::D_GGX(Vec3(0, 1.0f, 0), vec, ggx_alpha)*cosf(theta) *0.5f * Ut::INV_PI;
+		float pdf = BxdfUt::D_GGX(Vec3(0, 1.0f, 0), vec, ggx_alpha)*cosf(theta);// *2.0f * Ut::PI;
+		outPdfList.push_back(pdf);
+	}
 }
 
 /*****************************************

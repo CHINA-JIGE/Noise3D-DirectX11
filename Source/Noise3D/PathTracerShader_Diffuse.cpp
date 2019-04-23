@@ -67,11 +67,11 @@ void Noise3D::GI::PathTracerShader_DiffuseDemo::ClosestHit(const N_TraceRayParam
 	in_out_payload.radiance = diffuseRadiance;
 }
 
-void Noise3D::GI::PathTracerShader_DiffuseDemo::Miss(N_Ray ray, N_TraceRayPayload & in_out_payload)
+void Noise3D::GI::PathTracerShader_DiffuseDemo::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)
 {
 	Texture2dSampler_Spherical sampler;
 	sampler.SetTexturePtr(m_pSkyDomeTexture);
-	//Color4f skyColor = sampler.Eval(ray.dir);
+	//Color4f skyColor = sampler.Eval(param.ray.dir);
 	Color4f skyColor = Color4f(0.5f, 0.5f, 0.5f, 1.0f);
 	in_out_payload.radiance = GI::Radiance(skyColor.x, skyColor.y, skyColor.z);
 }

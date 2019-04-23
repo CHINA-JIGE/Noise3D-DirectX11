@@ -27,6 +27,7 @@ namespace Noise3D
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
+				isIndirectLightOnly(false),
 				isShadowRay(false), 
 				shadowRayLightSourceId(-1){}
 
@@ -37,6 +38,7 @@ namespace Noise3D
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
 			bool isShadowRay;//for local lighting/area lighting
+			bool isIndirectLightOnly;//for only indirect
 			int shadowRayLightSourceId;//for shadow ray
 		};
 

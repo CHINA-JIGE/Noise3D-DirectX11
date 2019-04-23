@@ -64,15 +64,15 @@ void MainApp::PathTracerStartRender()
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
+	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxDiffuseBounces(1);
 	m_pPathTracer->SetMaxSpecularReflectionBounces(1);
 	m_pPathTracer->SetMaxRefractionBounces(2);
 	m_pPathTracer->SetMaxDiffuseSampleCount(128);
-	m_pPathTracer->SetMaxSpecularScatterSample(32);
+	m_pPathTracer->SetMaxSpecularScatterSample(512);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
-	m_pPathTracer->SetExposure(1.0f);
+	m_pPathTracer->SetExposure(2.0f);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()
@@ -179,7 +179,7 @@ void MainApp::Mainloop_RenderPathTracedResult()
 	if(!hasRTLastUpdate && isFinished)
 	{
 		m_pPathTracerRenderTarget->UpdateToVideoMemory();
-		m_pPathTracerRenderTarget->SaveTexture2DToFile("out.jpg", NOISE_IMAGE_FILE_FORMAT_JPG);
+		m_pPathTracerRenderTarget->SaveTexture2DToFile("output.bmp", NOISE_IMAGE_FILE_FORMAT_BMP);
 		hasRTLastUpdate = true;
 	}
 

@@ -39,7 +39,7 @@ namespace Noise3D
 			virtual void ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload)=0;
 
 			//5. doesn't hit anything, might want to sample the skydome/skybox cubemap or sth
-			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload)=0;
+			virtual void Miss(const N_TraceRayParam & param, N_TraceRayPayload& in_out_payload)=0;
 
 		protected:
 

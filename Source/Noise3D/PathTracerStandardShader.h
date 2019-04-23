@@ -24,7 +24,7 @@ namespace Noise3D
 
 			virtual void ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer& hitInfo, N_TraceRayPayload& in_out_payload) override;
 
-			virtual void Miss(N_Ray ray, N_TraceRayPayload& in_out_payload) override;
+			virtual void Miss(const N_TraceRayParam & param, N_TraceRayPayload& in_out_payload) override;
 
 		private:
 			enum
@@ -53,7 +53,7 @@ namespace Noise3D
 
 			//integration of  mul(non light sources indirect light,  surface BRDF)
 			//(additional sample for indirect lighting ; SH vector will be used in indirect diffusion )
-			void _IntegrateBrdfIndirectLightingUniformly(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse, GI::Radiance& outReflection);
+			void _IntegrateDiffuseIndirectLightingUniformly(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
 
 			 //integration of mul(direct& indirect lights together ,refraction BTDF)
 			//(samples for refraction/transmission; might have importance sampling)
@@ -72,6 +72,8 @@ namespace Noise3D
 			float _SpecularReflectionBRDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet reflection
 
 			float _SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet refraction/transmission
+
+			float _RoughnessToAlpha(float r);
 
 			NOISE_ATMOSPHERE_SKYTYPE mSkyType;
 

@@ -22,7 +22,7 @@ void Noise3D::GI::PathTracerShader_MinimalDemo::ClosestHit(const N_TraceRayParam
 	in_out_payload.radiance = GI::Radiance(rgb);
 }
 
-void Noise3D::GI::PathTracerShader_MinimalDemo::Miss(N_Ray ray, N_TraceRayPayload & in_out_payload)
+void Noise3D::GI::PathTracerShader_MinimalDemo::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)
 {
 	in_out_payload.radiance = GI::Radiance(0, 0, 0);
 }
