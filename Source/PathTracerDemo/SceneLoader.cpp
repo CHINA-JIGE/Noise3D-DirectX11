@@ -86,9 +86,9 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "albedo_green");
 	_LoadBox(sg, Vec3(10.0f, 15.0f, -30.0f), Vec3(30.0f, 30.0f, 30.0f), "albedo_red");
 	_LoadBox(sg, Vec3(-60.0f, 15.0f, 59.0f), Vec3(10.0f, 30.0f, 40.0f), "albedo_blue");*/
-	//_LoadBox(sg, Vec3(-80.0f, 20.0f, 3.0f), Vec3(30.0f, 30.0f, 30.0f), "box");
+	_LoadBox(sg, Vec3(-80.0f, 20.0f, 3.0f), Vec3(30.0f, 30.0f, 30.0f), "box");
 	_LoadSphere(sg, Vec3(0, 20, 0), 40.0f, "centerBall");
-	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
 	//light
 	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 100.0f, 0), Vec2(100.0f, 100.0f), "emissive_white");
 
@@ -143,17 +143,17 @@ void SceneLoader::_LoadAdvancedMaterials()
 
 	{
 		GI::N_AdvancedMatDesc desc;
-		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.5f;
-		desc.metallicity = 0.8f;
+		desc.albedo = Color4f(0.5f, 0.8f, 0.8f, 1.0f);
+		desc.roughness = 0.1f;
+		desc.metallicity = 0.1f;
 		m_pMatMgr->CreateAdvancedMaterial("ground", desc);
 	}
 
 	{
 		GI::N_AdvancedMatDesc desc;
-		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.5;
-		desc.metallicity = 1.0f;
+		desc.albedo = Color4f(1.0f, 0, 0, 1.0f);
+		desc.roughness = 0;
+		desc.metallicity = 0.01;//a strange 'circle' will appear at center if metallicity=0(caused by specular)
 		m_pMatMgr->CreateAdvancedMaterial("centerBall", desc);
 	}
 

@@ -13,6 +13,8 @@ public:
 
 	void PathTracerStartRender();
 
+	void InitCmdLine(std::string cmdLine);
+
 	void Init_GI();
 
 private:
@@ -47,6 +49,8 @@ private:
 
 	//**multi-thread
 	std::thread mRenderThread;
+
+	std::string mCmdLine;
 
 	//**GI**
 	GI::PathTracer* m_pPathTracer;

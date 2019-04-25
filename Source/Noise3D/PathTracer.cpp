@@ -43,6 +43,12 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 		return;
 	}
 
+	//cache world transform(avoid redundant computation)
+	std::vector<SceneNode*> nodeList;
+	SceneGraph* pSG = pNode->GetHostTree();
+	pSG->Traverse_PreOrder(pNode, nodeList);
+	for (auto node : nodeList)node->EvalWorldTransform(true);
+
 	//reset render task state
 	mIsRenderedFinished = false;
 
@@ -114,6 +120,8 @@ void Noise3D::GI::PathTracer::Render(Noise3D::SceneNode * pNode, IPathTracerSoft
 		if(mWorkerThreadArr[i].joinable())mWorkerThreadArr[i].join();
 	}
 
+	//clear cached world transform computed at the beginning of path tracer render
+	for (auto node : nodeList)node->ClearWorldTransformCache();
 	mIsRenderedFinished = true;
 }
 

@@ -48,11 +48,11 @@ namespace Noise3D
 			//final integration of all results of integration (blend 3 BxDF according to the ratio of sample count/variance)
 			GI::Radiance _FinalIntegration(const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo);
 
-			//integration of  mul(light sources direct light,  surface BRDF)
-			void _IntegrateBrdfDirectLighting(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse, GI::Radiance& outReflection);
+			//integration of  mul(light sources direct light,  diffuse BRDF)
+			void _IntegrateDiffuseDirectLighting(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
 
-			//integration of  mul(non light sources indirect light,  surface BRDF)
-			//(additional sample for indirect lighting ; SH vector will be used in indirect diffusion )
+			//integration of  mul(non light sources indirect light,  diffuse BRDF)
+			//(additional sample for indirect lighting, less & sparser samples ; SH vector will be used in indirect diffusion )
 			void _IntegrateDiffuseIndirectLightingUniformly(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
 
 			 //integration of mul(direct& indirect lights together ,refraction BTDF)
