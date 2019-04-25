@@ -13,9 +13,7 @@ using namespace Noise3D;
 Noise3D::GI::PathTracer::PathTracer():
 	m_pFinalRenderTarget(nullptr),
 	m_pShader(nullptr),
-	mMaxDiffuseBounces(1),
-	mMaxRefractionBounces(3),
-	mMaxSpecularReflectionBounces(2),
+	mMaxBounces(2),
 	mMaxDiffuseSampleCount(64),
 	mMaxSpecularScatterSampleCount(64),
 	mRayMaxTravelDist(100.0f),
@@ -153,34 +151,14 @@ void Noise3D::GI::PathTracer::SetRenderTarget(Texture2D * pRenderTarget)
 }
 
 
-void Noise3D::GI::PathTracer::SetMaxDiffuseBounces(uint32_t bounces)
+void Noise3D::GI::PathTracer::SetMaxBounces(uint32_t bounces)
 {
-	mMaxDiffuseBounces = bounces;
+	mMaxBounces = bounces;
 }
 
-void Noise3D::GI::PathTracer::SetMaxSpecularReflectionBounces(uint32_t bounces)
+uint32_t Noise3D::GI::PathTracer::GetMaxBounces()
 {
-	mMaxSpecularReflectionBounces = bounces;
-}
-
-void Noise3D::GI::PathTracer::SetMaxRefractionBounces(uint32_t bounces)
-{
-	mMaxRefractionBounces = bounces;
-}
-
-uint32_t Noise3D::GI::PathTracer::GetMaxDiffuseBounces()
-{
-	return mMaxDiffuseBounces;
-}
-
-uint32_t Noise3D::GI::PathTracer::GetMaxSpecularReflectionBounces()
-{
-	return mMaxSpecularReflectionBounces;
-}
-
-uint32_t Noise3D::GI::PathTracer::GetMaxRefractionBounces()
-{
-	return mMaxRefractionBounces;
+	return mMaxBounces;
 }
 
 void Noise3D::GI::PathTracer::SetMaxDiffuseSampleCount(uint32_t sampleCount)
@@ -334,9 +312,7 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 			//start tracing a ray with payload
 			N_TraceRayPayload payload;
 			N_TraceRayParam param;
-			param.diffusebounces = 0;
-			param.specularReflectionBounces = 0;
-			param.refractionBounces = 0;
+			param.bounces = 0;
 			param.travelledDistance = 0.0f;
 			param.ray = pCam->FireRay_WorldSpace(PixelCoord2(float(globalPixelX), float(globalPixelY)),totalWidth, totalHeight);
 			param.isInsideObject = false;
@@ -358,9 +334,7 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload)
 {
 	//initial bounces and travelled distance must remain in limit
-	if (param.diffusebounces > int(PathTracer::GetMaxDiffuseBounces()) ||
-		param.specularReflectionBounces > int(PathTracer::GetMaxSpecularReflectionBounces())||
-		param.refractionBounces > int(PathTracer::GetMaxRefractionBounces())||
+	if (param.bounces > int(PathTracer::GetMaxBounces()) ||
 		param.travelledDistance > PathTracer::GetRayMaxTravelDist())return;
 
 	//intersect the ray with the scene and get results

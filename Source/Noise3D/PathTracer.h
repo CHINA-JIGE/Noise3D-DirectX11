@@ -21,9 +21,7 @@ namespace Noise3D
 		struct N_TraceRayParam
 		{
 			N_TraceRayParam():
-				diffusebounces(0),
-				specularReflectionBounces(0),
-				refractionBounces(0),
+				bounces(0),
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
@@ -31,9 +29,7 @@ namespace Noise3D
 				isShadowRay(false), 
 				shadowRayLightSourceId(-1){}
 
-			int diffusebounces;//recursion count
-			int specularReflectionBounces;//internal reflection bounces count of transparent object
-			int refractionBounces;//internal reflection bounces count of transparent object
+			int bounces;//recursion count
 			float travelledDistance;
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
@@ -72,17 +68,18 @@ namespace Noise3D
 			//and one more internal R32G32B32A32 HDR render target
 			void SetRenderTarget(Texture2D* pRenderTarget);
 
-			// diffuse ray's maximum scatter count
-			void SetMaxDiffuseBounces(uint32_t bounces);
-			void SetMaxSpecularReflectionBounces(uint32_t bounces);
-			void SetMaxRefractionBounces(uint32_t bounces);
-			uint32_t GetMaxDiffuseBounces();
-			uint32_t GetMaxSpecularReflectionBounces();
-			uint32_t GetMaxRefractionBounces();
+			// ray's maximum scatter count
+			void SetMaxBounces(uint32_t bounces);
 
+			uint32_t GetMaxBounces();
+
+			//BxDF's max sample count
 			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
+
 			void SetMaxSpecularScatterSample(uint32_t sampleCount);
+
 			uint32_t GetMaxDiffuseSampleCount();
+
 			uint32_t GetMaxSpecularScatterSampleCount();
 
 			//ray's max travel distance
@@ -159,11 +156,7 @@ namespace Noise3D
 
 			Noise3D::CollisionTestor* m_pCT;//singleton of collision testor
 
-			uint32_t mMaxDiffuseBounces;//max count of ray's diffuse recursion
-
-			uint32_t mMaxSpecularReflectionBounces;//max count of ray's reflection recursion
-
-			uint32_t mMaxRefractionBounces;//refraction and total internal reflection/
+			uint32_t mMaxBounces;//max count of ray's recursion
 
 			uint32_t mMaxDiffuseSampleCount;//max count of ray generated to evaluate a diffuse point
 

@@ -52,8 +52,8 @@ namespace Noise3D
 			//shadow rays to sample a rect area light src(normal r used to calculate pdf)
 			void RectShadowRays(Vec3 pos, LogicalRect* pRect, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
-			//GGX NDF importance sampling
-			void GGXImportanceSampling_Hemisphere(Vec3 normal, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+			//GGX NDF importance sampling(n=normal, v=view)
+			void GGXImportanceSampling_Hemisphere(Vec3 l_center, Vec3 v, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 		private:
 

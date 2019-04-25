@@ -35,7 +35,7 @@ void Noise3D::GI::PathTracerShader_RefractionDemo::ClosestHit(const N_TraceRayPa
 		{
 			//total internal reflection
 			Vec3 newTraceDir = XMVector3Reflect(param.ray.dir, -hitInfo.normal);
-			newParam.specularReflectionBounces = param.specularReflectionBounces + 1;
+			newParam.bounces = param.bounces + 1;
 			newParam.isInsideObject = true;
 			newParam.ray = N_Ray(hitInfo.pos, newTraceDir);
 		}
@@ -43,7 +43,7 @@ void Noise3D::GI::PathTracerShader_RefractionDemo::ClosestHit(const N_TraceRayPa
 		{
 			//refract from object to air
 			Vec3 newTraceDir = refractedDir;
-			newParam.refractionBounces = param.refractionBounces + 1;
+			newParam.bounces = param.bounces + 1;
 			newParam.isInsideObject = false;
 			newParam.ray = N_Ray(hitInfo.pos, newTraceDir);
 		}
@@ -62,7 +62,7 @@ void Noise3D::GI::PathTracerShader_RefractionDemo::ClosestHit(const N_TraceRayPa
 		//travelled distance is added automatically
 		N_TraceRayPayload payload;
 		N_TraceRayParam newParam = param;
-		newParam.refractionBounces = param.refractionBounces + 1;
+		newParam.bounces = param.bounces + 1;
 		newParam.ray = refractedRay;
 		newParam.isInsideObject = true;//new ray travel inside object
 		IPathTracerSoftShader::_TraceRay(newParam, payload);

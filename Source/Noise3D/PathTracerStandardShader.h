@@ -42,6 +42,7 @@ namespace Noise3D
 				Vec3 k_t;
 				Vec3 diffuseBRDF;
 				float reflectionBRDF;//k_s/ Fresnel will be multiplied later
+				//float reflectionBrdfDividedByD;//cancelled D with GGX importance sampling's pdf's D term
 				float transmissionBTDF;
 			};
 
@@ -49,11 +50,11 @@ namespace Noise3D
 			GI::Radiance _FinalIntegration(const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo);
 
 			//integration of  mul(light sources direct light,  diffuse BRDF)
-			void _IntegrateDiffuseDirectLighting(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
+			//void _IntegrateDiffuseDirectLighting(int samplesPerLight, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
 
 			//integration of  mul(non light sources indirect light,  diffuse BRDF)
 			//(additional sample for indirect lighting, less & sparser samples ; SH vector will be used in indirect diffusion )
-			void _IntegrateDiffuseIndirectLightingUniformly(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
+			void _IntegrateDiffuse(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse);
 
 			 //integration of mul(direct& indirect lights together ,refraction BTDF)
 			//(samples for refraction/transmission; might have importance sampling)
@@ -61,7 +62,7 @@ namespace Noise3D
 
 			//integration of mul(direct& indirect lights together, specular reflection)
 			//(additional samples for reflections; might have importance sampling)
-			void _AdditionalIntegrateSpecular(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outReflection);
+			void _IntegrateSpecular(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outReflection);
 
 			//eval a BxDF and its coefficients given light transfer type
 			void _CalculateBxDF(uint32_t lightTransferType, Vec3 lightDir, Vec3 viewDir, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo);
@@ -70,6 +71,8 @@ namespace Noise3D
 
 			//Fresnel term is not involved here. it's in k_s
 			float _SpecularReflectionBRDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet reflection
+
+			float _SpecularReflectionBrdfDividedByD(Vec3 l, Vec3 v, Vec3 n, float G);
 
 			float _SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet refraction/transmission
 

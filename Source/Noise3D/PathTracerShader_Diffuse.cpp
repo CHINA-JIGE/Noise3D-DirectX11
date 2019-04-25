@@ -22,7 +22,7 @@ void Noise3D::GI::PathTracerShader_DiffuseDemo::ClosestHit(const N_TraceRayParam
 	Vec3 albedo = Vec3(1.0f, 1.0f, 1.0f);
 
 	//reduce sample counts as bounces grow
-	uint32_t denominator = (param.diffusebounces + 1)*(param.diffusebounces + 1);
+	uint32_t denominator = (param.bounces + 1)*(param.bounces + 1);
 	uint32_t diffSampleCount = IPathTracerSoftShader::_MaxDiffuseSample()/ denominator;
 	std::vector<Vec3> dirList;
 	std::vector<float> pdfList;
@@ -36,7 +36,7 @@ void Noise3D::GI::PathTracerShader_DiffuseDemo::ClosestHit(const N_TraceRayParam
 		N_Ray diffSampleRay = N_Ray(hitInfo.pos, diffSampleDir);
 		N_TraceRayPayload payload;
 		N_TraceRayParam newParam = param;
-		newParam.diffusebounces = param.diffusebounces + 1;
+		newParam.bounces = param.bounces + 1;
 		newParam.ray = diffSampleRay;
 		IPathTracerSoftShader::_TraceRay(newParam, payload);
 		

@@ -44,6 +44,8 @@ namespace Noise3D
 
 			static float D_GGX(Vec3 n, Vec3 h, float alpha);//NDF, Normal distribution function
 
+			static const float D_GGX_SingularityMaxValue();//when alpha=0(flat surface), NdotH=0
+
 			static float D_Beckmann(Vec3 n, Vec3 h, float alpha);//NDF, Normal distribution function
 
 			//Smith's method: G=G0(l)G0(v)

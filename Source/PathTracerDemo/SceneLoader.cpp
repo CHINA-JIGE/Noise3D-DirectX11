@@ -144,7 +144,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 	{
 		GI::N_AdvancedMatDesc desc;
 		desc.albedo = Color4f(0.5f, 0.8f, 0.8f, 1.0f);
-		desc.roughness = 0.1f;
+		desc.roughness = 0.4f;
 		desc.metallicity = 0.1f;
 		m_pMatMgr->CreateAdvancedMaterial("ground", desc);
 	}

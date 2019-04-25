@@ -92,14 +92,21 @@ float Noise3D::GI::BxdfUt::D_GGX(Vec3 n, Vec3 h, float alpha)
 
 	//(2019.4.23)be warned that when alpha-->0, the peak of GGX goes infinitely high
 	//but the integral of D(h) over hemisphere will always be 1
-	float alpha2 = std::max<float>(alpha*alpha, 0.001f);
+	float alpha2 = std::max<float>(alpha*alpha,0.001f);
 	//float alpha2 = alpha * alpha;
 	float NdotH = n.Dot(h);
 	if (NdotH <= 0.0f)return 0.0f;
-	float denominator = ((NdotH *NdotH) * (alpha2 - 1.0f) + 1.0f);
+	float denominator = std::max<float>(((NdotH *NdotH) * (alpha2 - 1.0f) + 1.0f),std::numeric_limits<float>::epsilon());
 	float denominator2 = denominator * denominator * Ut::PI;
-	float D = alpha2 / denominator2;
+	float D = std::min<float>(alpha2 / denominator2, BxdfUt::D_GGX_SingularityMaxValue());
 	return D;
+}
+
+const float Noise3D::GI::BxdfUt::D_GGX_SingularityMaxValue()
+{
+	//when alpha=0(flat surface), NdotH=0, GGX goes to infinity
+	//(to let the integral of GGX over hemisphere remain 1)
+	return 1e+6;//2^20
 }
 
 float Noise3D::GI::BxdfUt::D_Beckmann(Vec3 n, Vec3 h, float alpha)

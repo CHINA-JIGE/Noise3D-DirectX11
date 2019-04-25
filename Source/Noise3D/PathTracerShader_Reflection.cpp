@@ -26,7 +26,7 @@ void Noise3D::GI::PathTracerShader_ReflectionDemo::ClosestHit(const N_TraceRayPa
 	//travelled distance is added automatically
 	N_TraceRayPayload payload;
 	N_TraceRayParam newParam = param;
-	newParam.specularReflectionBounces = param.specularReflectionBounces + 1;
+	newParam.bounces = param.bounces + 1;
 	newParam.ray = reflectedRay;
 	IPathTracerSoftShader::_TraceRay(newParam, payload);
 	GI::Radiance reflectedColor = payload.radiance;

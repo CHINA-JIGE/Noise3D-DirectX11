@@ -25,15 +25,18 @@ void MainApp::Init_GI()
 	MainApp::_InitGraphicsObjectOfPreviewRender();
 	MainApp::_InitSoftShader();
 
-	std::stringstream ss;
-	ss << mCmdLine;
-	std::string str_mat; float m, r;
-	ss  >> str_mat >> m >> r;
-	auto pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(str_mat);
-	if (pMat != nullptr)
+	if (!mCmdLine.empty())
 	{
-		pMat->SetMetallicity(m);
-		pMat->SetRoughness(r);
+		std::stringstream ss;
+		ss << mCmdLine;
+		std::string str_mat; float m, r;
+		ss >> str_mat >> m >> r;
+		auto pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(str_mat);
+		if (pMat != nullptr)
+		{
+			pMat->SetMetallicity(m);
+			pMat->SetRoughness(r);
+		}
 	}
 }
 
@@ -82,9 +85,7 @@ void MainApp::_InitPathTracer()
 {
 	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
-	m_pPathTracer->SetMaxDiffuseBounces(1);
-	m_pPathTracer->SetMaxSpecularReflectionBounces(2);
-	m_pPathTracer->SetMaxRefractionBounces(2);
+	m_pPathTracer->SetMaxBounces(2);
 	m_pPathTracer->SetMaxDiffuseSampleCount(64);
 	m_pPathTracer->SetMaxSpecularScatterSample(16);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);

@@ -269,12 +269,12 @@ void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * 
 	//outArea_InvPdf = pRect->ComputeArea();
 }
 
-void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 normal, float ggx_alpha,int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 l_center, Vec3 v, Vec3 n,float ggx_alpha,int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
 {
 	//transform matrix/basis only construct once
-	normal.Normalize();
+	l_center.Normalize();
 	Vec3 matRow1, matRow2, matRow3;
-	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
+	mFunc_ConstructTransformMatrixFromYtoNormal(l_center, matRow1, matRow2, matRow3);
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -286,24 +286,30 @@ void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 n
 		float phi = 2.0f * Ut::PI * var2;
 
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
-
-		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		Vec3 outVecW;
+		if (l_center.x == 0.0f && l_center.z == 0.0f && l_center.y != 0.0f)
 		{
 			outVecList.push_back(vec);
 		}
 		else
 		{
 			//flattened matrix mul/basis transformation
-			Vec3 out;
-			out.x = matRow1.Dot(vec);
-			out.y = matRow2.Dot(vec);
-			out.z = matRow3.Dot(vec);
-			outVecList.push_back(out);
+			outVecW.x = matRow1.Dot(vec);
+			outVecW.y = matRow2.Dot(vec);
+			outVecW.z = matRow3.Dot(vec);
+			outVecList.push_back(outVecW);
 		}
 
-		//
-		//float pdf = BxdfUt::D_GGX(Vec3(0, 1.0f, 0), vec, ggx_alpha)*cosf(theta) *0.5f * Ut::INV_PI;
-		float pdf = BxdfUt::D_GGX(Vec3(0, 1.0f, 0), vec, ggx_alpha)*cosf(theta);// *2.0f * Ut::PI;
+		//the correct form should be GGX(n,h,alpha)*cosf(theta)
+		Vec3 h = outVecW + v;
+		if(h !=Vec3(0,0,0)) h.Normalize();
+		float pdf = BxdfUt::D_GGX(n, h, ggx_alpha)*n.Dot(h);
+		pdf = std::min<float>(BxdfUt::D_GGX_SingularityMaxValue(), pdf);
+		pdf = std::max<float>(1.0f / BxdfUt::D_GGX_SingularityMaxValue(), pdf);
+
+		//the singularity of GGX NDF is really annoying!!!!!!!!!! though it can be cancelled
+		//with CookTorrance specular's D, i don't want ambiguity so i kept it.
+		//float pdf = cosf(theta);
 		outPdfList.push_back(pdf);
 	}
 }

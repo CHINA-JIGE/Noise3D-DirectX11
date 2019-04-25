@@ -71,7 +71,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 	for (uint32_t lightId = 0; lightId < mLightSourceList.size(); ++lightId)
 	{	
 		//reduce sample counts as bounces grow
-		uint32_t denominator = (param.diffusebounces + 1)*(param.diffusebounces + 1);
+		uint32_t denominator = (param.bounces + 1)*(param.bounces + 1);
 		uint32_t diffSampleCount = IPathTracerSoftShader::_MaxDiffuseSample() / denominator;
 		std::vector<Vec3> dirList;
 		std::vector<float> pdfList;//used by importance sampling demo
@@ -102,7 +102,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRay
 			//!!!!!!!!!! trace shadow rays/direct lighting
 			N_TraceRayPayload payload;
 			N_TraceRayParam newParam = param;
-			newParam.diffusebounces = param.diffusebounces;//shadow ray
+			newParam.bounces = param.bounces;//shadow ray
 			newParam.ray = diffSampleRay;
 			newParam.isShadowRay = true;
 			newParam.shadowRayLightSourceId = lightId;
