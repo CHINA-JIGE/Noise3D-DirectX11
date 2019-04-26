@@ -128,7 +128,7 @@ namespace Noise3D
 		BvhTreeForGI mBvhTree;
 
 		//-------Var for Gpu intersection-----------
-		static const uint32_t c_maxSOVertexCount = 200;
+		static const uint32_t c_maxSOByteWidth = 10000;
 		std::mutex				mSOMutex;//path tracer is multi-threaded
 		ID3D11Buffer*			m_pSOGpuWriteableBuffer;
 		ID3D11Buffer*			m_pSOCpuReadableBuffer;//this buffer will be used only when concrete collision point pos is needed
@@ -136,5 +136,6 @@ namespace Noise3D
 		ID3DX11EffectTechnique*			m_pFX_Tech_Picking;//gpu acceleration picking intersection
 		ID3DX11EffectTechnique*			m_pFX_Tech_RayMesh;//gpu acceleration ray-mesh intersection
 		ID3D11DepthStencilState*			m_pDSS_DisableDepthTest;
+		ID3D11RasterizerState*				m_pRasterState_NoCulling;
 	};
 }

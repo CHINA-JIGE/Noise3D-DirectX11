@@ -18,16 +18,16 @@ cbuffer cbIntersection
 
 struct GS_INPUT_DEFAULT_MESH
 {
-	float3 posW : POSITION;
+	float4 posW : SV_POSITION;
 	float3 normalW :NORMAL;
 	float2 texcoord: TEXCOORD;
 };
 
 struct GS_OUTPUT_DEFAULT_MESH
 {
-	float3  pos : POSITION0;
-	float t : POSITION1;
-	float3 normal :NORMAL;
+	float4  pos : POSITION0;
+	//float t : POSITION1;
+	float3 normal : NORMAL;
 	float2 texcoord: TEXCOORD;
 };
 
@@ -49,8 +49,9 @@ technique11 RayMeshIntersection
 		SetVertexShader(CompileShader(vs_5_0, VS_RayMeshIntersection()));
 		//SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0,GS_STREAMOUT()),"POSITION.xyz;NORMAL.xyz;TEXCOORD.xy") );
 		//what is the use of this string....define the format of SO??No seems that it's the format of VS output
-		SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_RayMeshIntersection()), "POSITION0.xyz;POSITION1.x;NORMAL.xyz;TEXCOORD.xy"));
+		//SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_RayMeshIntersection()), "POSITION0.xyz;POSITION1.x;NORMAL.xyz;TEXCOORD.xy"));
+		SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_RayMeshIntersection()), "POSITION0.xyzw;NORMAL.xyz;TEXCOORD.xy"));
+		//SetGeometryShader(ConstructGSWithSO(CompileShader(gs_5_0, GS_RayMeshIntersection()), "POSITION.xyz;NORMAL.xyz;TEXCOORD.xy"));
 		SetPixelShader(NULL);
 	}
 }
-

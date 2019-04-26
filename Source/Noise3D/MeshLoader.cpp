@@ -132,12 +132,11 @@ bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 	}
 
 	//compute the center pos of bounding box
-	N_AABB bbox= pTargetMesh->GetLocalAABB();
-	Vec3			tmpBoundingBoxCenter(0, 0, 0);
-	tmpBoundingBoxCenter = Vec3(
-		(bbox.max.x + bbox.min.x) / 2.0f,
-		(bbox.max.y + bbox.min.y) / 2.0f,
-		(bbox.max.z + bbox.min.z) / 2.0f);
+	Vec3 aabbCenter;
+	for (int i = 0; i < tmpVertexList.size(); ++i)
+	{
+		aabbCenter = aabbCenter * (float(i) / (i + 1.0f)) + tmpVertexList.at(i) * (1.0f/(i + 1.0f));
+	}
 
 	//lambda function : compute texcoord for spherical mapping
 	auto ComputeTexCoord_SphericalWrap= [](Vec3 vBoxCenter, Vec3 vPoint)->Vec2
@@ -190,7 +189,7 @@ bool MeshLoader::LoadFile_STL(Mesh * const pTargetMesh, NFilePath pFilePath)
 			tmpCompleteV.Tangent.Normalize();
 			//D3DXVec3Normalize(&tmpCompleteV.Tangent, &tmpCompleteV.Tangent);
 		}
-		tmpCompleteV.TexCoord = ComputeTexCoord_SphericalWrap(tmpBoundingBoxCenter, tmpCompleteV.Pos);
+		tmpCompleteV.TexCoord = ComputeTexCoord_SphericalWrap(aabbCenter, tmpCompleteV.Pos);
 		completeVertexList.push_back(tmpCompleteV);
 
 		//one normal vector for 3 vertices (1 triangle)

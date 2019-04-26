@@ -622,6 +622,10 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 
 bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
 {
+	//(2019.4.26)WARNING:STill BUGGY
+	//2. it's not worthwhile to test one ray at a time. really slow
+	while(!mSOMutex.try_lock());
+
 	mFunction_UpdateGpuInfoForRayIntersection(pMesh, false, true);
 
 	//intersection ray info
@@ -631,11 +635,11 @@ bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh
 	UINT offset = 0;
 	ID3D11Buffer* pNullBuff = nullptr;
 	//apply technique first !!!!!!!!!!!!!!!!!!!!!!!!then set SO Buffer
-	m_pFX_Tech_RayMesh->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 	g_pImmediateContext->SOSetTargets(1, &m_pSOGpuWriteableBuffer, &offset);
-
+	m_pFX_Tech_RayMesh->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
 	//issue a draw call (with Begin() and End(), between which SO statistic will be recorded
 	UINT indexCount = pMesh->GetIndexBuffer()->size();
+
 	g_pImmediateContext->Begin(m_pSOQuery);
 	g_pImmediateContext->DrawIndexed(indexCount, 0, 0);
 	g_pImmediateContext->End(m_pSOQuery);
@@ -669,25 +673,26 @@ bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh
 	if (FAILED(hr))
 	{
 		ERROR_MSG("Collosion Testor : failed to retrieve collision data (DeviceContext::Map)");
-		return;
+		return false;
 	}
 
 	//WARNING: please match the primitive format of 'shader SO' and 'here' 
 	//SO primitive vertex format is defined in Effect source file.
 	//(2017.1.28)currently POSITION.xyz <--> Vec3
-	float* pVecList = reinterpret_cast<float*>(mappedSR.pData);
+	char* pVecList = reinterpret_cast<char*>(mappedSR.pData);
 	for (uint32_t i = 0; i < returnedPrimCount; ++i)
 	{
 		N_RayHitInfo info(0.0f,Vec3(),Vec3(),Vec2());
 		info.pos			= *(Vec3*)(pVecList + i *sizeof(N_RayHitInfo) + 0);
 		info.t				= *(float*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3));
-		info.normal		= *(Vec3*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3) + sizeof(float));
-		info.texcoord	= *(Vec2*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3) + sizeof(float) + sizeof(Vec3));
+		info.normal		= *(Vec3*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec4));
+		info.texcoord	= *(Vec2*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec4) + sizeof(Vec3));
 		outHitRes.hitList.push_back(info);
 	}
 
 	g_pImmediateContext->Unmap(m_pSOCpuReadableBuffer, 0);
-
+	mSOMutex.unlock();
+	return true;
 }
 
 bool Noise3D::CollisionTestor::IntersectRayScene(const N_Ray & ray, N_RayHitResult & outHitRes)
@@ -766,8 +771,8 @@ bool CollisionTestor::mFunction_Init()
 
 
 	//SO Buffer initial data
-	N_MinimizedVertex initArr[c_maxSOVertexCount];
-	ZeroMemory(initArr, sizeof(N_MinimizedVertex) * c_maxSOVertexCount);
+	N_MinimizedVertex initArr[c_maxSOByteWidth];
+	ZeroMemory(initArr, c_maxSOByteWidth);
 	D3D11_SUBRESOURCE_DATA initData;
 	ZeroMemory(&initData, sizeof(initData));
 	initData.pSysMem = initArr;
@@ -777,9 +782,9 @@ bool CollisionTestor::mFunction_Init()
 	// 1. GPU writeable SO buffer
 	D3D11_BUFFER_DESC desc;
 	desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
-	desc.ByteWidth = c_maxSOVertexCount * sizeof(N_MinimizedVertex);//only float4 position
+	desc.ByteWidth = c_maxSOByteWidth;
 	desc.CPUAccessFlags = NULL;
-	desc.Usage = D3D11_USAGE_DEFAULT;//the slowest usage but read from VideoMem is allowed
+	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MiscFlags = NULL;
 	desc.StructureByteStride = NULL;
 	hr = g_pd3dDevice11->CreateBuffer(&desc, &initData, &m_pSOGpuWriteableBuffer);
@@ -789,7 +794,7 @@ bool CollisionTestor::mFunction_Init()
 	// 2. CPU readable SO data buffer , Simply re-use the above struct
 	desc.BindFlags =NULL;//if we 
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.Usage = D3D11_USAGE_STAGING;
+	desc.Usage = D3D11_USAGE_STAGING; // the slowest usage but read from VideoMem is allowed
 	hr = g_pd3dDevice11->CreateBuffer(&desc, &initData, &m_pSOCpuReadableBuffer);
 
 	HR_DEBUG(hr, "Collision Testor : failed to create Stream Out Buffer #2!" + std::to_string(hr));
@@ -799,6 +804,7 @@ bool CollisionTestor::mFunction_Init()
 
 	//Create Techiniques from FX
 	m_pFX_Tech_Picking = g_pFX->GetTechniqueByName("PickingIntersection");
+	m_pFX_Tech_RayMesh = g_pFX->GetTechniqueByName("RayMeshIntersection");
 
 	return true;
 }
@@ -809,8 +815,9 @@ bool CollisionTestor::mFunction_InitDSS()
 	//depth stencil state
 	D3D11_DEPTH_STENCIL_DESC dssDesc;
 	ZeroMemory(&dssDesc, sizeof(dssDesc));
-	dssDesc.DepthEnable = TRUE;
+	//dssDesc.DepthEnable = TRUE;
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	//dssDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.DepthEnable = FALSE;
 	dssDesc.StencilEnable = FALSE;
@@ -982,6 +989,7 @@ void Noise3D::CollisionTestor::mFunction_UpdateGpuInfoForRayIntersection(Mesh* p
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
 	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
+	g_pImmediateContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 	if (updateCamToGpu)
 	{

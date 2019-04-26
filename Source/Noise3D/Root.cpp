@@ -166,7 +166,7 @@ bool Root::Init()
 #ifdef _DEBUG	
 	//device debug mode, enable outputing d3d info
 	//(2018.7.20)note that in Win10 SDK, 'Graphics Tools' must be installed to enable D3D11_CREATE_DEVICE_DEBUG
-	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
 	//用列举出来的硬件方式 尝试初始化 直到成功
