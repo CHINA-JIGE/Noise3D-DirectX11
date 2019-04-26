@@ -64,12 +64,13 @@ struct VS_OUTPUT_QWERTY
 	float2 texcoord:TEXCOORD;
 };
 
-struct GS_INPUT_MINIZED
+//--GS--
+struct GS_INPUT_MINIMIZED
 {
 	float4 pos : SV_POSITION;
 };
 
-struct GS_OUTPUT_MINIZED
+struct GS_OUTPUT_MINIMIZED
 {
 	float3  pos : POSITION0;
 };

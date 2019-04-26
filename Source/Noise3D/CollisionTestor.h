@@ -53,6 +53,9 @@ namespace Noise3D
 		//ray-Mesh intersection. cpu impl.
 		static bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
 
+		//ray-Mesh intersection. gpu GS& stream output impl.
+		bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
+
 		//remember to Rebuild BVH tree before intersectRayScene
 		//ray-scene(all objects that attached to scene graph) intersection with BVH acceleration, O(logN) in average 
 		bool IntersectRayScene(const N_Ray& ray,N_RayHitResult& outHitRes);
@@ -113,18 +116,25 @@ namespace Noise3D
 		//recursion function for BVH acceleration. extra info are added
 		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNodeForGI* bvhNode, N_RayHitResultForPathTracer& outHitRes);
 
+		//update GPU states for GPU based intersection(ray-mesh/ picking)
+		void mFunction_UpdateGpuInfoForRayIntersection(Mesh* pMesh, bool updateCamToGpu, bool updateMatrixToGpu);
+
+
+
 		//low level render/shader variables support
 		IShaderVariableManager* m_pRefShaderVarMgr;
 
 		//for ray-scene intersection acceleration
 		BvhTreeForGI mBvhTree;
 
-		//-------Var for Gpu Picking-----------
+		//-------Var for Gpu intersection-----------
 		static const uint32_t c_maxSOVertexCount = 200;
+		std::mutex				mSOMutex;//path tracer is multi-threaded
 		ID3D11Buffer*			m_pSOGpuWriteableBuffer;
 		ID3D11Buffer*			m_pSOCpuReadableBuffer;//this buffer will be used only when concrete collision point pos is needed
 		ID3D11Query*			m_pSOQuery;//Inherited from ID3D11Async which is used to query SO information
 		ID3DX11EffectTechnique*			m_pFX_Tech_Picking;//gpu acceleration picking intersection
+		ID3DX11EffectTechnique*			m_pFX_Tech_RayMesh;//gpu acceleration ray-mesh intersection
 		ID3D11DepthStencilState*			m_pDSS_DisableDepthTest;
 	};
 }

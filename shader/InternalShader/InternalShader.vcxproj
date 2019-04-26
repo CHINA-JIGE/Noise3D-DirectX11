@@ -137,6 +137,7 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"
     <None Include="DrawSky.hlsli" />
     <None Include="DrawSolid3D.hlsli" />
     <None Include="DrawSweepingTrail.hlsli" />
+    <None Include="RayMeshIntersection.hlsli" />
     <None Include="PostProcessing.hlsli" />
     <None Include="Main.fx">
       <FileType>Document</FileType>
@@ -184,6 +185,19 @@ copy /B "Main.fxo" /B "..//..//Exec//Release//shader//Main.fxo"
   </ItemGroup>
   <ItemGroup>
     <None Include="DrawSweepingTrail.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RayMeshIntersection.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

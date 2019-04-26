@@ -81,6 +81,8 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_VECTOR(TEXT_COLOR4, "g2D_TextColor");
 	BIND_SHADER_VAR_VECTOR(TEXT_GLOW_COLOR4, "g2D_TextGlowColor");
 	BIND_SHADER_VAR_VECTOR(PICKING_RAY_NORMALIZED_DIR_XY, "gPickingRayNormalizedDirXY");
+	BIND_SHADER_VAR_VECTOR(INTERSECTING_RAY_ORIGIN3, "gIntersectingRayOrigin");
+	BIND_SHADER_VAR_VECTOR(INTERSECTING_RAY_DIR3, "gIntersectingRayDir");
 
 #define BIND_SHADER_VAR_SAMPLER(cppVarName,shaderVarName) m_pSingleton->m_pFxSampler[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsSampler()
 

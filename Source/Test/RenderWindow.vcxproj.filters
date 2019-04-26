@@ -58,5 +58,8 @@
     <ClCompile Include="UnitTest_RandomRayGenerator.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_RayMeshIntersectionGpuBenchmark.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -33,35 +33,10 @@ CollisionTestor::~CollisionTestor()
 
 void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const Vec2 & mouseNormalizedCoord, std::vector<Vec3>& outCollidedPointList)
 {
-	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
-	g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
-	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
-	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
+	mFunction_UpdateGpuInfoForRayIntersection(pMesh, true, true);
 
 	//picking info
 	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
-
-	//update camera Info
-	Camera* pCamera = GetScene()->GetCamera();
-	Matrix projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
-	pCamera->GetProjMatrix(projMatrix);
-	pCamera->GetViewMatrix(viewMatrix);
-	pCamera->GetViewInvMatrix(invViewMatrix);
-	Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
-	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
-
-
-	//update target tested mesh world Matrix
-	Matrix worldMat, worldInvTransMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
-
 
 	UINT offset = 0;
 	ID3D11Buffer* pNullBuff = nullptr;
@@ -122,36 +97,10 @@ void CollisionTestor::Picking_GpuBased(Mesh * pMesh, const Vec2 & mouseNormalize
 
 UINT CollisionTestor::Picking_GpuBased(Mesh * pMesh, const Vec2 & mouseNormalizedCoord)
 {
-	//preparation is similar to another PICKING
-
-	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
-	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
-	g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
-	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
-	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
+	mFunction_UpdateGpuInfoForRayIntersection(pMesh, true, true);
 
 	//picking info
 	m_pRefShaderVarMgr->SetVector2(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::PICKING_RAY_NORMALIZED_DIR_XY, mouseNormalizedCoord);
-
-	//update camera Info
-	Camera* pCamera = GetScene()->GetCamera();
-	Matrix projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
-	pCamera->GetProjMatrix(projMatrix);
-	pCamera->GetViewMatrix(viewMatrix);
-	pCamera->GetViewInvMatrix(invViewMatrix);
-	Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
-	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
-
-	//update target tested mesh world Matrix
-	Matrix worldMat, worldInvTransMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
-	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
-
 
 	UINT offset = 0;
 	ID3D11Buffer* pNullBuff = nullptr;
@@ -671,6 +620,76 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	return outHitRes.HasAnyHit();
 }
 
+bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
+{
+	mFunction_UpdateGpuInfoForRayIntersection(pMesh, false, true);
+
+	//intersection ray info
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::INTERSECTING_RAY_DIR3, ray.dir);
+	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::INTERSECTING_RAY_ORIGIN3, ray.origin);
+
+	UINT offset = 0;
+	ID3D11Buffer* pNullBuff = nullptr;
+	//apply technique first !!!!!!!!!!!!!!!!!!!!!!!!then set SO Buffer
+	m_pFX_Tech_RayMesh->GetPassByIndex(0)->Apply(0, g_pImmediateContext);
+	g_pImmediateContext->SOSetTargets(1, &m_pSOGpuWriteableBuffer, &offset);
+
+	//issue a draw call (with Begin() and End(), between which SO statistic will be recorded
+	UINT indexCount = pMesh->GetIndexBuffer()->size();
+	g_pImmediateContext->Begin(m_pSOQuery);
+	g_pImmediateContext->DrawIndexed(indexCount, 0, 0);
+	g_pImmediateContext->End(m_pSOQuery);
+	g_pImmediateContext->SOSetTargets(1, &pNullBuff, &offset);
+
+	//!!!!HERE's the problem : how many primitives had been Streamed Output???
+	//Use ID3D11Query !!
+	D3D11_QUERY_DATA_SO_STATISTICS  queriedStat;
+
+	//this while seems to wait for Gpu's availability
+	while (S_OK != g_pImmediateContext->GetData(
+		m_pSOQuery,
+		&queriedStat,	//different query types yield different return type. in this case, D3D11_QUERY_DATA_SO_STATISTICS
+		m_pSOQuery->GetDataSize(),
+		0));
+
+	//get number of primitives written to SO buffer
+	uint32_t returnedPrimCount = uint32_t(queriedStat.NumPrimitivesWritten);
+	//PrimitivesStorageNeeded :: actually that initialized SO buffer 
+	//might be not big enough hold all SO data from shaders
+
+
+	//RETRIEVE RESULT!!
+	//but first, we need to copy data from 'default' buffer to 'staging' buffer
+	g_pImmediateContext->CopyResource(m_pSOCpuReadableBuffer, m_pSOGpuWriteableBuffer);
+	//use device context->map
+	D3D11_MAPPED_SUBRESOURCE mappedSR;
+	HRESULT hr = S_OK;
+	hr = g_pImmediateContext->Map(m_pSOCpuReadableBuffer, 0, D3D11_MAP_READ, NULL, &mappedSR);
+
+	if (FAILED(hr))
+	{
+		ERROR_MSG("Collosion Testor : failed to retrieve collision data (DeviceContext::Map)");
+		return;
+	}
+
+	//WARNING: please match the primitive format of 'shader SO' and 'here' 
+	//SO primitive vertex format is defined in Effect source file.
+	//(2017.1.28)currently POSITION.xyz <--> Vec3
+	float* pVecList = reinterpret_cast<float*>(mappedSR.pData);
+	for (uint32_t i = 0; i < returnedPrimCount; ++i)
+	{
+		N_RayHitInfo info(0.0f,Vec3(),Vec3(),Vec2());
+		info.pos			= *(Vec3*)(pVecList + i *sizeof(N_RayHitInfo) + 0);
+		info.t				= *(float*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3));
+		info.normal		= *(Vec3*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3) + sizeof(float));
+		info.texcoord	= *(Vec2*)(pVecList + i * sizeof(N_RayHitInfo) + sizeof(Vec3) + sizeof(float) + sizeof(Vec3));
+		outHitRes.hitList.push_back(info);
+	}
+
+	g_pImmediateContext->Unmap(m_pSOCpuReadableBuffer, 0);
+
+}
+
 bool Noise3D::CollisionTestor::IntersectRayScene(const N_Ray & ray, N_RayHitResult & outHitRes)
 {
 	//warn the user if BVH is not rebuilt
@@ -953,6 +972,40 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 		}
 	}//isHit
 	 //else, BVH branch pruned. thus accelerated.
+}
+
+void Noise3D::CollisionTestor::mFunction_UpdateGpuInfoForRayIntersection(Mesh* pMesh, bool updateCamToGpu, bool updateMatrixToGpu)
+{
+	g_pImmediateContext->IASetInputLayout(g_pVertexLayout_Default);
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &pMesh->m_pVB_Gpu, &g_cVBstride_Default, &g_cVBoffset);
+	g_pImmediateContext->IASetIndexBuffer(pMesh->m_pIB_Gpu, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g_pImmediateContext->OMSetBlendState(nullptr, NULL, 0x00000000);//disable color drawing??
+	g_pImmediateContext->OMSetDepthStencilState(m_pDSS_DisableDepthTest, 0x00000000);
+
+	if (updateCamToGpu)
+	{
+		//update camera Info
+		Camera* pCamera = GetScene()->GetCamera();
+		Matrix projMatrix, viewMatrix, invProjMatrix, invViewMatrix;
+		pCamera->GetProjMatrix(projMatrix);
+		pCamera->GetViewMatrix(viewMatrix);
+		pCamera->GetViewInvMatrix(invViewMatrix);
+		Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
+		m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, projMatrix);
+		m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, viewMatrix);
+		m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, invViewMatrix);
+		m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
+	}
+
+	if (updateMatrixToGpu)
+	{
+		//update target tested mesh world Matrix
+		Matrix worldMat, worldInvTransMat;
+		pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransMat);
+		m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
+		m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransMat);
+	}
 }
 
 bool Noise3D::CollisionTestor::RayIntersectionTransformHelper::Ray_WorldToModel(
