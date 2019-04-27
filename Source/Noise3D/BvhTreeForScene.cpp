@@ -15,59 +15,59 @@
 
 using namespace Noise3D;
 
-Noise3D::BvhNodeForGI::BvhNodeForGI():
+Noise3D::BvhNodeForScene::BvhNodeForScene():
 	m_pSceneObject(nullptr)
 {
 }
 
-Noise3D::BvhNodeForGI::~BvhNodeForGI()
+Noise3D::BvhNodeForScene::~BvhNodeForScene()
 {
 }
 
-void Noise3D::BvhNodeForGI::SetGiRenderable(GI::IGiRenderable * pObj)
+void Noise3D::BvhNodeForScene::SetGiRenderable(GI::IGiRenderable * pObj)
 {
 	 if(pObj!=nullptr) m_pSceneObject = pObj;
 }
 
-GI::IGiRenderable * Noise3D::BvhNodeForGI::GetGiRenderable()
+GI::IGiRenderable * Noise3D::BvhNodeForScene::GetGiRenderable()
 {
 	return m_pSceneObject;
 }
 
-void Noise3D::BvhNodeForGI::SetAABB(const N_AABB & aabb)
+void Noise3D::BvhNodeForScene::SetAABB(const N_AABB & aabb)
 {
 	mAabb = aabb;
 }
 
-N_AABB Noise3D::BvhNodeForGI::GetAABB()
+N_AABB Noise3D::BvhNodeForScene::GetAABB()
 {
 	return mAabb;
 }
 
 /**********************************************
 
-							Scene Graph
+							BVH Tree
 
 ***********************************************/
 
-Noise3D::BvhTreeForGI::BvhTreeForGI()
+Noise3D::BvhTreeForScene::BvhTreeForScene()
 {
 }
 
-Noise3D::BvhTreeForGI::~BvhTreeForGI()
+Noise3D::BvhTreeForScene::~BvhTreeForScene()
 {
 }
 
-bool Noise3D::BvhTreeForGI::Construct(const SceneGraph& tree)
+bool Noise3D::BvhTreeForScene::Construct(const SceneGraph& tree)
 {
-	return BvhTreeForGI::Construct(tree.GetRoot());
+	return BvhTreeForScene::Construct(tree.GetRoot());
 }
 
-bool Noise3D::BvhTreeForGI::Construct(SceneNode * pNode)
+bool Noise3D::BvhTreeForScene::Construct(SceneNode * pNode)
 {
 	if (pNode == nullptr)
 	{
-		ERROR_MSG("BvhTreeForGI: construction failed. scene node is nullptr.");
+		ERROR_MSG("BvhTreeForScene: construction failed. scene node is nullptr.");
 		return false;
 	}
 	//i arbitrarily choose an traverse order to get all the scene nodes
@@ -102,41 +102,41 @@ bool Noise3D::BvhTreeForGI::Construct(SceneNode * pNode)
 	for (auto& info : infoList) rootAabb.Union(info.aabb);
 	if (!rootAabb.IsValid())
 	{
-		ERROR_MSG("BvhTreeForGI: AABB of root(the whole scene) should have a positive volume.");
+		ERROR_MSG("BvhTreeForScene: AABB of root(the whole scene) should have a positive volume.");
 		return false;
 	}
 
 	//2. set aabb to root bvh node, and start to recursive split
-	BvhNodeForGI* pRootNode = BvhTreeForGI::GetRoot();
+	BvhNodeForScene* pRootNode = BvhTreeForScene::GetRoot();
 	pRootNode->SetAABB(rootAabb);
 
 	//start to recursive splitting(info list might be splitted and copied many times)
 	//(2019.3.25)could be optimized with std::partition
 	if (!mFunction_SplitMidPointViaAabbSlabs(pRootNode, infoList))
 	{
-		ERROR_MSG("BvhTreeForGI: failed to split the root BVH node.");
+		ERROR_MSG("BvhTreeForScene: failed to split the root BVH node.");
 		return false;
 	}
 
 	return true;
 }
 
-void Noise3D::BvhTreeForGI::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<GI::IGiRenderable*>& outResult) const
+void Noise3D::BvhTreeForScene::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<GI::IGiRenderable*>& outResult) const
 {
-	std::vector<BvhNodeForGI*> nodeList;
+	std::vector<BvhNodeForScene*> nodeList;
 
 	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
 	//are copied, but nodes with no scene object bound to it are useless here.
 	switch (order)
 	{
 	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
-		BvhTreeForGI::Traverse_PreOrder(nodeList); break;
+		BvhTreeForScene::Traverse_PreOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
-		BvhTreeForGI::Traverse_PostOrder(nodeList); break;
+		BvhTreeForScene::Traverse_PostOrder(nodeList); break;
 
 	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
-		BvhTreeForGI::Traverse_LayerOrder(nodeList); break;
+		BvhTreeForScene::Traverse_LayerOrder(nodeList); break;
 
 	default:
 		break;
@@ -153,8 +153,14 @@ void Noise3D::BvhTreeForGI::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order
 	}
 }
 
+/*********************************************
+
+							PRIVATE
+
+**********************************************/
+
 //deprecated
-bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNode,const std::vector<ObjectAabbPair>& infoList)
+bool Noise3D::BvhTreeForScene::mFunction_SplitMidPointViaCentroid(BvhNodeForScene* pNode,const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
@@ -240,14 +246,14 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNo
 	//(but haha, for N-ary tree, actually there is no such a thing as 'left' or 'right')
 	if (leftAabb.IsValid() && !leftInfoList.empty())
 	{
-		BvhNodeForGI* pLeftChild = pNode->CreateChildNode();
+		BvhNodeForScene* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
 		mFunction_SplitMidPointViaCentroid(pLeftChild, leftInfoList);
 	}
 
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
-		BvhNodeForGI* pRightChild = pNode->CreateChildNode();
+		BvhNodeForScene* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
 		mFunction_SplitMidPointViaCentroid(pRightChild, rightInfoList);
 	}
@@ -255,7 +261,7 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNo
 	return true;
 }
 
-bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * pNode, const std::vector<ObjectAabbPair>& infoList)
+bool Noise3D::BvhTreeForScene::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForScene * pNode, const std::vector<ObjectAabbPair>& infoList)
 {
 	//there r many ways to implement a top-down construction's BVH, 
 	//i.e., many ways to split a BVH build node/scene objects cluster.
@@ -278,6 +284,13 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * p
 		const ObjectAabbPair& info = infoList.front();
 		pNode->SetAABB(info.aabb);
 		pNode->SetGiRenderable(info.pObj);
+
+		//rebuild mesh's internal BVH
+		if (info.pObj->GetObjectType() == NOISE_SCENE_OBJECT_TYPE::MESH)
+		{
+			Mesh* pMesh = static_cast<Mesh*>(info.pObj);
+			pMesh->RebuildBvhTree();
+		}
 		return true;
 	}
 
@@ -351,14 +364,14 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * p
 	//----- left -----
 	if (leftAabb.IsValid() && !leftInfoList.empty())
 	{
-		BvhNodeForGI* pLeftChild = pNode->CreateChildNode();
+		BvhNodeForScene* pLeftChild = pNode->CreateChildNode();
 		pLeftChild->SetAABB(leftAabb);
 		mFunction_SplitMidPointViaAabbSlabs(pLeftChild, leftInfoList);
 	}
 	//----- right -----
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
-		BvhNodeForGI* pRightChild = pNode->CreateChildNode();
+		BvhNodeForScene* pRightChild = pNode->CreateChildNode();
 		pRightChild->SetAABB(rightAabb);
 		mFunction_SplitMidPointViaAabbSlabs(pRightChild, rightInfoList);
 	}
@@ -368,7 +381,7 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * p
 	//end recursion
 	for (auto& info : middileInfoList)
 	{
-		BvhNodeForGI* pMidChild = pNode->CreateChildNode();
+		BvhNodeForScene* pMidChild = pNode->CreateChildNode();
 		pMidChild->SetAABB(info.aabb);
 		pMidChild->SetGiRenderable(info.pObj);
 	}
@@ -376,7 +389,7 @@ bool Noise3D::BvhTreeForGI::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI * p
 	return true;
 }
 
-inline float Noise3D::BvhTreeForGI::mFunction_GetVecComponent(Vec3 vec, uint32_t id)
+inline float Noise3D::BvhTreeForScene::mFunction_GetVecComponent(Vec3 vec, uint32_t id)
 {
 	switch (id)
 	{

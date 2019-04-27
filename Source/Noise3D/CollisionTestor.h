@@ -53,6 +53,9 @@ namespace Noise3D
 		//ray-Mesh intersection. cpu impl.
 		static bool IntersectRayMesh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
 
+		//ray-Mesh intersection. cpu impl. bvh-accelerated
+		static bool IntersectRayMeshWithBvh(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
+
 		//ray-Mesh intersection. gpu GS& stream output impl.
 		bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_RayHitResult& outHitRes);
 
@@ -70,7 +73,7 @@ namespace Noise3D
 		//(re-)build BVH tree from scene graph for ray tracer, but rooted at given node
 		bool RebuildBvhTreeForGI(SceneNode* pNode);
 
-		const BvhTreeForGI& GetBvhTree();
+		const BvhTreeForScene& GetBvhTree();
 
 		//TODO: ray-Mesh intersection. gpu impl. simply modify a little bit to Picking_GpuBased
 		//bool IntersectRayMesh_GpuBased(const N_Ray& ray, Mesh* pMesh, N_HitResult& outHitRes);
@@ -111,10 +114,10 @@ namespace Noise3D
 		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
 		//recursion function for BVH acceleration
-		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNodeForGI* bvhNode, N_RayHitResult& outHitRes);
+		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNodeForScene* bvhNode, N_RayHitResult& outHitRes);
 
 		//recursion function for BVH acceleration. extra info are added
-		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNodeForGI* bvhNode, N_RayHitResultForPathTracer& outHitRes);
+		void mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray& ray, BvhNodeForScene* bvhNode, N_RayHitResultForPathTracer& outHitRes);
 
 		//update GPU states for GPU based intersection(ray-mesh/ picking)
 		void mFunction_UpdateGpuInfoForRayIntersection(Mesh* pMesh, bool updateCamToGpu, bool updateMatrixToGpu);
@@ -125,7 +128,7 @@ namespace Noise3D
 		IShaderVariableManager* m_pRefShaderVarMgr;
 
 		//for ray-scene intersection acceleration
-		BvhTreeForGI mBvhTree;
+		BvhTreeForScene mBvhTree;
 
 		//-------Var for Gpu intersection-----------
 		static const uint32_t c_maxSOByteWidth = 10000;

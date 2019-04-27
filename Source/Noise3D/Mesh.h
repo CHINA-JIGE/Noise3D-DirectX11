@@ -47,6 +47,14 @@ namespace Noise3D
 
 		virtual N_BoundingSphere ComputeWorldBoundingSphere_Accurate() override;
 
+		//is bvh tree manually built (but up-to-date bvh tree is not guaranteed)
+		bool IsBvhTreeBuilt();
+
+		//build bvh tree for triangles
+		void RebuildBvhTree();
+
+		BvhTreeForTriangularMesh& GetBvhTree();
+
 	private:
 
 		friend class IRenderModuleForMesh;
@@ -64,6 +72,10 @@ namespace Noise3D
 	private:
 
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset
+
+		BvhTreeForTriangularMesh mBvhTree;//BVH tree of triangles
+
+		bool mIsBvhTreeBuilt;
 
 	};
 };

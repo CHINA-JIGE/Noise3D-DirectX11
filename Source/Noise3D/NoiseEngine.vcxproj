@@ -130,7 +130,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BvhTree.h" />
+    <ClInclude Include="BvhTreeForMesh.h" />
+    <ClInclude Include="BvhTreeForScene.h" />
     <ClInclude Include="BxdfUt.h" />
     <ClInclude Include="Noise3D_InDevHeader.h" />
     <ClInclude Include="Noise3D_StableCommonHeader.h" />
@@ -232,7 +233,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdvancedGiMaterial.cpp" />
-    <ClCompile Include="BvhTree.cpp" />
+    <ClCompile Include="BvhTreeForMesh.cpp" />
+    <ClCompile Include="BvhTreeForScene.cpp" />
     <ClCompile Include="BxdfUt.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />

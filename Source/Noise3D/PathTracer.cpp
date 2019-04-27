@@ -240,7 +240,7 @@ void Noise3D::GI::PathTracer::mFunction_ComputeLightSourceList(std::vector<GI::I
 {
 	//gather all emssive objects' info, as light sources
 	//local lighting at each closest hit is needed (to cast shadow ray to emissive object)
-	const BvhTreeForGI& bvh = m_pCT->GetBvhTree();
+	const BvhTreeForScene& bvh = m_pCT->GetBvhTree();
 	std::vector<GI::IGiRenderable*> objList;
 	bvh.TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER, objList);
 

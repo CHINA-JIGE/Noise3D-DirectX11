@@ -698,7 +698,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh
 bool Noise3D::CollisionTestor::IntersectRayScene(const N_Ray & ray, N_RayHitResult & outHitRes)
 {
 	//warn the user if BVH is not rebuilt
-	BvhNodeForGI* pBvhRoot = mBvhTree.GetRoot();
+	BvhNodeForScene* pBvhRoot = mBvhTree.GetRoot();
 	if (pBvhRoot->IsLeafNode() && pBvhRoot->GetGiRenderable() == nullptr)
 	{
 		WARNING_MSG("IntersectRayScene: BVH tree seems to be empty. Forgot to rebuild BVH? or there is no collidable object in the scene?");
@@ -713,7 +713,7 @@ bool Noise3D::CollisionTestor::IntersectRayScene(const N_Ray & ray, N_RayHitResu
 bool Noise3D::CollisionTestor::IntersectRaySceneForPathTracer(const N_Ray & ray, N_RayHitResultForPathTracer & outHitRes)
 {
 	//warn the user if BVH is not rebuilt
-	BvhNodeForGI* pBvhRoot = mBvhTree.GetRoot();
+	BvhNodeForScene* pBvhRoot = mBvhTree.GetRoot();
 	if (pBvhRoot->IsLeafNode() && pBvhRoot->GetGiRenderable() == nullptr)
 	{
 		WARNING_MSG("IntersectRaySceneForPathTracer: BVH tree seems to be empty. Forgot to rebuild BVH? or there is no collidable object in the scene?");
@@ -737,7 +737,7 @@ bool Noise3D::CollisionTestor::RebuildBvhTreeForGI(SceneNode * pNode)
 	return mBvhTree.Construct(pNode);
 }
 
-const BvhTreeForGI & Noise3D::CollisionTestor::GetBvhTree()
+const BvhTreeForScene & Noise3D::CollisionTestor::GetBvhTree()
 {
 	return mBvhTree;
 }
@@ -851,7 +851,7 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	if (isDirNeg)std::swap(nearHit, farHit);
 }
 
-void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, BvhNodeForGI * bvhNode, N_RayHitResult& outHitRes)
+void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, BvhNodeForScene * bvhNode, N_RayHitResult& outHitRes)
 {
 	//test ray against current bvh AABB
 	//(2019.3.30)WARNING: in some cases, the ray is inside AABB, but there won't be intersection on the surface
@@ -883,7 +883,11 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 				CollisionTestor::IntersectRayRect(ray, static_cast<LogicalRect*>(pObj), tmpResult);
 				break;
 			case NOISE_SCENE_OBJECT_TYPE::MESH:
-				CollisionTestor::IntersectRayMesh(ray, static_cast<Mesh*>(pObj), tmpResult);
+				Mesh* pMesh = static_cast<Mesh*>(pObj);
+				if (pMesh->IsBvhTreeBuilt())
+					CollisionTestor::IntersectRayMeshWithBvh(ray, pMesh, tmpResult);
+				else
+					CollisionTestor::IntersectRayMesh(ray, pMesh, tmpResult);
 				break;
 			default:
 				ERROR_MSG("Error: Bug!! The stupid author forgot to include some collidable object.");
@@ -898,7 +902,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 			for (uint32_t i = 0; i < bvhNode->GetChildNodeCount(); ++i)
 			{
 				N_RayHitResult tmpResult;
-				BvhNodeForGI* pChildNode = bvhNode->GetChildNode(i);
+				BvhNodeForScene* pChildNode = bvhNode->GetChildNode(i);
 				CollisionTestor::mFunction_IntersectRayBvhNode(ray, pChildNode, tmpResult);
 				outHitRes.Union(tmpResult);//push to back
 			}
@@ -907,7 +911,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 	//else, BVH branch pruned. thus accelerated.
 }
 
-void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray & ray, BvhNodeForGI * bvhNode, N_RayHitResultForPathTracer & outHitRes)
+void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const N_Ray & ray, BvhNodeForScene * bvhNode, N_RayHitResultForPathTracer & outHitRes)
 {
 	//similar to the common version,
 	//extended version for path tracer
@@ -953,7 +957,14 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 			case NOISE_SCENE_OBJECT_TYPE::MESH:
 			{
 				Mesh* pMesh = static_cast<Mesh*>(pRenderable);
-				CollisionTestor::IntersectRayMesh(ray, pMesh, tmpResult);
+				if (pMesh->IsBvhTreeBuilt())
+				{	
+					CollisionTestor::IntersectRayMeshWithBvh(ray, pMesh, tmpResult);
+				}
+				else
+				{	
+					CollisionTestor::IntersectRayMesh(ray, pMesh, tmpResult);	
+				}
 				for(auto& e: tmpResult.hitList)
 					tmpPathTracerResult.hitList.push_back(N_RayHitInfoForPathTracer(pRenderable, e));
 				break;
@@ -972,7 +983,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(const 
 			for (uint32_t i = 0; i < bvhNode->GetChildNodeCount(); ++i)
 			{
 				N_RayHitResultForPathTracer tmpResult;
-				BvhNodeForGI* pChildNode = bvhNode->GetChildNode(i);
+				BvhNodeForScene* pChildNode = bvhNode->GetChildNode(i);
 				CollisionTestor::mFunction_IntersectRayBvhNodeForPathTracer(ray, pChildNode, tmpResult);
 				outHitRes.Union(tmpResult);//push to back
 			}

@@ -127,9 +127,6 @@
     <Filter Include="GeneralBasicClass\_TreeDataStructureTemplate">
       <UniqueIdentifier>{7ba2f2df-371b-4c78-a07a-8fd6c01f3159}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\Scene\CollisionTestor\BvhTree">
-      <UniqueIdentifier>{a863a99d-c5c8-431a-9916-6a0eb056b80f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\GI\SH">
       <UniqueIdentifier>{dabb1997-62fb-4c1e-8fc3-9fa7b3735f13}</UniqueIdentifier>
     </Filter>
@@ -168,6 +165,12 @@
     </Filter>
     <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Standard">
       <UniqueIdentifier>{f0b5a782-fbe3-43b2-8696-e1de1b4cb867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\CollisionTestor\BvhTreeForScene">
+      <UniqueIdentifier>{a863a99d-c5c8-431a-9916-6a0eb056b80f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoiseGraphic\Scene\Mesh\BvhTreeForMesh">
+      <UniqueIdentifier>{c2cf987c-7fa9-494e-b9ce-6c8904c6c45c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -358,9 +361,6 @@
     <ClInclude Include="SceneGraph.h">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClInclude>
-    <ClInclude Include="BvhTree.h">
-      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
-    </ClInclude>
     <ClInclude Include="LogicalSphere.h">
       <Filter>NoiseGraphic\Scene\LogicalShape</Filter>
     </ClInclude>
@@ -438,6 +438,12 @@
     </ClInclude>
     <ClInclude Include="Noise3D_InDevHeader.h">
       <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="BvhTreeForScene.h">
+      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTreeForScene</Filter>
+    </ClInclude>
+    <ClInclude Include="BvhTreeForMesh.h">
+      <Filter>NoiseGraphic\Scene\Mesh\BvhTreeForMesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -615,9 +621,6 @@
     <ClCompile Include="SceneGraph.cpp">
       <Filter>NoiseGraphic\Scene\SceneManagement</Filter>
     </ClCompile>
-    <ClCompile Include="BvhTree.cpp">
-      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTree</Filter>
-    </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>NoiseGraphic\Scene\MeshLoader</Filter>
     </ClCompile>
@@ -665,6 +668,12 @@
     </ClCompile>
     <ClCompile Include="PathTracerStandardShader.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="BvhTreeForScene.cpp">
+      <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTreeForScene</Filter>
+    </ClCompile>
+    <ClCompile Include="BvhTreeForMesh.cpp">
+      <Filter>NoiseGraphic\Scene\Mesh\BvhTreeForMesh</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

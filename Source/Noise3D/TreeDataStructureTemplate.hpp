@@ -16,7 +16,7 @@ namespace Noise3D
 		LAYER_ORDER
 	};
 
-	//a more detailed node like SceneNode or BvhNodeForGI should be derived from TreeNodeTemplate<derivedNode_t>
+	//a more detailed node like SceneNode or BvhNodeForScene should be derived from TreeNodeTemplate<derivedNode_t>
 	//a compile-time check is implemented using std::is_base_of
 	//if derivedNode_t is not derived from TreeNodeTemplate<derivedNode_t>, then there will be an LINKING error
 
@@ -31,7 +31,7 @@ namespace Noise3D
 			m_pFatherNode(nullptr),
 			m_pHostTree(nullptr)
 		{
-			//a more detailed node like SceneNode or BvhNodeForGI should be derived from TreeNodeTemplate<derivedNode_t>
+			//a more detailed node like SceneNode or BvhNodeForScene should be derived from TreeNodeTemplate<derivedNode_t>
 			//try to instantiate a template. if is_base_of return false, then instantiation failed, compile error
 			//(more specifically, a LINK error)
 
@@ -154,7 +154,7 @@ namespace Noise3D
 		template<typename node_t, typename tree_t> friend class TreeTemplate;
 		friend derivedTree_t;
 
-		 //a more detailed node like SceneNode or BvhNodeForGI should be derived from TreeNodeTemplate<derivedNode_t>
+		 //a more detailed node like SceneNode or BvhNodeForScene should be derived from TreeNodeTemplate<derivedNode_t>
 		//mFunc_CompileTime_NodeTypeInheritanceCheck<false> shall NOT be implemented to
 		//DELIBERATELY cause a LINKING ERROR
 		template <bool isDerivedTypeActuallyDerivedFromTreeNodeTemplate> 

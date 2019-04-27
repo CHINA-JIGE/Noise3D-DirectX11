@@ -68,7 +68,7 @@
 #include "AffineTransform.h"
 #include "SceneGraph.h"
 #include "ISceneObject.h"
-#include "BvhTree.h"
+#include "BvhTreeForScene.h"
 
 #include "LambertMaterial.h"
 #include "AdvancedGiMaterial.h"
@@ -86,6 +86,7 @@
 #include "ModelProcessor.h"
 #include "Camera.h"
 #include "Atmosphere.h"
+#include "BvhTreeForMesh.h"
 #include "Mesh.h"
 #include "MeshManager.h"
 #include "ShadowCommonInterface.h"

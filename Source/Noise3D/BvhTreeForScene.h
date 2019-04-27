@@ -16,17 +16,17 @@ namespace Noise3D
 		class IGiRenderable;
 	}
 
-	class BvhTreeForGI;
+	class BvhTreeForScene;
 
 	//a single node in BVH tree
-	class BvhNodeForGI:
-		public TreeNodeTemplate<BvhNodeForGI, BvhTreeForGI>
+	class BvhNodeForScene:
+		public TreeNodeTemplate<BvhNodeForScene, BvhTreeForScene>
 	{
 	public:
 
-		BvhNodeForGI();
+		BvhNodeForScene();
 
-		~BvhNodeForGI();
+		~BvhNodeForScene();
 
 		void SetGiRenderable(GI::IGiRenderable* pObj);
 		
@@ -45,15 +45,15 @@ namespace Noise3D
 	};
 
 	//BVH tree, might be used in collision testor as an acceleration data structure
-	//only scene objects attached to BvhNodeForGI will support ray-object intersection
-	class BvhTreeForGI:
-		public TreeTemplate<BvhNodeForGI, BvhTreeForGI>
+	//only scene objects attached to BvhNodeForScene will support ray-object intersection
+	class BvhTreeForScene:
+		public TreeTemplate<BvhNodeForScene, BvhTreeForScene>
 	{
 	public:
 
-		BvhTreeForGI();
+		BvhTreeForScene();
 
-		~BvhTreeForGI();
+		~BvhTreeForScene();
 
 		bool Construct(const SceneGraph& pSG);
 
@@ -74,9 +74,9 @@ namespace Noise3D
 		};
 
 		//deprecated
-		bool mFunction_SplitMidPointViaCentroid(BvhNodeForGI* pNode,const std::vector<ObjectAabbPair>& infoList);
+		bool mFunction_SplitMidPointViaCentroid(BvhNodeForScene* pNode,const std::vector<ObjectAabbPair>& infoList);
 
-		bool mFunction_SplitMidPointViaAabbSlabs(BvhNodeForGI* pNode, const std::vector<ObjectAabbPair>& infoList);
+		bool mFunction_SplitMidPointViaAabbSlabs(BvhNodeForScene* pNode, const std::vector<ObjectAabbPair>& infoList);
 
 		float mFunction_GetVecComponent(Vec3 vec, uint32_t id);
 	};

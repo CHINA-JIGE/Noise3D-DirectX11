@@ -1,7 +1,7 @@
 
 /***********************************************************************
 
-									Mesh 
+												Mesh 
 		An important scene object class. Derived from ISceneObject
 		and its geometry data class 'GeometryEntity<>'
 
@@ -17,7 +17,8 @@ Noise3D::NOISE_SCENE_OBJECT_TYPE Noise3D::Mesh::GetObjectType()const
 	return NOISE_SCENE_OBJECT_TYPE::MESH;
 }
 
-Mesh::Mesh()
+Mesh::Mesh():
+	mIsBvhTreeBuilt(false)
 {
 	Mesh::SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 };
@@ -122,6 +123,22 @@ N_BoundingSphere Noise3D::Mesh::ComputeWorldBoundingSphere_Accurate()
 	}
 
 	return outSphere;
+}
+
+bool Noise3D::Mesh::IsBvhTreeBuilt()
+{
+	return mIsBvhTreeBuilt;
+}
+
+void Noise3D::Mesh::RebuildBvhTree()
+{
+	mBvhTree.Construct(this);
+	mIsBvhTreeBuilt = true;
+}
+
+BvhTreeForTriangularMesh & Noise3D::Mesh::GetBvhTree()
+{
+	return mBvhTree;
 }
 
 /***********************************************************************
