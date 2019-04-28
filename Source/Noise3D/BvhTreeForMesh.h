@@ -32,7 +32,7 @@ namespace Noise3D
 
 		void SetAABB(const N_AABB& aabb);
 
-		N_AABB GetAABB();
+		N_AABB GetAABB() const;
 
 	private:
 
@@ -51,6 +51,8 @@ namespace Noise3D
 
 		BvhTreeForTriangularMesh();
 
+		BvhTreeForTriangularMesh(const BvhTreeForTriangularMesh&) = delete;
+
 		~BvhTreeForTriangularMesh();
 
 		bool Construct(Mesh* pMesh);
@@ -61,13 +63,15 @@ namespace Noise3D
 		struct TriIdListAabbPair
 		{
 			TriIdListAabbPair(){}
-			TriIdListAabbPair(const TriIdListAabbPair& rhs):triangleIndexList(rhs.triangleIndexList), aabb(rhs.aabb){}
+			TriIdListAabbPair(const TriIdListAabbPair& rhs): aabb(rhs.aabb){
+				triangleIndexList = rhs.triangleIndexList;
+			}
 
 			std::vector<uint32_t> triangleIndexList;
 			N_AABB aabb;//cached result
 		};
 
-		bool mFunction_SplitMidPoint(BvhNodeForTriangularMesh* pNode,const std::vector<TriIdListAabbPair>& infoList);
+		bool mFunction_SplitMidPoint(BvhNodeForTriangularMesh* pNode,std::vector<TriIdListAabbPair>& infoList);
 
 		N_AABB mFunction_ComputeAabb(Vec3 v0, Vec3 v1, Vec3 v2);
 

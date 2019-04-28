@@ -113,6 +113,9 @@ namespace Noise3D
 		//get facet id for Ray-AABB intersection
 		static void mFunction_AabbFacet(uint32_t slabsPairId, float dirComponent, NOISE_BOX_FACET& nearHit, NOISE_BOX_FACET& farHit);
 
+		//recursion function for mesh's internal BVH
+		static void mFunction_IntersectRayMeshInternalBvhNode(const N_Ray& ray,BvhNodeForTriangularMesh* bvhNode, std::vector<uint32_t>& outTriangleIdList);
+
 		//recursion function for BVH acceleration
 		void mFunction_IntersectRayBvhNode(const N_Ray& ray, BvhNodeForScene* bvhNode, N_RayHitResult& outHitRes);
 

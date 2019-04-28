@@ -141,14 +141,15 @@ BOOL Init3D(HWND hwnd)
 	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
 	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
 	pMesh->SetCollidable(true);
-	pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
+	//pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
+	pModelLoader->LoadFile_STL(pMesh, "../media/model/sphere.stl");
 	meshList.push_back(pMesh);
 	sceneObjectList.push_back(pMesh); // renderable
-	pNodeMesh->GetLocalTransform().SetPosition(100.0f, 0, 0);
-	pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
-	pNodeMesh->GetLocalTransform().SetRotation(1.0f, 1.0f, 0.5f);
+	pNodeMesh->GetLocalTransform().SetPosition(0, 0, 0);
+	//pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
+	//pNodeMesh->GetLocalTransform().SetRotation(1.0f, 1.0f, 0.5f);
 
-	const int c_shapeCount = 10;
+	const int c_shapeCount = 0;
 	for (int i = 0; i < c_shapeCount; ++i)
 	{
 		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
@@ -218,9 +219,12 @@ BOOL Init3D(HWND hwnd)
 	}
 
 	//-------Build BVH----------
-	BvhTree bvh;
-	bvh.Construct(sg);
-	std::vector<BvhNode*> bvhNodeList;
+	//BvhTreeForScene bvh;
+	//bvh.Construct(sg);
+	//std::vector<BvhNodeForScene*> bvhNodeList;
+	pMesh->RebuildBvhTree();
+	BvhTreeForTriangularMesh& bvh = pMesh->GetBvhTree();
+	std::vector<BvhNodeForTriangularMesh*> bvhNodeList;
 	bvh.Traverse_PreOrder(bvhNodeList);
 
 	//-----add Debug AABB--------

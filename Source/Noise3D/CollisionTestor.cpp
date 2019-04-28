@@ -620,6 +620,55 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 	return outHitRes.HasAnyHit();
 }
 
+bool Noise3D::CollisionTestor::IntersectRayMeshWithBvh(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
+{
+	if (pMesh == nullptr)
+	{
+		ERROR_MSG("CollisionTestor: object is nullptr.");
+		return false;
+	}
+
+	if (!pMesh->IsBvhTreeBuilt())
+	{
+		ERROR_MSG("CollisionTestor: mesh's internal BVH hasn't been built!");
+		return false;
+	}
+
+	if (!pMesh->Collidable::IsCollidable())return false;
+
+	//convert ray to model space (but first scene object must attach to scene node)
+	N_Ray localRay;
+	RayIntersectionTransformHelper helper;
+	if (!helper.Ray_WorldToModel(ray, false, pMesh, localRay))return false;
+
+	//gather all possible triangle candidates
+	std::vector<uint32_t> triangleIndexList;
+	CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(ray, pMesh->GetBvhTree().GetRoot(), triangleIndexList);
+
+	//get vertex data (be noted that the vertex is in MODEL SPACE
+	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();
+	const std::vector<uint32_t>* pIB = pMesh->GetIndexBuffer();
+
+	for (auto triId : triangleIndexList)
+	{
+		N_RayHitInfo hitInfo(-123456789.0f, Vec3(), Vec3(), Vec2());
+		const N_DefaultVertex& v0 = pVB->at(pIB->at(3 * triId + 0));
+		const N_DefaultVertex& v1 = pVB->at(pIB->at(3 * triId + 1));
+		const N_DefaultVertex& v2 = pVB->at(pIB->at(3 * triId + 2));
+
+		//delegate each ray-tri intersection task to another function
+		if (CollisionTestor::IntersectRayTriangle(localRay, v0, v1, v2, hitInfo))
+		{
+			outHitRes.hitList.push_back(hitInfo);
+		}
+	}
+
+	//convert result point back to world space
+	helper.HitResult_ModelToWorld(outHitRes);
+
+	return true;
+}
+
 bool Noise3D::CollisionTestor::IntersectRayMesh_GpuBased(const N_Ray & ray, Mesh * pMesh, N_RayHitResult & outHitRes)
 {
 	//(2019.4.26)WARNING:STill BUGGY
@@ -851,6 +900,35 @@ inline void  Noise3D::CollisionTestor::mFunction_AabbFacet(uint32_t slabsPairId,
 	if (isDirNeg)std::swap(nearHit, farHit);
 }
 
+void Noise3D::CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(const N_Ray& ray,BvhNodeForTriangularMesh* bvhNode, std::vector<uint32_t>& outTriangleIdList)
+{
+	//similar to scene's BVH
+	N_AABB aabb = bvhNode->GetAABB();
+	bool isRayEndPointInside = aabb.IsPointInside(ray.origin) || aabb.IsPointInside(ray.Eval(ray.t_max));
+	bool isHit = CollisionTestor::IntersectRayAabb(ray, aabb);//ray's start,end are outside the AABB but still possible to hit
+	if (isRayEndPointInside || isHit)
+	{
+		bool isLeafNode = bvhNode->IsLeafNode();
+		//BVH leaf node, extract concrete object to intersect
+		if (isLeafNode)
+		{
+			outTriangleIdList.assign(bvhNode->GetTriangleIndexList().begin(), bvhNode->GetTriangleIndexList().end());
+		}//isLeafNode
+		else
+		{
+			//gather results from
+			for (uint32_t i = 0; i < bvhNode->GetChildNodeCount(); ++i)
+			{
+				std::vector<uint32_t> tmpResult;
+				BvhNodeForTriangularMesh* pChildNode = bvhNode->GetChildNode(i);
+				CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(ray, pChildNode, tmpResult);
+				outTriangleIdList.insert(outTriangleIdList.end(),tmpResult.begin(),tmpResult.end());//push to back
+			}
+		}
+	}//isHit
+	 //else, BVH branch pruned. thus accelerated.
+}
+
 void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, BvhNodeForScene * bvhNode, N_RayHitResult& outHitRes)
 {
 	//test ray against current bvh AABB
@@ -870,6 +948,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 			//(2019.3.30)well, it shouldn't run into the 'return' line if the BVH construction is correct.
 			//but i'm not totally confident about that orz= =
 			if (pObj == nullptr)return;
+			Mesh* pMesh = nullptr;
 
 			switch (pObj->GetObjectType())
 			{
@@ -883,7 +962,7 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayBvhNode(const N_Ray & ray, 
 				CollisionTestor::IntersectRayRect(ray, static_cast<LogicalRect*>(pObj), tmpResult);
 				break;
 			case NOISE_SCENE_OBJECT_TYPE::MESH:
-				Mesh* pMesh = static_cast<Mesh*>(pObj);
+				pMesh = static_cast<Mesh*>(pObj);
 				if (pMesh->IsBvhTreeBuilt())
 					CollisionTestor::IntersectRayMeshWithBvh(ray, pMesh, tmpResult);
 				else

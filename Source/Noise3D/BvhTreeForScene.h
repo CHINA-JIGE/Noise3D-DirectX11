@@ -53,6 +53,8 @@ namespace Noise3D
 
 		BvhTreeForScene();
 
+		BvhTreeForScene(const BvhTreeForScene&) = delete;
+
 		~BvhTreeForScene();
 
 		bool Construct(const SceneGraph& pSG);

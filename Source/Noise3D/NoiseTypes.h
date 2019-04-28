@@ -119,6 +119,11 @@ namespace Noise3D
 
 		bool IsValid()const
 		{
+			return (max.x >= min.x) && (max.y >= min.y) && (max.z >= min.z);
+		}
+
+		bool IsPositiveVolume() const
+		{
 			return (max.x > min.x) && (max.y > min.y) && (max.z > min.z);
 		}
 

@@ -29,7 +29,7 @@ void Noise3D::BvhNodeForTriangularMesh::SetAABB(const N_AABB & aabb)
 	mAabb = aabb;
 }
 
-N_AABB Noise3D::BvhNodeForTriangularMesh::GetAABB()
+N_AABB Noise3D::BvhNodeForTriangularMesh::GetAABB() const
 {
 	return mAabb;
 }
@@ -78,6 +78,7 @@ bool Noise3D::BvhTreeForTriangularMesh::Construct(Mesh* pMesh)
 		TriIdListAabbPair pair;
 		pair.aabb = mFunction_ComputeAabb(v0, v1, v2);
 		pair.triangleIndexList.push_back(i);		//in the end, a triangle cluster(several triangles) might be attached to BVH leaf node
+		infoList.push_back(pair);
 	}
 
 	//1.calculate the largest aabb that bound the whole mesh (AABB of all small AABBs)
@@ -109,7 +110,7 @@ bool Noise3D::BvhTreeForTriangularMesh::Construct(Mesh* pMesh)
 
 ******************************************/
 
-bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriangularMesh * pNode, const std::vector<TriIdListAabbPair>& infoList)
+bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriangularMesh * pNode, std::vector<TriIdListAabbPair>& infoList)
 {
 	//one could refer to BVH for scene object in Collision Testor
 
@@ -121,7 +122,7 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 	Vec3 bigAabbCenterPos = bigAabb.Centroid();
 
 	//one leaf node could have several triangles / triangle cluster
-	const uint32_t c_maxTriangleCountPerCluster = 5;
+	const uint32_t c_maxTriangleCountPerCluster = 3;
 	if (infoList.size() <= c_maxTriangleCountPerCluster)
 	{
 		TriIdListAabbPair leafNodeInfo;
@@ -146,10 +147,11 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 
 	//3. partition the objects into two piles in terms of centroid position, 
 	//compute Big AABB for each of the object cluster
-	N_AABB leftAabb, rightAabb;
-	std::vector<TriIdListAabbPair> leftInfoList, rightInfoList;//1 to 1 Triangle-AABB pair
-	leftInfoList.reserve(infoList.size() / 2);
-	rightInfoList.reserve(infoList.size() / 2);
+	N_AABB leftAabb, middleAabb, rightAabb;
+	std::vector<TriIdListAabbPair> leftInfoList, middleInfoList, rightInfoList;//1 to 1 Triangle-AABB pair
+	leftInfoList.reserve(infoList.size() / 3);
+	middleInfoList.reserve(infoList.size() / 3);
+	rightInfoList.reserve(infoList.size() / 3);
 	for (auto& pair : infoList)
 	{
 		//get vec component via the splitting axis
@@ -161,7 +163,7 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 			Vec3 v2 = m_pVB->at(m_pIB->at(triId * 3 + 2)).Pos;
 			float pos_0 = mFunction_GetVecComponent(v0, splitAxisId);
 			float pos_1 = mFunction_GetVecComponent(v1, splitAxisId);
-			float pos_2 = mFunction_GetVecComponent(v1, splitAxisId);
+			float pos_2 = mFunction_GetVecComponent(v2, splitAxisId);
 			uint32_t leftVertexCount = 0;
 			if (pos_0 < centerPos)leftVertexCount++;
 			if (pos_1 < centerPos)leftVertexCount++;
@@ -170,18 +172,26 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 			//***classify objects***
 			//(2019.4.27)if there are many triangles coincide, then the recursion might never stop.
 			//solution: refer to bvh tree in collision testor
-			if (leftVertexCount==0 || leftVertexCount==1)
+			if (leftVertexCount==3)
 			{
 				leftInfoList.push_back(pair);
 				leftAabb.Union(pair.aabb);
 			}
-			else//leftVertexCount==2 & 3
+			else if (leftVertexCount == 1 || leftVertexCount == 2)
+			{
+				middleInfoList.push_back(pair);
+				middleAabb.Union(pair.aabb);
+			}
+			else
 			{
 				rightInfoList.push_back(pair);
 				rightAabb.Union(pair.aabb);
 			}
 		}//for each triangle
 	}//for each info in current big AABB
+
+	//up-level info list is no longer useful
+	infoList.clear();
 
 	 //4. create new BVH child node for current node and start recursion
 	 //(but haha, for N-ary tree, actually there is no such a thing as 'left' or 'right')
@@ -192,6 +202,21 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 		pLeftChild->SetAABB(leftAabb);
 		mFunction_SplitMidPoint(pLeftChild, leftInfoList);
 	}
+
+	//--middle--
+	if (middleAabb.IsValid() && !middleInfoList.empty())
+	{
+		/*BvhNodeForTriangularMesh* pMidChild = pNode->CreateChildNode();
+		pMidChild->SetAABB(middleAabb);
+		mFunction_SplitMidPoint(pMidChild, middleInfoList);*/
+		BvhNodeForTriangularMesh* pMidChild = pNode->CreateChildNode();
+		pMidChild->SetAABB(middleAabb);
+		for (auto& pair : middleInfoList)
+		{
+			pMidChild->GetTriangleIndexList().push_back(pair.triangleIndexList.front());//until leaf node, the pair is 1 to 1 index-AABB
+		}
+	}
+
 	//----- right -----
 	if (rightAabb.IsValid() && !rightInfoList.empty())
 	{
@@ -199,6 +224,7 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 		pRightChild->SetAABB(rightAabb);
 		mFunction_SplitMidPoint(pRightChild, rightInfoList);
 	}
+	return true;
 }
 
 inline N_AABB Noise3D::BvhTreeForTriangularMesh::mFunction_ComputeAabb(Vec3 v0, Vec3 v1, Vec3 v2)

@@ -63,9 +63,12 @@ BOOL Init3D(HWND hwnd)
 	SceneNode* pNodeMesh = sg.GetRoot()->CreateChildNode();
 	Mesh* pMesh = pMeshMgr->CreateMesh(pNodeMesh, "mesh" + std::to_string(0));
 	pMesh->SetCollidable(true);
-	pModelLoader->LoadFile_STL(pMesh, "../media/model/buddha.stl");
+	//pModelLoader->LoadFile_STL(pMesh, "../media/model/buddha.stl");
+	pModelLoader->LoadFile_STL(pMesh, "../media/model/sphere.stl");
+	//pModelLoader->LoadFile_OBJ(pMesh, "../media/model/teapot.obj");
 	pNodeMesh->GetLocalTransform().SetPosition(0, 0, 0);
 	pNodeMesh->GetLocalTransform().SetScale(1.0f, 1.0f, 1.0f);
+	pMesh->RebuildBvhTree();
 
 	//-----Generate Rays--------
 	std::vector<N_Ray> rayArray;
@@ -81,26 +84,51 @@ BOOL Init3D(HWND hwnd)
 	std::cout << "start..." << std::endl;
 
 	timer.ResetAll();
-	N_RayHitResult hitRes;
+	N_RayHitResult hitRes;//ground truth
 
 	//pRenderer->ClearBackground();
 	timer.NextTick();
 	for (int i = 0; i < c_rayCount; ++i)
 	{
 		N_RayHitResult tmpHitRes;
-		bool intersect = pCT->IntersectRayMesh_GpuBased(rayArray.at(i), pMesh, tmpHitRes);
-		//bool intersect = pCT->IntersectRayMesh(rayArray.at(i), pMesh, tmpHitRes);
+		//bool intersect = pCT->IntersectRayMesh_GpuBased(rayArray.at(i), pMesh, tmpHitRes);
+		bool intersect = pCT->IntersectRayMesh(rayArray.at(i), pMesh, tmpHitRes);
 		hitRes.Union(tmpHitRes);
 	}
 	timer.NextTick();
-
-	std::string str1 = "ray:" + std::to_string(c_rayCount);
-	std::string str2 = "triangle count:" + std::to_string(pMesh->GetTriangleCount());
-	std::string str3 = "hitResult:" + std::to_string(hitRes.hitList.size());
-	std::string str4 = "time:" + std::to_string(timer.GetTotalTimeElapsed());
+	std::string str0 = "***linear traverse ray-mesh intersection(ground truth)\n";
+	std::string str1 = "ray:" + std::to_string(c_rayCount) + "\n";
+	std::string str2 = "triangle count:" + std::to_string(pMesh->GetTriangleCount()) + "\n";
+	std::string str3 = "hitResult:" + std::to_string(hitRes.hitList.size()) + "\n";
+	std::string str4 = "time:" + std::to_string(timer.GetTotalTimeElapsed()) + "\n";
+	OutputDebugStringA(str0.c_str());
 	OutputDebugStringA(str1.c_str());
 	OutputDebugStringA(str2.c_str());
 	OutputDebugStringA(str3.c_str());
 	OutputDebugStringA(str4.c_str());
+
+	timer.ResetAll();
+	timer.NextTick();
+	N_RayHitResult hitRes2;
+
+	for (int i = 0; i < c_rayCount; ++i)
+	{
+		N_RayHitResult tmpHitRes2;
+		bool intersect = pCT->IntersectRayMeshWithBvh(rayArray.at(i), pMesh, tmpHitRes2);
+		hitRes2.Union(tmpHitRes2);
+	}
+	timer.NextTick();
+
+	str0 = "***BVH accelerated ray-mesh intersection\n";
+	str1 = "ray:" + std::to_string(c_rayCount) +"\n";
+	str2 = "triangle count:" + std::to_string(pMesh->GetTriangleCount()) + "\n";
+	str3 = "hitResult:" + std::to_string(hitRes.hitList.size()) + "\n";
+	str4 = "time:" + std::to_string(timer.GetTotalTimeElapsed()) + "\n";
+	OutputDebugStringA(str0.c_str());
+	OutputDebugStringA(str1.c_str());
+	OutputDebugStringA(str2.c_str());
+	OutputDebugStringA(str3.c_str());
+	OutputDebugStringA(str4.c_str());
+
 	return true;
 };

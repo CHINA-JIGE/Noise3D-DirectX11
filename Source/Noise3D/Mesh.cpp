@@ -132,13 +132,13 @@ bool Noise3D::Mesh::IsBvhTreeBuilt()
 
 void Noise3D::Mesh::RebuildBvhTree()
 {
-	mBvhTree.Construct(this);
+	mBvhTreeLocalSpace.Construct(this);
 	mIsBvhTreeBuilt = true;
 }
 
 BvhTreeForTriangularMesh & Noise3D::Mesh::GetBvhTree()
 {
-	return mBvhTree;
+	return mBvhTreeLocalSpace;
 }
 
 /***********************************************************************

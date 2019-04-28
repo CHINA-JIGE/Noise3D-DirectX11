@@ -73,7 +73,7 @@ namespace Noise3D
 
 		std::vector<N_MeshSubsetInfo>mSubsetInfoList;//store [a,b] of a subset
 
-		BvhTreeForTriangularMesh mBvhTree;//BVH tree of triangles
+		BvhTreeForTriangularMesh mBvhTreeLocalSpace;//BVH tree of triangles
 
 		bool mIsBvhTreeBuilt;
 
