@@ -8,6 +8,8 @@ public:
 
 	void Init(SceneManager* pMgr);
 
+	void LoadScene_Mesh(Camera* pCam);
+
 	void LoadScene_DiffuseDemo(Camera * pCam);
 
 	void LoadScene_RefractionDemo(Camera * pCam);
@@ -30,6 +32,11 @@ private:
 	void _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size, N_UID matUid);
 
 	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size, N_UID matUid);
+
+	bool _LoadMeshSTL(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
+
+	bool _LoadMeshOBJ(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
+
 
 protected:
 

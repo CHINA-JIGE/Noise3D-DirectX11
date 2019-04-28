@@ -59,12 +59,12 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_Standard);
+		//&mPathTracerShader_Standard);
 		//&mPathTracerShader_AreaLightingDemo);
 		//&mPathTracerShader_RefractionDemo);
 		//&mPathTracerShader_DiffuseDemo);
 		//&mPathTracerShader_ReflectionDemo);
-		//&mPathTracerShader_Minimal);
+		&mPathTracerShader_Minimal);
 	//mRenderThread.detach();
 
 }

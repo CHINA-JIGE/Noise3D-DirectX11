@@ -172,12 +172,12 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 			//***classify objects***
 			//(2019.4.27)if there are many triangles coincide, then the recursion might never stop.
 			//solution: refer to bvh tree in collision testor
-			if (leftVertexCount==3)
+			/*if (leftVertexCount==3)
 			{
 				leftInfoList.push_back(pair);
 				leftAabb.Union(pair.aabb);
 			}
-			else if (leftVertexCount == 1 || leftVertexCount == 2)
+			else if (leftVertexCount == 2 || leftVertexCount == 1)
 			{
 				middleInfoList.push_back(pair);
 				middleAabb.Union(pair.aabb);
@@ -186,7 +186,42 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 			{
 				rightInfoList.push_back(pair);
 				rightAabb.Union(pair.aabb);
+			}*/
+			if (leftVertexCount==3)
+			{
+				leftInfoList.push_back(pair);
+				leftAabb.Union(pair.aabb);
 			}
+			else if (leftVertexCount == 0)
+			{
+				rightInfoList.push_back(pair);
+				rightAabb.Union(pair.aabb);
+			}
+			else //==1 or ==2
+			{
+				// absolute distance from min/max to midpoint
+				float dist_min2mid = abs(mFunction_GetVecComponent(pair.aabb.min - bigAabbCenterPos, splitAxisId));
+				float dist_max2mid = abs(mFunction_GetVecComponent(pair.aabb.max - bigAabbCenterPos, splitAxisId));
+				float aabbWidth = mFunction_GetVecComponent(bigAabb.max - bigAabb.min, splitAxisId);
+				if (dist_min2mid > 0.001f *aabbWidth && dist_max2mid > 0.001f * aabbWidth)
+				{
+					middleInfoList.push_back(pair);
+					middleAabb.Union(pair.aabb);
+				}
+				else if (dist_min2mid < dist_max2mid)
+				{
+					//--min--MIDPOINT------------max---,  more 'right' than 'left'
+					rightInfoList.push_back(pair);
+					rightAabb.Union(pair.aabb);
+				}
+				else if (dist_min2mid >= dist_max2mid)
+				{
+					//--min--------------MIDPOINT--max---,  more 'left' than 'right'
+					leftInfoList.push_back(pair);
+					leftAabb.Union(pair.aabb);
+				}
+			}
+
 		}//for each triangle
 	}//for each info in current big AABB
 

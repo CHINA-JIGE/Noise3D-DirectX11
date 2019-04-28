@@ -335,7 +335,8 @@ bool Noise3D::BvhTreeForScene::mFunction_SplitMidPointViaAabbSlabs(BvhNodeForSce
 			// absolute distance from min/max to midpoint
 			float dist_min2mid = abs(mFunction_GetVecComponent(objectAabb.min - bigAabbCenterPos, splitAxisId));
 			float dist_max2mid = abs(mFunction_GetVecComponent(objectAabb.max - bigAabbCenterPos, splitAxisId));
-			float aabbWidth = mFunction_GetVecComponent(objectAabb.max - objectAabb.min, splitAxisId);
+			//float aabbWidth = mFunction_GetVecComponent(objectAabb.max - objectAabb.min, splitAxisId);
+			float aabbWidth = mFunction_GetVecComponent(bigAabb.max - bigAabb.min, splitAxisId);
 
 			//object aabb occupy too much space near MIDPOINT, spare them one BVH node for each object
 			if (dist_min2mid > 0.2f *aabbWidth && dist_max2mid > 0.2f * aabbWidth)

@@ -149,7 +149,7 @@ BOOL Init3D(HWND hwnd)
 	//pNodeMesh->GetLocalTransform().SetScale(0.6f, 0.6f, 0.6f);
 	//pNodeMesh->GetLocalTransform().SetRotation(1.0f, 1.0f, 0.5f);
 
-	const int c_shapeCount = 0;
+	const int c_shapeCount = 10;
 	for (int i = 0; i < c_shapeCount; ++i)
 	{
 		SceneNode* pNodeSphere = sg.GetRoot()->CreateChildNode();
@@ -219,12 +219,12 @@ BOOL Init3D(HWND hwnd)
 	}
 
 	//-------Build BVH----------
-	//BvhTreeForScene bvh;
-	//bvh.Construct(sg);
-	//std::vector<BvhNodeForScene*> bvhNodeList;
-	pMesh->RebuildBvhTree();
+	BvhTreeForScene bvh;
+	bvh.Construct(sg);
+	std::vector<BvhNodeForScene*> bvhNodeList;
+/*	pMesh->RebuildBvhTree();
 	BvhTreeForTriangularMesh& bvh = pMesh->GetBvhTree();
-	std::vector<BvhNodeForTriangularMesh*> bvhNodeList;
+	std::vector<BvhNodeForTriangularMesh*> bvhNodeList;*/
 	bvh.Traverse_PreOrder(bvhNodeList);
 
 	//-----add Debug AABB--------

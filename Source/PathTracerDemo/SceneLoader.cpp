@@ -11,6 +11,20 @@ void SceneLoader::Init(SceneManager* pMgr)
 	m_pShapeMgr = m_pScene->GetLogicalShapeMgr();
 }
 
+void SceneLoader::LoadScene_Mesh(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+	_LoadMeshSTL(sg, "../media/model/rabbit.stl",Vec3(0,0,0),"centerBall");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
+	pCam->LookAt(0, 0, 0);
+}
+
 void SceneLoader::LoadScene_DiffuseDemo(Camera * pCam)
 {
 	SceneGraph& sg = m_pScene->GetSceneGraph();
@@ -261,4 +275,23 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 
 
 	mRealTimeRenderMeshList.push_back(pMeshRect);
+}
+
+bool SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_UID matUid)
+{
+	static int id = 0;
+	id++;
+
+	SceneNode* pNode = sg.GetRoot()->CreateChildNode();
+	pNode->GetLocalTransform().SetPosition(pos);
+
+	Mesh* pMesh = m_pMeshMgr->CreateMesh(pNode, "sphere" + std::to_string(id));
+	bool loaded = m_pModelLoader->LoadFile_STL(pMesh,filePath);
+	pMesh->SetCollidable(true);
+	pMesh->SetMaterial("previewObjMat");
+	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
+	pMesh->SetGiMaterial(pMat);
+
+	mRealTimeRenderMeshList.push_back(pMesh);
+	return loaded;
 }
