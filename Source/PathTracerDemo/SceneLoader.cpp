@@ -17,7 +17,7 @@ void SceneLoader::LoadScene_Mesh(Camera * pCam)
 	_LoadTextures();
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
-	_LoadMeshSTL(sg, "../media/model/rabbit.stl",Vec3(0,0,0),"centerBall");
+	_LoadMeshSTL(sg, "../media/model/sphere.stl",Vec3(0,0,0),"centerBall");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);

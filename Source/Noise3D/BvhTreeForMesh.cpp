@@ -203,7 +203,7 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 				float dist_min2mid = abs(mFunction_GetVecComponent(pair.aabb.min - bigAabbCenterPos, splitAxisId));
 				float dist_max2mid = abs(mFunction_GetVecComponent(pair.aabb.max - bigAabbCenterPos, splitAxisId));
 				float aabbWidth = mFunction_GetVecComponent(bigAabb.max - bigAabb.min, splitAxisId);
-				if (dist_min2mid > 0.001f *aabbWidth && dist_max2mid > 0.001f * aabbWidth)
+				if (dist_min2mid > 0.01f *aabbWidth && dist_max2mid > 0.01f * aabbWidth)
 				{
 					middleInfoList.push_back(pair);
 					middleAabb.Union(pair.aabb);
@@ -265,14 +265,21 @@ bool Noise3D::BvhTreeForTriangularMesh::mFunction_SplitMidPoint(BvhNodeForTriang
 inline N_AABB Noise3D::BvhTreeForTriangularMesh::mFunction_ComputeAabb(Vec3 v0, Vec3 v1, Vec3 v2)
 {
 	N_AABB aabb;
-	aabb.min = v0;
-	aabb.max = v1;
-	if (v2.x > aabb.max.x)aabb.max.x = v2.x;
-	if (v2.y > aabb.max.y)aabb.max.y = v2.y;
-	if (v2.z > aabb.max.z)aabb.max.z = v2.z;
-	if (v2.x < aabb.min.x)aabb.min.x = v2.x;
-	if (v2.y < aabb.min.y)aabb.min.y = v2.y;
-	if (v2.z < aabb.min.z)aabb.min.z = v2.z;
+	float min[3], max[3];
+	for (int i = 0; i < 3; ++i)
+	{
+		min[i] = std::min<float>({
+			mFunction_GetVecComponent(v0,i),
+			mFunction_GetVecComponent(v1,i),
+			mFunction_GetVecComponent(v2,i) });
+		max[i] = std::max<float>({
+			mFunction_GetVecComponent(v0,i),
+			mFunction_GetVecComponent(v1,i),
+			mFunction_GetVecComponent(v2,i) });
+	}
+
+	aabb.min = Vec3(min[0], min[1], min[2]);
+	aabb.max = Vec3(max[0], max[1], max[2]);
 	return aabb;
 }
 

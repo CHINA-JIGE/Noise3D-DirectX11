@@ -904,8 +904,17 @@ void Noise3D::CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(const N
 {
 	//similar to scene's BVH
 	N_AABB aabb = bvhNode->GetAABB();
+	for (auto a : bvhNode->GetTriangleIndexList())
+	{
+		if (a == 1466)
+		{
+			int fucked = 1;
+		}
+	}
 	bool isRayEndPointInside = aabb.IsPointInside(ray.origin) || aabb.IsPointInside(ray.Eval(ray.t_max));
 	bool isHit = CollisionTestor::IntersectRayAabb(ray, aabb);//ray's start,end are outside the AABB but still possible to hit
+
+	
 	if (isRayEndPointInside || isHit)
 	{
 		bool isLeafNode = bvhNode->IsLeafNode();
