@@ -8,6 +8,9 @@
 ************************************************************************/
 #pragma once
 
+#include "_FbxLoader.h"
+#include "MeshLoader.h"
+
 #include "RandomSampleGenerator.h"
 #include "ISphericalFunc.h"
 #include "SHCommon.h"

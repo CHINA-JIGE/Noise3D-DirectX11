@@ -102,7 +102,7 @@
 #include "SweepingTrail.h"
 #include "SweepingTrailManager.h"
 #include "CollisionTestor.h"
-#include "MeshLoader.h"
+//#include "MeshLoader.h"
 #include "ShaderVarManager.h"
 
 //---------Font & Text-----------

@@ -316,6 +316,8 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateDiffuse(int sampleCount, c
 
 void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outTransmission)
 {
+	//[Walter07]
+	//Waiting to implement
 }
 
 void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outReflection)

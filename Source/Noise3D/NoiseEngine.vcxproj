@@ -137,6 +137,7 @@
     <ClInclude Include="Noise3D_StableCommonHeader.h" />
     <ClInclude Include="PathTracerShader_AreaLighting.h" />
     <ClInclude Include="PathTracerStandardShader.h" />
+    <ClInclude Include="_FbxLoaderDataStructure.h" />
     <ClInclude Include="_GI.h" />
     <ClInclude Include="LogicalRect.h" />
     <ClInclude Include="LogicalShapeManager.h" />

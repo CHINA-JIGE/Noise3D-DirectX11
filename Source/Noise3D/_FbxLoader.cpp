@@ -8,6 +8,7 @@
 
 ************************************************************************/
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -18,7 +19,7 @@ IFbxLoader::IFbxLoader() :
 	mIsInitialized(false),
 	mEnableLoadMesh(false),
 	mEnableLoadSkeleton(false),
-	m_pRefOutResult(nullptr)
+	m_pRefCommonOutResult(nullptr)
 {
 }
 
@@ -30,7 +31,7 @@ IFbxLoader::~IFbxLoader()
 	m_pFbxMgr = nullptr;
 	m_pFbxScene = nullptr;
 	m_pIOSettings = nullptr;
-	m_pRefOutResult = nullptr;
+	m_pRefCommonOutResult = nullptr;
 	mIsInitialized = false;
 }
 
@@ -74,14 +75,51 @@ bool IFbxLoader::Initialize()
 
 bool IFbxLoader::LoadSceneFromFbx(NFilePath fbxPath, N_FbxLoadingResult& outResult, bool loadMesh,  bool loadSkeleton)
 {
+	if(!_Initialize(fbxPath, loadMesh, loadSkeleton))return false;
+
+	//output result reference binding
+	m_pRefCommonOutResult = &outResult;
+
+	//traverse scene graph to get scene objects(mesh, lights, camera, skeleton)
+	FbxNode* pRNode= m_pFbxScene->GetRootNode();
+
+	//(recursive), mesh and material (etc.) result will be loaded to RefOutResult
+	_TraverseSceneNodes(pRNode);
+
+	return true;
+}
+
+bool Noise3D::IFbxLoader::LoadPbrtMeshesFromFbx(NFilePath fbxPath, N_FbxPbrtSceneLoadingResult & outResult)
+{
+	if (!_Initialize(fbxPath, true, false))return false;
+
+	//output result reference binding
+	m_pRefPbrtOutResult = &outResult;
+
+	//traverse scene graph to get scene objects(mesh, lights, camera, skeleton)
+	FbxNode* pRNode = m_pFbxScene->GetRootNode();
+
+	//(recursive), mesh and material (etc.) result will be loaded to RefOutResult
+	_PBRT_TraverseSceneNodes(pRNode);
+
+	return true;
+}
+
+/*********************************************
+
+						P R I V A T E
+
+*********************************************/
+bool Noise3D::IFbxLoader::_Initialize(NFilePath fbxPath, bool loadMesh, bool loadSkeleton)
+{
 	if (!mIsInitialized)
 	{
 		ERROR_MSG("FBX Loader : loading failed! Fbx loader not initialized!");
 		return false;
 	}
-	
-	mEnableLoadMesh		= loadMesh;
-	mEnableLoadSkeleton	= loadSkeleton;
+
+	mEnableLoadMesh = loadMesh;
+	mEnableLoadSkeleton = loadSkeleton;
 
 	//configure IO settings
 	m_pFbxMgr->SetIOSettings(m_pIOSettings);
@@ -94,41 +132,25 @@ bool IFbxLoader::LoadSceneFromFbx(NFilePath fbxPath, N_FbxLoadingResult& outResu
 	// Use the first argument as the filename for the importer.
 	if (!pImporter->Initialize(fbxPath.c_str(), -1, m_pIOSettings))
 	{
-		ERROR_MSG(std::string("FBX Loader: fbx importer init failed! error details : ") 
+		ERROR_MSG(std::string("FBX Loader: fbx importer init failed! error details : ")
 			+ pImporter->GetStatus().GetErrorString());
 		return false;
 	}
 
 	//get fbx file version 
-	int versionMajor=0, versionMinor=0,versionRevision=0;
+	int versionMajor = 0, versionMinor = 0, versionRevision = 0;
 	pImporter->GetFileVersion(versionMajor, versionMinor, versionRevision);
 
 	//!!! IMPORT SCENE by importer, delete previous scene first
 	m_pFbxScene->Clear();
 	bool importSucessful = pImporter->Import(m_pFbxScene);//Multi-threaded could be used?
 
-	//import done, it's no longer necessary to keep importer alive
+	 //import done, it's no longer necessary to keep importer alive
 	pImporter->Destroy();
 
-	//traverse scene graph to get scene objects(mesh, lights, camera, skeleton)
-	FbxNode* pRNode= m_pFbxScene->GetRootNode();
-
-	//output result reference binding
-	m_pRefOutResult = &outResult;
-
-	//(recursive), mesh and material (etc.) result will be loaded to RefOutResult
-	mFunction_TraverseSceneNodes(pRNode);
-
-	return true;
 }
 
-
-/*********************************************
-
-						P R I V A T E
-
-*********************************************/
-void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
+void IFbxLoader::_TraverseSceneNodes(FbxNode * pNode)
 {
 	if (pNode == nullptr)return;
 
@@ -150,8 +172,8 @@ void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
 		{
 			if (mEnableLoadMesh)
 			{ 
-				m_pRefOutResult->meshDataList.push_back(N_FbxMeshInfo());
-				mFunction_ProcessSceneNode_Mesh(pNode); 
+				m_pRefCommonOutResult->meshDataList.push_back(N_FbxMeshInfo());
+				_ProcessSceneNode_Mesh(pNode, MESH_MATERIAL_TYPE::LAMBERT_OR_PHONG); 
 			}
 			break;
 		}
@@ -166,8 +188,8 @@ void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
 		{
 			if (mEnableLoadSkeleton)
 			{
-				m_pRefOutResult->skeletonList.push_back(N_FbxSkeletonInfo());
-				mFunction_ProcessSceneNode_Skeleton(pNode); 
+				m_pRefCommonOutResult->skeletonList.push_back(N_FbxSkeletonInfo());
+				_ProcessSceneNode_Skeleton(pNode); 
 			}
 			break;
 		}
@@ -184,10 +206,10 @@ void IFbxLoader::mFunction_TraverseSceneNodes(FbxNode * pNode)
 
 	//try to go deeper down the scene tree
 	for (int i = 0; i < pNode->GetChildCount(); i++)
-		mFunction_TraverseSceneNodes(pNode->GetChild(i));
+		_TraverseSceneNodes(pNode->GetChild(i));
 }
 
-void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
+void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode)
 {
 	//Get bound mesh of current node
 	FbxMesh* pMesh = pNode->GetMesh();
@@ -199,7 +221,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	}
 	
 
-	N_FbxMeshInfo& refCurrentMesh = m_pRefOutResult->meshDataList.back();
+	N_FbxMeshInfo& refCurrentMesh = m_pRefCommonOutResult->meshDataList.back();
 	std::vector<N_DefaultVertex>&	refVertexBuffer = refCurrentMesh.vertexBuffer;
 	std::vector<uint32_t>&	refIndexBuffer = refCurrentMesh.indexBuffer;
 	refCurrentMesh.name = pNode->GetName();
@@ -291,19 +313,19 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 
 			//vertex color
 			Vec4 color;
-			mFunction_LoadMesh_VertexColor(pMesh, ctrlPointIndex, polygonVertexIndex, color);
+			_LoadMesh_VertexColor(pMesh, ctrlPointIndex, polygonVertexIndex, color);
 
 			//vertex normal
 			Vec3 normal;
-			mFunction_LoadMesh_VertexNormal(pMesh, ctrlPointIndex, polygonVertexIndex, normal);
+			_LoadMesh_VertexNormal(pMesh, ctrlPointIndex, polygonVertexIndex, normal);
 
 			//vertex tangent (nice!!!)
 			Vec3 tangent;
-			mFunction_LoadMesh_VertexTangent(pMesh, ctrlPointIndex, polygonVertexIndex, tangent);
+			_LoadMesh_VertexTangent(pMesh, ctrlPointIndex, polygonVertexIndex, tangent);
 
 			//texture coordinates could be multiple layers, but we only support 1 layer here
 			Vec2 texcoord;
-			mFunction_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, uvIndex, 0, texcoord);
+			_LoadMesh_VertexTexCoord(pMesh, ctrlPointIndex, polygonVertexIndex, uvIndex, 0, texcoord);
 
 			//if current control point has been loaded before,then we should test and 
 			//determine whether we should split the vertex
@@ -348,11 +370,11 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	//-----------------------------MATERIAL-------------------------------
 	//1.subset
 	std::vector<N_FbxMeshSubset> matIdSubsetList;
-	mFunction_LoadMesh_MatIndexOfTriangles(pMesh, triangleCount, matIdSubsetList);
+	_LoadMesh_MatIndexOfTriangles(pMesh, triangleCount, matIdSubsetList);
 
 	//2.material(basic param & textures)
 	std::vector<N_FbxMaterialInfo> matList;
-	mFunction_LoadMesh_Materials(pNode, matList);
+	_LoadMesh_Materials(pNode, matList);
 	refCurrentMesh.matList = matList;
 
 	//3.convert materialID to material NAME( subset of mesh)
@@ -367,7 +389,7 @@ void IFbxLoader::mFunction_ProcessSceneNode_Mesh(FbxNode * pNode)
 	}
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4 & outColor)
+void IFbxLoader::_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4 & outColor)
 {
 	//if no vertex color is defined, output an zero-ed color
 	if (pMesh->GetElementVertexColorCount() < 1)
@@ -437,7 +459,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexColor(FbxMesh * pMesh, int ctrlPointIn
 	outColor.w = float(v.mAlpha);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outNormal)
+void IFbxLoader::_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outNormal)
 {
 	if (pMesh->GetElementNormalCount() < 1)
 	{
@@ -505,7 +527,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexNormal(FbxMesh * pMesh, int ctrlPointI
 	outNormal.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outTangent)
+void IFbxLoader::_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outTangent)
 {
 	if (pMesh->GetElementTangentCount() < 1)
 	{
@@ -573,7 +595,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTangent(FbxMesh * pMesh, int ctrlPoint
 	outTangent.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2 & outTexcoord)
+void IFbxLoader::_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2 & outTexcoord)
 {
 	if (pMesh->GetElementUVCount() < 1)
 	{
@@ -638,7 +660,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexTexCoord(FbxMesh * pMesh, int ctrlPoin
 	outTexcoord.y = float(1.0f - v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outBinormal)
+void IFbxLoader::_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3 & outBinormal)
 {
 	if (pMesh->GetElementNormalCount() < 1)
 	{
@@ -706,7 +728,7 @@ void IFbxLoader::mFunction_LoadMesh_VertexBinormal(FbxMesh * pMesh, int ctrlPoin
 	outBinormal.z = float(v.mData[1]);
 }
 
-void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList)
+void IFbxLoader::_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList)
 {
 	FbxLayerElementArrayTemplate<int>*	pMatIndices	=nullptr;
 	FbxGeometryElement::EMappingMode	matMappingMode = FbxGeometryElement::eNone;
@@ -771,7 +793,7 @@ void IFbxLoader::mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh * pMesh, int tri
 	}
 }
 
-void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList)
+void IFbxLoader::_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList)
 {
 #pragma warning (push)
 #pragma warning (disable : 4244)
@@ -847,14 +869,14 @@ void IFbxLoader::mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxM
 
 		//load textures infos
 		N_FbxTextureMapsInfo& texMapsInfo = newFbxMat.texMapInfo;
-		mFunction_LoadMesh_Material_Textures(pSurfaceMaterial, texMapsInfo);
+		_LoadMesh_Material_Textures(pSurfaceMaterial, texMapsInfo);
 
 		outMatList.push_back(newFbxMat);
 	}
 #pragma warning (pop)
 }
 
-void IFbxLoader::mFunction_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo)
+void IFbxLoader::_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo)
 {
 	//diffuse map
 	FbxProperty prop = pSM->FindProperty(FbxSurfaceMaterial::sDiffuse);
@@ -918,7 +940,7 @@ void IFbxLoader::mFunction_LoadMesh_Material_TextureMapInfo(const FbxProperty & 
 	}
 }
 
-void IFbxLoader::mFunction_ProcessSceneNode_Skeleton(FbxNode * pNode)
+void IFbxLoader::_ProcessSceneNode_Skeleton(FbxNode * pNode)
 {
 	//not implemented(2017.9.20)
 }

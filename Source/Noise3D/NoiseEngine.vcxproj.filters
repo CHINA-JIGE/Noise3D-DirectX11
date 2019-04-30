@@ -445,6 +445,9 @@
     <ClInclude Include="BvhTreeForMesh.h">
       <Filter>NoiseGraphic\Scene\Mesh\BvhTreeForMesh</Filter>
     </ClInclude>
+    <ClInclude Include="_FbxLoaderDataStructure.h">
+      <Filter>NoiseGraphic\Scene\MeshLoader\_FBXSDK</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NoiseGlobal.cpp">

@@ -9,57 +9,12 @@
 
 #pragma once
 
+#include "_FbxLoaderDataStructure.h"
+
 namespace Noise3D
 {
 	struct N_MeshSubsetInfo;
 	struct N_BasicLambertMaterialDesc;
-
-	struct N_FbxTextureMapsInfo
-	{
-		std::string diffMapName;
-		std::string diffMapFilePath;
-		std::string normalMapName;
-		std::string normalMapFilePath;
-		std::string specMapName;
-		std::string specMapFilePath;
-		std::string emissiveMapName;
-		std::string emissiveMapFilePath;
-	};
-
-	struct N_FbxMaterialInfo
-	{
-		std::string matName;
-		N_BasicLambertMaterialDesc matBasicInfo;
-		N_FbxTextureMapsInfo texMapInfo;//including loading path and names of texture maps
-	};
-
-	struct N_FbxMeshInfo
-	{
-		N_FbxMeshInfo(){}
-
-		N_UID	name;
-		std::vector<N_DefaultVertex> vertexBuffer;
-		std::vector<uint32_t> indexBuffer;
-		std::vector<N_MeshSubsetInfo> subsetList;
-		std::vector<N_FbxMaterialInfo> matList;
-		Vec3 pos;//world translation
-		Vec3 scale;
-		Vec3 rotation;
-	};
-
-	struct N_FbxSkeletonInfo
-	{
-
-	};
-
-	struct N_FbxLoadingResult
-	{
-		N_FbxLoadingResult(){}
-
-		std::vector<N_FbxMeshInfo>			meshDataList;
-		std::vector<N_FbxSkeletonInfo>	skeletonList;
-	};
-
 
 	class /*_declspec(dllexport)*/ IFbxLoader
 	{
@@ -74,6 +29,8 @@ namespace Noise3D
 		//there are many types of scene nodes in fbx, but mesh/animation are the only two interested now(2017.9.20)
 		bool		LoadSceneFromFbx(NFilePath fbxPath, N_FbxLoadingResult& outResult, bool loadMesh=true, bool loadSkeleton =false);
 
+		bool		LoadPbrtMeshesFromFbx(NFilePath fbxPath, N_FbxPbrtSceneLoadingResult& outResult);
+
 	private:
 
 		struct N_FbxMeshSubset
@@ -84,41 +41,57 @@ namespace Noise3D
 			int matID;
 		};
 
-		//tree-traversal
-		void		mFunction_TraverseSceneNodes(FbxNode* pNode);
+		//require different process procedure
+		enum MESH_MATERIAL_TYPE
+		{
+			LAMBERT_OR_PHONG,
+			ADVANCED
+		};
 
-		void		mFunction_ProcessSceneNode_Mesh(FbxNode* pNode);
+		//initialization before loading
+		bool		_Initialize(NFilePath fbxPath, bool loadMesh, bool loadSkeleton);
+
+		//tree-traversal
+		void		_TraverseSceneNodes(FbxNode* pNode);
+
+		void		_PBRT_TraverseSceneNodes(FbxNode* pNode);
+
+		void		_ProcessSceneNode_Mesh(FbxNode* pNode, MESH_MATERIAL_TYPE matType);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex color is defined
-		void		mFunction_LoadMesh_VertexColor(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4& outColor);
+		void		_LoadMesh_VertexColor(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4& outColor);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex Normal is defined
-		void		mFunction_LoadMesh_VertexNormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outNormal);
+		void		_LoadMesh_VertexNormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outNormal);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex tangent is defined
-		void		mFunction_LoadMesh_VertexTangent(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outTangent);
+		void		_LoadMesh_VertexTangent(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outTangent);
 		
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex UV is defined
-		void		mFunction_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2& outTexcoord);
+		void		_LoadMesh_VertexTexCoord(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, int uvIndex, int uvLayer, Vec2& outTexcoord);
 
 		//Actually i don't want to import binormal at first. 
 		//But the handness of tangent space basis could not determine without binormal(what a big pit!!)
-		void		mFunction_LoadMesh_VertexBinormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outBinormal);
+		void		_LoadMesh_VertexBinormal(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec3& outBinormal);
 
 		//load the mapping of triangle id and material id
-		void		mFunction_LoadMesh_MatIndexOfTriangles(FbxMesh* pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList);
+		void		_LoadMesh_MatIndexOfTriangles(FbxMesh* pMesh, int triangleCount, std::vector<N_FbxMeshSubset>& outFbxSubsetList);
 
 		//details information of materials bound to current mesh
-		void		mFunction_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList);
+		void		_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxMaterialInfo>& outMatList);
+
+		void		_PBRT_LoadMesh_Materials(FbxNode* pNode, std::vector<N_FbxPbrtMaterialInfo>& outMatList);
 
 		//textures which are bound to certain material
-		void		mFunction_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo);
+		void		_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxTextureMapsInfo& outTexInfo);
+
+		void		_PBRT_LoadMesh_Material_Textures(FbxSurfaceMaterial* pSM, N_FbxPbrtTextureMapsInfo& outTexInfo);
 
 		void		mFunction_LoadMesh_Material_TextureMapInfo(const FbxProperty& prop, std::string& outTextureName, std::string& outTextureFilePath);
 
 		//void		mFunction_ProcessSceneNode_Light(FbxNode* pNode);
 
-		void		mFunction_ProcessSceneNode_Skeleton(FbxNode* pNode);
+		void		_ProcessSceneNode_Skeleton(FbxNode* pNode);
 
 		//void		mFunction_ProcessSceneNode_Camera();
 
@@ -128,7 +101,9 @@ namespace Noise3D
 
 		FbxIOSettings*	m_pIOSettings;
 
-		N_FbxLoadingResult*		m_pRefOutResult;
+		N_FbxLoadingResult*		m_pRefCommonOutResult;
+
+		N_FbxPbrtSceneLoadingResult*	m_pRefPbrtOutResult;
 
 		bool						mIsInitialized;
 
