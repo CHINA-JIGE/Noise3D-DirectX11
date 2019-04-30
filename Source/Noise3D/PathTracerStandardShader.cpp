@@ -47,6 +47,7 @@ void Noise3D::GI::PathTracerStandardShader::SetSkyBoxTexture(TextureCubeMap * pT
 void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
 	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
+	const N_AdvancedMatDesc& mat = pMat->GetDesc();
 
 	//deal with shadow rays/ return direct lighting first
 	GI::Radiance outEmission;
@@ -62,7 +63,14 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 			//TODO:sample emissive map here
 			//float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
 			//outEmission = pMat->GetDesc().emission * invDist * invDist;
-			outEmission = pMat->GetDesc().emission;
+			Vec3 emission = mat.emission;
+			if (mat.pEmissiveMap != nullptr)
+			{
+				Color4f emissionSampled = mat.pEmissiveMap->SamplePixelBilinear(hitInfo.texcoord);
+				Vec3 emissionMultiplier = Vec3(emissionSampled.x, emissionSampled.y, emissionSampled.z);
+				emission *= emissionMultiplier;
+			}
+			outEmission = emission;
 			in_out_payload.radiance = outEmission;
 			return;
 		}
@@ -72,16 +80,33 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 		//primary ray hit light source
 		if (pMat->IsEmissionEnabled())
 		{
-			if (param.isIndirectLightOnly)return;
 
 			//TODO:sample emissive map here
 			//float invDist = 1.0f / (param.ray.Distance(hitInfo.t) + 1.0f);
 			//outEmission = pMat->GetDesc().emission * invDist * invDist;
-			outEmission = pMat->GetDesc().emission;
-			in_out_payload.radiance = outEmission;
+			Vec3 emission = mat.emission;
+			if (mat.pEmissiveMap != nullptr)
+			{
+				Color4f emissionSampled = mat.pEmissiveMap->SamplePixelBilinear(hitInfo.texcoord);
+				Vec3 emissionMultiplier = Vec3(emissionSampled.x, emissionSampled.y, emissionSampled.z);
+				emission *= emissionMultiplier;
+			}
+			outEmission = emission;
 
-			//perhaps i will delete this 'return' to count in other BxDF
-			return;
+			//non-emissive part will be treated as common surface, no directly return
+			if (outEmission != Vec3(0, 0, 0))
+			{
+				if (param.isIndirectLightOnly)return;
+
+				//ignore other BxDF, return.
+				in_out_payload.radiance = outEmission;
+				return;
+			}
+			else
+			{
+				//continue
+				//non-emissive part will be treated as common surface
+			}
 		}
 	}
 
@@ -91,12 +116,41 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 
 void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)
 {
-	//Color4f skyColor =mShVecSky.Eval(ray.dir);
-	Texture2dSampler_Spherical sampler;
-	sampler.SetTexturePtr(m_pSkyDomeTex);
-	Color4f skyColor = sampler.Eval(param.ray.dir);
-	in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
-	//in_out_payload.radiance = GI::Radiance(0,0,0);
+	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME)
+	{
+		if (m_pSkyDomeTex != nullptr)
+		{
+			Texture2dSampler_Spherical sampler;
+			sampler.SetTexturePtr(m_pSkyDomeTex);
+			Color4f skyColor = sampler.Eval(param.ray.dir);
+			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			return;
+		}
+	}
+
+	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_BOX)
+	{
+		if (m_pSkyBoxTex != nullptr)
+		{
+			CubeMapSampler sampler;
+			sampler.SetTexturePtr(m_pSkyBoxTex);
+			Color4f skyColor = sampler.Eval(param.ray.dir);
+			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			return;
+		}
+	}
+
+	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC)
+	{
+		if (m_pSkyBoxTex != nullptr || m_pSkyDomeTex!=nullptr)
+		{
+			Color4f skyColor = mShVecSky.Eval(param.ray.dir);
+			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			return;
+		}
+	}
+
+	in_out_payload.radiance = GI::Radiance(0,0,0);
 }
 
 /***************************************
@@ -361,22 +415,46 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 
 	//material
 	const N_AdvancedMatDesc& mat = hitInfo.pHitObj->GetGiMaterial()->GetDesc();
-	Vec3 albedo = mat.albedo;
-	float alpha = _RoughnessToAlpha(mat.roughness);
 
-	//Calculate Fresnel term first
+	//albedo & albedo map (diffusive)
+	Vec3 albedo = mat.albedo;
+	if (mat.pAlbedoMap != nullptr)
+	{
+		Color4f albedoSampled= mat.pAlbedoMap->SamplePixelBilinear(hitInfo.texcoord);
+		albedo *= Vec3(albedoSampled.x, albedoSampled.y, albedoSampled.z);
+	}
+
+	//roughness and roughness map
+	float roughness = mat.roughness;
+	if (mat.pRoughnessMap != nullptr)
+	{
+		Color4f roughnessSampled = mat.pRoughnessMap->SamplePixelBilinear(hitInfo.texcoord);
+		float roughnessMultiplier= 0.33333333f*(roughnessSampled.x + roughnessSampled.y + roughnessSampled.z);//convert the grey scale
+		roughness *= roughnessMultiplier;
+	}
+	float alpha = _RoughnessToAlpha(roughness);
+
+	//Calculate Fresnel term, but sample metallicity map first
+	float metallicity = mat.metallicity;
+	if (mat.pMetallicityMap != nullptr)
+	{
+		Color4f metalSampled = mat.pMetallicityMap->SamplePixelBilinear(hitInfo.texcoord);
+		float metallicityMultipler = 0.33333333f*(metalSampled.x + metalSampled.y + metalSampled.z);//convert the grey scale
+		metallicity *= metallicityMultipler;
+	}
+
 	const Vec3 defaultDielectric_F0 = Vec3(0.03f, 0.03f, 0.03f);
-	Vec3 F0 = Ut::Lerp(defaultDielectric_F0, mat.metal_F0, mat.metallicity);
+	Vec3 F0 = Ut::Lerp(defaultDielectric_F0, mat.metal_F0, metallicity);
 	Vec3 F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
 
 	//k_s = m*F
 	k_s = F;
 
 	//k_d = rho *(1-m) * (1-t) * (1-s), transparency is dielectric's absorbance caused by  medium's in-homogeneousness
-	k_d = albedo * (1.0f - mat.metallicity) * (1.0f - mat.transparency) * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
+	k_d = albedo * (1.0f - metallicity) * (1.0f - mat.transparency) * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
 
 	//k_t = rho * (1-m) * t * (1-s)
-	k_t = albedo * (1.0f - mat.metallicity) * mat.transparency * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
+	k_t = albedo * (1.0f - metallicity) * mat.transparency * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
 
 	//diffuse BRDF
 	if (lightTransferType | uint32_t(BxDF_LightTransfer_Diffuse))

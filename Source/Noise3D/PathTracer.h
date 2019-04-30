@@ -17,6 +17,13 @@ namespace Noise3D
 		typedef Noise3D::Vec3 Irradiance;
 		class IPathTracerSoftShader;
 		
+		enum NOISE_PATH_TRACER_SKYLIGHT_TYPE
+		{
+			SKY_DOME,
+			SKY_BOX,
+			SPHERICAL_HARMONIC
+		};
+
 		//input param for TraceRay()
 		struct N_TraceRayParam
 		{
@@ -25,6 +32,7 @@ namespace Noise3D
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
+				skyLightType(SKY_DOME),
 				isIndirectLightOnly(false),
 				isShadowRay(false), 
 				shadowRayLightSourceId(-1){}
@@ -33,6 +41,7 @@ namespace Noise3D
 			float travelledDistance;
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
+			NOISE_PATH_TRACER_SKYLIGHT_TYPE skyLightType;//might be used by Miss shader.
 			bool isShadowRay;//for local lighting/area lighting
 			bool isIndirectLightOnly;//for only indirect
 			int shadowRayLightSourceId;//for shadow ray

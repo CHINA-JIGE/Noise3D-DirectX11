@@ -15,16 +15,26 @@ void Noise3D::GI::AdvancedGiMaterial::SetAlbedo(Color4f albedo)
 	mMatDesc.albedo = albedo;
 }
 
+void Noise3D::GI::AdvancedGiMaterial::SetAlbedoMap(Texture2D * pMap)
+{
+	mMatDesc.pAlbedoMap = pMap;
+}
+
 void Noise3D::GI::AdvancedGiMaterial::SetRoughness(float r)
 {
 	r = Ut::Clamp(r, 0.0f, 1.0f);
 	mMatDesc.roughness = r;
 }
 
-void Noise3D::GI::AdvancedGiMaterial::SetOpacity(float o)
+void Noise3D::GI::AdvancedGiMaterial::SetRoughnessMap(Texture2D * pMap)
 {
-	o= Ut::Clamp(o, 0.0f, 1.0f);
-	mMatDesc.transparency = o;
+	mMatDesc.pRoughnessMap = pMap;
+}
+
+void Noise3D::GI::AdvancedGiMaterial::SetTransparency(float t)
+{
+	t= Ut::Clamp(t, 0.0f, 1.0f);
+	mMatDesc.transparency = t;
 }
 
 void Noise3D::GI::AdvancedGiMaterial::SetMetallicity(float m)
@@ -33,9 +43,19 @@ void Noise3D::GI::AdvancedGiMaterial::SetMetallicity(float m)
 	mMatDesc.metallicity = m;
 }
 
+void Noise3D::GI::AdvancedGiMaterial::SetMetallicityMap(Texture2D * pMap)
+{
+	mMatDesc.pMetallicityMap = pMap;
+}
+
 void Noise3D::GI::AdvancedGiMaterial::SetEmission(Vec3 hdrEmission)
 {
 	mMatDesc.emission = hdrEmission;
+}
+
+void Noise3D::GI::AdvancedGiMaterial::SetEmissionMap(Texture2D * pMap)
+{
+	mMatDesc.pEmissiveMap = pMap;
 }
 
 void Noise3D::GI::AdvancedGiMaterial::SetMetalF0(Vec3 F0)

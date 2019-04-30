@@ -37,6 +37,8 @@ namespace Noise3D
 
 		bool				GetPixelArray(std::vector<Color4u>& outColorArray) const;
 
+		Color4f			SamplePixelBilinear(Vec2 texcoord) const;//sample a pixel
+
 		bool				UpdateToVideoMemory();//update image's memory data to video memory
 
 		bool				ConvertTextureToGreyMap();

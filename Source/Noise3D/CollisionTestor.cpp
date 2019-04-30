@@ -643,7 +643,7 @@ bool Noise3D::CollisionTestor::IntersectRayMeshWithBvh(const N_Ray & ray, Mesh *
 
 	//gather all possible triangle candidates
 	std::vector<uint32_t> triangleIndexList;
-	CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(ray, pMesh->GetBvhTree().GetRoot(), triangleIndexList);
+	CollisionTestor::mFunction_IntersectRayMeshInternalBvhNode(localRay, pMesh->GetBvhTree().GetRoot(), triangleIndexList);
 
 	//get vertex data (be noted that the vertex is in MODEL SPACE
 	const std::vector<N_DefaultVertex>* pVB = pMesh->GetVertexBuffer();

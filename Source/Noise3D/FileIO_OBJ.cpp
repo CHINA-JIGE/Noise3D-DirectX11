@@ -59,6 +59,13 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 			texcoordList.push_back(currTexCoord);
 		}
 
+		if (currString == "g")
+		{
+			//(2019.4.29)ignore new geometry
+			char tmpStr[256];
+			fileIn.getline(tmpStr,256);
+		}
+
 		//face : if this face is trangles(OBJ also support quads or curves etc..)
 		//, the combination will be 
 		//  vertex index  / texcoord index  /  vnormal index (for each vertex)

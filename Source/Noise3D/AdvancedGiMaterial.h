@@ -7,6 +7,8 @@
 
 namespace Noise3D
 {
+	class Texture2D;
+
 	namespace GI
 	{
 		struct N_AdvancedMatDesc
@@ -18,7 +20,11 @@ namespace Noise3D
 				transparency(0.0f),
 				ior(1.1f),
 				metal_F0(1.0f, 1.0f, 1.0f),
-				emission(0, 0, 0) {};
+				emission(0, 0, 0),
+				pAlbedoMap(nullptr),
+				pRoughnessMap(nullptr),
+				pMetallicityMap(nullptr),
+				pEmissiveMap(nullptr){};
 
 			//(2019.4.14)metalness, transparency shall be 3D parameters that affect transimission ray throughout the object
 			//but for simplicity, we only use 2D texture to modulate material param ON THE SURFACE
@@ -49,10 +55,10 @@ namespace Noise3D
 			Vec3 emission;
 
 			//(2019.4.13) texture maps will implemented later
-			//Texture2D* pAlbedoMap;
-			//Texture2D* pRoughnessMap;
-			//Texture2D* pMetallicityMap;//if transmission is enabled, this will be disabled.
-			//Texture2D* pEmissiveMap;
+			Texture2D* pAlbedoMap;
+			Texture2D* pRoughnessMap;
+			Texture2D* pMetallicityMap;//if transmission is enabled, this will be disabled.
+			Texture2D* pEmissiveMap;
 
 		};
 
@@ -68,13 +74,21 @@ namespace Noise3D
 			//and those who owns resource X will be inherited from sth like IResourceOwner<X>
 			void SetAlbedo(Color4f albedo);
 
+			void SetAlbedoMap(Texture2D* pMap);
+
 			void SetRoughness(float r);
 
-			void SetOpacity(float o);
+			void SetRoughnessMap(Texture2D* pMap);
+
+			void SetTransparency(float t);
 
 			void SetMetallicity(float m);
 
+			void SetMetallicityMap(Texture2D* pMap);
+
 			void SetEmission(Vec3 hdrEmission);
+
+			void SetEmissionMap(Texture2D* pMap);
 
 			void SetMetalF0(Vec3 F0);
 

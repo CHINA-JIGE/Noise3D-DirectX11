@@ -112,6 +112,41 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	pCam->LookAt(0, 0, 0);
 }
 
+void SceneLoader::LoadScene_Porsche(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.7f;
+		desc.metal_F0 = Vec3(1.0f, 0.86f, 0.57f);
+		m_pMatMgr->CreateAdvancedMaterial("PORSCHE", desc);
+	}
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.15f;
+		m_pMatMgr->CreateAdvancedMaterial("PORSCHE_GROUND", desc);
+	}
+
+	Mesh* pMeshPorsche =_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2.obj", Vec3(0, 0, 0), "PORSCHE");
+	pMeshPorsche->GetAttachedSceneNode()->GetLocalTransform().SetScale(20.0f, 20.0f, 20.0f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, -12, 0), Vec2(500.0f, 500.0f), "PORSCHE_GROUND");
+
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-40.0f, 5.0f, -50.0f);
+	pCam->LookAt(0, 0, 0);
+}
+
 //---------------------------------------
 
 void SceneLoader::_LoadTextures()
@@ -277,7 +312,7 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 	mRealTimeRenderMeshList.push_back(pMeshRect);
 }
 
-bool SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_UID matUid)
+Mesh* SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_UID matUid)
 {
 	static int id = 0;
 	id++;
@@ -285,7 +320,7 @@ bool SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_
 	SceneNode* pNode = sg.GetRoot()->CreateChildNode();
 	pNode->GetLocalTransform().SetPosition(pos);
 
-	Mesh* pMesh = m_pMeshMgr->CreateMesh(pNode, "sphere" + std::to_string(id));
+	Mesh* pMesh = m_pMeshMgr->CreateMesh(pNode, "mesh_stl_" + std::to_string(id));
 	bool loaded = m_pModelLoader->LoadFile_STL(pMesh,filePath);
 	pMesh->SetCollidable(true);
 	pMesh->SetMaterial("previewObjMat");
@@ -293,5 +328,24 @@ bool SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_
 	pMesh->SetGiMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMesh);
-	return loaded;
+	return pMesh;
+}
+
+Mesh* SceneLoader::_LoadMeshOBJ(SceneGraph & sg, NFilePath filePath, Vec3 pos, N_UID matUid)
+{
+	static int id = 0;
+	id++;
+
+	SceneNode* pNode = sg.GetRoot()->CreateChildNode();
+	pNode->GetLocalTransform().SetPosition(pos);
+
+	Mesh* pMesh = m_pMeshMgr->CreateMesh(pNode, "mesh_obj_" + std::to_string(id));
+	bool loaded = m_pModelLoader->LoadFile_OBJ(pMesh, filePath);
+	pMesh->SetCollidable(true);
+	pMesh->SetMaterial("previewObjMat");
+	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
+	pMesh->SetGiMaterial(pMat);
+
+	mRealTimeRenderMeshList.push_back(pMesh);
+	return pMesh;
 }

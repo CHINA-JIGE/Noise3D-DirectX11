@@ -18,6 +18,9 @@ public:
 
 	void LoadScene_StandardShader(Camera * pCam);
 
+	void LoadScene_Ironman(Camera * pCam);
+
+	void LoadScene_Porsche(Camera * pCam);
 
 private:
 
@@ -33,9 +36,9 @@ private:
 
 	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size, N_UID matUid);
 
-	bool _LoadMeshSTL(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
+	Mesh* _LoadMeshSTL(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
 
-	bool _LoadMeshOBJ(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
+	Mesh* _LoadMeshOBJ(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
 
 
 protected:

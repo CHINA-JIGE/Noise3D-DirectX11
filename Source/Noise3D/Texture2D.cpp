@@ -111,6 +111,46 @@ bool Texture2D::GetPixelArray(std::vector<Color4u>& outColorArray) const
 	}
 }
 
+Color4f Noise3D::Texture2D::SamplePixelBilinear(Vec2 texcoord) const
+{
+	if (ITexture::IsSysMemBufferValid())
+	{
+		float px_f = texcoord.x * float(mWidth);
+		float py_f = texcoord.y * float(mHeight);
+		uint32_t px = uint32_t(px_f);
+		uint32_t py = uint32_t(py_f);
+
+		uint32_t pixelId[4] =
+		{
+			((py) % mHeight) *mWidth + ((px) % mWidth),
+			((py+1) % mHeight) *mWidth + ((px) % mWidth),
+			((py) % mHeight) *mWidth + ((px+1) % mWidth),
+			((py+1) % mHeight) *mWidth + ((px+1) % mWidth)
+		};
+
+		Color4f pixels[4];
+		for (int i = 0; i < 4; ++i)
+		{
+			const Color4u& c = mPixelBuffer.at(pixelId[i]);
+			pixels[i] = (c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+		}
+
+		//bilinear interpolation's uv within these 4 pixels
+		float local_u = px_f - float(px);
+		float local_v = py_f - float(py);
+
+		Color4f tmp1 = XMVectorLerp(pixels[0],pixels[2],local_u) ;
+		Color4f tmp2 = XMVectorLerp(pixels[1], pixels[3], local_u);
+		Color4f result = XMVectorLerp(tmp1, tmp2, local_v);
+		return result;
+	}
+	else
+	{
+		WARNING_MSG("GetPixel : didn't keep a copy in memory !!!");
+	}
+	return Color4f(0, 0, 0, 0);
+}
+
 //if user modified pixels via setPixel()/setPixelArray(), 
 //then UpdateToVideoMem() should be called after modification.
 bool Texture2D::UpdateToVideoMemory()
