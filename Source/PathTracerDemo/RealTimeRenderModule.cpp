@@ -71,8 +71,8 @@ void RealTimeRenderModule::_InitScene()
 	//SceneLoader::LoadScene_RefractionDemo(m_pCamera);
 	//SceneLoader::LoadScene_AreaLightingDemo(m_pCamera);
 	//SceneLoader::LoadScene_StandardShader(m_pCamera);
-	//SceneLoader::LoadScene_Mesh(m_pCamera);
-	SceneLoader::LoadScene_Porsche(m_pCamera);
+	SceneLoader::LoadScene_Mesh(m_pCamera);
+	//SceneLoader::LoadScene_Porsche(m_pCamera);
 	//SceneLoader::LoadScene_Buddha(m_pCamera);
 }
 

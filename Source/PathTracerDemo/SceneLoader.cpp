@@ -17,8 +17,10 @@ void SceneLoader::LoadScene_Mesh(Camera * pCam)
 	_LoadTextures();
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
-	_LoadMeshSTL(sg, "../media/model/sphere.stl",Vec3(0,0,0),"centerBall");
+	//_LoadMeshSTL(sg, "../media/model/sphere.stl",Vec3(0,0,0),"centerBall");
 	//_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2_v3.obj", Vec3(0, 0, 0), "centerBall");
+	N_SceneLoadingResult res;
+	_LoadMeshFBX(sg, "../media/model/geoScene-fbx/geometries2.FBX", res);
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -137,7 +139,7 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", false, 1024, 512, true);
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		desc.roughness = 0.2f;
 		desc.metallicity = 0.7f;
@@ -146,7 +148,7 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		desc.roughness = 0.3f;
 		desc.metallicity = 0.15f;
@@ -154,7 +156,7 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		//desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		//desc.roughness = 1.0f;
 		//desc.metallicity = 0.0f;
@@ -185,7 +187,7 @@ void SceneLoader::LoadScene_Buddha(Camera * pCam)
 	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		desc.roughness = 0.03f;
 		desc.metallicity = 0.01f;
@@ -194,7 +196,7 @@ void SceneLoader::LoadScene_Buddha(Camera * pCam)
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		desc.roughness = 0.2f;
 		desc.metallicity = 0.1f;
@@ -248,14 +250,14 @@ void SceneLoader::_LoadAdvancedMaterials()
 	//perfect glasses
 	for (int i = 0; i < 9; ++i)
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		auto pMat = m_pMatMgr->CreateAdvancedMaterial("glass" +std::to_string(i), desc);
 		pMat->Preset_PerfectGlass();
 		pMat->SetRefractiveIndex(1.01f + 0.05f * i);
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(0.5f, 0.8f, 0.8f, 1.0f);
 		desc.roughness = 0.4f;
 		desc.metallicity = 0.1f;
@@ -263,7 +265,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 0, 0, 1.0f);
 		desc.roughness = 0;
 		desc.metallicity = 0.01;//a strange 'circle' will appear at center if metallicity=0(caused by specular)
@@ -271,7 +273,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		desc.roughness = 0.1f;
 		desc.metallicity = 0.0f;
@@ -279,7 +281,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 	}
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 0.5f, 0.5f, 1.0f);
 		desc.roughness = 0.5f;
 		m_pMatMgr->CreateAdvancedMaterial("albedo_red", desc);
@@ -287,7 +289,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 
 
 	{
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 0.3f, 1.0f);
 		desc.roughness = 1.0f;
 		desc.emission = Vec3(3.0f, 3.0f, 1.0f);
@@ -296,7 +298,7 @@ void SceneLoader::_LoadAdvancedMaterials()
 
 	{
 		//light source
-		GI::N_AdvancedMatDesc desc;
+		GI::N_PbrtMatDesc desc;
 		//desc.emission = Vec3(150000.0f, 150000.0f, 150000.0f);
 		desc.emission = Vec3(3.0f, 3.0f, 3.0f);
 		auto pMat = m_pMatMgr->CreateAdvancedMaterial("emissive_white", desc);
@@ -318,8 +320,8 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius, N_UID matU
 
 	LogicalSphere* pSphere = m_pShapeMgr->CreateSphere(pNode, "LSph" + std::to_string(id),radius);
 	pSphere->SetCollidable(true);
-	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
-	if (pMat != nullptr)pSphere->SetGiMaterial(pMat);
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(matUid);
+	if (pMat != nullptr)pSphere->SetPbrtMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMeshSphere);
 }
@@ -339,8 +341,8 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size, N_UID matUid)
 
 	LogicalBox* pBox = m_pShapeMgr->CreateBox(pNode, "LBox" + std::to_string(id),size);
 	pBox->SetCollidable(true);
-	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
-	if (pMat != nullptr)pBox->SetGiMaterial(pMat);
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(matUid);
+	if (pMat != nullptr)pBox->SetPbrtMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMeshBox);
 }
@@ -360,10 +362,10 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 
 	LogicalRect* pRect = m_pShapeMgr->CreateRect(pNode, "Lrect" + std::to_string(id),size, ori);
 	pRect->SetCollidable(true);
-	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(matUid);
 	if (pMat != nullptr)
 	{
-		pRect->SetGiMaterial(pMat);
+		pRect->SetPbrtMaterial(pMat);
 
 		if (pMat->IsEmissionEnabled())
 		{
@@ -371,8 +373,6 @@ void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 po
 		}
 	}
 	
-
-
 	mRealTimeRenderMeshList.push_back(pMeshRect);
 }
 
@@ -388,8 +388,8 @@ Mesh* SceneLoader::_LoadMeshSTL(SceneGraph & sg, NFilePath filePath, Vec3 pos, N
 	bool loaded = m_pModelLoader->LoadFile_STL(pMesh,filePath);
 	pMesh->SetCollidable(true);
 	pMesh->SetMaterial("previewObjMat");
-	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
-	pMesh->SetGiMaterial(pMat);
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(matUid);
+	pMesh->SetPbrtMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMesh);
 	return pMesh;
@@ -407,9 +407,26 @@ Mesh* SceneLoader::_LoadMeshOBJ(SceneGraph & sg, NFilePath filePath, Vec3 pos, N
 	bool loaded = m_pModelLoader->LoadFile_OBJ(pMesh, filePath);
 	pMesh->SetCollidable(true);
 	pMesh->SetMaterial("previewObjMat");
-	GI::AdvancedGiMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(matUid);
-	pMesh->SetGiMaterial(pMat);
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(matUid);
+	pMesh->SetPbrtMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMesh);
 	return pMesh;
+}
+
+void SceneLoader::_LoadMeshFBX(SceneGraph & sg, NFilePath filePath, N_SceneLoadingResult& outRes)
+{
+
+	m_pModelLoader->LoadFile_FBX_PbrtMaterial(filePath, outRes);
+	for (auto& meshName : outRes.meshNameList)
+	{
+		Mesh* pMesh = m_pMeshMgr->GetObjectPtr(meshName);
+		if (pMesh != nullptr)
+		{
+			pMesh->SetCollidable(true);
+			pMesh->SetMaterial("previewObjMat");//lambert preview mat
+		}
+
+		mRealTimeRenderMeshList.push_back(pMesh);
+	}
 }

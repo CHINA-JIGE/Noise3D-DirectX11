@@ -145,7 +145,7 @@
     <ClInclude Include="PathTracerShader_Diffuse.h" />
     <ClInclude Include="PathTracerShader_Reflection.h" />
     <ClInclude Include="PathTracerShader_Minimal.h" />
-    <ClInclude Include="AdvancedGiMaterial.h" />
+    <ClInclude Include="PbrtMaterial.h" />
     <ClInclude Include="PathTracerShader_Refraction.h" />
     <ClInclude Include="_RayHitInfo.h" />
     <ClInclude Include="_PathTracerSoftShaderInterface.hpp" />
@@ -233,7 +233,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AdvancedGiMaterial.cpp" />
+    <ClCompile Include="PbrtMaterial.cpp" />
     <ClCompile Include="BvhTreeForMesh.cpp" />
     <ClCompile Include="BvhTreeForScene.cpp" />
     <ClCompile Include="BxdfUt.cpp" />

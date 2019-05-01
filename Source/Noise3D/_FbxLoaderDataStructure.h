@@ -12,6 +12,7 @@ namespace Noise3D
 {
 	struct N_MeshSubsetInfo;
 	struct N_BasicLambertMaterialDesc;
+	struct N_FbxPbrtMaterialInfo;
 
 	struct N_FbxTextureMapsInfo
 	{
@@ -41,6 +42,7 @@ namespace Noise3D
 		std::vector<uint32_t> indexBuffer;
 		std::vector<N_MeshSubsetInfo> subsetList;
 		std::vector<N_FbxMaterialInfo> matList;
+		std::vector<N_FbxPbrtMaterialInfo> pbrtMatList;
 		Vec3 pos;//world translation
 		Vec3 scale;
 		Vec3 rotation;
@@ -69,6 +71,8 @@ namespace Noise3D
 		std::string roughnessMapFilePath;
 		//std::string normalMapName;
 		//std::string normalMapFilePath;
+		//std::string metalF0MapName;
+		//std::string metalF0MapFilePath;
 		std::string metallicityMapName;
 		std::string metallicityMapFilePath;
 		std::string emissiveMapName;
@@ -78,22 +82,8 @@ namespace Noise3D
 	struct N_FbxPbrtMaterialInfo
 	{
 		std::string matName;
-		GI::N_AdvancedMatDesc matBasicInfo;
+		GI::N_PbrtMatDesc matBasicInfo;
 		N_FbxPbrtTextureMapsInfo texMapInfo;//including loading path and names of texture maps
-	};
-
-	struct N_FbxPbrtMeshInfo
-	{
-		N_FbxPbrtMeshInfo() {}
-
-		N_UID	name;
-		std::vector<N_DefaultVertex> vertexBuffer;
-		std::vector<uint32_t> indexBuffer;
-		std::vector<N_MeshSubsetInfo> subsetList;
-		std::vector<N_FbxPbrtMaterialInfo> matList;
-		Vec3 pos;//world translation
-		Vec3 scale;
-		Vec3 rotation;
 	};
 
 	struct N_FbxPbrtSceneLoadingResult

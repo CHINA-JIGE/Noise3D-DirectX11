@@ -46,8 +46,8 @@ void Noise3D::GI::PathTracerStandardShader::SetSkyBoxTexture(TextureCubeMap * pT
 
 void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
-	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
-	const N_AdvancedMatDesc& mat = pMat->GetDesc();
+	GI::PbrtMaterial* pMat = hitInfo.pHitObj->GetPbrtMaterial();
+	const N_PbrtMatDesc& mat = pMat->GetDesc();
 
 	//deal with shadow rays/ return direct lighting first
 	GI::Radiance outEmission;
@@ -273,7 +273,7 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 void Noise3D::GI::PathTracerStandardShader::_IntegrateDiffuse(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outDiffuse)
 {
 	GI::RandomSampleGenerator g;
-	const N_AdvancedMatDesc& mat = hitInfo.pHitObj->GetGiMaterial()->GetDesc();
+	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
 	//reduce sample counts as bounces grow
 	if (param.bounces > 1)
@@ -329,7 +329,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int samplesCo
 void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outReflection)
 {
 	GI::RandomSampleGenerator g;
-	const N_AdvancedMatDesc& mat = hitInfo.pHitObj->GetGiMaterial()->GetDesc();
+	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
 	//reduce sample counts as bounces grow
 	if (param.bounces >1)
@@ -422,7 +422,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	float LdotN = l.Dot(n);
 
 	//material
-	const N_AdvancedMatDesc& mat = hitInfo.pHitObj->GetGiMaterial()->GetDesc();
+	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
 	//albedo & albedo map (diffusive)
 	Vec3 albedo = mat.albedo;

@@ -31,7 +31,7 @@ void MainApp::Init_GI()
 		ss << mCmdLine;
 		std::string str_mat; float m, r;
 		ss >> str_mat >> m >> r;
-		auto pMat = m_pMatMgr->GetObjectPtr<GI::AdvancedGiMaterial>(str_mat);
+		auto pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>(str_mat);
 		if (pMat != nullptr)
 		{
 			pMat->SetMetallicity(m);
@@ -59,12 +59,12 @@ void MainApp::PathTracerStartRender()
 		functor,
 		m_pPathTracer,
 		m_pScene->GetSceneGraph().GetRoot(),
-		&mPathTracerShader_Standard);
+		//&mPathTracerShader_Standard);
 		//&mPathTracerShader_AreaLightingDemo);
 		//&mPathTracerShader_RefractionDemo);
 		//&mPathTracerShader_DiffuseDemo);
 		//&mPathTracerShader_ReflectionDemo);
-		//&mPathTracerShader_Minimal);
+		&mPathTracerShader_Minimal);
 	//mRenderThread.detach();
 
 }
@@ -83,7 +83,7 @@ void MainApp::InitCmdLine(std::string cmdLine)
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(1280, 960);
+	m_pPathTracer = m_pScene->CreatePathTracer(320, 240);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxBounces(2);
 	m_pPathTracer->SetMaxDiffuseSampleCount(64);

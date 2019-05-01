@@ -19,7 +19,7 @@ MeshLoader::MeshLoader()
 MeshLoader::~MeshLoader()
 {
 
-};
+}
 
 bool MeshLoader::LoadPlane(Mesh * const pTargetMesh, NOISE_RECT_ORIENTATION ori, float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount)
 {
@@ -282,89 +282,30 @@ void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoad
 			
 			//Create texture first (failed one will be deprecated)
 			//emmmm... seems that Cube Map is not supported by .fbx ??
-			std::string diffMapName = fbxMat.texMapInfo.diffMapName;
-			std::string normalMapName =fbxMat.texMapInfo.normalMapName;
-			std::string specMapName = fbxMat.texMapInfo.specMapName;
-			std::string emissiveMapName = fbxMat.texMapInfo.emissiveMapName;
-
 			std::string modelFileFolder = Ut::GetFileFolderFromPath(filePath);
 			std::string diffMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.diffMapFilePath);
 			std::string normalMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.normalMapFilePath);
 			std::string specMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.specMapFilePath);
 			std::string emissiveMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.emissiveMapFilePath);
 
-			ITexture* pTexDiff = nullptr;
-			ITexture* pTexNormal = nullptr;
-			ITexture* pTexEmissive = nullptr;
-			ITexture* pTexSpec = nullptr;
+			//diffuse map
+			Texture2D* pTexDiff = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.diffMapName, diffMapPath);
 
+			//normal map
+			Texture2D* pTexNormal = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.normalMapName, normalMapPath);
 
-			if (!diffMapName.empty())
-			{
-				//skip repeated map
-				if (pTexMgr->ValidateTex2D(diffMapName) == true)continue;
+			//emissive map
+			Texture2D* pTexEmissive = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.emissiveMapName, emissiveMapPath);
 
-				pTexDiff = pTexMgr->CreateTextureFromFile(diffMapPath, diffMapName, true, 0, 0, false);
+			//specular map
+			Texture2D* pTexSpec = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.specMapName, specMapPath);
 
-				if (pTexDiff == nullptr)
-				{
-					WARNING_MSG("Model Loader: Load FBX scene: Texture (diffuse) failed to load: Texture name:"
-						+ diffMapName);
-					diffMapName = "";
-				}
-			}
-
-			if (!normalMapName.empty())
-			{
-				//skip repeated map
-				if (pTexMgr->ValidateTex2D(normalMapName) == true)continue;
-
-				pTexNormal = pTexMgr->CreateTextureFromFile(normalMapPath, normalMapName, true, 0, 0, false);
-
-				if (pTexNormal == nullptr)
-				{
-					WARNING_MSG("Model Loader: Load FBX scene: Texture (normal map) failed to load: Texture name:"
-						+ normalMapName);
-					normalMapName = "";
-				}
-			}
-
-			if (!emissiveMapName.empty())
-			{
-				//skip repeated map
-				if (pTexMgr->ValidateTex2D(emissiveMapName) == true)continue;
-
-				pTexEmissive = pTexMgr->CreateTextureFromFile(emissiveMapPath, emissiveMapName, true, 0, 0, false);
-
-				if (pTexEmissive == nullptr)
-				{
-					WARNING_MSG("Model Loader: Load FBX scene: Texture (emissive map) failed to load: Texture name:"
-						+ emissiveMapName);
-					emissiveMapName = "";
-				}
-			}
-
-			if (!specMapName.empty())
-			{
-				//skip repeated map
-				if (pTexMgr->ValidateTex2D(specMapName) == true)continue;
-
-				pTexSpec = pTexMgr->CreateTextureFromFile(specMapPath, specMapName, true, 0, 0, false);
-
-				if (pTexSpec == nullptr)
-				{
-					WARNING_MSG("Model Loader: Load FBX scene: Texture (specular map) failed to load: Texture name:"
-						+ specMapName);
-					specMapName = "";
-				}
-			}
-			
 			//create material
 			N_LambertMaterialDesc newMatDesc( fbxMat.matBasicInfo);
-			newMatDesc.diffuseMapName = diffMapName;
-			newMatDesc.normalMapName = normalMapName;
-			newMatDesc.specularMapName = specMapName;
-			newMatDesc.emissiveMapName = emissiveMapName;
+			newMatDesc.diffuseMapName = (pTexDiff==nullptr?"": fbxMat.texMapInfo.diffMapName);
+			newMatDesc.normalMapName = (pTexNormal==nullptr? "": fbxMat.texMapInfo.normalMapName);
+			newMatDesc.specularMapName = (pTexEmissive==nullptr?"": fbxMat.texMapInfo.specMapName);
+			newMatDesc.emissiveMapName = (pTexEmissive==nullptr?"": fbxMat.texMapInfo.emissiveMapName);
 
 			const std::string& matName = fbxMat.matName;
 			if (!matName.empty())
@@ -391,6 +332,123 @@ void MeshLoader::LoadFile_FBX(NFilePath filePath, N_SceneLoadingResult & outLoad
 		{
 			pMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 		}
+	}
+}
+
+void Noise3D::MeshLoader::LoadFile_FBX_PbrtMaterial(NFilePath filePath, N_SceneLoadingResult & outLoadingResult)
+{
+	//if fbx loader has already been initialized,
+	//then actual init procedure will be skipped
+	N_FbxPbrtSceneLoadingResult fbxResult;
+	mFbxLoader.Initialize();
+
+	//some scene nodes are not supported(2017.9.20)
+	mFbxLoader.LoadPbrtMeshesFromFbx(filePath, fbxResult);
+
+	//create mesh object in Noise3D with the data loaded from fbx
+	SceneManager*	pScene = Noise3D::GetScene();
+	MeshManager*	pMeshMgr = pScene->GetMeshMgr();
+	MaterialManager*	pMatMgr = pScene->GetMaterialMgr();
+	TextureManager*	pTexMgr = pScene->GetTextureMgr();
+
+	//root node to fbx scene
+	SceneNode* pFbxRootNode = pScene->GetSceneGraph().GetRoot()->CreateChildNode();
+	outLoadingResult.pFbxSceneRootNode = pFbxRootNode;
+
+	for (auto& m : fbxResult.meshDataList)
+	{
+		//***1.Create Mesh and its scene node 
+		SceneNode* pNode = pFbxRootNode->CreateChildNode();
+		Mesh* pMesh = pMeshMgr->CreateMesh(pNode, m.name);
+		if (pMesh == nullptr)
+		{
+			WARNING_MSG("Model Loader: Load FBX scene: failed to create Noise3D::IMesh Object"
+				+ m.name);
+			continue;
+		}
+
+		//update data to graphic memory
+		bool isUpdateSuccessful = pMesh->mFunction_CreateGpuBufferAndUpdateData(m.vertexBuffer, m.indexBuffer);
+		if (!isUpdateSuccessful)
+		{
+			WARNING_MSG("Model Loader: Load FBX scene: Mesh failed to load: mesh name:"
+				+ m.name);
+			pMeshMgr->DestroyObject(m.name);
+			continue;
+		}
+
+		//set coordinate transformation
+		pNode->GetLocalTransform().SetScale(m.scale.x, m.scale.y, m.scale.z);
+		pNode->GetLocalTransform().SetPosition(m.pos.x, m.pos.y, m.pos.z);
+		pNode->GetLocalTransform().SetRotation(m.rotation.x, m.rotation.y, m.rotation.z);
+
+		//output new mesh name
+		outLoadingResult.meshNameList.push_back(m.name);
+
+		//***2,material & texture creation
+		for (uint32_t matID = 0; matID < m.pbrtMatList.size(); ++matID)
+		{
+			const N_FbxPbrtMaterialInfo& fbxMat = m.pbrtMatList.at(matID);
+
+			//Create texture first (failed one will be deprecated)
+			std::string modelFileFolder = Ut::GetFileFolderFromPath(filePath);
+			std::string albedoMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.albedoMapFilePath);
+			std::string metallicityMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.metallicityMapFilePath);
+			std::string roughnessMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.roughnessMapFilePath);
+			std::string emissiveMapPath = modelFileFolder + Ut::GetFileNameFromPath(fbxMat.texMapInfo.emissiveMapFilePath);
+
+			//create material
+			GI::N_PbrtMatDesc newMatDesc(fbxMat.matBasicInfo);
+
+			//albedo map
+			newMatDesc.pAlbedoMap = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.albedoMapName, albedoMapPath);
+			
+			//metallicity map
+			newMatDesc.pMetallicityMap = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.metallicityMapName, metallicityMapPath);
+			
+			//emissive map	
+			newMatDesc.pEmissiveMap = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.emissiveMapName, emissiveMapPath);
+
+			//roughness map
+			newMatDesc.pRoughnessMap = _FbxLoadTexture(pTexMgr, fbxMat.texMapInfo.roughnessMapName, roughnessMapPath);
+
+			const std::string& matName = fbxMat.matName;
+			if (!matName.empty())
+			{
+				if (pMatMgr->FindUid<GI::PbrtMaterial>(matName) == true)continue;//material that is already created
+				GI::PbrtMaterial* pMat = pMatMgr->CreateAdvancedMaterial(matName, newMatDesc);
+				if (pMat == nullptr)
+				{
+					WARNING_MSG("Model Loader: Load FBX scene: Material failed to load: material name:"
+						+ matName);
+					continue;//next mat
+				}
+				outLoadingResult.materialNameList.push_back(matName);
+			}
+		}
+
+		//3. mesh subset (if no customized matieral, default subset list will be assigned
+		if (m.subsetList.size() != 0)
+		{
+			std::vector<N_MeshPbrtSubsetInfo> pbrtSubsetList;
+			pbrtSubsetList.reserve(m.subsetList.size());
+
+			//convert subset of named material to subset of mat ptr
+			for (auto& s : m.subsetList)
+			{
+				N_MeshPbrtSubsetInfo subset;
+				subset.startPrimitiveID = s.startPrimitiveID;
+				subset.primitiveCount = s.primitiveCount;
+				subset.pMat = pMatMgr->GetObjectPtr<GI::PbrtMaterial>(s.matName);
+				pbrtSubsetList.push_back(subset);
+			}
+		}
+		else
+		{
+			pMesh->SetPbrtMaterial(pMatMgr->GetDefaultAdvancedMaterial());
+		}
+
+		pMesh->SetMaterial(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 	}
 }
 
@@ -449,7 +507,29 @@ bool MeshLoader::LoadSkyBox(Atmosphere * const pAtmo, N_UID texture, float fWidt
 	return false;
 }
 
+/**********************************
 
+					PRIVATE
+
+***********************************/
+
+Texture2D * Noise3D::MeshLoader::_FbxLoadTexture(TextureManager* pTexMgr, std::string texName, std::string filePath)
+{
+	if (!texName.empty())
+	{
+		//skip repeated map
+		if (!pTexMgr->ValidateTex2D(texName))return nullptr;
+
+		Texture2D* pTex = pTexMgr->CreateTextureFromFile(filePath, texName, true, 0, 0, false);
+
+		if (pTex == nullptr)
+		{
+			WARNING_MSG("Model Loader: failed to load fbx texture: Texture name:" + texName);
+		}
+		return pTex;
+	}
+	return nullptr;
+}
 
 /*bool MeshLoader::LoadFile_3DS(NFilePath pFilePath, std::vector<Mesh*>& outMeshPtrList,std::vector<N_UID>& outMeshNameList)
 {

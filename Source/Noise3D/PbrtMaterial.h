@@ -11,9 +11,9 @@ namespace Noise3D
 
 	namespace GI
 	{
-		struct N_AdvancedMatDesc
+		struct N_PbrtMatDesc
 		{
-			N_AdvancedMatDesc() :
+			N_PbrtMatDesc() :
 				albedo(1.0f, 1.0f, 1.0f, 1.0f),
 				roughness(0.0f),
 				metallicity(0.0f),
@@ -63,7 +63,7 @@ namespace Noise3D
 		};
 
 		//material specifically for PathTracer
-		class AdvancedGiMaterial
+		class PbrtMaterial
 		{
 		public:
 
@@ -98,9 +98,9 @@ namespace Noise3D
 
 			bool IsEmissionEnabled();//true for light source
 
-			void SetDesc(const N_AdvancedMatDesc& desc);
+			void SetDesc(const N_PbrtMatDesc& desc);
 
-			const N_AdvancedMatDesc& GetDesc();
+			const N_PbrtMatDesc& GetDesc();
 
 			//preset material
 			void Preset_PerfectGlass(float ior=2.0f);
@@ -109,29 +109,28 @@ namespace Noise3D
 
 			float mFunc_IorToF0(float ior);
 
-			N_AdvancedMatDesc mMatDesc;
+			N_PbrtMatDesc mMatDesc;
 		};
 
 		//ut interface for path tracer
-		class IAdvancedGiMaterialOwner
+		class IPbrtMaterialOwner
 		{
 		public:
 
 			//(2019.4.5)material for GI renderer, for now doesn't support multiple GI mat for one mesh
-			void	SetGiMaterial(GI::AdvancedGiMaterial* pMat);
+			void	SetPbrtMaterial(GI::PbrtMaterial* pMat);
 
-			GI::AdvancedGiMaterial* GetGiMaterial();
+			GI::PbrtMaterial* GetPbrtMaterial();
 
 		protected:
 
-			IAdvancedGiMaterialOwner();
+			IPbrtMaterialOwner();
 
-			~IAdvancedGiMaterialOwner();
-
+			~IPbrtMaterialOwner();
 
 		private:
 
-			GI::AdvancedGiMaterial* m_pGiMat;
+			GI::PbrtMaterial* m_pGiMat;
 
 		};
 

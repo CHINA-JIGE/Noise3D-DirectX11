@@ -391,9 +391,6 @@
     <ClInclude Include="LambertMaterial.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
-    <ClInclude Include="AdvancedGiMaterial.h">
-      <Filter>NoiseGraphic\Scene\Material</Filter>
-    </ClInclude>
     <ClInclude Include="_RayHitInfo.h">
       <Filter>NoiseGraphic\Scene\CollisionTestor</Filter>
     </ClInclude>
@@ -447,6 +444,9 @@
     </ClInclude>
     <ClInclude Include="_FbxLoaderDataStructure.h">
       <Filter>NoiseGraphic\Scene\MeshLoader\_FBXSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="PbrtMaterial.h">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -648,9 +648,6 @@
     <ClCompile Include="LambertMaterial.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
-    <ClCompile Include="AdvancedGiMaterial.cpp">
-      <Filter>NoiseGraphic\Scene\Material</Filter>
-    </ClCompile>
     <ClCompile Include="BxdfUt.cpp">
       <Filter>NoiseGraphic\GI\Common</Filter>
     </ClCompile>
@@ -677,6 +674,9 @@
     </ClCompile>
     <ClCompile Include="BvhTreeForMesh.cpp">
       <Filter>NoiseGraphic\Scene\Mesh\BvhTreeForMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PbrtMaterial.cpp">
+      <Filter>NoiseGraphic\Scene\Material</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

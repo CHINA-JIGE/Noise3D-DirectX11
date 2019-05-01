@@ -13,7 +13,7 @@ namespace Noise3D
 	{
 		class /*_declspec(dllexport)*/ IGiRenderable:
 			public ICollidableSceneObject,
-			public GI::IAdvancedGiMaterialOwner
+			public GI::IPbrtMaterialOwner
 		{
 
 		};

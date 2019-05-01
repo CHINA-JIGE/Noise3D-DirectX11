@@ -118,5 +118,4 @@ namespace Noise3D
 		N_LambertMaterialDesc mMatDesc;
 	};
 
-
 };

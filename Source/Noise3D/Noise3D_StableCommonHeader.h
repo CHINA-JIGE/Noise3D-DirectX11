@@ -71,7 +71,7 @@
 #include "BvhTreeForScene.h"
 
 #include "LambertMaterial.h"
-#include "AdvancedGiMaterial.h"
+#include "PbrtMaterial.h"
 #include "MaterialManager.h"
 
 #include "_GI.h"//common GI

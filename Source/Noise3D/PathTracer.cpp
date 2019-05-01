@@ -247,9 +247,9 @@ void Noise3D::GI::PathTracer::mFunction_ComputeLightSourceList(std::vector<GI::I
 	//traverse all scene object, and see if their material's emission is black
 	for (auto pRenderable : objList)
 	{
-		GI::AdvancedGiMaterial* pMat = nullptr;
+		GI::PbrtMaterial* pMat = nullptr;
 
-		pMat = pRenderable->GetGiMaterial();
+		pMat = pRenderable->GetPbrtMaterial();
 
 		if (pMat->IsEmissionEnabled())
 		{

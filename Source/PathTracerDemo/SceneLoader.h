@@ -42,6 +42,7 @@ private:
 
 	Mesh* _LoadMeshOBJ(SceneGraph& sg, NFilePath filePath, Vec3 pos, N_UID matUid);
 
+	void _LoadMeshFBX(SceneGraph& sg, NFilePath filePath,N_SceneLoadingResult& outRes);
 
 protected:
 

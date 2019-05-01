@@ -20,7 +20,7 @@ using namespace Noise3D;
 
 void Noise3D::GI::PathTracerShader_AreaLightingDemo::ClosestHit(const N_TraceRayParam& param, const N_RayHitInfoForPathTracer & hitInfo, N_TraceRayPayload & in_out_payload)
 {
-	GI::AdvancedGiMaterial* pMat = hitInfo.pHitObj->GetGiMaterial();
+	GI::PbrtMaterial* pMat = hitInfo.pHitObj->GetPbrtMaterial();
 
 	GI::Radiance outEmission;
 
@@ -159,7 +159,7 @@ void Noise3D::GI::PathTracerShader_AreaLightingDemo::Miss(const N_TraceRayParam 
 GI::Radiance Noise3D::GI::PathTracerShader_AreaLightingDemo::_EvalEmission(N_Ray shadowRay, uint32_t lightSourceId)
 {
 	GI::IGiRenderable* pLightSrc = mLightSourceList.at(lightSourceId);
-	const N_AdvancedMatDesc& desc = pLightSrc->GetGiMaterial()->GetDesc();
+	const N_PbrtMatDesc& desc = pLightSrc->GetPbrtMaterial()->GetDesc();
 	//float distInv = 1.0f / (shadowRay.dir.Length()+0.01f);
 	//return GI::Radiance(desc.emission) * distInv * distInv;
 	return GI::Radiance(desc.emission);

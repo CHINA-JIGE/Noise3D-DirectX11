@@ -55,6 +55,22 @@ void Mesh::GetSubsetList(std::vector<N_MeshSubsetInfo>& outRefSubsetList)
 	outRefSubsetList = mSubsetInfoList;
 }
 
+void Noise3D::Mesh::SetPbrtMaterialSubset(const std::vector<N_MeshPbrtSubsetInfo>& subsetList)
+{
+	mPbrtMatSubsetInfoList = subsetList;
+}
+
+GI::PbrtMaterial * Noise3D::Mesh::GetPbrtMaterial(int triangleId)
+{
+	for (auto& s : mPbrtMatSubsetInfoList)
+	{
+		if (triangleId >= s.startPrimitiveID && triangleId < (s.startPrimitiveID + s.primitiveCount))
+		{
+			return s.pMat;
+		}
+	}
+}
+
 N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()
 {
 	//implementation is very similar to ISceneObject::GetLocalAABB()

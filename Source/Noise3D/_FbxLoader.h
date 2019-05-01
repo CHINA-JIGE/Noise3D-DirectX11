@@ -56,8 +56,12 @@ namespace Noise3D
 
 		void		_PBRT_TraverseSceneNodes(FbxNode* pNode);
 
-		void		_ProcessSceneNode_Mesh(FbxNode* pNode, MESH_MATERIAL_TYPE matType);
+		//load 1.transformation/2.geometry data/3.material/4.texture path data of a single mesh
+		void		_ProcessSceneNode_Mesh(FbxNode* pNode,N_FbxMeshInfo& outMeshInfo, MESH_MATERIAL_TYPE matType);
 		
+		//load mesh geometry data
+		void		_LoadMeshGeometry(FbxMesh* pMesh, std::vector<N_DefaultVertex>& outVB, std::vector<uint32_t>& outIB, int& outTriangleCount);
+
 		//invoked by Process Mesh Scene Node member function, output {0,0,0,0} if no vertex color is defined
 		void		_LoadMesh_VertexColor(FbxMesh* pMesh, int ctrlPointIndex, int polygonVertexIndex, Vec4& outColor);
 		
