@@ -83,13 +83,15 @@ void MainApp::InitCmdLine(std::string cmdLine)
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(640, 480);
+	m_pPathTracer = m_pScene->CreatePathTracer(1280, 960);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
 	m_pPathTracer->SetMaxBounces(2);
 	m_pPathTracer->SetMaxDiffuseSampleCount(64);
-	m_pPathTracer->SetMaxSpecularScatterSample(24);
+	m_pPathTracer->SetMaxSpecularScatterSample(40);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
-	m_pPathTracer->SetExposure(2.0f);
+	m_pPathTracer->SetExposure(3.0f);
+
+	mPathTracerShader_Standard.SetSkyType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()

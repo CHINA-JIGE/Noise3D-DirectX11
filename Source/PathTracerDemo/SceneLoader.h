@@ -22,6 +22,8 @@ public:
 
 	void LoadScene_Porsche(Camera * pCam);
 
+	void LoadScene_Buddha(Camera * pCam);
+
 private:
 
 	void _LoadTextures();

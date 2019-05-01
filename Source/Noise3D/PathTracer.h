@@ -19,6 +19,7 @@ namespace Noise3D
 		
 		enum NOISE_PATH_TRACER_SKYLIGHT_TYPE
 		{
+			NONE,
 			SKY_DOME,
 			SKY_BOX,
 			SPHERICAL_HARMONIC

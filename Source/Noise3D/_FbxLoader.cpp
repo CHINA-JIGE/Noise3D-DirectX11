@@ -100,7 +100,7 @@ bool Noise3D::IFbxLoader::LoadPbrtMeshesFromFbx(NFilePath fbxPath, N_FbxPbrtScen
 	FbxNode* pRNode = m_pFbxScene->GetRootNode();
 
 	//(recursive), mesh and material (etc.) result will be loaded to RefOutResult
-	_PBRT_TraverseSceneNodes(pRNode);
+	//_PBRT_TraverseSceneNodes(pRNode);
 
 	return true;
 }
@@ -209,7 +209,7 @@ void IFbxLoader::_TraverseSceneNodes(FbxNode * pNode)
 		_TraverseSceneNodes(pNode->GetChild(i));
 }
 
-void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode)
+void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode, MESH_MATERIAL_TYPE matType)
 {
 	//Get bound mesh of current node
 	FbxMesh* pMesh = pNode->GetMesh();
@@ -375,6 +375,7 @@ void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode)
 	//2.material(basic param & textures)
 	std::vector<N_FbxMaterialInfo> matList;
 	_LoadMesh_Materials(pNode, matList);
+	ERROR_MSG("need to ≈–∂œ≤ƒ÷ ¿‡–Õhere");
 	refCurrentMesh.matList = matList;
 
 	//3.convert materialID to material NAME( subset of mesh)

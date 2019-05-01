@@ -90,7 +90,7 @@ namespace Noise3D
 		std::vector<N_DefaultVertex> vertexBuffer;
 		std::vector<uint32_t> indexBuffer;
 		std::vector<N_MeshSubsetInfo> subsetList;
-		std::vector<N_FbxAdvancedMaterialInfo> matList;
+		std::vector<N_FbxPbrtMaterialInfo> matList;
 		Vec3 pos;//world translation
 		Vec3 scale;
 		Vec3 rotation;

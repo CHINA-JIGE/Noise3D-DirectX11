@@ -16,7 +16,7 @@ namespace Noise3D
 		{
 		public:
 
-			void SetSkyType(NOISE_ATMOSPHERE_SKYTYPE type);
+			void SetSkyType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
 
 			void SetSkyDomeTexture(Texture2D* pTex, bool computeSH16 =true);
 
@@ -78,7 +78,7 @@ namespace Noise3D
 
 			float _RoughnessToAlpha(float r);
 
-			NOISE_ATMOSPHERE_SKYTYPE mSkyType;
+			NOISE_PATH_TRACER_SKYLIGHT_TYPE mSkyLightType;
 
 			Texture2D* m_pSkyDomeTex;
 

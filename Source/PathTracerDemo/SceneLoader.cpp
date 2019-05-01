@@ -18,6 +18,7 @@ void SceneLoader::LoadScene_Mesh(Camera * pCam)
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
 	_LoadMeshSTL(sg, "../media/model/sphere.stl",Vec3(0,0,0),"centerBall");
+	//_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2_v3.obj", Vec3(0, 0, 0), "centerBall");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -31,6 +32,9 @@ void SceneLoader::LoadScene_DiffuseDemo(Camera * pCam)
 	_LoadTextures();
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
 
 	_LoadSphere(sg, Vec3(-20.0f,20.0f,50), 15.0f, "");
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "");
@@ -51,6 +55,10 @@ void SceneLoader::LoadScene_RefractionDemo(Camera * pCam)
 	_LoadTextures();
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -73,6 +81,9 @@ void SceneLoader::LoadScene_AreaLightingDemo(Camera * pCam)
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
 
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", false, 1024, 512, true);
+
 	_LoadSphere(sg, Vec3(-20.0f, 25.0f, 50), 15.0f, "albedo_red");
 	_LoadSphere(sg, Vec3(50.0f, 20.0f, 30), 10.0f, "albedo_yellow");
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "albedo_green");
@@ -94,6 +105,9 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	_LoadTextures();
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 1024, 512, true);
 
 	/*_LoadSphere(sg, Vec3(-20.0f, 10.0f, 80), 15.0f, "albedo_red");
 	_LoadSphere(sg, Vec3(50.0f, 20.0f, 30), 10.0f, "emissive_yellow");
@@ -119,6 +133,9 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	_LoadLambertMaterials();
 	_LoadAdvancedMaterials();
 
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", false, 1024, 512, true);
+
 	{
 		GI::N_AdvancedMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -131,20 +148,68 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	{
 		GI::N_AdvancedMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.2f;
+		desc.roughness = 0.3f;
 		desc.metallicity = 0.15f;
 		m_pMatMgr->CreateAdvancedMaterial("PORSCHE_GROUND", desc);
 	}
 
-	Mesh* pMeshPorsche =_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2.obj", Vec3(0, 0, 0), "PORSCHE");
-	pMeshPorsche->GetAttachedSceneNode()->GetLocalTransform().SetScale(20.0f, 20.0f, 20.0f);
-	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, -12, 0), Vec2(500.0f, 500.0f), "PORSCHE_GROUND");
+	{
+		GI::N_AdvancedMatDesc desc;
+		//desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		//desc.roughness = 1.0f;
+		//desc.metallicity = 0.0f;
+		desc.emission = Vec3(1.0f, 1.0f, 1.0f);
+		m_pMatMgr->CreateAdvancedMaterial("PORSCHE_LIGHTSCR", desc);
+	}
 
+	Mesh* pMeshPorsche =_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2_v3.obj", Vec3(0, 12, 0), "PORSCHE");
+	//pMeshPorsche->GetAttachedSceneNode()->GetLocalTransform().SetScale(20.0f, 20.0f, 20.0f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "PORSCHE_GROUND");
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 50, 0), Vec2(300.0f, 300.0f), "PORSCHE_LIGHTSCR");
+
+	//_LoadBox(sg, Vec3(-30.0f, 5.0f, -20.0f), Vec3(10.0f, 10.0f, 10.0f), "box2");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
-	pCam->GetWorldTransform().SetPosition(-40.0f, 5.0f, -50.0f);
+	pCam->GetWorldTransform().SetPosition(-40.0f, 20.0f, -50.0f);
 	pCam->LookAt(0, 0, 0);
+}
+
+void SceneLoader::LoadScene_Buddha(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.03f;
+		desc.metallicity = 0.01f;
+		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("emerald");
+		m_pMatMgr->CreateAdvancedMaterial("BUDDHA", desc);
+	}
+
+	{
+		GI::N_AdvancedMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.1f;
+		m_pMatMgr->CreateAdvancedMaterial("BUDDHA_GROUND", desc);
+	}
+
+	Mesh* pMesh = _LoadMeshSTL(sg, "../media/model/buddha.stl", Vec3(0, 0, 0), "BUDDHA");
+	//Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/buddha-v2.obj", Vec3(0, 0, 0), "BUDDHA");
+	pMesh->GetAttachedSceneNode()->GetLocalTransform().SetScale(0.5f, 0.5f, 0.5f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "BUDDHA_GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-20.0f, 30.0f, -50.0f);
+	pCam->LookAt(0, 10.0f, 0);
 }
 
 //---------------------------------------
@@ -155,9 +220,8 @@ void SceneLoader::_LoadTextures()
 	m_pTexMgr->CreateTextureFromFile("../media/white.jpg", "Universe", false, 256, 256, false);
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
-	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", false, 1024, 512, true);
 	//m_pTexMgr->CreateTextureFromFile("../media/cathedral.jpg", "envmap", false, 1024, 512, true);
-
+	//m_pTexMgr->CreateTextureFromFile("../media/emerald.jpg", "emerald", true, 0, 0, true);
 }
 
 void SceneLoader::_LoadLambertMaterials()

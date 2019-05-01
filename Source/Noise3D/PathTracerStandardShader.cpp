@@ -11,9 +11,9 @@
 
 using namespace Noise3D;
 
-void Noise3D::GI::PathTracerStandardShader::SetSkyType(NOISE_ATMOSPHERE_SKYTYPE type)
+void Noise3D::GI::PathTracerStandardShader::SetSkyType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type)
 {
-	mSkyType = type;
+	mSkyLightType = type;
 }
 
 void Noise3D::GI::PathTracerStandardShader::SetSkyDomeTexture(Texture2D * pTex, bool computeSH16)
@@ -116,7 +116,13 @@ void Noise3D::GI::PathTracerStandardShader::ClosestHit(const N_TraceRayParam & p
 
 void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)
 {
-	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME)
+	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::NONE)
+	{
+		in_out_payload.radiance = GI::Radiance(0,0,0);
+		return;
+	}
+
+	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME)
 	{
 		if (m_pSkyDomeTex != nullptr)
 		{
@@ -128,7 +134,7 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 		}
 	}
 
-	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_BOX)
+	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_BOX)
 	{
 		if (m_pSkyBoxTex != nullptr)
 		{
@@ -140,7 +146,7 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 		}
 	}
 
-	if (param.skyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC)
+	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC)
 	{
 		if (m_pSkyBoxTex != nullptr || m_pSkyDomeTex!=nullptr)
 		{
