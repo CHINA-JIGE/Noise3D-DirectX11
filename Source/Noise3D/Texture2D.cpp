@@ -113,7 +113,7 @@ bool Texture2D::GetPixelArray(std::vector<Color4u>& outColorArray) const
 
 Color4f Noise3D::Texture2D::SamplePixelBilinear(Vec2 texcoord) const
 {
-	if (ITexture::IsSysMemBufferValid())
+	if (Texture2D::IsSysMemBufferValid())
 	{
 		float px_f = texcoord.x * float(mWidth);
 		float py_f = texcoord.y * float(mHeight);

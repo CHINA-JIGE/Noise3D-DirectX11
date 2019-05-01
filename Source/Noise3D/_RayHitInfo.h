@@ -14,8 +14,8 @@ namespace Noise3D
 	struct N_RayHitInfo
 	{
 		//N_RayHitInfo():t(-std::numeric_limits<float>::infinity()) {}
-		N_RayHitInfo(float _t, Vec3 _pos, Vec3 _normal, Vec2 _uv) :
-			t(_t), pos(_pos), normal(_normal), texcoord(_uv) {}
+		N_RayHitInfo(float _t, Vec3 _pos, Vec3 _normal, Vec2 _uv, int _triangleIndex=-1) :
+			t(_t), pos(_pos), normal(_normal), texcoord(_uv),triangleIndex(_triangleIndex){}
 
 		//validate the hit, check param t and see whether it's infinity(it shouldn't be)
 		bool IsValid() { return (t != std::numeric_limits<float>::infinity()); }
@@ -24,6 +24,7 @@ namespace Noise3D
 		Vec3 pos;//hit point's pos
 		Vec3 normal;//hit point's normal vector
 		Vec2 texcoord;//texture coordinate, UV
+		int triangleIndex;//triangle index of a mesh
 	};
 
 	//extension of N_RayHitInfo, material and the hitting ray info are carried
@@ -31,7 +32,7 @@ namespace Noise3D
 		N_RayHitInfo
 	{
 		N_RayHitInfoForPathTracer(GI::IGiRenderable* _pObj,
-			float _t, Vec3 _pos, Vec3 _normal, Vec2 _uv): N_RayHitInfo(_t, _pos, _normal,_uv),pHitObj(_pObj){}
+			float _t, Vec3 _pos, Vec3 _normal, Vec2 _uv, int _triangleIndex): N_RayHitInfo(_t, _pos, _normal,_uv, _triangleIndex),pHitObj(_pObj){}
 
 		N_RayHitInfoForPathTracer(GI::IGiRenderable* _pObj,
 			const N_RayHitInfo& e) :	N_RayHitInfo(e),pHitObj(_pObj){}

@@ -258,7 +258,7 @@ bool Noise3D::CollisionTestor::IntersectRayAabb(const N_Ray & ray, const N_AABB 
 			t_resultMin,//t
 			pos,//pos
 			LogicalBox::ComputeNormal(result_minHitFacetId),//normal
-			LogicalBox::ComputeUV(aabb,result_minHitFacetId, pos));//uv
+			LogicalBox::ComputeUV(aabb, result_minHitFacetId, pos));//uv
 		outHitRes.hitList.push_back(hitInfo);
 	}
 
@@ -610,6 +610,7 @@ bool Noise3D::CollisionTestor::IntersectRayMesh(const N_Ray & ray, Mesh * pMesh,
 		//delegate each ray-tri intersection task to another function
 		if (CollisionTestor::IntersectRayTriangle(localRay, v0, v1, v2, hitInfo))
 		{
+			hitInfo.triangleIndex = i;
 			outHitRes.hitList.push_back(hitInfo);
 		}
 	}
@@ -659,6 +660,7 @@ bool Noise3D::CollisionTestor::IntersectRayMeshWithBvh(const N_Ray & ray, Mesh *
 		//delegate each ray-tri intersection task to another function
 		if (CollisionTestor::IntersectRayTriangle(localRay, v0, v1, v2, hitInfo))
 		{
+			hitInfo.triangleIndex = triId;
 			outHitRes.hitList.push_back(hitInfo);
 		}
 	}
