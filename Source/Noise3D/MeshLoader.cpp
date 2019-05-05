@@ -442,6 +442,7 @@ void Noise3D::MeshLoader::LoadFile_FBX_PbrtMaterial(NFilePath filePath, N_SceneL
 				subset.pMat = pMatMgr->GetObjectPtr<GI::PbrtMaterial>(s.matName);
 				pbrtSubsetList.push_back(subset);
 			}
+			pMesh->SetPbrtMaterialSubset(pbrtSubsetList);
 		}
 		else
 		{
@@ -518,9 +519,9 @@ Texture2D * Noise3D::MeshLoader::_FbxLoadTexture(TextureManager* pTexMgr, std::s
 	if (!texName.empty())
 	{
 		//skip repeated map
-		if (!pTexMgr->ValidateTex2D(texName))return nullptr;
+		if (pTexMgr->ValidateTex2D(texName))return nullptr;
 
-		Texture2D* pTex = pTexMgr->CreateTextureFromFile(filePath, texName, true, 0, 0, false);
+		Texture2D* pTex = pTexMgr->CreateTextureFromFile(filePath, texName, true, 0, 0, true);
 
 		if (pTex == nullptr)
 		{

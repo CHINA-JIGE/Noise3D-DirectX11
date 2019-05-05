@@ -11,7 +11,17 @@
 
 using namespace Noise3D;
 
-void Noise3D::GI::PathTracerStandardShader::SetSkyType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type)
+Noise3D::GI::PathTracerStandardShader::PathTracerStandardShader():
+	mSkyLightMultiplier(1.0f)
+{
+}
+
+void Noise3D::GI::PathTracerStandardShader::SetSkyLightMultiplier(float multiplier)
+{
+	mSkyLightMultiplier = multiplier;
+}
+
+void Noise3D::GI::PathTracerStandardShader::SetSkyLightType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type)
 {
 	mSkyLightType = type;
 }
@@ -25,7 +35,7 @@ void Noise3D::GI::PathTracerStandardShader::SetSkyDomeTexture(Texture2D * pTex, 
 		{
 			GI::Texture2dSampler_Spherical sampler;
 			sampler.SetTexturePtr(pTex);
-			mShVecSky.Project(3, 10000, &sampler);
+			mShVecSky.Project(3, 5000, &sampler);
 		}
 	}
 }
@@ -39,7 +49,7 @@ void Noise3D::GI::PathTracerStandardShader::SetSkyBoxTexture(TextureCubeMap * pT
 		{
 			GI::CubeMapSampler sampler;
 			sampler.SetTexturePtr(pTex);
-			mShVecSky.Project(3, 10000, &sampler);
+			mShVecSky.Project(3, 5000, &sampler);
 		}
 	}
 }
@@ -122,6 +132,17 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 		return;
 	}
 
+	if (param.isSHEnvLight || mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC)
+	{
+		if (m_pSkyBoxTex != nullptr || m_pSkyDomeTex != nullptr)
+		{
+			Color4f skyColor = mShVecSky.Eval(param.ray.dir);
+			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			if (param.bounces != 0)in_out_payload.radiance *= mSkyLightMultiplier;
+			return;
+		}
+	}
+
 	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME)
 	{
 		if (m_pSkyDomeTex != nullptr)
@@ -130,6 +151,7 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 			sampler.SetTexturePtr(m_pSkyDomeTex);
 			Color4f skyColor = sampler.Eval(param.ray.dir);
 			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			if (param.bounces != 0)in_out_payload.radiance *= mSkyLightMultiplier;
 			return;
 		}
 	}
@@ -142,16 +164,7 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 			sampler.SetTexturePtr(m_pSkyBoxTex);
 			Color4f skyColor = sampler.Eval(param.ray.dir);
 			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
-			return;
-		}
-	}
-
-	if (mSkyLightType == NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC)
-	{
-		if (m_pSkyBoxTex != nullptr || m_pSkyDomeTex!=nullptr)
-		{
-			Color4f skyColor = mShVecSky.Eval(param.ray.dir);
-			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
+			if (param.bounces != 0)in_out_payload.radiance *= mSkyLightMultiplier;
 			return;
 		}
 	}
@@ -175,6 +188,9 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 
 	//additional sample for indirect diffuse lighting and perhaps SH-based env lighting
 	int indirectDiffuseSampleCount = _MaxDiffuseSample();
+
+	GI::PbrtMaterial* pMat = hitInfo.pHitObj->GetPbrtMaterial();
+	const GI::N_PbrtMatDesc& mat = pMat->GetDesc();
 
 	//1. diffuse direct lighting (seems there is no need....)
 	//GI::Radiance d_1;
@@ -276,7 +292,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateDiffuse(int sampleCount, c
 	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
 	//reduce sample counts as bounces grow
-	if (param.bounces > 1)
+	if (param.bounces > 0)
 		sampleCount = 1;
 	std::vector<Vec3> dirList;
 	std::vector<float> pdfList;//used by (possibly) importance sampling
@@ -302,6 +318,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateDiffuse(int sampleCount, c
 			//newParam.specularReflectionBounces = param.specularReflectionBounces + 1;
 			newParam.ray = sampleRay;
 			newParam.isShadowRay = false;
+			newParam.isSHEnvLight = true;
 			//newParam.isIndirectLightOnly = true;
 			IPathTracerSoftShader::_TraceRay(newParam, payload);
 
@@ -332,7 +349,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, 
 	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
 	//reduce sample counts as bounces grow
-	if (param.bounces >1)
+	if (param.bounces >0)
 		sampleCount = 1;
 	std::vector<Vec3> dirList;
 	std::vector<float> pdfList;//used by (possibly) importance sampling
@@ -365,6 +382,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, 
 			newParam.bounces = param.bounces + 1;
 			newParam.ray = sampleRay;
 			newParam.isShadowRay = false;
+			newParam.isSHEnvLight = false;
 			IPathTracerSoftShader::_TraceRay(newParam, payload);
 
 			//compute BxDF info (vary over space)
@@ -437,8 +455,8 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	if (mat.pRoughnessMap != nullptr)
 	{
 		Color4f roughnessSampled = mat.pRoughnessMap->SamplePixelBilinear(hitInfo.texcoord);
-		float roughnessMultiplier= 0.33333333f*(roughnessSampled.x + roughnessSampled.y + roughnessSampled.z);//convert the grey scale
-		roughness *= roughnessMultiplier;
+		float roughness_greyScale= 0.33333333f*(roughnessSampled.x + roughnessSampled.y + roughnessSampled.z);//convert the grey scale
+		roughness = roughness_greyScale;
 	}
 	float alpha = _RoughnessToAlpha(roughness);
 

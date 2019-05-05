@@ -20,9 +20,21 @@ public:
 
 	void LoadScene_Ironman(Camera * pCam);
 
+	void LoadScene_IronmanAndAvenger(Camera* pCam);
+
+	void LoadScene_IronmanCloseUp(Camera* pCam);
+
 	void LoadScene_Porsche(Camera * pCam);
 
 	void LoadScene_Buddha(Camera * pCam);
+
+	void SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
+
+	GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE GetSkyType();
+
+	void SetSkyLightMultiplier(float m);
+
+	float GetSkyLightMultiplier();
 
 private:
 
@@ -53,4 +65,8 @@ protected:
 	TextureManager*	m_pTexMgr;
 	LogicalShapeManager* m_pShapeMgr;
 	std::vector<Mesh*> mRealTimeRenderMeshList;
+
+	GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE mSkyLightType;
+
+	float mSkyLightMultiplier;
 };

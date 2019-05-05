@@ -69,6 +69,26 @@ GI::PbrtMaterial * Noise3D::Mesh::GetPbrtMaterial(int triangleId)
 			return s.pMat;
 		}
 	}
+	return nullptr;
+}
+
+void Noise3D::Mesh::SetPbrtMaterial(GI::PbrtMaterial * pMat)
+{
+	N_MeshPbrtSubsetInfo tmpSubset;
+	tmpSubset.startPrimitiveID = 0;
+	tmpSubset.primitiveCount = GeometryEntity::GetTriangleCount();//count of triangles
+	tmpSubset.pMat = pMat;
+
+	//because this SetMaterial aim to the entire mesh (all primitives) ,so
+	//previously-defined material will be wiped,and set to this material
+	mPbrtMatSubsetInfoList.clear();
+	mPbrtMatSubsetInfoList.push_back(tmpSubset);
+}
+
+GI::PbrtMaterial * Noise3D::Mesh::GetPbrtMaterial()
+{
+	if (mPbrtMatSubsetInfoList.empty())return nullptr;
+	return mPbrtMatSubsetInfoList.front().pMat;
 }
 
 N_AABB Noise3D::Mesh::ComputeWorldAABB_Accurate()

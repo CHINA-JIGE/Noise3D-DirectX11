@@ -259,8 +259,8 @@ void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode, N_FbxMeshInfo& outMeshI
 
 	//---------------------------MESH TRANSFORMATION--------------------------
 	//in 3dsmax export, 'Y axis up' and 'Z axis up' should be carefully processed
-	//to convert handness correctly
-	//对不起，忍不住说句中文了，这FBX文件的手性转换简直就是玄学吧？？
+	//to convert handness correctly.
+	//(2019.5.2) export settings in 3dsmax: Triangulate & Z-Axis up(right-handed in 3DMAX)
 	FbxVector4 pos4	= pNode->EvaluateLocalTranslation();
 	outMeshInfo.pos = Vec3(float(pos4.mData[0]), float(pos4.mData[2]),float(pos4.mData[1]));
 
@@ -280,11 +280,11 @@ void IFbxLoader::_ProcessSceneNode_Mesh(FbxNode * pNode, N_FbxMeshInfo& outMeshI
 	float rz = float(rotate4.mData[2]) / 180.0f *Ut::PI;
 	//float c1 = cosf(rz), c2 = cosf(ry), c3 = cosf(rz);
 	//float s1 = sinf(rz), s2 = sinf(ry), s3 = sinf(rz);
-	Matrix mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
-	
+	//Matrix mat = XMMatrixRotationRollPitchYaw(ry, rz, rx);//pitch, yaw, roll
+
 	//(2019.3.11)use AffineTransform to help decompose euler angle in ZXY
 	AffineTransform t;
-	t.SetRigidTransformMatrix(mat);
+	t.SetRotation(-rx, -rz, -ry);
 	Vec3 euler = t.GetEulerAngleZXY();
 	outMeshInfo.rotation = euler;
 	//(deprecated code)
@@ -993,7 +993,7 @@ void Noise3D::IFbxLoader::_PBRT_LoadMesh_Materials(FbxNode * pNode, std::vector<
 
 			// Roughness <-- Shininess  
 			FbxDouble shininess = ((FbxSurfacePhong*)pSurfaceMaterial)->Shininess;
-			basicMat.roughness = 1.0f - shininess / 100.0f;
+			basicMat.roughness = std::max<float>(1.0f - shininess / 1024.0f,0.0f);
 
 			//normal map bump intensity
 			//FbxDouble bumpFactor = ((FbxSurfacePhong*)pSurfaceMaterial)->BumpFactor;

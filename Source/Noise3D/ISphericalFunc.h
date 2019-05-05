@@ -25,12 +25,18 @@ namespace Noise3D
 		{
 		public:
 
+			Texture2dSampler_Spherical();
+
+			void SetFilterMode(bool isBilinear);
+
 			void SetTexturePtr(Texture2D* pTex);
 
 			//evaluate a spherical function value by sampling a texture
 			virtual Color4f Eval(const Vec3& dir) override;
 
 		private:
+
+			bool mIsBilinear;
 
 			Texture2D* m_pTex;
 		};

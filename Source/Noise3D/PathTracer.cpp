@@ -20,7 +20,8 @@ Noise3D::GI::PathTracer::PathTracer():
 	mTileWidth(16),
 	mTileHeight(16),
 	mIsRenderedFinished(false),
-	mLogExposurePreAmp(1.0f)
+	mLogExposurePreAmp(1.0f),
+	mAmbientRadiance(0,0,0)
 {
 	m_pCT = Noise3D::GetScene()->GetCollisionTestor();
 }
@@ -159,6 +160,11 @@ void Noise3D::GI::PathTracer::SetMaxBounces(uint32_t bounces)
 uint32_t Noise3D::GI::PathTracer::GetMaxBounces()
 {
 	return mMaxBounces;
+}
+
+void Noise3D::GI::PathTracer::SetAmbientRadiance(GI::Radiance r)
+{
+	mAmbientRadiance = r;
 }
 
 void Noise3D::GI::PathTracer::SetMaxDiffuseSampleCount(uint32_t sampleCount)
@@ -335,7 +341,13 @@ void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayP
 {
 	//initial bounces and travelled distance must remain in limit
 	if (param.bounces > int(PathTracer::GetMaxBounces()) ||
-		param.travelledDistance > PathTracer::GetRayMaxTravelDist())return;
+		param.travelledDistance > PathTracer::GetRayMaxTravelDist()) 
+	{
+		//sometimes our bounces are set low to reduce calculation time
+		//this is to compensate for the lost energy
+		out_payload.radiance = mAmbientRadiance;
+		return;
+	}
 
 	//intersect the ray with the scene and get results
 	N_RayHitResultForPathTracer hitResult;

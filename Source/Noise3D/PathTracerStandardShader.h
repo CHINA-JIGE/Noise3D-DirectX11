@@ -16,7 +16,11 @@ namespace Noise3D
 		{
 		public:
 
-			void SetSkyType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
+			PathTracerStandardShader();
+
+			void SetSkyLightMultiplier(float multiplier);
+
+			void SetSkyLightType(NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
 
 			void SetSkyDomeTexture(Texture2D* pTex, bool computeSH16 =true);
 
@@ -86,7 +90,7 @@ namespace Noise3D
 
 			SHVector mShVecSky;//SH vector of Env Lighting (env diffuse)
 			
-
+			float mSkyLightMultiplier;//radiance scale factor
 		};
 	}
 }

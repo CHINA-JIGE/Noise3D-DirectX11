@@ -33,6 +33,7 @@ namespace Noise3D
 				travelledDistance(0.0f), 
 				ray(N_Ray()),
 				isInsideObject(false),
+				isSHEnvLight(false),
 				skyLightType(SKY_DOME),
 				isIndirectLightOnly(false),
 				isShadowRay(false), 
@@ -42,6 +43,7 @@ namespace Noise3D
 			float travelledDistance;
 			N_Ray ray;//which ray is tracing
 			bool isInsideObject;//for refraction/transmission
+			bool isSHEnvLight;
 			NOISE_PATH_TRACER_SKYLIGHT_TYPE skyLightType;//might be used by Miss shader.
 			bool isShadowRay;//for local lighting/area lighting
 			bool isIndirectLightOnly;//for only indirect
@@ -82,6 +84,8 @@ namespace Noise3D
 			void SetMaxBounces(uint32_t bounces);
 
 			uint32_t GetMaxBounces();
+
+			void SetAmbientRadiance(GI::Radiance r);//when TraceRay() reach max bounce, what color should it return.
 
 			//BxDF's max sample count
 			void SetMaxDiffuseSampleCount(uint32_t sampleCount);
@@ -182,6 +186,9 @@ namespace Noise3D
 
 			//log exposure
 			float mLogExposurePreAmp;
+
+			//returned radiance when reach max bounces
+			GI::Radiance mAmbientRadiance;
 		};
 	}
 }

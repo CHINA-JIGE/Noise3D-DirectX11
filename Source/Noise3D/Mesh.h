@@ -59,6 +59,11 @@ namespace Noise3D
 
 		GI::PbrtMaterial*	GetPbrtMaterial(int triangleId);//unlike rasterization, getting the whole subset list is unnecessary
 
+		virtual void	SetPbrtMaterial(GI::PbrtMaterial* pMat) override;//apply PBRT material to the whole mesh
+
+		virtual GI::PbrtMaterial* GetPbrtMaterial() override;//return PBRT material of first subset
+
+		//SceneObject
 		virtual N_AABB ComputeWorldAABB_Accurate() override;
 
 		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType()const override;

@@ -117,10 +117,10 @@ Color4f Noise3D::Texture2D::SamplePixelBilinear(Vec2 texcoord) const
 	{
 		float px_f = texcoord.x * float(mWidth);
 		float py_f = texcoord.y * float(mHeight);
-		uint32_t px = uint32_t(px_f);
-		uint32_t py = uint32_t(py_f);
+		int px = int(px_f);
+		int py = int(py_f);
 
-		uint32_t pixelId[4] =
+		int pixelId[4] =
 		{
 			((py) % mHeight) *mWidth + ((px) % mWidth),
 			((py+1) % mHeight) *mWidth + ((px) % mWidth),
@@ -132,16 +132,19 @@ Color4f Noise3D::Texture2D::SamplePixelBilinear(Vec2 texcoord) const
 		for (int i = 0; i < 4; ++i)
 		{
 			const Color4u& c = mPixelBuffer.at(pixelId[i]);
-			pixels[i] = Color4f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+			pixels[i] = Color4f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, 1.0f);
 		}
 
 		//bilinear interpolation's uv within these 4 pixels
 		float local_u = px_f - float(px);
 		float local_v = py_f - float(py);
+		if (px < 0)local_u = -local_u;
+		if (py < 0)local_v = -local_v;
 
 		Color4f tmp1 = XMVectorLerp(pixels[0],pixels[2],local_u) ;
 		Color4f tmp2 = XMVectorLerp(pixels[1], pixels[3], local_u);
 		Color4f result = XMVectorLerp(tmp1, tmp2, local_v);
+
 		return result;
 	}
 	else

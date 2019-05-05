@@ -71,9 +71,12 @@ void RealTimeRenderModule::_InitScene()
 	//SceneLoader::LoadScene_RefractionDemo(m_pCamera);
 	//SceneLoader::LoadScene_AreaLightingDemo(m_pCamera);
 	//SceneLoader::LoadScene_StandardShader(m_pCamera);
-	SceneLoader::LoadScene_Mesh(m_pCamera);
+	//SceneLoader::LoadScene_Mesh(m_pCamera);
 	//SceneLoader::LoadScene_Porsche(m_pCamera);
 	//SceneLoader::LoadScene_Buddha(m_pCamera);
+	//SceneLoader::LoadScene_Ironman(m_pCamera);
+	SceneLoader::LoadScene_IronmanAndAvenger(m_pCamera);
+	//SceneLoader::LoadScene_IronmanCloseUp(m_pCamera);
 }
 
 void RealTimeRenderModule::_InitAtmos()

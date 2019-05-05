@@ -20,7 +20,8 @@ void SceneLoader::LoadScene_Mesh(Camera * pCam)
 	//_LoadMeshSTL(sg, "../media/model/sphere.stl",Vec3(0,0,0),"centerBall");
 	//_LoadMeshOBJ(sg, "../media/model/Porsche_911_GT2_v3.obj", Vec3(0, 0, 0), "centerBall");
 	N_SceneLoadingResult res;
-	_LoadMeshFBX(sg, "../media/model/geoScene-fbx/geometries2.FBX", res);
+	//_LoadMeshFBX(sg, "../media/model/geoScene-fbx/geometries2.FBX", res);
+	_LoadMeshFBX(sg, "../media/model/ironman/ironman.FBX", res);
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -128,6 +129,115 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	pCam->LookAt(0, 0, 0);
 }
 
+void SceneLoader::LoadScene_Ironman(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	N_SceneLoadingResult res;
+	_LoadMeshFBX(sg, "../media/model/ironman/ironman.FBX", res);
+	//_LoadMeshFBX(sg, "../media/model/ironman/ironman-upper.FBX", res);
+
+	/*GI::PbrtMaterial* pGroundMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("IRONMAN_GROUND");
+	pGroundMat->SetEmission(Vec3(0.0f, 0.0f, 0.0f));
+	pGroundMat->SetAlbedo(Color4f(0.7f, 0.7f, 0.7f, 0.7f));
+	pGroundMat->SetMetallicity(0.0f);
+	pGroundMat->SetRoughness(0.1f);*/
+
+
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("IRONMAN_EMISSIVE");
+	pMat->SetEmission(Vec3(10.0f, 10.0f, 10.0f));
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.3f;
+		desc.metallicity = 0.1f;
+		m_pMatMgr->CreateAdvancedMaterial("IRONMAN_GROUND", desc);
+	}
+
+	//sky texture
+	//m_pTexMgr->CreateTextureFromFile("../media/black2.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+
+
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, -37, 0), Vec2(200.0f, 200.0f), "IRONMAN_GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-0.0f, 10, -75.0f);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(2.0f);
+}
+
+void SceneLoader::LoadScene_IronmanAndAvenger(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	N_SceneLoadingResult res;
+	_LoadMeshFBX(sg, "../media/model/ironman/avenger-ironman-helmet.FBX", res);
+
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("AvengerText");
+	pMat->SetEmission(Vec3(3.0f, 3.5f, 4.0f));
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.0f;
+		m_pMatMgr->CreateAdvancedMaterial("IRONMAN_GROUND", desc);
+	}
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/black.jpg", "envmap", true, 0, 0, true);
+
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "IRONMAN_GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-0.0f, 10, -75.0f);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+}
+
+void SceneLoader::LoadScene_IronmanCloseUp(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	N_SceneLoadingResult res;
+	_LoadMeshFBX(sg, "../media/model/ironman/ironman-upper.FBX", res);
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/black3.jpg", "envmap", true, 0, 0, true);
+
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("IRONMAN_EMISSIVE");
+	pMat->SetEmission(Vec3(10.0f, 10.0f, 10.0f));
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-0.0f, 7, -28.0f);
+	pCam->LookAt(0, 7.5, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(5.0f);
+}
+
+
 void SceneLoader::LoadScene_Porsche(Camera * pCam)
 {
 	SceneGraph& sg = m_pScene->GetSceneGraph();
@@ -175,6 +285,9 @@ void SceneLoader::LoadScene_Porsche(Camera * pCam)
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
 	pCam->GetWorldTransform().SetPosition(-40.0f, 20.0f, -50.0f);
 	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
 }
 
 void SceneLoader::LoadScene_Buddha(Camera * pCam)
@@ -212,7 +325,31 @@ void SceneLoader::LoadScene_Buddha(Camera * pCam)
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
 	pCam->GetWorldTransform().SetPosition(-20.0f, 30.0f, -50.0f);
 	pCam->LookAt(0, 10.0f, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
 }
+
+void SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type)
+{
+	mSkyLightType = type;
+}
+
+GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE SceneLoader::GetSkyType()
+{
+	return mSkyLightType;
+}
+
+void SceneLoader::SetSkyLightMultiplier(float m)
+{
+	mSkyLightMultiplier = m;
+}
+
+float SceneLoader::GetSkyLightMultiplier()
+{
+	return mSkyLightMultiplier;
+}
+
 
 //---------------------------------------
 

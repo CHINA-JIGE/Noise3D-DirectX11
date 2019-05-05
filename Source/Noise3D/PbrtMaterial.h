@@ -118,9 +118,9 @@ namespace Noise3D
 		public:
 
 			//(2019.4.5)material for GI renderer, for now doesn't support multiple GI mat for one mesh
-			void	SetPbrtMaterial(GI::PbrtMaterial* pMat);
+			virtual void	SetPbrtMaterial(GI::PbrtMaterial* pMat);
 
-			GI::PbrtMaterial* GetPbrtMaterial();
+			virtual GI::PbrtMaterial* GetPbrtMaterial();
 
 		protected:
 
