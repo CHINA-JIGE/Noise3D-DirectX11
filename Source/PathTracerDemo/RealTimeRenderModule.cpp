@@ -80,7 +80,8 @@ void RealTimeRenderModule::_InitScene()
 	//SceneLoader::LoadScene_ShieldAndAvenger(m_pCamera);
 	//SceneLoader::LoadScene_Boxes(m_pCamera);
 	//SceneLoader::LoadScene_M4A1(m_pCamera);
-	SceneLoader::LoadScene_Dragon(m_pCamera);
+	//SceneLoader::LoadScene_Dragon(m_pCamera);
+	SceneLoader::LoadScene_MicrofacetTransmissionTest(m_pCamera);
 
 }
 

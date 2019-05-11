@@ -18,6 +18,8 @@ public:
 
 	void LoadScene_StandardShader(Camera * pCam);
 
+	void LoadScene_MicrofacetTransmissionTest(Camera * pCam);
+
 	void LoadScene_Ironman(Camera * pCam);
 
 	void LoadScene_IronmanAndAvenger(Camera* pCam);

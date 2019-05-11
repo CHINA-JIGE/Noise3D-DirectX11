@@ -93,9 +93,8 @@ float Noise3D::GI::BxdfUt::D_GGX(Vec3 n, Vec3 h, float alpha)
 	//(2019.4.23)be warned that when alpha-->0, the peak of GGX goes infinitely high
 	//but the integral of D(h) over hemisphere will always be 1
 	float alpha2 = std::max<float>(alpha*alpha,0.001f);
-	//float alpha2 = alpha * alpha;
 	float NdotH = n.Dot(h);
-	if (NdotH <= 0.0f)return 0.0f;
+	//if (NdotH <= 0.0f)return 0.0f;
 	float denominator = std::max<float>(((NdotH *NdotH) * (alpha2 - 1.0f) + 1.0f),std::numeric_limits<float>::epsilon());
 	float denominator2 = denominator * denominator * Ut::PI;
 	float D = std::min<float>(alpha2 / denominator2, BxdfUt::D_GGX_SingularityMaxValue());
@@ -113,7 +112,7 @@ float Noise3D::GI::BxdfUt::D_Beckmann(Vec3 n, Vec3 h, float alpha)
 {
 	//Ref: [Walter07][Beckmann63] NDF
 	float NdotH = n.Dot(h);
-	if (NdotH <= 0.0f)return 0.0f;
+	//if (NdotH <= 0.0f)return 0.0f;
 	float NdotH2 = NdotH * NdotH;
 	float NdotH4 = NdotH2 * NdotH2;
 	float alpha2 = alpha * alpha;
@@ -132,13 +131,13 @@ float Noise3D::GI::BxdfUt::G_SmithGGX(Vec3 l, Vec3 v, Vec3 n, float alpha)
 
 	//G1
 	float NdotV = n.Dot(v);
-	if (NdotV <= 0.0f)return 0.0f;
+	//if (NdotV <= 0.0f)return 0.0f;
 	float denom1 = NdotV + sqrtf(alpha2 + (1.0f - alpha2)*(NdotV * NdotV));
 	float G1 = 2.0f * NdotV / denom1;
 
 	//G2
 	float NdotL = n.Dot(l);
-	if (NdotL <= 0.0f)return 0.0f;
+	//if (NdotL <= 0.0f)return 0.0f;
 	float denom2 = NdotL + sqrtf(alpha2 + (1.0f - alpha2)*(NdotL*NdotL));
 	if (denom2 == 0.0f)
 	{

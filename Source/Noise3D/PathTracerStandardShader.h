@@ -35,7 +35,8 @@ namespace Noise3D
 			{
 				BxDF_LightTransfer_Diffuse = 0x00000001,
 				BxDF_LightTransfer_Specular = 0x00000002,
-				BxDF_LightTransfer_Transmission = 0x00000004
+				BxDF_LightTransfer_Transmission_PathAirToObject = 0x00000004,
+				BxDF_LightTransfer_Transmission_PathObjectToAir = 0x00000008
 			};
 
 			struct BxdfInfo
@@ -69,7 +70,7 @@ namespace Noise3D
 			void _IntegrateSpecular(int samplesCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance& outReflection);
 
 			//eval a BxDF and its coefficients given light transfer type
-			void _CalculateBxDF(uint32_t lightTransferType, Vec3 lightDir, Vec3 viewDir, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo);
+			void _CalculateBxDF(uint32_t lightTransferType, Vec3 lightDir, Vec3 viewDir, Vec3 halfVector, const N_RayHitInfoForPathTracer & hitInfo, BxdfInfo& outBxdfInfo);
 
 			Vec3 _DiffuseBRDF(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float alpha);
 
@@ -78,7 +79,7 @@ namespace Noise3D
 
 			float _SpecularReflectionBrdfDividedByD(Vec3 l, Vec3 v, Vec3 n, float G);
 
-			float _SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, float D, float G);//microfacet refraction/transmission
+			float _SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, Vec3 h, float D, float G, float eta_i, float eta_o);//microfacet based transmission, eta for IOR
 
 			float _RoughnessToAlpha(float r);
 

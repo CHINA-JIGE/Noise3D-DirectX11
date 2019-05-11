@@ -127,6 +127,45 @@ void SceneLoader::LoadScene_StandardShader(Camera * pCam)
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
 	pCam->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
 	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+}
+
+void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 1024, 512, true);
+
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.01f;
+		desc.metallicity = 0.0f;
+		desc.transparency = 1.0f;
+		desc.ior = 1.00001f;
+		m_pMatMgr->CreateAdvancedMaterial("ROUGH_GLASS", desc);
+	}
+
+	//_LoadBox(sg, Vec3(0, 0, 0), Vec3(30.0f, 30.0f, 30.0f), "ROUGH_GLASS");
+	//_LoadBox(sg, Vec3(-80.0f, 20.0f, 3.0f), Vec3(30.0f, 30.0f, 30.0f), "ROUGH_GLASS");
+	_LoadSphere(sg, Vec3(0, 0, 0), 30.0f, "ROUGH_GLASS");
+	//_LoadSphere(sg, Vec3(0, 35, 0), 30.0f, "box");
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
 }
 
 void SceneLoader::LoadScene_Ironman(Camera * pCam)
