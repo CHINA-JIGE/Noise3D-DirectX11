@@ -189,6 +189,10 @@ void SceneLoader::LoadScene_IronmanAndAvenger(Camera * pCam)
 	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("AvengerText");
 	pMat->SetEmission(Vec3(3.0f, 3.5f, 4.0f));
 
+	GI::PbrtMaterial* pMat2 = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("IRONMAN_EMISSIVE");
+	pMat2->SetEmission(Vec3(5.0f, 5.5f, 6.0f));
+
+
 	{
 		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -203,13 +207,14 @@ void SceneLoader::LoadScene_IronmanAndAvenger(Camera * pCam)
 	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
 	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "IRONMAN_GROUND");
 
-	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewAngle_Radian(Ut::PI * 0.25f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
-	pCam->GetWorldTransform().SetPosition(-0.0f, 10, -75.0f);
-	pCam->LookAt(0, 0, 0);
+	pCam->GetWorldTransform().SetPosition(-0.0f, 10, -90.0f);
+	pCam->LookAt(0, 10, 0);
 
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC);
-	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightMultiplier(3.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(1.0f, 1.0f, 1.0f));
 }
 
 void SceneLoader::LoadScene_IronmanCloseUp(Camera * pCam)
@@ -220,13 +225,13 @@ void SceneLoader::LoadScene_IronmanCloseUp(Camera * pCam)
 	_LoadAdvancedMaterials();
 
 	N_SceneLoadingResult res;
-	_LoadMeshFBX(sg, "../media/model/ironman/ironman-upper.FBX", res);
+	_LoadMeshFBX(sg, "../media/model/ironman/ironman-EVIL.FBX", res);
 
 	//sky texture
-	m_pTexMgr->CreateTextureFromFile("../media/black3.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap9.jpg", "envmap", true, 0, 0, true);
 
 	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("IRONMAN_EMISSIVE");
-	pMat->SetEmission(Vec3(10.0f, 10.0f, 10.0f));
+	pMat->SetEmission(Vec3(10.0f, 0.3f, 0.3f));
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -234,11 +239,52 @@ void SceneLoader::LoadScene_IronmanCloseUp(Camera * pCam)
 	pCam->LookAt(0, 7.5, 0);
 
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
-	SceneLoader::SetSkyLightMultiplier(5.0f);
+	SceneLoader::SetSkyLightMultiplier(4.0f);
+}
+
+void SceneLoader::LoadScene_ShieldAndAvenger(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	N_SceneLoadingResult res;
+	_LoadMeshFBX(sg, "../media/model/ironman/avenger-shield.FBX", res);
+
+	GI::PbrtMaterial* pMat = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("AvengerText");
+	pMat->SetEmission(Vec3(3.0f, 3.5f, 4.0f));
+
+	GI::PbrtMaterial* pMat2 = m_pMatMgr->GetObjectPtr<GI::PbrtMaterial>("STAR");
+	pMat2->SetEmission(Vec3(2.0f, 2.0f, 2.0f));
+
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.0f;
+		m_pMatMgr->CreateAdvancedMaterial("IRONMAN_GROUND", desc);
+	}
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/black.jpg", "envmap", true, 0, 0, true);
+
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "IRONMAN_GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI * 0.25f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-0.0f, 10, -90.0f);
+	pCam->LookAt(0, 10, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SPHERICAL_HARMONIC);
+	SceneLoader::SetSkyLightMultiplier(3.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(1.0f, 1.0f, 1.0f));
 }
 
 
-void SceneLoader::LoadScene_Porsche(Camera * pCam)
+void SceneLoader::LoadScene_GoldenPorsche(Camera * pCam)
 {
 	SceneGraph& sg = m_pScene->GetSceneGraph();
 	_LoadTextures();
@@ -297,6 +343,7 @@ void SceneLoader::LoadScene_Buddha(Camera * pCam)
 	_LoadLambertMaterials();
 
 	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/emerald.jpg", "emerald", true, 0, 0, true);
 	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
 
 	{
@@ -330,14 +377,153 @@ void SceneLoader::LoadScene_Buddha(Camera * pCam)
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 }
 
+void SceneLoader::LoadScene_M4A1(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+
+	// texture
+	m_pTexMgr->CreateTextureFromFile("../media/wood2.jpg", "wood", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap8.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(0.1f, 0.1f, 0.1f, 1.0f);
+		desc.roughness = 0.4f;
+		desc.metallicity = 0.6f;
+		desc.metal_F0 = Vec3(1.0f, 1.0f, 1.0f);
+		//desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("jade");
+		m_pMatMgr->CreateAdvancedMaterial("M4A1", desc);
+	}
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.roughness = 0.3f;
+		desc.metallicity = 0.0f;
+		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
+		m_pMatMgr->CreateAdvancedMaterial("GROUND", desc);
+	}
+
+	Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/M4A1.obj", Vec3(0, 0, 0), "M4A1");
+	//Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/buddha-v2.obj", Vec3(0, 0, 0), "BUDDHA");
+	pMesh->GetAttachedSceneNode()->GetLocalTransform().SetScale(0.5f, 0.5f, 0.5f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, -30, 0), Vec2(200.0f, 200.0f), "GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-60.0f, 50.0f, -100.0f);
+	pCam->LookAt(0, 10.0f, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+}
+
+void SceneLoader::LoadScene_Dragon(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+
+	// texture
+	m_pTexMgr->CreateTextureFromFile("../media/jade.jpg", "jade", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/wood2.jpg", "wood", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap8.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.roughness = 0.3f;
+		desc.metallicity = 1.0f;
+		//desc.metal_F0 = Vec3(1.0f, 0.95f, 0.5f);//golden
+		desc.metal_F0 = Vec3(1.0f, 0.97f, 0.95f);
+		//desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
+		m_pMatMgr->CreateAdvancedMaterial("DRAGON", desc);
+	}
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.0f;
+		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
+		m_pMatMgr->CreateAdvancedMaterial("GROUND", desc);
+	}
+
+	Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/Dragon.obj", Vec3(0, 0, 0), "DRAGON");
+	//_LoadSphere(sg, Vec3(0, 0, 0), 20.0f, "DRAGON");
+	//	Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/buddha-v2.obj", Vec3(0, 0, 0), "BUDDHA");
+	pMesh->GetAttachedSceneNode()->GetLocalTransform().SetScale(1.0f, 1.0f, 1.0f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0.0f, 10.0f, -16.0f);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_Boxes(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+
+
+	//sky texture
+	//m_pTexMgr->CreateTextureFromFile("../media/black2.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap2.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.1f;
+		desc.metallicity = 0.1f;
+		m_pMatMgr->CreateAdvancedMaterial("GROUND", desc);
+	}
+
+	const float c_totalWidth = 400.0f;
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(c_totalWidth, c_totalWidth), "GROUND");
+
+	//load common boxes
+	for (int i = 0; i < 75; ++i)
+	{
+		GI::RandomSampleGenerator g;
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(g.CanonicalReal(), g.CanonicalReal(), g.CanonicalReal(), 1.0f);
+		desc.roughness = g.CanonicalReal() * 0.4f;
+		desc.metallicity = 0.0f;
+
+		m_pMatMgr->CreateAdvancedMaterial("BOX"+ std::to_string(i), desc);
+		float boxWidth = g.CanonicalReal()*30.0f + 5.0f;
+		LogicalBox* pBox = _LoadBox(
+			sg,
+			Vec3(c_totalWidth / 2.0f*g.NormalizedReal(), boxWidth / 2.0f, c_totalWidth / 2.0f*g.NormalizedReal()),
+			Vec3(boxWidth, boxWidth, boxWidth),
+			"BOX" + std::to_string(i));
+		pBox->GetAttachedSceneNode()->GetLocalTransform().Rotate(0, 2.0f * Ut::PI *g.CanonicalReal() , 0);
+	}
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(200.0f, 100, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(2.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
 void SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type)
 {
 	mSkyLightType = type;
-}
-
-GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE SceneLoader::GetSkyType()
-{
-	return mSkyLightType;
 }
 
 void SceneLoader::SetSkyLightMultiplier(float m)
@@ -345,10 +531,12 @@ void SceneLoader::SetSkyLightMultiplier(float m)
 	mSkyLightMultiplier = m;
 }
 
-float SceneLoader::GetSkyLightMultiplier()
+
+void SceneLoader::SetAmbientRadiance(GI::Radiance r)
 {
-	return mSkyLightMultiplier;
+	mAmbientRadiance = r;
 }
+
 
 
 //---------------------------------------
@@ -360,7 +548,6 @@ void SceneLoader::_LoadTextures()
 	//pTexMgr->CreateCubeMapFromDDS("../media/CubeMap/cube-room.dds", "Universe", FALSE);
 	m_pTexMgr->CreateTextureFromFile("../media/noise3d.png", "BottomRightTitle", true, 0, 0, false);
 	//m_pTexMgr->CreateTextureFromFile("../media/cathedral.jpg", "envmap", false, 1024, 512, true);
-	//m_pTexMgr->CreateTextureFromFile("../media/emerald.jpg", "emerald", true, 0, 0, true);
 }
 
 void SceneLoader::_LoadLambertMaterials()
@@ -463,7 +650,7 @@ void SceneLoader::_LoadSphere(SceneGraph& sg, Vec3 pos, float radius, N_UID matU
 	mRealTimeRenderMeshList.push_back(pMeshSphere);
 }
 
-void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size, N_UID matUid)
+LogicalBox* SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size, N_UID matUid)
 {
 	static int id = 0;
 	id++;
@@ -482,6 +669,7 @@ void SceneLoader::_LoadBox(SceneGraph& sg, Vec3 pos, Vec3 size, N_UID matUid)
 	if (pMat != nullptr)pBox->SetPbrtMaterial(pMat);
 
 	mRealTimeRenderMeshList.push_back(pMeshBox);
+	return pBox;
 }
 
 void SceneLoader::_LoadRect(SceneGraph & sg, NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size, N_UID matUid)

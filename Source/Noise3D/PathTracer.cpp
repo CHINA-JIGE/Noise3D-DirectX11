@@ -327,7 +327,11 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 
 			//set one pixel at a time 
 			//(it's ok, one pixel is not easy to evaluate, setpixel won't be a big overhead)
-			Color4f tmpColor = Color4f(payload.radiance.x, payload.radiance.y, payload.radiance.z, 1.0f);
+			Color4f tmpColor = Color4f(
+				std::max<float>(payload.radiance.x, 0.0f), 
+				std::max<float>(payload.radiance.y, 0.0f), 
+				std::max<float>(payload.radiance.z, 0.0f), 
+				1.0f);
 			mHdrRenderTarget.at(globalPixelY * totalWidth + globalPixelX) = tmpColor;
 
 			//(2019.4.19)log exposure to remap hdr(?) (perhaps tone mapping later)

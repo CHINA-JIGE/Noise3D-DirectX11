@@ -148,6 +148,7 @@ void Noise3D::GI::PathTracerStandardShader::Miss(const N_TraceRayParam & param, 
 		if (m_pSkyDomeTex != nullptr)
 		{
 			Texture2dSampler_Spherical sampler;
+			if (param.bounces == 0)	sampler.SetFilterMode(true);
 			sampler.SetTexturePtr(m_pSkyDomeTex);
 			Color4f skyColor = sampler.Eval(param.ray.dir);
 			in_out_payload.radiance = GI::Radiance(skyColor.R(), skyColor.G(), skyColor.B());
@@ -360,7 +361,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, 
 	Vec3 n = hitInfo.normal;
 	Vec3 v = -param.ray.dir;//view vector
 	v.Normalize();
-	g.GGXImportanceSampling_Hemisphere(reflectedDir,v, n, alpha, sampleCount, dirList, pdfList);
+	g.GGXImportanceSampling_Hemisphere(reflectedDir, v, n, alpha, sampleCount, dirList, pdfList);
 
 	for (int i = 0; i < sampleCount; ++i)
 	{

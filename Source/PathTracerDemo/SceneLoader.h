@@ -24,17 +24,26 @@ public:
 
 	void LoadScene_IronmanCloseUp(Camera* pCam);
 
-	void LoadScene_Porsche(Camera * pCam);
+	void LoadScene_ShieldAndAvenger(Camera* pCam);
+
+	void LoadScene_GoldenPorsche(Camera * pCam);
+
+	void LoadScene_Lamborghini(Camera * pCam);
 
 	void LoadScene_Buddha(Camera * pCam);
 
-	void SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
+	void LoadScene_M4A1(Camera * pCam);
 
-	GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE GetSkyType();
+	void LoadScene_Dragon(Camera * pCam);
+
+	void LoadScene_Boxes(Camera * pCam);
+
+
+	void SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
 
 	void SetSkyLightMultiplier(float m);
 
-	float GetSkyLightMultiplier();
+	void SetAmbientRadiance(GI::Radiance r);
 
 private:
 
@@ -46,7 +55,7 @@ private:
 
 	void _LoadSphere(SceneGraph& sg,Vec3 pos, float radius, N_UID matUid);
 
-	void _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size, N_UID matUid);
+	LogicalBox* _LoadBox(SceneGraph& sg,Vec3 pos, Vec3 size, N_UID matUid);
 
 	void _LoadRect(SceneGraph& sg,NOISE_RECT_ORIENTATION ori, Vec3 pos, Vec2 size, N_UID matUid);
 
@@ -67,6 +76,6 @@ protected:
 	std::vector<Mesh*> mRealTimeRenderMeshList;
 
 	GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE mSkyLightType;
-
 	float mSkyLightMultiplier;
+	GI::Radiance mAmbientRadiance;
 };

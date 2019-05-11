@@ -83,18 +83,18 @@ void MainApp::InitCmdLine(std::string cmdLine)
 
 void MainApp::_InitPathTracer()
 {
-	m_pPathTracer = m_pScene->CreatePathTracer(80, 60);
+	m_pPathTracer = m_pScene->CreatePathTracer(1600, 1200);
 	m_pPathTracerRenderTarget = m_pPathTracer->GetRenderTarget();
-	m_pPathTracer->SetMaxBounces(1);
+	m_pPathTracer->SetMaxBounces(4);
 	m_pPathTracer->SetMaxDiffuseSampleCount(32);
-	m_pPathTracer->SetMaxSpecularScatterSample(64);
+	m_pPathTracer->SetMaxSpecularScatterSample(128);
 	m_pPathTracer->SetRayMaxTravelDist(100000.0f);
 	m_pPathTracer->SetExposure(3.0f);
 	//m_pPathTracer->SetAmbientRadiance({ 0.8f, 0.9f, 1.0f });
-	m_pPathTracer->SetAmbientRadiance({ 1.0f, 1.0f, 1.0f });
 
-	mPathTracerShader_Standard.SetSkyLightType(SceneLoader::GetSkyType());
-	mPathTracerShader_Standard.SetSkyLightMultiplier(SceneLoader::GetSkyLightMultiplier());
+	m_pPathTracer->SetAmbientRadiance(SceneLoader::mAmbientRadiance);
+	mPathTracerShader_Standard.SetSkyLightType(SceneLoader::mSkyLightType);
+	mPathTracerShader_Standard.SetSkyLightMultiplier(SceneLoader::mSkyLightMultiplier);
 }
 
 void MainApp::_InitGraphicsObjectOfPreviewRender()

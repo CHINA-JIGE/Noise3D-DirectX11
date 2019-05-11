@@ -299,7 +299,6 @@ bool Noise3D::CollisionTestor::IntersectRayRect(const N_Ray & ray, LogicalRect *
 	Vec3 normal2 = Vec3(0, 0, 0);
 	Vec3 pos = Vec3(0, 0, 0);
 	const Vec2 halfSize = pRect->GetSize()/2.0f;
-	const Vec2 uv = pRect->ComputeUV(pos);
 
 	switch (pRect->GetOrientation())
 	{
@@ -362,6 +361,7 @@ bool Noise3D::CollisionTestor::IntersectRayRect(const N_Ray & ray, LogicalRect *
 	if (result_t < ray.t_min || result_t > ray.t_max)return false;
 
 	//output local hit info (generate 2 intersection with opposite normal
+	const Vec2 uv = pRect->ComputeUV(pos);
 	N_RayHitInfo hitInfo1(result_t, pos, normal1, uv);
 	N_RayHitInfo hitInfo2(result_t, pos, normal2, uv);
 
