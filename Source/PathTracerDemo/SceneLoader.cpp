@@ -146,18 +146,19 @@ void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
 	{
 		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.01f;
+		desc.roughness = 0.0f;
 		desc.metallicity = 0.0f;
 		desc.transparency = 1.0f;
-		desc.ior = 1.00001f;
+		desc.ior = 1.01f;
 		m_pMatMgr->CreateAdvancedMaterial("ROUGH_GLASS", desc);
 	}
 
 	//_LoadBox(sg, Vec3(0, 0, 0), Vec3(30.0f, 30.0f, 30.0f), "ROUGH_GLASS");
-	//_LoadBox(sg, Vec3(-80.0f, 20.0f, 3.0f), Vec3(30.0f, 30.0f, 30.0f), "ROUGH_GLASS");
-	_LoadSphere(sg, Vec3(0, 0, 0), 30.0f, "ROUGH_GLASS");
+	//_LoadBox(sg, Vec3(0, 0, 0), Vec3(80.0f, 80.0f, 80.0f), "ROUGH_GLASS");
+	//_LoadSphere(sg, Vec3(0, 0, 0), 80.0f, "ROUGH_GLASS");
 	//_LoadSphere(sg, Vec3(0, 35, 0), 30.0f, "box");
 	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ROUGH_GLASS");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
@@ -166,6 +167,7 @@ void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
 
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(1.0f,0,0));
 }
 
 void SceneLoader::LoadScene_Ironman(Camera * pCam)

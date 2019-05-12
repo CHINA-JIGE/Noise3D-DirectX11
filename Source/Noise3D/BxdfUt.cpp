@@ -13,6 +13,7 @@ Vec3 Noise3D::GI::BxdfUt::SchlickFresnel_Vec3(Vec3 F0, Vec3 v, Vec3 h)
 {
 	//v:view, l:light, n:normal, h:half vector, alpha:roughness^2
 	//F = F0 + (1-F0)(1-(v dot H))^5
+	float VdotH = v.Dot(h);
 	float OneMinusCos = 1.0f - Ut::Clamp(v.Dot(h), 0.0f, 1.0f);
 	float OneMinusCos2 = OneMinusCos * OneMinusCos;
 	Vec3 F = F0 + (Vec3(1.0f, 1.0f, 1.0f) - F0) * OneMinusCos2 * OneMinusCos2 *OneMinusCos;
@@ -159,12 +160,12 @@ float Noise3D::GI::BxdfUt::G_SmithSchlickGGX(Vec3 l, Vec3 v, Vec3 n, float alpha
 	float k = alpha / 2.0f;
 
 	//G(v)
-	float NdotV = n.Dot(v);
+	float NdotV = abs(n.Dot(v));
 	float denom1 = NdotV * (1.0f - k) + k;
 	float G1 = NdotV / denom1;
 
 	//G(l)
-	float NdotL = n.Dot(l);
+	float NdotL = abs(n.Dot(l));
 	float denom2 = NdotL * (1.0f - k) + k;
 	float G2 = NdotL / denom2;
 
@@ -216,4 +217,19 @@ float Noise3D::GI::BxdfUt::G_SmithBeckmann(Vec3 l, Vec3 v, Vec3 n, float alpha)
 float Noise3D::GI::BxdfUt::CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D, float G)
 {
 	return (D*G) / (4.0f*(v.Dot(n))*(l.Dot(n)));
+}
+
+Vec3 Noise3D::GI::BxdfUt::ComputeHalfVectorForRefraction(Vec3 inVec, Vec3 outVec, float eta_i, float eta_o, Vec3 n)
+{
+	//NOTE: inVec and outVec are approximately the same direction
+	//normal points to medium with lower IOR(i.e. air)
+	Vec3 h_t = eta_i * inVec - eta_o * outVec;
+	if (h_t.LengthSquared() < 0.01f)
+	{
+		//if ior are close to 1, then h_t will be almost a zero vector
+		//and will cause huge numerical error
+		h_t = (eta_i < eta_o ? n: -n);
+	}
+	if (h_t != Vec3(0, 0, 0)) h_t.Normalize();
+	return h_t;
 }

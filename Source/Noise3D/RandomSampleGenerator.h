@@ -53,7 +53,10 @@ namespace Noise3D
 			void RectShadowRays(Vec3 pos, LogicalRect* pRect, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 			//GGX NDF importance sampling(n=normal, v=view)
-			void GGXImportanceSampling_Hemisphere(Vec3 l_center, Vec3 v, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+			void GGXImportanceSampling_SpecularReflection(Vec3 l_center, Vec3 v, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+
+			//GGX NDF importance sampling(for refraction) (eta: refractive index)
+			void GGXImportanceSampling_SpecularTransmission(Vec3 inPath, Vec3 centerOutPath, float eta_in, float eta_out,  Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 		private:
 

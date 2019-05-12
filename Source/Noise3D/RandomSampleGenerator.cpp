@@ -269,7 +269,7 @@ void Noise3D::GI::RandomSampleGenerator::RectShadowRays(Vec3 pos, LogicalRect * 
 	//outArea_InvPdf = pRect->ComputeArea();
 }
 
-void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 l_center, Vec3 v, Vec3 n,float ggx_alpha,int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_SpecularReflection(Vec3 l_center, Vec3 v, Vec3 n,float ggx_alpha,int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
 {
 	//transform matrix/basis only construct once
 	l_center.Normalize();
@@ -289,6 +289,7 @@ void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 l
 		Vec3 outVecW;
 		if (l_center.x == 0.0f && l_center.z == 0.0f && l_center.y != 0.0f)
 		{
+			outVecW = vec;
 			outVecList.push_back(vec);
 		}
 		else
@@ -304,6 +305,55 @@ void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_Hemisphere(Vec3 l
 		Vec3 h = outVecW + v;
 		if(h !=Vec3(0,0,0)) h.Normalize();
 		float pdf = BxdfUt::D_GGX(n, h, ggx_alpha)*n.Dot(h);
+		pdf = std::min<float>(BxdfUt::D_GGX_SingularityMaxValue(), pdf);
+		pdf = std::max<float>(1.0f / BxdfUt::D_GGX_SingularityMaxValue(), pdf);
+
+		//the singularity of GGX NDF is really annoying!!!!!!!!!! though it can be cancelled
+		//with CookTorrance specular's D, i don't want ambiguity so i kept it.
+		//float pdf = cosf(theta);
+		outPdfList.push_back(pdf);
+	}
+}
+
+void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_SpecularTransmission(Vec3 pathIn, Vec3 centerOutPath, float eta_in, float eta_out, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList)
+{
+	//transform matrix/basis only construct once
+	pathIn.Normalize();
+	centerOutPath.Normalize();
+	Vec3 matRow1, matRow2, matRow3;
+	mFunc_ConstructTransformMatrixFromYtoNormal(centerOutPath, matRow1, matRow2, matRow3);
+
+	for (int i = 0; i < sampleCount; ++i)
+	{
+		float var1 = mCanonicalDist(mRandomEngine);
+		float var2 = mCanonicalDist(mRandomEngine);
+		//ref: https://agraphicsguy.wordpress.com/2015/11/01/sampling-microfacet-brdf/
+		//or [Walter07]
+		float theta = atanf(ggx_alpha * sqrtf(var1 / (1.0f - var1)));
+		float phi = 2.0f * Ut::PI * var2;
+
+		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
+		Vec3 outPathW;
+		if (centerOutPath.x == 0.0f && centerOutPath.z == 0.0f && centerOutPath.y != 0.0f)
+		{
+			outPathW = vec;
+			outVecList.push_back(vec);
+		}
+		else
+		{
+			//flattened matrix mul/basis transformation
+			outPathW.x = matRow1.Dot(vec);
+			outPathW.y = matRow2.Dot(vec);
+			outPathW.z = matRow3.Dot(vec);
+			outPathW.Normalize();
+			outVecList.push_back(outPathW);
+		}
+
+		//the correct form should be GGX(n,h,alpha)*cosf(theta)
+		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(pathIn, outPathW, eta_in, eta_out, n);
+		float NdotH =n.Dot(h_t);
+		float D = BxdfUt::D_GGX(n, h_t, ggx_alpha);
+		float pdf = D*NdotH;
 		pdf = std::min<float>(BxdfUt::D_GGX_SingularityMaxValue(), pdf);
 		pdf = std::max<float>(1.0f / BxdfUt::D_GGX_SingularityMaxValue(), pdf);
 

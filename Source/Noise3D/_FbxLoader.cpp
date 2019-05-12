@@ -148,6 +148,7 @@ bool Noise3D::IFbxLoader::_Initialize(NFilePath fbxPath, bool loadMesh, bool loa
 	 //import done, it's no longer necessary to keep importer alive
 	pImporter->Destroy();
 
+	return true;
 }
 
 void IFbxLoader::_TraverseSceneNodes(FbxNode * pNode)

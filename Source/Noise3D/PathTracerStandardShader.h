@@ -49,6 +49,7 @@ namespace Noise3D
 				float reflectionBRDF;//k_s/ Fresnel will be multiplied later
 				//float reflectionBrdfDividedByD;//cancelled D with GGX importance sampling's pdf's D term
 				float transmissionBTDF;
+				float D;
 			};
 
 			//final integration of all results of integration (blend 3 BxDF according to the ratio of sample count/variance)

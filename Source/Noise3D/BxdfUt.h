@@ -58,6 +58,9 @@ namespace Noise3D
 			//WARNING: this Cook-Torrance term computes WITHOUT Fresnel Term
 			static float CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D, float G);
 
+			//for refraction/transmission. (some numerical error are considered)
+			static Vec3 ComputeHalfVectorForRefraction(Vec3 inVec, Vec3 outVec, float eta_i, float eta_o,  Vec3 n);
+
 		private:
 
 		};
