@@ -95,7 +95,7 @@ float Noise3D::GI::BxdfUt::D_GGX(Vec3 n, Vec3 h, float alpha)
 	//but the integral of D(h) over hemisphere will always be 1
 	float alpha2 = std::max<float>(alpha*alpha,0.001f);
 	float NdotH = n.Dot(h);
-	//if (NdotH <= 0.0f)return 0.0f;
+	if (NdotH <= 0.0f)return 0.0f;
 	float denominator = std::max<float>(((NdotH *NdotH) * (alpha2 - 1.0f) + 1.0f),std::numeric_limits<float>::epsilon());
 	float denominator2 = denominator * denominator * Ut::PI;
 	float D = std::min<float>(alpha2 / denominator2, BxdfUt::D_GGX_SingularityMaxValue());
@@ -113,7 +113,7 @@ float Noise3D::GI::BxdfUt::D_Beckmann(Vec3 n, Vec3 h, float alpha)
 {
 	//Ref: [Walter07][Beckmann63] NDF
 	float NdotH = n.Dot(h);
-	//if (NdotH <= 0.0f)return 0.0f;
+	if (NdotH <= 0.0f)return 0.0f;
 	float NdotH2 = NdotH * NdotH;
 	float NdotH4 = NdotH2 * NdotH2;
 	float alpha2 = alpha * alpha;
@@ -160,12 +160,12 @@ float Noise3D::GI::BxdfUt::G_SmithSchlickGGX(Vec3 l, Vec3 v, Vec3 n, float alpha
 	float k = alpha / 2.0f;
 
 	//G(v)
-	float NdotV = abs(n.Dot(v));
+	float NdotV = n.Dot(v);
 	float denom1 = NdotV * (1.0f - k) + k;
 	float G1 = NdotV / denom1;
 
 	//G(l)
-	float NdotL = abs(n.Dot(l));
+	float NdotL = n.Dot(l);
 	float denom2 = NdotL * (1.0f - k) + k;
 	float G2 = NdotL / denom2;
 
@@ -228,7 +228,7 @@ Vec3 Noise3D::GI::BxdfUt::ComputeHalfVectorForRefraction(Vec3 inVec, Vec3 outVec
 	{
 		//if ior are close to 1, then h_t will be almost a zero vector
 		//and will cause huge numerical error
-		h_t = (eta_i < eta_o ? n: -n);
+		h_t = (eta_i <= eta_o ? n: -n);
 	}
 	if (h_t != Vec3(0, 0, 0)) h_t.Normalize();
 	return h_t;

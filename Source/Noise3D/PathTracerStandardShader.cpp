@@ -477,6 +477,8 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 			if (isInternalReflection)
 			{
 				newParam.isInsideObject = true;
+				bxdfInfo.k_t = Vec3(0, 1.0f, 0);
+				bxdfInfo.transmissionBTDF = 1.0f;
 			}
 			else
 			{
@@ -484,8 +486,6 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 				IPathTracerSoftShader::_TraceRay(newParam, payload);
 				//light ray incident from air to object
 				_CalculateBxDF(BxDF_LightTransfer_Transmission_PathObjectToAir, l, v, h_t, hitInfo, bxdfInfo);
-				//bxdfInfo.transmissionBTDF = 1.0f;
-				//bxdfInfo.k_t = Vec3(1.0f, 0, 0);
 			}
 		}
 		else
@@ -578,12 +578,14 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	Vec3 F0 = Ut::Lerp(defaultDielectric_F0, mat.metal_F0, metallicity);
 	Vec3 F;
 	if (lightTransferType & BxDF_LightTransfer_Transmission_PathAirToObject)
-		//||lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
 	{
-		//F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
 		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, h);
 	}
-	else
+	else /*if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
+	{
+		F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
+	}
+	else*/
 	{
 		F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
 	}
@@ -647,11 +649,6 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	outBxdfInfo.transmissionBTDF = f_t;
 	outBxdfInfo.D = D;
 
-	if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
-	{
-		int a = 0;
-	}
-
 }
 
 Vec3 Noise3D::GI::PathTracerStandardShader::_DiffuseBRDF(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float alpha)
@@ -673,10 +670,10 @@ float Noise3D::GI::PathTracerStandardShader::_SpecularReflectionBrdfDividedByD(V
 float Noise3D::GI::PathTracerStandardShader::_SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, Vec3 h, float D, float G, float eta_i, float eta_o)
 {
 	float nominator = abs(l.Dot(h)) * abs(v.Dot(h)) * eta_o * eta_o * G * D;
-	//float denom1 = eta_i * l.Dot(h) + eta_o * (v.Dot(h));
 	float VdotH = v.Dot(h);
 	float LdotH = l.Dot(h);
 	float denom1 = eta_i * VdotH + eta_o * LdotH;
+	//float denom1 = eta_i * VdotH - eta_o * LdotH;
 	float denominator = abs(l.Dot(n)) * abs(v.Dot(n)) * denom1 * denom1;
 	return nominator/denominator;
 }
