@@ -422,7 +422,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 
 	//normal and view vector
 	Vec3 n = hitInfo.normal;
-	Vec3 v = param.ray.dir;
+	Vec3 v = -param.ray.dir;//from hitPos to camera
 	n.Normalize();
 	v.Normalize();
 
@@ -473,7 +473,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		//clamp cos term in Rendering Equation
 		float cosTerm = std::max<float>(abs(n.Dot(l)), 0.0f);
 		GI::Radiance delta_t;
-		delta_t = payload_internalReflection.radiance * bxdfInfo.k_t * bxdfInfo.transmissionBTDF * cosTerm;
+		delta_t = payload_internalReflection.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF * cosTerm;
 		delta_t *= (4.0f * abs(l.Dot(h_t)));
 		outTransmission += delta_t;
 		return;
@@ -605,7 +605,11 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	const Vec3 defaultDielectric_F0 = Vec3(0.03f, 0.03f, 0.03f);
 	Vec3 F0 = Ut::Lerp(defaultDielectric_F0, mat.metal_F0, metallicity);
 	Vec3 F;
-	if (lightTransferType & BxDF_LightTransfer_Transmission_PathAirToObject)
+	if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
+	{
+		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, h);
+	}
+	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
 		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, h);
 	}
@@ -646,6 +650,16 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 			//f_s2 = _SpecularReflectionBrdfDividedByD(l, v, n, G);
 		}
 	}
+	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
+	{
+		if (LdotN < 0.0f && k_s != defaultDielectric_F0)
+		{
+			float vdotn = v.Dot(-n);
+			f_s = _SpecularReflectionBRDF(l, v, -n, D, G);
+			//f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, mat.ior, 1.0f);
+			int a = 0;
+		}
+	}
 
 	//specular transmission
 	if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
@@ -660,13 +674,6 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
 		{
 			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, 1.0f, mat.ior);
-		}
-	}
-	else if(lightTransferType & BxDF_LightTransfer_InternalReflection)
-	{
-		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
-		{
-			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, mat.ior, 1.0f);
 		}
 	}
 
@@ -700,11 +707,14 @@ float Noise3D::GI::PathTracerStandardShader::_SpecularReflectionBrdfDividedByD(V
 
 float Noise3D::GI::PathTracerStandardShader::_SpecularTransmissionBTDF(Vec3 l, Vec3 v, Vec3 n, Vec3 h, float D, float G, float eta_i, float eta_o)
 {
-	float nominator = abs(l.Dot(h)) * abs(v.Dot(h)) * eta_o * eta_o * G * D;
 	float VdotH = v.Dot(h);
 	float LdotH = l.Dot(h);
-	float denom1 = eta_i * VdotH + eta_o * LdotH;
-	//float denom1 = eta_i * VdotH - eta_o * LdotH;
+	float nominator =  abs(LdotH) * abs(VdotH) * eta_o * eta_o * G * D;
+	//float denom1 = eta_i * VdotH + eta_o * LdotH;
+	//float denom1 = -eta_i * VdotH + eta_o * LdotH;//(????????why the sign is different from [Walter07] but works?
+	//(????????why should i add abs(), which is different from [Walter07], but works?
+	//is it the reason that i should take care of both air-object && object-air refraction???
+	float denom1 = abs(eta_i * VdotH) + abs(eta_o * LdotH);
 	float denominator = abs(l.Dot(n)) * abs(v.Dot(n)) * denom1 * denom1;
 	return nominator/denominator;
 }

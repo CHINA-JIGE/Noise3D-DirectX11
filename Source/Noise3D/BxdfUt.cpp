@@ -219,11 +219,15 @@ float Noise3D::GI::BxdfUt::CookTorranceSpecular(Vec3 l, Vec3 v, Vec3 n, float D,
 	return (D*G) / (4.0f*(v.Dot(n))*(l.Dot(n)));
 }
 
-Vec3 Noise3D::GI::BxdfUt::ComputeHalfVectorForRefraction(Vec3 inVec, Vec3 outVec, float eta_i, float eta_o, Vec3 n)
+Vec3 Noise3D::GI::BxdfUt::ComputeHalfVectorForRefraction(Vec3 viewVec, Vec3 lightVec, float eta_i, float eta_o, Vec3 n)
 {
-	//NOTE: inVec and outVec are approximately the same direction
+	//NOTE: 
+	//viewVec = hitpos---->camera
+	//lightVec = hitpos---->light source
 	//normal points to medium with lower IOR(i.e. air)
-	Vec3 h_t = eta_i * inVec - eta_o * outVec;
+	//Vec3 h_t = eta_i * inVec - eta_o * outVec;
+	Vec3 h_t = -(eta_i * viewVec + eta_o * lightVec);//[Walter07]
+
 	if (h_t.LengthSquared() < 0.01f)
 	{
 		//if ior are close to 1, then h_t will be almost a zero vector

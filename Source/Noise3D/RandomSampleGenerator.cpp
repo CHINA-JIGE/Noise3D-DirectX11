@@ -350,7 +350,9 @@ void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_SpecularTransmiss
 		}
 
 		//the correct form should be GGX(n,h,alpha)*cosf(theta)
-		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(pathIn, outPathW, eta_in, eta_out, n);
+		Vec3 v = -pathIn;//viewVec
+		Vec3 l = outPathW;//lightVec
+		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(v, l, eta_in, eta_out, n);
 		float NdotH =n.Dot(h_t);
 		float D = BxdfUt::D_GGX(n, h_t, ggx_alpha);
 		float pdf = D*NdotH;

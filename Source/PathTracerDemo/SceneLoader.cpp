@@ -146,9 +146,9 @@ void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
 	{
 		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		desc.roughness = 0.1f;
+		desc.roughness = 0.0f;
 		desc.metallicity = 0.0f;
-		desc.transparency = 0.8f;
+		desc.transparency = 1.0f;
 		desc.ior = 1.1f;
 		m_pMatMgr->CreateAdvancedMaterial("ROUGH_GLASS", desc);
 	}
