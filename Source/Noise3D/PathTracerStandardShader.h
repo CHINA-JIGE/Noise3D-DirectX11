@@ -36,7 +36,8 @@ namespace Noise3D
 				BxDF_LightTransfer_Diffuse = 0x00000001,
 				BxDF_LightTransfer_Specular = 0x00000002,
 				BxDF_LightTransfer_Transmission_PathAirToObject = 0x00000004,
-				BxDF_LightTransfer_Transmission_PathObjectToAir = 0x00000008
+				BxDF_LightTransfer_Transmission_PathObjectToAir = 0x00000008,
+				BxDF_LightTransfer_InternalReflection = 0x00000010
 			};
 
 			struct BxdfInfo

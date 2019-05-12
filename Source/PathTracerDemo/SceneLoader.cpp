@@ -158,7 +158,7 @@ void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
 	// _LoadMeshSTL(sg, "../media/model/teapot7.stl", Vec3(0, 0, 0), "ROUGH_GLASS");
 	_LoadMeshSTL(sg, "../media/model/rabbit.STL", Vec3(0, 0, 0), "ROUGH_GLASS");
 	//_LoadSphere(sg, Vec3(0, 35, 0), 30.0f, "box");
-	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ground");
 	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "ROUGH_GLASS");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
@@ -168,7 +168,7 @@ void SceneLoader::LoadScene_MicrofacetTransmissionTest(Camera * pCam)
 
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
-	SceneLoader::SetAmbientRadiance(Vec3(1.0f,0,0));
+	SceneLoader::SetAmbientRadiance(Vec3(0,0,0));
 }
 
 void SceneLoader::LoadScene_Ironman(Camera * pCam)

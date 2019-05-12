@@ -442,12 +442,48 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		Vec3::Refract(param.ray.dir, -hitInfo.normal, eta_i/ eta_o) :
 		Vec3::Refract(param.ray.dir, hitInfo.normal, eta_i / eta_o);
 
-	Vec3 internalReflectedDir = Vec3::Reflect(param.ray.dir, -hitInfo.normal);
 
 	//determine if it's total internal reflection
 	bool isInternalReflection = (refractedDir == Vec3(0, 0, 0));
 
+#pragma region INTERNAL_REFLECTION
+	//**************Internal Reflection********
+	//(2019.5.12)actually this is not accurate, because every sample direction should be
+	//calculated if it will cause internal reflection.
+	//codes below only considers internal reflection with 1 sample
+	if (param.isInsideObject && isInternalReflection)
+	{
+		Vec3 internalReflectedDir = Vec3::Reflect(param.ray.dir, -hitInfo.normal);
+		Vec3 l = internalReflectedDir;//light path
+		l.Normalize();
+		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(v, l, eta_i, eta_o, n);
 
+		N_TraceRayPayload payload_internalReflection;
+		N_TraceRayParam newParam = param;
+		newParam.bounces = param.bounces + 1;
+		newParam.ray = N_Ray(hitInfo.pos, internalReflectedDir); ;
+		newParam.isShadowRay = false;
+		newParam.isSHEnvLight = false;
+		newParam.isInsideObject = true;
+		IPathTracerSoftShader::_TraceRay(newParam, payload_internalReflection);
+		//light ray inside objects
+		BxdfInfo bxdfInfo;
+		_CalculateBxDF(BxDF_LightTransfer_InternalReflection, l, v, h_t, hitInfo, bxdfInfo);
+
+		//clamp cos term in Rendering Equation
+		float cosTerm = std::max<float>(abs(n.Dot(l)), 0.0f);
+		GI::Radiance delta_t;
+		delta_t = payload_internalReflection.radiance * bxdfInfo.k_t * bxdfInfo.transmissionBTDF * cosTerm;
+		delta_t *= (4.0f * abs(l.Dot(h_t)));
+		outTransmission += delta_t;
+		return;
+	}
+
+	//*********************
+#pragma region INTERNAL_REFLECTION
+
+
+	//*******transmission/refraction********
 	//gen paths for specular transmission (cone angle varys with roughness)
 	g.GGXImportanceSampling_SpecularTransmission(param.ray.dir, refractedDir, eta_i, eta_o, n, alpha, sampleCount, dirList, pdfList);
 
@@ -463,44 +499,36 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(v, l, eta_i, eta_o, n);
 
 		//!!!!!!! trace rays
-		N_TraceRayPayload payload;
-		N_TraceRayParam newParam = param;
-		newParam.bounces = param.bounces + 1;
-		newParam.ray = sampleRay;
-		newParam.isShadowRay = false;
-		newParam.isSHEnvLight = false;
+		N_TraceRayPayload payload_refraction;
+		N_TraceRayParam newParam_refraction = param;
+		newParam_refraction.bounces = param.bounces + 1;
+		newParam_refraction.ray = sampleRay;
+		newParam_refraction.isShadowRay = false;
+		newParam_refraction.isSHEnvLight = false;
 
 		//compute BxDF info (vary over space)
-		BxdfInfo bxdfInfo;
+		BxdfInfo bxdfInfoRefraction;
 		if (param.isInsideObject)
 		{
-			if (isInternalReflection)
-			{
-				newParam.isInsideObject = true;
-				bxdfInfo.k_t = Vec3(0, 1.0f, 0);
-				bxdfInfo.transmissionBTDF = 1.0f;
-			}
-			else
-			{
-				newParam.isInsideObject = false;
-				IPathTracerSoftShader::_TraceRay(newParam, payload);
-				//light ray incident from air to object
-				_CalculateBxDF(BxDF_LightTransfer_Transmission_PathObjectToAir, l, v, h_t, hitInfo, bxdfInfo);
-			}
+			newParam_refraction.isInsideObject = false;
+			IPathTracerSoftShader::_TraceRay(newParam_refraction, payload_refraction);
+			//light ray incident from object to air
+			_CalculateBxDF(BxDF_LightTransfer_Transmission_PathObjectToAir, l, v, h_t, hitInfo, bxdfInfoRefraction);
+			
 		}
 		else
 		{
-			newParam.isInsideObject = true;
-			IPathTracerSoftShader::_TraceRay(newParam, payload);
+			newParam_refraction.isInsideObject = true;
+			IPathTracerSoftShader::_TraceRay(newParam_refraction, payload_refraction);
 			//light ray incident from air to object
-			_CalculateBxDF(BxDF_LightTransfer_Transmission_PathAirToObject, l, v, h_t, hitInfo, bxdfInfo);
+			_CalculateBxDF(BxDF_LightTransfer_Transmission_PathAirToObject, l, v, h_t, hitInfo, bxdfInfoRefraction);
 		}
 
 
 		//clamp cos term in Rendering Equation
 		float cosTerm = std::max<float>(abs(n.Dot(l)), 0.0f);
 		GI::Radiance delta_t;
-		delta_t = payload.radiance * bxdfInfo.k_t * bxdfInfo.transmissionBTDF * cosTerm;
+		delta_t = payload_refraction.radiance * bxdfInfoRefraction.k_t * bxdfInfoRefraction.transmissionBTDF * cosTerm;
 
 		//(2019.4.25)an optimization can be made: that GGX importance sampling pdf's D term
 		//can be cancelled with CookTorrance specular's D term
@@ -581,11 +609,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	{
 		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, h);
 	}
-	else /*if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
-	{
-		F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
-	}
-	else*/
+	else
 	{
 		F = BxdfUt::SchlickFresnel_Vec3(F0, v, h);
 	}
@@ -636,6 +660,13 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
 		{
 			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, 1.0f, mat.ior);
+		}
+	}
+	else if(lightTransferType & BxDF_LightTransfer_InternalReflection)
+	{
+		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
+		{
+			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, mat.ior, 1.0f);
 		}
 	}
 
