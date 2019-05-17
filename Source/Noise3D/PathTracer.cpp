@@ -343,9 +343,11 @@ void Noise3D::GI::PathTracer::_RenderTile(const N_RenderTileInfo & info)
 
 void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayPayload& out_payload)
 {
+	/*if (param.bounces > int(PathTracer::GetMaxBounces()) ||
+	param.travelledDistance > PathTracer::GetRayMaxTravelDist()) */
+
 	//initial bounces and travelled distance must remain in limit
-	if (param.bounces > int(PathTracer::GetMaxBounces()) ||
-		param.travelledDistance > PathTracer::GetRayMaxTravelDist()) 
+	if (param.bounces > int(PathTracer::GetMaxBounces()))
 	{
 		//sometimes our bounces are set low to reduce calculation time
 		//this is to compensate for the lost energy
@@ -364,8 +366,14 @@ void Noise3D::GI::PathTracer::TraceRay(const N_TraceRayParam& param, N_TraceRayP
 		N_RayHitInfoForPathTracer& info = hitResult.hitList.at(index);
 
 		//update ray's travelled distance
-		float newTravelledDistance = param.travelledDistance + param.ray.Distance(info.t);
-		if (newTravelledDistance > PathTracer::GetRayMaxTravelDist())return;
+		//(2019.5.16, well this const Param& actually never update the travelledDistance,
+		//never mind....
+		/*float newTravelledDistance = param.travelledDistance + param.ray.Distance(info.t);
+		if (newTravelledDistance > PathTracer::GetRayMaxTravelDist()) 
+		{
+			out_payload.radiance = mAmbientRadiance;
+			return; 
+		}*/
 
 		m_pShader->ClosestHit(param, info, out_payload);
 	}

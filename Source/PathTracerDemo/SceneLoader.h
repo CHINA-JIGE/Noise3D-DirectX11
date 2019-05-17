@@ -12,6 +12,8 @@ public:
 
 	void LoadScene_DiffuseDemo(Camera * pCam);
 
+	void LoadScene_DiffuseDemoOrenNayar(Camera * pCam);
+
 	void LoadScene_RefractionDemo(Camera * pCam);
 
 	void LoadScene_AreaLightingDemo(Camera * pCam);

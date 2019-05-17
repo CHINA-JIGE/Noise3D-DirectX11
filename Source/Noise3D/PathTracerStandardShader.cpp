@@ -211,7 +211,7 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 
 	 //result. (d_direct+ d_indirect) + 0.5(s_direct + s_indirect) + 0.5(s_complete)
 	//GI::Radiance result = (d_1 + d_2) + s_3 + t_1;
-	GI::Radiance result = d_2 + s_1 + t_1;
+	GI::Radiance result = d_2 + s_1 +t_1;
 	return result;
 }
 
@@ -453,10 +453,10 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 	//codes below only considers internal reflection with 1 sample
 	if (param.isInsideObject && isInternalReflection)
 	{
-		Vec3 internalReflectedDir = Vec3::Reflect(param.ray.dir, -hitInfo.normal);
+		Vec3 internalReflectedDir = Vec3::Reflect(param.ray.dir, -n);
 		Vec3 l = internalReflectedDir;//light path
 		l.Normalize();
-		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(v, l, eta_i, eta_o, n);
+		Vec3 h_inside =-n;//points to inside
 
 		N_TraceRayPayload payload_internalReflection;
 		N_TraceRayParam newParam = param;
@@ -468,13 +468,14 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		IPathTracerSoftShader::_TraceRay(newParam, payload_internalReflection);
 		//light ray inside objects
 		BxdfInfo bxdfInfo;
-		_CalculateBxDF(BxDF_LightTransfer_InternalReflection, l, v, h_t, hitInfo, bxdfInfo);
+		_CalculateBxDF(BxDF_LightTransfer_InternalReflection, l, v, h_inside, hitInfo, bxdfInfo);
 
 		//clamp cos term in Rendering Equation
 		float cosTerm = std::max<float>(abs(n.Dot(l)), 0.0f);
 		GI::Radiance delta_t;
 		delta_t = payload_internalReflection.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF * cosTerm;
-		delta_t *= (4.0f * abs(l.Dot(h_t)));
+		delta_t /= bxdfInfo.D;
+		delta_t *= (4.0f * abs(l.Dot(h_inside)));
 		outTransmission += delta_t;
 		return;
 	}
@@ -603,7 +604,9 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 
 	const Vec3 defaultDielectric_F0 = Vec3(0.03f, 0.03f, 0.03f);
-	Vec3 F0 = Ut::Lerp(defaultDielectric_F0, mat.metal_F0, metallicity);
+	//(0.03,0.03,0.03) or some non-zero will cause weird circle)
+	Vec3 F0 = Vec3::Lerp( defaultDielectric_F0, mat.metal_F0, metallicity);
+
 	Vec3 F;
 	if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
 	{
@@ -611,7 +614,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
-		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, h);
+		F = BxdfUt::SchlickFresnel_Vec3(F0, v, -h);
 	}
 	else
 	{
@@ -638,26 +641,28 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 
 	//specular BxDF
-	float D = BxdfUt::D_GGX(n, h, alpha);//NDF
-	float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
 	if (lightTransferType & BxDF_LightTransfer_Specular)
 	{
-		if (LdotN > 0.0f && k_s != defaultDielectric_F0)
+		if (LdotN > 0.0f && k_s != Vec3(0,0,0))
 		{
-
+			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
+			float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
 			//WARNING: fresnel term is ignored in Cook-Torrance specular reflection term 
 			f_s = _SpecularReflectionBRDF(l, v, n, D, G) ;
 			//f_s2 = _SpecularReflectionBrdfDividedByD(l, v, n, G);
+			outBxdfInfo.D = D;
 		}
 	}
 	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
-		if (LdotN < 0.0f && k_s != defaultDielectric_F0)
+		if (LdotN < 0.0f && k_s != Vec3(0, 0, 0))
 		{
-			float vdotn = v.Dot(-n);
+			float D = BxdfUt::D_GGX(-n, h, alpha);//NDF
+			float G = BxdfUt::G_SmithSchlickGGX(l, v, -n, alpha);//shadowing-masking
 			f_s = _SpecularReflectionBRDF(l, v, -n, D, G);
+			if (f_s < 0.0f)f_s = 0.0f;
+			outBxdfInfo.D = D;
 			//f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, mat.ior, 1.0f);
-			int a = 0;
 		}
 	}
 
@@ -666,14 +671,22 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	{
 		if (LdotN > 0.0f && k_t != Vec3(0, 0, 0))
 		{
+			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
+			float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
 			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, mat.ior, 1.0f);
+			if (f_t < 0.0f)f_t = 0.0f;
+			outBxdfInfo.D = D;
 		}
 	}
 	else if (lightTransferType & BxDF_LightTransfer_Transmission_PathAirToObject)
 	{
 		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
 		{
+			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
+			float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
 			f_t = _SpecularTransmissionBTDF(l, v, n, h, D, G, 1.0f, mat.ior);
+			if (f_t < 0.0f) f_t = 0.0f; 
+			outBxdfInfo.D = D;
 		}
 	}
 
@@ -685,14 +698,18 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	outBxdfInfo.reflectionBRDF = f_s;
 	//outBxdfInfo.reflectionBrdfDividedByD = f_s2;
 	outBxdfInfo.transmissionBTDF = f_t;
-	outBxdfInfo.D = D;
+	//outBxdfInfo.D = D;
 
 }
 
 Vec3 Noise3D::GI::PathTracerStandardShader::_DiffuseBRDF(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float alpha)
 {
 	//try oren-nayar later
-	return BxdfUt::LambertDiffuse(albedo, l, n);
+	//return BxdfUt::LambertDiffuse(albedo, l, n);
+	float sigma = alpha;
+	float A = 0.0f, B = 0.0f;
+	BxdfUt::OrenNayarDiffuseAB(sigma, A, B);
+	return BxdfUt::OrenNayarDiffuse(albedo, l, v, n, sigma);
 }
 
 float Noise3D::GI::PathTracerStandardShader::_SpecularReflectionBRDF(Vec3 l, Vec3 v, Vec3 n, float D, float G)
@@ -716,7 +733,8 @@ float Noise3D::GI::PathTracerStandardShader::_SpecularTransmissionBTDF(Vec3 l, V
 	//is it the reason that i should take care of both air-object && object-air refraction???
 	float denom1 = abs(eta_i * VdotH) + abs(eta_o * LdotH);
 	float denominator = abs(l.Dot(n)) * abs(v.Dot(n)) * denom1 * denom1;
-	return nominator/denominator;
+	float result = nominator / denominator;
+	return result;
 }
 
 inline float Noise3D::GI::PathTracerStandardShader::_RoughnessToAlpha(float r)

@@ -185,8 +185,8 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal,
 	normal.Normalize();
 	Vec3 matRow1, matRow2, matRow3;
 	mFunc_ConstructTransformMatrixFromYtoNormal(normal, matRow1, matRow2, matRow3);
-	//float pdfNormalizeFactor = 2.0f / (Ut::PI * (1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
-	float pdfNormalizeFactor = 4.0f * (1.0f-cosf(maxAngle))/ ((1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+	float pdfNormalizeFactor = 2.0f / (Ut::PI * (1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
+	//float pdfNormalizeFactor = 4.0f * (1.0f-cosf(maxAngle))/ ((1.0f-cosf(2.0f*maxAngle)) );//denominator of cosine-weighted pdf
 	if (pdfNormalizeFactor > 1.0f)pdfNormalizeFactor = 1.0f;
 
 	for (int i = 0; i < sampleCount; ++i)

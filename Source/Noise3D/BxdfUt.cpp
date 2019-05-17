@@ -106,7 +106,7 @@ const float Noise3D::GI::BxdfUt::D_GGX_SingularityMaxValue()
 {
 	//when alpha=0(flat surface), NdotH=0, GGX goes to infinity
 	//(to let the integral of GGX over hemisphere remain 1)
-	return 1e+6;//2^20
+	return 1e+6;
 }
 
 float Noise3D::GI::BxdfUt::D_Beckmann(Vec3 n, Vec3 h, float alpha)
@@ -170,6 +170,10 @@ float Noise3D::GI::BxdfUt::G_SmithSchlickGGX(Vec3 l, Vec3 v, Vec3 n, float alpha
 	float G2 = NdotL / denom2;
 
 	float G = G1*G2;
+	if (G < 0.0f)
+	{
+		int a = 0;
+	}
 	return G;
 }
 

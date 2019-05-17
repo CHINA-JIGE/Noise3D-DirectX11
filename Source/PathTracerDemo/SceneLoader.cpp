@@ -37,19 +37,71 @@ void SceneLoader::LoadScene_DiffuseDemo(Camera * pCam)
 	_LoadAdvancedMaterials();
 
 	//sky texture
-	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/grey.png", "envmap", true, 0, 0, true);
 
-	_LoadSphere(sg, Vec3(-20.0f,20.0f,50), 15.0f, "");
+	/*_LoadSphere(sg, Vec3(-20.0f,20.0f,50), 15.0f, "");
 	_LoadSphere(sg, Vec3(-50.0f, 15.0f, -30.0f), 20.0f, "");
 	_LoadBox(sg, Vec3(30.0f, 12.0, 0), Vec3(50.0f, 30.0f, 60.0f), "");
 	_LoadBox(sg, Vec3(-60, 25.0f, 59.0f), Vec3(	10.0f, 50.0f, 70.0f), "");
 	_LoadBox(sg, Vec3(50.0, 30.0f, 70.0f), Vec3(30.0f, 60.0f, 60.0f), "");
-	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f),"");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f),"");*/
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 1.0f;
+		desc.metallicity = 0.0f;
+		m_pMatMgr->CreateAdvancedMaterial("sphere", desc);
+	}
+	_LoadSphere(sg, Vec3(0, 0, 0), 30, "sphere");
 
 	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
 	pCam->SetViewFrustumPlane(1.0f, 500.f);
-	pCam->GetWorldTransform().SetPosition(-50.0f, 70.0f, 130.0f);
+	pCam->GetWorldTransform().SetPosition(-50.0f, 0, 0);
 	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+}
+
+void SceneLoader::LoadScene_DiffuseDemoOrenNayar(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			{
+				GI::N_PbrtMatDesc desc;
+				desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+				desc.roughness = (3* i+j) * 0.05f;
+				//desc.metallicity = 0.0f;
+				desc.metallicity = 0.0f;
+				desc.transparency = 1.0f;
+				desc.ior = 1.1f;
+				m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string((3 * i + j)), desc);
+			}
+			//_LoadSphere(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), 8.0f, "sphere" + std::to_string((3 * i + j)));
+			_LoadBox(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), Vec3(10.0f, 10.0f, 10.0f), "sphere" + std::to_string((3 * i + j)));
+			//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(20.0f* j,0, 20.0f - 20.0f* i), Vec2(10.0f, 10.0f), "sphere" + std::to_string((3 * i + j)));
+		}
+	}
+
+	pCam->SetViewAngle_Radian(Ut::PI * 0.2f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(20.0f, 0, -100.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(20.0f, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(50.0f, 0, 0));
 }
 
 void SceneLoader::LoadScene_RefractionDemo(Camera * pCam)
@@ -441,7 +493,7 @@ void SceneLoader::LoadScene_M4A1(Camera * pCam)
 
 	{
 		GI::N_PbrtMatDesc desc;
-		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
 		desc.roughness = 0.3f;
 		desc.metallicity = 0.0f;
 		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
@@ -475,7 +527,7 @@ void SceneLoader::LoadScene_Dragon(Camera * pCam)
 
 	{
 		GI::N_PbrtMatDesc desc;
-		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
 		desc.roughness = 0.3f;
 		desc.metallicity = 1.0f;
 		//desc.metal_F0 = Vec3(1.0f, 0.95f, 0.5f);//golden
@@ -486,7 +538,7 @@ void SceneLoader::LoadScene_Dragon(Camera * pCam)
 
 	{
 		GI::N_PbrtMatDesc desc;
-		desc.albedo = Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
 		desc.roughness = 0.2f;
 		desc.metallicity = 0.0f;
 		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
