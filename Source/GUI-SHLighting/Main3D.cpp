@@ -36,7 +36,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pTexMgr = m_pScene->GetTextureMgr();
 	m_pLightMgr = m_pScene->GetLightMgr();
 	m_pGraphicObjMgr = m_pScene->GetGraphicObjMgr();
-	m_pModelLoader = m_pScene->GetModelLoader();
+	m_pModelLoader = m_pScene->GetMeshLoader();
 	SceneGraph& sg = m_pScene->GetSceneGraph();
 
 	//2 textures
@@ -52,43 +52,47 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	pLight->SetDirection(Vec3(-1.0f, -1.0f, 0));
 
 	//Materials
-	N_MaterialDesc matDesc1;
+	N_LambertMaterialDesc matDesc1;
 	matDesc1.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
 	matDesc1.diffuseColor = Vec3(0, 0, 0);
 	matDesc1.specularColor = Vec3(0, 0, 0);
 	matDesc1.diffuseMapName = "Tex";
-	Material* pMat1 = m_pMatMgr->CreateMaterial("Mat1", matDesc1);
+	LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("Mat1", matDesc1);
 
-	N_MaterialDesc matDesc2;
+	N_LambertMaterialDesc matDesc2;
 	matDesc2.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
 	matDesc2.diffuseColor = Vec3(0, 0, 0);
 	matDesc2.specularColor = Vec3(0, 0, 0);
 	matDesc2.diffuseMapName = "ShTex";
-	Material* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
+	LambertMaterial* pMat2 = m_pMatMgr->CreateLambertMaterial("Mat2", matDesc2);
 
-	N_MaterialDesc matDesc3;
+	N_LambertMaterialDesc matDesc3;
 	matDesc3.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
 	matDesc3.diffuseColor = Vec3(1.0, 1.0, 1.0);
 	matDesc3.specularColor = Vec3(0, 0, 0);
-	Material* pMat3 = m_pMatMgr->CreateMaterial("MatSolid", matDesc3);
+	LambertMaterial* pMat3 = m_pMatMgr->CreateLambertMaterial("MatSolid", matDesc3);
 
 
 	//2 Spheres and 1 cube(frame) for visualizing SH texture
-	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh("srcSphere");
+	SceneNode* pRootNode = m_pScene->GetSceneGraph().GetRoot();
+	SceneNode* pNode1 = pRootNode->CreateChildNode();
+	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh(pNode1, "srcSphere");
 	m_pModelLoader->LoadSphere(m_pMeshSourceSphere, 1.0f, 30, 30);
-	m_pMeshSourceSphere->SetPosition(c_ballPos1);
+	pNode1->GetLocalTransform().SetPosition(c_ballPos1);
 	m_pMeshSourceSphere->SetMaterial("Mat1");
 
-	m_pMeshShSphere = m_pMeshMgr->CreateMesh("sphereSh");
+	SceneNode* pNode2 = pRootNode->CreateChildNode();
+	m_pMeshShSphere = m_pMeshMgr->CreateMesh(pNode2, "sphereSh");
 	m_pModelLoader->LoadSphere(m_pMeshShSphere, 1.0f, 30, 30);
-	m_pMeshShSphere->SetPosition(c_ballPos2);
+	pNode2->GetLocalTransform().SetPosition(c_ballPos2);
 	m_pMeshShSphere->SetMaterial("Mat2");
 
-	m_pMeshSourceCube = m_pMeshMgr->CreateMesh("cubeFrame");
-	m_pModelLoader->LoadBox(m_pMeshSourceCube, 2.1f, 2.1f, 2.1f);
-	m_pMeshSourceCube->SetPosition(c_ballPos1);
-	m_pMeshSourceCube->SetFillMode(NOISE_FILLMODE::NOISE_FILLMODE_WIREFRAME);
-	m_pMeshSourceCube->SetMaterial("MatSolid");
+	SceneNode* pNode3 = pRootNode->CreateChildNode();
+	m_pMeshSourceCubeWireFrame = m_pMeshMgr->CreateMesh(pNode3, "cubeFrame");
+	m_pModelLoader->LoadBox(m_pMeshSourceCubeWireFrame, 2.1f, 2.1f, 2.1f,2,2,2);
+	pNode3->GetLocalTransform().SetPosition(c_ballPos1);
+	m_pMeshSourceCubeWireFrame->SetFillMode(NOISE_FILLMODE::NOISE_FILLMODE_WIREFRAME);
+	m_pMeshSourceCubeWireFrame->SetMaterial("MatSolid");
 
 	//create font texture and top-left fps label
 	m_pTextMgr = m_pScene->GetTextMgr();
@@ -110,7 +114,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pCamera->SetOrthoViewSize(6.0f, 6.0f * canvasHeight / float(canvasWidth));//orthographic proj
 	m_pCamera->SetViewAngle_Radian(Ut::PI / 3.0f, 1.333333333f);//perspective proj
 	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);//perspective proj
-	m_pCamera->SetPosition(0, 0, -5.0f);
+	m_pCamera->GetWorldTransform().SetPosition(0, 0, -5.0f);
 	m_pCamera->LookAt(0, 0, 0);
 
 	//draw 2d texture
@@ -151,7 +155,7 @@ void Main3DApp::UpdateFrame()
 	else if(mSourceTextureType== Main3DApp::SOURCE_TEXTURE_TYPE::CUBEMAP)
 	{
 		m_pRenderer->AddToRenderQueue(m_pMeshSourceSphere);
-		m_pRenderer->AddToRenderQueue(m_pMeshSourceCube);
+		m_pRenderer->AddToRenderQueue(m_pMeshSourceCubeWireFrame);
 	}
 	m_pRenderer->AddToRenderQueue(m_pMeshShSphere);
 	m_pRenderer->AddToRenderQueue(m_pGO_GUI);
@@ -264,6 +268,7 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 
 	//rotate coord frame
 	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
+	t.InvertRotation();
 	Vec3 axisDirX = t.TransformVector_Rigid(Vec3(1.5f, 0, 0));
 	Vec3 axisDirY = t.TransformVector_Rigid(Vec3(0, 1.5f, 0));
 	Vec3 axisDirZ = t.TransformVector_Rigid(Vec3(0, 0, 1.5f));
@@ -276,17 +281,14 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 	m_pGO_Axis->SetLine3D(4, c_ballPos2, c_ballPos2 + axisDirY, Vec4(0, 1.0f, 0, 1.0f), Vec4(0, 1.0f, 0, 1.0f));
 	m_pGO_Axis->SetLine3D(5, c_ballPos2, c_ballPos2 + axisDirZ, Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
 
-	//the original version of orbit rotation should be a camera rotation
-	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
-	t.InvertRotation();
 	if (index == 0)
 	{
-		m_pMeshSourceSphere->SetRotation(t.GetQuaternion());
-		m_pMeshSourceCube->SetRotation(t.GetQuaternion());
+		m_pMeshSourceSphere->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
+		m_pMeshSourceCubeWireFrame->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
 	}
 	else if (index == 1)
 	{
-		m_pMeshShSphere->SetRotation(t.GetQuaternion());
+		m_pMeshShSphere->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
 	}
 
 	return;
@@ -294,7 +296,6 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 
 void Main3DApp::Cleanup()
 {
-	m_pRoot->ReleaseAll();
 }
 
 void Main3DApp::SetCamProjType(bool isPerspective)
@@ -320,7 +321,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 {
 	//compute SH factors
 
-	GI::ISphericalFunc_Texture2dSampler defaultSphFunc;
+	GI::Texture2dSamplerForSHProjection defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginTex);
 	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	mShvec.GetCoefficients(outShVector);
@@ -345,7 +346,7 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Color4f>& outShVector)
 {
 	//compute SH factors
-	GI::ISphericalFunc_CubeMapSampler defaultSphFunc;
+	GI::CubeMapSampler defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginCubeMap);
 	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	mShvec.GetCoefficients(outShVector);

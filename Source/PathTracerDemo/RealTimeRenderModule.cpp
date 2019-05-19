@@ -68,7 +68,7 @@ void RealTimeRenderModule::_InitMgrsAndRenderers(HWND hwnd)
 void RealTimeRenderModule::_InitScene()
 {
 	//SceneLoader::LoadScene_DiffuseDemo(m_pCamera);
-	SceneLoader::LoadScene_DiffuseDemoOrenNayar(m_pCamera);
+	//SceneLoader::LoadScene_DiffuseDemoOrenNayar(m_pCamera);
 	//SceneLoader::LoadScene_RefractionDemo(m_pCamera);
 	//SceneLoader::LoadScene_AreaLightingDemo(m_pCamera);
 	//SceneLoader::LoadScene_StandardShader(m_pCamera);
@@ -83,7 +83,8 @@ void RealTimeRenderModule::_InitScene()
 	//SceneLoader::LoadScene_M4A1(m_pCamera);
 	//SceneLoader::LoadScene_Dragon(m_pCamera);
 	//SceneLoader::LoadScene_MicrofacetTransmissionTest(m_pCamera);
-
+	//SceneLoader::LoadScene_SHDiffuseExperiment(m_pCamera);
+	SceneLoader::LoadScene_PaperExpr6_2_1_2(m_pCamera);
 }
 
 void RealTimeRenderModule::_InitAtmos()

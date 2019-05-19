@@ -76,7 +76,7 @@ private:
 	Noise3D::MeshLoader* m_pModelLoader;
 	Noise3D::MeshManager* m_pMeshMgr;
 	Noise3D::Mesh* m_pMeshSourceSphere;
-	Noise3D::Mesh* m_pMeshSourceCube;
+	Noise3D::Mesh* m_pMeshSourceCubeWireFrame;
 	Noise3D::Mesh* m_pMeshShSphere;
 	Noise3D::MaterialManager*	m_pMatMgr;
 	Noise3D::TextureManager*	m_pTexMgr;

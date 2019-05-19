@@ -71,7 +71,7 @@ void SceneLoader::LoadScene_DiffuseDemoOrenNayar(Camera * pCam)
 	_LoadAdvancedMaterials();
 
 	//sky texture
-	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
 
 	for (int i = 0; i <3; ++i)
 	{
@@ -80,15 +80,15 @@ void SceneLoader::LoadScene_DiffuseDemoOrenNayar(Camera * pCam)
 			{
 				GI::N_PbrtMatDesc desc;
 				desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
-				desc.roughness = (3* i+j) * 0.05f;
+				desc.roughness = (3 * i + j) * 0.025f;
 				//desc.metallicity = 0.0f;
 				desc.metallicity = 0.0f;
 				desc.transparency = 1.0f;
 				desc.ior = 1.1f;
 				m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string((3 * i + j)), desc);
 			}
-			//_LoadSphere(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), 8.0f, "sphere" + std::to_string((3 * i + j)));
-			_LoadBox(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), Vec3(10.0f, 10.0f, 10.0f), "sphere" + std::to_string((3 * i + j)));
+			_LoadSphere(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), 8.0f, "sphere" + std::to_string((3 * i + j)));
+			//_LoadBox(sg, Vec3(20.0f* j, 20.0f - 20.0f* i, 0), Vec3(10.0f, 10.0f, 10.0f), "sphere" + std::to_string((3 * i + j)));
 			//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(20.0f* j,0, 20.0f - 20.0f* i), Vec2(10.0f, 10.0f), "sphere" + std::to_string((3 * i + j)));
 		}
 	}
@@ -101,7 +101,7 @@ void SceneLoader::LoadScene_DiffuseDemoOrenNayar(Camera * pCam)
 
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
-	SceneLoader::SetAmbientRadiance(Vec3(50.0f, 0, 0));
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
 }
 
 void SceneLoader::LoadScene_RefractionDemo(Camera * pCam)
@@ -612,6 +612,232 @@ void SceneLoader::LoadScene_Boxes(Camera * pCam)
 
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
 	SceneLoader::SetSkyLightMultiplier(2.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_SHDiffuseExperiment(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap8.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 1.0f;
+		desc.metallicity = 0.0f;
+		desc.metal_F0 = Vec3(0, 0, 0);//almost disable fresnel reflection
+		m_pMatMgr->CreateAdvancedMaterial("rect", desc);
+	}
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f,200.0f), "rect");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-50.0f, 50.0f, 50.0f);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+}
+
+void SceneLoader::LoadScene_PaperExpr6_2_1_1(Camera * pCam)
+{
+	//exp1: roughness varies
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <10; ++i)
+	{
+			{
+				GI::N_PbrtMatDesc desc;
+				desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+				desc.roughness = i * 0.1f;
+				desc.metallicity = 0.0f; //case 1
+				//desc.metallicity = 0.5f; //case 2
+				//desc.metallicity = 1.0f; //case 3
+				desc.transparency = 0.0f;
+				desc.ior = 1.1f;
+				m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
+			}
+			_LoadSphere(sg, Vec3(20.0f* (i-4)-10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
+	}
+
+	//resolution: 1600x200
+	pCam->SetViewAngle_Radian(Ut::PI * 0.05f, 8.0);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0, 0, -180.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_2_1_2(Camera * pCam)
+{
+		//exp1: roughness varies
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <10; ++i)
+	{
+			{
+				GI::N_PbrtMatDesc desc;
+				desc.albedo = Color4f(1.0f, 0.5f, 0.5f, 1.0f);
+				desc.roughness = i * 0.1f;
+				desc.metallicity = 0.0f; //case 1
+				desc.transparency = 1.0f;
+				//desc.ior = 1.1f;
+				desc.ior = 2.0f;
+				m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
+			}
+			_LoadSphere(sg, Vec3(20.0f* (i-4)-10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
+	}
+
+	//resolution: 1600x200
+	pCam->SetViewAngle_Radian(Ut::PI * 0.05f, 8.0);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0, 0, -180.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_2_2(Camera * pCam)
+{
+	//exp1: roughness varies
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <10; ++i)
+	{
+		{
+			GI::N_PbrtMatDesc desc;
+			//desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+			desc.albedo = Color4f(1.0f, 1.0f, 0.5f, 1.0f);
+			desc.roughness =0.0f;
+			desc.metallicity = i * 0.1f; 
+			//desc.transparency = 1.0f;//case 1
+			desc.transparency = 0.0f;//case 2
+			desc.ior = 1.1f;
+			m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
+		}
+		_LoadSphere(sg, Vec3(20.0f* (i - 4) - 10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
+	}
+
+	//resolution: 1600x200
+	pCam->SetViewAngle_Radian(Ut::PI * 0.05f, 8.0);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0, 0, -180.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_2_3(Camera * pCam)
+{
+	//exp1: roughness varies
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <10; ++i)
+	{
+		{
+			GI::N_PbrtMatDesc desc;
+			//desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+			desc.albedo = Color4f(1.0f, 1.0f, 1.0, 1.0f);
+			desc.roughness = 0.0f;
+			//desc.metallicity = 0.5f;
+			desc.metallicity = 0.7f;
+			desc.transparency = 0.0f;
+			//desc.metal_F0 = Vec3(1.0f - i*0.1f, 0.1*i, 0);
+			desc.metal_F0 = Vec3(1.0f - i*0.1f,0, 0.1*i);
+			desc.ior = 1.1f;
+			m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
+		}
+		_LoadSphere(sg, Vec3(20.0f* (i - 4) - 10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
+	}
+
+	//resolution: 1600x200
+	pCam->SetViewAngle_Radian(Ut::PI * 0.05f, 8.0);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0, 0, -180.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_2_4(Camera * pCam)
+{
+	//exp1: roughness varies
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap7.jpg", "envmap", true, 0, 0, true);
+
+	for (int i = 0; i <10; ++i)
+	{
+		{
+			GI::N_PbrtMatDesc desc;
+			//desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+			desc.albedo = Color4f(1.0f, 1.0f, 1.0, 1.0f);
+			desc.roughness = 0.2f;
+			//desc.roughness = 0.1f;
+			desc.metallicity = 0.0f;
+			desc.transparency = 1.0f;
+			desc.metal_F0 = Vec3(1.0f,1.0f,1.0f);
+			desc.ior = 1.1f + i * 0.1f;
+			m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
+		}
+		_LoadSphere(sg, Vec3(20.0f* (i - 4) - 10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
+	}
+
+	//resolution: 1600x200
+	pCam->SetViewAngle_Radian(Ut::PI * 0.05f, 8.0);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(0, 0, -180.0f);
+	//pCam->GetWorldTransform().SetPosition(0, 100.0, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
 	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
 }
 

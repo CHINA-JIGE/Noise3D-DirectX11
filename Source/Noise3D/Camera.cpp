@@ -158,7 +158,7 @@ Vec3 Noise3D::Camera::FireRay_ViewSpace(PixelCoord2 pixelCoord, size_t backBuffP
 Vec3 Noise3D::Camera::FireRay_ViewSpace(Vec2 uv)
 {
 	//assume that z = 1.0f
-	float tanFovY = (mViewAngleY_Radian/2.0f); //(y/z)
+	float tanFovY = tanf(mViewAngleY_Radian/2.0f); //(y/z)
 	float tanFovX = tanFovY * mAspectRatio; //(x/z) = (y/z) * (x/y)
 	Vec3 rayDir = { uv.x *tanFovX, uv.y *tanFovY, 1.0f };
 	return rayDir;

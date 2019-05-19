@@ -66,3 +66,24 @@ Color4f Noise3D::GI::CubeMapSampler::Eval(const Vec3 & dir)
 	Color4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
 	return result;
 }
+
+//**************************Texture2D Sampler*************************
+Noise3D::GI::Texture2dSamplerForSHProjection::Texture2dSamplerForSHProjection():
+	m_pTex(nullptr)
+{
+}
+
+void Noise3D::GI::Texture2dSamplerForSHProjection::SetTexturePtr(Texture2D * pTex)
+{
+	m_pTex = pTex;
+}
+
+Color4f Noise3D::GI::Texture2dSamplerForSHProjection::Eval(const Vec3 & dir)
+{
+	uint32_t pixelX = 0, pixelY = 0;
+	Vec3 correctedDir = Vec3(dir.x, -dir.y, dir.z);
+	Ut::DirectionToPixelCoord_SphericalMapping(correctedDir, m_pTex->GetWidth(), m_pTex->GetHeight(), pixelX, pixelY);
+	Color4u c = m_pTex->GetPixel(pixelX, pixelY);
+	Color4f result = { float(c.r) / 255.0f,float(c.g) / 255.0f,float(c.b) / 255.0f,float(c.a) / 255.0f };
+	return result;
+}

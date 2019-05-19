@@ -185,7 +185,7 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 	int directLightingSampleCount = _MaxDiffuseSample();
 
 	//additional samples for microfacet-based specular reflection/transmission
-	int specularScatterampleCount = _MaxSpecularScatterSample();
+	int specularScatterSampleCount = _MaxSpecularScatterSample();
 
 	//additional sample for indirect diffuse lighting and perhaps SH-based env lighting
 	int indirectDiffuseSampleCount = _MaxDiffuseSample();
@@ -203,11 +203,11 @@ GI::Radiance Noise3D::GI::PathTracerStandardShader::_FinalIntegration(const N_Tr
 
 	//3. specular hemisphere
 	GI::Radiance s_1;
-	_IntegrateSpecular(specularScatterampleCount, param, hitInfo, s_1);
+	_IntegrateSpecular(specularScatterSampleCount, param, hitInfo, s_1);
 
 	//4.
 	GI::Radiance t_1;
-	_IntegrateTransmission(specularScatterampleCount, param, hitInfo, t_1);
+	_IntegrateTransmission(specularScatterSampleCount, param, hitInfo, t_1);
 
 	 //result. (d_direct+ d_indirect) + 0.5(s_direct + s_indirect) + 0.5(s_complete)
 	//GI::Radiance result = (d_1 + d_2) + s_3 + t_1;
@@ -415,6 +415,9 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, 
 
 void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCount, const N_TraceRayParam & param, const N_RayHitInfoForPathTracer & hitInfo, GI::Radiance & outTransmission)
 {
+	//(2019.5.19) i thought there must be some problem in this implementation of transmission light transport
+	//color goes crazy when the roughness is too high
+
 	//[Walter07]
 	GI::RandomSampleGenerator g;
 	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
@@ -446,17 +449,19 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 	//determine if it's total internal reflection
 	bool isInternalReflection = (refractedDir == Vec3(0, 0, 0));
 
-#pragma region INTERNAL_REFLECTION
+	#pragma region INTERNAL_REFLECTION
 	//**************Internal Reflection********
 	//(2019.5.12)actually this is not accurate, because every sample direction should be
 	//calculated if it will cause internal reflection.
 	//codes below only considers internal reflection with 1 sample
+	//(2019.5.17)emmm it's actually accurate, internal reflection is always 1 sample here (bounces>0)
+	GI::Radiance outInternalReflection;
 	if (param.isInsideObject && isInternalReflection)
 	{
 		Vec3 internalReflectedDir = Vec3::Reflect(param.ray.dir, -n);
 		Vec3 l = internalReflectedDir;//light path
 		l.Normalize();
-		Vec3 h_inside =-n;//points to inside
+		Vec3 h_inside = -n;//points to inside
 
 		N_TraceRayPayload payload_internalReflection;
 		N_TraceRayParam newParam = param;
@@ -476,13 +481,11 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		delta_t = payload_internalReflection.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF * cosTerm;
 		delta_t /= bxdfInfo.D;
 		delta_t *= (4.0f * abs(l.Dot(h_inside)));
-		outTransmission += delta_t;
+		outInternalReflection += delta_t;
 		return;
 	}
-
 	//*********************
 #pragma region INTERNAL_REFLECTION
-
 
 	//*******transmission/refraction********
 	//gen paths for specular transmission (cone angle varys with roughness)
@@ -495,6 +498,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		N_Ray sampleRay = N_Ray(hitInfo.pos, sampleDir);
 		Vec3 l = sampleDir;//light path
 		l.Normalize();
+
 
 		//half vector h_t should be carefully dealt with
 		Vec3 h_t = BxdfUt::ComputeHalfVectorForRefraction(v, l, eta_i, eta_o, n);
@@ -511,6 +515,8 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		BxdfInfo bxdfInfoRefraction;
 		if (param.isInsideObject)
 		{
+			if (l.Dot(n) < 0.0f)continue;
+
 			newParam_refraction.isInsideObject = false;
 			IPathTracerSoftShader::_TraceRay(newParam_refraction, payload_refraction);
 			//light ray incident from object to air
@@ -519,6 +525,8 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		}
 		else
 		{
+			if (l.Dot(n) > 0.0f)continue;
+
 			newParam_refraction.isInsideObject = true;
 			IPathTracerSoftShader::_TraceRay(newParam_refraction, payload_refraction);
 			//light ray incident from air to object
@@ -614,7 +622,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
-		F = BxdfUt::SchlickFresnel_Vec3(F0, v, -h);
+		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, -h);
 	}
 	else
 	{

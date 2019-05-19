@@ -79,6 +79,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 
 Color4f Noise3D::GI::SHVector::Eval(Vec3 dir)
 {
+
 	Vec4 result = { 0,0,0,0};
 	for (int L = 0; L <= mOrder; ++L)
 	{

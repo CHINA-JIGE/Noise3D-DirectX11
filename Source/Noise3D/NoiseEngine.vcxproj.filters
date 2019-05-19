@@ -163,9 +163,6 @@
     <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Demo">
       <UniqueIdentifier>{5a38ae16-e965-40b1-a898-4e874726ebac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoiseGraphic\GI\PathTracer\SoftShaders\Standard">
-      <UniqueIdentifier>{f0b5a782-fbe3-43b2-8696-e1de1b4cb867}</UniqueIdentifier>
-    </Filter>
     <Filter Include="NoiseGraphic\Scene\CollisionTestor\BvhTreeForScene">
       <UniqueIdentifier>{a863a99d-c5c8-431a-9916-6a0eb056b80f}</UniqueIdentifier>
     </Filter>
@@ -427,9 +424,6 @@
     <ClInclude Include="PathTracerShader_Reflection.h">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracerStandardShader.h">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
-    </ClInclude>
     <ClInclude Include="Noise3D_StableCommonHeader.h">
       <Filter>Global</Filter>
     </ClInclude>
@@ -447,6 +441,9 @@
     </ClInclude>
     <ClInclude Include="PbrtMaterial.h">
       <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracerStandardShader.h">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -666,9 +663,6 @@
     <ClCompile Include="PathTracerShader_Refraction.cpp">
       <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Demo</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracerStandardShader.cpp">
-      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders\Standard</Filter>
-    </ClCompile>
     <ClCompile Include="BvhTreeForScene.cpp">
       <Filter>NoiseGraphic\Scene\CollisionTestor\BvhTreeForScene</Filter>
     </ClCompile>
@@ -677,6 +671,9 @@
     </ClCompile>
     <ClCompile Include="PbrtMaterial.cpp">
       <Filter>NoiseGraphic\Scene\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracerStandardShader.cpp">
+      <Filter>NoiseGraphic\GI\PathTracer\SoftShaders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

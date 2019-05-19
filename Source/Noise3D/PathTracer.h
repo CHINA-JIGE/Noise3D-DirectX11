@@ -114,6 +114,9 @@ namespace Noise3D
 			//image's exposure factor for tone mapping
 			void SetExposure(float e);
 
+			//(2019.5.19) one day, this debug function must be implemented to visualize scattered ray
+			//void DebugPath(N_Ray ray, GraphicObject* pRayPathGO);
+
 		protected:
 
 			struct N_RenderTileInfo

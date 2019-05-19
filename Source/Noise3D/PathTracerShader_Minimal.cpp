@@ -39,10 +39,11 @@ void Noise3D::GI::PathTracerShader_MinimalDemo::ClosestHit(const N_TraceRayParam
 		}
 	}*/
 	
-	if (rgb.x < 0)rgb.x *= -0.5f;
+	/*if (rgb.x < 0)rgb.x *= -0.5f;
 	if (rgb.y < 0)rgb.y *= -0.5f;
-	if (rgb.z < 0)rgb.z *= -0.5f;
-	in_out_payload.radiance = GI::Radiance(rgb);
+	if (rgb.z < 0)rgb.z *= -0.5f;*/
+	in_out_payload.radiance = GI::Radiance(abs(hitInfo.normal.x), abs(hitInfo.normal.y), abs(hitInfo.normal.z));
+	//in_out_payload.radiance = GI::Radiance(rgb);
 }
 
 void Noise3D::GI::PathTracerShader_MinimalDemo::Miss(const N_TraceRayParam & param, N_TraceRayPayload & in_out_payload)

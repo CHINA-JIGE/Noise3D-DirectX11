@@ -47,10 +47,10 @@ namespace Noise3D
 		void		SetOrthoViewSize(float width, float height);//for orhtographic
 
 		//fire a ray from cam pos(0,0,0),return ray dir, used for picking or path tracing
-		Vec3	FireRay_ViewSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
+		Vec3		FireRay_ViewSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);
 
 		//fire a ray from cam pos(0,0,0), return ray dir, used for picking or path tracing
-		Vec3	FireRay_ViewSpace(Vec2 uv);
+		Vec3		FireRay_ViewSpace(Vec2 uv);
 
 		//fire a ray from cam pos using pixel coord, return an world space ray. used for picking or path tracing
 		N_Ray	FireRay_WorldSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight);

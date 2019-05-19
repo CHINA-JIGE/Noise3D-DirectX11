@@ -42,12 +42,25 @@ public:
 
 	void LoadScene_Boxes(Camera * pCam);
 
+	void LoadScene_SHDiffuseExperiment(Camera * pCam);
+
+	//(2019.5.19) my graduation paper's experiment
+	void LoadScene_PaperExpr6_2_1_1(Camera * pCam);
+
+	void LoadScene_PaperExpr6_2_1_2(Camera * pCam);
+
+	void LoadScene_PaperExpr6_2_2(Camera * pCam);
+
+	void LoadScene_PaperExpr6_2_3(Camera * pCam);
+
+	void LoadScene_PaperExpr6_2_4(Camera * pCam);
 
 	void SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
 
 	void SetSkyLightMultiplier(float m);
 
 	void SetAmbientRadiance(GI::Radiance r);
+
 
 private:
 

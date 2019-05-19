@@ -58,6 +58,8 @@ Root::Root() :
 	m_pMainloopInterface(nullptr),
 	m_pMainLoopFunction(nullptr),
 	mMainLoopStatus(NOISE_MAINLOOP_STATUS_RUNNING),
+	mRenderWindowClassName(nullptr),
+	mRenderWindowHINSTANCE(NULL),
 	mMainBackBufferWidth(0),
 	mMainBackBufferHeight(0)
 {
