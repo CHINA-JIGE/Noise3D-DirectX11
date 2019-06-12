@@ -478,7 +478,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateTransmission(int sampleCou
 		//clamp cos term in Rendering Equation
 		float cosTerm = std::max<float>(abs(n.Dot(l)), 0.0f);
 		GI::Radiance delta_t;
-		delta_t = payload_internalReflection.radiance * bxdfInfo.k_s * bxdfInfo.reflectionBRDF * cosTerm;
+		delta_t = payload_internalReflection.radiance * 1.0f  * bxdfInfo.reflectionBRDF * cosTerm;//bxdfInfo.k_s
 		delta_t /= bxdfInfo.D;
 		delta_t *= (4.0f * abs(l.Dot(h_inside)));
 		outInternalReflection += delta_t;
@@ -622,7 +622,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
-		F = BxdfUt::SchlickFresnel_Vec3(F0, -v, -h);
+		F = BxdfUt::SchlickFresnel_Vec3(F0, v, -h);
 	}
 	else
 	{

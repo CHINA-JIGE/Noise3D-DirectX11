@@ -32,6 +32,8 @@ public:
 
 	void LoadScene_GoldenPorsche(Camera * pCam);
 
+	void LoadScene_GlassRabbit(Camera * pCam);
+
 	void LoadScene_Lamborghini(Camera * pCam);
 
 	void LoadScene_Buddha(Camera * pCam);
@@ -54,6 +56,10 @@ public:
 	void LoadScene_PaperExpr6_2_3(Camera * pCam);
 
 	void LoadScene_PaperExpr6_2_4(Camera * pCam);
+
+	void LoadScene_PaperExpr6_3_1(Camera * pCam);
+
+	void LoadScene_PaperExpr6_3_2(Camera * pCam);
 
 	void SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type);
 

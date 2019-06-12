@@ -430,6 +430,49 @@ void SceneLoader::LoadScene_GoldenPorsche(Camera * pCam)
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 }
 
+void SceneLoader::LoadScene_GlassRabbit(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+
+	// texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.roughness = 0.05f;
+		desc.metallicity = 0.0;
+		desc.metal_F0 = Vec3(1.0f, 1.0f, 1.0f);
+		desc.transparency = 1.0f;
+		desc.ior = 1.1f;
+		m_pMatMgr->CreateAdvancedMaterial("GLASS", desc);
+	}
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.0f;
+		desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
+		m_pMatMgr->CreateAdvancedMaterial("GROUND", desc);
+	}
+
+	Mesh* pMesh = _LoadMeshSTL(sg, "../media/model/rabbit.stl", Vec3(0, 0, 0), "GLASS");
+	pMesh->GetAttachedSceneNode()->GetLocalTransform().SetScale(1.0f, 1.0f, 1.0f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(50.0f, 70.0f, -80.0f);
+	pCam->LookAt(0, 30.0f, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
 void SceneLoader::LoadScene_Buddha(Camera * pCam)
 {
 	SceneGraph& sg = m_pScene->GetSceneGraph();
@@ -528,10 +571,15 @@ void SceneLoader::LoadScene_Dragon(Camera * pCam)
 	{
 		GI::N_PbrtMatDesc desc;
 		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f); //Color4f(2.0f, 2.0f, 2.0f, 2.0f);
-		desc.roughness = 0.3f;
+		//desc.roughness = 0.3f;
+		desc.roughness = 0.0f;
 		desc.metallicity = 1.0f;
-		//desc.metal_F0 = Vec3(1.0f, 0.95f, 0.5f);//golden
-		desc.metal_F0 = Vec3(1.0f, 0.97f, 0.95f);
+		//desc.metallicity = 0.0f;
+		desc.metal_F0 = Vec3(1.0f, 0.95f, 0.5f);//golden
+		//desc.metal_F0 = Vec3(1.0f, 0.97f, 0.95f);
+		//desc.transparency = 1.0f;
+		desc.transparency = 0.0f;
+		desc.ior = 1.2f;
 		//desc.pAlbedoMap = m_pTexMgr->GetObjectPtr<Texture2D>("wood");
 		m_pMatMgr->CreateAdvancedMaterial("DRAGON", desc);
 	}
@@ -702,8 +750,8 @@ void SceneLoader::LoadScene_PaperExpr6_2_1_2(Camera * pCam)
 				desc.roughness = i * 0.1f;
 				desc.metallicity = 0.0f; //case 1
 				desc.transparency = 1.0f;
-				//desc.ior = 1.1f;
-				desc.ior = 2.0f;
+				desc.ior = 1.1f;
+				//desc.ior = 2.0f;
 				m_pMatMgr->CreateAdvancedMaterial("sphere" + std::to_string(i), desc);
 			}
 			_LoadSphere(sg, Vec3(20.0f* (i-4)-10.0f, 0, 0), 8.0f, "sphere" + std::to_string(i));
@@ -839,6 +887,97 @@ void SceneLoader::LoadScene_PaperExpr6_2_4(Camera * pCam)
 	SceneLoader::SetSkyLightMultiplier(1.0f);
 	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
 	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_3_1(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+	_LoadAdvancedMaterials();
+
+	//sky texture
+	//m_pTexMgr->CreateTextureFromFile("../media/black2.jpg", "envmap", true, 0, 0, true);
+	m_pTexMgr->CreateTextureFromFile("../media/envmap2.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.2f;
+		m_pMatMgr->CreateAdvancedMaterial("GROUND", desc);
+	}
+
+	const float c_totalWidth = 400.0f;
+	//_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(500.0f, 500.0f), "IRONMAN_GROUND");
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(c_totalWidth, c_totalWidth), "GROUND");
+
+	//load common boxes
+	for (int i = 0; i < 100; ++i)
+	{
+		GI::RandomSampleGenerator g;
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(g.CanonicalReal(), g.CanonicalReal(), g.CanonicalReal(), 1.0f);
+		desc.roughness = g.CanonicalReal() * 0.4f;
+		desc.metallicity = 0.0f;
+
+		m_pMatMgr->CreateAdvancedMaterial("BOX" + std::to_string(i), desc);
+		float boxWidth = g.CanonicalReal()*30.0f + 5.0f;
+		LogicalBox* pBox = _LoadBox(
+			sg,
+			Vec3(c_totalWidth / 2.0f*g.NormalizedReal(), boxWidth / 2.0f, c_totalWidth / 2.0f*g.NormalizedReal()),
+			Vec3(boxWidth, boxWidth, boxWidth),
+			"BOX" + std::to_string(i));
+		pBox->GetAttachedSceneNode()->GetLocalTransform().Rotate(0, 2.0f * Ut::PI *g.CanonicalReal(), 0);
+	}
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(200.0f, 100, 0);
+	pCam->LookAt(0, 0, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
+	SceneLoader::SetAmbientRadiance(Vec3(0, 0, 0));
+}
+
+void SceneLoader::LoadScene_PaperExpr6_3_2(Camera * pCam)
+{
+	SceneGraph& sg = m_pScene->GetSceneGraph();
+	_LoadTextures();
+	_LoadLambertMaterials();
+
+	//sky texture
+	m_pTexMgr->CreateTextureFromFile("../media/envmap5.jpg", "envmap", true, 0, 0, true);
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.1f;
+		desc.metallicity = 0.05f;
+		m_pMatMgr->CreateAdvancedMaterial("BUDDHA", desc);
+	}
+
+	{
+		GI::N_PbrtMatDesc desc;
+		desc.albedo = Color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		desc.roughness = 0.2f;
+		desc.metallicity = 0.2f;
+		m_pMatMgr->CreateAdvancedMaterial("BUDDHA_GROUND", desc);
+	}
+
+	Mesh* pMesh = _LoadMeshSTL(sg, "../media/model/buddha.stl", Vec3(0, 0, 0), "BUDDHA");
+	//Mesh* pMesh = _LoadMeshOBJ(sg, "../media/model/buddha-v2.obj", Vec3(0, 0, 0), "BUDDHA");
+	pMesh->GetAttachedSceneNode()->GetLocalTransform().SetScale(0.5f, 0.5f, 0.5f);
+	_LoadRect(sg, NOISE_RECT_ORIENTATION::RECT_XZ, Vec3(0, 0, 0), Vec2(200.0f, 200.0f), "BUDDHA_GROUND");
+
+	pCam->SetViewAngle_Radian(Ut::PI / 2.5f, 1.333333333f);
+	pCam->SetViewFrustumPlane(1.0f, 500.f);
+	pCam->GetWorldTransform().SetPosition(-20.0f, 30.0f, -50.0f);
+	pCam->LookAt(0, 10.0f, 0);
+
+	SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE::SKY_DOME);
+	SceneLoader::SetSkyLightMultiplier(1.0f);
 }
 
 void SceneLoader::SetSkyLightType(GI::NOISE_PATH_TRACER_SKYLIGHT_TYPE type)

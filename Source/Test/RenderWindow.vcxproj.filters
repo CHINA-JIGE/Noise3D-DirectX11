@@ -61,5 +61,8 @@
     <ClCompile Include="UnitTest_RayMeshIntersectionBenchmark.cpp">
       <Filter>Main3D</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest_RayMeshIntersectionBenchmark2.cpp">
+      <Filter>Main3D</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

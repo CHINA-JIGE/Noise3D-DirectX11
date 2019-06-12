@@ -84,7 +84,8 @@ void RealTimeRenderModule::_InitScene()
 	//SceneLoader::LoadScene_Dragon(m_pCamera);
 	//SceneLoader::LoadScene_MicrofacetTransmissionTest(m_pCamera);
 	//SceneLoader::LoadScene_SHDiffuseExperiment(m_pCamera);
-	SceneLoader::LoadScene_PaperExpr6_2_1_2(m_pCamera);
+	//SceneLoader::LoadScene_PaperExpr6_3_2(m_pCamera);
+	SceneLoader::LoadScene_Dragon(m_pCamera);
 }
 
 void RealTimeRenderModule::_InitAtmos()
