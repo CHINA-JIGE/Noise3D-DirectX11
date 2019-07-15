@@ -17,19 +17,19 @@ IBaseLight::IBaseLight()
 
 }
 
-void IBaseLight::SetAmbientColor(const NVECTOR3 & color)
+void IBaseLight::SetAmbientColor(const Vec3 & color)
 {
-	mBaseLightDesc.ambientColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.ambientColor = Clamp(color, Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
 }
 
-void IBaseLight::SetDiffuseColor(const NVECTOR3 & color)
+void IBaseLight::SetDiffuseColor(const Vec3 & color)
 {
-	mBaseLightDesc.diffuseColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.diffuseColor = Clamp(color, Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
 }
 
-void IBaseLight::SetSpecularColor(const NVECTOR3 & color)
+void IBaseLight::SetSpecularColor(const Vec3 & color)
 {
-	mBaseLightDesc.specularColor = Clamp(color, NVECTOR3(0.0f, 0.0f, 0.0f), NVECTOR3(1.0f, 1.0f, 1.0f));
+	mBaseLightDesc.specularColor = Clamp(color, Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
 }
 
 void IBaseLight::SetSpecularIntensity(float specInt)
@@ -66,7 +66,7 @@ void IBaseLight::GetDesc(N_CommonLightDesc & outDesc)
 DirLight::DirLight()
 {
 	mLightDesc.specularIntensity = 1.0f;
-	mLightDesc.direction = NVECTOR3(1.0f, 0, 0);
+	mLightDesc.direction = Vec3(1.0f, 0, 0);
 	mLightDesc.diffuseIntensity = 0.5;
 }
 
@@ -75,7 +75,7 @@ DirLight::~DirLight()
 
 }
 
-void DirLight::SetDirection(const NVECTOR3& dir)
+void DirLight::SetDirection(const Vec3& dir)
 {
 	//the length of directional vector must be greater than 0
 	if (!(dir.x == 0 && dir.y == 0 && dir.z == 0))
@@ -84,15 +84,15 @@ void DirLight::SetDirection(const NVECTOR3& dir)
 	}
 }
 
-NVECTOR3 Noise3D::DirLight::GetDirection()
+Vec3 Noise3D::DirLight::GetDirection()
 {
 	return mLightDesc.direction;
 }
 
-NVECTOR3 Noise3D::DirLight::GetDirection_WorldSpace()
+Vec3 Noise3D::DirLight::GetDirection_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRotationMatrix();
-	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.direction, mat);
+	Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetRotationMatrix();
+	Vec3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.direction, mat);
 	return vec;
 }
 
@@ -132,7 +132,12 @@ N_AABB Noise3D::DirLight::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::DirLight::GetObjectType()
+N_BoundingSphere Noise3D::DirLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::DirLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
 }
@@ -203,20 +208,20 @@ PointLight::~PointLight()
 {
 }
 
-void PointLight::SetPosition(const NVECTOR3 & pos)
+void PointLight::SetPosition(const Vec3 & pos)
 {
 	mLightDesc.position = pos;
 }
 
-NVECTOR3 Noise3D::PointLight::GetPostion()
+Vec3 Noise3D::PointLight::GetPostion()
 {
 	return mLightDesc.position;
 }
 
-NVECTOR3 Noise3D::PointLight::GetPosition_WorldSpace()
+Vec3 Noise3D::PointLight::GetPosition_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
-	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
+	Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix();
+	Vec3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	return vec;
 }
 
@@ -267,7 +272,12 @@ N_AABB Noise3D::PointLight::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::PointLight::GetObjectType()
+N_BoundingSphere Noise3D::PointLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::PointLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
 }
@@ -283,17 +293,17 @@ SpotLight::SpotLight()
 	mLightDesc.lightingRange = 100.0f;
 	mLightDesc.lightingAngle = Ut::PI / 4.0f;
 	mLightDesc.diffuseIntensity = 0.5;
-	mLightDesc.lookAt = NVECTOR3(1.0f, 0, 0);
-	mLightDesc.position = NVECTOR3(0, 0, 0);
+	mLightDesc.lookAt = Vec3(1.0f, 0, 0);
+	mLightDesc.position = Vec3(0, 0, 0);
 }
 
 SpotLight::~SpotLight()
 {
 }
 
-void SpotLight::SetPosition(const NVECTOR3 & pos)
+void SpotLight::SetPosition(const Vec3 & pos)
 {
-	NVECTOR3 deltaVec = pos - mLightDesc.lookAt;
+	Vec3 deltaVec = pos - mLightDesc.lookAt;
 
 	//pos and lookAt can't superpose
 	if (!(deltaVec.x == 0 && deltaVec.y == 0 && deltaVec.z == 0))
@@ -302,15 +312,15 @@ void SpotLight::SetPosition(const NVECTOR3 & pos)
 	}
 }
 
-NVECTOR3 Noise3D::SpotLight::GetPosition()
+Vec3 Noise3D::SpotLight::GetPosition()
 {
 	return mLightDesc.position;
 }
 
-NVECTOR3 Noise3D::SpotLight::GetPosition_WorldSpace()
+Vec3 Noise3D::SpotLight::GetPosition_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
-	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
+	Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix();
+	Vec3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	return vec;
 }
 
@@ -319,9 +329,9 @@ void SpotLight::SetAttenuationFactor(float attFactor)
 	mLightDesc.attenuationFactor = Clamp(attFactor,0.0f,1.0f);
 }
 
-void SpotLight::SetLookAt(const NVECTOR3 & vLitAt)
+void SpotLight::SetLookAt(const Vec3 & vLitAt)
 {
-	NVECTOR3 deltaVec = vLitAt - mLightDesc.position;
+	Vec3 deltaVec = vLitAt - mLightDesc.position;
 
 	//pos and lookAt can't superpose
 	if (!(deltaVec.x == 0 && deltaVec.y == 0 && deltaVec.z == 0))
@@ -330,15 +340,15 @@ void SpotLight::SetLookAt(const NVECTOR3 & vLitAt)
 	}
 }
 
-NVECTOR3 Noise3D::SpotLight::GetLookAt()
+Vec3 Noise3D::SpotLight::GetLookAt()
 {
 	return mLightDesc.lookAt;
 }
 
-NVECTOR3 Noise3D::SpotLight::GetLookAt_WorldSpace()
+Vec3 Noise3D::SpotLight::GetLookAt_WorldSpace()
 {
-	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
-	NVECTOR3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
+ 	Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix();
+	Vec3 vec = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
 	return vec;
 }
 
@@ -373,7 +383,7 @@ N_SpotLightDesc SpotLight::GetDesc()
 N_SpotLightDesc Noise3D::SpotLight::GetDesc_TransformedToWorld()
 {
 	N_SpotLightDesc desc = SpotLight::GetDesc();
-	NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix();
+	Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix();
 	desc.position = AffineTransform::TransformVector_MatrixMul(mLightDesc.position, mat);
 	desc.lookAt = AffineTransform::TransformVector_MatrixMul(mLightDesc.lookAt, mat);
 	return desc;
@@ -394,8 +404,13 @@ N_AABB Noise3D::SpotLight::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::SpotLight::GetObjectType()
+NOISE_SCENE_OBJECT_TYPE Noise3D::SpotLight::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::LIGHT;
+}
+
+N_BoundingSphere Noise3D::SpotLight::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
 }
 

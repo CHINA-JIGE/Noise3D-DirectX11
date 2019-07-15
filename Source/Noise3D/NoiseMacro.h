@@ -1,18 +1,13 @@
 
-
 /***********************************************************************
 
-                           h£ººê
+                           h£º MACROs
 
 ************************************************************************/
 
 #pragma once
 
 #define NOISE_MACRO_INVALID_ID			UINT_MAX
-
-#define NOISE_MACRO_INVALID_TEXTURE_ID			UINT_MAX
-
-#define NOISE_MACRO_INVALID_MATERIAL_ID		UINT_MAX
 
 #define NOISE_MACRO_DEFAULT_MATERIAL_NAME ""//"NoIsE_3d_DeFaUlT_MaTeRiAl"//default material name
 
@@ -31,22 +26,6 @@
 				ComPointer->Release();\
 				ComPointer=nullptr;\
 				}\
-
-
-//debug msg for HRESULT
-#define HR_DEBUG(hr,MsgText)\
-				if(FAILED(hr)) \
-				{\
-				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
-				return false;\
-				};\
-
-#define HR_DEBUG_CREATETEX(hr,MsgText)\
-				if(FAILED(hr)) \
-				{\
-				ERROR_MSG(MsgText);\
-				return nullptr;\
-				};\
 
 //implementing these 2 op with functions is not acceptable because pre-processed
 //data will be wiped out.
@@ -71,7 +50,25 @@
 		debugMsg << "file: " << __FILE__ << std::endl;\
 		debugMsg << "line: " << __LINE__ << std::endl;\
 		debugMsg << "function:" << __func__ << std::endl;\
-		throw std::exception(debugMsg.str().c_str());\
+		OutputDebugStringA(debugMsg.str().c_str());\
 		debugMsg.clear();\
 	}\
+
+#define DEBUG_MSG(msg)  OutputDebugStringA(msg);
+
+//debug msg for HRESULT
+#define HR_DEBUG(hr,MsgText)\
+				if(FAILED(hr)) \
+				{\
+				ERROR_MSG("d3d returned error code : "+std::to_string(hr)+"\n"+MsgText);\
+				return false;\
+				};\
+
+#define HR_DEBUG_CREATETEX(hr,MsgText)\
+				if(FAILED(hr)) \
+				{\
+				ERROR_MSG(MsgText);\
+				return nullptr;\
+				};\
+
 ;

@@ -12,7 +12,7 @@ namespace Noise3D
 		{
 			UINT width;
 			UINT height;
-			std::vector<NColor4u> bitmapBuffer;
+			std::vector<Color4u> bitmapBuffer;
 		};
 
 		struct N_FontObject
@@ -25,15 +25,15 @@ namespace Noise3D
 			UINT			mFontSize;
 			float				mAspectRatio;
 			std::string		mInternalTextureName;//name in font mgr texture mgr
-			std::vector	<NVECTOR2>	mAsciiCharSizeList;//elements will be added in GetBitmapOfChar
+			std::vector	<Vec2>	mAsciiCharSizeList;//elements will be added in GetBitmapOfChar
 
 		};
 
 
 		class /*_declspec(dllexport)*/ TextManager
-			:public IFactory<N_FontObject>,
-			public IFactory<DynamicText>,
-			public IFactory<StaticText>
+			:protected IFactory<N_FontObject>,
+			protected IFactory<DynamicText>,
+			protected IFactory<StaticText>
 		{
 		public:
 
@@ -47,17 +47,17 @@ namespace Noise3D
 
 			bool		IsFontExisted(N_UID fontName);
 
-			StaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor=NVECTOR4(0,0,0,0), int wordSpacingOffset=0, int lineSpacingOffset=0);
+			StaticText*			CreateStaticTextA(N_UID fontName,N_UID textObjectName,std::string contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor=Vec4(0,0,0,0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
-			StaticText*			CreateStaticTextW(N_UID fontName,  N_UID textObjectName,std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor = NVECTOR4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
+			StaticText*			CreateStaticTextW(N_UID fontName,  N_UID textObjectName,std::wstring contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor = Vec4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
-			DynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor = NVECTOR4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
+			DynamicText*		CreateDynamicTextA(N_UID fontName, N_UID textObjectName, std::string contentString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor = Vec4(0, 0, 0, 0), int wordSpacingOffset=0, int lineSpacingOffset=0);
 
-			NVECTOR2		GetFontSize(N_UID fontName);
+			Vec2		GetFontSize(N_UID fontName);
 
 			bool		DeleteFont(N_UID fontName);
 
-			void			DeleteAllFont();
+			void		DeleteAllFont();
 
 			bool		DeleteStaticText(N_UID textName);
 
@@ -67,17 +67,17 @@ namespace Noise3D
 
 			bool		DeleteDynamicText(DynamicText* pText);
 
-			void			DeleteAllTexts();
+			void		DeleteAllTexts();
 
-			void			DeleteAllFonts();
+			void		DeleteAllFonts();
 
 		private:
 			//init freetype library and internal objects , invoked by SceneManager
 			bool	NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_Init(TextureManager* in_created_pTexMgr, GraphicObjectManager* in_created_pGObjMgr);
 			//get bitmap of a single WCHAR
-			void			mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, NVECTOR4 textColor);
+			void			mFunction_GetBitmapOfWChar(N_FontObject& fontObj, wchar_t targetWChar, N_Font_Bitmap& outFontBitmap, Vec4 textColor);
 			//create Bitmap Table of a w-char string (combining char pixel blocks)
-			void			mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, NVECTOR4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
+			void			mFunction_GetBitmapOfWString(N_FontObject& fontObj, std::wstring targetString, UINT boundaryWidth, UINT boundaryHeight, Vec4 textColor, N_Font_Bitmap & outFontBitmap, int wordSpacingOffset, int lineSpacingOffset);
 			//Use GetBitmapOfString() to create ascii bitmap table, then Ascii char can be dynamically refered via texture coordinate
 			bool		mFunction_CreateTexture_AsciiBitmapTable(N_FontObject& fontObj,std::string fontName, UINT charWidth, UINT charHeight);
 

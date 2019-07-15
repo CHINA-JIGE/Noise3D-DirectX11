@@ -25,45 +25,9 @@ Mesh * MeshManager::CreateMesh(SceneNode* pAttachedNode, N_UID meshName)
 	return pMesh;
 }
 
-Mesh * MeshManager::GetMesh(N_UID meshName)
-{
-	return IFactory<Mesh>::GetObjectPtr(meshName);
-}
-
-Mesh * MeshManager::GetMesh(UINT index)
-{
-	return IFactory<Mesh>::GetObjectPtr(index);
-}
-
-bool MeshManager::DestroyMesh(N_UID meshName)
-{
-	return IFactory<Mesh>::DestroyObject(meshName);
-}
-
-bool MeshManager::DestroyMesh(Mesh* ppMesh)
-{
-	return IFactory<Mesh>::DestroyObject(ppMesh);
-}
-
-void MeshManager::DestroyAllMesh()
-{
-	IFactory<Mesh>::DestroyAllObject();
-}
-
-UINT MeshManager::GetMeshCount()
-{
-	return IFactory<Mesh>::GetObjectCount();
-}
-
-bool Noise3D::MeshManager::IsMeshExisted(N_UID meshName)
-{
-	return IFactory<Mesh>::FindUid(meshName);
-}
-
 /***********************************************************************
 								P R I V A T E					                    
 ***********************************************************************/
-
 
 MeshManager::MeshManager():IFactory<Mesh>(50000)
 {

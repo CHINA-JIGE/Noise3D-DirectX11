@@ -14,7 +14,8 @@
 
 using namespace Noise3D;
 
-Noise3D::SceneNode::SceneNode()
+Noise3D::SceneNode::SceneNode():
+	mIsWorldMatrixCached(false)
 {
 }
 
@@ -27,88 +28,88 @@ AffineTransform& Noise3D::SceneNode::GetLocalTransform()
 	return mLocalTransform;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldAffineTransformMatrix()
+AffineTransform Noise3D::SceneNode::EvalWorldTransform(bool cacheResult)
 {
+	//previous evaluated result's fast retrival
+	if (mIsWorldMatrixCached)return mWorldTransformCache;
+
 	SceneGraph* pSG = this->GetHostTree();
 	std::vector<SceneNode*> path;//path to root
 	pSG->TraversePathToRoot(this, path);
 
 	//concatenate leaf node's transform first, then level-by-level to root
 	//traversePathToRoot's result have the leaf node at the beginning, and root at the end
-	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode: path)
+	Matrix world_mat = XMMatrixIdentity();
+
+	//(2019.3.22)ignore root node's transform
+	for (uint32_t i = 0; i<path.size() - 1; ++i)
 	{
 		//WARNING: plz be careful about ROW/COLUMN major 
 		//(2019.3.7)Noise3D uses ROW major like DXMath do. refer to AffineTransform for related info
-		NMATRIX tmpMat = XMMatrixIdentity();
+		SceneNode* pNode = path.at(i);
+		Matrix tmpMat = XMMatrixIdentity();
 		AffineTransform& localTrans = pNode->GetLocalTransform();
-		localTrans.GetTransformMatrix(tmpMat);
+		tmpMat = localTrans.GetAffineTransformMatrix();
 
 		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
+		world_mat = world_mat * tmpMat;
 	}
 
-	return result;
+	//
+	AffineTransform t;
+	t.SetAffineMatrix(world_mat);
+	if (cacheResult)
+	{
+		mIsWorldMatrixCached = true;
+		mWorldTransformCache = t;
+	}
+
+	return t;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldRigidTransformMatrix()
+AffineTransform Noise3D::SceneNode::EvalWorldTransform_Rigid(bool cacheResult)
 {
-	//similar to SceneNode::EvalWorldAffineTransformMatrix()
+	//similar to evalWorldTransform, except that it only count T & R, ignore S
+	//previous evaluated result's fast retrival
+	if (mIsWorldMatrixCached)return mWorldTransformCache;
+
 	SceneGraph* pSG = this->GetHostTree();
 	std::vector<SceneNode*> path;//path to root
 	pSG->TraversePathToRoot(this, path);
 
-	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode : path)
+	Matrix world_mat = XMMatrixIdentity();
+	//(2019.3.22)ignore root node's transform
+	for (uint32_t i = 0; i<path.size() - 1; ++i)
 	{
-		NMATRIX tmpMat = XMMatrixIdentity();
+		SceneNode* pNode = path.at(i);
+		Matrix tmpMat = XMMatrixIdentity();
 		AffineTransform& localTrans = pNode->GetLocalTransform();
-		localTrans.GetRigidTransformMatrix(tmpMat);
+		tmpMat = localTrans.GetRigidTransformMatrix();
 
 		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
+		world_mat = world_mat * tmpMat;
 	}
 
-	return result;
+	AffineTransform t;
+	t.SetAffineMatrix(world_mat);
+	if (cacheResult)
+	{
+		mIsWorldMatrixCached = true;
+		mWorldTransformCache = t;
+	}
+
+	return t;
 }
 
-NMATRIX Noise3D::SceneNode::EvalWorldRotationMatrix()
+void Noise3D::SceneNode::ClearWorldTransformCache()
 {
-	//similar to SceneNode::EvalWorldAffineTransformMatrix()
-	SceneGraph* pSG = this->GetHostTree();
-	std::vector<SceneNode*> path;//path to root
-	pSG->TraversePathToRoot(this, path);
-
-	NMATRIX result = XMMatrixIdentity();
-	for (auto pNode : path)
-	{
-		NMATRIX tmpMat = XMMatrixIdentity();
-		AffineTransform& localTrans = pNode->GetLocalTransform();
-		tmpMat = localTrans.GetRotationMatrix();
-
-		// world_vec = local_vec *  Mat_n * Mat_(n-1) * .... Mat_1 * Mat_root
-		result = result * tmpMat;
-	}
-
-	return result;
+	//clear world matrix cache mark set by 'EvalWorldTransform' function (with parameter 'cacheResult'==true)
+	mIsWorldMatrixCached = false;
 }
 
-void Noise3D::SceneNode::EvalWorldAffineTransformMatrix(NMATRIX & outWorldMat, NMATRIX & outWorldInvTranspose)
+bool Noise3D::SceneNode::IsWorldTransformCached()
 {
-	outWorldMat = SceneNode::EvalWorldAffineTransformMatrix();
-
-	//world inv transpose for normal's transformation
-	NMATRIX worldInvMat = XMMatrixInverse(nullptr, outWorldMat);
-	if (XMMatrixIsInfinite(worldInvMat))
-	{
-		//WARNING_MSG("world matrix Inv not exist! determinant == 0 ! ");
-		outWorldInvTranspose = XMMatrixIdentity();
-		return;
-	}
-	else
-	{
-		outWorldInvTranspose = worldInvMat.Transpose();
-	}
+	return mIsWorldMatrixCached;
 }
 
 void Noise3D::SceneNode::AttachSceneObject(ISceneObject * pObj)
@@ -158,6 +159,20 @@ bool Noise3D::SceneNode::IsAttachedSceneObject()
 	return (mAttachedSceneObjectList.size()!=0);
 }
 
+uint32_t Noise3D::SceneNode::GetSceneObjectCount()
+{
+	return mAttachedSceneObjectList.size() ;
+}
+
+ISceneObject * Noise3D::SceneNode::GetSceneObject(uint32_t index)
+{
+	if (index < mAttachedSceneObjectList.size())
+	{
+		return mAttachedSceneObjectList[index];
+	}
+	return nullptr;
+}
+
 
 /******************************************
 					
@@ -172,3 +187,68 @@ Noise3D::SceneGraph::SceneGraph()
 Noise3D::SceneGraph::~SceneGraph()
 {
 }
+
+
+void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const
+{
+	std::vector<SceneNode*> nodeList;
+
+	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
+	//are copied, but nodes with no scene object bound to it are useless here.
+	switch (order)
+	{
+	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
+		SceneGraph::Traverse_PreOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
+		SceneGraph::Traverse_PostOrder(nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
+		SceneGraph::Traverse_LayerOrder(nodeList); break;
+
+	default:
+		break;
+	}
+
+	//output scene objects bound to nodes
+	for (auto pn:nodeList)
+	{
+		for (uint32_t i = 0; i < pn->GetSceneObjectCount();++i)
+		{
+			outResult.push_back(pn->GetSceneObject(i));
+		}
+	}
+}
+
+void Noise3D::SceneGraph::TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, SceneNode * pNode, std::vector<ISceneObject*>& outResult) const
+{
+	if (pNode == nullptr)return;
+	std::vector<SceneNode*> nodeList;
+
+	//(2019.3.24)actually getting scene nodes first has extra cost, because all scene node ptr s
+	//are copied, but nodes with no scene object bound to it are useless here.
+	switch (order)
+	{
+	case NOISE_TREE_TRAVERSE_ORDER::PRE_ORDER:
+		SceneGraph::Traverse_PreOrder(pNode,nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::POST_ORDER:
+		SceneGraph::Traverse_PostOrder(pNode, nodeList); break;
+
+	case NOISE_TREE_TRAVERSE_ORDER::LAYER_ORDER:
+		SceneGraph::Traverse_LayerOrder(pNode, nodeList); break;
+
+	default:
+		break;
+	}
+
+	//output scene objects bound to nodes
+	for (auto pn : nodeList)
+	{
+		for (uint32_t i = 0; i < pn->GetSceneObjectCount(); ++i)
+		{
+			outResult.push_back(pn->GetSceneObject(i));
+		}
+	}
+}
+

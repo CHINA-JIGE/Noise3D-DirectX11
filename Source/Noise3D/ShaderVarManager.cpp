@@ -81,6 +81,8 @@ IShaderVariableManager* IShaderVariableManager::GetSingleton()
 	BIND_SHADER_VAR_VECTOR(TEXT_COLOR4, "g2D_TextColor");
 	BIND_SHADER_VAR_VECTOR(TEXT_GLOW_COLOR4, "g2D_TextGlowColor");
 	BIND_SHADER_VAR_VECTOR(PICKING_RAY_NORMALIZED_DIR_XY, "gPickingRayNormalizedDirXY");
+	BIND_SHADER_VAR_VECTOR(INTERSECTING_RAY_ORIGIN3, "gIntersectingRayOrigin");
+	BIND_SHADER_VAR_VECTOR(INTERSECTING_RAY_DIR3, "gIntersectingRayDir");
 
 #define BIND_SHADER_VAR_SAMPLER(cppVarName,shaderVarName) m_pSingleton->m_pFxSampler[cppVarName] = g_pFX->GetVariableByName(shaderVarName)->AsSampler()
 
@@ -105,7 +107,7 @@ void IShaderVariableManager::SetVar(const char * var, void * pVal, int size)
 	g_pFX->GetVariableByName(var)->SetRawValue(pVal, 0, size);
 }
 
-void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRIX & data)
+void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const Matrix & data)
 {
 	//Effect::SetMatrix will automatically re-arrange  the data
 	//(i used to manually transpose the matrix to make it right in shader)
@@ -114,18 +116,18 @@ void IShaderVariableManager::SetMatrix(NOISE_SHADER_VAR_MATRIX var, const NMATRI
 	 m_pFxMatrix[var]->SetMatrix((float*)&data);
 }
 
-void IShaderVariableManager::SetVector2(NOISE_SHADER_VAR_VECTOR var, const NVECTOR2 & data)
+void IShaderVariableManager::SetVector2(NOISE_SHADER_VAR_VECTOR var, const Vec2 & data)
 {
 	//so the dimension of the vector is managed by Effects11???
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }
 
-void IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR var, const NVECTOR3 & data)
+void IShaderVariableManager::SetVector3(NOISE_SHADER_VAR_VECTOR var, const Vec3 & data)
 {
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }
 
-void IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR var, const NVECTOR4 & data)
+void IShaderVariableManager::SetVector4(NOISE_SHADER_VAR_VECTOR var, const Vec4 & data)
 {
 	m_pFxVector[var]->SetFloatVector((float*)&data);
 }
@@ -171,7 +173,7 @@ void IShaderVariableManager::SetDynamicSpotLight(int index, const N_SpotLightDes
 	//m_pFxVar[NOISE_SHADER_VAR_GENERAL::DYNAMIC_SPOTLIGHT]->GetElement(index)->SetRawValue(&dynamicLightDesc, 0, sizeof(dynamicLightDesc));
 }
 
-void IShaderVariableManager::SetMaterial(N_BasicMaterialDesc  mat)
+void IShaderVariableManager::SetMaterial(N_BasicLambertMaterialDesc  mat)
 {
 	m_pFxVar[NOISE_SHADER_VAR_GENERAL::MATERIAL_BASIC]->SetRawValue(&mat, 0, sizeof(mat));
 }

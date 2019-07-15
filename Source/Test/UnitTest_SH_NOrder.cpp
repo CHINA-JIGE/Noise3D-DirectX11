@@ -7,7 +7,7 @@ using namespace Noise3D;
 void UnitTest_SH_Recursive()
 {
 	const int arrSize = 10;
-	NVECTOR3 dirArr[arrSize] = {
+	Vec3 dirArr[arrSize] = {
 		{0.5f, 0.3f, 0.5f},
 		{1.0f, 0,0},
 		{0, 1.0f, 0},
@@ -27,7 +27,7 @@ void UnitTest_SH_Recursive()
 			std::cout << "band " << l << ", index" << m << std::endl;
 			for (int i = 0; i < arrSize; ++i)
 			{
-				NVECTOR3 v = dirArr[i];
+				Vec3 v = dirArr[i];
 				std::cout << "Dir:" << v.x << " ," << v.y << " ," << v.z <<" :";
 				try
 				{

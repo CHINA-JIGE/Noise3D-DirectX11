@@ -64,8 +64,8 @@ void UnitTest_WignerMatrixAccess()
 void UnitTest_WignerMatrixConstruction()
 {
 	RigidTransform t;
-	t.SetRotation(NVECTOR3(0.3f, 0.5f, 0.7f));
-	//t.SetRotation(NVECTOR3(0, 0, 0.7f));
+	t.SetRotation(Vec3(0.3f, 0.5f, 0.7f));
+	//t.SetRotation(Vec3(0, 0, 0.7f));
 
 	std::vector<NColor4f> shVector((c_bandWidth+1)*(c_bandWidth+1));
 	auto rotatedShvector = shVector;

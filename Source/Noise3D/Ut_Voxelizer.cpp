@@ -39,7 +39,7 @@ bool Voxelizer::Init(NFilePath STLModelFile, uint16_t cubeCountX, uint16_t cubeC
 	return true;
 }
 
-bool Voxelizer::Init(const std::vector<NVECTOR3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
+bool Voxelizer::Init(const std::vector<Vec3>& vertexList,const std::vector<UINT>& indexList, UINT cubeCountX, UINT cubeCountY, UINT cubeCountZ, float cubeWidth, float cubeHeight, float cubeDepth)
 {
 	mVoxelizedModel.Resize(cubeCountX, cubeCountY, cubeCountZ, cubeWidth, cubeHeight, cubeDepth);
 
@@ -157,8 +157,8 @@ void Voxelizer::mFunction_LineSegment_Scanline_Intersect(const N_LayeredLineSegm
 
 	//v1,v2 are transformed into NORMALIZED space, valued in [0,1]
 	//the point with minimum x,y coord is the origin point
-	NVECTOR2 v1 = { (line.v1.x - mLayerPosMin.x) / mLayerRealWidth , (line.v1.y - mLayerPosMin.y) / mLayerRealDepth };
-	NVECTOR2 v2 = {(line.v2.x - mLayerPosMin.x) / mLayerRealWidth , (line.v2.y - mLayerPosMin.y) / mLayerRealDepth };
+	Vec2 v1 = { (line.v1.x - mLayerPosMin.x) / mLayerRealWidth , (line.v1.y - mLayerPosMin.y) / mLayerRealDepth };
+	Vec2 v2 = {(line.v2.x - mLayerPosMin.x) / mLayerRealWidth , (line.v2.y - mLayerPosMin.y) / mLayerRealDepth };
 
 
 	//line segment could come from any layer (with different Y coordinate)

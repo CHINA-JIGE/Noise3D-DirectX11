@@ -22,9 +22,9 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		return false;
 	}
 
-	std::vector<NVECTOR3> pointList;//xyz buffer
-	std::vector<NVECTOR2> texcoordList;//texcoord buffer
-	std::vector<NVECTOR3> VNormalList;//vertex normal buffer
+	std::vector<Vec3> pointList;//xyz buffer
+	std::vector<Vec2> texcoordList;//texcoord buffer
+	std::vector<Vec3> VNormalList;//vertex normal buffer
 	std::vector<N_LoadOBJ_vertexInfoIndex> vertexInfoList;//indices combination
 
 	 //newly input string from file
@@ -38,7 +38,7 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		//3d vertex : "v 1.0000000 0.52524242 5.12312345"
 		if (currString == "v")
 		{
-			NVECTOR3 currPoint(0, 0, 0);
+			Vec3 currPoint(0, 0, 0);
 			fileIn >> currPoint.x >> currPoint.y >> currPoint.z;
 			pointList.push_back(currPoint);
 		}
@@ -46,7 +46,7 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		//vertex normal "vn 1.0000000 0.52524242 5.12312345"
 		if (currString == "vn")
 		{
-			NVECTOR3 currNormal(0, 0, 0);
+			Vec3 currNormal(0, 0, 0);
 			fileIn >> currNormal.x >> currNormal.y >> currNormal.z;
 			VNormalList.push_back(currNormal);
 		}
@@ -54,9 +54,16 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		//texture coordinate "vt 1.0000000 0.0000000"
 		if (currString == "vt")
 		{
-			NVECTOR2 currTexCoord(0, 0);
+			Vec2 currTexCoord(0, 0);
 			fileIn >> currTexCoord.x >> currTexCoord.y;
 			texcoordList.push_back(currTexCoord);
+		}
+
+		if (currString == "g")
+		{
+			//(2019.4.29)ignore new geometry
+			char tmpStr[256];
+			fileIn.getline(tmpStr,256);
 		}
 
 		//face : if this face is trangles(OBJ also support quads or curves etc..)
@@ -129,15 +136,15 @@ bool IFileIO_OBJ::ImportFile_OBJ(NFilePath pFilePath, std::vector<N_DefaultVerte
 		tmpCompleteV.Pos = pointList.at(indicesCombination.vertexID);
 		tmpCompleteV.Normal = VNormalList.at(indicesCombination.vertexNormalID);
 		tmpCompleteV.TexCoord = texcoordList.at(indicesCombination.texcoordID);
-		tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+		tmpCompleteV.Color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		//tangent
 		if (tmpCompleteV.Normal.x == 0.0f && tmpCompleteV.Normal.z == 0.0f)
 		{
-			tmpCompleteV.Tangent = NVECTOR3(1.0f, 0, 0);
+			tmpCompleteV.Tangent = Vec3(1.0f, 0, 0);
 		}
 		else
 		{
-			NVECTOR3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
+			Vec3 tmpVec(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x);
 			tmpCompleteV.Tangent = tmpCompleteV.Normal.Cross(tmpVec);
 			tmpCompleteV.Tangent.Normalize();
 		}

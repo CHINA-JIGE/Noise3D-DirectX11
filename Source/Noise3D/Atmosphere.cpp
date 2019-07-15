@@ -47,7 +47,7 @@ bool Atmosphere::IsFogEnabled()
 	return mFogEnabled;
 }
 
-void		Atmosphere::SetFogParameter(float fogNear, float fogFar, NVECTOR3 color)
+void		Atmosphere::SetFogParameter(float fogNear, float fogFar, Vec3 color)
 {
 	//perhaps i can skip checking the size comparison between NEAR & FAR
 
@@ -127,7 +127,7 @@ bool  Atmosphere::mFunction_CreateGpuBufferAndUpdateData(const std::vector<N_Sim
 	ReleaseCOM(m_pIB_Gpu);
 	mIB_Mem.clear();
 
-	//this function could be externally invoked by ModelLoader..etc
+	//this function could be externally invoked by MeshLoader..etc
 	mVB_Mem =targetVB;
 	mIB_Mem = targetIB;
 

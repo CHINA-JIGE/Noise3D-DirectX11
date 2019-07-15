@@ -48,7 +48,7 @@ bool Noise3D::IShadowCaster::IsCastingShadowEnabled()
 
 Noise3D::IShadowReceiver::IShadowReceiver() :
 	mIsReceivingShadowEnabled(false),
-	mShadowColor(NColor4f(0, 0, 0, 0.5f))
+	mShadowColor(Color4f(0, 0, 0, 0.5f))
 {
 }
 
@@ -62,7 +62,7 @@ bool Noise3D::IShadowReceiver::IsReceivingShadowEnabled()
 	return mIsReceivingShadowEnabled;
 }
 
-void Noise3D::IShadowReceiver::SetShadowColor(NColor4f c)
+void Noise3D::IShadowReceiver::SetShadowColor(Color4f c)
 {
 	mShadowColor = c;
 }

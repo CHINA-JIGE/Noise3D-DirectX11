@@ -10,71 +10,57 @@
 //and it is invisible in user-created material list ( actually they share the same unorder_map & vector)...
 
 #include "Noise3D.h"
+#include "MaterialManager.h"
 
 using namespace Noise3D;
 
 MaterialManager::MaterialManager()
-	:IFactory<Material>(100000)
+	:IFactoryEx<LambertMaterial, GI::PbrtMaterial>({ 100000, 100000 })
 {
 	mFunction_CreateDefaultMaterial();
 }
 
 MaterialManager::~MaterialManager()
 {
-	IFactory<Material>::DestroyAllObject();
+	IFactory<LambertMaterial>::DestroyAllObject();
 }
 
-Material* MaterialManager::CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc)
+LambertMaterial* MaterialManager::CreateLambertMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc)
 {
-	if (IFactory<Material>::FindUid(matName))
+	if (IFactory<LambertMaterial>::FindUid(matName))
 	{
 		ERROR_MSG("IMaterialManager: material name exist! mat creation failed! name:" + matName);
 		return nullptr;
 	}
 
-	Material* pMat = IFactory<Material>::CreateObject(matName);
+	LambertMaterial* pMat = IFactory<LambertMaterial>::CreateObject(matName);
 	pMat->SetDesc(matDesc);
 	return pMat;
 }
 
-
-UINT MaterialManager::GetMaterialCount()
+LambertMaterial*		MaterialManager::GetDefaultLambertMaterial()
 {
-	//minus 1 means ruling out default mat
-	return  IFactory<Material>::GetObjectCount() - 1;
+	return IFactory<LambertMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
 }
 
-Material*		MaterialManager::GetDefaultMaterial()
+GI::PbrtMaterial * Noise3D::MaterialManager::CreateAdvancedMaterial(N_UID matName, const GI::N_PbrtMatDesc & matDesc)
 {
-	return IFactory<Material>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-}
-
-Material* MaterialManager::GetMaterial(N_UID matName)
-{
-	return IFactory<Material>::GetObjectPtr(matName);
-};
-
-bool MaterialManager::DeleteMaterial(N_UID matName)
-{
-	if (matName == NOISE_MACRO_DEFAULT_MATERIAL_NAME)
+	if (IFactory<GI::PbrtMaterial>::FindUid(matName))
 	{
-		ERROR_MSG("DeleteMaterial: default material can't be deleted...(how lucky you are- -.)");
-		return false;
+		ERROR_MSG("IMaterialManager: material name exist! mat creation failed! name:" + matName);
+		return nullptr;
 	}
-	return IFactory<Material>::DestroyObject(matName);
+
+	GI::PbrtMaterial* pMat = IFactory<GI::PbrtMaterial>::CreateObject(matName);
+	pMat->SetDesc(matDesc);
+	return pMat;
 }
 
-void MaterialManager::DeleteAllMaterial()
+GI::PbrtMaterial * Noise3D::MaterialManager::GetDefaultAdvancedMaterial()
 {
-	IFactory<Material>::DestroyAllObject();
-	//we delete user-created material, not the internal default one
-	mFunction_CreateDefaultMaterial();
+	return  IFactory<GI::PbrtMaterial>::GetObjectPtr(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	;
 }
-
-bool MaterialManager::ValidateUID(N_UID matName)
-{
-	return IFactory<Material>::FindUid(matName);
-};
 
 /**********************************************************
 							P R I V A T E
@@ -86,19 +72,12 @@ void MaterialManager::mFunction_CreateDefaultMaterial()
 	//only with a material can a object be rendered  (even without a texture)
 	//thus a default material is needed when an object was rendered with invalid material
 
-	N_MaterialDesc defaultMatDesc;
-	defaultMatDesc.ambientColor = NVECTOR3(0.0f, 0.0f, 0.0f);
-	defaultMatDesc.diffuseColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	defaultMatDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	defaultMatDesc.environmentMapTransparency = 0.0f;
-	defaultMatDesc.normalMapBumpIntensity = 0.1f;
-	defaultMatDesc.specularSmoothLevel = 10;
-	defaultMatDesc.diffuseMapName = "";
-	defaultMatDesc.specularMapName = "";
-	defaultMatDesc.environmentMapName = "";
-	defaultMatDesc.normalMapName = "";
+	N_LambertMaterialDesc defaultMatDesc;
+	LambertMaterial* pLambertMat = IFactory<LambertMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	pLambertMat->SetDesc(defaultMatDesc);
 
-	
-	Material* pMat = IFactory<Material>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
-	pMat->SetDesc(defaultMatDesc);
+	//------------------------------
+	GI::N_PbrtMatDesc giMatDesc;
+	GI::PbrtMaterial* pGiMat = IFactory<GI::PbrtMaterial>::CreateObject(NOISE_MACRO_DEFAULT_MATERIAL_NAME);
+	pGiMat->SetDesc(giMatDesc);
 }

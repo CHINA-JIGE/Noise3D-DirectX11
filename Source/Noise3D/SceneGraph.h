@@ -26,25 +26,35 @@ namespace Noise3D
 
 		~SceneNode();
 
-		AffineTransform& GetLocalTransform();//relative to its father node (if current node is attached to root node, then local=world)
+		//relative to its father node (if current node is attached to root node, then local=world)
+		AffineTransform& GetLocalTransform();
 
 		//traverse through scene graph(from given node to root) and concatenate local transforms.
-		//(2019.3.7)currently computed accumulated world matrix won't cache in ScenNode;
-		NMATRIX EvalWorldAffineTransformMatrix();
+		//evaluated world transform (relative to root) won't cache in ScenNode by default
+		//set 'cacheResult' to true in order to cache the evaluated world transform 
+		//(which can be directly retrived until the cache is cleared)
+		AffineTransform EvalWorldTransform(bool cacheResult = false);//normally the cacheResult should be set true by Noise3D(?)
 
-		//only consider Rotation and Translation
-		NMATRIX EvalWorldRigidTransformMatrix();
+		//similar to evalWorldTransform, except that it only count T & R
+		AffineTransform EvalWorldTransform_Rigid(bool cacheResult = false);//normally the cacheResult should be set true by Noise3D(?)
 
-		//only consider Rotation
-		NMATRIX EvalWorldRotationMatrix();
+		//clear world transform cache, disable direct retrival of cache in 'EvalWorldTransform'
+		void ClearWorldTransformCache();
 
-		void EvalWorldAffineTransformMatrix(NMATRIX& outWorldMat, NMATRIX& outWorldInvTranspose);
+		//determine if world transform has been stored.
+		bool IsWorldTransformCached();
 
+		//attach scene object to this node
 		void AttachSceneObject(ISceneObject* pObj);
 
+		//detach scene object from this node, clear reference to pObj
 		void DetachSceneObject(ISceneObject* pObj);
 
 		bool IsAttachedSceneObject();
+
+		uint32_t GetSceneObjectCount();
+
+		ISceneObject* GetSceneObject(uint32_t index);
 
 	protected:
 
@@ -52,12 +62,11 @@ namespace Noise3D
 
 		std::vector<ISceneObject*> mAttachedSceneObjectList;
 
-		//(2019.3.7)manually update?
-		//AffineTransform mWorldTransform;
-
-		//accumulated world transform matrix CACHE(from current to path)
-		//(2019.3.6) i decide not to do this optimization
-		//NMATRIX mEvaluatedWorldTransform;
+		//(2019.3.23)to avoid tremendous re-calculation by setting 'cacheResult'
+		//when eval world transform matrix
+		bool mIsWorldMatrixCached;
+		//Matrix mWorldMatrixCache;
+		AffineTransform mWorldTransformCache;
 
 	};
 
@@ -66,6 +75,10 @@ namespace Noise3D
 	{
 	public:
 
+
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, std::vector<ISceneObject*>& outResult) const;
+
+		void TraverseSceneObjects(NOISE_TREE_TRAVERSE_ORDER order, SceneNode* pNode, std::vector<ISceneObject*>& outResult) const;
 
 	private:
 

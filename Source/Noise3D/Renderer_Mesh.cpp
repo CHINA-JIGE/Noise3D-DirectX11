@@ -109,9 +109,9 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 	//-------Update Dynamic Light-------
 	LightManager* tmpLightMgr = GetScene()->GetLightMgr();
 
-	UINT dirLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_DIR);
-	UINT pointLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_POINT);
-	UINT spotLightCount = tmpLightMgr->GetLightCount(NOISE_LIGHT_TYPE_DYNAMIC_SPOT);
+	UINT dirLightCount = tmpLightMgr->GetObjectCount<DirLight>();
+	UINT pointLightCount = tmpLightMgr->GetObjectCount<PointLight>();
+	UINT spotLightCount = tmpLightMgr->GetObjectCount<SpotLight>();
 
 	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_LIGHT_ENABLED, tmpLightMgr->IsDynamicLightingEnabled());
 	m_pRefShaderVarMgr->SetInt(IShaderVariableManager::NOISE_SHADER_VAR_SCALAR::DYNAMIC_DIRLIGHT_COUNT, dirLightCount);
@@ -120,17 +120,17 @@ void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerFrame()
 
 	for (UINT i = 0; i<(dirLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetDirLight(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicDirLight(i, tmpLightMgr->GetObjectPtr<DirLight>(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(pointLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetPointLight(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicPointLight(i, tmpLightMgr->GetObjectPtr<PointLight>(i)->GetDesc_TransformedToWorld());
 	}
 
 	for (UINT i = 0; i<(spotLightCount); i++)
 	{
-		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetSpotLight(i)->GetDesc_TransformedToWorld());
+		m_pRefShaderVarMgr->SetDynamicSpotLight(i, tmpLightMgr->GetObjectPtr<SpotLight>(i)->GetDesc_TransformedToWorld());
 	}
 };
 
@@ -144,19 +144,19 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 
 	//Get Material ID by unique name
 	N_UID	 currSubsetMatName = pMesh->mSubsetInfoList.at(subsetID).matName;
-	bool  IsMatNameValid = pMatMgr->ValidateUID(currSubsetMatName);
+	bool  IsMatNameValid = pMatMgr->FindUid<LambertMaterial>(currSubsetMatName);
 
 	//if material ID == INVALID_MAT_ID , then we should use default mat defined in mat mgr
 	//then we should check if its child textureS are valid too 
-	N_MaterialDesc tmpMat;
+	N_LambertMaterialDesc tmpMat;
 	if (IsMatNameValid== false)
 	{
 		WARNING_MSG("IRenderer : material UID not valid !");
-		pMatMgr->GetDefaultMaterial()->GetDesc(tmpMat);
+		pMatMgr->GetDefaultLambertMaterial()->GetDesc(tmpMat);
 	}
 	else
 	{
-		pMatMgr->GetMaterial(currSubsetMatName)->GetDesc(tmpMat);
+		pMatMgr->GetObjectPtr<LambertMaterial>(currSubsetMatName)->GetDesc(tmpMat);
 	}
 
 	//update basic material info
@@ -246,8 +246,8 @@ ID3DX11EffectPass*		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerSu
 void		IRenderModuleForMesh::mFunction_RenderMeshInList_UpdatePerObject(Mesh* const pMesh)
 {
 	//update world/worldInv matrix
-	NMATRIX worldMat,worldInvTransposeMat;
-	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldAffineTransformMatrix(worldMat, worldInvTransposeMat);
+	Matrix worldMat,worldInvTransposeMat;
+	pMesh->ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetAffineTransformMatrix(worldMat, worldInvTransposeMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD, worldMat);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::WORLD_INV_TRANSPOSE, worldInvTransposeMat);
 };

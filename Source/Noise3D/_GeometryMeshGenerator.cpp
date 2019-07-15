@@ -11,20 +11,42 @@
 
 using namespace Noise3D;
 
-void IGeometryMeshGenerator::CreatePlane(float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreatePlane(NOISE_RECT_ORIENTATION ori,float fWidth, float fDepth, UINT iRowCount, UINT iColumnCount, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
-	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, 0, fDepth / 2),
-		NVECTOR3(fWidth / (float)(iColumnCount - 1), 0, 0),//tangent
-		NVECTOR3(0, 0, -fDepth / (float)(iRowCount - 1)),
-		iRowCount,
-		iColumnCount, 
-		0,
-		outVerticeList,
-		outIndicesList);
+	switch (ori)
+	{
+	case NOISE_RECT_ORIENTATION::RECT_XY:
+		mFunction_Build_A_Quad(
+			Vec3(-fWidth / 2.0f, fDepth / 2.0f, 0 ),
+			Vec3(fWidth / float(iColumnCount - 1), 0, 0),//tangent
+			Vec3(0, -fDepth / float(iRowCount - 1),0 ),
+			iRowCount,iColumnCount,0,outVerticeList,outIndicesList);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_XZ:
+		mFunction_Build_A_Quad(
+			Vec3(-fWidth / 2.0f, 0,fDepth / 2.0f),
+			Vec3(fWidth / float(iColumnCount - 1), 0, 0),//tangent
+			Vec3(0, 0, -fDepth / float(iRowCount - 1)),
+			iRowCount, iColumnCount, 0, outVerticeList, outIndicesList);
+		break;
+
+	case NOISE_RECT_ORIENTATION::RECT_YZ:
+		mFunction_Build_A_Quad(
+			Vec3(0, -fWidth / 2.0f, fDepth / 2.0f),
+			Vec3(0, fWidth / float(iColumnCount - 1), 0),//tangent
+			Vec3(0, 0, -fDepth / float(iRowCount - 1)),
+			iRowCount, iColumnCount, 0, outVerticeList, outIndicesList);
+		break;
+
+	default:
+		ERROR_MSG("CreatePlane: no such orientation.");
+		break;
+	}
+
 }
 
-void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iDepthStep, UINT iWidthStep, UINT iHeightStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth, UINT iWidthStep, UINT iHeightStep, UINT iDepthStep, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
 	/*
 	Y  |
@@ -42,9 +64,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	float tmpStep2 = fDepth / (float)(iDepthStep - 1);
 	tmpBaseIndex = 0;
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(tmpStep1, 0, 0),
-		NVECTOR3(0, 0, tmpStep2),
+		Vec3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(tmpStep1, 0, 0),
+		Vec3(0, 0, tmpStep2),
 		iWidthStep,
 		iDepthStep,
 		tmpBaseIndex, 
@@ -56,9 +78,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	tmpStep1 = fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, fHeight / 2, fDepth / 2),
-		NVECTOR3(tmpStep1, 0, 0),
-		NVECTOR3(0, 0, -tmpStep2),
+		Vec3(-fWidth / 2, fHeight / 2, fDepth / 2),
+		Vec3(tmpStep1, 0, 0),
+		Vec3(0, 0, -tmpStep2),
 		iDepthStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -70,9 +92,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	tmpStep2 = fDepth / (float)(iDepthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(0, 0, -tmpStep2),
+		Vec3(-fWidth / 2, -fHeight / 2, fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(0, 0, -tmpStep2),
 		iDepthStep,
 		iHeightStep,
 		tmpBaseIndex,
@@ -84,9 +106,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	tmpStep2 = fDepth / (float)(iDepthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(0, 0, tmpStep2),
+		Vec3(fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(0, 0, tmpStep2),
 		iHeightStep,
 		iDepthStep,
 		tmpBaseIndex,
@@ -99,9 +121,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	tmpStep2 = fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(tmpStep2, 0, 0),
+		Vec3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(tmpStep2, 0, 0),
 		iHeightStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -113,9 +135,9 @@ void IGeometryMeshGenerator::CreateBox(float fWidth, float fHeight, float fDepth
 	tmpStep2 = fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(-tmpStep2, 0, 0),
+		Vec3(fWidth / 2, -fHeight / 2, fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(-tmpStep2, 0, 0),
 		iHeightStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -134,9 +156,9 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 
 	//top/bottom vertex are clustered into one position, but with different texture coordinate
 	UINT tmpVertexCount = (iColumnCount + 1) * (iRingCount + 2);
-	NVECTOR3* tmpV = new NVECTOR3[tmpVertexCount];
-	NVECTOR2* tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	NVECTOR3* tmpTangent = new NVECTOR3[tmpVertexCount];
+	Vec3* tmpV = new Vec3[tmpVertexCount];
+	Vec2* tmpTexCoord = new Vec2[tmpVertexCount];
+	Vec3* tmpTangent = new Vec3[tmpVertexCount];
 
 
 #pragma region GenerateVertex
@@ -180,11 +202,11 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 			}
 
 			//store position in array
-			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
+			tmpV[k] = Vec3(tmpX, tmpY, tmpZ);
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
+			tmpTexCoord[k] = Vec2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
 			//tangent need to be dealt with specially
-			tmpTangent[k] = NVECTOR3(-sinf(j*StepLength_AngleXZ), 0, cos(j*StepLength_AngleXZ));
+			tmpTangent[k] = Vec3(-sinf(j*StepLength_AngleXZ), 0, cos(j*StepLength_AngleXZ));
 			k++;
 		}
 	}
@@ -194,8 +216,8 @@ void IGeometryMeshGenerator::CreateSphere(float fRadius, UINT iColumnCount, UINT
 	for(UINT i =0;i<tmpVertexCount;i++)
 	{
 		tmpCompleteV.Pos				= tmpV[i];
-		tmpCompleteV.Normal		= NVECTOR3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
-		tmpCompleteV.Color			= 	NVECTOR4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
+		tmpCompleteV.Normal		= Vec3(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius);
+		tmpCompleteV.Color			= 	Vec4(tmpV[i].x/fRadius,tmpV[i].y/fRadius,tmpV[i].z/fRadius,1.0f);
 		tmpCompleteV.TexCoord	= tmpTexCoord[i];
 		tmpCompleteV.Tangent		= tmpTangent[i];
 		outVerticeList.push_back(tmpCompleteV);
@@ -250,15 +272,15 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 	//the last "+2" refers to the TOP/BOTTOM vertex
 	//the TOP/BOTTOM vertex will be restored in the last 2 position in this array
 	//the first column will be duplicated to achieve adequate texture mapping
-	NVECTOR3* tmpV;
-	NVECTOR2* tmpTexCoord;
+	Vec3* tmpV;
+	Vec2* tmpTexCoord;
 	UINT tmpVertexCount = (iColumnCount + 1) * (iRingCount + 2) + 2;
-	tmpV = new NVECTOR3[tmpVertexCount];
-	tmpTexCoord = new NVECTOR2[tmpVertexCount];
-	tmpV[tmpVertexCount - 2] = NVECTOR3(NVECTOR3(0, fHeight / 2, 0));		//TOP vertex
-	tmpV[tmpVertexCount - 1] = NVECTOR3(NVECTOR3(0, -fHeight / 2, 0));		//BOTTOM vertex
-	tmpTexCoord[tmpVertexCount - 2] = NVECTOR2(0.5f, 0);			//TOP vertex
-	tmpTexCoord[tmpVertexCount - 1] = NVECTOR2(0.5f, 1.0f);			//BOTTOM vertex
+	tmpV = new Vec3[tmpVertexCount];
+	tmpTexCoord = new Vec2[tmpVertexCount];
+	tmpV[tmpVertexCount - 2] = Vec3(Vec3(0, fHeight / 2, 0));		//TOP vertex
+	tmpV[tmpVertexCount - 1] = Vec3(Vec3(0, -fHeight / 2, 0));		//BOTTOM vertex
+	tmpTexCoord[tmpVertexCount - 2] = Vec2(0.5f, 0);			//TOP vertex
+	tmpTexCoord[tmpVertexCount - 1] = Vec2(0.5f, 1.0f);			//BOTTOM vertex
 	UINT tmpVertexArrayIter = 0;
 
 	float	tmpX, tmpY, tmpZ;
@@ -282,10 +304,10 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 			tmpY = (fHeight / 2) - i *StepLength_Y;
 			tmpX = fRadius * cos(j*StepLength_Angle);
 			tmpZ = fRadius * sin(j*StepLength_Angle);
-			tmpV[tmpVertexArrayIter] = NVECTOR3(tmpX, tmpY, tmpZ);
+			tmpV[tmpVertexArrayIter] = Vec3(tmpX, tmpY, tmpZ);
 
 			//TexCoord generation, look for more detail in tech doc
-			tmpTexCoord[tmpVertexArrayIter] = NVECTOR2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
+			tmpTexCoord[tmpVertexArrayIter] = Vec2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
 
 			++tmpVertexArrayIter;
 		}
@@ -297,8 +319,8 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 		tmpY = (fHeight / 2);
 		tmpX = fRadius * cos(j*StepLength_Angle);
 		tmpZ = fRadius * sin(j*StepLength_Angle);
-		tmpV[tmpVertexArrayIter] = NVECTOR3(tmpX, tmpY, tmpZ);
-		tmpTexCoord[tmpVertexArrayIter] = NVECTOR2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
+		tmpV[tmpVertexArrayIter] = Vec3(tmpX, tmpY, tmpZ);
+		tmpTexCoord[tmpVertexArrayIter] = Vec2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
 		++tmpVertexArrayIter;
 	}
 
@@ -307,8 +329,8 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 		tmpY = (-fHeight / 2);
 		tmpX = fRadius * cos(j*StepLength_Angle);
 		tmpZ = fRadius * sin(j*StepLength_Angle);
-		tmpV[tmpVertexArrayIter] = NVECTOR3(tmpX, tmpY, tmpZ);
-		tmpTexCoord[tmpVertexArrayIter] = NVECTOR2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
+		tmpV[tmpVertexArrayIter] = Vec3(tmpX, tmpY, tmpZ);
+		tmpTexCoord[tmpVertexArrayIter] = Vec2((float)j / (iColumnCount - 1), tmpY / (fRadius * 2 + fHeight));
 		++tmpVertexArrayIter;
 	}
 
@@ -321,9 +343,9 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 	{
 		N_DefaultVertex tmpCompleteV;
 		tmpCompleteV.Pos = tmpV[i];
-		tmpCompleteV.Normal = NVECTOR3(tmpV[i].x / fRadius, 0, tmpV[i].z / fRadius);
-		tmpCompleteV.Tangent = NVECTOR3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x!=0.0? tmpCompleteV.Normal.x:0.001f);//mighty tangent algorithm= =
-		tmpCompleteV.Color = NVECTOR4(tmpV[i].x / fRadius, tmpV[i].y / fRadius, tmpV[i].z / fRadius, 1.0f);
+		tmpCompleteV.Normal = Vec3(tmpV[i].x / fRadius, 0, tmpV[i].z / fRadius);
+		tmpCompleteV.Tangent = Vec3(-tmpCompleteV.Normal.z, 0, tmpCompleteV.Normal.x!=0.0? tmpCompleteV.Normal.x:0.001f);//mighty tangent algorithm= =
+		tmpCompleteV.Color = Vec4(tmpV[i].x / fRadius, tmpV[i].y / fRadius, tmpV[i].z / fRadius, 1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
 		outVerticeList.push_back(tmpCompleteV);
 	}
@@ -335,14 +357,14 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 		tmpCompleteV.Pos = tmpV[i];
 
 		//set the normal according the sign of Y coord
-		tmpCompleteV.Normal = NVECTOR3(0.0f, (tmpV[i].y>0 ? 1.0f : -1.0f), 0);
+		tmpCompleteV.Normal = Vec3(0.0f, (tmpV[i].y>0 ? 1.0f : -1.0f), 0);
 
 		//!!!!!!!!!!!!!!!!! TANGENT CAN'T BE PARALLEL WITH Z AXIS (TOGETHER
 		// WITH THE TOP VERTEX !!!!?????!!!!!   OR IT'LL BE BLACK  !!!!!!!!!!!!
-		//tmpCompleteV.Tangent = NVECTOR3(0,0, (tmpV[i].y>0 ? -1.0f : 1.0f));
-		//tmpCompleteV.Tangent = NVECTOR3(tmpCompleteV.Pos.x/fRadius,0 , tmpCompleteV.Pos.z / fRadius);
-		tmpCompleteV.Tangent = NVECTOR3(1.0f, 0, 0);
-		tmpCompleteV.Color = NVECTOR4(tmpV[i].x / fRadius, tmpV[i].y / fRadius, tmpV[i].z / fRadius, 1.0f);
+		//tmpCompleteV.Tangent = Vec3(0,0, (tmpV[i].y>0 ? -1.0f : 1.0f));
+		//tmpCompleteV.Tangent = Vec3(tmpCompleteV.Pos.x/fRadius,0 , tmpCompleteV.Pos.z / fRadius);
+		tmpCompleteV.Tangent = Vec3(1.0f, 0, 0);
+		tmpCompleteV.Color = Vec4(tmpV[i].x / fRadius, tmpV[i].y / fRadius, tmpV[i].z / fRadius, 1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
 		outVerticeList.push_back(tmpCompleteV);
 	}
@@ -351,16 +373,16 @@ void IGeometryMeshGenerator::CreateCylinder(float fRadius, float fHeight, UINT i
 	N_DefaultVertex tmpCompleteV;
 	//TOP/BOTTOM Vertex
 	tmpCompleteV.Pos = tmpV[tmpVertexCount - 2];
-	tmpCompleteV.Normal = NVECTOR3(0, 1.0f, 0);
-	tmpCompleteV.Tangent = NVECTOR3(0.001f, 0, 0.0f);
-	tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+	tmpCompleteV.Normal = Vec3(0, 1.0f, 0);
+	tmpCompleteV.Tangent = Vec3(0.001f, 0, 0.0f);
+	tmpCompleteV.Color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount - 2];
 	outVerticeList.push_back(tmpCompleteV);
 
 	tmpCompleteV.Pos = tmpV[tmpVertexCount - 1];
-	tmpCompleteV.Normal = NVECTOR3(0, -1.0f, 0);
-	tmpCompleteV.Tangent = NVECTOR3(0, 0, -1.0f);
-	tmpCompleteV.Color = NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+	tmpCompleteV.Normal = Vec3(0, -1.0f, 0);
+	tmpCompleteV.Tangent = Vec3(0, 0, -1.0f);
+	tmpCompleteV.Color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	tmpCompleteV.TexCoord = tmpTexCoord[tmpVertexCount - 1];
 	outVerticeList.push_back(tmpCompleteV);
 
@@ -430,8 +452,8 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 
 	//top/bottom vertex are clustered into one position, but with different texture coordinate
 	UINT tmpVertexCount = (iColumnCount + 1) * (iRingCount + 2);
-	NVECTOR3* tmpV = new NVECTOR3[tmpVertexCount];
-	NVECTOR2* tmpTexCoord = new NVECTOR2[tmpVertexCount];
+	Vec3* tmpV = new Vec3[tmpVertexCount];
+	Vec2* tmpTexCoord = new Vec2[tmpVertexCount];
 
 	//Calculate the Step length (²½³¤)
 	float	StepLength_AngleY = Ut::PI / (iRingCount + 1); // distances between each level (ring)
@@ -474,9 +496,9 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 			}
 
 			//store position in array
-			tmpV[k] = NVECTOR3(tmpX, tmpY, tmpZ);
+			tmpV[k] = Vec3(tmpX, tmpY, tmpZ);
 			//map the i,j to closed interval [0,1] respectively , to proceed a spheric texture wrapping
-			tmpTexCoord[k] = NVECTOR2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
+			tmpTexCoord[k] = Vec2((float)j / (iColumnCount), (float)(i+1) / (iRingCount+1));
 			k++;
 		}
 	}
@@ -487,7 +509,7 @@ void IGeometryMeshGenerator::CreateSkyDome(float fRadiusXZ, float fHeight, UINT 
 	{
 		N_SimpleVertex tmpCompleteV;
 		tmpCompleteV.Pos = tmpV[i];
-		tmpCompleteV.Color = NVECTOR4(tmpV[i].x / fRadiusXZ, tmpV[i].y / fHeight, tmpV[i].z / fRadiusXZ, 1.0f);
+		tmpCompleteV.Color = Vec4(tmpV[i].x / fRadiusXZ, tmpV[i].y / fHeight, tmpV[i].z / fRadiusXZ, 1.0f);
 		tmpCompleteV.TexCoord = tmpTexCoord[i];
 		outVerticeList.push_back(tmpCompleteV);
 	}
@@ -549,9 +571,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	float tmpStep2 = fDepth / (float)(iDepthStep - 1);
 	tmpBaseIndex = 0;
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(tmpStep1, 0, 0),
-		NVECTOR3(0, 0, tmpStep2),
+		Vec3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(tmpStep1, 0, 0),
+		Vec3(0, 0, tmpStep2),
 		iWidthStep,
 		iDepthStep,
 		tmpBaseIndex,
@@ -563,9 +585,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	tmpStep2 = fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, 0, tmpStep1),
-		NVECTOR3(tmpStep2, 0, 0),
+		Vec3(-fWidth / 2, fHeight / 2, -fDepth / 2),
+		Vec3(0, 0, tmpStep1),
+		Vec3(tmpStep2, 0, 0),
 		iDepthStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -577,9 +599,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	tmpStep2 = fHeight / (float)(iHeightStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, 0, tmpStep1),
-		NVECTOR3(0, tmpStep2, 0),
+		Vec3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(0, 0, tmpStep1),
+		Vec3(0, tmpStep2, 0),
 		iDepthStep,
 		iHeightStep,
 		tmpBaseIndex,
@@ -591,9 +613,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	tmpStep2 = fDepth / (float)(iDepthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(0, 0, tmpStep2),
+		Vec3(fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(0, 0, tmpStep2),
 		iHeightStep,
 		iDepthStep,
 		tmpBaseIndex,
@@ -606,9 +628,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	tmpStep2 = fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(tmpStep2, 0, 0),
+		Vec3(-fWidth / 2, -fHeight / 2, -fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(tmpStep2, 0, 0),
 		iHeightStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -620,9 +642,9 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 	tmpStep2 = -fWidth / (float)(iWidthStep - 1);
 	tmpBaseIndex = outVerticeList.size();
 	mFunction_Build_A_Quad(
-		NVECTOR3(fWidth / 2, -fHeight / 2, fDepth / 2),
-		NVECTOR3(0, tmpStep1, 0),
-		NVECTOR3(tmpStep2, 0, 0),
+		Vec3(fWidth / 2, -fHeight / 2, fDepth / 2),
+		Vec3(0, tmpStep1, 0),
+		Vec3(tmpStep2, 0, 0),
 		iHeightStep,
 		iWidthStep,
 		tmpBaseIndex,
@@ -636,23 +658,23 @@ void IGeometryMeshGenerator::CreateSkyBox(float fWidth, float fHeight, float fDe
 ***********************************************************************/
 
 inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
-(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+(Vec3 vOriginPoint, Vec3 vBasisVector1, Vec3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_DefaultVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
 {
-	NVECTOR3 tmpNormal;
+	Vec3 tmpNormal;
 	N_DefaultVertex tmpCompleteV;
 	tmpNormal = vBasisVector1.Cross(vBasisVector2);
 	tmpNormal.Normalize();
 
-	for (UINT i = 0;i < StepCount1;i++)
+	for (uint32_t i = 0;i < StepCount1; i++)
 	{
-		for (UINT j = 0;j < StepCount2;j++)
+		for (uint32_t j = 0;j < StepCount2; j++)
 		{
 			tmpCompleteV.Normal = tmpNormal;
-			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
-			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
+			tmpCompleteV.Pos = Vec3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
+			tmpCompleteV.Color = Vec4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
 			tmpCompleteV.Tangent = vBasisVector1;
 			tmpCompleteV.Tangent.Normalize();
-			tmpCompleteV.TexCoord = NVECTOR2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
+			tmpCompleteV.TexCoord = Vec2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
 			outVerticeList.push_back(tmpCompleteV);
 		}
 	}
@@ -662,7 +684,7 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 		for (UINT j = 0;j<StepCount2 - 1;j++)
 		{
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
-			//thus inde offset is needed
+			//thus index offset is needed
 			outIndicesList.push_back(iBaseIndex + i *		StepCount2 + j);
 			outIndicesList.push_back(iBaseIndex + (i + 1)* StepCount2 + j);
 			outIndicesList.push_back(iBaseIndex + i *		StepCount2 + j + 1);
@@ -676,24 +698,23 @@ inline void IGeometryMeshGenerator::mFunction_Build_A_Quad
 }
 
 inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
-(NVECTOR3 vOriginPoint, NVECTOR3 vBasisVector1, NVECTOR3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
-	// it is used to build a Quad , or say Rectangle . StepCount is similar to the count of sections
+(Vec3 vOriginPoint, Vec3 vBasisVector1, Vec3 vBasisVector2, UINT StepCount1, UINT StepCount2, UINT iBaseIndex, std::vector<N_SimpleVertex>& outVerticeList, std::vector<UINT>& outIndicesList)
+	// it is used to build a Quad , or say Rectangle . StepCount is the count of sections/regions
 {
 #pragma region GenerateVertex
 
-	UINT i = 0, j = 0;
-	NVECTOR3 tmpNormal;
+	Vec3 tmpNormal;
 	N_SimpleVertex tmpCompleteV;
 	tmpNormal = vBasisVector1.Cross(vBasisVector2);
 	tmpNormal.Normalize();
 
-	for (i = 0;i < StepCount1;i++)
+	for (uint32_t i = 0;i < StepCount1;i++)
 	{
-		for (j = 0;j < StepCount2;j++)
+		for (uint32_t j = 0;j < StepCount2;j++)
 		{
-			tmpCompleteV.Pos = NVECTOR3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
-			tmpCompleteV.Color = NVECTOR4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
-			tmpCompleteV.TexCoord = NVECTOR2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
+			tmpCompleteV.Pos = Vec3(vOriginPoint + (float)i*vBasisVector1 + (float)j*vBasisVector2);
+			tmpCompleteV.Color = Vec4(((float)i / StepCount1), ((float)j / StepCount2), 0.5f, 1.0f);
+			tmpCompleteV.TexCoord = Vec2((float)i / (StepCount1 - 1), ((float)j / StepCount2));
 			outVerticeList.push_back(tmpCompleteV);
 		}
 	}
@@ -701,10 +722,10 @@ inline void	 IGeometryMeshGenerator::mFunction_Build_A_Quad
 
 
 #pragma region GenerateIndex
-	i = 0;j = 0;
-	for (i = 0;i<StepCount1 - 1;i++)
+
+	for (uint32_t i = 0;i<StepCount1 - 1;i++)
 	{
-		for (j = 0;j<StepCount2 - 1;j++)
+		for (uint32_t j = 0;j<StepCount2 - 1;j++)
 		{
 			//why use iBaseIndex : when we build things like a box , we need build 6 quads ,
 			//thus inde offset is needed

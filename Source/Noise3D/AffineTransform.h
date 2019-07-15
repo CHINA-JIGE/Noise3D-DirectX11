@@ -16,9 +16,11 @@ namespace Noise3D
 
 		AffineTransform();
 
+		AffineTransform(const AffineTransform& t);
+
 		void		SetScale(float scaleX, float scaleY, float scaleZ);
 
-		void		SetScale(NVECTOR3 s);
+		void		SetScale(Vec3 s);
 
 		void		SetScaleX(float scaleX);
 
@@ -26,32 +28,32 @@ namespace Noise3D
 
 		void		SetScaleZ(float scaleZ);
 
-		NVECTOR3 GetScale() const;
-
-		NMATRIX	 GetTransformMatrix() =delete;//rigid transform
+		Vec3 GetScale() const;
 
 		//DirectXMath use row matrix
-		void		GetTransformMatrix(NMATRIX& outTransformMat) const;
+		Matrix	 GetAffineTransformMatrix() const;//rigid transform
 
-		void		GetTransformMatrix(NMATRIX& outTransformMat, NMATRIX& outTransformInvTransposeMat) const;
+		void		GetAffineTransformMatrix(Matrix& outTransformMat, Matrix& outTransformInvTransposeMat) const;
+
+		void		GetAffineTransformMatrix(Matrix& outTransformMat, Matrix& outTransformInvMat, Matrix& outTransformInvTransposeMat) const;
 
 		void		SetTransform(const AffineTransform& t);
 
 		//could fail to decompose
-		bool		SetAffineMatrix(NMATRIX mat);
+		bool		SetAffineMatrix(Matrix mat);
 
 		//scale, rotation, translation (based on RigidTransform::TransformVector_Rigid())
-		NVECTOR3 TransformVector_Affine(NVECTOR3 vec) const;
+		Vec3 TransformVector_Affine(Vec3 vec) const;
 
 		//matrix left-mul(row major, 1x4 * 4x4) 
-		static NVECTOR4 TransformVector_MatrixMul(NVECTOR4 lhs, const NMATRIX& rhs);
+		static Vec4 TransformVector_MatrixMul(Vec4 lhs, const Matrix& rhs);
 
 		//	matrix left-mul(row major, 1x3 * 3x4)
-		static NVECTOR3 TransformVector_MatrixMul(NVECTOR3 lhs, const NMATRIX& rhs);
+		static Vec3 TransformVector_MatrixMul(Vec3 lhs, const Matrix& rhs);
 
 	private:
 
-		NVECTOR3 mScale;
+		Vec3 mScale;
 
 	};
 }

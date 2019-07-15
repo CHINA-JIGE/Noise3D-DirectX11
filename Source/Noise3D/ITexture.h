@@ -22,7 +22,7 @@ namespace Noise3D
 
 		uint32_t GetHeight() { return mHeight; }
 
-		bool	IsSysMemBufferValid() { return mIsPixelBufferInMemValid; }
+		bool	IsSysMemBufferValid()const { return mIsPixelBufferInMemValid; }
 
 		uint32_t GetMipMapLevels() { return mMipMapLevels; }
 
@@ -43,7 +43,7 @@ namespace Noise3D
 		virtual void NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitTexture(
 			ID3D11ShaderResourceView* pSRV,
 			const N_UID& uid,
-			std::vector<NColor4u>&& pixelBuff,
+			std::vector<Color4u>&& pixelBuff,
 			bool isSysMemBuffValid)=0;
 
 		uint32_t mArraySize;//common=1, cubeMap=6
@@ -52,7 +52,7 @@ namespace Noise3D
 		uint32_t mWidth;//pixel width
 		uint32_t mHeight;//pixel height
 		N_UID	mTextureUid;
-		std::vector<NColor4u> mPixelBuffer;//a copy of pixel data in system memory
+		std::vector<Color4u> mPixelBuffer;//a copy of pixel data in system memory
 		bool	mIsPixelBufferInMemValid;
 		ID3D11ShaderResourceView*	m_pSRV;//used by renderer,but d3d detail must be covered
 

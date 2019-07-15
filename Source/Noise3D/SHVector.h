@@ -32,33 +32,33 @@ namespace Noise3D
 
 			//low order SH functions is optimized with hardcoded terms (0 ~ 3 orders, SH() )
 			//higher order SH functions is implemented using recursive method of Spherical Harmonic Terms (SH_Recursive())
-			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NColor4f>* pTargetFunc);
+			void Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<Color4f>* pTargetFunc);
 
 			//reconstruct SH signal and evaluate spherical function value in given direction
-			NColor4f Eval(NVECTOR3 dir);
+			Color4f Eval(Vec3 dir);
 
 			//reconstruct rotated SH signal and evaluate spherical function value in given direction
-			NColor4f EvalRotated(NVECTOR3 dir);
+			Color4f EvalRotated(Vec3 dir);
 
 			//perform SH-based integration (common usage is integration between spherical irradiance function
 			//& transfer function to get the final illuminated color) (Actually a dot product of 2 SH vectors)
 			//if the 2 operand's dimension are not equal, 0 will be used to pad to calculate dot product
-			NColor4f Integrate(const SHVector& rhs);
+			Color4f Integrate(const SHVector& rhs);
 
 			//make use of SHRotation class. Note that we don't
 			void SetRotation(RigidTransform t);
 
 			//get SH coefficient
-			void GetCoefficients(std::vector<NColor4f>& outList);
+			void GetCoefficients(std::vector<Color4f>& outList);
 
 			//get Rotated copy of SH coefficients
-			void GetRotatedCoefficients(std::vector<NColor4f>& outList);
+			void GetRotatedCoefficients(std::vector<Color4f>& outList);
 
 			//get current SH order
 			int GetOrder() const;
 
-			//manually set coefficient (rgba, 4 channels, 1 NVECTOR4 stands for 1 coefficient in RGBA channel seperately)
-			void SetCoefficients(int highestOrderIndex, const std::vector<NColor4f>& list);
+			//manually set coefficient (rgba, 4 channels, 1 Vec4 stands for 1 coefficient in RGBA channel seperately)
+			void SetCoefficients(int highestOrderIndex, const std::vector<Color4f>& list);
 
 			//has it been initialized by SH Projection?
 			bool IsInitialized() const;
@@ -73,8 +73,8 @@ namespace Noise3D
 
 			//SH coefficients
 			//std::vector<float> mCoefficients;
-			std::vector<NColor4f> mCoefficients;
-			std::vector<NColor4f> mRotatedCoefficients;//rotation might cause accumulated numerical errors!! so i split it up.
+			std::vector<Color4f> mCoefficients;
+			std::vector<Color4f> mRotatedCoefficients;//rotation might cause accumulated numerical errors!! so i split it up.
 		};
 
 

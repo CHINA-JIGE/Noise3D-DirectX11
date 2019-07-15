@@ -14,7 +14,7 @@ VS_OUTPUT_QWERTY VS_PostProcess_QwertyDistortion(VS_INPUT_DRAW_MESH input)
 {
 	VS_OUTPUT_QWERTY vsOutput = (VS_OUTPUT_QWERTY)0;
 	vsOutput.posH = float4(input.texcoord.x*2.0f -1.0f, 1.0f - 2.0f * input.texcoord.y , 0.0f, 1.0f);
-	vsOutput.texcoord = float4(input.texcoord,0.0f, 1.0f);
+	vsOutput.texcoord = input.texcoord;
 	vsOutput.posV = mul(float4(input.posL,1.0f), gViewMatrix).xyz;//screen descriptor
 	return vsOutput;
 }

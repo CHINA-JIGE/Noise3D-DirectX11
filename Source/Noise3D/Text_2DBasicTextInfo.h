@@ -22,13 +22,13 @@ namespace Noise3D
 		public:
 			IBasicTextInfo();
 
-			void		SetTextColor(NVECTOR4 color) { *m_pTextColor = color; };
+			void		SetTextColor(Vec4 color) { *m_pTextColor = color; };
 
-			void		SetGlowColor(NVECTOR4 color) { *m_pTextGlowColor = color; };
+			void		SetGlowColor(Vec4 color) { *m_pTextGlowColor = color; };
 
-			NVECTOR4 GetTextColor() { return *m_pTextColor; };
+			Vec4 GetTextColor() { return *m_pTextColor; };
 
-			NVECTOR4 GetTextGlowColor() { return *m_pTextGlowColor; };
+			Vec4 GetTextGlowColor() { return *m_pTextGlowColor; };
 		protected:
 
 			friend class IRenderModuleForText;
@@ -37,8 +37,8 @@ namespace Noise3D
 
 			GraphicObject* m_pGraphicObj;//to store char rectangles
 
-			NVECTOR4*		m_pTextColor;
+			Vec4*		m_pTextColor;
 
-			NVECTOR4*		m_pTextGlowColor;
+			Vec4*		m_pTextGlowColor;
 		};
 }

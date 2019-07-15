@@ -6,6 +6,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -63,7 +64,7 @@ void Noise3D::GI::SHRotationWignerMatrix::SetByIndex(uint32_t l, int m, int n, f
 	mMat.at(l).at((2 * l + 1)*(int(l) - m) + (int(l) - n)) = val;
 }
 
-void Noise3D::GI::SHRotationWignerMatrix::Multiply(RigidTransform t, const std::vector<NColor4f>& in_SHVector, std::vector<NColor4f>& out_SHVector)
+void Noise3D::GI::SHRotationWignerMatrix::Multiply(RigidTransform t, const std::vector<Color4f>& in_SHVector, std::vector<Color4f>& out_SHVector)
 {
 	if ((mHighestBandIndex + 1)*(mHighestBandIndex + 1) != in_SHVector.size())
 	{
@@ -72,7 +73,7 @@ void Noise3D::GI::SHRotationWignerMatrix::Multiply(RigidTransform t, const std::
 	}
 
 	//intermediate sh vector
-	std::vector<NColor4f> tmpShVector=in_SHVector;
+	std::vector<Color4f> tmpShVector=in_SHVector;
 
 	//0. ZYZ euler angle decomposition
 	N_EULER_ANGLE_ZYZ euler = t.GetEulerAngleZYZ();
@@ -103,7 +104,7 @@ void Noise3D::GI::SHRotationWignerMatrix::Multiply(RigidTransform t, const std::
 							PRIVATE
 
 ***********************************************/
-void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateZ(float angle, const std::vector<NColor4f>& in_ShVector, std::vector<NColor4f>& out_SHVector)
+void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateZ(float angle, const std::vector<Color4f>& in_ShVector, std::vector<Color4f>& out_SHVector)
 {
 	//WARNING: SHVector starts from -m to m (different convention from Wigner Matrix)
 	//Reference: <Fast Approximation to Spherical Harmonic Rotation> Krivanek, Appendix B
@@ -112,8 +113,8 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_RotateZ(float angle, const s
 		out_SHVector.at(GI::SH_FlattenIndex(L, 0)) = in_ShVector.at(GI::SH_FlattenIndex(L, 0));
 		for (int M = 1; M <=  int(L); ++M)
 		{
-			NColor4f c_L_negM = in_ShVector.at(GI::SH_FlattenIndex(L, -M));//element of index -m in this band
-			NColor4f c_L_posM = in_ShVector.at(GI::SH_FlattenIndex(L, M));//element of index m in this band
+			Color4f c_L_negM = in_ShVector.at(GI::SH_FlattenIndex(L, -M));//element of index -m in this band
+			Color4f c_L_posM = in_ShVector.at(GI::SH_FlattenIndex(L, M));//element of index m in this band
 			float cos_m_alpha = cos(M * angle);
 			float sin_m_alpha = sin(M * angle);
 			out_SHVector.at(GI::SH_FlattenIndex(L, -M)) = c_L_negM * cos_m_alpha - c_L_posM *sin_m_alpha;
@@ -237,7 +238,7 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_ConstructRotationY(float ang
 
 }
 
-void Noise3D::GI::SHRotationWignerMatrix::mFunction_MultiplyRotationY(std::vector<NColor4f>& in_out_SHVector)
+void Noise3D::GI::SHRotationWignerMatrix::mFunction_MultiplyRotationY(std::vector<Color4f>& in_out_SHVector)
 {
 	//Multiplication of Wigner Matrix and SH vector
 	for (int l = 0; l <= int(mHighestBandIndex); ++l)
@@ -245,7 +246,7 @@ void Noise3D::GI::SHRotationWignerMatrix::mFunction_MultiplyRotationY(std::vecto
 		//for every SH vector band, assign the result of WignerMatrix * band (manipulate 4 channels simultaneously)
 		for (int m = -l; m <= l; ++m)
 		{
-			NColor4f result = NColor4f(0, 0, 0, 0);
+			Color4f result = Color4f(0, 0, 0, 0);
 			for (int n = -l; n <= l; ++n)
 			{
 				result += in_out_SHVector.at(GI::SH_FlattenIndex(l, n)) * SHRotationWignerMatrix::GetByIndex(l, m, n);

@@ -42,33 +42,3 @@ SweepingTrail * Noise3D::SweepingTrailManager::CreateSweepingTrail(SceneNode* pA
 	}
 
 }
-
-SweepingTrail * Noise3D::SweepingTrailManager::GetSweepingTrail(N_UID objName)
-{
-	return IFactory<SweepingTrail>::GetObjectPtr(objName);
-}
-
-SweepingTrail * Noise3D::SweepingTrailManager::GetSweepingTrail(UINT index)
-{
-	return IFactory<SweepingTrail>::GetObjectPtr(index);
-}
-
-bool Noise3D::SweepingTrailManager::DestroySweepingTrail(N_UID objName)
-{
-	return IFactory<SweepingTrail>::DestroyObject(objName);
-}
-
-bool Noise3D::SweepingTrailManager::DestroySweepingTrail(SweepingTrail * pST)
-{
-	return IFactory<SweepingTrail>::DestroyObject(pST);
-}
-
-void Noise3D::SweepingTrailManager::DestroyAllSweepingTrail()
-{
-	IFactory<SweepingTrail>::DestroyAllObject();
-}
-
-UINT Noise3D::SweepingTrailManager::GetSweepingTrailCount()
-{
-	return IFactory<SweepingTrail>::GetObjectCount();
-}

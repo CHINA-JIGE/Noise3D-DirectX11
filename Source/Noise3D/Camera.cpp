@@ -1,8 +1,8 @@
-/************************************************************************
+/**********************************************************
 
-			cpp:   Camera(transform based on CameraTransform)
+						cpp :   Camera
 				
-************************************************************************/
+**********************************************************/
 
 #pragma once
 #include "Noise3D.h"
@@ -26,7 +26,7 @@ Noise3D::Camera::~Camera()
 {
 };
 
-void Noise3D::Camera::LookAt(NVECTOR3 vLookat)
+void Noise3D::Camera::LookAt(Vec3 vLookat)
 {
 	mLookat = vLookat;
 	mFunc_UpdateRotation();
@@ -34,13 +34,13 @@ void Noise3D::Camera::LookAt(NVECTOR3 vLookat)
 
 void Noise3D::Camera::LookAt(float x, float y, float z)
 {
-	mLookat = NVECTOR3(x, y, z);
+	mLookat = Vec3(x, y, z);
 	mFunc_UpdateRotation();
 }
 
-void Noise3D::Camera::SetDirection(NVECTOR3 viewDir)
+void Noise3D::Camera::SetDirection(Vec3 viewDir)
 {
-	if (viewDir != NVECTOR3(0, 0, 0))
+	if (viewDir != Vec3(0, 0, 0))
 	{
 		mLookat =Camera::GetWorldTransform().GetPosition() + viewDir;
 		mFunc_UpdateRotation();
@@ -51,18 +51,18 @@ void Noise3D::Camera::SetDirection(float x, float y, float z)
 {
 	if (x != 0 && y != 0 && z != 0)
 	{
-		mLookat = Camera::GetWorldTransform().GetPosition() + NVECTOR3(x, y, z);
+		mLookat = Camera::GetWorldTransform().GetPosition() + Vec3(x, y, z);
 		mFunc_UpdateRotation();
 	}
 }
 
-NVECTOR3 Noise3D::Camera::GetLookAtPos()
+Vec3 Noise3D::Camera::GetLookAtPos()
 {
 	mFunc_UpdateViewDir();
 	return mLookat;
 }
 
-NVECTOR3 Noise3D::Camera::GetDirection()
+Vec3 Noise3D::Camera::GetDirection()
 {
 	mFunc_UpdateViewDir();
 	return mLookat - Camera::GetWorldTransform().GetPosition();
@@ -73,25 +73,26 @@ void Noise3D::Camera::SetProjectionType(bool isPerspective)
 	mIsPerspective = isPerspective;
 }
 
-void Noise3D::Camera::GetViewMatrix(NMATRIX & outMat)
+void Noise3D::Camera::GetViewMatrix(Matrix & outMat)
 {
+	//view  matrix: coordinate transform from WORLD to VIEW
 	//WARNING: Row-Major matrix
-	NVECTOR3 pos = Camera::GetWorldTransform().GetPosition();
+	Vec3 pos = Camera::GetWorldTransform().GetPosition();
 
 	//translation to align the camera pos to origin
-	NMATRIX tmpTranslationMat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z);
+	Matrix tmpTranslationMat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z);
 
 	//rotate the align the camera view dir to +z/-z axis
-	NMATRIX tmpRotationMat = Camera::GetWorldTransform().GetRotationMatrix();
+	Matrix tmpRotationMat = Camera::GetWorldTransform().GetRotationMatrix();
 
-	////inverse
+	//transpose == inverse (orthonormal matrix)
 	tmpRotationMat = tmpRotationMat.Transpose();
 
 	//combine 2 ROW-MAJOR matrix, translate first, rotate later
 	outMat = XMMatrixMultiply(tmpTranslationMat, tmpRotationMat);
 }
 
-void Noise3D::Camera::GetProjMatrix(NMATRIX & outMat)
+void Noise3D::Camera::GetProjMatrix(Matrix & outMat)
 {
 	if (mIsPerspective)
 	{
@@ -104,13 +105,17 @@ void Noise3D::Camera::GetProjMatrix(NMATRIX & outMat)
 
 }
 
-void Noise3D::Camera::GetInvViewMatrix(NMATRIX & outMat)
+void Noise3D::Camera::GetViewInvMatrix(Matrix & outMat)
 {
-	NMATRIX viewMat;
-	Camera::GetViewMatrix(viewMat);
+	//(2019.3.30)view matrix is coordinate transform from WORLD to VIEW
+	//thus viewInv matrix is equivalent to the coordinate transform from VIEW to WORLD
+	RigidTransform t = Camera::GetWorldTransform();
+	outMat = t.GetRigidTransformMatrix();
+
+	/*Camera::GetViewMatrix(viewMat);
 	outMat = XMMatrixInverse(nullptr, viewMat);
 	//if the inverse doesn't exist, then matrix will be set to infinite
-	if (XMMatrixIsInfinite(outMat))ERROR_MSG("CameraTransform : Inverse of View Matrix not exist!");
+	if (XMMatrixIsInfinite(outMat))ERROR_MSG("CameraTransform : Inverse of View Matrix not exist!");*/
 }
 
 void Noise3D::Camera::SetViewFrustumPlane(float fNearPlaneZ, float fFarPlaneZ)
@@ -137,6 +142,48 @@ void Noise3D::Camera::SetOrthoViewSize(float width, float height)
 	if (height > 0.0f)mOrthoViewHeight = height;
 }
 
+Vec3 Noise3D::Camera::FireRay_ViewSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight)
+{
+	float normalizedX = pixelCoord.x / float(backBuffPxWidth);// [0,1]  -> x
+	float normalizedY = pixelCoord.y / float(backBuffPxHeight);// [1,0] ^ y
+	float u = 2.0f*normalizedX - 1.0f;//left to right: [-1,1]
+	float v = -2.0f*normalizedY + 1.0f;//bottom to up: [-1,1]
+	//assume that z = 1.0f
+	float tanFovY = tanf(mViewAngleY_Radian/2.0f); //(y/z)
+	float tanFovX = tanFovY * mAspectRatio; //(x/z) = (y/z) * (x/y)
+	Vec3 rayDir = { u * tanFovX, v * tanFovY, 1.0f };
+	return rayDir;
+}
+
+Vec3 Noise3D::Camera::FireRay_ViewSpace(Vec2 uv)
+{
+	//assume that z = 1.0f
+	float tanFovY = tanf(mViewAngleY_Radian/2.0f); //(y/z)
+	float tanFovX = tanFovY * mAspectRatio; //(x/z) = (y/z) * (x/y)
+	Vec3 rayDir = { uv.x *tanFovX, uv.y *tanFovY, 1.0f };
+	return rayDir;
+}
+
+N_Ray Noise3D::Camera::FireRay_WorldSpace(PixelCoord2 pixelCoord, size_t backBuffPxWidth, size_t backBuffPxHeight)
+{
+	//rayEnd = (0,0,0) + rayDir
+	Vec3 rayEndV = Camera::FireRay_ViewSpace(pixelCoord, backBuffPxWidth, backBuffPxHeight);
+	RigidTransform& t = Camera::GetWorldTransform();
+	Vec3 rayStartW = t.GetPosition();
+	Vec3 rayEndW = t.TransformVector_Rigid(rayEndV);
+	//Vec3 rayEndW = AffineTransform::TransformVector_MatrixMul(rayEndV, t.GetRigidTransformMatrix());
+	return N_Ray(rayStartW, rayEndW - rayStartW);
+}
+
+N_Ray Noise3D::Camera::FireRay_WorldSpace(Vec2 uv)
+{
+	//rayEnd = (0,0,0) + rayDir
+	Vec3 rayEndV = Camera::FireRay_ViewSpace(uv);
+	RigidTransform t = Camera::GetWorldTransform();
+	Vec3 rayStartW = t.GetPosition();
+	Vec3 rayEndW = t.TransformVector_Rigid(rayEndV);
+	return N_Ray(rayStartW, rayEndW- rayStartW);
+}
 
 void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMovement)
 {
@@ -150,8 +197,8 @@ void Noise3D::Camera::fps_MoveForward(float fSignedDistance, bool enableYAxisMov
 	
 	*/
 
-	NVECTOR3 relativePos;
-	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+	Vec3 relativePos;
+	Vec3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	//generate a direction first (later multiply it with fDist)
 	if(enableYAxisMovement)
 	{ 
@@ -187,8 +234,8 @@ void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovem
 	y-yaw, x-pitch, z-roll
 	*/
 
-		NVECTOR3 relativePos;
-		NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+		Vec3 relativePos;
+		Vec3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 		//generate a direction first (later multiply it with fDist)
 		if (enableYAxisMovement)
 		{
@@ -213,7 +260,7 @@ void Noise3D::Camera::fps_MoveRight(float fSignedDistance, bool enableYAxisMovem
 
 void Noise3D::Camera::fps_MoveUp(float fSignedDistance)
 {
-	NVECTOR3 relativePos = NVECTOR3(0, fSignedDistance, 0);
+	Vec3 relativePos = Vec3(0, fSignedDistance, 0);
 	Camera::GetWorldTransform().Move(relativePos);
 	mLookat += relativePos;
 }
@@ -235,14 +282,14 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	const std::vector<N_DefaultVertex>& vb = *pScreenDescriptor->GetVertexBuffer();
 
 	//1. Adjust view matrix (lookat, roll angle). the center of virtual screen
-	NVECTOR3 scrCenterPos = { 0,0,0 };
+	Vec3 scrCenterPos = { 0,0,0 };
 	for (auto v : vb)
 	{
 		scrCenterPos += v.Pos;
 	}
 	scrCenterPos /= float(vb.size());
 	Camera::LookAt(scrCenterPos);
-	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+	Vec3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	euler.z = 0;
 	Camera::GetWorldTransform().SetRotation(euler);
 
@@ -253,16 +300,16 @@ void Noise3D::Camera::OptimizeForQwertyPass1(const Mesh * pScreenDescriptor)
 	//traverse vertices of scr descriptor to calculate a bounding rectangle, then fov/aspectRatio
 	for (auto v : vb)
 	{
-		NMATRIX viewMat;
+		Matrix viewMat;
 		Camera::GetViewMatrix(viewMat);
-		NVECTOR3 posV = {
+		Vec3 posV = {
 			v.Pos.x *  viewMat.m[0][0] + v.Pos.y *  viewMat.m[1][0] + v.Pos.z *  viewMat.m[2][0] + 1.0f * viewMat.m[3][0],
 			v.Pos.x *  viewMat.m[0][1] + v.Pos.y *  viewMat.m[1][1] + v.Pos.z *  viewMat.m[2][1] + 1.0f * viewMat.m[3][1],
 			v.Pos.x *  viewMat.m[0][2] + v.Pos.y *  viewMat.m[1][2] + v.Pos.z *  viewMat.m[2][2] + 1.0f * viewMat.m[3][2]
 		};
 
 		//project to plane z=1
-		NVECTOR2 posH = { posV.x / posV.z,posV.y / posV.z };
+		Vec2 posH = { posV.x / posV.z,posV.y / posV.z };
 		if (halfBoundingRectWidth < abs(posH.x))halfBoundingRectWidth = abs(posH.x);
 		if (halfBoundingRectHeight < abs(posH.y))halfBoundingRectHeight = abs(posH.y);
 
@@ -281,14 +328,21 @@ N_AABB Noise3D::Camera::ComputeWorldAABB_Accurate()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()
+N_BoundingSphere Noise3D::Camera::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::Camera::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::CAMERA;
 }
 
-AffineTransform & Noise3D::Camera::GetWorldTransform()
+RigidTransform & Noise3D::Camera::GetWorldTransform()
 {
-	return ISceneObject::GetAttachedSceneNode()->GetLocalTransform();
+	SceneNode* pNode = ISceneObject::GetAttachedSceneNode();
+	if (pNode == nullptr)ERROR_MSG("Camera: not attached to scene node.");
+	return pNode->GetLocalTransform();
 }
 
 /************************************************************************
@@ -298,12 +352,12 @@ AffineTransform & Noise3D::Camera::GetWorldTransform()
 void Noise3D::Camera::mFunc_UpdateViewDir()
 {
 	//update lookat according to new posture
-	NVECTOR3 pos = Camera::GetWorldTransform().GetPosition();
-	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+	Vec3 pos = Camera::GetWorldTransform().GetPosition();
+	Vec3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	float tmpDirectionLength = (mLookat - pos).Length();
 	//z+ axis is the original posture.
 	//mDirection.x =- tmpDirectionLength* sin(mRotateY_Yaw)* cos(mRotateX_Pitch);
-	NVECTOR3 dir;
+	Vec3 dir;
 	dir.x = tmpDirectionLength* sin(euler.y)* cos(euler.x);
 	dir.y = tmpDirectionLength* sin(euler.x);
 	dir.z = tmpDirectionLength* cos(euler.y)*cos(euler.x);
@@ -315,14 +369,14 @@ void Noise3D::Camera::mFunc_UpdateRotation()
 	//main function: change Euler Angle after the direction changes
 
 	//update Direction
-	NVECTOR3 dir = mLookat - Camera::GetWorldTransform().GetPosition();
+	Vec3 dir = mLookat - Camera::GetWorldTransform().GetPosition();
 
 	/*	NOTE£º
 	atan ranged [-pi/2,pi/2]
 	atan2 ranged [-pi,pi]
 	*/
 
-	NVECTOR3 xzProjDir(dir.x, 0, dir.z);
+	Vec3 xzProjDir(dir.x, 0, dir.z);
 	//always positive
 	float radiusLength = xzProjDir.Length();
 	//atan2(y,x) , radiusLength is constantly positive, pitch angle will range [-pi/2,pi/2] 
@@ -336,6 +390,6 @@ void Noise3D::Camera::mFunc_UpdateRotation()
 	//roll angle z: direction update doesn't change ROLL angle
 
 	//apply to RigidTransform
-	NVECTOR3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
+	Vec3 euler = Camera::GetWorldTransform().GetEulerAngleZXY();
 	Camera::GetWorldTransform().SetRotation(pitch_x, yaw_y, euler.z);
 }

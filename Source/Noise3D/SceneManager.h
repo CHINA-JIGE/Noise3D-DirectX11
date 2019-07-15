@@ -9,23 +9,29 @@
 
 namespace Noise3D
 {
-	class ModelLoader;
+	class MeshLoader;
+	namespace GI 
+	{
+		class PathTracer;
+	};
 
 
 	class /*_declspec(dllexport)*/ SceneManager:
-		public IFactory<Renderer>,
-		public IFactory<Camera>,
-		public IFactory<MeshManager>,
-		public IFactory<LightManager>,
-		public IFactory<TextureManager>,
-		public IFactory<MaterialManager>,
-		public IFactory<GraphicObjectManager>,
-		public IFactory<SweepingTrailManager>,
-		public IFactory<Atmosphere>,
-		public IFactory<TextManager>,
-		public IFactory<ModelLoader>,
-		public IFactory<ModelProcessor>,
-		public IFactory<CollisionTestor>
+		protected IFactory<Renderer>,
+		protected IFactory<Camera>,
+		protected IFactory<MeshManager>,
+		protected IFactory<LightManager>,
+		protected IFactory<TextureManager>,
+		protected IFactory<MaterialManager>,
+		protected IFactory<GraphicObjectManager>,
+		protected IFactory<SweepingTrailManager>,
+		protected IFactory<Atmosphere>,
+		protected IFactory<TextManager>,
+		protected IFactory<MeshLoader>,
+		protected IFactory<ModelProcessor>,
+		protected IFactory<CollisionTestor>,
+		protected IFactory<LogicalShapeManager>,
+		protected IFactory<GI::PathTracer>
 	{
 	public:
 
@@ -48,19 +54,25 @@ namespace Noise3D
 
 		MaterialManager*		GetMaterialMgr();
 
-		SweepingTrailManager*		GetSweepingTraillMgr();
+		SweepingTrailManager*	GetSweepingTraillMgr();
 
 		GraphicObjectManager*	GetGraphicObjMgr();
 
-		Atmosphere*					GetAtmosphere();
+		Atmosphere*				GetAtmosphere();
 
 		TextManager*				GetTextMgr();
 
-		ModelLoader*				GetModelLoader();
+		MeshLoader*				GetMeshLoader();
 
 		ModelProcessor*			GetModelProcessor();
 
-		CollisionTestor*				GetCollisionTestor();
+		CollisionTestor*			GetCollisionTestor();
+
+		LogicalShapeManager* GetLogicalShapeMgr();
+
+		GI::PathTracer*			CreatePathTracer(uint32_t pixelWidth, uint32_t pixelHeight);
+
+		GI::PathTracer*			GetPathTracer();
 
 	private:
 

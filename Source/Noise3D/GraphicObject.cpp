@@ -32,7 +32,7 @@ GraphicObject::GraphicObject()
 		m_pVB_Mem[i]					= new std::vector<N_SimpleVertex>;
 	}
 
-	m_pBaseScreenSpacePosOffset = new NVECTOR2(0, 0);
+	m_pBaseScreenSpacePosOffset = new Vec2(0, 0);
 	m_pTextureUidList_Rect = new std::vector<N_UID>;
 	m_pRectSubsetInfoList= new std::vector<N_GraphicObject_SubsetInfo>;
 }
@@ -48,7 +48,7 @@ GraphicObject::~GraphicObject()
 	delete m_pRectSubsetInfoList;
 }
 
-void GraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
+void GraphicObject::SetBasePosOffset(Vec2 pixelOffset)
 {
 	// --------->
 	// |		
@@ -69,7 +69,7 @@ void GraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	pixelOffset.y = -pixelOffset.y*2.0f  / float(mainHeight);
 
 	//vector difference
-	NVECTOR2 offsetV = pixelOffset - (*m_pBaseScreenSpacePosOffset);
+	Vec2 offsetV = pixelOffset - (*m_pBaseScreenSpacePosOffset);
 
 	if (offsetV.x ==0.0f && offsetV.y == 0.0f)return;
 
@@ -90,32 +90,61 @@ void GraphicObject::SetBasePosOffset(NVECTOR2 pixelOffset)
 	}
 }
 
-NVECTOR2 GraphicObject::GetBasePosOffset()
+Vec2 GraphicObject::GetBasePosOffset()
 {
 	Renderer* pRenderer = GetScene()->GetRenderer();
 	UINT mainWidth = pRenderer->GetBackBufferWidth();
 	UINT mainHeight = pRenderer->GetBackBufferHeight();
 
 	//Position Offset
-	NVECTOR2 outBaseTopLeftPixel = *m_pBaseScreenSpacePosOffset;
+	Vec2 outBaseTopLeftPixel = *m_pBaseScreenSpacePosOffset;
 	//mFunction_ConvertFloatVec2PixelVec(outBaseTopLeftPixel);
 	outBaseTopLeftPixel.x = outBaseTopLeftPixel.x *float(mainWidth) / 2.0f;
 	outBaseTopLeftPixel.y = - outBaseTopLeftPixel.y * float(mainHeight) / 2.0f;
 	return outBaseTopLeftPixel;
 }
 
-UINT GraphicObject::AddLine3D(NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+uint32_t GraphicObject::AddLine3D(Vec3 v1, Vec3 v2, Vec4 color1, Vec4 color2)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D, 
 		{ v1,v2 },
 		{ color1,color2 }, 
-		{ NVECTOR2(0,0),NVECTOR2(0,0) }
+		{ Vec2(0,0),Vec2(0,0) }
 	);
 	return GetLine3DCount() - 1;
 }
 
-UINT GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+uint32_t Noise3D::GraphicObject::AddLine3D_AABB(Vec3 min, Vec3 max, Vec4 color1)
+{
+	Vec3 v[8] = {
+		{ min}, //0
+		{ max.x,min.y, min.z},//1
+		{ min.x,max.y, min.z },//2
+		{ min.x,min.y, max.z },//3
+		{ max.x,max.y, min.z },//4
+		{ min.x,max.y, max.z },//5
+		{ max.x,min.y, max.z },//6
+		{max}//7
+	};
+
+	uint32_t edge[12][2]=
+	{
+		{0,1}, {0,3}, {1,6},{3,6},
+		{0,2}, {1,4}, {6,7}, {3,5},
+		{2,4}, {4,7}, {2,5}, {5,7}
+	};
+
+	for (int i = 0; i < 12; ++i)
+	{
+		mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D,
+		{ v[edge[i][0]],v[edge[i][1]] }, { color1,color1 }, { Vec2(0,0),Vec2(0,0) });
+	}
+
+	return GraphicObject::GetLine3DCount() - 1;
+}
+
+uint32_t GraphicObject::AddLine2D(Vec2 v1, Vec2 v2, Vec4 color1, Vec4 color2)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -125,24 +154,24 @@ UINT GraphicObject::AddLine2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR
 		NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D,
 		{ v1,v2 },
 		{ color1,color2 },
-		{ NVECTOR2(0,0),NVECTOR2(0,0) }
+		{ Vec2(0,0),Vec2(0,0) }
 	);
 
 	return GetLine2DCount()-1;
 }
 
-UINT GraphicObject::AddPoint3D(NVECTOR3 v, NVECTOR4 color)
+uint32_t GraphicObject::AddPoint3D(Vec3 v, Vec4 color)
 {
 	mFunction_AddVertices3D(
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D,
 		{ v },
 		{ color },
-		{ NVECTOR2(0,0) }
+		{ Vec2(0,0) }
 	);
 	return GetPoint3DCount() - 1;
 }
 
-UINT GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
+uint32_t GraphicObject::AddPoint2D(Vec2 v, Vec4 color)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v);
@@ -151,13 +180,13 @@ UINT GraphicObject::AddPoint2D(NVECTOR2 v, NVECTOR4 color)
 		NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D,
 		{ v },
 		{ color },
-		{ NVECTOR2(0,0) }
+		{ Vec2(0,0) }
 	);
 
 	return GetPoint2DCount() - 1;
 }
 
-UINT GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+uint32_t GraphicObject::AddTriangle2D(Vec2 v1, Vec2 v2, Vec2 v3, Vec4 color1, Vec4 color2, Vec4 color3)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(v1);
@@ -168,28 +197,28 @@ UINT GraphicObject::AddTriangle2D(NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR
 		NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D,
 		{ v1,v2,v3 },
 		{ color1,color2,color3 },
-		{ NVECTOR2(0,0),NVECTOR2(0, 0),NVECTOR2(0, 0) }
+		{ Vec2(0,0),Vec2(0, 0),Vec2(0, 0) }
 	);
 
 	return GetTriangle2DCount() - 1;
 }
 
-UINT GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR4 color, const N_UID& texName)
+uint32_t GraphicObject::AddRectangle(Vec2 vTopLeft,Vec2 vBottomRight,Vec4 color, const N_UID& texName)
 {
 	//coord unit conversion
 	mFunction_ConvertPixelVec2FloatVec(vTopLeft);
 	mFunction_ConvertPixelVec2FloatVec(vBottomRight);
 
 
-	NVECTOR2 vTopRight = NVECTOR2(vBottomRight.x, vTopLeft.y);
-	NVECTOR2 vBottomLeft = NVECTOR2(vTopLeft.x, vBottomRight.y);
+	Vec2 vTopRight = Vec2(vBottomRight.x, vTopLeft.y);
+	Vec2 vBottomLeft = Vec2(vTopLeft.x, vBottomRight.y);
 
 	//....initializer_list nit
 	mFunction_AddVertices2D(
 		NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D,
 		{ vTopLeft,vTopRight,vBottomLeft,vTopRight,vBottomRight,vBottomLeft },
 		{ color,color ,color ,color ,color ,color },
-		{ NVECTOR2(0,0),NVECTOR2(1,0),NVECTOR2(0, 1),NVECTOR2(1, 0),NVECTOR2(1, 1),NVECTOR2(0, 1) }
+		{ Vec2(0,0),Vec2(1,0),Vec2(0, 1),Vec2(1, 0),Vec2(1, 1),Vec2(0, 1) }
 	);
 
 	//add TextureID
@@ -199,11 +228,11 @@ UINT GraphicObject::AddRectangle(NVECTOR2 vTopLeft,NVECTOR2 vBottomRight,NVECTOR
 	return GetRectCount()-1;
 }
 
-UINT GraphicObject::AddRectangle(NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
+uint32_t GraphicObject::AddRectangle(Vec2 vCenter, float fWidth, float fHeight, Vec4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
 	UINT newRectID = NOISE_MACRO_INVALID_ID;
-	newRectID = AddRectangle(vCenter - NVECTOR2(fWidth / 2, fHeight / 2), vCenter + NVECTOR2(fWidth / 2, fHeight / 2), color, texName);
+	newRectID = AddRectangle(vCenter - Vec2(fWidth / 2, fHeight / 2), vCenter + Vec2(fWidth / 2, fHeight / 2), color, texName);
 	return newRectID;
 }
 
@@ -240,7 +269,7 @@ void GraphicObject::AdjustElementCount(NOISE_GRAPHIC_OBJECT_TYPE objType, UINT n
 	}
 }
 
-void	GraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	GraphicObject::SetLine3D(UINT index, Vec3 v1, Vec3 v2, Vec4 color1, Vec4 color2)
 {
 	if (index > GetLine3DCount())
 	{
@@ -253,12 +282,12 @@ void	GraphicObject::SetLine3D(UINT index, NVECTOR3 v1, NVECTOR3 v2, NVECTOR4 col
 		index*2,
 		{ v1,v2 },
 		{ color1,color2 },
-		{ NVECTOR2(0,0),NVECTOR2(0,0) }
+		{ Vec2(0,0),Vec2(0,0) }
 	);
 
 }
 
-void	GraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 color1, NVECTOR4 color2)
+void	GraphicObject::SetLine2D(UINT index, Vec2 v1, Vec2 v2, Vec4 color1, Vec4 color2)
 {
 	if (index >=GetLine2DCount())
 	{
@@ -275,11 +304,11 @@ void	GraphicObject::SetLine2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR4 col
 		index*2,
 		{ v1,v2 },
 		{ color1,color2 },
-		{ NVECTOR2(0,0),NVECTOR2(0,0) }
+		{ Vec2(0,0),Vec2(0,0) }
 	);
 }
 
-void	GraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
+void	GraphicObject::SetPoint3D(UINT index, Vec3 v, Vec4 color)
 {
 	if (index > GetPoint3DCount())
 	{
@@ -292,12 +321,12 @@ void	GraphicObject::SetPoint3D(UINT index, NVECTOR3 v, NVECTOR4 color)
 		index,
 		{ v },
 		{ color },
-		{ NVECTOR2(0,0) }
+		{ Vec2(0,0) }
 	);
 
 }
 
-void	GraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
+void	GraphicObject::SetPoint2D(UINT index, Vec2 v, Vec4 color)
 {
 	if (index > GetPoint2DCount())
 	{
@@ -312,11 +341,11 @@ void	GraphicObject::SetPoint2D(UINT index, NVECTOR2 v, NVECTOR4 color)
 		index,
 		{ v },
 		{ color },
-		{ NVECTOR2(0,0) }
+		{ Vec2(0,0) }
 	);
 }
 
-void	GraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2 v3, NVECTOR4 color1, NVECTOR4 color2, NVECTOR4 color3)
+void	GraphicObject::SetTriangle2D(UINT index, Vec2 v1, Vec2 v2, Vec2 v3, Vec4 color1, Vec4 color2, Vec4 color3)
 {
 	if (index >= GetTriangle2DCount())
 	{
@@ -334,11 +363,11 @@ void	GraphicObject::SetTriangle2D(UINT index, NVECTOR2 v1, NVECTOR2 v2, NVECTOR2
 		index*3,
 		{ v1,v2,v3 },
 		{ color1,color2,color3 },
-		{ NVECTOR2(0,0),NVECTOR2(0, 0),NVECTOR2(0, 0) }
+		{ Vec2(0,0),Vec2(0, 0),Vec2(0, 0) }
 	);
 }
 
-void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight, NVECTOR4 color, const N_UID& texName)
+void	GraphicObject::SetRectangle(UINT index, Vec2 vTopLeft, Vec2 vBottomRight, Vec4 color, const N_UID& texName)
 {
 	//index mean the 'index'th rectangle
 
@@ -354,8 +383,8 @@ void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottom
 
 	//.............
 	auto pList = m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D];
-	NVECTOR2 vTopRight = NVECTOR2(vBottomRight.x, vTopLeft.y);
-	NVECTOR2 vBottomLeft = NVECTOR2(vTopLeft.x, vBottomRight.y);
+	Vec2 vTopRight = Vec2(vBottomRight.x, vTopLeft.y);
+	Vec2 vBottomLeft = Vec2(vTopLeft.x, vBottomRight.y);
 
 	//modify TextureID
 	if (texName != m_pTextureUidList_Rect->at(index))
@@ -383,13 +412,13 @@ void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vTopLeft, NVECTOR2 vBottom
 
 }
 
-void	GraphicObject::SetRectangle(UINT index, NVECTOR2 vCenter, float fWidth, float fHeight, NVECTOR4 color, const N_UID& texName)
+void	GraphicObject::SetRectangle(UINT index, Vec2 vCenter, float fWidth, float fHeight, Vec4 color, const N_UID& texName)
 {
 	//dont use coord conversion here , because in the other overload , conversion will be applied
-	SetRectangle(index,vCenter - NVECTOR2(fWidth/2,fHeight/2),vCenter+ NVECTOR2(fWidth / 2, fHeight / 2),color,texName);
+	SetRectangle(index,vCenter - Vec2(fWidth/2,fHeight/2),vCenter+ Vec2(fWidth / 2, fHeight / 2),color,texName);
 }
 
-void	GraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NVECTOR2 texCoordBottomRight)
+void	GraphicObject::SetRectangleTexCoord(UINT index, Vec2 texCoordTopLeft,Vec2 texCoordBottomRight)
 {
 
 
@@ -414,11 +443,11 @@ void	GraphicObject::SetRectangleTexCoord(UINT index, NVECTOR2 texCoordTopLeft,NV
 
 	//m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[0]).TexCoord = texCoordTopLeft;
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[0]).TexCoord =  texCoordTopLeft;
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[1]).TexCoord =  NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[2]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[3]).TexCoord =  NVECTOR2(texCoordBottomRight.x, texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[1]).TexCoord =  Vec2(texCoordBottomRight.x, texCoordTopLeft.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[2]).TexCoord =  Vec2(texCoordTopLeft.x, texCoordBottomRight.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[3]).TexCoord =  Vec2(texCoordBottomRight.x, texCoordTopLeft.y);
 	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[4]).TexCoord =  texCoordBottomRight;
-	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord =  NVECTOR2(texCoordTopLeft.x, texCoordBottomRight.y);
+	m_pVB_Mem[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D]->at(vertexID[5]).TexCoord =  Vec2(texCoordTopLeft.x, texCoordBottomRight.y);
 
 
 	mCanUpdateToGpu[NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D] = true;	
@@ -618,7 +647,12 @@ N_AABB Noise3D::GraphicObject::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()
+N_BoundingSphere Noise3D::GraphicObject::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::GraphicObject::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::GRAPHIC_OBJECT;
 }
@@ -703,7 +737,7 @@ void		GraphicObject::mFunction_UpdateVerticesToGpu(UINT objType_ID)
 
 }
 
-void		GraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<Vec2> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList)
 {
 
 	N_SimpleVertex tmpVertex;
@@ -717,7 +751,7 @@ void		GraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 
 		tmpVertex = 
 		{
-			NVECTOR3(vertexIter->x+m_pBaseScreenSpacePosOffset->x,vertexIter->y + m_pBaseScreenSpacePosOffset->y,0.0f),
+			Vec3(vertexIter->x+m_pBaseScreenSpacePosOffset->x,vertexIter->y + m_pBaseScreenSpacePosOffset->y,0.0f),
 			*colorIter++,
 			*texcoordIter++
 		};
@@ -730,7 +764,7 @@ void		GraphicObject::mFunction_AddVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		GraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, std::initializer_list<Vec3> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList)
 {
 
 	N_SimpleVertex tmpVertex;
@@ -754,7 +788,7 @@ void		GraphicObject::mFunction_AddVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		GraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR2> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<Vec2> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList)
 {
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
@@ -763,9 +797,9 @@ void		GraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 		return;
 	}
 	
-	std::initializer_list<NVECTOR2>::iterator vertexIter = vertexList.begin();
-	std::initializer_list<NVECTOR4>::iterator colorIter = colorList.begin();
-	std::initializer_list<NVECTOR2>::iterator texcoordIter = texcoordList.begin();
+	std::initializer_list<Vec2>::iterator vertexIter = vertexList.begin();
+	std::initializer_list<Vec4>::iterator colorIter = colorList.begin();
+	std::initializer_list<Vec2>::iterator texcoordIter = texcoordList.begin();
 
 	bool canUpdate = false;
 
@@ -798,7 +832,7 @@ void		GraphicObject::mFunction_SetVertices2D(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 
 }
 
-void		GraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<NVECTOR3> vertexList, std::initializer_list<NVECTOR4> colorList, std::initializer_list<NVECTOR2> texcoordList)
+void		GraphicObject::mFunction_SetVertices3D(NOISE_GRAPHIC_OBJECT_TYPE buffType, UINT iVertexStartID, std::initializer_list<Vec3> vertexList, std::initializer_list<Vec4> colorList, std::initializer_list<Vec2> texcoordList)
 {
 	//check boundary (check the tail ,if the tail is within boundary , then it's valid
 	if (iVertexStartID + vertexList.size() >m_pVB_Mem[buffType]->size())
@@ -860,7 +894,7 @@ void		GraphicObject::mFunction_EraseVertices(NOISE_GRAPHIC_OBJECT_TYPE buffType,
 	mCanUpdateToGpu[buffType] = true;
 }
 
-void		GraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
+void		GraphicObject::mFunction_ConvertFloatVec2PixelVec(Vec2 & in_out_vec)
 {
 	// --------->
 	// |		
@@ -880,7 +914,7 @@ void		GraphicObject::mFunction_ConvertFloatVec2PixelVec(NVECTOR2 & in_out_vec)
 	in_out_vec.y = float(mainHeight)*((1.0f - in_out_vec.y) / 2.0f);
 };
 
-inline void  GraphicObject::mFunction_ConvertPixelVec2FloatVec(NVECTOR2& vec)
+inline void  GraphicObject::mFunction_ConvertPixelVec2FloatVec(Vec2& vec)
 {
 	// --------->
 	// |		
@@ -938,26 +972,26 @@ void	GraphicObject::mFunction_AdjustElementCount(UINT newCount, UINT currentObjC
 			switch (objType)
 			{
 			case NOISE_GRAPHIC_OBJECT_TYPE_LINE_2D:
-				AddLine2D(NVECTOR2(0.0f, 0.0f), NVECTOR2(0.0f, 0.0f));
+				AddLine2D(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f));
 				break;
 
 			case NOISE_GRAPHIC_OBJECT_TYPE_LINE_3D:
-				AddLine3D(NVECTOR3(0, 0, 0), NVECTOR3(0, 0, 0));
+				AddLine3D(Vec3(0, 0, 0), Vec3(0, 0, 0));
 				break;
 
 			case NOISE_GRAPHIC_OBJECT_TYPE_POINT_2D:
-				AddPoint2D(NVECTOR2(0, 0));
+				AddPoint2D(Vec2(0, 0));
 				break;
 			case NOISE_GRAPHIC_OBJECT_TYPE_POINT_3D:
-				AddPoint3D(NVECTOR3(0, 0,0));
+				AddPoint3D(Vec3(0, 0,0));
 				break;
 
 			case NOISE_GRAPHIC_OBJECT_TYPE_TRIANGLE_2D:
-				AddTriangle2D(NVECTOR2(0, 0), NVECTOR2(0, 0), NVECTOR2(0, 0));
+				AddTriangle2D(Vec2(0, 0), Vec2(0, 0), Vec2(0, 0));
 				break;
 
 			case NOISE_GRAPHIC_OBJECT_TYPE_RECT_2D:			
-				AddRectangle(NVECTOR2(0.0f, 0.0f), NVECTOR2(0.0f, 0.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+				AddRectangle(Vec2(0.0f, 0.0f), Vec2(0.0f, 0.0f), Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 				break;
 			}
 

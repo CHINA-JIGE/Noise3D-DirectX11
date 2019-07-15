@@ -68,7 +68,7 @@ void Noise3D::Renderer::Render()
 	
 }
 
-void	Noise3D::Renderer::ClearBackground(const NVECTOR4& color)
+void	Noise3D::Renderer::ClearBackground(const Vec4& color)
 {
 	m_pRenderInfrastructure->ClearRtvAndDsv(color);
 };

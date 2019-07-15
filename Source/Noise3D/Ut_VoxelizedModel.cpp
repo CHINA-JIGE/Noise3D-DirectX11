@@ -245,7 +245,7 @@ bool VoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 		return false;
 	}
 
-	std::vector<NVECTOR3> vertexList;
+	std::vector<Vec3> vertexList;
 
 	/*
 	     7 ________6
@@ -257,7 +257,7 @@ bool VoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 	
 	*/
 	float w = 1.0f, h =1.0f, d = 1.0f;
-	NVECTOR3 v[8]=
+	Vec3 v[8]=
 	{
 		{0,0,0},
 		{w,0,0},
@@ -295,7 +295,7 @@ bool VoxelizedModel::SaveToFile_STL(NFilePath STL_filePath)
 				if (val == 1)
 				{
 					//cube position
-					NVECTOR3 vOffset = NVECTOR3( x*w,y*h,z*d);
+					Vec3 vOffset = Vec3( x*w,y*h,z*d);
 
 					//generate square surface for 1-valued voxel
 					if (val_xm == 0)

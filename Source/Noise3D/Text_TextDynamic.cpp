@@ -67,7 +67,7 @@ N_UID DynamicText::GetFontName()
 	return mFontName;
 }
 
-NVECTOR2 DynamicText::GetFontSize(UINT fontID)
+Vec2 DynamicText::GetFontSize(UINT fontID)
 {
 	TextManager* pFontMgr = GetScene()->GetTextMgr();
 	return pFontMgr->GetFontSize(mFontName);
@@ -117,7 +117,7 @@ int DynamicText::GetWordSpacingOffset()
 }
 
 //pixel coordinate , position offset of specific word
-NVECTOR2 DynamicText::GetWordLocalPosOffset(UINT wordIndex)
+Vec2 DynamicText::GetWordLocalPosOffset(UINT wordIndex)
 {
 
 	//There is some overlapped code in mFunc_UpdateGraphicObj()
@@ -127,12 +127,12 @@ NVECTOR2 DynamicText::GetWordLocalPosOffset(UINT wordIndex)
 	UINT stringBoundaryWidth = UINT(IBasicContainerInfo::GetWidth());
 	UINT stringBoundaryHeight = UINT(IBasicContainerInfo::GetHeight());
 
-	NVECTOR2	posTopLeftOffset(0, 0);
+	Vec2	posTopLeftOffset(0, 0);
 
 	//clamp wordIndex
 	for (UINT i = 0;i <	(wordIndex<str.size()?wordIndex:str.size()); i++)
 	{
-		NVECTOR2 realCharBitmapSize = GetWordRealSize(mTextContent.at(i));
+		Vec2 realCharBitmapSize = GetWordRealSize(mTextContent.at(i));
 
 		//sum up widths and heights of words to derive pos offset
 		posTopLeftOffset.x += (realCharBitmapSize.x + mWordSpacingOffset);
@@ -150,10 +150,10 @@ NVECTOR2 DynamicText::GetWordLocalPosOffset(UINT wordIndex)
 
 };
 
-inline NVECTOR2 DynamicText::GetWordRealSize(UINT wordIndex)
+inline Vec2 DynamicText::GetWordRealSize(UINT wordIndex)
 {
 	TextManager* pFontMgr = GetScene()->GetTextMgr();
-	NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(wordIndex);
+	Vec2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(wordIndex);
 	return realCharBitmapPixelSize;
 };
 
@@ -161,12 +161,12 @@ inline NVECTOR2 DynamicText::GetWordRealSize(UINT wordIndex)
 /************************************************************************
 										P R I V A T E
 ************************************************************************/
-void DynamicText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, NVECTOR4 color, N_UID texName)
+void DynamicText::mFunction_InitGraphicObject(GraphicObject* pCreatedObj,UINT pxWidth, UINT pxHeight, Vec4 color, N_UID texName)
 {
 	m_pGraphicObj = pCreatedObj;
 
 	m_pGraphicObj->AddRectangle(
-		NVECTOR2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
+		Vec2(float(pxWidth) / 2.0f, float(pxHeight) / 2.0f),
 		float(pxWidth),
 		float(pxHeight),
 		color,
@@ -192,8 +192,8 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 
 	//if no need to change ,then skip unnecessary UPDATE (especially to optimize UpdateSubresource)
 	//those SetRectangle/SetXXX might cause GraphicObject to update ,then data must be updated to GPU
-	NVECTOR2 aaa = m_pGraphicObj->GetBasePosOffset();
-	NVECTOR2 bbb = GetTopLeft();
+	Vec2 aaa = m_pGraphicObj->GetBasePosOffset();
+	Vec2 bbb = GetTopLeft();
 	if ( mIsSizeChanged == false
 		&& mIsTextContentChanged == false
 		 && m_pGraphicObj->GetBasePosOffset()==GetTopLeft())
@@ -226,7 +226,7 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 		for (UINT i = 0;i < stringCharCount - currentRectCountInGraphicObj;i++)
 		{
 			//delete redundant
-			NVECTOR2 tmpZeroVec2(0, 0);NVECTOR4 tmpZeroVec4(0, 0, 0, 0);
+			Vec2 tmpZeroVec2(0, 0);Vec4 tmpZeroVec4(0, 0, 0, 0);
 			m_pGraphicObj->AddRectangle(tmpZeroVec2, tmpZeroVec2, tmpZeroVec4, mTextureName);
 		}
 	}
@@ -249,8 +249,8 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 	//2. update (set) rectangles to its new condition, and we store 2 string to avoid unnecessary 
 	//texcoord update (char bitmap udpate)
 	//like a cursor moving around
-	NVECTOR2	posGeneralOffset(0, 0);
-	NVECTOR2	posAlignmentOffset(0, 0);//some special characters need special alignment like 'g' 'p' 'q'
+	Vec2	posGeneralOffset(0, 0);
+	Vec2	posAlignmentOffset(0, 0);//some special characters need special alignment like 'g' 'p' 'q'
 	for (UINT i = 0;i < stringCharCount;i++)
 	{
 
@@ -262,8 +262,8 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 		//TEXCOORD modification
 		//see if we should re-locate the texcoord of current rectangle (to see if the char changes?)
 
-		NVECTOR2 newTexCoordTopLeft(0, 0);
-		NVECTOR2 newTexCoordBottomRight(0, 0);
+		Vec2 newTexCoordTopLeft(0, 0);
+		Vec2 newTexCoordBottomRight(0, 0);
 
 		//lookup a char bitmap in the table using texcoord (table size: tableRowCount * tableColumnCount)
 		newTexCoordTopLeft.x = (currentChar % tableColumnCount) / float(tableColumnCount);
@@ -278,7 +278,7 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 #pragma endregion UpdateTexcoord
 
 		//pixel size in bitmap table (glyph)
-		NVECTOR2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(currentChar);
+		Vec2 realCharBitmapPixelSize = pFontMgr->IFactory<N_FontObject>::GetObjectPtr(mFontName)->mAsciiCharSizeList.at(currentChar);
 		if (currentChar == ' ')realCharBitmapPixelSize.x = float(mSpacePixelWidth);
 
 
@@ -291,11 +291,11 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 		posAlignmentOffset.x = 0;
 		posAlignmentOffset.y = (float)Ut::GetCharAlignmentOffsetPixelY(mCharBoundarySizeY, UINT(realCharBitmapPixelSize.y), currentChar);
 
-		NVECTOR2 tmpRectTopLeft(0, 0);
-		NVECTOR2 tmpRectBottomRight(0, 0);
+		Vec2 tmpRectTopLeft(0, 0);
+		Vec2 tmpRectBottomRight(0, 0);
 		//tmpRectTopLeft = Noise2DBasicContainerInfo::GetTopLeft() + posGeneralOffset + posAlignmentOffset;
 		tmpRectTopLeft =  posGeneralOffset + posAlignmentOffset;
-		tmpRectBottomRight = tmpRectTopLeft + NVECTOR2(float(mCharBoundarySizeX), float(mCharBoundarySizeY));
+		tmpRectBottomRight = tmpRectTopLeft + Vec2(float(mCharBoundarySizeX), float(mCharBoundarySizeY));
 		
 		//COLLAPSE the rectangle into ONE POINT to make it invisible if this rectangle
 		//is outside the boundary of Text
@@ -304,8 +304,8 @@ void  DynamicText::mFunction_UpdateGraphicObject()//call by Renderer:AddObjectTo
 			//collapse
 			m_pGraphicObj->SetRectangle(
 				i,
-				NVECTOR2(0, 0),
-				NVECTOR2(0, 0),
+				Vec2(0, 0),
+				Vec2(0, 0),
 				IBasicContainerInfo::GetBasicColor(),
 				mTextureName
 				);

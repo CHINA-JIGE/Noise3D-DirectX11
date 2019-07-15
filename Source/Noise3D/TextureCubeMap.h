@@ -24,9 +24,9 @@ namespace Noise3D
 			BILINEAR
 		};
 
-		NColor4u	 GetPixel(uint32_t faceID, uint32_t x, uint32_t y);
+		Color4u	 GetPixel(uint32_t faceID, uint32_t x, uint32_t y);
 
-		NColor4u	 GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode);
+		Color4u	 GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode);
 
 	private:
 
@@ -42,7 +42,7 @@ namespace Noise3D
 		virtual void NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitTexture(
 			ID3D11ShaderResourceView* pSRV,
 			const N_UID& uid,
-			std::vector<NColor4u>&& pixelBuff,
+			std::vector<Color4u>&& pixelBuff,
 			bool isSysMemBuffValid) override;
 	};
 

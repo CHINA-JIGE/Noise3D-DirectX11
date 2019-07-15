@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 
 	//register main loop function
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//enter main loop
 	pRoot->Mainloop();
@@ -98,9 +98,9 @@ BOOL Init3D(HWND hwnd)
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
 	pFontMgr->CreateFontFromFile("media/STXINWEI.ttf", "myFont", 24);
-	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(150, 60));
+	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
+	pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(150, 60));
 	pMyText_fps->SetFont("myFont");
 
 	pRenderer->SetFillMode(NOISE_FILLMODE_SOLID);
@@ -116,8 +116,8 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
 	/*for (auto v : tmpVB)
 	{
-	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
+	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Normal, Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	pGraphicObjBuffer->AddLine3D(v.Pos, v.Pos + 5.0f*v.Tangent, Vec4(0,0, 1.0f, 1.0f), Vec4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
 	}*/
 
 	//----------------------------------------------------------
@@ -134,26 +134,26 @@ BOOL Init3D(HWND hwnd)
 	pCamera->SetLookAt(0, 0, 0);
 
 	pAtmos->SetFogEnabled(FALSE);
-	pAtmos->SetFogParameter(7.0f, 8.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(7.0f, 8.0f, Vec3(0, 0, 1.0f));
 	pAtmos->CreateSkyDome(4.0f, 4.0f, "Universe");
 	//Atmos.CreateSkyBox(100.0f, 100.0f, 100.0f, pTexMgr->GetTextureID("AtmoTexture"));
 
 	//------------------µÆ¹â-----------------
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.mAmbientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(0,0 ,0);//just init
+	dirLightDesc.mAmbientColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.mDiffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.mSpecularColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.direction = Vec3(0,0 ,0);//just init
 	dirLightDesc.mSpecularIntensity = 1.0f;
 	dirLightDesc.mDiffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
 	//-------------------²ÄÖÊ----------------
 	N_MaterialDesc Mat1;
-	Mat1.mAmbientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
-	Mat1.mDiffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.mSpecularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.mAmbientColor = Vec3(0.3f, 0.3f, 0.3f);
+	Mat1.mDiffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	Mat1.mSpecularColor = Vec3(1.0f, 1.0f, 1.0f);
 	Mat1.mSpecularSmoothLevel = 40;
 	Mat1.mNormalMapBumpIntensity = 0.2f;
 	Mat1.mEnvironmentMapTransparency = 0.05f;
@@ -164,7 +164,7 @@ BOOL Init3D(HWND hwnd)
 	pMesh1->SetMaterial("meshMat1");
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(Vec2(800.0, 680.0f), Vec2(960.0f, 720.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 
 	return TRUE;
 };
@@ -174,7 +174,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f , cos(incrNum)));
+	pDirLight1->SetDirection(Vec3(sin(incrNum), -1.0f , cos(incrNum)));
 
 	//GUIMgr.Update();
 	InputProcess();

@@ -28,7 +28,7 @@ TextManager* pTextMgr;
 DynamicText* pMyText_fps;
 
 SceneNode* sceneRoot;
-SceneNode* a;
+SceneNode* snode_a;
 SceneNode* aa;
 SceneNode* ab;
 SceneNode* ac;
@@ -57,7 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 
 	//register main loop function
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//enter main loop
 	pRoot->Mainloop();
@@ -96,10 +96,10 @@ BOOL Init3D(HWND hwnd)
 	pGraphicObjMgr = pScene->GetGraphicObjMgr();
 	SceneGraph& sg = pScene->GetSceneGraph();
 	sceneRoot = sg.GetRoot();
-	a = sceneRoot->CreateChildNode();
-	aa = a->CreateChildNode();
-	ab = a->CreateChildNode();
-	ac = a->CreateChildNode();
+	snode_a = sceneRoot->CreateChildNode();
+	aa = snode_a->CreateChildNode();
+	ab = snode_a->CreateChildNode();
+	ac = snode_a->CreateChildNode();
 	aca = ac->CreateChildNode();
 	b = sceneRoot->CreateChildNode();
 
@@ -119,9 +119,9 @@ BOOL Init3D(HWND hwnd)
 	//create font texture
 	pTextMgr = pScene->GetTextMgr();
 	pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	pMyText_fps= pTextMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(170, 60));
+	pMyText_fps= pTextMgr->CreateDynamicTextA("myFont","fpsLabel","fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
+	pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(170, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
@@ -146,11 +146,11 @@ BOOL Init3D(HWND hwnd)
 	const std::vector<N_DefaultVertex>* pTmpVB;
 	pTmpVB =	meshList.at(0)->GetVertexBuffer();
 	pGraphicObjBuffer = pGraphicObjMgr->CreateGraphicObj("normalANDTangent");
-	NVECTOR3 modelPos = meshList.at(0)->GetAttachedSceneNode()->GetLocalTransform().GetPosition();
+	Vec3 modelPos = meshList.at(0)->GetAttachedSceneNode()->GetLocalTransform().GetPosition();
 	for (auto v : *pTmpVB)
 	{
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(0,0,0, 1.0f));//draw the normal
-		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, Vec4(1.0f, 0, 0, 1.0f), Vec4(0,0,0, 1.0f));//draw the normal
+		//pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, Vec4(0,0, 1.0f, 1.0f), Vec4(1.0f,1.0f,1.0f, 1.0f));//draw the tangent
 	}
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 50.0f,0,0 },	{ 1.0f,0,0,1.0f }, { 1.0f,0,0,1.0f });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,50.0f,0 },	{ 0,1.0f,0,1.0f }, { 0,1.0f,0,1.0f });
@@ -172,35 +172,35 @@ BOOL Init3D(HWND hwnd)
 	//pModelLoader->LoadSkyDome(pAtmos,"Universe", 4.0f, 2.0f);
 	pModelLoader->LoadSkyBox(pAtmos, "Universe", 1000.0f, 1000.0f, 1000.0f);
 	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(50.0f, 100.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(50.0f, 100.0f, Vec3(0, 0, 1.0f));
 
 	//！！！！！！菊高！！！！！！！！
 	pDirLight1 = pLightMgr->CreateDynamicDirLight(pScene->GetSceneGraph().GetRoot(),"myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(0.1f,0.1f, 0.1f);
-	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.direction = NVECTOR3(1.0f,-1.0f, 0);
+	dirLightDesc.ambientColor = Vec3(0.1f,0.1f, 0.1f);
+	dirLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.direction = Vec3(1.0f,-1.0f, 0);
 	dirLightDesc.specularIntensity =1.0f;
 	dirLightDesc.diffuseIntensity =1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
 
 	/*pPointLight1 = pLightMgr->CreateDynamicPointLight("myPointLight1");
 	N_PointLightDesc pointLightDesc;
-	pointLightDesc.ambientColor = NVECTOR3(0.1f, 0.1f, 0.1f);
-	pointLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	pointLightDesc.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.ambientColor = Vec3(0.1f, 0.1f, 0.1f);
+	pointLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	pointLightDesc.specularColor = Vec3(1.0f, 1.0f, 1.0f);
 	pointLightDesc.mAttenuationFactor = 0.01f;
 	pointLightDesc.mLightingRange = 1000.0f;
-	pointLightDesc.mPosition = NVECTOR3(0,20, 0);
+	pointLightDesc.mPosition = Vec3(0,20, 0);
 	pointLightDesc.specularIntensity = 2.0f;
 	pointLightDesc.diffuseIntensity = 1.0f;
 	pPointLight1->SetDesc(pointLightDesc);*/
 
 	N_MaterialDesc Mat1;
-	Mat1.ambientColor = NVECTOR3(0, 0, 0);
-	Mat1.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	Mat1.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	Mat1.ambientColor = Vec3(0, 0, 0);
+	Mat1.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	Mat1.specularColor = Vec3(1.0f, 1.0f, 1.0f);
 	Mat1.specularSmoothLevel = 40;
 	Mat1.normalMapBumpIntensity = 0.2f;
 	Mat1.environmentMapTransparency = 0.1f;
@@ -213,7 +213,7 @@ BOOL Init3D(HWND hwnd)
 	//pMesh->SetMaterial("meshMat1");
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(960.0f, 680.0f), NVECTOR2(1080.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(Vec2(960.0f, 680.0f), Vec2(1080.0f, 720.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f),"BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return TRUE;
@@ -224,7 +224,7 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum),-1,cos(incrNum)));
+	//pDirLight1->SetDirection(Vec3(sin(incrNum),-1,cos(incrNum)));
 	
 
 	//GUIMgr.Update();
@@ -236,7 +236,7 @@ void MainLoop()
 	std::stringstream tmpS;
 	tmpS << "fps :" << timer.GetFPS();// << std::endl;
 	pMyText_fps->SetTextAscii(tmpS.str());
-	a->GetLocalTransform().Rotate(NVECTOR3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
+	snode_a->GetLocalTransform().Rotate(Vec3(1.0f, 1.0f, 1.0f), 0.001f * timer.GetInterval());
 
 	//add to render list
 	for (auto& pMesh : meshList)pRenderer->AddToRenderQueue(pMesh);
@@ -287,8 +287,8 @@ void InputProcess()
 
 	if (inputE.IsMouseButtonPressed(Ut::NOISE_MOUSEBUTTON_LEFT))
 	{
-		NVECTOR3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
-		euler += NVECTOR3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f , 0);
+		Vec3 euler = pCamera->GetWorldTransform().GetEulerAngleZXY();
+		euler += Vec3((float)inputE.GetMouseDiffY() / 200.0f, (float)inputE.GetMouseDiffX() / 200.0f , 0);
 		pCamera->GetWorldTransform().SetRotation(euler.x,euler.y,euler.z);
 	}
 

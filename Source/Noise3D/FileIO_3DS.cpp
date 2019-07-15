@@ -31,7 +31,7 @@ UINT					IFileIO_3DS::mTextureMapIndex = 0;
 IFileIO_3DS::IFileIO_3DS()
 {
 	m_pMeshObjList		= new	std::vector<N_Load3ds_MeshObject>;	
-	m_pMaterialList		= new	std::vector<N_MaterialDesc>	;
+	m_pMaterialList		= new	std::vector<N_LambertMaterialDesc>	;
 	m_pMatNameList	= new	std::vector<std::string>;
 	m_pTexName2FilePathPairList=new std::unordered_map<std::string, NFilePath>;	//string as UID, FilePath is used to load file
 
@@ -40,7 +40,7 @@ IFileIO_3DS::IFileIO_3DS()
 bool IFileIO_3DS::ImportFile_3DS(
 	NFilePath pFilePath,
 	std::vector<N_Load3ds_MeshObject>& outMeshInfoList,
-	std::vector<N_MaterialDesc>& outMaterialList,
+	std::vector<N_LambertMaterialDesc>& outMaterialList,
 	std::vector<std::string>& outMatNameList,
 	std::unordered_map<std::string, NFilePath>& out_TexName2FilePathPairList)
 {
@@ -336,7 +336,7 @@ void	IFileIO_3DS::ReadStringFromFileW(std::wstring& outString)
 
 //father: xxx color chunk
 //child:none
-void IFileIO_3DS::ReadAndParseColorChunk(NVECTOR3 & outColor)
+void IFileIO_3DS::ReadAndParseColorChunk(Vec3 & outColor)
 {
 	//please refer to project "Assimp" for more chunk information
 
@@ -501,7 +501,7 @@ void IFileIO_3DS::ParseVerticesChunk()
 	vertexList.reserve(vertexList.size()+verticesCount);
 	for (UINT i = 0;i < verticesCount;i++)
 	{
-		NVECTOR3 tmpVertex(0, 0, 0);
+		Vec3 tmpVertex(0, 0, 0);
 		BINARY_READ(tmpVertex.x);
 		BINARY_READ(tmpVertex.z);
 		BINARY_READ(tmpVertex.y);
@@ -638,7 +638,7 @@ void IFileIO_3DS::ParseTextureCoordinate()
 	auto& texcoordList = m_pMeshObjList->back().texcoordList;
 	for (UINT i = 0;i < texcoordCount;i++)
 	{
-		NVECTOR2 tmpTexCoord(0, 0);
+		Vec2 tmpTexCoord(0, 0);
 		BINARY_READ(tmpTexCoord.x);
 		BINARY_READ(tmpTexCoord.y);
 		texcoordList.push_back(tmpTexCoord);
@@ -660,7 +660,7 @@ void IFileIO_3DS::ParseMaterialBlock()
 	//Data:None
 
 	//but this identifier signify creation a new material
-	N_MaterialDesc tmpMat;
+	N_LambertMaterialDesc tmpMat;
 	m_pMaterialList->push_back(tmpMat);
 }
 

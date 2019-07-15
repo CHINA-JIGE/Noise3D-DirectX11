@@ -12,6 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUI-SHLighting", "Source\GU
 		{989DEC98-69C7-4F44-AEFC-D5D4BBF57B90} = {989DEC98-69C7-4F44-AEFC-D5D4BBF57B90}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PathTracerDemo", "Source\PathTracerDemo\PathTracerDemo.vcxproj", "{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{989DEC98-69C7-4F44-AEFC-D5D4BBF57B90} = {989DEC98-69C7-4F44-AEFC-D5D4BBF57B90}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +57,18 @@ Global
 		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x64.ActiveCfg = Release|Win32
 		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x86.ActiveCfg = Release|Win32
 		{3296C9BD-B600-4702-8BBB-ED5535F34CE8}.Release|x86.Build.0 = Release|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|Win32.Build.0 = Debug|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|x64.ActiveCfg = Debug|x64
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|x64.Build.0 = Debug|x64
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|x86.ActiveCfg = Debug|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Debug|x86.Build.0 = Debug|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|Win32.ActiveCfg = Release|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|Win32.Build.0 = Release|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|x64.ActiveCfg = Release|x64
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|x64.Build.0 = Release|x64
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|x86.ActiveCfg = Release|Win32
+		{BBBA312C-54AF-4FE0-844B-E210E5F9EB1A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

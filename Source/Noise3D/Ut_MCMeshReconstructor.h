@@ -25,7 +25,7 @@ namespace Noise3D
 
 			//result are composed of triangles indicated by every 3 vertices 
 			//(which means vertex-welding is necessary to generate a visually-smooth model)
-			void	GetResult(std::vector<NVECTOR3>& outVertexList);
+			void	GetResult(std::vector<Vec3>& outVertexList);
 
 		private:
 
@@ -54,7 +54,7 @@ namespace Noise3D
 
 			const VoxelizedModel*				m_pVoxelizedModel;
 
-			std::vector<NVECTOR3>				mVertexList;
+			std::vector<Vec3>				mVertexList;
 
 			float				mResampleScaleX;
 

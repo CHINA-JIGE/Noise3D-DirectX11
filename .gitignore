@@ -24,6 +24,10 @@ $RECYCLE.BIN/
 #temp dir
 /temp/
 
+#some document & open src project
+/doc/RayTracer/Smallpaint/
+/doc/RayTracer/smallpaint-GI Renderer in 250 lines.zip
+
 #pre-compiled header
 /pch/
 /ipch/
@@ -65,3 +69,17 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+doc/RayTracer/paper-PBR reflection model/\[2012\]Physically Based Shading at Disney.pdf
+doc/RayTracer/paper-PBR reflection model/\[2017-MSc thesis\]Physically Based Rendering.pdf
+doc/RayTracer/paper-PBR reflection model/\[EG1994-Schlick\]An Inexpensive BRDF Model for Physically-based Rendering.pdf
+doc/RayTracer/paper-PBR reflection model/\[EG2007\]Microfacet Models for Refraction through Rough Surfaces.pdf
+doc/RayTracer/paper-PBR reflection model/\[ppt\]The Rendering Equation and Path Tracing.pdf
+doc/RayTracer/paper-PBR reflection model/\[SIG1982\](Cook-Torrance)A Reflectance Model for Computer Graphics.pdf
+doc/RayTracer/paper-PBR reflection model/\[SIG1986\]The Rendering Equation.pdf
+doc/RayTracer/paper-PBR reflection model/\[book\]Real-Time Rendering.3rd.pdf
+doc/RayTracer/paper-PBR reflection model/\[SIG2014-course\]Moving Frosbite to PBR.pdf
+doc/RayTracer/paper-PBR reflection model/\[SIG2013-course\]PBS in UE4.pdf
+doc/RayTracer/paper-PBR reflection model/\[SIG2013-course\]PBS in UE4-notes.pdf
+doc/RayTracer/paper-PBR reflection model/
+Screenshot/RayTracer/
+Exec/Media/

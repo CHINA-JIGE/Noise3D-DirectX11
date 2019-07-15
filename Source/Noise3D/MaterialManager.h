@@ -1,6 +1,6 @@
 /***********************************************************************
 
-								h£ºNoiseMaterialManager
+								h£ºMaterialManager
 
 ************************************************************************/
 
@@ -9,24 +9,18 @@
 namespace Noise3D
 {
 	class /*_declspec(dllexport)*/ MaterialManager
-		:public IFactory<Material>
+		:public IFactoryEx<LambertMaterial, GI::PbrtMaterial>
 	{
 	public:
 
+		LambertMaterial*		CreateLambertMaterial(N_UID matName,const N_LambertMaterialDesc& matDesc);
 
-		Material*		CreateMaterial(N_UID matName,const N_MaterialDesc& matDesc);
+		LambertMaterial*		GetDefaultLambertMaterial();
 
-		UINT			GetMaterialCount();
+		GI::PbrtMaterial* CreateAdvancedMaterial(N_UID matName, const GI::N_PbrtMatDesc& matDesc);
 
-		Material*		GetDefaultMaterial();
+		GI::PbrtMaterial*		GetDefaultAdvancedMaterial();
 
-		Material*		GetMaterial(N_UID matName);
-
-		bool		DeleteMaterial(N_UID matName);
-
-		void		DeleteAllMaterial();
-
-		bool		ValidateUID(N_UID matName);
 
 	private:
 

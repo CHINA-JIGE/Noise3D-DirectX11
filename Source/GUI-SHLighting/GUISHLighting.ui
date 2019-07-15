@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Spherical Harmonic Lighting Utility </string>
+   <string>Spherical Harmonic Visualizer (Noise3D)</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label_MonteCarlo">

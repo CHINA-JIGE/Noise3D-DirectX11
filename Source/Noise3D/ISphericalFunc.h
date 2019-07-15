@@ -17,37 +17,62 @@ namespace Noise3D
 		template <typename T>
 		struct ISphericalFunc
 		{
-			virtual T Eval(const NVECTOR3& dir) = 0;
+			virtual T Eval(const Vec3& dir) = 0;
 		};
 
 		//concrete spherical func implementation based on texture sampling in spherical mapping way
-		class ISphericalFunc_Texture2dSampler : public ISphericalFunc<NColor4f>
+		class Texture2dSampler_Spherical : public ISphericalFunc<Color4f>
 		{
 		public:
+
+			Texture2dSampler_Spherical();
+
+			void SetFilterMode(bool isBilinear);
 
 			void SetTexturePtr(Texture2D* pTex);
 
 			//evaluate a spherical function value by sampling a texture
-			virtual NColor4f Eval(const NVECTOR3& dir) override;
+			virtual Color4f Eval(const Vec3& dir) override;
 
 		private:
+
+			bool mIsBilinear;
 
 			Texture2D* m_pTex;
 		};
 
 		//concrete spherical func implementation based on cube map
-		class ISphericalFunc_CubeMapSampler : public ISphericalFunc<NColor4f>
+		class CubeMapSampler : public ISphericalFunc<Color4f>
 		{
 		public:
 
 			void SetTexturePtr(TextureCubeMap* pTex);
 
 			//evaluate a spherical function value by sampling a texture
-			virtual NColor4f Eval(const NVECTOR3& dir) override;
+			virtual Color4f Eval(const Vec3& dir) override;
 
 		private:
 
 			TextureCubeMap* m_pTex;
+		};
+
+		//concrete spherical func implementation based on texture sampling in spherical mapping way
+		class Texture2dSamplerForSHProjection : public ISphericalFunc<Color4f>
+		{
+		public:
+
+			Texture2dSamplerForSHProjection();
+
+			void SetTexturePtr(Texture2D* pTex);
+
+			//evaluate a spherical function value by sampling a texture
+			virtual Color4f Eval(const Vec3& dir) override;
+
+		private:
+
+			bool mIsBilinear;
+
+			Texture2D* m_pTex;
 		};
 
 	}

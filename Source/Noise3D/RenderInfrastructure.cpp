@@ -354,7 +354,7 @@ void IRenderInfrastructure::SetRTTViewsReference(ID3D11RenderTargetView * pRTV_A
 	m_pRefOffScreenDsv_B = pDSV_B;
 }
 
-void IRenderInfrastructure::ClearRtvAndDsv(const NVECTOR4 & color)
+void IRenderInfrastructure::ClearRtvAndDsv(const Vec4 & color)
 {
 	//choose RTV and DSV to clear (target varys when post-processing is on or off)
 	if (mPostProcessRemainingPassCount>0)
@@ -380,7 +380,7 @@ void IRenderInfrastructure::ClearRtvAndDsv(const NVECTOR4 & color)
 void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 {
 	//update camera matrices
-	NMATRIX tmpMatrix;
+	Matrix tmpMatrix;
 	pCamera->GetProjMatrix(tmpMatrix);
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::PROJECTION, tmpMatrix);
 
@@ -388,10 +388,10 @@ void	IRenderInfrastructure::UpdateCameraMatrix(Camera* const pCamera)
 	m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW, tmpMatrix);
 
 	//but only 'mouse picking' in CollisionTestor needs it.... and it is updated inside CollisionTestor
-	//pCamera->GetInvViewMatrix(tmpMatrix);
+	//pCamera->GetViewInvMatrix(tmpMatrix);
 	//m_pRefShaderVarMgr->SetMatrix(IShaderVariableManager::NOISE_SHADER_VAR_MATRIX::VIEW_INV, tmpMatrix);
 
-	NVECTOR3 camPos = pCamera->GetWorldTransform().GetPosition();
+	Vec3 camPos = pCamera->GetWorldTransform().GetPosition();
 	m_pRefShaderVarMgr->SetVector3(IShaderVariableManager::NOISE_SHADER_VAR_VECTOR::CAMERA_POS3, camPos);
 }
 

@@ -30,14 +30,14 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 
 	//local aabb
 	N_AABB localAabb =this->GetLocalAABB();
-	const NVECTOR3& a = localAabb.min;
-	const NVECTOR3& b = localAabb.max;
+	const Vec3& a = localAabb.min;
+	const Vec3& b = localAabb.max;
 
 	//world transform matrix (under scene graph's root's coordinate system)
-	NMATRIX worldMat = m_pAttachedSceneNode->EvalWorldAffineTransformMatrix();
+	Matrix worldMat = m_pAttachedSceneNode->EvalWorldTransform().GetAffineTransformMatrix();
 
 	//get 8 vertices coord of local AABB
-	NVECTOR3 vertices[8] = 
+	Vec3 vertices[8] = 
 	{
 		{a.x, a.y, a.z},
 		{ b.x, a.y, a.z },
@@ -52,18 +52,15 @@ N_AABB Noise3D::ISceneObject::ComputeWorldAABB_Fast()
 	for (uint32_t i = 0; i < 8; ++i)
 	{
 		//apply world transform of scene node to 8 vertices of local AABB
-		NVECTOR4 tmpVertex = { vertices[i].x,vertices[i].y ,vertices[i].y ,1.0f };
-		NVECTOR4 transformedVertex = AffineTransform::TransformVector_MatrixMul(tmpVertex, worldMat); //trans.TransformVector_Affine(vertices[i]);
-		vertices[i] = NVECTOR3(transformedVertex.x, transformedVertex.y, transformedVertex.z);
+		vertices[i] = AffineTransform::TransformVector_MatrixMul(vertices[i], worldMat); //trans.TransformVector_Affine(vertices[i]);
 	}
 
 	//find the AABB of these 8 transformed vertices
-	NVECTOR3 tmpV;
 	N_AABB outAabb;
 
 	for (uint32_t i = 0; i < 8; i++)
 	{
-		tmpV =vertices[i];
+		Vec3  & tmpV =vertices[i];
 		if (tmpV.x < (outAabb.min.x)) { outAabb.min.x = tmpV.x; }
 		if (tmpV.y < (outAabb.min.y)) { outAabb.min.y = tmpV.y; }
 		if (tmpV.z < (outAabb.min.z)) { outAabb.min.z = tmpV.z; }
@@ -98,7 +95,7 @@ void Noise3D::ISceneObject::DetachFromSceneNode()
 	}
 }
 
-SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode()
+SceneNode * Noise3D::ISceneObject::GetAttachedSceneNode() const
 {
 	return m_pAttachedSceneNode;
 }

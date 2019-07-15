@@ -19,7 +19,7 @@ MeshSlicer::MeshSlicer():
 
 }
 
-bool MeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vb, const std::vector<UINT>& ib)
+bool MeshSlicer::Step1_LoadPrimitiveMeshFromMemory(const std::vector<Vec3>& vb, const std::vector<UINT>& ib)
 {
 	mCurrentStep = 1;
 
@@ -160,9 +160,9 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 	N_LayeredLineSegment tmpLineSegment;
 
 	//...tmp var  : used in  "switch (tmpResult.vertexCount)"
-	std::vector<NVECTOR3> tmpIntersectPointList;
+	std::vector<Vec3> tmpIntersectPointList;
 	bool canIntersect = false;
-	NVECTOR3 tmpPoint(0, 0, 0);
+	Vec3 tmpPoint(0, 0, 0);
 
 
 	//start traverse all layers / triangles , and intersect
@@ -170,7 +170,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 	for (UINT currentTriangleID = 0; currentTriangleID <totalTriangleCount; currentTriangleID++)
 	{
 
-		NVECTOR3 v1 = NVECTOR3(0, 0, 0),v2 = NVECTOR3(0, 0, 0),v3 = NVECTOR3(0, 0, 0);
+		Vec3 v1 = Vec3(0, 0, 0),v2 = Vec3(0, 0, 0),v3 = Vec3(0, 0, 0);
 		v1 = mPrimitiveVertexBuffer.at(currentTriangleID * 3 + 0);
 		v2 = mPrimitiveVertexBuffer.at(currentTriangleID * 3 + 1);
 		v3 = mPrimitiveVertexBuffer.at(currentTriangleID * 3 + 2);
@@ -200,7 +200,7 @@ void MeshSlicer::Step2_Intersection(UINT iLayerCount)
 				{
 					//maybe some edges will intersect current Layer
 					bool canIntersect = false;
-					NVECTOR3 tmpPoint(0, 0, 0);
+					Vec3 tmpPoint(0, 0, 0);
 
 					//proceed a line --- layer intersection ,and return a bool
 					//if they really intersect so we add the intersect point to a list
@@ -367,7 +367,7 @@ void	MeshSlicer::Step3_GenerateLineStrip()
 
 	N_LineStrip			tmpLineStrip;
 	N_LayeredLineSegment		tmpLineSegment;
-	NVECTOR3			tmpLineStripTailPoint;
+	Vec3			tmpLineStripTailPoint;
 
 	//............
 	UINT i = 0, j = 0;
@@ -496,7 +496,7 @@ void		MeshSlicer::mFunction_ComputeBoundingBox()
 	//compute Bounding box : override 1
 
 	UINT i = 0;
-	NVECTOR3 tmpV;
+	Vec3 tmpV;
 	//traverse all vertices, and get the biggest and smallest point in terms of x,y,z components
 	//遍历所有顶点，算出包围盒3分量均最 小/大 的两个顶点
 	for (i = 0;i < mPrimitiveVertexBuffer.size();i++)
@@ -513,7 +513,7 @@ void		MeshSlicer::mFunction_ComputeBoundingBox()
 
 }
 
-bool	MeshSlicer::mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3 * outIntersectPoint)
+bool	MeshSlicer::mFunction_Intersect_LineSeg_Layer(Vec3 v1, Vec3 v2, float layerY, Vec3 * outIntersectPoint)
 {
 
 	//some obvious wrong input check
@@ -595,7 +595,7 @@ void		MeshSlicer::mFunction_GenerateLayerTileInformation()
 
 }
 
-void		MeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X, UINT & tileID_Z)
+void		MeshSlicer::mFunction_GetLayerTileIDFromPoint(Vec3 v, UINT & tileID_X, UINT & tileID_Z)
 {
 	//this function will return index(2 integers) that can be used to locate element in 2D array
 
@@ -616,7 +616,7 @@ void		MeshSlicer::mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT & tileID_X,
 	 if (tileID_Z == c_LayerTileStepCount)tileID_Z--;
 };
 
-MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3)
+MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer( float currentlayerY, Vec3& v1, Vec3& v2, Vec3& v3)
 {
 	N_IntersectionResult outResult;
 
@@ -664,12 +664,12 @@ MeshSlicer::N_IntersectionResult	MeshSlicer::mFunction_HowManyVertexOnThisLayer(
 	return outResult;
 }
 
-bool MeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
+bool MeshSlicer::mFunction_LineStrip_FindNextPoint(Vec3*  tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip)
 {
 	//........used to judge if two point can be weld together
 	float						tmpPointDist = 0;
 	const float			SAME_POINT_DIST_THRESHOLD = 0.001f;
-	NVECTOR3			tmpV;
+	Vec3			tmpV;
 	N_LayeredLineSegment		tmpLineSegment;
 
 	UINT tileID_X = 0, tileID_Z = 0;
@@ -723,10 +723,10 @@ bool MeshSlicer::mFunction_LineStrip_FindNextPoint(NVECTOR3*  tailPoint, UINT cu
 	return false;
 }
 
-NVECTOR3 MeshSlicer::mFunction_Compute_Normal2D(NVECTOR3 triangleNormal)
+Vec3 MeshSlicer::mFunction_Compute_Normal2D(Vec3 triangleNormal)
 {
 	//to know the reason of why the projection is the normal , refer to the tech doc
-	NVECTOR3 outNormal(triangleNormal.x,0, triangleNormal.z);
+	Vec3 outNormal(triangleNormal.x,0, triangleNormal.z);
 	outNormal.Normalize();
 	return outNormal;
 }
@@ -775,7 +775,7 @@ bool MeshSlicer::mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vecto
 	UINT currLineStripPointCount = 0;
 	UINT currLIneStripNormalCount = 0;
 	UINT layerID = 0;
-	NVECTOR3 tmpV;
+	Vec3 tmpV;
 	N_LineStrip  emptyLineStrip;
 	UINT i = 0, j = 0;
 
@@ -899,14 +899,14 @@ bool MeshSlicer::mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vecto
 		//and traverse every vertices
 		for (j = 0;j < pLineStripBuffer->at(i).pointList.size(); j++)
 		{
-			NVECTOR3 tmpVertex = pLineStripBuffer->at(i).pointList.at(j);
+			Vec3 tmpVertex = pLineStripBuffer->at(i).pointList.at(j);
 			STREAM_WRITE(fileOut, tmpVertex);
 		}
 
 		//and traverse every normal
 		for (j = 0;j < pLineStripBuffer->at(i).normalList.size(); j++)
 		{
-			NVECTOR3 tmpNormal = pLineStripBuffer->at(i).normalList.at(j);
+			Vec3 tmpNormal = pLineStripBuffer->at(i).normalList.at(j);
 			STREAM_WRITE(fileOut, tmpNormal);
 		}
 	}

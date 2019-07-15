@@ -46,70 +46,72 @@ namespace Noise3D
 
 		RigidTransform();
 
-		void		SetPosition(NVECTOR3 vPos);
+		RigidTransform(const RigidTransform& t);
+
+		void		SetPosition(Vec3 vPos);
 
 		void		SetPosition(float x, float y, float z);
 
-		void		Move(NVECTOR3 deltaPos);
+		void		Move(Vec3 deltaPos);
 
 		void		Move(float dx, float dy, float dz);
 
 		//get value
-		NVECTOR3	GetPosition() const;
+		Vec3	GetPosition() const;
 
 		//get euler angle (decomposed by ZXY convention, but the vec3 x/y/z corresponds to their own axis's rotation.
-		NVECTOR3	GetEulerAngleZXY() const;
+		Vec3	GetEulerAngleZXY() const;
 
 		//get euler angle (decomposed by ZYZ convention, but the vec3 x/y/z corresponds to their own axis's rotation.
 		N_EULER_ANGLE_ZYZ GetEulerAngleZYZ() const;
 
-		NQUATERNION GetQuaternion() const;
+		Quaternion GetQuaternion() const;
 
-		NMATRIX GetRotationMatrix() const;
+		Matrix GetRotationMatrix() const;
 
 		//delta rotation
-		void		Rotate(NVECTOR3 axis, float angle);//left-handed rotate
+		void		Rotate(Vec3 axis, float angle);//left-handed rotate
 
-		bool		Rotate(NQUATERNION q);
+		bool		Rotate(Quaternion q);
 
 		//use ZXY euler angle to construct one delta rotation(not simply adds euler angles)
 		void		Rotate(float pitch_x, float yaw_y, float roll_z);
 
-		bool		Rotate(const NMATRIX& deltaRotMat);
+		bool		Rotate(const Matrix& deltaRotMat);
 
 		//set absolute rotation
-		void		SetRotation(NVECTOR3 axis, float angle);
+		void		SetRotation(Vec3 axis, float angle);
 
-		bool		SetRotation(NQUATERNION q);
+		bool		SetRotation(Quaternion q);
 
 		void		SetRotation(float pitch_x, float yaw_y, float roll_z);
 
-		void		SetRotation(NVECTOR3 eulerAngles);
+		void		SetRotation(Vec3 eulerAngles);
 
-		bool		SetRotation(const NMATRIX& mat);//top left 3x3 sub - matrix must be a orthonormal
+		bool		SetRotation(const Matrix& mat);//top left 3x3 sub - matrix must be a orthonormal
 
 		void		InvertRotation();
 
 		//apply rigid transformation to vector/point and output
-		NVECTOR3 TransformVector_Rigid(NVECTOR3 vec) const;
+		Vec3 TransformVector_Rigid(Vec3 vec) const;
 
 		void		SetRigidTransform(const RigidTransform& t);
 
-		void		SetRigidTransformMatrix(const NMATRIX& mat);
+		void		SetRigidTransformMatrix(const Matrix& mat);
 
-		void		GetRigidTransformMatrix(NMATRIX outMat) const;
+		Matrix		GetRigidTransformMatrix() const;
 
 	private:
 
-		bool mFunc_CheckTopLeft3x3Orthonomal(const NMATRIX& mat);
+		bool mFunc_CheckTopLeft3x3Orthonomal(const Matrix& mat);
 
-		NVECTOR3 mFunc_RotationMatrixToEulerZXY(const NMATRIX& mat) const;
+		Vec3 mFunc_RotationMatrixToEulerZXY(const Matrix& mat) const;
 
-		N_EULER_ANGLE_ZYZ mFunc_RotationMatrixToEulerZYZ(const NMATRIX& mat) const;
+		N_EULER_ANGLE_ZYZ mFunc_RotationMatrixToEulerZYZ(const Matrix& mat) const;
 
 		//Rotation is stored as Quaternion (2018.9.14, like Unity, quaternion could be the main representation of rotation on CPU-end)
-		NQUATERNION mQuaternion;
-		NVECTOR3	mPosition;
+		Quaternion mQuaternion;
+		Vec3	mPosition;
 	};
 
 }

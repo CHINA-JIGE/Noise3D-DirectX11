@@ -18,7 +18,7 @@ Noise3D::TextureCubeMap::~TextureCubeMap()
 {
 }
 
-NColor4u Noise3D::TextureCubeMap::GetPixel(uint32_t faceID, uint32_t x, uint32_t y)
+Color4u Noise3D::TextureCubeMap::GetPixel(uint32_t faceID, uint32_t x, uint32_t y)
 {
 	if (ITexture::IsSysMemBufferValid())
 	{
@@ -36,37 +36,37 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(uint32_t faceID, uint32_t x, uint32_t
 	{
 		ERROR_MSG("GetPixel : didn't keep a copy in memory !!!");
 	}
-	return  NColor4u(255, 0, 255, 255);
+	return  Color4u(255, 0, 255, 255);
 }
 
-NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode)
+Color4u Noise3D::TextureCubeMap::GetPixel(Vec3 dir, N_TEXTURE_CPU_SAMPLE_MODE mode)
 {
 	if (dir.x == 0 && dir.y == 0 && dir.z == 0)
 	{
 		ERROR_MSG("GetPixel : direction length can't be 0.");
-		return NColor4u(255, 0, 255, 255);//error
+		return Color4u(255, 0, 255, 255);//error
 	}
 
 	if (ITexture::IsSysMemBufferValid())
 	{
 		//normalize the direction to put its end on a width=2 cube 
-		float normalizedFactor = max(max(abs(dir.x), abs(dir.y)), abs(dir.z));
+		float normalizedFactor = std::max<float>(std::max<float>(abs(dir.x), abs(dir.y)), abs(dir.z));
 		dir /= -normalizedFactor;
 		std::swap(dir.x, dir.z);//right-handed to left-handed
 
 		//cube maps faces: +x, -x, +y, -y, +z, -z
 		uint32_t faceID = -1;
 		if (Ut::TolerantEqual(dir.x , 1.0f))faceID = 0;
-		if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
-		if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
-		if (Ut::TolerantEqual(dir.y , -1.0f))faceID =3;
-		if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
-		if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
+		else if (Ut::TolerantEqual(dir.x , -1.0f))faceID =1;
+		else if (Ut::TolerantEqual(dir.y , 1.0f))faceID = 2;
+		else if (Ut::TolerantEqual(dir.y , -1.0f))faceID =3;
+		else if (Ut::TolerantEqual(dir.z , 1.0f))faceID = 4;
+		else if (Ut::TolerantEqual(dir.z , -1.0f))faceID = 5;
 
 		if (faceID >= 6)
 		{
 			ERROR_MSG("GetPixel : direction invalid.");
-			return NColor4u(0, 255, 255, 255);//error
+			return Color4u(0, 255, 255, 255);//error
 		}
 
 		uint32_t px = 0;
@@ -103,7 +103,7 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 		ERROR_MSG("GetPixel : didn't keep a copy in memory !!!");
 	}
 
-	return NColor4u(255, 0, 255, 255);
+	return Color4u(255, 0, 255, 255);
 }
 
 
@@ -113,7 +113,7 @@ NColor4u Noise3D::TextureCubeMap::GetPixel(NVECTOR3 dir, N_TEXTURE_CPU_SAMPLE_MO
 
 **************************************/
 
-void NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::TextureCubeMap::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID & uid, std::vector<NColor4u>&& pixelBuff, bool isSysMemBuffValid)
+void NOISE_MACRO_FUNCTION_EXTERN_CALL Noise3D::TextureCubeMap::mFunction_InitTexture(ID3D11ShaderResourceView * pSRV, const N_UID & uid, std::vector<Color4u>&& pixelBuff, bool isSysMemBuffValid)
 {
 	m_pSRV = pSRV;
 	mTextureUid = uid;

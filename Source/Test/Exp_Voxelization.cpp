@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	Init3D(windowHWND);
 
 	//register main loop function
-	pRoot->SetMainLoopFunction(MainLoop);
+	pRoot->SetMainloopFunction(MainLoop);
 
 	//enter main loop
 	pRoot->Mainloop();
@@ -102,9 +102,9 @@ bool Init3D(HWND hwnd)
 	//create font texture
 	pFontMgr = pScene->GetFontMgr();
 	pFontMgr->CreateFontFromFile("../media/STXINWEI.ttf", "myFont", 24);
-	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	pMyText_fps->SetTextColor(NVECTOR4(0, 0.3f, 1.0f, 0.5f));
-	pMyText_fps->SetDiagonal(NVECTOR2(20, 20), NVECTOR2(150, 60));
+	pMyText_fps = pFontMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	pMyText_fps->SetTextColor(Vec4(0, 0.3f, 1.0f, 0.5f));
+	pMyText_fps->SetDiagonal(Vec2(20, 20), Vec2(150, 60));
 	pMyText_fps->SetFont("myFont");
 	pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
@@ -160,7 +160,7 @@ bool Init3D(HWND hwnd)
 
 
 	//visualize result 
-	std::vector<NVECTOR3>	vertexList;
+	std::vector<Vec3>	vertexList;
 	mc.GetResult(vertexList);
 	IFileIO fm;
 	fm.ExportFile_STL_Binary("out.stl", "MyMCTest", vertexList);
@@ -226,11 +226,11 @@ bool Init3D(HWND hwnd)
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,20.0f,0 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,1.0f,0,0 });
 	pGraphicObjBuffer->AddLine3D({ 0,0,0 }, { 0,0,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0,1.0f,0 });*/
 
-	/*NVECTOR3 modelPos = pMeshSimplified->GetPosition();
+	/*Vec3 modelPos = pMeshSimplified->GetPosition();
 	for (auto v : *pTmpVB)
 	{
-	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
-	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, NVECTOR4(0,0, 1.0f, 1.0f), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos+ v.Pos + 5.0f * v.Normal, Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 1.0f, 1.0f, 1.0f));//draw the normal
+	pGraphicObjBuffer->AddLine3D(modelPos + v.Pos, modelPos + v.Pos + 5.0f* v.Tangent, Vec4(0,0, 1.0f, 1.0f), Vec4(1.0f, 1.0f, 1.0f, 1.0f));//draw the tangent
 	}*/
 
 	//----------------------------------------------------------
@@ -248,17 +248,17 @@ bool Init3D(HWND hwnd)
 
 	//pAtmos->SetFogEnabled(true);
 	pAtmos->SetFogEnabled(false);
-	pAtmos->SetFogParameter(1.0f, 2.0f, NVECTOR3(0, 0, 1.0f));
+	pAtmos->SetFogParameter(1.0f, 2.0f, Vec3(0, 0, 1.0f));
 	pAtmos->CreateSkyDome(4.0f, 4.0f, "Universe");
 
 
 	//------------------µÆ¹â-----------------
 	pDirLight1 = pLightMgr->CreateDynamicDirLight("myDirLight1");
 	N_DirLightDesc dirLightDesc;
-	dirLightDesc.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.diffuseColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	dirLightDesc.specularColor = NVECTOR3(1.0f,1.0f,1.0f);
-	dirLightDesc.direction = NVECTOR3(0, 0, 0);//just init
+	dirLightDesc.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.diffuseColor = Vec3(1.0f, 1.0f, 1.0f);
+	dirLightDesc.specularColor = Vec3(1.0f,1.0f,1.0f);
+	dirLightDesc.direction = Vec3(0, 0, 0);//just init
 	dirLightDesc.specularIntensity = 1.0f;
 	dirLightDesc.diffuseIntensity = 1.0f;
 	pDirLight1->SetDesc(dirLightDesc);
@@ -266,9 +266,9 @@ bool Init3D(HWND hwnd)
 	//-------------------²ÄÖÊ----------------
 
 	N_MaterialDesc mat;
-	mat.ambientColor = NVECTOR3(0.3f, 0.3f, 0.3f);
-	mat.diffuseColor = NVECTOR3(0.8f,0.8f,0.8f);
-	mat.specularColor = NVECTOR3(1.0f, 1.0f, 1.0f);
+	mat.ambientColor = Vec3(0.3f, 0.3f, 0.3f);
+	mat.diffuseColor = Vec3(0.8f,0.8f,0.8f);
+	mat.specularColor = Vec3(1.0f, 1.0f, 1.0f);
 	mat.specularSmoothLevel = 30;
 	mat.normalMapBumpIntensity = 0.2f;
 	mat.environmentMapTransparency = 0.05f;
@@ -281,7 +281,7 @@ bool Init3D(HWND hwnd)
 	pMeshVox->SetMaterial("meshMat1");
 
 	//bottom right
-	pGraphicObjBuffer->AddRectangle(NVECTOR2(800.0, 680.0f), NVECTOR2(960.0f, 720.0f), NVECTOR4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
+	pGraphicObjBuffer->AddRectangle(Vec2(800.0, 680.0f), Vec2(960.0f, 720.0f), Vec4(0.3f, 0.3f, 1.0f, 1.0f), "BottomRightTitle");
 	pGraphicObjBuffer->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	return true;
@@ -292,8 +292,8 @@ void MainLoop()
 {
 	static float incrNum = 0.0;
 	incrNum += 0.001f;
-	//pDirLight1->SetDirection(NVECTOR3(sin(incrNum), -1.0f, 1.0f));
-	pDirLight1->SetDirection(NVECTOR3(-1.0f, -1.0f, 1.0f));
+	//pDirLight1->SetDirection(Vec3(sin(incrNum), -1.0f, 1.0f));
+	pDirLight1->SetDirection(Vec3(-1.0f, -1.0f, 1.0f));
 
 	//GUIMgr.Update();
 	InputProcess();

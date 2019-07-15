@@ -6,6 +6,7 @@
 ************************************************************************/
 
 #include "Noise3D.h"
+#include "Noise3D_InDevHeader.h"
 
 using namespace Noise3D;
 
@@ -16,7 +17,7 @@ Noise3D::GI::SHVector::SHVector():
 
 }
 
-void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<NColor4f>* pTargetFunc)
+void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleCount, ISphericalFunc<Color4f>* pTargetFunc)
 {
 	if (highestOrderIndex < 0)
 	{
@@ -40,7 +41,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 #pragma omp parallel for
 	for (int sampleIndex = 0; sampleIndex < monteCarloSampleCount; ++sampleIndex)
 	{
-		NVECTOR3 dir = randomGen.UniformSpherical_Vector();
+		Vec3 dir = randomGen.UniformSphericalVec();
 
 		//for every direction sample, calculate all of its SH coefficient by convolving f(x) and corresponding SH function value
 		//L--band index
@@ -51,7 +52,7 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 			{
 				//convolve target spherical function 'pTargetFunc f(x)' with convolution kernel pSHFunc
 				//now just sum them up on sphere surface, monte-carlo integration's division will be done later
-				NColor4f color = pTargetFunc->Eval(dir);
+				Color4f color = pTargetFunc->Eval(dir);
 				float sphFunc = GI::SH(L, M, dir);
 				mCoefficients.at(SH_FlattenIndex(L, M)) += color * sphFunc;
 			}
@@ -76,9 +77,10 @@ void Noise3D::GI::SHVector::Project(int highestOrderIndex, int monteCarloSampleC
 	mIsInitialized = true;
 }
 
-NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
+Color4f Noise3D::GI::SHVector::Eval(Vec3 dir)
 {
-	NVECTOR4 result = { 0,0,0,0};
+
+	Vec4 result = { 0,0,0,0};
 	for (int L = 0; L <= mOrder; ++L)
 	{
 		//M--coefficient index inside a SH band
@@ -88,13 +90,13 @@ NColor4f Noise3D::GI::SHVector::Eval(NVECTOR3 dir)
 			result += mCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
 		}
 	}
-	result = Noise3D::Ut::Clamp(result, NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 1.0f, 1.0f,1.0f));
+	result = Noise3D::Ut::Clamp(result, Vec4(0, 0, 0, 0), Vec4(1.0f, 1.0f, 1.0f,1.0f));
 	return result;
 }
 
-NColor4f Noise3D::GI::SHVector::EvalRotated(NVECTOR3 dir)
+Color4f Noise3D::GI::SHVector::EvalRotated(Vec3 dir)
 {
-	NVECTOR4 result = { 0,0,0,0 };
+	Vec4 result = { 0,0,0,0 };
 	for (int L = 0; L <= mOrder; ++L)
 	{
 		//M--coefficient index inside a SH band
@@ -104,11 +106,11 @@ NColor4f Noise3D::GI::SHVector::EvalRotated(NVECTOR3 dir)
 			result += mRotatedCoefficients.at(SH_FlattenIndex(L, M)) * GI::SH(L, M, dir);
 		}
 	}
-	result = Noise3D::Ut::Clamp(result, NVECTOR4(0, 0, 0, 0), NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	result = Noise3D::Ut::Clamp(result, Vec4(0, 0, 0, 0), Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	return result;
 }
 
-NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
+Color4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 {
 	//(a1,a2,a3,a4,.....,0,0,0)
 	//dot
@@ -119,7 +121,7 @@ NColor4f Noise3D::GI::SHVector::Integrate(const SHVector& rhs)
 	}
 
 	//float result = 0.0f;
-	NColor4f result = { 0,0,0,0 };
+	Color4f result = { 0,0,0,0 };
 	int minOrder = min(mOrder, rhs.GetOrder());
 	int coefficientCount = minOrder * minOrder;
 	for (int i = 0; i < coefficientCount; ++i)
@@ -137,12 +139,12 @@ void Noise3D::GI::SHVector::SetRotation(RigidTransform t)
 	mat.Multiply(t,mCoefficients, mRotatedCoefficients);
 }
 
-void Noise3D::GI::SHVector::GetCoefficients(std::vector<NColor4f>& outList)
+void Noise3D::GI::SHVector::GetCoefficients(std::vector<Color4f>& outList)
 {
 	outList = mCoefficients;
 }
 
-void Noise3D::GI::SHVector::GetRotatedCoefficients(std::vector<NColor4f>& outList)
+void Noise3D::GI::SHVector::GetRotatedCoefficients(std::vector<Color4f>& outList)
 {
 	outList = mRotatedCoefficients;
 }
@@ -152,7 +154,7 @@ int Noise3D::GI::SHVector::GetOrder()const
 	return mOrder;
 }
 
-void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::vector<NColor4f>& list)
+void Noise3D::GI::SHVector::SetCoefficients(int highestOrderIndex, const std::vector<Color4f>& list)
 {
 	//n order, n^2 coefficient
 	if (highestOrderIndex * highestOrderIndex != list.size())

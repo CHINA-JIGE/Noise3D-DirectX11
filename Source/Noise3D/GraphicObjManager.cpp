@@ -1,9 +1,9 @@
 
 /***********************************************************************
 
-							class£ºMeshManager
+							class£ºGraphic Object
 
-				description: manager class to manage Mesh
+				description: manager class to manage Graphic Object
 
 ***********************************************************************/
 
@@ -23,12 +23,12 @@ GraphicObjectManager::~GraphicObjectManager()
 }
 
 
-GraphicObject * GraphicObjectManager::CreateGraphicObj(N_UID objName)
+GraphicObject * GraphicObjectManager::CreateGraphicObject(N_UID objName)
 {
 	return  IFactory<GraphicObject>::CreateObject(objName);
 }
 
-GraphicObject * GraphicObjectManager::GetGraphicObj(N_UID objName)
+/*GraphicObject * GraphicObjectManager::GetGraphicObj(N_UID objName)
 {
 	return  IFactory<GraphicObject>::GetObjectPtr(objName);
 }
@@ -56,5 +56,5 @@ void GraphicObjectManager::DestroyAllGraphicObj()
 UINT GraphicObjectManager::GetGraphicObjCount()
 {
 	return IFactory<GraphicObject>::GetObjectCount();
-}
+}*/
 

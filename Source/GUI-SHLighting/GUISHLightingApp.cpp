@@ -158,7 +158,7 @@ void GUISHLightingApp::Slot_ComputeShCoefficient()
 	int monteCarloSampleCount = mUI.textEdit_monteCarlo->toPlainText().toInt();
 
 	//compute SH texture
-	std::vector<NColor4f> shVector;
+	std::vector<Color4f> shVector;
 	m_pRenderCanvas->GetMain3dApp().ComputeShTexture(mTextureType, shOrder, monteCarloSampleCount, shVector);
 
 	mFunc_OutputShCoefficients(shOrder, shVector);
@@ -176,7 +176,7 @@ void GUISHLightingApp::Slot_RotateShCoefficients()
 	t.SetRotation(eulerX, eulerY, eulerZ);
 
 	//compute SH texture
-	std::vector<NColor4f> shVector;
+	std::vector<Color4f> shVector;
 	bool succeeded = m_pRenderCanvas->GetMain3dApp().ComputeRotatedShTexture(t, shVector);
 	if (succeeded)
 	{
@@ -198,7 +198,7 @@ void GUISHLightingApp::Slot_CameraProj_Perspective()
 	m_pRenderCanvas->GetMain3dApp().SetCamProjType(true);
 }
 
-void GUISHLightingApp::mFunc_OutputShCoefficients(int shOrder, std::vector<NColor4f>& shVector)
+void GUISHLightingApp::mFunc_OutputShCoefficients(int shOrder, std::vector<Color4f>& shVector)
 {
 	//should we out C-Style code of array definition?
 	bool isOutputCStyle = mUI.checkBox_isOutputCStyle->isChecked();

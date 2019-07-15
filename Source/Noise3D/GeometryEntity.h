@@ -9,6 +9,10 @@
 
 namespace Noise3D
 {
+	namespace GI
+	{
+		class IGiRenderable;
+	};
 
 	enum NOISE_SCENE_OBJECT_TYPE;//defined in other header
 
@@ -16,7 +20,7 @@ namespace Noise3D
 	//manage vertex buffer and (possibly) index buffer as the same time
 	template <typename vertex_t, typename index_t>
 	class GeometryEntity:
-		public ISceneObject
+		public GI::IGiRenderable//->CollidableSceneObject->SceneObject
 	{
 	public:
 
@@ -43,7 +47,7 @@ namespace Noise3D
 		virtual N_AABB ComputeWorldAABB_Accurate() override=0;
 
 		//will be implemented in actual/concrete scene object class
-		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() override = 0;
+		virtual NOISE_SCENE_OBJECT_TYPE GetObjectType() const override = 0;
 
 	protected:
 

@@ -27,7 +27,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	if (!m_pRoot->Init())return false;
 
 	//query pointer to IScene
-	m_pScene = m_pRoot->GetScenePtr();
+	m_pScene = m_pRoot->GetSceneMgrPtr();
 
 	m_pMeshMgr = m_pScene->GetMeshMgr();
 	m_pRenderer = m_pScene->CreateRenderer(canvasWidth, canvasHeight, renderCanvasHwnd);
@@ -36,71 +36,77 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pTexMgr = m_pScene->GetTextureMgr();
 	m_pLightMgr = m_pScene->GetLightMgr();
 	m_pGraphicObjMgr = m_pScene->GetGraphicObjMgr();
-	m_pModelLoader = m_pScene->GetModelLoader();
+	m_pModelLoader = m_pScene->GetMeshLoader();
+	SceneGraph& sg = m_pScene->GetSceneGraph();
 
 	//2 textures
 	m_pOriginTex = m_pTexMgr->CreateTextureFromFile("../media/example.jpg", c_originTexName, true, 512, 512, true);
-	m_pShTex = m_pTexMgr->CreatePureColorTexture(c_ShTexName, c_defaultTexWidth, c_defaultTexWidth, NVECTOR4(1.0f, 0.0f, 0.0f, 1.0f), true);
-	std::vector<NColor4f> tmpShVector;
+	m_pShTex = m_pTexMgr->CreatePureColorTexture(c_ShTexName, c_defaultTexWidth, c_defaultTexWidth, Vec4(1.0f, 0.0f, 0.0f, 1.0f), true);
+	std::vector<Color4f> tmpShVector;
 	mFunction_SHPreprocess_SphericalMap(3,10000, tmpShVector);
 
 	//light to exhibit base color
-	DirLightD* pLight = m_pLightMgr->CreateDynamicDirLight("light");
-	pLight->SetAmbientColor(NVECTOR3(1.0f, 1.0f, 1.0f));
-	pLight->SetDirection(NVECTOR3(-1.0f, -1.0f, 0));
+	SceneNode* pNodeLight = sg.GetRoot()->CreateChildNode();
+	DirLight* pLight = m_pLightMgr->CreateDynamicDirLight(pNodeLight,"light");
+	pLight->SetAmbientColor(Vec3(1.0f, 1.0f, 1.0f));
+	pLight->SetDirection(Vec3(-1.0f, -1.0f, 0));
 
 	//Materials
-	N_MaterialDesc matDesc1;
-	matDesc1.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	matDesc1.diffuseColor = NVECTOR3(0, 0, 0);
-	matDesc1.specularColor = NVECTOR3(0, 0, 0);
+	N_LambertMaterialDesc matDesc1;
+	matDesc1.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
+	matDesc1.diffuseColor = Vec3(0, 0, 0);
+	matDesc1.specularColor = Vec3(0, 0, 0);
 	matDesc1.diffuseMapName = "Tex";
-	Material* pMat1 = m_pMatMgr->CreateMaterial("Mat1", matDesc1);
+	LambertMaterial* pMat1 = m_pMatMgr->CreateLambertMaterial("Mat1", matDesc1);
 
-	N_MaterialDesc matDesc2;
-	matDesc2.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	matDesc2.diffuseColor = NVECTOR3(0, 0, 0);
-	matDesc2.specularColor = NVECTOR3(0, 0, 0);
+	N_LambertMaterialDesc matDesc2;
+	matDesc2.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
+	matDesc2.diffuseColor = Vec3(0, 0, 0);
+	matDesc2.specularColor = Vec3(0, 0, 0);
 	matDesc2.diffuseMapName = "ShTex";
-	Material* pMat2 = m_pMatMgr->CreateMaterial("Mat2", matDesc2);
+	LambertMaterial* pMat2 = m_pMatMgr->CreateLambertMaterial("Mat2", matDesc2);
 
-	N_MaterialDesc matDesc3;
-	matDesc3.ambientColor = NVECTOR3(1.0f, 1.0f, 1.0f);
-	matDesc3.diffuseColor = NVECTOR3(1.0, 1.0, 1.0);
-	matDesc3.specularColor = NVECTOR3(0, 0, 0);
-	Material* pMat3 = m_pMatMgr->CreateMaterial("MatSolid", matDesc3);
+	N_LambertMaterialDesc matDesc3;
+	matDesc3.ambientColor = Vec3(1.0f, 1.0f, 1.0f);
+	matDesc3.diffuseColor = Vec3(1.0, 1.0, 1.0);
+	matDesc3.specularColor = Vec3(0, 0, 0);
+	LambertMaterial* pMat3 = m_pMatMgr->CreateLambertMaterial("MatSolid", matDesc3);
 
 
 	//2 Spheres and 1 cube(frame) for visualizing SH texture
-	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh("srcSphere");
+	SceneNode* pRootNode = m_pScene->GetSceneGraph().GetRoot();
+	SceneNode* pNode1 = pRootNode->CreateChildNode();
+	m_pMeshSourceSphere = m_pMeshMgr->CreateMesh(pNode1, "srcSphere");
 	m_pModelLoader->LoadSphere(m_pMeshSourceSphere, 1.0f, 30, 30);
-	m_pMeshSourceSphere->SetPosition(c_ballPos1);
+	pNode1->GetLocalTransform().SetPosition(c_ballPos1);
 	m_pMeshSourceSphere->SetMaterial("Mat1");
 
-	m_pMeshShSphere = m_pMeshMgr->CreateMesh("sphereSh");
+	SceneNode* pNode2 = pRootNode->CreateChildNode();
+	m_pMeshShSphere = m_pMeshMgr->CreateMesh(pNode2, "sphereSh");
 	m_pModelLoader->LoadSphere(m_pMeshShSphere, 1.0f, 30, 30);
-	m_pMeshShSphere->SetPosition(c_ballPos2);
+	pNode2->GetLocalTransform().SetPosition(c_ballPos2);
 	m_pMeshShSphere->SetMaterial("Mat2");
 
-	m_pMeshSourceCube = m_pMeshMgr->CreateMesh("cubeFrame");
-	m_pModelLoader->LoadBox(m_pMeshSourceCube, 2.1f, 2.1f, 2.1f);
-	m_pMeshSourceCube->SetPosition(c_ballPos1);
-	m_pMeshSourceCube->SetFillMode(NOISE_FILLMODE::NOISE_FILLMODE_WIREFRAME);
-	m_pMeshSourceCube->SetMaterial("MatSolid");
+	SceneNode* pNode3 = pRootNode->CreateChildNode();
+	m_pMeshSourceCubeWireFrame = m_pMeshMgr->CreateMesh(pNode3, "cubeFrame");
+	m_pModelLoader->LoadBox(m_pMeshSourceCubeWireFrame, 2.1f, 2.1f, 2.1f,2,2,2);
+	pNode3->GetLocalTransform().SetPosition(c_ballPos1);
+	m_pMeshSourceCubeWireFrame->SetFillMode(NOISE_FILLMODE::NOISE_FILLMODE_WIREFRAME);
+	m_pMeshSourceCubeWireFrame->SetMaterial("MatSolid");
 
 	//create font texture and top-left fps label
 	m_pTextMgr = m_pScene->GetTextMgr();
 	m_pTextMgr->CreateFontFromFile("../media/calibri.ttf", "myFont", 24);
-	m_pMyText_fps = m_pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, NVECTOR4(0, 0, 0, 1.0f), 0, 0);
-	m_pMyText_fps->SetTextColor(NVECTOR4(0, 0.8f, 0.7f, 0.5f));
+	m_pMyText_fps = m_pTextMgr->CreateDynamicTextA("myFont", "fpsLabel", "fps:000", 200, 100, Vec4(0, 0, 0, 1.0f), 0, 0);
+	m_pMyText_fps->SetTextColor(Vec4(0, 0.8f, 0.7f, 0.5f));
 	m_pMyText_fps->SetSpacePixelWidth(4);//width of space
-	m_pMyText_fps->SetDiagonal(NVECTOR2(canvasWidth-80.0f, 20), NVECTOR2(canvasWidth, 60));
+	m_pMyText_fps->SetDiagonal(Vec2(canvasWidth-80.0f, 20), Vec2(canvasWidth, 60));
 	m_pMyText_fps->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
-	m_pMyText_camProjType = m_pTextMgr->CreateDynamicTextA("myFont", "camTypeLabel", "Camera Mode: Perspective", 300, 100, NVECTOR4(0, 0, 0, 1.0f), 1, 0);
-	m_pMyText_camProjType->SetTextColor(NVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+	m_pMyText_camProjType = m_pTextMgr->CreateDynamicTextA("myFont", "camTypeLabel", "Camera Mode: Perspective", 300, 100, Vec4(0, 0, 0, 1.0f), 1, 0);
+	m_pMyText_camProjType->SetTextColor(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	m_pMyText_camProjType->SetSpacePixelWidth(4);//width of space
-	m_pMyText_camProjType->SetDiagonal(NVECTOR2(canvasWidth - 400.0f, 20), NVECTOR2(canvasWidth-100.0f, 60));
+	m_pMyText_camProjType->SetDiagonal(Vec2(canvasWidth - 400.0f, 20), Vec2(canvasWidth-100.0f, 60));
 	m_pMyText_camProjType->SetBlendMode(NOISE_BLENDMODE_ALPHA);
 
 	//Camera
@@ -108,23 +114,23 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 	m_pCamera->SetOrthoViewSize(6.0f, 6.0f * canvasHeight / float(canvasWidth));//orthographic proj
 	m_pCamera->SetViewAngle_Radian(Ut::PI / 3.0f, 1.333333333f);//perspective proj
 	m_pCamera->SetViewFrustumPlane(1.0f, 500.f);//perspective proj
-	m_pCamera->SetPosition(0, 0, -5.0f);
+	m_pCamera->GetWorldTransform().SetPosition(0, 0, -5.0f);
 	m_pCamera->LookAt(0, 0, 0);
 
 	//draw 2d texture
-	m_pGO_GUI = m_pGraphicObjMgr->CreateGraphicObj("tanList");
+	m_pGO_GUI = m_pGraphicObjMgr->CreateGraphicObject("tanList");
 	m_pGO_GUI->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	m_pGO_GUI->AddRectangle(NVECTOR2(75.0f, 75.0f), 100.0f,100.0f, NVECTOR4(1.0f, 0, 0, 1.0f), "Tex");
-	m_pGO_GUI->AddRectangle(NVECTOR2(200.0f, 75.0f),100.0f,100.0f, NVECTOR4(1.0f, 0, 0, 1.0f), "ShTex");
+	m_pGO_GUI->AddRectangle(Vec2(75.0f, 75.0f), 100.0f,100.0f, Vec4(1.0f, 0, 0, 1.0f), "Tex");
+	m_pGO_GUI->AddRectangle(Vec2(200.0f, 75.0f),100.0f,100.0f, Vec4(1.0f, 0, 0, 1.0f), "ShTex");
 
-	m_pGO_Axis = m_pGraphicObjMgr->CreateGraphicObj("Axis");
+	m_pGO_Axis = m_pGraphicObjMgr->CreateGraphicObject("Axis");
 	m_pGO_Axis->SetBlendMode(NOISE_BLENDMODE_ALPHA);
-	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f+1.5f, 0, 0), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
-	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f, 1.5f, 0), NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
-	m_pGO_Axis->AddLine3D(NVECTOR3(-1.5f, 0, 0), NVECTOR3(-1.5f, 0, 1.5f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
-	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f + 1.5f, 0, 0), NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
-	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f, 1.5f, 0), NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
-	m_pGO_Axis->AddLine3D(NVECTOR3(1.5f, 0, 0), NVECTOR3(1.5f, 0, 1.5f), NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(-1.5f, 0, 0), Vec3(-1.5f+1.5f, 0, 0), Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(-1.5f, 0, 0), Vec3(-1.5f, 1.5f, 0), Vec4(0, 1.0f, 0, 1.0f), Vec4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(-1.5f, 0, 0), Vec3(-1.5f, 0, 1.5f), Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(1.5f, 0, 0), Vec3(1.5f + 1.5f, 0, 0), Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(1.5f, 0, 0), Vec3(1.5f, 1.5f, 0), Vec4(0, 1.0f, 0, 1.0f), Vec4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->AddLine3D(Vec3(1.5f, 0, 0), Vec3(1.5f, 0, 1.5f), Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
 
 	return true;
 }
@@ -132,7 +138,7 @@ bool Main3DApp::InitNoise3D(HWND renderCanvasHwnd, HWND inputHwnd, UINT canvasWi
 void Main3DApp::UpdateFrame()
 {
 	//clear background
-	m_pRenderer->ClearBackground(NVECTOR4(0.2f, 0.2f, 0.2f, 1.0f));
+	m_pRenderer->ClearBackground(Vec4(0.2f, 0.2f, 0.2f, 1.0f));
 	mTimer.NextTick();
 
 	//update fps lable
@@ -149,7 +155,7 @@ void Main3DApp::UpdateFrame()
 	else if(mSourceTextureType== Main3DApp::SOURCE_TEXTURE_TYPE::CUBEMAP)
 	{
 		m_pRenderer->AddToRenderQueue(m_pMeshSourceSphere);
-		m_pRenderer->AddToRenderQueue(m_pMeshSourceCube);
+		m_pRenderer->AddToRenderQueue(m_pMeshSourceCubeWireFrame);
 	}
 	m_pRenderer->AddToRenderQueue(m_pMeshShSphere);
 	m_pRenderer->AddToRenderQueue(m_pGO_GUI);
@@ -193,19 +199,19 @@ bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
 
 		//load cube map and manually map the cube map into a texture2d
 		m_pOriginCubeMap = m_pTexMgr->CreateCubeMapFromDDS(filePath, c_originCubeMapTex, true);//load cube map
-		m_pOriginTex = m_pTexMgr->CreatePureColorTexture(c_originTexName, c_defaultTexWidth, c_defaultTexWidth, NVECTOR4(1.0f, 0, 0, 1.0f),true);//map the cube map to texture 2d
+		m_pOriginTex = m_pTexMgr->CreatePureColorTexture(c_originTexName, c_defaultTexWidth, c_defaultTexWidth, Vec4(1.0f, 0, 0, 1.0f),true);//map the cube map to texture 2d
 
 		//map the cubemap into 2d 'longitude-altitude map'
 		uint32_t width = m_pOriginTex->GetWidth();
 		uint32_t height = m_pOriginTex->GetHeight();
-		std::vector<NColor4u> colorBuff(width*height);
+		std::vector<Color4u> colorBuff(width*height);
 		for (int y = 0; y < height; ++y)
 		{
 			for (int x = 0; x < width; ++x)
 			{
 				//fill every pixel with a texel of cube map in certain direction
-				NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
-				NColor4u cubeMapColor = m_pOriginCubeMap->GetPixel(dir, TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::POINT);
+				Vec3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
+				Color4u cubeMapColor = m_pOriginCubeMap->GetPixel(dir, TextureCubeMap::N_TEXTURE_CPU_SAMPLE_MODE::POINT);
 				colorBuff.at(y*width + x) = cubeMapColor;
 			}
 		}
@@ -223,7 +229,7 @@ bool Main3DApp::LoadOriginalTextureCubeMap(std::string filePath)
 	return true;
 }
 
-bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
+bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Color4f>& outShVector)
 {
 	switch (texType)
 	{
@@ -243,7 +249,7 @@ bool Main3DApp::ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monte
 	return true;
 }
 
-bool Main3DApp::ComputeRotatedShTexture(RigidTransform t, std::vector<Noise3D::NColor4f>& outShVector)
+bool Main3DApp::ComputeRotatedShTexture(RigidTransform t, std::vector<Noise3D::Color4f>& outShVector)
 {
 	if (!mShvec.IsInitialized())return false;
 	mFunction_SHPreprocess_Rotation(t);
@@ -262,29 +268,27 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 
 	//rotate coord frame
 	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
-	NVECTOR3 axisDirX = t.TransformVector(NVECTOR3(1.5f, 0, 0));
-	NVECTOR3 axisDirY = t.TransformVector(NVECTOR3(0, 1.5f, 0));
-	NVECTOR3 axisDirZ = t.TransformVector(NVECTOR3(0, 0, 1.5f));
-
-	m_pGO_Axis->SetLine3D(0, c_ballPos1, c_ballPos1 + axisDirX, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
-	m_pGO_Axis->SetLine3D(1, c_ballPos1, c_ballPos1 + axisDirY, NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
-	m_pGO_Axis->SetLine3D(2, c_ballPos1, c_ballPos1 + axisDirZ, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
-
-	m_pGO_Axis->SetLine3D(3, c_ballPos2, c_ballPos2 + axisDirX, NVECTOR4(1.0f, 0, 0, 1.0f), NVECTOR4(1.0f, 0, 0, 1.0f));
-	m_pGO_Axis->SetLine3D(4, c_ballPos2, c_ballPos2 + axisDirY, NVECTOR4(0, 1.0f, 0, 1.0f), NVECTOR4(0, 1.0f, 0, 1.0f));
-	m_pGO_Axis->SetLine3D(5, c_ballPos2, c_ballPos2 + axisDirZ, NVECTOR4(0, 0, 1.0f, 1.0f), NVECTOR4(0, 0, 1.0f, 1.0f));
-
-	//the original version of orbit rotation should be a camera rotation
-	t.SetRotation(mOrbitPitch, mOrbitYaw, 0);
 	t.InvertRotation();
+	Vec3 axisDirX = t.TransformVector_Rigid(Vec3(1.5f, 0, 0));
+	Vec3 axisDirY = t.TransformVector_Rigid(Vec3(0, 1.5f, 0));
+	Vec3 axisDirZ = t.TransformVector_Rigid(Vec3(0, 0, 1.5f));
+
+	m_pGO_Axis->SetLine3D(0, c_ballPos1, c_ballPos1 + axisDirX, Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(1, c_ballPos1, c_ballPos1 + axisDirY, Vec4(0, 1.0f, 0, 1.0f), Vec4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(2, c_ballPos1, c_ballPos1 + axisDirZ, Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
+
+	m_pGO_Axis->SetLine3D(3, c_ballPos2, c_ballPos2 + axisDirX, Vec4(1.0f, 0, 0, 1.0f), Vec4(1.0f, 0, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(4, c_ballPos2, c_ballPos2 + axisDirY, Vec4(0, 1.0f, 0, 1.0f), Vec4(0, 1.0f, 0, 1.0f));
+	m_pGO_Axis->SetLine3D(5, c_ballPos2, c_ballPos2 + axisDirZ, Vec4(0, 0, 1.0f, 1.0f), Vec4(0, 0, 1.0f, 1.0f));
+
 	if (index == 0)
 	{
-		m_pMeshSourceSphere->SetRotation(t.GetQuaternion());
-		m_pMeshSourceCube->SetRotation(t.GetQuaternion());
+		m_pMeshSourceSphere->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
+		m_pMeshSourceCubeWireFrame->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
 	}
 	else if (index == 1)
 	{
-		m_pMeshShSphere->SetRotation(t.GetQuaternion());
+		m_pMeshShSphere->GetAttachedSceneNode()->GetLocalTransform().SetRotation(t.GetQuaternion());
 	}
 
 	return;
@@ -292,7 +296,6 @@ void Main3DApp::RotateBall(int index, float deltaYaw, float deltaPitch)
 
 void Main3DApp::Cleanup()
 {
-	m_pRoot->ReleaseAll();
 }
 
 void Main3DApp::SetCamProjType(bool isPerspective)
@@ -314,25 +317,25 @@ void Main3DApp::SetCamProjType(bool isPerspective)
 								PRIVATE
 
 *************************************************/
-void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
+void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Color4f>& outShVector)
 {
 	//compute SH factors
 
-	GI::ISphericalFunc_Texture2dSampler defaultSphFunc;
+	GI::Texture2dSamplerForSHProjection defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginTex);
 	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	mShvec.GetCoefficients(outShVector);
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
-	std::vector<NColor4u> colorBuff(width*height);
+	std::vector<Color4u> colorBuff(width*height);
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
-			NVECTOR3 reconstructedColor = mShvec.Eval(dir);
-			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			Vec3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
+			Vec3 reconstructedColor = mShvec.Eval(dir);
+			Color4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}
 	}
@@ -340,24 +343,24 @@ void Main3DApp::mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloS
 	m_pShTex->UpdateToVideoMemory();
 }
 
-void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<NColor4f>& outShVector)
+void Main3DApp::mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Color4f>& outShVector)
 {
 	//compute SH factors
-	GI::ISphericalFunc_CubeMapSampler defaultSphFunc;
+	GI::CubeMapSampler defaultSphFunc;
 	defaultSphFunc.SetTexturePtr(m_pOriginCubeMap);
 	mShvec.Project(shOrder, monteCarloSampleCount, &defaultSphFunc);
 	mShvec.GetCoefficients(outShVector);
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
-	std::vector<NColor4u> colorBuff(width*height);
+	std::vector<Color4u> colorBuff(width*height);
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
-			NColor4f reconstructedColor = mShvec.Eval(dir);
-			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			Vec3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
+			Color4f reconstructedColor = mShvec.Eval(dir);
+			Color4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}
 	}
@@ -371,15 +374,15 @@ void Main3DApp::mFunction_SHPreprocess_Rotation(RigidTransform t)
 
 	uint32_t width = m_pShTex->GetWidth();
 	uint32_t height = m_pShTex->GetHeight();
-	std::vector<NColor4u> colorBuff(width*height);
+	std::vector<Color4u> colorBuff(width*height);
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			NVECTOR3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
+			Vec3 dir = Ut::PixelCoordToDirection_SphericalMapping(x, y, width, height);
 			//Use 'EvalRotated' instead of Eval()  (because these 2 use different SH vector)
-			NColor4f reconstructedColor = mShvec.EvalRotated(dir);
-			NColor4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
+			Color4f reconstructedColor = mShvec.EvalRotated(dir);
+			Color4u color = { uint8_t(reconstructedColor.x * 255.0f), uint8_t(reconstructedColor.y * 255.0f) , uint8_t(reconstructedColor.z * 255.0f),255 };
 			colorBuff.at(y*width + x) = color;
 		}
 	}

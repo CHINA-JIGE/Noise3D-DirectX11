@@ -48,7 +48,7 @@ using namespace Noise3D;
 
 	/*------------------------------Global Function--------------------------*/
 
-/*_declspec(dllexport)*/	bool Noise3D::Ut::IsPointInRect2D(NVECTOR2 v, NVECTOR2 vTopLeft, NVECTOR2 vBottomRight)
+/*_declspec(dllexport)*/	bool Noise3D::Ut::IsPointInRect2D(Vec2 v, Vec2 vTopLeft, Vec2 vBottomRight)
 	{
 		if (v.x >= vTopLeft.x &&
 			v.x <= vBottomRight.x &&
@@ -128,7 +128,7 @@ using namespace Noise3D;
 	//Note that if find_last_of() failed, a int(-1) will be returned
 	int pos1 = completeFilePath.find_last_of('/');
 	int pos2 = completeFilePath.find_last_of('\\');
-	std::string result = completeFilePath.substr(max(pos1, pos2) + 1);
+	std::string result = completeFilePath.substr(std::max<int>(pos1, pos2) + 1);
 	return result;
 }
 
@@ -148,7 +148,7 @@ using namespace Noise3D;
 	for (auto e : srcStr)wstr.push_back(e);
 	return wstr;
 }
-inline NVECTOR3 Noise3D::Ut::PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight)
+inline Vec3 Noise3D::Ut::PixelCoordToDirection_SphericalMapping(int px, int py, int pixelWidth, int pixelHeight)
 {
 	float normalizedU = float(px) / float(pixelWidth);//[0,1]
 	float normalizedV = float(py) / float(pixelHeight);//[0,1]
@@ -157,12 +157,12 @@ inline NVECTOR3 Noise3D::Ut::PixelCoordToDirection_SphericalMapping(int px, int 
 	float yaw = (normalizedU - 0.5f) * 2.0f * Ut::PI;//[-pi,pi]
 	float pitch = (normalizedV - 0.5f) * Ut::PI;//[pi/2,-pi/2]
 
-	NVECTOR3 dir = Ut::YawPitchToDirection(yaw, pitch);
-	//NVECTOR3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
+	Vec3 dir = Ut::YawPitchToDirection(yaw, pitch);
+	//Vec3 dir = { sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch) };
 	return dir;
 }
 
-inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, int pixelWidth, int pixelHeight, uint32_t& outPixelX, uint32_t& outPixelY)
+inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(Vec3 dir, int pixelWidth, int pixelHeight, uint32_t& outPixelX, uint32_t& outPixelY)
 {
 	//pitch, left-handed [-pi/2,pi/2]
 	float pitch = 0.0f, yaw = 0.0f;
@@ -170,7 +170,7 @@ inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, in
 
 	//mapped to [0,1]
 	float normalizedU = (yaw / (2.0f * Ut::PI)) + 0.5f;
-	float normalizedV = (pitch / Ut::PI) + 0.5f;
+	float normalizedV = (-pitch / Ut::PI) + 0.5f;
 	uint32_t x = uint32_t(float(pixelWidth) * normalizedU);
 	uint32_t y = uint32_t(float(pixelHeight) * normalizedV);
 	if (x == pixelWidth) x = pixelWidth - 1;
@@ -179,7 +179,7 @@ inline void Noise3D::Ut::DirectionToPixelCoord_SphericalMapping(NVECTOR3 dir, in
 	outPixelY = y;
 }
 
-inline void Noise3D::Ut::DirectionToYawPitch(NVECTOR3 dir, float& outYaw, float& outPitch)
+inline void Noise3D::Ut::DirectionToYawPitch(Vec3 dir, float& outYaw, float& outPitch)
 {
 	//yaw, start from z, left-handed
 	outYaw = atan2(dir.x, dir.z);
@@ -187,9 +187,9 @@ inline void Noise3D::Ut::DirectionToYawPitch(NVECTOR3 dir, float& outYaw, float&
 	outPitch = atan2(dir.y, sqrtf(dir.x*dir.x + dir.z*dir.z));
 }
 
-inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
+inline Vec3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 {
-	return  NVECTOR3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
+	return  Vec3(sinf(yaw)*cosf(pitch),  sinf(pitch) ,cosf(yaw)*cosf(pitch));
 }
 
 /*_declspec(dllexport)*/inline uint32_t Noise3D::Ut::Factorial32(uint32_t x)
@@ -270,14 +270,14 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 		return(a + (b - a)*t);
 	}
 
-/*_declspec(dllexport)*/ inline NVECTOR2 Noise3D::Ut::Lerp(NVECTOR2 a, NVECTOR2 b, float t)
+/*_declspec(dllexport)*/ inline Vec2 Noise3D::Ut::Lerp(Vec2 a, Vec2 b, float t)
 {
-	return NVECTOR2(Lerp(a.x,b.x,t),Lerp(a.y,b.y,t));
+	return Vec2(Lerp(a.x,b.x,t),Lerp(a.y,b.y,t));
 }
 
-/*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Ut::Lerp(NVECTOR3 v1, NVECTOR3 v2, float t)
+/*_declspec(dllexport)*/ inline Vec3 Noise3D::Ut::Lerp(Vec3 v1, Vec3 v2, float t)
 {
-	return NVECTOR3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));
+	return Vec3(Lerp(v1.x,v2.x,t), Lerp(v1.y, v2.y, t), Lerp(v1.z, v2.z, t));
 };
 
 /*_declspec(dllexport)*/ inline float Noise3D::Ut::Clamp(float val, float min, float max)
@@ -295,22 +295,22 @@ inline NVECTOR3 Noise3D::Ut::YawPitchToDirection(float yaw, float pitch)
 	return (val >= min ? (val <= max ? val : max) : min);
 }
 
-/*_declspec(dllexport)*/ inline NVECTOR3 Noise3D::Ut::Clamp(const NVECTOR3 & target, const NVECTOR3 & min, const NVECTOR3 & max)
+/*_declspec(dllexport)*/ inline Vec3 Noise3D::Ut::Clamp(const Vec3 & target, const Vec3 & min, const Vec3 & max)
 {
-	return NVECTOR3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
+	return Vec3(Clamp(target.x,min.x,max.x), Clamp(target.y, min.y, max.y),Clamp(target.z, min.z, max.z));
 }
 
-/*_declspec(dllexport)*/ NVECTOR4 Noise3D::Ut::Clamp(const NVECTOR4 & target, const NVECTOR4 & min, const NVECTOR4 & max)
+/*_declspec(dllexport)*/ Vec4 Noise3D::Ut::Clamp(const Vec4 & target, const Vec4 & min, const Vec4 & max)
 {
-	return NVECTOR4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
+	return Vec4(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w,min.w,max.w));
 }
 
-/*_declspec(dllexport)*/ NColor4f Noise3D::Ut::Clamp(const NColor4f & target, const NColor4f & min, const NColor4f & max)
+/*_declspec(dllexport)*/ Color4f Noise3D::Ut::Clamp(const Color4f & target, const Color4f & min, const Color4f & max)
 {
-	return NColor4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
+	return Color4f(Clamp(target.x, min.x, max.x), Clamp(target.y, min.y, max.y), Clamp(target.z, min.z, max.z), Clamp(target.w, min.w, max.w));
 }
 
-/*_declspec(dllexport)*/  inline NVECTOR3 Noise3D::Ut::CubicHermite(const NVECTOR3 & v1, const NVECTOR3 & v2, const NVECTOR3 & t1, const NVECTOR3 & t2, float t)
+/*_declspec(dllexport)*/  inline Vec3 Noise3D::Ut::CubicHermite(const Vec3 & v1, const Vec3 & v2, const Vec3 & t1, const Vec3 & t2, float t)
 {
 	//https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline
 	return (2.0f * t * t * t - 3.0f * t * t + 1.0f) * v1 + (t * t * t - 2.0f * t * t + t) * t1 + (-2.0f * t * t * t + 3.0f * t * t) * v2 + (t * t * t - t * t) * t2;

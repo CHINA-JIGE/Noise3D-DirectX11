@@ -62,7 +62,7 @@ N_LineSegment Noise3D::SweepingTrail::GetHeader()
 	return mFreeHeader;
 }
 
-NVECTOR3 Noise3D::SweepingTrail::GetHeaderCenterPos()
+Vec3 Noise3D::SweepingTrail::GetHeaderCenterPos()
 {
 	return (mFreeHeader.vert1+mFreeHeader.vert2)/2.0f;
 }
@@ -111,8 +111,8 @@ void Noise3D::SweepingTrail::Update(float deltaTime)
 		//maybe it's in initial state, reset the tail
 		mFreeTail_Start = mFreeHeader;
 		//mFreeHeader_PreviousState = mFreeHeader;
-		mFreeTailTangent1 = NVECTOR3(0, 0, 0);
-		mFreeTailTangent2 = NVECTOR3(0, 0, 0);
+		mFreeTailTangent1 = Vec3(0, 0, 0);
+		mFreeTailTangent2 = Vec3(0, 0, 0);
 	}
 
 	mFunction_CoolDownHeader();
@@ -131,7 +131,7 @@ N_UID Noise3D::SweepingTrail::GetTextureName()
 	return mTextureUid;
 }
 
-void Noise3D::SweepingTrail::GetTangentList(std::vector<std::pair<NVECTOR3, NVECTOR3>>& outList)
+void Noise3D::SweepingTrail::GetTangentList(std::vector<std::pair<Vec3, Vec3>>& outList)
 {
 	//copy the tangent list outside for debug use
 	outList = mTangentList;
@@ -160,7 +160,12 @@ N_AABB Noise3D::SweepingTrail::ComputeWorldAABB_Fast()
 	return N_AABB();
 }
 
-NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()
+N_BoundingSphere Noise3D::SweepingTrail::ComputeWorldBoundingSphere_Accurate()
+{
+	return N_BoundingSphere();
+}
+
+NOISE_SCENE_OBJECT_TYPE Noise3D::SweepingTrail::GetObjectType()const
 {
 	return NOISE_SCENE_OBJECT_TYPE::SWEEPING_TRAIL;
 }
@@ -206,7 +211,7 @@ void Noise3D::SweepingTrail::mFunction_CoolDownHeader()
 		{
 			//transform to world space first (doesn't consider scale)
 			N_LineSegment lineSegW;
-			NMATRIX mat = ISceneObject::GetAttachedSceneNode()->EvalWorldRigidTransformMatrix();
+			Matrix mat = ISceneObject::GetAttachedSceneNode()->EvalWorldTransform().GetRigidTransformMatrix();
 			lineSegW.vert1 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert1, mat);
 			lineSegW.vert2 = AffineTransform::TransformVector_MatrixMul(mFreeHeader.vert2, mat);
 
@@ -378,10 +383,10 @@ int Noise3D::SweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float
 		float backLerpRatio = (1.0f - desc.collapsingFactor) * (i + 1) * unitRatio;
 
 		//front line segment in interpolaton(start and end line segment is passed in as function param)
-		NVECTOR3 interpFrontPos1	=	Ut::CubicHermite(desc.frontPos1, desc.backPos1, desc.frontTangent1 ,desc.backTangent1 , frontLerpRatio);
-		NVECTOR3 interpFrontPos2	=	Ut::CubicHermite(desc.frontPos2, desc.backPos2, desc.frontTangent2, desc.backTangent2, frontLerpRatio);
-		NVECTOR3 interpBackPos1		=	Ut::CubicHermite(desc.frontPos1, desc.backPos1, desc.frontTangent1, desc.backTangent1, backLerpRatio);
-		NVECTOR3 interpBackPos2		=	Ut::CubicHermite(desc.frontPos2, desc.backPos2, desc.frontTangent2, desc.backTangent2, backLerpRatio);
+		Vec3 interpFrontPos1	=	Ut::CubicHermite(desc.frontPos1, desc.backPos1, desc.frontTangent1 ,desc.backTangent1 , frontLerpRatio);
+		Vec3 interpFrontPos2	=	Ut::CubicHermite(desc.frontPos2, desc.backPos2, desc.frontTangent2, desc.backTangent2, frontLerpRatio);
+		Vec3 interpBackPos1		=	Ut::CubicHermite(desc.frontPos1, desc.backPos1, desc.frontTangent1, desc.backTangent1, backLerpRatio);
+		Vec3 interpBackPos2		=	Ut::CubicHermite(desc.frontPos2, desc.backPos2, desc.frontTangent2, desc.backTangent2, backLerpRatio);
 		//Position
 		//021
 		quad[i * 6 + 0].Pos = interpFrontPos1;
@@ -398,13 +403,13 @@ int Noise3D::SweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float
 		float frontTexcoordU = Ut::Lerp(frontLifeTimer / mMaxLifeTimeOfLS, backLifeTimer / mMaxLifeTimeOfLS, frontLerpRatio);
 		float backTexcoordU = Ut::Lerp(frontLifeTimer / mMaxLifeTimeOfLS, backLifeTimer / mMaxLifeTimeOfLS, backLerpRatio);
 
-		quad[i * 6 + 0].TexCoord = NVECTOR2(frontTexcoordU, 0.0f);
-		quad[i * 6 + 1].TexCoord = NVECTOR2(backTexcoordU, 0.0f);
-		quad[i * 6 + 2].TexCoord = NVECTOR2(frontTexcoordU, 1.0f);
+		quad[i * 6 + 0].TexCoord = Vec2(frontTexcoordU, 0.0f);
+		quad[i * 6 + 1].TexCoord = Vec2(backTexcoordU, 0.0f);
+		quad[i * 6 + 2].TexCoord = Vec2(frontTexcoordU, 1.0f);
 
-		quad[i * 6 + 3].TexCoord = NVECTOR2(frontTexcoordU, 1.0f);
-		quad[i * 6 + 4].TexCoord = NVECTOR2(backTexcoordU, 0.0f);
-		quad[i * 6 + 5].TexCoord = NVECTOR2(backTexcoordU, 1.0f);
+		quad[i * 6 + 3].TexCoord = Vec2(frontTexcoordU, 1.0f);
+		quad[i * 6 + 4].TexCoord = Vec2(backTexcoordU, 0.0f);
+		quad[i * 6 + 5].TexCoord = Vec2(backTexcoordU, 1.0f);
 
 		//vertex alpha
 		for (int j = 0; j < 6; ++j)
@@ -421,7 +426,7 @@ int Noise3D::SweepingTrail::mFunction_UtGenQuad(const N_GenQuadInfo& desc, float
 			{
 				alpha = (1.0f - normalizedLifeTimer) / (1.0f - fadeOutThreshold);
 			}
-			quad[i * 6 + j].Color = NVECTOR4(0.0f, 0.0f, 0.0f, alpha);
+			quad[i * 6 + j].Color = Vec4(0.0f, 0.0f, 0.0f, alpha);
 		}
 
 	}

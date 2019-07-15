@@ -27,15 +27,17 @@ namespace Noise3D
 	{
 	public:
 
-		void				SetPixel(UINT x, UINT y, const NColor4u& color);
+		void				SetPixel(UINT x, UINT y, const Color4u& color);
 
-		NColor4u		GetPixel(UINT x, UINT y);
+		Color4u		GetPixel(UINT x, UINT y) const;
 
-		bool				SetPixelArray(const std::vector<NColor4u>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+		bool				SetPixelArray(const std::vector<Color4u>& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		bool				SetPixelArray(std::vector<NColor4u>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
+		bool				SetPixelArray(std::vector<Color4u>&& in_ColorArray);//faster than setPixel() for every pixel because less check will be done
 
-		bool				GetPixelArray(std::vector<NColor4u>& outColorArray);
+		bool				GetPixelArray(std::vector<Color4u>& outColorArray) const;
+
+		Color4f			SamplePixelBilinear(Vec2 texcoord) const;//sample a pixel
 
 		bool				UpdateToVideoMemory();//update image's memory data to video memory
 
@@ -60,7 +62,7 @@ namespace Noise3D
 		void	  NOISE_MACRO_FUNCTION_EXTERN_CALL mFunction_InitTexture(
 			ID3D11ShaderResourceView* pSRV,
 			const N_UID& uid,
-			std::vector<NColor4u>&& pixelBuff,
+			std::vector<Color4u>&& pixelBuff,
 			bool isSysMemBuffValid) override;
 
 	};

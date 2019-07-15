@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="main">
+      <UniqueIdentifier>{e69e1f9f-971e-4a48-b3b4-a3e93bd21f56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RealTimeRenderingApp">
+      <UniqueIdentifier>{6f4f6872-6143-4d94-b9e4-5c47a914eb2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainApp">
+      <UniqueIdentifier>{b0a9627c-4444-4e99-8116-028496110f72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceneLoader">
+      <UniqueIdentifier>{3c83eee9-e523-4c6f-aa43-131dd4960f8b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="RealTimeRenderModule.cpp">
+      <Filter>RealTimeRenderingApp</Filter>
+    </ClCompile>
+    <ClCompile Include="MainApp.cpp">
+      <Filter>MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneLoader.cpp">
+      <Filter>SceneLoader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RealTimeRenderModule.h">
+      <Filter>RealTimeRenderingApp</Filter>
+    </ClInclude>
+    <ClInclude Include="MainApp.h">
+      <Filter>MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneLoader.h">
+      <Filter>SceneLoader</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

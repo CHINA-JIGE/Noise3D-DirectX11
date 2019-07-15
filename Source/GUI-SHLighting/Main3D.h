@@ -35,9 +35,9 @@ public:
 
 	bool LoadOriginalTextureCubeMap(std::string filePath);
 
-	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
+	bool ComputeShTexture(SH_TEXTURE_TYPE texType, int shOrder, int monteCarloSampleCount, std::vector<Noise3D::Color4f>& outShVector);
 
-	bool ComputeRotatedShTexture(Noise3D::RigidTransform t, std::vector<Noise3D::NColor4f>& outShVector);
+	bool ComputeRotatedShTexture(Noise3D::RigidTransform t, std::vector<Noise3D::Color4f>& outShVector);
 
 	void RotateBall(int index, float deltaYaw, float deltaPitch);
 
@@ -51,14 +51,14 @@ private:
 	const char* c_originCubeMapTex = "CubeTex";
 	const char* c_ShTexName = "ShTex";
 	const int c_defaultTexWidth = 256;
-	const Noise3D::NVECTOR3 c_ballPos1 = Noise3D::NVECTOR3(-1.3f, 0, 0);
-	const Noise3D::NVECTOR3 c_ballPos2 = Noise3D::NVECTOR3(1.3f, 0, 0);
+	const Noise3D::Vec3 c_ballPos1 = Noise3D::Vec3(-1.3f, 0, 0);
+	const Noise3D::Vec3 c_ballPos2 = Noise3D::Vec3(1.3f, 0, 0);
 
 	//void	mFunction_GenSpecialCube(std::vector<Noise3D::N_DefaultVertex>& outVertexList, std::vector<UINT>& outIndexList);
 
-	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
+	void mFunction_SHPreprocess_SphericalMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::Color4f>& outShVector);
 
-	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::NColor4f>& outShVector);
+	void mFunction_SHPreprocess_CubeMap(int shOrder, int monteCarloSampleCount, std::vector<Noise3D::Color4f>& outShVector);
 
 	void mFunction_SHPreprocess_Rotation(Noise3D::RigidTransform t);
 
@@ -72,11 +72,11 @@ private:
 	Noise3D::SceneManager* m_pScene;
 	Noise3D::Camera* m_pCamera;
 	Noise3D::LightManager* m_pLightMgr;
-	Noise3D::DirLightD* m_pLight;
-	Noise3D::ModelLoader* m_pModelLoader;
+	Noise3D::DirLight* m_pLight;
+	Noise3D::MeshLoader* m_pModelLoader;
 	Noise3D::MeshManager* m_pMeshMgr;
 	Noise3D::Mesh* m_pMeshSourceSphere;
-	Noise3D::Mesh* m_pMeshSourceCube;
+	Noise3D::Mesh* m_pMeshSourceCubeWireFrame;
 	Noise3D::Mesh* m_pMeshShSphere;
 	Noise3D::MaterialManager*	m_pMatMgr;
 	Noise3D::TextureManager*	m_pTexMgr;

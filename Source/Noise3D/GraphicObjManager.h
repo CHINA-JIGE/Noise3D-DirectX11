@@ -14,19 +14,7 @@ namespace Noise3D
 	{
 	public:
 
-		GraphicObject*		CreateGraphicObj(N_UID objName);
-
-		GraphicObject*		GetGraphicObj(N_UID objName);
-
-		GraphicObject*		GetGraphicObj(UINT index);
-
-		bool			DestroyGraphicObj(N_UID objName);
-
-		bool			DestroyGraphicObj(GraphicObject* pObj);
-
-		void			DestroyAllGraphicObj();
-
-		UINT		GetGraphicObjCount();
+		GraphicObject*	CreateGraphicObject(N_UID objName);
 
 	private:
 

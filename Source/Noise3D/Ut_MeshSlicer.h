@@ -14,17 +14,17 @@ namespace Noise3D
 		{
 			N_LayeredLineSegment2D():layerID(0){ }
 
-			NVECTOR2 v1;
-			NVECTOR2 v2;
+			Vec2 v1;
+			Vec2 v2;
 			UINT	layerID;
 		};
 
 		struct N_LineStrip
 		{
-			N_LineStrip():layerID(0) {}//pointList = new std::vector<NVECTOR3>; }
+			N_LineStrip():layerID(0) {}//pointList = new std::vector<Vec3>; }
 
-			std::vector<NVECTOR3>	pointList;
-			std::vector<NVECTOR3>	normalList;
+			std::vector<Vec3>	pointList;
+			std::vector<Vec3>	normalList;
 			UINT		layerID;
 		};
 
@@ -36,7 +36,7 @@ namespace Noise3D
 
 			MeshSlicer();
 
-			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<NVECTOR3>& vertexBuffer,const std::vector<UINT>& indexBuffer);
+			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<Vec3>& vertexBuffer,const std::vector<UINT>& indexBuffer);
 
 			bool		Step1_LoadPrimitiveMeshFromMemory(const std::vector<N_DefaultVertex>& vertexBuffer);
 
@@ -67,10 +67,10 @@ namespace Noise3D
 			struct N_LayeredLineSegment
 			{
 				N_LayeredLineSegment():layerID(0),Dirty(false) {}
-				NVECTOR3 v1;
-				NVECTOR3 v2;
+				Vec3 v1;
+				Vec3 v2;
 				UINT		layerID;
-				NVECTOR3 normal;
+				Vec3 normal;
 				bool	Dirty;//check if this line segment has been reviewed,this flag can be reused
 			};
 
@@ -114,26 +114,26 @@ namespace Noise3D
 
 			void		mFunction_ComputeBoundingBox();
 
-			bool		mFunction_Intersect_LineSeg_Layer(NVECTOR3 v1, NVECTOR3 v2, float layerY, NVECTOR3* outIntersectPoint);
+			bool		mFunction_Intersect_LineSeg_Layer(Vec3 v1, Vec3 v2, float layerY, Vec3* outIntersectPoint);
 
 			void		mFunction_GenerateLayerTileInformation();
 
-			void		mFunction_GetLayerTileIDFromPoint(NVECTOR3 v, UINT& tileID_X, UINT& tileID_Z);
+			void		mFunction_GetLayerTileIDFromPoint(Vec3 v, UINT& tileID_X, UINT& tileID_Z);
 
-			bool		mFunction_LineStrip_FindNextPoint(NVECTOR3* tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip);
+			bool		mFunction_LineStrip_FindNextPoint(Vec3* tailPoint, UINT currentLayerID, N_LineStrip* currLineStrip);
 
-			NVECTOR3 mFunction_Compute_Normal2D(NVECTOR3 triangleNormal);
+			Vec3 mFunction_Compute_Normal2D(Vec3 triangleNormal);
 
-			N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(float currentlayerY, NVECTOR3& v1, NVECTOR3& v2, NVECTOR3& v3);
+			N_IntersectionResult	mFunction_HowManyVertexOnThisLayer(float currentlayerY, Vec3& v1, Vec3& v2, Vec3& v3);
 
 			bool		mFunction_ImportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer);
 
 			bool		mFunction_ExportFile_NOISELAYER(NFilePath pFilePath, std::vector<N_LineStrip>* pLineStripBuffer, bool canOverlapOld);
 
 
-			std::vector<NVECTOR3>			mPrimitiveVertexBuffer;
+			std::vector<Vec3>			mPrimitiveVertexBuffer;
 
-			std::vector<NVECTOR3>			mTriangleNormalBuffer;
+			std::vector<Vec3>			mTriangleNormalBuffer;
 
 			std::vector<N_LayeredLineSegment>	mLineSegmentBuffer;
 
@@ -141,9 +141,9 @@ namespace Noise3D
 
 			std::vector<N_LineStrip>		mLineStripBuffer;
 
-			NVECTOR3								mBoundingBox_Min;
+			Vec3								mBoundingBox_Min;
 
-			NVECTOR3								mBoundingBox_Max;
+			Vec3								mBoundingBox_Max;
 
 			int		mCurrentStep;
 		};

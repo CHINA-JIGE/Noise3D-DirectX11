@@ -216,7 +216,7 @@ public:
 
     void retranslateUi(QMainWindow *SHLightingGuiApp)
     {
-        SHLightingGuiApp->setWindowTitle(QApplication::translate("SHLightingGuiApp", "Spherical Harmonic Lighting Utility ", 0));
+        SHLightingGuiApp->setWindowTitle(QApplication::translate("SHLightingGuiApp", "Spherical Harmonic Visualizer (Noise3D)", 0));
         actionAbout->setText(QApplication::translate("SHLightingGuiApp", "About", 0));
         actionExit->setText(QApplication::translate("SHLightingGuiApp", "Exit", 0));
         actionCameraOrthographic->setText(QApplication::translate("SHLightingGuiApp", "Orthographic", 0));

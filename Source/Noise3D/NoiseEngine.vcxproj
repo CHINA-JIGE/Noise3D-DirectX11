@@ -88,7 +88,7 @@
       </Command>
     </PostBuildEvent>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;Effects11_d.lib;dinput8.lib;freetype.lib;user32.lib;libfbxsdk_d-md.lib;DirectXTex_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk_d-md.lib;d3dcompiler.lib;dinput8.lib;d3d11.lib;dxgi.lib;Effects11_d.lib;freetype.lib;user32.lib;DirectXTex_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <ShowProgress>true</ShowProgress>
@@ -130,12 +130,32 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BvhTree.h" />
+    <ClInclude Include="BvhTreeForMesh.h" />
+    <ClInclude Include="BvhTreeForScene.h" />
+    <ClInclude Include="BxdfUt.h" />
+    <ClInclude Include="Noise3D_InDevHeader.h" />
+    <ClInclude Include="Noise3D_StableCommonHeader.h" />
+    <ClInclude Include="PathTracerShader_AreaLighting.h" />
+    <ClInclude Include="PathTracerStandardShader.h" />
+    <ClInclude Include="_FbxLoaderDataStructure.h" />
+    <ClInclude Include="_GI.h" />
+    <ClInclude Include="LogicalRect.h" />
+    <ClInclude Include="LogicalShapeManager.h" />
+    <ClInclude Include="PathTracer.h" />
+    <ClInclude Include="PathTracerShader_Diffuse.h" />
+    <ClInclude Include="PathTracerShader_Reflection.h" />
+    <ClInclude Include="PathTracerShader_Minimal.h" />
+    <ClInclude Include="PbrtMaterial.h" />
+    <ClInclude Include="PathTracerShader_Refraction.h" />
+    <ClInclude Include="_RayHitInfo.h" />
+    <ClInclude Include="_PathTracerSoftShaderInterface.hpp" />
+    <ClInclude Include="_Collidable.h" />
     <ClInclude Include="CollisionTestor.h" />
     <ClInclude Include="AffineTransform.h" />
-    <ClInclude Include="LogicalGeometry.h" />
+    <ClInclude Include="LogicalBox.h" />
+    <ClInclude Include="LogicalShape.h" />
     <ClInclude Include="LogicalSphere.h" />
-    <ClInclude Include="TreeDataStructureTemplate.h" />
+    <ClInclude Include="TreeDataStructureTemplate.hpp" />
     <ClInclude Include="GeometryEntity.h" />
     <ClInclude Include="ISceneObject.h" />
     <ClInclude Include="ITexture.h" />
@@ -169,17 +189,17 @@
     <ClInclude Include="ModelProcessor.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Lights.h" />
-    <ClInclude Include="Material.h" />
+    <ClInclude Include="LambertMaterial.h" />
     <ClInclude Include="MeshManager.h" />
-    <ClInclude Include="IFactory.h" />
-    <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="IFactory.hpp" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="Text_2DBasicTextInfo.h" />
     <ClInclude Include="Text_TextManager.h" />
     <ClInclude Include="Text_TextDynamic.h" />
     <ClInclude Include="Text_TextStatic.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Root.h" />
-    <ClInclude Include="FileManager.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="FileIO_3DS.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -204,7 +224,7 @@
     <ClInclude Include="Ut_MeshSlicer.h" />
     <ClInclude Include="Ut_Timer.h" />
     <ClInclude Include="_2DBasicContainerInfo.h" />
-    <ClInclude Include="_BasicRenderSettings.h" />
+    <ClInclude Include="_BasicRenderSettings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -213,12 +233,26 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BvhTree.cpp" />
+    <ClCompile Include="PbrtMaterial.cpp" />
+    <ClCompile Include="BvhTreeForMesh.cpp" />
+    <ClCompile Include="BvhTreeForScene.cpp" />
+    <ClCompile Include="BxdfUt.cpp" />
     <ClCompile Include="CollisionTestor.cpp" />
     <ClCompile Include="AffineTransform.cpp" />
     <ClCompile Include="GeometryEntity.cpp" />
     <ClCompile Include="GeometryEntityTemplateInstantiation.cpp" />
     <ClCompile Include="ISceneObject.cpp" />
+    <ClCompile Include="LogicalBox.cpp" />
+    <ClCompile Include="LogicalRect.cpp" />
+    <ClCompile Include="LogicalShapeManager.cpp" />
+    <ClCompile Include="LogicalSphere.cpp" />
+    <ClCompile Include="PathTracer.cpp" />
+    <ClCompile Include="PathTracerShader_AreaLighting.cpp" />
+    <ClCompile Include="PathTracerShader_Diffuse.cpp" />
+    <ClCompile Include="PathTracerShader_Reflection.cpp" />
+    <ClCompile Include="PathTracerShader_Minimal.cpp" />
+    <ClCompile Include="PathTracerShader_Refraction.cpp" />
+    <ClCompile Include="PathTracerStandardShader.cpp" />
     <ClCompile Include="Renderer_ShadowMap.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="ShadowCommonInterface.cpp" />
@@ -241,16 +275,17 @@
     <ClCompile Include="pchGen.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Noise3D.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Noise3D_StableCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)pch\$(Configuration)\$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Noise3D_StableCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="GraphicObjManager.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Lights.cpp" />
-    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="LambertMaterial.cpp" />
     <ClCompile Include="MeshManager.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Text_TextManager.cpp" />
     <ClCompile Include="Text_TextDynamic.cpp" />
     <ClCompile Include="Text_TextStatic.cpp" />
@@ -263,7 +298,7 @@
     <ClCompile Include="Ut_VoxelizedModel.cpp" />
     <ClCompile Include="_2DBasicContainerInfo.cpp" />
     <ClCompile Include="Text_2DBasicTextInfo.cpp" />
-    <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="FileIO_3DS.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
