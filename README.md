@@ -29,10 +29,12 @@
 ----------------------
 
 ## Features<br/>
-(TODO: PBR material/shader、阴影贴图(SM,CSM,VSM), Terrain System, Particle System, Billboard, Scene Graph/Node System, Visibility Culling, RayTracer, LightMapBaker, UV Unwrapper， Post-Processing Effect(xx-Ambient Occlusion, HDR, Bloom, tone mapping, depth-of-field, non-photorealistic render))
+(TODO: PBR material/shader、阴影贴图(SM,CSM,VSM), Terrain System, Particle System, Billboard, Visibility Culling, LightMapBaker, UV Unwrapper， Post-Processing Effect(xx-Ambient Occlusion, HDR, Bloom, tone mapping, depth-of-field, non-photorealistic render))
 * 材质Material：Diffuse Map, Normal Map, Specular Map, Cube Map(reflection)
 
 * 在内存端的纹理的逐像素修改，也有高度图-->灰度图-->法线图的接口（转法线图的卷积核大小为2x2）
+
+* Scene Graph/Scene Node（支持hierarchical transform，但暂时不支持直接对某场景节点apply其他属性）
 
 * 逐顶点/像素光照。per vertex/pixel lighting
 
@@ -56,7 +58,18 @@
 
 * 拖尾特效(Sweeping Trail)
 
-* Spherical Harmonics Lighting's Utility
+### Noise3D GI System
+
+* Spherical Harmonics相关的模块
+
+* 用于Path Tracer的基于物理的材质
+
+* 路径跟踪器（DXR风格接口，可使用c++重写软着色器soft shader)(实现了基于物理的Standard Soft Shader，支持Microfacet-Based Diffuse/Specular/Transmission)
+
+* BxdfUt
+
+* RandomSampleGenerator
+
 --------------------------------------------------
 
 ## 一些小工具类
