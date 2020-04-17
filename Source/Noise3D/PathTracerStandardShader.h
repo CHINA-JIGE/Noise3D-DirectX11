@@ -47,7 +47,7 @@ namespace Noise3D
 				Vec3 k_s;
 				Vec3 k_t;
 				Vec3 diffuseBRDF;
-				float reflectionBRDF;//k_s/ Fresnel will be multiplied later
+				float reflectionBRDF;//Fresnel(k_s) will be multiplied later
 				//float reflectionBrdfDividedByD;//cancelled D with GGX importance sampling's pdf's D term
 				float transmissionBTDF;
 				float D;

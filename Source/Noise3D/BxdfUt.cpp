@@ -205,7 +205,7 @@ float Noise3D::GI::BxdfUt::G_SmithBeckmann(Vec3 l, Vec3 v, Vec3 n, float alpha)
 		float NdotL2 = NdotL*NdotL;
 		float denom2 = alpha * sqrtf(1.0f - NdotL2);
 		float c2 = NdotL2 / denom2;
-		float G2 = 1.0f;
+		//float G2 = 1.0f;
 		if (c2 < 1.6f)
 		{
 			float c2_sqr = c2*c2;

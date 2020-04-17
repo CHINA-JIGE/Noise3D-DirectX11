@@ -62,7 +62,7 @@ Vec2 Noise3D::GI::RandomSampleGenerator::UniformSphericalAzimuthal()
 	//(theta,phi) <-- (2arccos(sqrt(1-x)) , 2\pi * y)
 	//or
 	//(theta,phi)<-- (arccos(1-2x),2\pi*y)
-	//but obviously, arccos(1-2x) is a alittle more computationally efficient
+	//but obviously, arccos(1-2x) is a a little more computationally efficient
 	float theta = acosf(1 - 2.0f * var1);
 	float phi = 2 * Ut::PI * var2;
 	return Vec2(theta, phi);

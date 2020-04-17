@@ -612,7 +612,6 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 
 	const Vec3 defaultDielectric_F0 = Vec3(0.03f, 0.03f, 0.03f);
-	//(0.03,0.03,0.03) or some non-zero will cause weird circle)
 	Vec3 F0 = Vec3::Lerp( defaultDielectric_F0, mat.metal_F0, metallicity);
 
 	Vec3 F;
