@@ -206,7 +206,7 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal,
 
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
-		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		if (normal == Vec3(0,1.0f,0))
 		{
 			outVecList.push_back(vec);
 		}
@@ -386,13 +386,23 @@ inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_Azi
 void Noise3D::GI::RandomSampleGenerator::mFunc_ConstructTransformMatrixFromYtoNormal(Vec3 n, Vec3 & outMatRow1, Vec3 & outMatRow2, Vec3 & outMatRow3)
 {
 	Vec3 y_axis = Vec3(0, 1.0f, 0);
-
-	//new basis
-	Vec3 new_x_axis = y_axis.Cross(n);
-	Vec3 new_y_axis = n;
-	Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
-	new_x_axis.Normalize();
-	new_z_axis.Normalize();
+	//WARNING: if n == (0, -1.0f, 0), transform matrix will be invalidated.
+	Vec3 new_x_axis, new_y_axis, new_z_axis;
+	if (n == Vec3(0, -1.0f, 0))
+	{
+		Vec3 new_z_axis = Vec3( 0, 0, 1.0f );
+		Vec3 new_y_axis = Vec3( 0, -1.0f, 0.0f);
+		Vec3 new_x_axis = new_y_axis.Cross(new_z_axis);
+	}
+	else
+	{
+		//new basis
+		Vec3 new_x_axis = y_axis.Cross(n);
+		Vec3 new_y_axis = n;
+		Vec3 new_z_axis = new_x_axis.Cross(new_y_axis);
+		new_x_axis.Normalize();
+		new_z_axis.Normalize();
+	}
 
 	//construct transform matrix
 	/*
