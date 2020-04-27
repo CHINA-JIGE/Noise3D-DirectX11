@@ -48,12 +48,12 @@ Vec3 Noise3D::GI::BxdfUt::DisneyDiffuse(Vec3 albedo, Vec3 v, Vec3 l, Vec3 n, Vec
 
 Vec3 Noise3D::GI::BxdfUt::LambertDiffuse(Vec3 albedo, Vec3 l, Vec3 n)
 {
-	return albedo  * l.Dot(n)  * Ut::INV_PI;
+	return albedo * Ut::INV_PI; // albedo * l.Dot(n) * Ut::INV_PI;
 }
 
 Vec3 Noise3D::GI::BxdfUt::LambertDiffuse(Vec3 albedo, float LdotN)
 {
-	return albedo  * LdotN  *Ut::INV_PI;
+	return albedo * Ut::INV_PI; //albedo  * LdotN  *Ut::INV_PI;
 }
 
 Vec3 Noise3D::GI::BxdfUt::OrenNayarDiffuse(Vec3 albedo, Vec3 l, Vec3 v, Vec3 n, float sigmaAngle)
