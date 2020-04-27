@@ -29,11 +29,12 @@ $RECYCLE.BIN/
 /doc/RayTracer/smallpaint-GI Renderer in 250 lines.zip
 
 #pre-compiled header
-/pch/
-/ipch/
+pch/
+ipch/
 /Media/
 /Exec/*
 !/Exec/Media/
+.vs/
 
 #Compiled shader/effect
 *.fxo
@@ -83,3 +84,4 @@ doc/RayTracer/paper-PBR reflection model/\[SIG2013-course\]PBS in UE4-notes.pdf
 doc/RayTracer/paper-PBR reflection model/
 Screenshot/RayTracer/
 Exec/Media/
+Source/GUI-SHLighting/GeneratedFiles/
