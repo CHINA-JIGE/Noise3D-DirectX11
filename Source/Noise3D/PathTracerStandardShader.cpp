@@ -633,10 +633,10 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	k_s = F;
 
 	//k_d = rho? *(1-m) * (1-t) * (1-s), transparency is dielectric's absorbance caused by  medium's in-homogeneousness
-	k_d = (1.0f - metallicity) * (1.0f - mat.transparency) * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
+	k_d = /*albedo*/(1.0f - metallicity) * (1.0f - mat.transparency) * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
 
 	//k_t = rho? * (1-m) * t * (1-s)
-	k_t = (1.0f - metallicity) * mat.transparency * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
+	k_t = albedo * (1.0f - metallicity) * mat.transparency * (Vec3(1.0f, 1.0f, 1.0f) - k_s);
 
 	//diffuse BRDF
 	if (lightTransferType & BxDF_LightTransfer_Diffuse)
