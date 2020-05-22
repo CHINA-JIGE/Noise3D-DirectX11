@@ -86,7 +86,7 @@ Vec3 Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 	Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
 	//no need to transform
-	if (normal.x==0.0f && normal.z ==0.0f && normal.y!=0.0f)return vec;
+	if (normal == Vec3(0, 1.0f, 0))return vec;
 
 	//transform local sample to world space
 	//original samples are centered vec is Y axis (0,1,0) if theta = 0;
@@ -125,7 +125,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 
 	//probability to sample = pdf_per_area * AreaOfSolidAngleOnUnitSphere 
 	//sampleCount will be divided in integration
-	outPdf = 1.0f;
+	outPdf = 1.0f / (2.0f * Ut::PI * 1.0f * 1.0f * (1.0f - cosf(maxAngle))); ;// 1.0f;
 
 	for (int i = 0; i < sampleCount; ++i)
 	{
@@ -137,7 +137,7 @@ void Noise3D::GI::RandomSampleGenerator::UniformSphericalVec_Cone(Vec3 normal, f
 		float phi = Ut::PI * 2.0f * var2;
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 
-		if (normal.x == 0.0f && normal.z == 0.0f && normal.y != 0.0f)
+		if (normal == Vec3(0, 1.0f, 0))
 		{
 			outVecList.push_back(vec);
 		}
@@ -287,7 +287,7 @@ void Noise3D::GI::RandomSampleGenerator::GGXImportanceSampling_SpecularReflectio
 
 		Vec3 vec = mFunc_UniformSphericalVecGen_AzimuthalToDir(theta, phi);
 		Vec3 outVecW;
-		if (l_center.x == 0.0f && l_center.z == 0.0f && l_center.y != 0.0f)
+		if (l_center == Vec3(0, 1.0f, 0))
 		{
 			outVecW = vec;
 			outVecList.push_back(vec);
