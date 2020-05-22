@@ -198,7 +198,7 @@ void Noise3D::GI::RandomSampleGenerator::CosinePdfSphericalVec_Cone(Vec3 normal,
 
 		// assume pdf p(theta,phi)= (k costheta)/ S_cone, then
 		//F_theta = sintheta / singamma
-		//float theta =asinf(sinf(maxAngle) * var1);
+		//float theta = 0.5f * acosf(1.0f - (1.0f - cosf(2.0f * maxAngle))* var1);
 		//float phi = 2.0f * Ut::PI *  var2;
 
 		float theta = 0.5f * acosf(1.0f - (1.0f - cosf(2.0f * maxAngle))* var1);

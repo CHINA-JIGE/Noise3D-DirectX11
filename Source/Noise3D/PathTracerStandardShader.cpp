@@ -354,7 +354,7 @@ void Noise3D::GI::PathTracerStandardShader::_IntegrateSpecular(int sampleCount, 
 
 	//gen samples/paths for specular reflection (cone angle varys with roughness)
 	Vec3 reflectedDir = Vec3::Reflect(param.ray.dir, hitInfo.normal);
-	float alpha = _RoughnessToAlpha(mat.roughness);
+	float alpha = _RoughnessToAlpha(mat.roughness); //!!!!!!!need to sample roughness map here
 	Vec3 n = hitInfo.normal;
 	Vec3 v = -param.ray.dir;//view vector
 	v.Normalize();
@@ -584,7 +584,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	//material
 	const N_PbrtMatDesc& mat = hitInfo.pHitObj->GetPbrtMaterial()->GetDesc();
 
-	//albedo & albedo map (diffusive)
+	//albedo & albedo map (diffusive) TODO: sample texture inside the TransferType if-switch
 	Vec3 albedo = mat.albedo;
 	if (mat.pAlbedoMap != nullptr)
 	{

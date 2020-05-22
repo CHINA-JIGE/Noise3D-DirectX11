@@ -52,11 +52,11 @@ namespace Noise3D
 			//shadow rays to sample a rect area light src(normal r used to calculate pdf)
 			void RectShadowRays(Vec3 pos, LogicalRect* pRect, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
-			//GGX NDF importance sampling(n=normal, v=view)
-			void GGXImportanceSampling_SpecularReflection(Vec3 l_center, Vec3 v, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+			//GGX NDF importance sampling (n=normal, v=view, l_center=center light vec of generated vec (the reflected dir under perfect mirror reflection))
+			void GGXImportanceSampling_SpecularReflection(Vec3 l_perfectReflected, Vec3 v, Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 			//GGX NDF importance sampling(for refraction) (eta: refractive index)
-			void GGXImportanceSampling_SpecularTransmission(Vec3 inPath, Vec3 centerOutPath, float eta_in, float eta_out,  Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
+			void GGXImportanceSampling_SpecularTransmission(Vec3 inPath, Vec3 outPathPerfectRefracted, float eta_in, float eta_out,  Vec3 n, float ggx_alpha, int sampleCount, std::vector<Vec3>& outVecList, std::vector<float>& outPdfList);
 
 		private:
 
