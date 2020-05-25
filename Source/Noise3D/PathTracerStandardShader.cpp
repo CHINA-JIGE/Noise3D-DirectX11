@@ -648,9 +648,11 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 
 	//specular BxDF
+	float VdotN = v.Dot(n);
 	if (lightTransferType & BxDF_LightTransfer_Specular)
 	{
-		if (LdotN > 0.0f && k_s != Vec3(0,0,0))
+		// (2020.5.25)must ensure NdotV > 0 or there'll be ill form case
+		if (LdotN > 0.0f && VdotN > 0.0f  && k_s != Vec3(0,0,0))
 		{
 			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
 			float G = BxdfUt::G_SmithSchlickGGX(l, v, n, alpha);//shadowing-masking
@@ -662,7 +664,8 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 	else if (lightTransferType & BxDF_LightTransfer_InternalReflection)
 	{
-		if (LdotN < 0.0f && k_s != Vec3(0, 0, 0))
+		// (2020.5.25)TODO: NdotV
+		if (LdotN < 0.0f && VdotN > 0.0f && k_s != Vec3(0, 0, 0))
 		{
 			float D = BxdfUt::D_GGX(-n, h, alpha);//NDF
 			float G = BxdfUt::G_SmithSchlickGGX(l, v, -n, alpha);//shadowing-masking
@@ -676,6 +679,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	//specular transmission
 	if (lightTransferType & BxDF_LightTransfer_Transmission_PathObjectToAir)
 	{
+		// (2020.5.25)TODO: NdotV
 		if (LdotN > 0.0f && k_t != Vec3(0, 0, 0))
 		{
 			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
@@ -687,6 +691,7 @@ void Noise3D::GI::PathTracerStandardShader::_CalculateBxDF(uint32_t lightTransfe
 	}
 	else if (lightTransferType & BxDF_LightTransfer_Transmission_PathAirToObject)
 	{
+		// (2020.5.25)TODO: NdotV
 		if (LdotN < 0.0f && k_t != Vec3(0, 0, 0))
 		{
 			float D = BxdfUt::D_GGX(n, h, alpha);//NDF
