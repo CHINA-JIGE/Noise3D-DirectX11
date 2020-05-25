@@ -385,16 +385,16 @@ inline Vec3 Noise3D::GI::RandomSampleGenerator::mFunc_UniformSphericalVecGen_Azi
 
 void Noise3D::GI::RandomSampleGenerator::mFunc_ConstructTransformMatrixFromYtoNormal(Vec3 n, Vec3 & outMatRow1, Vec3 & outMatRow2, Vec3 & outMatRow3)
 {
+#define APPROX_EQUAL(x, y) (abs((x) - (y)) < 1e-3f)
 	Vec3 y_axis = Vec3(0, 1.0f, 0);
-	//WARNING: if n == (0, -1.0f, 0), transform matrix will be invalidated.
-	Vec3 new_x_axis, new_y_axis, new_z_axis;
-	if (n == Vec3(0, -1.0f, 0))
-	{
-		Vec3 new_z_axis = Vec3( 0, 0, 1.0f );
-		Vec3 new_y_axis = Vec3( 0, -1.0f, 0.0f);
-		Vec3 new_x_axis = new_y_axis.Cross(new_z_axis);
-	}
-	else
+	//WARNING: if n == (0, +-1.0f, 0), transform matrix constructed by vector cross-product will be invalidated.
+	Vec3 new_x_axis = Vec3( n.y, 0, 0);
+	Vec3 new_y_axis = Vec3(0, n.y, 0 );
+	Vec3 new_z_axis = Vec3( 0, 0, 1.0f);
+
+#define APPROX_EQUAL(x, y) (abs((x) - (y)) < 1e-3f)
+	bool cornerCase = APPROX_EQUAL(n.x, 0.0f) && (APPROX_EQUAL(n.y, -1.0f) || APPROX_EQUAL(n.y, 1.0f)) && APPROX_EQUAL(n.z, 0.0f);
+	if (!cornerCase)
 	{
 		//new basis
 		Vec3 new_x_axis = y_axis.Cross(n);
